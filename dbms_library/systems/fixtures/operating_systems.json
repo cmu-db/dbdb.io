@@ -1,0 +1,162 @@
+[
+    {
+        "pk": 0,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "AIX"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "All OS with a Java VM"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "All OS with a Java VM and a servlet container"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "Android"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "BSD"
+        }
+    },
+    {
+        "pk": 5,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "DOS"
+        }
+    },
+    {
+        "pk": 6,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "FreeBSD"
+        }
+    },
+    {
+        "pk": 7,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "HP-UX"
+        }
+    },
+    {
+        "pk": 8,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "Linux"
+        }
+    },
+    {
+        "pk": 9,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "NetBSD"
+        }
+    },
+    {
+        "pk": 10,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "OS X"
+        }
+    },
+    {
+        "pk": 11,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "Raspbian"
+        }
+    },
+    {
+        "pk": 12,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "Solaris"
+        }
+    },
+    {
+        "pk": 13,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "Unix"
+        }
+    },
+    {
+        "pk": 14,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "VxWorks"
+        }
+    },
+    {
+        "pk": 15,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "Windows"
+        }
+    },
+    {
+        "pk": 16,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "hosted"
+        }
+    },
+    {
+        "pk": 17,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "iOS"
+        }
+    },
+    {
+        "pk": 18,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "server-less"
+        }
+    },
+    {
+        "pk": 19,
+        "model": "systems.OperatingSystem",
+        "fields": {
+            "website": null,
+            "name": "z/OS"
+        }
+    }
+]
