@@ -16,6 +16,14 @@ class ProgrammingLanguage(models.Model):
         return self.name
 # CLASS
 
+class License(models.Model):
+    name = models.CharField(max_length=32)
+    website = models.URLField(default=None, null=True)
+    
+    def __unicode__(self):
+        return self.name
+# CLASS
+
 class Publication(models.Model):
     title = models.CharField(max_length=255)
     authors = models.CharField(max_length=255)
@@ -34,6 +42,7 @@ class System(models.Model):
     name = models.CharField(max_length=64)
     description = models.TextField()
     website = models.URLField(default=None, null=True)
+    developer = models.CharField(max_length=64, default=None, null=True)
     written_in = models.ManyToManyField(ProgrammingLanguage, related_name='wi+')
     oses = models.ManyToManyField(OperatingSystem, related_name='os+')
     publications = models.ManyToManyField(Publication, related_name='p+')

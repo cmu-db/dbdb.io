@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from dbms_library.systems.models import *
+from systems.models import *
 
 # Register your models here.
 admin.site.register(OperatingSystem)
