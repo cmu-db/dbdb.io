@@ -1,9 +1,32 @@
 from django.db import models
 
+PROJECT_TYPES = (
+    ('C', 'Commercial'),
+    ('A', 'Academic'),
+    ('M', 'Mixed'),
+)
+for x,y in PROJECT_TYPES:
+    globals()['PROJECT_TYPE_' + y.upper()] = x
+    
+
+ISOLATION_LEVELS = (
+    ('RC', 'Read Committed'),
+    ('RR', 'Repeatable Read'),
+    ('CS', 'Cursor Stability'),
+    ('SI', 'Snapshot Isolation'),
+    ('CR', 'Consistent Read'),
+    ('S', 'Serializability'),
+)
+for x,y in ISOLATION_LEVELS:
+    globals()['ISOLATION_LEVEL_' + y.upper()] = x
+
+
+# ----------------------------------------------------------------------------
+
+
 class OperatingSystem(models.Model):
     name = models.CharField(max_length=16)
     website = models.URLField(default=None, null=True)
-    
     def __unicode__(self):
         return self.name
 # CLASS
@@ -11,7 +34,6 @@ class OperatingSystem(models.Model):
 class ProgrammingLanguage(models.Model):
     name = models.CharField(max_length=32)
     website = models.URLField(default=None, null=True)
-    
     def __unicode__(self):
         return self.name
 # CLASS
@@ -19,26 +41,26 @@ class ProgrammingLanguage(models.Model):
 class License(models.Model):
     name = models.CharField(max_length=32)
     website = models.URLField(default=None, null=True)
-    
+    def __unicode__(self):
+        return self.name
+# CLASS
+
+class ConcurrencyControl(models.Model):
+    name = models.CharField(max_length=16)
+    description = models.TextField()
     def __unicode__(self):
         return self.name
 # CLASS
 
 class Publication(models.Model):
-    title = models.CharField(max_length=255)
-    authors = models.CharField(max_length=255)
-    bibtex = models.TextField(default=None, null=True)
-    download = models.URLField(default=None, null=True)
+    title = models.CharField(max_length=255, blank=True)
+    authors = models.CharField(max_length=255, blank=True)
+    bibtex = models.TextField(default=None, null=True, blank=True)
+    download = models.URLField(default=None, null=True, blank=True)
     year = models.IntegerField()
 # CLASS
 
 class System(models.Model):
-    COMMERCIAL_STATUS_TYPE = (
-        ('C', 'Commercial'),
-        ('A', 'Academic'),
-        ('M', 'Mixed'),
-    )
-    
     name = models.CharField(max_length=64)
     description = models.TextField()
     website = models.URLField(default=None, null=True)
@@ -46,9 +68,10 @@ class System(models.Model):
     written_in = models.ManyToManyField(ProgrammingLanguage, related_name='wi+')
     oses = models.ManyToManyField(OperatingSystem, related_name='os+')
     publications = models.ManyToManyField(Publication, related_name='p+')
-    commercial_status = models.CharField(max_length=1, choices=COMMERCIAL_STATUS_TYPE, default=None, null=True)
+    project_type = models.CharField(max_length=1, choices=PROJECT_TYPES, default=None, null=True)
     start_year = models.IntegerField(default=None, null=True)
     end_year = models.IntegerField(default=None, null=True)
+    derived_from = models.ManyToManyField('self', related_name='d+')
     
     # Features
     support_sql = models.BooleanField(default=False)
@@ -59,6 +82,9 @@ class System(models.Model):
     support_durability = models.BooleanField(default=False)
     support_triggers = models.BooleanField(default=False)
     support_languages = models.ManyToManyField(ProgrammingLanguage, related_name='+l')
+    default_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
+    max_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
+    concurrency = models.ForeignKey(ConcurrencyControl)
     
     def __unicode__(self):
         return self.name
