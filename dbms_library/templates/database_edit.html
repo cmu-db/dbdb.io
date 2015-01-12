@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block css %}
+  <link href="{% static 'css/db_page.css' %}" rel="stylesheet">
+  <link href="{% static 'css/db_page_edit.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+
+<div class="row">
+  <!-- outer page wrapper -->
+  <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-12">
+
+    <!-- title and description row -->
+    <div class="row" id="title-row">
+      <div class="col-md-12">
+        <div id = "db-title">
+          TestDB
+        </div>
+        <div id = "db-description">
+          lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom 
+
+          lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom 
+        </div>
+      </div>
+    </div>
+
+    <!-- features row -->
+    <div class="row">
+      <!-- yes/no feature area -->
+      <div class="col-md-6 col-xs-12">
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            <img class = "check-img green-check">
+            <span class="yesno-title">SQL</span>
+          </div>
+          <div class="yesno-description">
+            lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom 
+          </div>
+        </div>
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            <img class = "check-img grey-check">
+            <span class="yesno-title">FOREIGN KEYS</span>
+          </div>
+          <div class="yesno-description">
+          </div>
+        </div>
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            <img class = "check-img green-check">
+            <span class="yesno-title">SERVER-SIDE</span>
+          </div>
+          <div class="yesno-description">
+            lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom lorem ipsum dom 
+          </div>
+        </div>
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            <img class = "check-img grey-check">
+            <span class="yesno-title">MAPREDUCE</span>
+          </div>
+          <div class="yesno-description">
+          </div>
+        </div>
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            <img class = "check-img grey-check">
+            <span class="yesno-title">SECONDARY INDEXES</span>
+          </div>
+          <div class="yesno-description">
+          </div>
+        </div>
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            <img class = "check-img grey-check">
+            <span class="yesno-title">DURABILITY</span>
+          </div>
+          <div class="yesno-description">
+          </div>
+        </div>
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            <img class = "check-img green-check">
+            <span class="yesno-title">TRIGGERS</span>
+          </div>
+          <div class="yesno-description">
+          </div>
+        </div>
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            <img class = "check-img grey-check">
+            <span class="yesno-title">CONCURRENCY</span>
+          </div>
+          <div class="yesno-description">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- metadata area -->
+      <div class="col-md-6 col-xs-12" id="metadata-area">
+        <div class="metadata-row">
+          <span class="header-text">Website: </span><input class ="form-control"></input>
+        </div>
+        <div class="metadata-row">
+          <span class="header-text">Documentation: </span> randomwebsite.com
+        </div>
+        <div class="metadata-row">
+          <span class="header-text">Developer: </span> randomwebsite.com
+        </div>
+        <div class="metadata-row">
+          <span class="header-text">Start Date: </span> randomwebsite.com
+        </div>
+        <div class="metadata-row">
+          <span class="header-text">End Date: </span> randomwebsite.com
+        </div>
+        <div class="metadata-row">
+          <span class="header-text">Written in: </span> randomwebsite.com
+        </div>
+        <div class="metadata-row">
+          <span class="header-text">OSes: </span> randomwebsite.com
+        </div>
+        <div class="metadata-row">
+          <span class="header-text">Project Type: </span> randomwebsite.com
+        </div>
+        <div class="metadata-row">
+          <span class="header-text">Derived From: </span> randomwebsite.com
+        </div>
+        <div class="metadata-row">
+          <span class="header-text">Support Language: </span> randomwebsite.com
+        </div>
+      </div>
+    </div>
+
+  </div><!--/col-12-->
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script src="{% static 'js/database_edit.js' %}"></script>
+
+{% endblock %}
+

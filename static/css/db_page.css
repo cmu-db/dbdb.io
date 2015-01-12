@@ -1,0 +1,63 @@
+
+* {
+  font-family: 'Open Sans', sans-serif;
+}
+
+#title-row {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+#db-title {
+  color: #101010;
+  font-size: 200%;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.header-text {
+  color: #101010;
+  font-weight: 600;
+}
+
+#db-description {
+  color: #3a3a3a;
+  font-weight: 400;
+}
+
+#metadata-area {
+  background-color: #f9f9f9;
+  padding: 30px;
+}
+
+.metadata-row {
+  margin-bottom: 20px;
+}
+
+.check-img.green-check {
+  width: 30px;
+  content: url(/static/images/green-check.png);
+}
+
+.check-img.grey-check {
+  width: 30px;
+  content: url(/static/images/grey-check.png);
+}
+
+.yesno-row {
+  margin-top: 10px;
+}
+
+.yesno-title {
+  font-size: 135%;
+  font-weight: 700;
+  margin-left: 15px;
+}
+
+.yesno-description {
+  margin-top: 10px;
+  margin-left: 15px;
+  padding-left: 35px;
+  padding-bottom: 15px;
+  border-left: 1px solid black;
+}

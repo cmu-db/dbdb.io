@@ -29,28 +29,18 @@ class OperatingSystem(models.Model):
     website = models.URLField(default=None, null=True)
     def __unicode__(self):
         return self.name
-# CLASS
 
 class ProgrammingLanguage(models.Model):
     name = models.CharField(max_length=32)
     website = models.URLField(default=None, null=True)
     def __unicode__(self):
         return self.name
-# CLASS
 
 class License(models.Model):
     name = models.CharField(max_length=32)
     website = models.URLField(default=None, null=True)
     def __unicode__(self):
         return self.name
-# CLASS
-
-class ConcurrencyControl(models.Model):
-    name = models.CharField(max_length=16)
-    description = models.TextField()
-    def __unicode__(self):
-        return self.name
-# CLASS
 
 class Publication(models.Model):
     title = models.CharField(max_length=255, blank=True)
@@ -58,33 +48,42 @@ class Publication(models.Model):
     bibtex = models.TextField(default=None, null=True, blank=True)
     download = models.URLField(default=None, null=True, blank=True)
     year = models.IntegerField()
-# CLASS
 
 class System(models.Model):
     name = models.CharField(max_length=64)
-    description = models.TextField()
-    website = models.URLField(default=None, null=True)
-    developer = models.CharField(max_length=64, default=None, null=True)
+    description = models.TextField(default = "")
+    website = models.URLField(default="", null=True)
+    developer = models.CharField(max_length=64, default="", null=True)
     written_in = models.ManyToManyField(ProgrammingLanguage, related_name='wi+')
     oses = models.ManyToManyField(OperatingSystem, related_name='os+')
     publications = models.ManyToManyField(Publication, related_name='p+')
-    project_type = models.CharField(max_length=1, choices=PROJECT_TYPES, default=None, null=True)
-    start_year = models.IntegerField(default=None, null=True)
-    end_year = models.IntegerField(default=None, null=True)
+    project_type = models.CharField(max_length=1, choices=PROJECT_TYPES, default="", null=True)
+    start_year = models.IntegerField(default=0, null=True)
+    end_year = models.IntegerField(default=0, null=True)
     derived_from = models.ManyToManyField('self', related_name='d+')
     
     # Features
     support_sql = models.BooleanField(default=False)
+    description_sql = models.TextField(default = "")
     support_foreignkeys = models.BooleanField(default=False)
+    description_foreignkeys = models.TextField(default = "")
     support_serverside = models.BooleanField(default=False)
+    description_serverside = models.TextField(default = "")
     support_mapreduce = models.BooleanField(default=False)
+    description_mapreduce = models.TextField(default = "")
     support_secondary = models.BooleanField(default=False)
+    description_secondary = models.TextField(default = "")
     support_durability = models.BooleanField(default=False)
+    description_durability = models.TextField(default = "")
     support_triggers = models.BooleanField(default=False)
+    description_triggers = models.TextField(default = "")
+    support_concurrency = models.BooleanField(default=False)
+    description_concurrency = models.TextField(default = "")
     support_languages = models.ManyToManyField(ProgrammingLanguage, related_name='+l')
     default_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
     max_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
-    concurrency = models.ForeignKey(ConcurrencyControl)
+    # authentication key for editing
+    secret_key = models.CharField(max_length = 100, default = None)
     
     def __unicode__(self):
         return self.name
