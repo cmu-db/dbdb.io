@@ -58,6 +58,14 @@
       <div class = "database-name" data-name = "{{db}}"></div>
     {% endfor %}
 
+    {% for lang in languages %}
+      <div class = "language-name" data-name = "{{ lang }}"></div>
+    {% endfor %}
+
+    {% for os in oses %}
+      <div class = "os-name" data-name = "{{ os }}"></div>
+    {% endfor %}
+
     <!-- Loading Javascript libraries -->
     <script src="{% static 'js/libs/jquery.js' %}"></script>
     <script src="{% static 'js/libs/jquery-ui.min.js' %}"></script>
@@ -67,12 +75,50 @@
     <script>
       // load database names into autcomplete widget for navbar search
       var db_names = []
+      var os_names = []
+      var lang_names = []
+      var all_names = []
       // retreieve names from the dummy html divs
       $(".database-name").each(function(index) {
-        db_names.push($(this).attr("data-name"));
+        var name = $(this).attr("data-name")
+        db_names.push(name);
+        all_names.push({
+          label: name,
+          link: "/db/" + name
+        });
         $(this).remove(); // remove to lessen size of page being loaded
       })
-      $("#header-searchbar-input").autocomplete({source: db_names});
+
+      $(".language-name").each(function(index) {
+        var name = $(this).attr("data-name")
+        lang_names.push(name);
+        all_names.push({
+          label: name,
+          link: "/lang/" + name
+        });
+        $(this).remove(); // remove to lessen size of page being loaded
+      })
+
+      $(".os-name").each(function(index) {
+        var name = $(this).attr("data-name")
+        os_names.push(name);
+        all_names.push({
+          label: name,
+          link: "/os/" + name
+        });
+        $(this).remove(); // remove to lessen size of page being loaded
+      })
+
+      $("#header-searchbar-input").autocomplete({
+        source: all_names,
+        formatItem: function(item) {
+          return item.label;
+        },
+        select: function(event, ui) {
+          location.href = ui.item.link;
+        }
+      });
+
     </script>
 
     {% block js %}{% endblock %}

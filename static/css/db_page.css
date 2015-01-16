@@ -3,6 +3,14 @@
   font-family: 'Open Sans', sans-serif;
 }
 
+.main-content {
+  margin-bottom: 100px;
+}
+
+.hidden {
+  display: none;
+}
+
 #title-row {
   margin-top: 20px;
   margin-bottom: 20px;
@@ -32,6 +40,7 @@
 
 .metadata-row {
   margin-bottom: 20px;
+  position: relative;
 }
 
 .check-img.green-check {
@@ -60,4 +69,12 @@
   padding-left: 35px;
   padding-bottom: 15px;
   border-left: 1px solid black;
+  position: relative;
 }
+
+.description-description {
+  margin-top: 10px;
+  padding-bottom: 15px;
+  position: relative;
+}
+

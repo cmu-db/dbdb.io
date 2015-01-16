@@ -10,7 +10,11 @@ urlpatterns = patterns('',
     url(r'^$', views.HomePage.as_view()),
     url(r'^db/(?P<db_name>[A-Za-z0-9-_]+)/(?P<key>[A-Za-z0-9-_]+)', views.DatabaseEditingPage.as_view()),
     url(r'^db/(?P<db_name>[A-Za-z0-9-_]+)', views.DatabasePage.as_view()),
+    url(r'^os/(?P<os_name>[A-Za-z0-9-_]+)', views.OSPage.as_view()),
+    url(r'^lang/(?P<lang_name>[A-Za-z0-9-_]+)', views.LangPage.as_view()),
     url(r'^createdb/', views.DatabaseCreationPage.as_view()),
+    url(r'^createlanguage', views.PLCreationView.as_view()),
+    url(r'^createos', views.OSCreationView.as_view()),
     # api urls
     url(r'^1/all_systems', views.FetchAllSystems.as_view())
 )

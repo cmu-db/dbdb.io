@@ -9,7 +9,7 @@
         <div class="panel-body" id = "sign-up-content">
           <form action="/createdb/" class="col-md-4 col-sm-8 col-xs-12 col-md-offset-4 col-sm-offset-2" method="post" id="sign-up-form">
             <div class = "form-group">
-              <label>Database Name</label>
+              <label>Create a new Database</label>
               <input name="name" type="text" class="form-control signup-input" placeholder="Enter the name of the DB" autocomplete="off"/>
             </div>
             <button class="btn btn-default" type="submit">Create it!</button>
@@ -18,5 +18,37 @@
       </div>
     </div><!--/col-12-->
   </div>
+
+  <div class="row">    
+    <div class="col-md-12">
+      <div class="panel">
+        <div class="panel-body" id = "sign-up-content">
+          <form action="/createlanguage/" class="col-md-4 col-sm-8 col-xs-12 col-md-offset-4 col-sm-offset-2" method="post" id="sign-up-form">
+            <div class = "form-group">
+              <label>Enter in a new Programming Language</label>
+              <input name="name" type="text" class="form-control signup-input" placeholder="Enter the name of the language" autocomplete="off"/>
+            </div>
+            <button class="btn btn-default" type="submit">Create it!</button>
+           </form>
+        </div>
+      </div>
+    </div><!--/col-12-->
+  </div>
+
+  <div class="row">    
+    <div class="col-md-12">
+      <div class="panel">
+        <div class="panel-body" id = "sign-up-content">
+          <form action="/createos/" class="col-md-4 col-sm-8 col-xs-12 col-md-offset-4 col-sm-offset-2" method="post" id="sign-up-form">
+            <div class = "form-group">
+              <label>Enter in a new Operating System</label>
+              <input name="name" type="text" class="form-control signup-input" placeholder="Enter the name of the OS" autocomplete="off"/>
+            </div>
+            <button class="btn btn-default" type="submit">Create it!</button>
+           </form>
+        </div>
+      </div>
+    </div><!--/col-12-->
+  </div>  
 
 {% endblock %}

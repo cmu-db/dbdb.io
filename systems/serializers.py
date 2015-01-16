@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from systems.models import System
+from systems.models import System, OperatingSystem, ProgrammingLanguage
 
 class SystemSerializer(serializers.ModelSerializer):
   class Meta:
@@ -12,3 +12,13 @@ class SystemSerializer(serializers.ModelSerializer):
       'support_durability', 'description_durability', 'support_triggers', 'description_triggers',
       'support_languages', 'default_isolation', 'support_concurrency',
       'description_concurrency', 'max_isolation')
+
+class OperatingSytemSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = OperatingSystem
+    fields = ('name')
+
+class ProgrammingLanguageSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = ProgrammingLanguage
+    fields = ('name')

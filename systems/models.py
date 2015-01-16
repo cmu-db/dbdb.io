@@ -26,13 +26,13 @@ for x,y in ISOLATION_LEVELS:
 
 class OperatingSystem(models.Model):
     name = models.CharField(max_length=16)
-    website = models.URLField(default=None, null=True)
+    website = models.URLField(default="", null=True)
     def __unicode__(self):
         return self.name
 
 class ProgrammingLanguage(models.Model):
     name = models.CharField(max_length=32)
-    website = models.URLField(default=None, null=True)
+    website = models.URLField(default="", null=True)
     def __unicode__(self):
         return self.name
 
