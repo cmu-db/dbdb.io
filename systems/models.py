@@ -42,6 +42,18 @@ class License(models.Model):
     def __unicode__(self):
         return self.name
 
+class DBModel(models.Model):
+    name = models.CharField(max_length=32)
+    website = models.URLField(default=None, null=True)
+    def __unicode__(self):
+        return self.name
+
+class APIAccessMethods(models.Model):
+    name = models.CharField(max_length=32)
+    website = models.URLField(default=None, null=True)
+    def __unicode__(self):
+        return self.name
+
 class Publication(models.Model):
     title = models.CharField(max_length=255, blank=True)
     authors = models.CharField(max_length=255, blank=True)
@@ -53,6 +65,7 @@ class System(models.Model):
     name = models.CharField(max_length=64)
     description = models.TextField(default = "")
     website = models.URLField(default="", null=True)
+    tech_docs = models.URLField(default="", null=True)
     developer = models.CharField(max_length=64, default="", null=True)
     written_in = models.ManyToManyField(ProgrammingLanguage, related_name='wi+')
     oses = models.ManyToManyField(OperatingSystem, related_name='os+')
@@ -61,29 +74,46 @@ class System(models.Model):
     start_year = models.IntegerField(default=0, null=True)
     end_year = models.IntegerField(default=0, null=True)
     derived_from = models.ManyToManyField('self', related_name='d+')
+    logo_img = models.CharField(max_length=200, default=None, null=True)
+    dbmodel = models.ManyToManyField(DBModel, related_name="dbs")
+    license = models.ManyToManyField(License, related_name="dbs")
+    access_methods = models.ManyToManyField(APIAccessMethods, related_name="dbs")
     
     # Features
-    support_sql = models.BooleanField(default=False)
-    description_sql = models.TextField(default = "")
-    support_foreignkeys = models.BooleanField(default=False)
-    description_foreignkeys = models.TextField(default = "")
-    support_serverside = models.BooleanField(default=False)
-    description_serverside = models.TextField(default = "")
-    support_mapreduce = models.BooleanField(default=False)
-    description_mapreduce = models.TextField(default = "")
-    support_secondary = models.BooleanField(default=False)
-    description_secondary = models.TextField(default = "")
-    support_durability = models.BooleanField(default=False)
-    description_durability = models.TextField(default = "")
-    support_triggers = models.BooleanField(default=False)
-    description_triggers = models.TextField(default = "")
-    support_concurrency = models.BooleanField(default=False)
-    description_concurrency = models.TextField(default = "")
+    support_sql = models.NullBooleanField()
+    description_sql = models.TextField(blank=True, null=True)
+    support_foreignkeys = models.NullBooleanField()
+    description_foreignkeys = models.TextField(blank=True, null=True)
+    support_serverside = models.NullBooleanField()
+    description_serverside = models.TextField(blank=True, null=True)
+    support_mapreduce = models.NullBooleanField()
+    description_mapreduce = models.TextField(blank=True, null=True)
+    support_secondary = models.NullBooleanField()
+    description_secondary = models.TextField(blank=True, null=True)
+    support_durability = models.NullBooleanField()
+    description_durability = models.TextField(blank=True, null=True)
+    support_triggers = models.NullBooleanField()
+    description_triggers = models.TextField(blank=True, null=True)
+    support_concurrency = models.NullBooleanField()
+    description_concurrency = models.TextField(blank=True, null=True)
+    support_datascheme = models.NullBooleanField()
+    description_datascheme = models.TextField(blank=True, null=True)
+    support_xml = models.NullBooleanField()
+    description_xml = models.TextField(blank=True, null=True)
+    support_typing = models.NullBooleanField()
+    description_typing = models.TextField(blank=True, null=True)
+    support_userconcepts = models.NullBooleanField()
+    description_userconcepts = models.TextField(blank=True, null=True)
+    support_transactionconcepts = models.NullBooleanField()
+    description_transactionconcepts = models.TextField(blank=True, null=True)
     support_languages = models.ManyToManyField(ProgrammingLanguage, related_name='+l')
     default_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
     max_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
     # authentication key for editing
     secret_key = models.CharField(max_length = 100, default = None)
+
+    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated = models.DateTimeField(auto_now_add=True, auto_now=True, null=True, blank=True)
     
     def __unicode__(self):
         return self.name
