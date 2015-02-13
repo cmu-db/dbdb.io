@@ -12,8 +12,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 
-from systems.models import System, ProgrammingLanguage, OperatingSystem
-from systems.serializers import SystemSerializer, OperatingSytemSerializer, ProgrammingLanguageSerializer
+from systems.models import *
+from systems.serializers import *
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
@@ -39,33 +39,61 @@ ranks = [{'score': 1439, 'order': 1, 'name': 'Oracle'},
 {'score': 35, 'order': 18, 'name': 'Informix'},
 {'score': 35, 'order': 19, 'name': 'Splunk'}]
 
+system_fields = {
+  'support_sql': 'SQL',
+  'support_userconcepts': 'USER CONCEPTS',
+  'support_triggers': 'TRIGGERS',
+  'support_mapreduce': 'MAP REDUCE',
+  'support_xml': 'XML',
+  'support_transactionconcepts': 'TRANSACTION CONCEPTS',
+  'support_concurrency': 'CONCURRENCY',
+  'support_durability': 'DURABILITY',
+  'support_serverside': 'SERVER SIDE',
+  'support_secondary': 'SECONDARY INDEXES',
+  'support_datascheme': 'DATA SCHEME',
+  'support_typing': 'TYPING',
+  'support_foreignkeys': 'FOREIGN KEYS'
+}
+
 class LoadContext(object):
 
   @staticmethod
   def load_base_context(request):
     context = {}
     context["user"] = request.user
-    context["databases"] = map(lambda x: x.name, System.objects.all())
-    context["languages"] = map(lambda x: x.name, ProgrammingLanguage.objects.all())
-    context["oses"] = map(lambda x: x.name, OperatingSystem.objects.all())
+    context["databases"] = map(lambda x: x.name.replace(" ", "-"), System.objects.all())
+    context["languages"] = map(lambda x: x.name.replace(" ", "-"), ProgrammingLanguage.objects.all())
+    context["oses"] = map(lambda x: x.name.replace(" ", "-"), OperatingSystem.objects.all())
     return context
 
   @staticmethod
   def load_db_data(db):
+    db["name"] = db["name"].replace(" ", "-")
     written_lang, oses, support_langs = [], [], []
     for os_id in db["oses"]:
       os = OperatingSystem.objects.get(id = os_id)
-      oses.append(OperatingSytemSerializer(os).data['name'])
+      oses.append(OperatingSystemSerializer(os).data['name'].replace(" ", "-"))
     for lang_id in db["support_languages"]:
       lang = ProgrammingLanguage.objects.get(id = lang_id)
-      support_langs.append(ProgrammingLanguageSerializer(lang).data['name'])
+      support_langs.append(ProgrammingLanguageSerializer(lang).data['name'].replace(" ", "-"))
     for lang_id in db["written_in"]:
       lang = ProgrammingLanguage.objects.get(id = lang_id)
-      written_lang.append(ProgrammingLanguageSerializer(lang).data['name'])
+      written_lang.append(ProgrammingLanguageSerializer(lang).data['name'].replace(" ", "-"))
     db["oses"] = oses
     db["written_in"] = written_lang
     db["support_languages"] = support_langs
     return db
+
+  @staticmethod
+  def get_fields(db):
+    field_supports = []
+    for field in db: 
+      if "support_" in field and field != "support_languages":
+        name = system_fields[field]
+        data = {"field_name": name,
+                "support": db[field]}
+        field_supports.append(data)
+    db["field_supports"] = field_supports
 
 class HomePage(View):
 
@@ -87,21 +115,38 @@ class DatabasePage(View):
 
 class OSPage(View):
 
-  def get(self, request, db_name):
-    os = OperatingSystem.objects.get(name = db_name)
+  def get(self, request, os_name):
+    os_name = os_name.replace("-", " ")
+    os = OperatingSystem.objects.get(name = os_name)
     context = LoadContext.load_base_context(request)
-    context["os"] = OperatingSystemSerializer(os).data
-    return render(request, 'os.html',
-        context)
+    systems = SystemSerializer(os.systems.all(), many=True).data
+    systems_data = []
+    os_data = OperatingSystemSerializer(os).data
+    for system in systems:
+      data = LoadContext.load_db_data(system)
+      LoadContext.get_fields(data)
+      data["description"] = data["description"][:100] + "..."
+      systems_data.append(data)
+    page_info = {"page_type": "Operating System",
+                 "name": os_data["name"]}
+    context["page_data"] = page_info
+    context["systems"] = systems_data
+    print context
+    return render(request, 'os.html', context)
 
 class LangPage(View):
 
-  def get(self, request, db_name):
-    lang = ProgrammingLanguage.objects.get(name = db_name)
+  def get(self, request, lang_name):
+    lang_name = lang_name.replace("-", " ")
+    lang = ProgrammingLanguage.objects.get(name = lang_name)
+    systems = SystemSerializer(lang.systems_supported.all(), many=True).data
+    systems_data = []
+    for system in systems:
+      systems_data.append(LoadContext.load_db_data(system))
     context = LoadContext.load_base_context(request)
     context["lang"] = ProgrammingLanguageSerializer(lang).data
-    return render(request, 'lang.html',
-        context)
+    context["systems"] = systems_data
+    return render(request, 'lang.html', context)
 
 class DatabaseEditingPage(View):
 

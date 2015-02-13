@@ -23,7 +23,7 @@ class SystemSerializer(serializers.ModelSerializer):
       'support_typing', 'support_userconcepts', 'support_xml',
       'tech_docs', 'updated', 'website', 'written_in')
 
-class OperatingSytemSerializer(serializers.ModelSerializer):
+class OperatingSystemSerializer(serializers.ModelSerializer):
   class Meta:
     model = OperatingSystem
     fields = ('name','website')
