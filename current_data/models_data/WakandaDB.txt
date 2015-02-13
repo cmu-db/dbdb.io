@@ -1,0 +1,2 @@
+{'website': 'http://wakandadb.org/', 'name': 'WakandaDB'}
+{'dbmodel': ['Object oriented DBMS'], 'license': ['Open Source']}

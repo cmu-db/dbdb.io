@@ -1,0 +1,5 @@
+{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
+ 'Database model': ['Relational DBMS'],
+ 'License': [('commercial', 'limited edition free')],
+ 'Name': ['XtremeData'],
+ 'Website': ['http://www.xtremedata.com/']}

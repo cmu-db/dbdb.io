@@ -1,0 +1,4 @@
+{'Database model': ['Relational DBMS'],
+ 'License': [('commercial', 'free licenses')],
+ 'Name': ['FrontBase'],
+ 'Website': ['http://www.frontbase.com/']}

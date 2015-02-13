@@ -1,0 +1,4 @@
+{'Database model': ['Document store'],
+ 'License': [('Open Source', 'AGPL version 3')],
+ 'Name': ['RethinkDB'],
+ 'Website': ['http://www.rethinkdb.com/']}

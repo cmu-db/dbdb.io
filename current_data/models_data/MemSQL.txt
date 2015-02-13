@@ -1,0 +1,2 @@
+{'website': 'http://www.memsql.com/', 'name': 'MemSQL'}
+{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}

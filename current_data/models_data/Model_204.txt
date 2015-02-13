@@ -1,0 +1,2 @@
+{'website': 'http://www.rocketsoftware.com/m204', 'name': 'Model 204'}
+{'dbmodel': ['Multivalue DBMS'], 'license': ['commercial']}

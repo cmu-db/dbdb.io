@@ -1,0 +1,2 @@
+{'website': 'http://www.gigaspaces.com/xap-in-memory-computing-event-processing/Meet-XAP', 'name': 'XAP'}
+{'dbmodel': ['Key-value store'], 'license': ['commercial']}

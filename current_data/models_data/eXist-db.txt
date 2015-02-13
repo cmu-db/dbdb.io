@@ -1,0 +1,2 @@
+{'website': 'http://exist-db.org/', 'name': 'eXist-db'}
+{'dbmodel': ['Native XML DBMS'], 'license': ['Open Source']}

@@ -1,0 +1,4 @@
+{'Database model': ['Multivalue DBMS'],
+ 'License': [('Open Source', 'GPLv2, extended commercial license available')],
+ 'Name': [('OpenQM', 'also called QM')],
+ 'Website': ['http://www.openqm.com/']}

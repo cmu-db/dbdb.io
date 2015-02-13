@@ -1,0 +1,2 @@
+{'website': 'http://www.nuodb.com/', 'name': 'NuoDB'}
+{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}

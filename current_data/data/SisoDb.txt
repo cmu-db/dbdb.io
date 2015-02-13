@@ -1,0 +1,6 @@
+{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
+ 'Database model': ['Document store'],
+ 'License': [('Open Source', 'MIT-License')],
+ 'Name': ['SisoDb'],
+ 'Technical documentation': ['<a href="http://www.sisodb.com/wiki">www.sisodb.com/&shy;wiki</a>'],
+ 'Website': ['http://www.sisodb.com/']}

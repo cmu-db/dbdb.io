@@ -1,0 +1,2 @@
+{'website': 'http://www.jboss.org/infinispan/', 'name': 'Infinispan', 'tech_docs': '<a href="http://www.jboss.org/infinispan/documentation">www.jboss.org/&shy;infinispan/&shy;documentation</a>'}
+{'dbmodel': ['Key-value store'], 'license': ['Open Source'], 'written_in': ['Java']}

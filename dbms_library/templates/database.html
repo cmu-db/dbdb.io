@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 
+{% block title %}{{ db.name }} - Databaseology{% endblock %}
+
 {% block css %}
   <link href="{% static 'css/db_page.css' %}" rel="stylesheet">
 {% endblock %}
@@ -183,6 +185,111 @@
           {% endif %}
         </div>
 
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            {% if db.support_userconcepts == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_userconcepts %}
+              <img class = "check-img green-check">
+            {% else %}
+              <img class = "check-img grey-check">
+            {% endif %}
+            <span class="yesno-title">USER-CONCEPTS</span>
+          </div>
+          {% if db.support_userconcepts %}
+            <div class="yesno-description" data-type="userconcepts" data-exists="1">
+              {{ db.description_userconcepts }}
+            </div>
+          {% else %}
+            <div class="yesno-description" data-type="userconcepts" data-exists="0">
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            {% if db.support_datashceme == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_datascheme %}
+              <img class = "check-img green-check">
+            {% else %}
+              <img class = "check-img grey-check">
+            {% endif %}
+            <span class="yesno-title">DATA SCHEME</span>
+          </div>
+          {% if db.support_datascheme %}
+            <div class="yesno-description" data-type="datascheme" data-exists="1">
+              {{ db.description_datascheme }}
+            </div>
+          {% else %}
+            <div class="yesno-description" data-type="datascheme" data-exists="0">
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            {% if db.support_xml == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_xml %}
+              <img class = "check-img green-check">
+            {% else %}
+              <img class = "check-img grey-check">
+            {% endif %}
+            <span class="yesno-title">XML</span>
+          </div>
+          {% if db.support_xml %}
+            <div class="yesno-description" data-type="xml" data-exists="1">
+              {{ db.description_xml }}
+            </div>
+          {% else %}
+            <div class="yesno-description" data-type="xml" data-exists="0">
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            {% if db.support_typing == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_typing %}
+              <img class = "check-img green-check">
+            {% else %}
+              <img class = "check-img grey-check">
+            {% endif %}
+            <span class="yesno-title">TYPING</span>
+          </div>
+          {% if db.support_typing %}
+            <div class="yesno-description" data-type="typing" data-exists="1">
+              {{ db.description_typing }}
+            </div>
+          {% else %}
+            <div class="yesno-description" data-type="typing" data-exists="0">
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            {% if db.support_transactionconcepts == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_transactionconcepts %}
+              <img class = "check-img green-check">
+            {% else %}
+              <img class = "check-img grey-check">
+            {% endif %}
+            <span class="yesno-title">TRANSACTION CONCEPTS</span>
+          </div>
+          {% if db.support_transactionconcepts %}
+            <div class="yesno-description" data-type="transactionconcepts" data-exists="1">
+              {{ db.description_typing }}
+            </div>
+          {% else %}
+            <div class="yesno-description" data-type="transactionconcepts" data-exists="0">
+            </div>
+          {% endif %}
+        </div>
+
       </div>
 
       <!-- metadata area -->
@@ -200,10 +307,20 @@
           <span class="header-text">End Date: </span><span class="metadata-data" data-type="end_year">{{ db.end_year }}</span>
         </div>
         <div class="metadata-row">
-          <span class="header-text">Written in: </span><span class="metadata-data" data-type="written_in">{{ db.written_in }}</span>
+          <span class="header-text">Written in: </span>
+          <span class="metadata-data" data-type="written_in">
+            {% for lang in db.written_in %}
+              <a href="/language/{{lang}}">{{lang}}</a>, 
+            {% endfor %}
+          </span>
         </div>
         <div class="metadata-row">
-          <span class="header-text">OSes: </span><span class="metadata-data" data-type="oses">{{ db.oses }}</span>
+          <span class="header-text">OSes: </span>
+          <span class="metadata-data" data-type="oses">
+            {% for os in db.oses %}
+              <a href="/os/{{os}}">{{os}}</a>,
+            {% endfor %}
+          </span>
         </div>
         <div class="metadata-row">
           <span class="header-text">Project Type: </span><span class="metadata-data" data-type="project_type">{{ db.project_type }}</span>
@@ -212,7 +329,12 @@
           <span class="header-text">Derived From: </span><span class="metadata-data" data-type="derived_from">{{ db.derived_From }}</span>
         </div>
         <div class="metadata-row">
-          <span class="header-text">Support Language: </span><span class="metadata-data" data-type="support_languages">{{ db.support_languages }}</span>
+          <span class="header-text">Support Language: </span>
+          <span class="metadata-data" data-type="support_languages">
+            {% for lang in db.support_languages %}
+              <a href="/language/{{lang}}">{{lang}}</a>, 
+            {% endfor %}
+          </span>
         </div>
       </div>
     </div>

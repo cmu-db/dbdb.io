@@ -1,0 +1,5 @@
+{'Database model': ['Multivalue DBMS'],
+ 'Developer': ['Software AG'],
+ 'License': ['commercial'],
+ 'Name': [('Adabas', 'stands for "adaptable data base"')],
+ 'Website': ['http://www.softwareag.com/de/products/adabas_2010/default.asp']}

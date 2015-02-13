@@ -1,0 +1,6 @@
+{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
+ 'Database model': ['Key-value store'],
+ 'Description': ['Distributed cache as part of an application server'],
+ 'License': [('Open Source', 'GPLv3, extended commercial license available')],
+ 'Name': ['Resin Cache'],
+ 'Website': ['http://www.caucho.com']}

@@ -1,0 +1,3 @@
+{'Description': ['http://yahooeng.tumblr.com/post/104861108931/mdbm-high-speed-database'],
+ 'Name': ['MDBM'],
+ 'Website': ['https://github.com/yahoo/mdbm']}

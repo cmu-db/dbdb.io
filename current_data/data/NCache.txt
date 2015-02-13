@@ -1,0 +1,4 @@
+{'Database model': ['Key-value store'],
+ 'License': ['commercial'],
+ 'Name': ['NCache'],
+ 'Website': ['http://www.alachisoft.com/ncache/']}

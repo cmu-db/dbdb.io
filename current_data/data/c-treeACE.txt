@@ -1,0 +1,6 @@
+{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
+ 'Database model': ['Relational DBMS'],
+ 'License': ['commercial'],
+ 'Name': ['c-treeACE'],
+ 'Technical documentation': ['<a href="http://www.faircom.com/ace/support_doc_t.php">www.faircom.com/&shy;ace/&shy;support_doc_t.php</a>'],
+ 'Website': ['http://www.faircom.com/ace/products_t.php']}

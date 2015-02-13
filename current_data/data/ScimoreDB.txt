@@ -1,0 +1,5 @@
+{'Database model': ['Relational DBMS'],
+ 'License': [('commercial', 'free licenses')],
+ 'Name': ['ScimoreDB'],
+ 'Technical documentation': ['<a href="http://www.scimore.com/wiki/Main_Page">www.scimore.com/&shy;wiki/&shy;Main_Page</a>'],
+ 'Website': ['http://www.scimore.com/']}

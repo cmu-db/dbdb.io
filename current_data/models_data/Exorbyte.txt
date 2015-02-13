@@ -1,0 +1,2 @@
+{'website': 'http://www.exorbyte.com', 'name': 'Exorbyte'}
+{'dbmodel': ['Search engine'], 'license': ['commercial']}

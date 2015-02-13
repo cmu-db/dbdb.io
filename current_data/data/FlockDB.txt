@@ -1,0 +1,5 @@
+{'Database model': ['Graph DBMS'],
+ 'Developer': ['Twitter'],
+ 'License': [('Open Source', 'Apache Version 2')],
+ 'Name': ['FlockDB'],
+ 'Website': ['https://github.com/twitter/flockdb']}

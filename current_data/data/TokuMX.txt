@@ -1,0 +1,4 @@
+{'Database model': ['Document store'],
+ 'License': [('Open Source', 'extended commercial license available')],
+ 'Name': ['TokuMX'],
+ 'Website': ['http://www.tokutek.com/products/tokumx-for-mongodb/']}

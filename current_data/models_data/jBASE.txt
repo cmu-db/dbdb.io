@@ -1,0 +1,2 @@
+{'website': 'http://www.jbase.com/', 'name': 'jBASE'}
+{'dbmodel': ['Multivalue DBMS'], 'license': ['commercial']}

@@ -1,0 +1,4 @@
+{'Database model': ['Relational DBMS'],
+ 'License': ['commercial'],
+ 'Name': ['1010data'],
+ 'Website': ['http://www.1010data.com/']}

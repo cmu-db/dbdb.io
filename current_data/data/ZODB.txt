@@ -1,0 +1,5 @@
+{'Database model': ['Key-value store'],
+ 'Description': ['Native object database for Python'],
+ 'License': ['Open Source'],
+ 'Name': ['ZODB'],
+ 'Website': ['http://www.zodb.org/']}

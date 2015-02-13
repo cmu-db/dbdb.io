@@ -1,0 +1,4 @@
+{'Database model': ['Search engine'],
+ 'License': ['commercial'],
+ 'Name': ['Endeca'],
+ 'Website': ['http://www.oracle.com/us/products/applications/commerce/endeca/overview/index.html']}

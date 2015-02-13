@@ -1,0 +1,5 @@
+{'Database model': ['Relational DBMS'],
+ 'Developer': ['Kx Systems'],
+ 'License': ['commercial'],
+ 'Name': ['Kdb+'],
+ 'Website': ['http://kx.com/products.php']}

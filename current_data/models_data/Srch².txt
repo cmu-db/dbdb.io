@@ -1,0 +1,2 @@
+{'website': 'http://srch2.com/', 'name': 'Srch\xc2\xb2'}
+{'dbmodel': ['Search engine'], 'license': ['commercial']}

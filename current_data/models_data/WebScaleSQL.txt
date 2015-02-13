@@ -1,0 +1,2 @@
+{'website': 'http://webscalesql.org', 'start_year': '2014', 'developer': ('WebScaleSQL', 'WebScaleSQL is a collaboration among engineers from several companies that face the same challenges in deploying MySQL at scale, and seek greater performance from a database technology tailored for their needs.'), 'description': 'Performance oriented extension to MySQL', 'name': 'WebScaleSQL'}
+{'dbmodel': ['Relational DBMS'], 'license': ['Open Source']}

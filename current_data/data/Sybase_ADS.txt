@@ -1,0 +1,4 @@
+{'Database model': ['Relational DBMS'],
+ 'License': ['commercial'],
+ 'Name': [('Sybase ADS', 'Advantage Database Server')],
+ 'Website': ['http://www.sybase.com/products/databasemanagement/advantagedatabaseserver']}

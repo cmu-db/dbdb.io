@@ -1,0 +1,4 @@
+{'Database model': ['Object oriented DBMS'],
+ 'License': [('Open Source', 'commercial license available')],
+ 'Name': ['Perst'],
+ 'Website': ['http://www.mcobject.com/perst']}

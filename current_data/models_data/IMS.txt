@@ -1,0 +1,2 @@
+{'website': 'http://www.ibm.com/software/data/ims/ims/', 'name': 'IMS', 'developer': 'IBM'}
+{'dbmodel': ['Navigational DBMS'], 'license': ['commercial']}

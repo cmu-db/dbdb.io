@@ -1,0 +1,4 @@
+{'Database model': ['Relational DBMS'],
+ 'License': [('commercial', 'limited edition free')],
+ 'Name': ['NuoDB'],
+ 'Website': ['http://www.nuodb.com/']}

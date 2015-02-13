@@ -1,0 +1,2 @@
+{'website': 'http://www.indicasearch.com/', 'description': 'Enterprise Search Engine', 'name': 'Indica'}
+{'dbmodel': ['Search engine'], 'license': ['commercial']}

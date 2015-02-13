@@ -1,0 +1,2 @@
+{'website': 'http://www.cubicweb.org/', 'name': 'CubicWeb'}
+{'dbmodel': ['RDF store'], 'license': ['Open Source']}

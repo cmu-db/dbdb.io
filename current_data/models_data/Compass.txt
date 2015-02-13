@@ -1,0 +1,2 @@
+{'website': 'http://www.compass-project.org/', 'name': 'Compass', 'tech_docs': '<a href="http://www.compass-project.org/docs/2.2.0/reference/html/">www.compass-project.org/&shy;docs/&shy;2.2.0/&shy;reference/&shy;html</a>'}
+{'dbmodel': ['Search engine'], 'license': ['Open Source']}

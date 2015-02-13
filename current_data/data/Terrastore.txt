@@ -1,0 +1,4 @@
+{'Database model': ['Document store'],
+ 'License': [('Open Source', 'Apache Version 2')],
+ 'Name': ['Terrastore'],
+ 'Website': ['http://code.google.com/p/terrastore/']}

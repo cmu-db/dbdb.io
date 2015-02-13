@@ -1,0 +1,2 @@
+{'website': 'http://sparsity-technologies.com/#sparksee', 'name': 'Sparksee'}
+{'dbmodel': ['Graph DBMS'], 'license': ['commercial']}

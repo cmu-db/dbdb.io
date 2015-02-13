@@ -1,0 +1,93 @@
+
+.homepage-top-row {
+  background-color: #292B33;
+  margin-top: -40px;
+  padding-bottom: 75px;
+  color: #AFAFAA;
+}
+
+.homepage-title {
+  text-align: center;
+  font-weight: 800;
+  font-size: 360%;
+  margin-top: 75px;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.homepage-subtitle {
+  text-align: center;
+  font-weight: 100;
+  font-size: 200%;
+}
+
+.green-text {
+  color: #64BD5A;
+}
+
+.homepage-searchbar {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 25px;
+  padding: 17px 38px;
+  width: 60%;
+  font-size: 144%;
+  border-radius: 15px;
+  outline: none;
+  border-width: 10px;
+  border-style: solid;
+  border-color: #AFAFAA;
+  color: black;
+}
+
+.homepage-searchbar:focus {
+  border-color: #64BD5A;
+  border-radius: 100px;
+}
+
+.ui-autocomplete {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  left: 25% !important;
+  height: 250px;
+  overflow: auto;
+  width: 50% !important;
+  background-color: white;
+}
+
+.ui-menu-item {
+  font-size: 150%;
+  padding: 20px 30px !important;
+}
+
+.ui-menu-item:hover {
+  background-color: #64BD5A;
+  border: none;
+  color: white;
+}
+
+.homepage-section {
+  padding: 40px;
+}
+
+.homepage-section-title {
+  text-align: center;
+  font-weight: 800;
+  font-size: 250%;
+  margin: 10px 0
+}
+
+.homepage-section-subtitle {
+  text-align: center;
+  font-weight: 100;
+  font-size: 125%;
+  margin-bottom: 15px;
+}
+
+.ranking-row:hover {
+  cursor: pointer;
+  background-color: #EFEFEA;
+}
+

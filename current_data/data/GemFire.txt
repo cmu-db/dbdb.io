@@ -1,0 +1,4 @@
+{'Database model': ['Document store'],
+ 'License': ['commercial'],
+ 'Name': ['GemFire'],
+ 'Website': ['http://www.vmware.com/products/application-platform/vfabric-gemfire/overview.html']}

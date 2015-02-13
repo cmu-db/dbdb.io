@@ -1,0 +1,6 @@
+{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
+ 'Database model': ['Relational DBMS'],
+ 'Developer': ['Google'],
+ 'License': ['commercial'],
+ 'Name': ['Google BigQuery'],
+ 'Website': ['http://developers.google.com/bigquery/']}

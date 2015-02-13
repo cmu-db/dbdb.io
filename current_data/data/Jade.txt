@@ -1,0 +1,6 @@
+{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
+ 'Database model': ['Object oriented DBMS'],
+ 'License': ['commercial'],
+ 'Name': ['Jade'],
+ 'Technical documentation': ['<a href="http://www.jade.co.nz/jade/doc7.htm">www.jade.co.nz/&shy;jade/&shy;doc7.htm</a>'],
+ 'Website': ['http://www.jade.co.nz/jade/']}

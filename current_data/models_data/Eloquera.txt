@@ -1,0 +1,2 @@
+{'website': 'http://www.eloquera.com/', 'name': 'Eloquera'}
+{'dbmodel': ['Object oriented DBMS'], 'license': ['commercial']}

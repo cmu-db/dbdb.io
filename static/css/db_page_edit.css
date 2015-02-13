@@ -95,7 +95,13 @@
   background-color: #f0f0f0;
 }
 
-
+.selection-close {
+  margin-left: 3px;
+  background-color: white;
+  border-radius: 15px;
+  padding-left: 2px;
+  padding-right: 2px;
+}
 
 
 

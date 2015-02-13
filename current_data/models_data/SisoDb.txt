@@ -1,0 +1,2 @@
+{'website': 'http://www.sisodb.com/', 'name': 'SisoDb', 'tech_docs': '<a href="http://www.sisodb.com/wiki">www.sisodb.com/&shy;wiki</a>'}
+{'dbmodel': ['Document store'], 'license': ['Open Source']}

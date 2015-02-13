@@ -1,0 +1,2 @@
+{'website': 'http://www.mcobject.com/extremedbfamily.shtml', 'name': 'eXtremeDB'}
+{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}

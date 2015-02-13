@@ -1,0 +1,5 @@
+{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
+ 'Database model': ['Object oriented DBMS'],
+ 'License': ['commercial'],
+ 'Name': ['VelocityDB'],
+ 'Website': ['http://www.velocitydb.com/']}

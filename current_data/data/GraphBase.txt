@@ -1,0 +1,5 @@
+{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
+ 'Database model': ['Graph DBMS'],
+ 'License': ['commercial'],
+ 'Name': ['GraphBase'],
+ 'Website': ['http://graphbase.net/']}

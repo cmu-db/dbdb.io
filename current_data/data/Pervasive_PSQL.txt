@@ -1,0 +1,4 @@
+{'Database model': ['Relational DBMS'],
+ 'License': ['commercial'],
+ 'Name': [('Pervasive PSQL', 'Originally called Btrieve')],
+ 'Website': ['http://www.pervasivedb.com/']}

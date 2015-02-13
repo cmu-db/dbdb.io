@@ -1,0 +1,4 @@
+{'Database model': ['Document store'],
+ 'License': ['commercial'],
+ 'Name': ['Cloudant'],
+ 'Website': ['https://cloudant.com/']}

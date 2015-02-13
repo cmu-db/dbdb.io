@@ -1,0 +1,2 @@
+{'website': 'http://www.datameer.com/', 'name': 'Datameer'}
+{'dbmodel': ['Document store'], 'license': ['commercial']}

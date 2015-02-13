@@ -1,0 +1,2 @@
+{'website': 'http://h17007.www1.hp.com/us/en/enterprise/servers/integrity/nonstop/nonstop-sql.aspx', 'developer': 'HP', 'name': 'NonStop SQL', 'tech_docs': '<a href="http://h17007.www1.hp.com/us/en/enterprise/servers/integrity/nonstop/nonstop-sql.aspx">h17007.www1.hp.com/&shy;us/&shy;en/&shy;enterprise/&shy;servers/&shy;integrity/&shy;nonstop/&shy;nonstop-sql.aspx</a>'}
+{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}

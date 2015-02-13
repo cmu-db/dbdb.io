@@ -1,0 +1,2 @@
+{'website': 'http://code.google.com/p/terrastore/', 'name': 'Terrastore'}
+{'dbmodel': ['Document store'], 'license': ['Open Source']}

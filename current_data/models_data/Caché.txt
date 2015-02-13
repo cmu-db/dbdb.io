@@ -1,0 +1,2 @@
+{'website': 'http://www.intersystems.com/cache/index.html', 'name': 'Cach\xc3\xa9'}
+{'dbmodel': ['Object oriented DBMS'], 'license': ['commercial']}

@@ -1,0 +1,2 @@
+{'website': 'http://www.scaledb.com/', 'name': 'ScaleDB'}
+{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}

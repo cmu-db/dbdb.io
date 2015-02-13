@@ -1,0 +1,2 @@
+{'website': 'http://www.sybase.com/products/databasemanagement/sqlanywhere', 'name': ('SQL Anywhere', 'formerly called Adaptive Server Anywhere'), 'developer': ('SAP', 'formerly Sybase')}
+{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}

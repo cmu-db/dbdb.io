@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 
+{% block title %}Editing {{ db.name }} - Databaseology{% endblock %}
+
+
 {% block css %}
   <link href="{% static 'css/db_page.css' %}" rel="stylesheet">
   <link href="{% static 'css/db_page_edit.css' %}" rel="stylesheet">
@@ -21,6 +24,11 @@
             Save!
           </button>
         </div>
+        <div class="subsection-heading">DESCRIPTION</div>
+        <div class="description-description db-description" id="db-description" data-type="description">
+          {{ db.description }}
+        </div>
+        <div class="subsection-heading">HISTORY</div>
         <div class="description-description db-description" id="db-description" data-type="description">
           {{ db.description }}
         </div>
@@ -34,7 +42,9 @@
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_sql %}
+            {% if db.support_sql == None%}
+              <img class = "check-img question-check">
+            {% elif db.support_sql %}
               <img class = "check-img green-check">
             {% else %}
               <img class = "check-img grey-check">
@@ -53,7 +63,9 @@
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_foreignkeys %}
+            {% if db.support_foreignkeys == None%}
+              <img class = "check-img question-check">
+            {% elif db.support_foreignkeys %}
               <img class = "check-img green-check">
             {% else %}
               <img class = "check-img grey-check">
@@ -72,7 +84,9 @@
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_serverside %}
+            {% if db.support_serverside == None%}
+              <img class = "check-img question-check">
+            {% elif db.support_serverside %}
               <img class = "check-img green-check">
             {% else %}
               <img class = "check-img grey-check">
@@ -91,7 +105,9 @@
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_mapreduce %}
+            {% if db.support_mapreduce == None%}
+              <img class = "check-img question-check">
+            {% elif db.support_mapreduce %}
               <img class = "check-img green-check">
             {% else %}
               <img class = "check-img grey-check">
@@ -110,7 +126,9 @@
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_secondary %}
+            {% if db.support_secondary == None%}
+              <img class = "check-img question-check">
+            {% elif db.support_secondary %}
               <img class = "check-img green-check">
             {% else %}
               <img class = "check-img grey-check">
@@ -129,7 +147,9 @@
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_durability %}
+            {% if db.support_durability == None%}
+              <img class = "check-img question-check">
+            {% elif db.support_durability %}
               <img class = "check-img green-check">
             {% else %}
               <img class = "check-img grey-check">
@@ -148,7 +168,9 @@
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_triggers %}
+            {% if db.support_triggers == None%}
+              <img class = "check-img question-check">
+            {% elif db.support_triggers %}
               <img class = "check-img green-check">
             {% else %}
               <img class = "check-img grey-check">
@@ -167,7 +189,9 @@
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_concurrency %}
+            {% if db.support_concurrency == None%}
+              <img class = "check-img question-check">
+            {% elif db.support_concurrency %}
               <img class = "check-img green-check">
             {% else %}
               <img class = "check-img grey-check">
@@ -180,6 +204,111 @@
             </div>
           {% else %}
             <div class="yesno-description" data-type="concurrency" data-exists="0">
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            {% if db.support_userconcepts == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_userconcepts %}
+              <img class = "check-img green-check">
+            {% else %}
+              <img class = "check-img grey-check">
+            {% endif %}
+            <span class="yesno-title">USER-CONCEPTS</span>
+          </div>
+          {% if db.support_userconcepts %}
+            <div class="yesno-description" data-type="userconcepts" data-exists="1">
+              {{ db.description_userconcepts }}
+            </div>
+          {% else %}
+            <div class="yesno-description" data-type="userconcepts" data-exists="0">
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            {% if db.support_datashceme == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_datascheme %}
+              <img class = "check-img green-check">
+            {% else %}
+              <img class = "check-img grey-check">
+            {% endif %}
+            <span class="yesno-title">DATA SCHEME</span>
+          </div>
+          {% if db.support_datascheme %}
+            <div class="yesno-description" data-type="datascheme" data-exists="1">
+              {{ db.description_datascheme }}
+            </div>
+          {% else %}
+            <div class="yesno-description" data-type="datascheme" data-exists="0">
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            {% if db.support_xml == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_xml %}
+              <img class = "check-img green-check">
+            {% else %}
+              <img class = "check-img grey-check">
+            {% endif %}
+            <span class="yesno-title">XML</span>
+          </div>
+          {% if db.support_xml %}
+            <div class="yesno-description" data-type="xml" data-exists="1">
+              {{ db.description_xml }}
+            </div>
+          {% else %}
+            <div class="yesno-description" data-type="xml" data-exists="0">
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            {% if db.support_typing == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_typing %}
+              <img class = "check-img green-check">
+            {% else %}
+              <img class = "check-img grey-check">
+            {% endif %}
+            <span class="yesno-title">TYPING</span>
+          </div>
+          {% if db.support_typing %}
+            <div class="yesno-description" data-type="typing" data-exists="1">
+              {{ db.description_typing }}
+            </div>
+          {% else %}
+            <div class="yesno-description" data-type="typing" data-exists="0">
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            {% if db.support_transactionconcepts == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_transactionconcepts %}
+              <img class = "check-img green-check">
+            {% else %}
+              <img class = "check-img grey-check">
+            {% endif %}
+            <span class="yesno-title">TRANSACTION CONCEPTS</span>
+          </div>
+          {% if db.support_transactionconcepts %}
+            <div class="yesno-description" data-type="transactionconcepts" data-exists="1">
+              {{ db.description_typing }}
+            </div>
+          {% else %}
+            <div class="yesno-description" data-type="transactionconcepts" data-exists="0">
             </div>
           {% endif %}
         </div>
@@ -203,24 +332,34 @@
         <div class="metadata-row">
           <span class="header-text">Written in: </span><span class="metadata-data selection" data-type="written_in">
             {% for lang in db.written_in %}
-              {{ lang }},
+              <span class="selection-item written_in-section">
+                {{ lang }}
+                <span class="fa fa-times selection-close"></span>
+              </span>
             {% endfor %}
           </span>
           <select multiple class="form-control choices-selection">
             {% for lang in languages %}
-              <option class="selection-option">{{ lang }}</option>
+              {% if lang not in db.written_in %}
+                <option class="selection-option">{{ lang }}</option>
+              {% endif %}
             {% endfor %}
           </select>
         </div>
         <div class="metadata-row">
           <span class="header-text">OSes: </span><span class="metadata-data selection" data-type="oses">
             {% for os in db.oses %}
-              {{ os }},
+              <span class="selection-item oses-section">
+                {{ os }}
+                <span class="fa fa-times selection-close"></span>
+              </span>
             {% endfor %}
           </span>
           <select multiple class="form-control choices-selection">
             {% for os in oses %}
-              <option class="selection-option">{{ os }}</option>
+              {% if os not in db.oses %}
+                <option class="selection-option">{{ os }}</option>
+              {% endif %}
             {% endfor %}
           </select>
         </div>
@@ -233,12 +372,17 @@
         <div class="metadata-row">
           <span class="header-text">Support Language: </span><span class="metadata-data selection" data-type="support_languages">
             {% for lang in db.support_languages %}
-              {{ lang }},
+              <span class="selection-item support_languages-section">
+                {{ lang }}
+                <span class="fa fa-times selection-close"></span>
+              </span>
             {% endfor %}
           </span>
           <select multiple class="form-control choices-selection">
             {% for lang in languages %}
-              <option class="selection-option">{{ lang }}</option>
+              {% if land not in db.support_languages %}
+                <option class="selection-option">{{ lang }}</option>
+              {% endif %}
             {% endfor %}
           </select>
         </div>

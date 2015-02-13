@@ -1,0 +1,2 @@
+{'website': 'http://www.splunk.com/', 'name': 'Splunk'}
+{'dbmodel': ['Search engine'], 'license': ['commercial']}

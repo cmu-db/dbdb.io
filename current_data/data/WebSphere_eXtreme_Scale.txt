@@ -1,0 +1,4 @@
+{'Database model': ['Key-value store'],
+ 'License': ['commercial'],
+ 'Name': ['WebSphere eXtreme Scale'],
+ 'Website': ['http://ibm.com/software/products/us/en/websphere-extreme-scale/']}

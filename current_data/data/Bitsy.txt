@@ -1,0 +1,2 @@
+{'Name': ['Bitsy'],
+ 'Website': ['https://bitbucket.org/lambdazen/bitsy/wiki/Home']}

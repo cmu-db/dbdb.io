@@ -1,0 +1,2 @@
+{'website': 'http://www.dataease.com/', 'name': 'DataEase'}
+{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}

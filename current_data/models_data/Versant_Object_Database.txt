@@ -1,0 +1,2 @@
+{'website': 'http://www.versant.com/products/versant-object-database', 'name': 'Versant Object Database'}
+{'dbmodel': ['Object oriented DBMS'], 'license': ['commercial']}

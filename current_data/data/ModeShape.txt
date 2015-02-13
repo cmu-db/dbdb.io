@@ -1,0 +1,4 @@
+{'Database model': ['Content store'],
+ 'License': [('Open Source', 'Apache Version 2')],
+ 'Name': ['ModeShape'],
+ 'Website': ['http://www.jboss.org/modeshape']}

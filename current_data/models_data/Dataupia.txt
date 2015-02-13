@@ -1,0 +1,2 @@
+{'website': 'http://www.dataupia.com/', 'description': 'Data warehouse appliance', 'name': 'Dataupia'}
+{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}

@@ -1,0 +1,3 @@
+{'Description': ['http://arxiv.org/abs/1403.5645'],
+ 'Name': ['LogicBlox'],
+ 'Website': ['http://www.logicblox.com/technology.html']}

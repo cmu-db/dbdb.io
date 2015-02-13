@@ -1,0 +1,2 @@
+{'website': 'http://www.paraccel.com/', 'name': 'ParAccel'}
+{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}

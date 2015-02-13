@@ -1,0 +1,2 @@
+{'website': 'http://www.northgate-reality.com/', 'name': 'Northgate Reality'}
+{'dbmodel': ['Multivalue DBMS']}

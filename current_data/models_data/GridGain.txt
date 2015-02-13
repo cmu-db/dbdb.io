@@ -1,0 +1,2 @@
+{'website': 'http://www.gridgain.com/', 'name': 'GridGain'}
+{'dbmodel': ['Key-value store'], 'license': ['commercial']}

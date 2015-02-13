@@ -1,0 +1,5 @@
+{'Database model': ['Search engine'],
+ 'License': [('Open Source', 'GPLv2')],
+ 'Name': ['Xapian'],
+ 'Technical documentation': ['<a href="http://xapian.org/docs/">xapian.org/&shy;docs</a>'],
+ 'Website': ['http://xapian.org/']}

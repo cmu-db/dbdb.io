@@ -1,0 +1,5 @@
+{'Database model': ['Relational DBMS'],
+ 'Description': ['Data warehouse appliance'],
+ 'License': ['commercial'],
+ 'Name': ['Dataupia'],
+ 'Website': ['http://www.dataupia.com/']}

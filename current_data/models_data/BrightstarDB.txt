@@ -1,0 +1,2 @@
+{'website': 'http://www.brightstardb.com/', 'name': 'BrightstarDB'}
+{'dbmodel': ['RDF store'], 'license': ['Open Source']}

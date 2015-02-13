@@ -1,0 +1,2 @@
+{'website': 'http://www.infobright.com/', 'name': 'Infobright'}
+{'dbmodel': ['Relational DBMS'], 'license': ['Open Source']}

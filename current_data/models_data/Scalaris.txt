@@ -1,0 +1,2 @@
+{'website': 'http://code.google.com/p/scalaris/', 'name': 'Scalaris'}
+{'dbmodel': ['Key-value store'], 'license': ['Open Source']}

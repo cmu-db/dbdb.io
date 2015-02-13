@@ -1,0 +1,2 @@
+{'website': 'http://tarantool.org/', 'name': 'Tarantool'}
+{'dbmodel': ['Key-value store'], 'license': ['Open Source']}

@@ -1,0 +1,4 @@
+{'Database model': ['Object oriented DBMS'],
+ 'License': ['commercial'],
+ 'Name': ['ObjectDB'],
+ 'Website': ['http://www.objectdb.com/']}

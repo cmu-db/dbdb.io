@@ -1,0 +1,2 @@
+{'website': 'http://www.xtremedata.com/', 'name': 'XtremeData'}
+{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}

@@ -1,0 +1,2 @@
+{'website': 'http://www.windowsazure.com/en-us/services/sql-database/', 'name': ('Windows Azure SQL Database', 'formerly SQL Azure')}
+{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}

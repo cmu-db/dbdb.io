@@ -1,1 +1,74 @@
 {% extends 'base.html' %}
+
+{% load staticfiles %}
+
+{% block css %}
+  <link href="{% static 'css/homepage.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block searchbar %}{% endblock %}
+
+{% block body %}
+64BD5A
+<div class="row homepage-top-row">
+  <div class="col-lg-8 col-lg-offset-2 col-md-8, col-md-offset-2, col-sm-10 col-sm-offset-1, col-xs-12">
+    <div class="homepage-title">
+      Databaseology
+    </div>
+    <div class="homepage-subtitle">
+      Discover and learn about <span class="green-text"><b>all</b></span> the databases
+    </div>
+    <div class="homepage-searchbar-area">
+      <input type="text" class="homepage-searchbar header-searchbar-input" placeholder="Begin searching!">
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6 col-sm-6 col-lg-6 homepage-section">
+    <div class="homepage-section-title">
+      Mission
+    </div>
+    <div class="homepage-section-subtitle col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2">
+      Databaseology is an open-source hub for all knowledge pertaining to databases.
+      <br>
+      <br>
+      The website was developed at Carnegie Mellon University for the Database Applications Graduate course.
+    </div>
+  </div>
+
+  <div class="col-md-6 col-sm-6 col-lg-6 homepage-section">
+    <div class="homepage-section-title">
+      Rankings
+    </div>
+    <div class="homepage-section-subtitle">
+      Check out the most popular websites on the web
+    </div>
+    <table class="ranking-table table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Name</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rank in ranks %}
+            <tr class="ranking-row" data-url="/db/{{ rank.name }}">
+                <td>{{ rank.order }}</td>
+                <td>{{ rank.name }}</td>
+                <td>{{ rank.score }}</td>
+            </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div> 
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script src="{% static 'js/homepage.js' %}"></script>
+
+{% endblock %}

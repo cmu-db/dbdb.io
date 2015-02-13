@@ -1,0 +1,2 @@
+{'website': 'http://www.caucho.com', 'name': 'Resin Cache', 'description': 'Distributed cache as part of an application server'}
+{'dbmodel': ['Key-value store'], 'license': ['Open Source']}

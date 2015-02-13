@@ -1,0 +1,4 @@
+{'Database model': ['Search engine'],
+ 'License': ['commercial'],
+ 'Name': ['Srch\xc2\xb2'],
+ 'Website': ['http://srch2.com/']}

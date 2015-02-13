@@ -1,0 +1,4 @@
+{'Database model': ['Graph DBMS'],
+ 'License': ['commercial'],
+ 'Name': ['InfiniteGraph'],
+ 'Website': ['http://objectivity.com/']}

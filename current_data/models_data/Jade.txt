@@ -1,0 +1,2 @@
+{'website': 'http://www.jade.co.nz/jade/', 'name': 'Jade', 'tech_docs': '<a href="http://www.jade.co.nz/jade/doc7.htm">www.jade.co.nz/&shy;jade/&shy;doc7.htm</a>'}
+{'dbmodel': ['Object oriented DBMS'], 'license': ['commercial']}

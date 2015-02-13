@@ -1,0 +1,4 @@
+{'Database model': ['Relational DBMS'],
+ 'License': ['commercial'],
+ 'Name': ['NexusDB'],
+ 'Website': ['http://www.nexusdb.com/']}

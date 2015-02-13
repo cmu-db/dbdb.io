@@ -1,0 +1,4 @@
+{'Database model': ['Relational DBMS'],
+ 'License': ['commercial'],
+ 'Name': ['OpenEdge'],
+ 'Website': ['http://www.progress.com/en/openedge/developer-productivity/database/index.html']}

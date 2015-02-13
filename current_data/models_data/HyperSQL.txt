@@ -1,0 +1,2 @@
+{'website': 'http://hsqldb.org/', 'name': 'HyperSQL'}
+{'dbmodel': ['Relational DBMS'], 'license': ['Open Source'], 'written_in': ['Java']}

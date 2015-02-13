@@ -1,0 +1,4 @@
+{'Database model': ['Search engine'],
+ 'License': ['commercial'],
+ 'Name': ['Splunk'],
+ 'Website': ['http://www.splunk.com/']}

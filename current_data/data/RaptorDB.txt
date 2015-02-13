@@ -1,0 +1,5 @@
+{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
+ 'Database model': ['Document store'],
+ 'License': [('Open Source', 'Apache Version 2')],
+ 'Name': ['RaptorDB'],
+ 'Website': ['http://raptordb.codeplex.com/']}

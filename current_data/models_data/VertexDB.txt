@@ -1,0 +1,2 @@
+{'website': 'http://www.dekorte.com/projects/opensource/vertexdb/', 'name': 'VertexDB'}
+{}

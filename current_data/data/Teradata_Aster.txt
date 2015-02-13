@@ -1,0 +1,6 @@
+{'Database model': ['Relational DBMS'],
+ 'License': ['commercial'],
+ 'MapReduce': ['yes'],
+ 'Name': ['Teradata Aster'],
+ 'SQL': ['yes'],
+ 'Website': ['http://www.asterdata.com']}

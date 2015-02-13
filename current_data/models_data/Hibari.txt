@@ -1,0 +1,2 @@
+{'website': 'http://hibari.github.com/hibari-doc/', 'name': 'Hibari'}
+{'dbmodel': ['Key-value store'], 'license': ['Open Source']}

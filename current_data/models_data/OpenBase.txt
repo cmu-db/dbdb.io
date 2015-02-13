@@ -1,0 +1,2 @@
+{'website': 'http://www.openbase.com/', 'name': 'OpenBase'}
+{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}

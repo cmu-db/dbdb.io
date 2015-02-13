@@ -1,0 +1,4 @@
+{'Database model': ['Key-value store'],
+ 'License': [('Open Source', 'Apache Version 2')],
+ 'Name': ['Hamsterdb'],
+ 'Website': ['http://hamsterdb.com/']}

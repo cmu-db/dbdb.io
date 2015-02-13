@@ -1,0 +1,2 @@
+{'website': 'http://fallabs.com/kyototycoon/', 'name': 'Kyoto Tycoon'}
+{'dbmodel': ['Key-value store'], 'license': ['Open Source']}

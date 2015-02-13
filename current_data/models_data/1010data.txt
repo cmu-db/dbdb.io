@@ -1,0 +1,2 @@
+{'website': 'http://www.1010data.com/', 'name': '1010data'}
+{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}

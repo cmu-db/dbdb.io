@@ -1,0 +1,2 @@
+{'website': 'http://getcloudkit.com/', 'name': 'CloudKit', 'tech_docs': '<a href="http://getcloudkit.com/api/">getcloudkit.com/&shy;api</a>'}
+{'dbmodel': ['Document store'], 'license': ['Open Source']}

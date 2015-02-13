@@ -1,0 +1,5 @@
+{'Database model': ['RDF store'],
+ 'License': [('commercial', 'Limited community edition free')],
+ 'Name': ['Stardog'],
+ 'Technical documentation': ['<a href="http://stardog.com/docs/">stardog.com/&shy;docs</a>'],
+ 'Website': ['http://stardog.com/']}

@@ -1,0 +1,2 @@
+{'website': 'http://db.apache.org/derby/', 'name': ('Derby', 'often called Apache Derby, originally Cloudscape'), 'developer': 'Apache Software Foundation'}
+{'dbmodel': ['Relational DBMS'], 'license': ['Open Source'], 'written_in': ['Java']}

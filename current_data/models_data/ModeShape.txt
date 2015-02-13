@@ -1,0 +1,2 @@
+{'website': 'http://www.jboss.org/modeshape', 'name': 'ModeShape'}
+{'dbmodel': ['Content store'], 'license': ['Open Source']}

@@ -1,0 +1,2 @@
+{'website': 'http://www.geniedb.com/', 'name': 'GenieDB'}
+{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}

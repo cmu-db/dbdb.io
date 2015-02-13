@@ -1,0 +1,5 @@
+{'Database model': ['Search engine'],
+ 'License': [('Open Source', 'Apache Version 2')],
+ 'Name': ['Compass'],
+ 'Technical documentation': ['<a href="http://www.compass-project.org/docs/2.2.0/reference/html/">www.compass-project.org/&shy;docs/&shy;2.2.0/&shy;reference/&shy;html</a>'],
+ 'Website': ['http://www.compass-project.org/']}

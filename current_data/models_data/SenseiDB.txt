@@ -1,0 +1,2 @@
+{'website': 'http://senseidb.com/', 'name': 'SenseiDB'}
+{'dbmodel': ['Document store'], 'license': ['Open Source']}

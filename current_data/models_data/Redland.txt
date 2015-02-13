@@ -1,0 +1,2 @@
+{'website': 'http://librdf.org/', 'name': 'Redland'}
+{'dbmodel': ['RDF store'], 'license': ['Open Source']}

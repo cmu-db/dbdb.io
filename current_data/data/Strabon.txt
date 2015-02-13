@@ -1,0 +1,5 @@
+{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
+ 'Database model': ['RDF store'],
+ 'License': [('Open Source', 'Mozilla public license')],
+ 'Name': ['Strabon'],
+ 'Website': ['http://www.strabon.di.uoa.gr/']}

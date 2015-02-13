@@ -1,0 +1,4 @@
+{'Database model': ['Native XML DBMS'],
+ 'License': ['commercial'],
+ 'Name': ['Tamino'],
+ 'Website': ['http://www.softwareag.com/corporate/products/wm/tamino/default.asp']}

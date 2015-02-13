@@ -1,0 +1,2 @@
+{'website': 'http://www.kognitio.com/', 'name': 'Kognitio'}
+{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}

@@ -1,0 +1,4 @@
+{'Database model': ['Graph DBMS'],
+ 'License': ['commercial'],
+ 'Name': ['Sparksee'],
+ 'Website': ['http://sparsity-technologies.com/#sparksee']}

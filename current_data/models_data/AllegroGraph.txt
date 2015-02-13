@@ -1,0 +1,2 @@
+{'website': 'http://www.franz.com/agraph/allegrograph/', 'name': 'AllegroGraph'}
+{'dbmodel': ['RDF store'], 'license': ['commercial']}

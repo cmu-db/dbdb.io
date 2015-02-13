@@ -1,0 +1,2 @@
+{'Name': ['InfoFrame'],
+ 'Website': ['http://www.nec.com/en/global/prod/infoframe/relationalstore/']}

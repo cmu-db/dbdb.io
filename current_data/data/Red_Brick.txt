@@ -1,0 +1,4 @@
+{'Database model': ['Relational DBMS'],
+ 'License': ['commercial'],
+ 'Name': ['Red Brick'],
+ 'Website': ['http://www-03.ibm.com/software/products/us/en/redbrick']}

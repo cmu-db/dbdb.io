@@ -1,0 +1,2 @@
+{'website': 'http://www.tigerlogic.com/tigerlogic/pick/database/index.jsp', 'name': 'D3'}
+{'dbmodel': ['Multivalue DBMS'], 'license': ['commercial']}

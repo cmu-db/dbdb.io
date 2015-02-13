@@ -1,0 +1,6 @@
+{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
+ 'Database model': ['Document store'],
+ 'License': ['Open Source'],
+ 'Name': ['CloudKit'],
+ 'Technical documentation': ['<a href="http://getcloudkit.com/api/">getcloudkit.com/&shy;api</a>'],
+ 'Website': ['http://getcloudkit.com/']}

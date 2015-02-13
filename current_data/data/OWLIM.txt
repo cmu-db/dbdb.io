@@ -1,0 +1,4 @@
+{'Database model': ['RDF store'],
+ 'License': [('commercial', 'limited edition free')],
+ 'Name': ['OWLIM'],
+ 'Website': ['http://www.ontotext.com/owlim']}

@@ -1,0 +1,2 @@
+{'website': 'http://www.openqm.com/', 'name': ('OpenQM', 'also called QM')}
+{'dbmodel': ['Multivalue DBMS'], 'license': ['Open Source']}

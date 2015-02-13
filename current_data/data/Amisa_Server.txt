@@ -1,0 +1,7 @@
+{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
+ 'Database model': ['Document store'],
+ 'Developer': ['AmisaLabs'],
+ 'License': [('commercial', 'limited edition free')],
+ 'Name': ['Amisa Server'],
+ 'Technical documentation': ['<a href="http://amisalabs.com/Documentation.html">amisalabs.com/&shy;Documentation.html</a>'],
+ 'Website': ['http://www.amisalabs.com/']}

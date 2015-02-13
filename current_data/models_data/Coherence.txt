@@ -1,0 +1,2 @@
+{'website': 'http://www.oracle.com/technetwork/middleware/coherence/overview/index.html', 'name': 'Coherence'}
+{'dbmodel': ['Key-value store'], 'license': ['commercial']}

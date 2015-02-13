@@ -1,0 +1,5 @@
+{'Database model': ['Relational DBMS'],
+ 'Implementation language': ['Java'],
+ 'License': [('Open Source', 'based on BSD license')],
+ 'Name': ['HyperSQL'],
+ 'Website': ['http://hsqldb.org/']}

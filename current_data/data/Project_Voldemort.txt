@@ -1,0 +1,8 @@
+{'Database model': ['Key-value store'],
+ 'Foreign keys': ['no'],
+ 'Implementation language': ['Java'],
+ 'Initial release': ['2009'],
+ 'License': [('Open Source', 'Apache version 2')],
+ 'Name': ['Project Voldemort'],
+ 'Triggers': ['no'],
+ 'Website': ['http://project-voldemort.com/']}

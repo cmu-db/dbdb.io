@@ -1,0 +1,5 @@
+{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
+ 'Database model': ['RDF store'],
+ 'License': ['commercial'],
+ 'Name': ['Dydra'],
+ 'Website': ['http://dydra.com/']}

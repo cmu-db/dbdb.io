@@ -1,0 +1,2 @@
+{'website': 'http://www.aerospike.com/', 'name': ('Aerospike', 'previously called Citrusleaf')}
+{'dbmodel': ['Key-value store'], 'license': ['commercial']}

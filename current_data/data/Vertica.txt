@@ -1,0 +1,4 @@
+{'Database model': ['Relational DBMS'],
+ 'License': [('commercial', 'Limited community edition free')],
+ 'Name': ['Vertica'],
+ 'Website': ['http://www.vertica.com/']}

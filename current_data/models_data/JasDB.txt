@@ -1,0 +1,2 @@
+{'website': 'http://www.oberasoftware.com/jasdb/', 'name': 'JasDB'}
+{'dbmodel': ['Document store'], 'license': ['Open Source']}

@@ -1,0 +1,4 @@
+{'Database model': ['Native XML DBMS'],
+ 'License': [('Open Source', 'Apache Version 2')],
+ 'Name': ['Sedna'],
+ 'Website': ['http://www.sedna.org/']}

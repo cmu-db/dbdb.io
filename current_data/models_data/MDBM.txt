@@ -1,0 +1,2 @@
+{'website': 'https://github.com/yahoo/mdbm', 'description': 'http://yahooeng.tumblr.com/post/104861108931/mdbm-high-speed-database', 'name': 'MDBM'}
+{}

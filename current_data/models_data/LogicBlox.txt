@@ -1,0 +1,2 @@
+{'website': 'http://www.logicblox.com/technology.html', 'description': 'http://arxiv.org/abs/1403.5645', 'name': 'LogicBlox'}
+{}

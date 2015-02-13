@@ -1,0 +1,16 @@
+* {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.ui-autocomplete {
+  height: 250px;
+  overflow: auto;
+  width: 175px !important;
+  background-color: white;
+}
+
+.ui-menu-item:hover {
+  background-color: #64BD5A;
+  border: none;
+  color: white;
+}

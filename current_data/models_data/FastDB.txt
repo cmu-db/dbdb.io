@@ -1,0 +1,2 @@
+{'website': 'http://www.garret.ru/fastdb.html', 'name': 'FastDB'}
+{}

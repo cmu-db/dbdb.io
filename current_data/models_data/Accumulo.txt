@@ -1,0 +1,2 @@
+{'website': 'http://accumulo.apache.org/', 'name': 'Accumulo'}
+{'dbmodel': ['Wide column store'], 'license': ['Open Source']}

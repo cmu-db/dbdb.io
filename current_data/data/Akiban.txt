@@ -1,0 +1,4 @@
+{'Database model': ['Relational DBMS'],
+ 'License': ['Open Source'],
+ 'Name': ['Akiban'],
+ 'Website': ['http://www.akiban.com/']}

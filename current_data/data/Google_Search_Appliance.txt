@@ -1,0 +1,4 @@
+{'Database model': ['Search engine'],
+ 'License': ['commercial'],
+ 'Name': ['Google Search Appliance'],
+ 'Website': ['http://www.google.com/enterprise/search/campaigns/gsa7.html']}

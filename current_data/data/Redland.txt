@@ -1,0 +1,4 @@
+{'Database model': ['RDF store'],
+ 'License': [('Open Source', 'LGPL, GPLv2, Apache V2')],
+ 'Name': ['Redland'],
+ 'Website': ['http://librdf.org/']}

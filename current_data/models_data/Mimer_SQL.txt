@@ -1,0 +1,2 @@
+{'website': 'http://mimer.com/', 'name': 'Mimer SQL'}
+{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}

@@ -1,0 +1,2 @@
+{'website': 'http://altibase.com/', 'name': 'Altibase'}
+{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}

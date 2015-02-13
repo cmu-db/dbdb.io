@@ -53,8 +53,18 @@
   content: url(/static/images/grey-check.png);
 }
 
+.check-img.question-check {
+  width: 30px;
+  content: url(/static/images/question-check.png);
+}
+
 .yesno-row {
   margin-top: 10px;
+}
+
+.subsection-heading {
+  font-size: 135%;
+  font-weight: 700;
 }
 
 .yesno-title {
@@ -76,5 +86,12 @@
   margin-top: 10px;
   padding-bottom: 15px;
   position: relative;
+}
+
+.selection-item {
+  background-color: #d9d9d9;
+  padding-left: 5px;
+  border-radius: 5px;
+  margin-right: 10px;
 }
 

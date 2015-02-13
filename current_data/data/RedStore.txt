@@ -1,0 +1,5 @@
+{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
+ 'Database model': ['RDF store'],
+ 'License': [('Open Source', 'GPLv3')],
+ 'Name': ['RedStore'],
+ 'Website': ['http://www.aelius.com/njh/redstore/']}

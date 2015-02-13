@@ -1,0 +1,6 @@
+{'Database model': ['Relational DBMS'],
+ 'Developer': ['HP'],
+ 'License': ['commercial'],
+ 'Name': ['NonStop SQL'],
+ 'Technical documentation': ['<a href="http://h17007.www1.hp.com/us/en/enterprise/servers/integrity/nonstop/nonstop-sql.aspx">h17007.www1.hp.com/&shy;us/&shy;en/&shy;enterprise/&shy;servers/&shy;integrity/&shy;nonstop/&shy;nonstop-sql.aspx</a>'],
+ 'Website': ['http://h17007.www1.hp.com/us/en/enterprise/servers/integrity/nonstop/nonstop-sql.aspx']}
