@@ -115,24 +115,36 @@ class DatabasePage(View):
 
 class OSPage(View):
 
-  def get(self, request, os_name):
-    os_name = os_name.replace("-", " ")
-    os = OperatingSystem.objects.get(name = os_name)
+  def get(self, request, page_type, name):
+    name = name.replace("-", " ")
     context = LoadContext.load_base_context(request)
-    systems = SystemSerializer(os.systems.all(), many=True).data
+    if page_type == "os":
+      os = OperatingSystem.objects.get(name = name)
+      systems = SystemSerializer(os.systems.all(), many=True).data
+      obj_data = OperatingSystemSerializer(os).data
+      page_info = {"page_type": "Operating System",
+                   "name": obj_data["name"]}
+    elif page_type == "written_lang":
+      lang = ProgrammingLanguage.objects.get(name = name)
+      systems = SystemSerializer(lang.systems_written.all(), many=True).data
+      obj_data = ProgrammingLanguageSerializer(lang).data
+      page_info = {"page_type": "Programming Language",
+                 "name": "Written in " + obj_data["name"]}
+    elif page_type == "support_lang":
+      lang = ProgrammingLanguage.objects.get(name = name)
+      systems = SystemSerializer(lang.systems_supported.all(), many=True).data
+      obj_data = ProgrammingLanguageSerializer(lang).data
+      page_info = {"page_type": "Programming Language",
+                 "name": "Supports " + obj_data["name"]}
     systems_data = []
-    os_data = OperatingSystemSerializer(os).data
     for system in systems:
       data = LoadContext.load_db_data(system)
       LoadContext.get_fields(data)
       data["description"] = data["description"][:100] + "..."
       systems_data.append(data)
-    page_info = {"page_type": "Operating System",
-                 "name": os_data["name"]}
     context["page_data"] = page_info
     context["systems"] = systems_data
-    print context
-    return render(request, 'os.html', context)
+    return render(request, 'search_page.html', context)
 
 class LangPage(View):
 

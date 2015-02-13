@@ -1,7 +1,7 @@
 
 
 $(document).ready(function() {
-  var height = window.innerHeight - $(".navbar").height() + $(".navbar").height();
+  var height = window.innerHeight - $(".navbar").height() - $(".navbar").height();
   $(".search-result-row").height(height);
   
   $(".search-result").click(function() {

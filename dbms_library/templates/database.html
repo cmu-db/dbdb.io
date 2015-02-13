@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 
-{% block title %}{{ db.name }} - Databaseology{% endblock %}
+{% block title %}Databaseology - {{ db.name }}{% endblock %}
 
 {% block css %}
   <link href="{% static 'css/db_page.css' %}" rel="stylesheet">
@@ -35,7 +35,9 @@
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_sql %}
+            {% if db.support_sql == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_sql %}
               <img class = "check-img green-check">
             {% else %}
               <img class = "check-img grey-check">
@@ -54,7 +56,9 @@
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_foreignkeys %}
+            {% if db.support_foreignkeys == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_foreignkeys %}
               <img class = "check-img green-check">
             {% else %}
               <img class = "check-img grey-check">
@@ -73,7 +77,9 @@
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_serverside %}
+            {% if db.support_serverside == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_serverside %}
               <img class = "check-img green-check">
             {% else %}
               <img class = "check-img grey-check">
@@ -92,7 +98,9 @@
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_mapreduce %}
+            {% if db.support_mapreduce == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_mapreduce %}
               <img class = "check-img green-check">
             {% else %}
               <img class = "check-img grey-check">
@@ -111,7 +119,9 @@
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_secondary %}
+            {% if db.support_secondary == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_secondary %}
               <img class = "check-img green-check">
             {% else %}
               <img class = "check-img grey-check">
@@ -130,7 +140,9 @@
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_durability %}
+            {% if db.support_durability == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_durability %}
               <img class = "check-img green-check">
             {% else %}
               <img class = "check-img grey-check">
@@ -149,7 +161,9 @@
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_triggers %}
+            {% if db.support_triggers == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_triggers %}
               <img class = "check-img green-check">
             {% else %}
               <img class = "check-img grey-check">
@@ -168,7 +182,9 @@
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_concurrency %}
+            {% if db.support_concurrency == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_concurrency %}
               <img class = "check-img green-check">
             {% else %}
               <img class = "check-img grey-check">
@@ -310,7 +326,7 @@
           <span class="header-text">Written in: </span>
           <span class="metadata-data" data-type="written_in">
             {% for lang in db.written_in %}
-              <a href="/language/{{lang}}">{{lang}}</a>, 
+              <a href="/search/written_lang/{{lang}}">{{lang}}</a>, 
             {% endfor %}
           </span>
         </div>
@@ -318,7 +334,7 @@
           <span class="header-text">OSes: </span>
           <span class="metadata-data" data-type="oses">
             {% for os in db.oses %}
-              <a href="/os/{{os}}">{{os}}</a>,
+              <a href="/search/os/{{os}}">{{os}}</a>,
             {% endfor %}
           </span>
         </div>
@@ -332,7 +348,7 @@
           <span class="header-text">Support Language: </span>
           <span class="metadata-data" data-type="support_languages">
             {% for lang in db.support_languages %}
-              <a href="/language/{{lang}}">{{lang}}</a>, 
+              <a href="/search/support_lang/{{lang}}">{{lang}}</a>, 
             {% endfor %}
           </span>
         </div>
