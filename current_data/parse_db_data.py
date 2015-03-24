@@ -247,7 +247,10 @@ def enterModels(dryRun = True):
       if "support_languages" in m2m_model:
         addSupportLangs(models, m2m_model, system)
       if "written_in" in m2m_model  :
-        addWrittenIn(models, m2m_model, system)
+        addWrittenIn(models, m2m_model, system)  
+      sm = SystemManager(name = dbSystemName)
+      sm.save()
+      sm.current_version.add(system)
     print "done!"
   return True
 
