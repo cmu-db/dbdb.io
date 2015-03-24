@@ -8,6 +8,7 @@ urlpatterns = patterns('',
 
     # routing urls
     url(r'^$', views.HomePage.as_view()),
+    url(r'^db/version/(?P<db_name>[A-Za-z0-9-_]+)/(?P<version>[0-9]+)', views.DatabaseVersionPage.as_view()),
     url(r'^db/(?P<db_name>[A-Za-z0-9-_]+)/(?P<key>[A-Za-z0-9-_]+)', views.DatabaseEditingPage.as_view()),
     url(r'^db/(?P<db_name>[A-Za-z0-9-_]+)', views.DatabasePage.as_view()),
     url(r'^search/(?P<page_type>[A-Za-z0-9-_]+)/(?P<name>[A-Za-z0-9-_]+)', views.OSPage.as_view()),

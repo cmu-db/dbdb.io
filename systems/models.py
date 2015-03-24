@@ -1,4 +1,5 @@
 from django.db import models
+from markupfield.fields import MarkupField
 
 PROJECT_TYPES = (
     ('C', 'Commercial'),
@@ -63,7 +64,7 @@ class Publication(models.Model):
 
 class System(models.Model):
     name = models.CharField(max_length=64)
-    description = models.TextField(default = "")
+    description = MarkupField(default=None, null=True)
     website = models.URLField(default="", null=True)
     tech_docs = models.URLField(default="", null=True)
     developer = models.CharField(max_length=64, default="", null=True)
@@ -81,31 +82,31 @@ class System(models.Model):
     
     # Features
     support_sql = models.NullBooleanField()
-    description_sql = models.TextField(blank=True, null=True)
+    description_sql = MarkupField(default=None, null=True)
     support_foreignkeys = models.NullBooleanField()
-    description_foreignkeys = models.TextField(blank=True, null=True)
+    description_foreignkeys = MarkupField(default=None, null=True)
     support_serverside = models.NullBooleanField()
-    description_serverside = models.TextField(blank=True, null=True)
+    description_serverside = MarkupField(default=None, null=True)
     support_mapreduce = models.NullBooleanField()
-    description_mapreduce = models.TextField(blank=True, null=True)
+    description_mapreduce = MarkupField(default=None, null=True)
     support_secondary = models.NullBooleanField()
-    description_secondary = models.TextField(blank=True, null=True)
+    description_secondary = MarkupField(default=None, null=True)
     support_durability = models.NullBooleanField()
-    description_durability = models.TextField(blank=True, null=True)
+    description_durability = MarkupField(default=None, null=True)
     support_triggers = models.NullBooleanField()
-    description_triggers = models.TextField(blank=True, null=True)
+    description_triggers = MarkupField(default=None, null=True)
     support_concurrency = models.NullBooleanField()
-    description_concurrency = models.TextField(blank=True, null=True)
+    description_concurrency = MarkupField(default=None, null=True)
     support_datascheme = models.NullBooleanField()
-    description_datascheme = models.TextField(blank=True, null=True)
+    description_datascheme = MarkupField(default=None, null=True)
     support_xml = models.NullBooleanField()
-    description_xml = models.TextField(blank=True, null=True)
+    description_xml = MarkupField(default=None, null=True)
     support_typing = models.NullBooleanField()
-    description_typing = models.TextField(blank=True, null=True)
+    description_typing = MarkupField(default=None, null=True)
     support_userconcepts = models.NullBooleanField()
-    description_userconcepts = models.TextField(blank=True, null=True)
+    description_userconcepts = MarkupField(default=None, null=True)
     support_transactionconcepts = models.NullBooleanField()
-    description_transactionconcepts = models.TextField(blank=True, null=True)
+    description_transactionconcepts = MarkupField(default=None, null=True)
     support_languages = models.ManyToManyField(ProgrammingLanguage, related_name='systems_supported')
     default_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
     max_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
@@ -114,7 +115,17 @@ class System(models.Model):
 
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated = models.DateTimeField(auto_now_add=True, auto_now=True, null=True, blank=True)
+    version = models.IntegerField(default=0)
     
     def __unicode__(self):
         return self.name
+
+class SystemManager(models.Model):
+    name = models.CharField(max_length=64)
+    current_version = models.ManyToManyField(System, related_name='manager')
+    version_number = models.IntegerField(default=0)
+    max_version = models.IntegerField(default=0)
+
+
+
 # CLASS

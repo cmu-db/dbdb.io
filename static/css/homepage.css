@@ -87,3 +87,49 @@
   background-color: #EFEFEA;
 }
 
+.as-button {
+  text-align: center;
+  font-size: 200%;
+  font-weight: 100;
+  margin-top: 20px;
+  color: #3366BB;
+}
+
+.as-button.active {
+  text-align: center;
+  font-weight: 800;
+  font-size: 360%;
+  margin-bottom: 10px;
+  color: #64BD5A;
+}
+
+.as-button:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.as-button:active {
+  color: #0645AD;
+}
+
+.checkbox-inline {
+  display: table;
+  float: left;
+  width: 25%;
+  padding: initial;
+  margin: 0 !important;
+}
+
+.squaredOne {
+  float: left;
+}
+
+.check-label {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.results-area {
+  
+}
+

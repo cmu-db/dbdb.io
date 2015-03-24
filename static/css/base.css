@@ -2,6 +2,10 @@
   font-family: 'Open Sans', sans-serif;
 }
 
+html, body {
+  overflow-x: hidden;
+}
+
 .ui-autocomplete {
   height: 250px;
   overflow: auto;

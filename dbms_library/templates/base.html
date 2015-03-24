@@ -58,7 +58,7 @@
 
     <!-- create dummy nodes to store name of databases for autocomplete widget -->
     {% for db in databases %}
-      <div class = "database-name" data-name = "{{db}}"></div>
+      <div class = "database-name" data-name = "{{ db }}"></div>
     {% endfor %}
 
     {% for lang in languages %}
@@ -81,6 +81,7 @@
       var os_names = []
       var lang_names = []
       var all_names = []
+      var fields = []
       // retreieve names from the dummy html divs
       $(".database-name").each(function(index) {
         var name = $(this).attr("data-name")
@@ -121,6 +122,8 @@
           location.href = ui.item.link;
         }
       });
+
+      fields = {{ system_fields }}
 
     </script>
 

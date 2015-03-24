@@ -64,6 +64,7 @@ class LoadContext(object):
     context["databases"] = map(lambda x: x.name.replace(" ", "-"), System.objects.all())
     context["languages"] = map(lambda x: x.name.replace(" ", "-"), ProgrammingLanguage.objects.all())
     context["oses"] = map(lambda x: x.name.replace(" ", "-"), OperatingSystem.objects.all())
+    context["system_fields"] = system_fields.values()
     return context
 
   @staticmethod
@@ -107,7 +108,8 @@ class DatabasePage(View):
 
   def get(self, request, db_name):
     db_name = db_name.replace("-", " ")
-    database = System.objects.get(name = db_name)
+    dbManager = SystemManager.objects.get(name = db_name)
+    database = dbManager.current_version.all()[0]
     context = LoadContext.load_base_context(request)
     context["db"] = LoadContext.load_db_data(SystemSerializer(database).data)
     return render(request, 'database.html',
@@ -171,7 +173,17 @@ class DatabaseEditingPage(View):
   def post(self, request, db_name, key):
     db_name = db_name.replace("-", " ")
     savedModels = DatabaseEditingPage.savedModels
-    db = System.objects.get(name = db_name)
+    dbManager = SystemManager.objects.get(name = db_name)
+    db = dbManager.current_version.all()[0]
+    dbManager.current_version.remove(db)
+    db.pk = None
+    db.save()
+    db.version = dbManager.max_version + 1
+    db.save()
+    dbManager.version_number = db.version
+    dbManager.max_version = db.version
+    dbManager.save()
+    dbManager.current_version.add(db)
     if db.secret_key != key:
       return HttpResponseBadRequest()
     data = dict(request.POST)
@@ -220,7 +232,8 @@ class DatabaseEditingPage(View):
 
   def get(self, request, db_name, key):
     db_name = db_name.replace("-", " ")
-    database = System.objects.get(name = db_name)
+    dbManager = SystemManager.objects.get(name = db_name)
+    database = dbManager.current_version.all()[0]
     if database.secret_key == key:
       context = LoadContext.load_base_context(request)
       context["db"] = LoadContext.load_db_data(SystemSerializer(database).data)
@@ -228,6 +241,21 @@ class DatabaseEditingPage(View):
         context)
     else:
       return HttpResponseBadRequest()
+
+class DatabaseVersionPage(View):
+
+  def get(self, request, db_name, version):
+    version = int(version)
+    db_name = db_name.replace("-", " ")
+    dbManager = SystemManager.objects.get(name = db_name)
+    if dbManager.max_version < version:
+      return HttpResponseRedirect("/")
+    database = System.objects.get(name=db_name, version = version)
+    context = LoadContext.load_base_context(request)
+    context["db"] = LoadContext.load_db_data(SystemSerializer(database).data)
+    return render(request, 'database.html',
+        context)
+
 
 class DatabaseCreationPage(View):
 
