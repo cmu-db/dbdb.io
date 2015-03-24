@@ -28,9 +28,15 @@
         <div class="description-description db-description" id="db-description" data-type="description">
           {{ db.description }}
         </div>
+        <div class="description-raw" style="display:none;">
+          {{ db.description_raw }}
+        </div>
         <div class="subsection-heading">HISTORY</div>
         <div class="description-description db-description" id="db-description" data-type="description">
           {{ db.description }}
+        </div>
+        <div class="description-raw" style="display:none;">
+          {{ db.description_raw }}
         </div>
       </div>
     </div>
@@ -59,6 +65,9 @@
             <div class="yesno-description" data-type="sql" data-exists="0">
             </div>
           {% endif %}
+          <div class="yesno-description-raw" style="display:none;">
+            {{ db.description_sql_raw }}
+          </div>
         </div>
 
         <div class="yesno-row">
@@ -80,6 +89,9 @@
             <div class="yesno-description" data-type="foreignkeys" data-exists="0">
             </div>
           {% endif %}
+          <div class="yesno-description-raw" style="display:none;">
+            {{ db.description_foreignkeys_raw }}
+          </div>
         </div>
 
         <div class="yesno-row">
@@ -101,6 +113,9 @@
             <div class="yesno-description" data-type="serverside" data-exists="0">
             </div>
           {% endif %}
+          <div class="yesno-description-raw" style="display:none;">
+            {{ db.description_serverside_raw }}
+          </div>
         </div>
 
         <div class="yesno-row">
@@ -122,6 +137,9 @@
             <div class="yesno-description" data-type="mapreduce" data-exists="0">
             </div>
           {% endif %}
+          <div class="yesno-description-raw" style="display:none;">
+            {{ db.description_mapreduce_raw }}
+          </div>
         </div>
 
         <div class="yesno-row">
@@ -143,6 +161,9 @@
             <div class="yesno-description" data-type="secondary" data-exists="0">
             </div>
           {% endif %}
+          <div class="yesno-description-raw" style="display:none;">
+            {{ db.description_secondary_raw }}
+          </div>
         </div>
 
         <div class="yesno-row">
@@ -164,6 +185,9 @@
             <div class="yesno-description" data-type="durability" data-exists="0">
             </div>
           {% endif %}
+          <div class="yesno-description-raw" style="display:none;">
+            {{ db.description_durability_raw }}
+          </div>
         </div>
 
         <div class="yesno-row">
@@ -185,6 +209,9 @@
             <div class="yesno-description" data-type="triggers" data-exists="0">
             </div>
           {% endif %}
+          <div class="yesno-description-raw" style="display:none;">
+            {{ db.description_triggers_raw }}
+          </div>
         </div>
 
         <div class="yesno-row">
@@ -206,6 +233,9 @@
             <div class="yesno-description" data-type="concurrency" data-exists="0">
             </div>
           {% endif %}
+          <div class="yesno-description-raw" style="display:none;">
+            {{ db.description_concurrency_raw }}
+          </div>
         </div>
 
         <div class="yesno-row">
@@ -227,6 +257,9 @@
             <div class="yesno-description" data-type="userconcepts" data-exists="0">
             </div>
           {% endif %}
+          <div class="yesno-description-raw" style="display:none;">
+            {{ db.description_userconcepts_raw }}
+          </div>
         </div>
 
         <div class="yesno-row">
@@ -248,6 +281,9 @@
             <div class="yesno-description" data-type="datascheme" data-exists="0">
             </div>
           {% endif %}
+          <div class="yesno-description-raw" style="display:none;">
+            {{ db.description_datascheme_raw }}
+          </div>
         </div>
 
         <div class="yesno-row">
@@ -269,6 +305,9 @@
             <div class="yesno-description" data-type="xml" data-exists="0">
             </div>
           {% endif %}
+          <div class="yesno-description-raw" style="display:none;">
+            {{ db.description_xml_raw }}
+          </div>
         </div>
 
         <div class="yesno-row">
@@ -290,6 +329,9 @@
             <div class="yesno-description" data-type="typing" data-exists="0">
             </div>
           {% endif %}
+          <div class="yesno-description-raw" style="display:none;">
+            {{ db.description_typing_raw }}
+          </div>
         </div>
 
         <div class="yesno-row">
@@ -305,12 +347,15 @@
           </div>
           {% if db.support_transactionconcepts %}
             <div class="yesno-description" data-type="transactionconcepts" data-exists="1">
-              {{ db.description_typing }}
+              {{ db.description_transactionconcepts }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="transactionconcepts" data-exists="0">
             </div>
           {% endif %}
+          <div class="yesno-description-raw" style="display:none;">
+            {{ db.description_transactionconcepts_raw }}
+          </div>
         </div>
 
       </div>

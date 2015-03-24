@@ -16,6 +16,7 @@ function close_text_area($elem, text) {
   }
   $elem.empty();
   $elem.text(text);
+  $elem.next().text(text);
 }
 
 function open_text_area($elem) {
@@ -25,7 +26,7 @@ function open_text_area($elem) {
   $(".save-button").show(500);
   $elem.addClass("edited");
   $elem.addClass("editing");
-  var value = $elem.text().trim();
+  var value = $elem.next().text().trim();
   last_saved_textarea_property = value;
   $elem.empty();
   var textarea = document.createElement("textarea");
