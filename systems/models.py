@@ -129,6 +129,7 @@ class SystemManager(models.Model):
     version_number = models.IntegerField(default=0)
     max_version = models.IntegerField(default=0)
 
-
+    def __unicode__(self):
+        return self.name + " Manager" 
 
 # CLASS

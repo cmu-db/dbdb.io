@@ -46,12 +46,35 @@
   </div>
 </div>
 
-<div class="row">
-  <div class="col-md-6 col-md-offset-3 col-sm-offset-1 col-sm-10 col-lg-6 homepage-section">
+<div class="row activity-row">
+  <div class="col-md-6 col-md-offset-3 col-sm-offset-1 col-sm-10 col-lg-6 recent-activity-section">
     <div class="homepage-section-title">
+      Recent Edit Activity
+    </div>
+    {% for edit in edits %}
+      <div class="row revision-row">
+        <div class="col-md-4 col-xs-3 revision-date">
+          {{ edit.date }}
+        </div>
+        <div class="col-md-8 col-xs-9">
+          <div class="revision-metadata">
+            {{ edit.creator }} edited <a href="/db/{{edit.name}}">{{ edit.name }}</a>
+          </div>
+          <div class="revision-message">
+            {{ edit.version_message }}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="row about-row">
+  <div class="col-md-6 col-md-offset-3 col-sm-offset-1 col-sm-10 col-lg-6 homepage-section">
+    <div class="homepage-section-title white">
       Mission
     </div>
-    <div class="homepage-section-subtitle col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2">
+    <div class="homepage-section-subtitle col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 grey">
       Databaseology is an open-source hub for all knowledge pertaining to databases.
       <br>
       <br>

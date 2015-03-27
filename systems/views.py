@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
+from datetime import date, timedelta
 
 from systems.models import *
 from systems.serializers import *
@@ -18,26 +18,6 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
 import hashlib, time
-
-ranks = [{'score': 1439, 'order': 1, 'name': 'Oracle'},
-{'score': 1272, 'order': 2, 'name': 'MySQL'},
-{'score': 1177, 'order': 3, 'name': 'Microsoft-SQL-Server'},
-{'score': 267, 'order': 4, 'name': 'MongoDB'},
-{'score': 262, 'order': 5, 'name': 'PostgreSQL'},
-{'score': 202, 'order': 6, 'name': 'DB2'},
-{'score': 140, 'order': 7, 'name': 'Microsoft'},
-{'score': 107, 'order': 8, 'name': 'Cassandra'},
-{'score': 99, 'order': 9, 'name': 'SQLite'},
-{'score': 99, 'order': 10, 'name': 'Redis'},
-{'score': 86, 'order': 11, 'name': 'Sybase'},
-{'score': 81, 'order': 12, 'name': 'Solr'},
-{'score': 69, 'order': 13, 'name': 'Teradata'},
-{'score': 57, 'order': 14, 'name': 'HBase'},
-{'score': 53, 'order': 15, 'name': 'FileMaker'},
-{'score': 52, 'order': 16, 'name': 'Elasticsearch'},
-{'score': 36, 'order': 17, 'name': 'Hive'},
-{'score': 35, 'order': 18, 'name': 'Informix'},
-{'score': 35, 'order': 19, 'name': 'Splunk'}]
 
 system_fields = {
   'support_sql': 'SQL',
@@ -111,7 +91,17 @@ class HomePage(View):
 
   def get(self, request):
     context = LoadContext.load_base_context(request)
-    context["ranks"] = ranks[:5]
+    enddate = date.today() - timedelta(days=3)
+    edits = System.objects.filter(created__gt=enddate)
+    context["edits"] = []
+    today = date.today()
+    for edit in edits[::-1][:10]:
+      obj = {}
+      obj["name"] = edit.name
+      obj["date"] = edit.created
+      obj["version_message"] = edit.version_message
+      obj["creator"] = edit.creator
+      context["edits"].append(obj)
     return render(request, 'homepage.html',
       context)
 

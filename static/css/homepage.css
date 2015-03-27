@@ -75,11 +75,19 @@
   margin: 10px 0
 }
 
+.homepage-section-title.white {
+  color: white;
+}
+
 .homepage-section-subtitle {
   text-align: center;
   font-weight: 100;
   font-size: 125%;
   margin-bottom: 15px;
+}
+
+.homepage-section-subtitle.grey {
+  color: #AFAFAA;
 }
 
 .ranking-row:hover {
@@ -129,7 +137,30 @@
   vertical-align: middle;
 }
 
-.results-area {
-  
+.revision-row {
+  padding: 15px;
 }
+
+.revision-date {
+  font-weight: 100;
+  font-size: 110%;
+}
+
+.revision-metadata {
+  font-weight: 800;
+  font-size: 120%;
+  margin-bottom: 10px;
+}
+
+.about-row {
+  background-color: #292B33;
+  color: white;
+}
+
+.activity-row {
+  padding-top: 20px;
+  padding-bottom: 30px;
+}
+
+
 
