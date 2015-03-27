@@ -47,7 +47,7 @@
 </div>
 
 <div class="row">
-  <div class="col-md-6 col-sm-6 col-lg-6 homepage-section">
+  <div class="col-md-6 col-md-offset-3 col-sm-offset-1 col-sm-10 col-lg-6 homepage-section">
     <div class="homepage-section-title">
       Mission
     </div>
@@ -58,33 +58,6 @@
       The website was developed at Carnegie Mellon University for the Database Applications Graduate course.
     </div>
   </div>
-
-  <div class="col-md-6 col-sm-6 col-lg-6 homepage-section">
-    <div class="homepage-section-title">
-      Rankings
-    </div>
-    <div class="homepage-section-subtitle">
-      Check out the most popular websites on the web
-    </div>
-    <table class="ranking-table table">
-      <thead>
-        <tr>
-          <th>Rank</th>
-          <th>Name</th>
-          <th>Score</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for rank in ranks %}
-            <tr class="ranking-row" data-url="/db/{{ rank.name }}">
-                <td>{{ rank.order }}</td>
-                <td>{{ rank.name }}</td>
-                <td>{{ rank.score }}</td>
-            </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div> 
 </div>
 
 {% endblock %}
