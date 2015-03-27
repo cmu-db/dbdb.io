@@ -123,6 +123,7 @@ class DatabasePage(View):
     database = dbManager.current_version.all()[0]
     context = LoadContext.load_base_context(request)
     context["db"] = LoadContext.load_db_data(SystemSerializer(database).data)
+    context["isVersionPage"] = False
     return render(request, 'database.html',
         context)
 
@@ -182,6 +183,11 @@ class DatabaseEditingPage(View):
     return super(DatabaseEditingPage, self).dispatch(*args, **kwargs)
 
   def post(self, request, db_name, key):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
     db_name = db_name.replace("-", " ")
     savedModels = DatabaseEditingPage.savedModels
     dbManager = SystemManager.objects.get(name = db_name)
@@ -207,6 +213,7 @@ class DatabaseEditingPage(View):
         data[field][0] = int(data[field][0])
       if db.__getattribute__(field) != data[field][0]:
         db.__setattr__(field, data[field][0])
+    db.creator = str(ip)
     db.save()
     options = eval(data["model_stuff"][0])
     adds = dict(map(lambda x: (x, map(lambda y: "add_" + y, options["adds"][x])), options["adds"]))
@@ -248,6 +255,7 @@ class DatabaseEditingPage(View):
     if database.secret_key == key:
       context = LoadContext.load_base_context(request)
       context["db"] = LoadContext.load_db_data(SystemSerializer(database).data)
+      context["key"] = key
       LoadContext.load_db_raw_markdown_fields(context["db"], database)
       return render(request, 'database_edit.html',
         context)
@@ -265,6 +273,7 @@ class DatabaseVersionPage(View):
     database = System.objects.get(name=db_name, version = version)
     context = LoadContext.load_base_context(request)
     context["db"] = LoadContext.load_db_data(SystemSerializer(database).data)
+    context["isVersionPage"] = True
     return render(request, 'database.html',
         context)
 
@@ -296,7 +305,23 @@ class DatabaseCreationPage(View):
 class DatabaseRevisionsPage(View):
 
   def get(self, request, db_name, key):
-    return render(request, 'database_revision.html')
+    db_name = db_name.replace("-", " ")
+    dbManager = SystemManager.objects.get(name = db_name)
+    database = dbManager.current_version.all()[0]
+    context = LoadContext.load_base_context(request)
+    context["db"] = LoadContext.load_db_data(SystemSerializer(database).data)
+    revisions = System.objects.filter(name = db_name).order_by("created")[::-1]
+    context["revisions"] = []
+    for revision in revisions:
+      obj = {}
+      if revision.created:
+        obj["date"] = revision.created.strftime("%m/%d/%Y %H:%H:%S")
+      obj["isCurrent"] = (revision.version == dbManager.version_number)
+      obj["user"] = revision.creator
+      obj["comment"] = revision.version_message
+      obj["version_number"] = revision.version
+      context["revisions"].append(obj)
+    return render(request, 'database_revision.html', context)
 
 class PLCreationView(View):
 

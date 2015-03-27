@@ -18,12 +18,19 @@
       <div class="col-md-12">
         <div id = "db-title">
           {{ db.name }}
-          <button class="btn btn-default save-button" style="display:none;">
-            Save!
-          </button>
+          <span class="version-info">
+            {% if isVersionPage %}
+              Version: {{db.version}} - {{ db.version_message }}
+            {% endif %}
+          </span>
         </div>
+        <div class="subsection-heading">DESCRIPTION</div>
         <div id = "db-description">
           {{ db.description }}
+        </div>
+        <div class="subsection-heading">HISTORY</div>
+        <div id = "db-history">
+          {{ db.history }}
         </div>
       </div>
     </div>

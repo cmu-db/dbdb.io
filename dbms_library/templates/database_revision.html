@@ -1,2 +1,59 @@
 {% extends 'base.html' %}
 
+{% load staticfiles %}
+
+{% block css %}
+  <link href="{% static 'css/db_revisions_page.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+
+<div class="row">
+  <div class="col-md-8 col-md-offset-2 col-sm-offset-1 col-md-10 col-xs-12">
+    <div class="db-title">
+      {{db.name}}
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8 col-md-offset-2 col-sm-offset-1 col-md-10 col-xs-12">
+    <div class="revision-table">
+      <table class="table">
+        <thead>
+          <tr class="revision-top-row">
+            <th class="center-column">Current Version</th>
+            <th class="center-column">Version #</th>
+            <th>Date Created</th>
+            <th>Edited By</th>
+            <th>Revision Comments</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for revision in revisions %}
+            <tr class="revision-row" data-url="/db/version/{{db.name}}/{{revision.version_number}}">
+              <td>
+                {% if revision.isCurrent %}
+                  <div class="current-version check-img green-check">
+                  <div>
+                {% endif %}
+              </td>
+              <td class="center-column">{{ revision.version_number }}</td>
+              <td>{{ revision.date }}</td>
+              <td>{{ revision.user }}</td>
+              <td>{{ revision.comment }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block js %}
+  <script src="{% static 'js/database_revision.js' %}"></script>
+{% endblock %}
+

@@ -1,0 +1,30 @@
+
+.db-title {
+  color: #101010;
+  font-size: 200%;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.check-img.green-check {
+  content: url(/static/images/green-check.png);
+}
+
+.current-version {
+  width: 20px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.center-column {
+  text-align: center;
+}
+
+.revision-row {
+  cursor: pointer;
+}
+
+.revision-row:hover {
+  background-color: #DFF0D8;
+}

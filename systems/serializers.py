@@ -21,7 +21,8 @@ class SystemSerializer(serializers.ModelSerializer):
       'support_secondary', 'support_serverside', 'support_sql',
       'support_transactionconcepts', 'support_triggers',
       'support_typing', 'support_userconcepts', 'support_xml',
-      'tech_docs', 'updated', 'website', 'written_in')
+      'tech_docs', 'updated', 'website', 'written_in', 'version',
+      'creator', 'version_message', 'history')
 
 class OperatingSystemSerializer(serializers.ModelSerializer):
   class Meta:

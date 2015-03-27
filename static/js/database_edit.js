@@ -24,6 +24,7 @@ function open_text_area($elem) {
     close_text_area($(this));
   })
   $(".save-button").show(500);
+  $(".version-message-input").show(500);
   $elem.addClass("edited");
   $elem.addClass("editing");
   var value = $elem.next().text().trim();
@@ -134,7 +135,7 @@ function load_selection_clicks() {
 function load_click_handlers() {
 
   $(".revision-button").click(function() {
-    window.location.href += "/revisions";
+    window.location.href = $(this).attr("data-url");
   });
 
   $(".check-img").click(function() {
@@ -232,16 +233,12 @@ function load_click_handlers() {
         changed_data[exists_key] = $(this).attr("data-exists");
         changed_data[description_key] = $(this).text();
       } else {
-        changed_data[$(this).attr("data-type")] = $(this).text();
+        changed_data[$(this).attr("data-type")] = $(this).text() || $(this).val();
       }
     });
 
     options = {"adds": option_adds, "removes": option_removes}
-
     changed_data["model_stuff"] = JSON.stringify(options);
-
-    console.log(changed_data);
-
     var url = document
 
     $.ajax({
