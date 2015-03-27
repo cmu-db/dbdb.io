@@ -139,6 +139,9 @@
 
 .revision-row {
   padding: 15px;
+  border-bottom-style: solid;
+  border-bottom-color: #F1F1F1;
+  border-width: 1px;
 }
 
 .revision-date {
