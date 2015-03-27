@@ -86,6 +86,17 @@ class LoadContext(object):
     return db
 
   @staticmethod
+  def load_db_raw_markdown_fields(db_data, db_ojb):
+    for field in db_ojb.__dict__:
+      if "rendered" in field:
+        fieldName = field[1:-9]
+        if db_ojb.__getattribute__(fieldName):
+          rawField = db_ojb.__getattribute__(fieldName).raw
+          db_data[fieldName + "_raw"] = rawField
+        else:
+          db_data[fieldName + "_raw"] = rawField
+
+  @staticmethod
   def get_fields(db):
     field_supports = []
     for field in db: 
@@ -237,6 +248,7 @@ class DatabaseEditingPage(View):
     if database.secret_key == key:
       context = LoadContext.load_base_context(request)
       context["db"] = LoadContext.load_db_data(SystemSerializer(database).data)
+      LoadContext.load_db_raw_markdown_fields(context["db"], database)
       return render(request, 'database_edit.html',
         context)
     else:
@@ -280,6 +292,11 @@ class DatabaseCreationPage(View):
       newDB = System(name = name, secret_key = key)
       newDB.save()
       return redirect("/db/%s/%s" % (name, key))
+
+class DatabaseRevisionsPage(View):
+
+  def get(self, request, db_name, key):
+    return render(request, 'database_revision.html')
 
 class PLCreationView(View):
 
