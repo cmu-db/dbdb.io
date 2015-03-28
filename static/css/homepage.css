@@ -142,6 +142,7 @@
   border-bottom-style: solid;
   border-bottom-color: #F1F1F1;
   border-width: 1px;
+  margin-right: 10px;
 }
 
 .revision-date {
@@ -165,5 +166,8 @@
   padding-bottom: 30px;
 }
 
-
+.top-db-row:hover {
+  background-color: #DFF0D8;
+  cursor: pointer;
+}
 

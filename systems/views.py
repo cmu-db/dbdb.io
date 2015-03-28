@@ -102,6 +102,17 @@ class HomePage(View):
       obj["version_message"] = edit.version_message
       obj["creator"] = edit.creator
       context["edits"].append(obj)
+
+    sms = SystemManager.objects.all().order_by("max_version")[::-1][:10]
+    context["top_sms"] = []
+    for (i, sm) in enumerate(sms):
+      if sm.max_version < 1:
+        continue
+      obj = {}
+      obj["name"] = sm.name
+      obj["edits"] = sm.max_version
+      obj["rank"] = i + 1
+      context["top_sms"].append(obj)
     return render(request, 'homepage.html',
       context)
 

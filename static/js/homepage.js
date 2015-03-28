@@ -14,5 +14,9 @@ $(document).ready(function() {
       $(".as-on").show(500);
     }
     $(this).toggleClass("active").toggleClass("inactive");
+  });
+
+  $(".top-db-row").click(function() {
+    window.location.href = $(this).attr("data-url");
   })
 })
