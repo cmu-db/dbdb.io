@@ -6,6 +6,10 @@
   margin-bottom: 20px;
 }
 
+.db-title:hover {
+  cursor:pointer;
+}
+
 .check-img.green-check {
   content: url(/static/images/green-check.png);
 }

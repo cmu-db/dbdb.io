@@ -16,21 +16,20 @@
     <!-- title and description row -->
     <div class="row" id="title-row">
       <div class="col-md-12">
-        <div id = "db-title">
-          {{ db.name }}
-          <span class="version-info">
-            {% if isVersionPage %}
-              Version: {{db.version}} - {{ db.version_message }}
-            {% endif %}
-          </span>
-        </div>
-        <div class="subsection-heading">DESCRIPTION</div>
-        <div id = "db-description">
-          {{ db.description }}
-        </div>
-        <div class="subsection-heading">HISTORY</div>
-        <div id = "db-history">
-          {{ db.history }}
+        <div class="row">
+          <div id = "db-title" class = "col-md-10 col-xs-12">
+            {{ db.name }}
+            <span class="version-info">
+              {% if isVersionPage %}
+                Version: {{db.version}} - {{ db.version_message }}
+              {% endif %}
+            </span>
+          </div>
+          <div class="revision-button-area col-md-2 col-xs-12">
+            <button class="btn btn-default revision-button" data-url="/db/{{db.name}}/revisions">
+              View Revision History
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -40,6 +39,16 @@
       <!-- yes/no feature area -->
       <div class="col-md-6 col-xs-12">
 
+        <div class="subsection-heading">DESCRIPTION</div>
+        <div id = "db-description" class="description-description">
+          {{ db.description }}
+        </div>
+        <div class="subsection-heading">HISTORY</div>
+        <div id = "db-history" class="description-description">
+          {{ db.history }}
+        </div>
+
+        {% if db.support_sql != None %}
         <div class="yesno-row">
           <div class="yesno-title-area">
             {% if db.support_sql == None %}
@@ -60,7 +69,9 @@
             </div>
           {% endif %}
         </div>
+        {% endif %}
 
+        {% if db.support_foreignkeys != None %}
         <div class="yesno-row">
           <div class="yesno-title-area">
             {% if db.support_foreignkeys == None %}
@@ -81,7 +92,9 @@
             </div>
           {% endif %}
         </div>
+        {% endif %}
 
+        {% if db.support_serverside != None %}
         <div class="yesno-row">
           <div class="yesno-title-area">
             {% if db.support_serverside == None %}
@@ -102,7 +115,9 @@
             </div>
           {% endif %}
         </div>
+        {% endif %}
 
+        {% if db.support_mapreduce != None %}
         <div class="yesno-row">
           <div class="yesno-title-area">
             {% if db.support_mapreduce == None %}
@@ -123,7 +138,9 @@
             </div>
           {% endif %}
         </div>
+        {% endif %}
 
+        {% if db.support_secondary != None %}
         <div class="yesno-row">
           <div class="yesno-title-area">
             {% if db.support_secondary == None %}
@@ -144,7 +161,9 @@
             </div>
           {% endif %}
         </div>
+        {% endif %}
 
+        {% if db.support_durability != None %}
         <div class="yesno-row">
           <div class="yesno-title-area">
             {% if db.support_durability == None %}
@@ -165,7 +184,9 @@
             </div>
           {% endif %}
         </div>
+        {% endif %}
 
+        {% if db.support_triggers != None %}
         <div class="yesno-row">
           <div class="yesno-title-area">
             {% if db.support_triggers == None %}
@@ -186,7 +207,9 @@
             </div>
           {% endif %}
         </div>
+        {% endif %}
 
+        {% if db.support_concurrency != None %}
         <div class="yesno-row">
           <div class="yesno-title-area">
             {% if db.support_concurrency == None %}
@@ -207,7 +230,9 @@
             </div>
           {% endif %}
         </div>
+        {% endif %}
 
+        {% if db.support_userconcepts != None %}
         <div class="yesno-row">
           <div class="yesno-title-area">
             {% if db.support_userconcepts == None %}
@@ -228,7 +253,9 @@
             </div>
           {% endif %}
         </div>
+        {% endif %}
 
+        {% if db.support_datashceme != None %}
         <div class="yesno-row">
           <div class="yesno-title-area">
             {% if db.support_datashceme == None %}
@@ -249,7 +276,9 @@
             </div>
           {% endif %}
         </div>
+        {% endif %}
 
+        {% if db.support_xml != None %}
         <div class="yesno-row">
           <div class="yesno-title-area">
             {% if db.support_xml == None %}
@@ -270,7 +299,9 @@
             </div>
           {% endif %}
         </div>
+        {% endif %}
 
+        {% if db.support_typing != None %}
         <div class="yesno-row">
           <div class="yesno-title-area">
             {% if db.support_typing == None %}
@@ -291,7 +322,9 @@
             </div>
           {% endif %}
         </div>
+        {% endif %}
 
+        {% if db.support_transactionconcepts != None %}
         <div class="yesno-row">
           <div class="yesno-title-area">
             {% if db.support_transactionconcepts == None %}
@@ -312,6 +345,7 @@
             </div>
           {% endif %}
         </div>
+        {% endif %}
 
       </div>
 
@@ -368,6 +402,8 @@
 {% endblock %}
 
 {% block js %}
+
+  <script src="{% static 'js/database.js' %}"></script>
 
 {% endblock %}
 

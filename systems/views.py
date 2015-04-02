@@ -305,7 +305,7 @@ class DatabaseCreationPage(View):
 
 class DatabaseRevisionsPage(View):
 
-  def get(self, request, db_name, key):
+  def get(self, request, db_name, key = ""):
     db_name = db_name.replace("-", " ")
     dbManager = SystemManager.objects.get(name = db_name)
     database = dbManager.current_version.all()[0]
@@ -322,6 +322,7 @@ class DatabaseRevisionsPage(View):
       obj["comment"] = revision.version_message
       obj["version_number"] = revision.version
       context["revisions"].append(obj)
+    context["key"] = key
     return render(request, 'database_revision.html', context)
 
 class PLCreationView(View):
