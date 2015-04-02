@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.core.exceptions import PermissionDenied
 from django.http import (HttpResponse, HttpResponseNotFound,
     HttpResponseBadRequest, HttpResponseServerError)
-
+from django.contrib.syndication.views import Feed
 from django.http import HttpResponseRedirect
 from django.views.generic.base import View
 from django.views.generic import TemplateView
@@ -355,3 +355,20 @@ class FetchAllSystems(APIView):
   def get(self, request):
     systems = SystemSerializer(System.objects.all(), many = True)
     return Response(systems.data)
+
+class LatestEdits(Feed):
+  title = "Latest edits to databas pages."
+  link = '/editrss/'
+  description = "A live feed of all changes made to any database recently"
+
+  def items(self):
+    return System.objects.all().order_by("created")[::-1][:30]
+
+  def item_title(self, item):
+    return item.creator + " edited " + item.name
+
+  def item_description(self, item):
+    return item.version_message
+
+  def item_link(self, item):
+    return "/db/version/" + item.name + "/" + str(item.version) 

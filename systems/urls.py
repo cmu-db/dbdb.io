@@ -18,5 +18,6 @@ urlpatterns = patterns('',
     url(r'^createlanguage', views.PLCreationView.as_view()),
     url(r'^createos', views.OSCreationView.as_view()),
     # api urls
-    url(r'^1/all_systems', views.FetchAllSystems.as_view())
+    url(r'^1/all_systems', views.FetchAllSystems.as_view()),
+    url(r'^editsrss/', views.LatestEdits())
 )

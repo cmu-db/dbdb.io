@@ -246,6 +246,7 @@ function load_click_handlers() {
       url: window.location.pathname,
       data: changed_data,
       success: function() {
+	location.reload();
       },
       dataType: "json"
     });
@@ -266,6 +267,5 @@ function load_page_data() {
 
 $(document).ready(function() {
   load_page_data();
-  console.log(option_states);
   load_click_handlers();
 })

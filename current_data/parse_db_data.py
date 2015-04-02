@@ -235,7 +235,11 @@ def enterModels(dryRun = True):
       pass
     else:
       print "saving model...",
-      system.save()
+      try:
+        system.save()
+      except:
+	print "failed!"
+	continue
       if "dbmodel" in m2m_model:
         addDBModels(models, m2m_model, system)
       if "oses" in m2m_model:
