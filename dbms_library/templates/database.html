@@ -20,9 +20,7 @@
           <div id = "db-title" class = "col-md-10 col-xs-12">
             {{ db.name }}
             <span class="version-info">
-              {% if isVersionPage %}
-                Version: {{db.version}} - {{ db.version_message }}
-              {% endif %}
+                Version: {{db.version}} - {{ db.version_message | slice:":30" }}... - {{ db.created }}
             </span>
           </div>
           <div class="revision-button-area col-md-2 col-xs-12">

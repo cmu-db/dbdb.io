@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+
+{% block css %}
+  <link href="{% static 'css/advanced_search.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+
+<div class="cover-up">
+</div>
+
+<div class="row outside-row" style="margin-top:-20px;">
+
+  <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1">
+    <div class="row">
+      <div class="search-title green-text">
+        Advanced Search
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1">
+    <form style="margin-bottom:0;">
+      <div class="row">
+        {% for field in system_fields %}
+          <span class="col-md-3 col-sm-4 col-xs-6 search-check">
+            <input type="checkbox" class="search-checkbox" name="{{ field }}" value="{{ field }}">
+            {{ field }}
+          </span>
+        {% endfor %}
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="row advanced-results-row">
+  <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1">
+    <div class="row inside-row">
+      {% for data in ordered_dbs_list %}
+        {% if data.dbs %}
+          <div class=" col-lg-3 col-md-4 col-sm-4 col-xs-6" id="letter-{{ data.letter }}">
+            <div class="letter-area">
+              <div class="letter-title" style="text-align:center">
+                {{ data.letter }}
+              </div>
+              <div class="db-name-area">
+                {% for db in data.dbs %}
+                  <div class="db-name" id="{{ db.id }}">
+                    <a href="/db/{{db.name}}" style="color:#595959;">{{ db.name }}</a>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1 no-results" style="display:none;">
+    <div class="row inside-row">
+      <div class="no-results-title">
+        No Results
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+  <script src="{% static 'js/advanced_search.js' %}"></script>
+{% endblock %}
+

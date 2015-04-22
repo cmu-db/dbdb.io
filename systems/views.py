@@ -1,23 +1,17 @@
 from django.shortcuts import render, redirect
-from django.core.exceptions import PermissionDenied
-from django.http import (HttpResponse, HttpResponseNotFound,
-    HttpResponseBadRequest, HttpResponseServerError)
+from django.http import HttpResponseBadRequest
 from django.contrib.syndication.views import Feed
 from django.http import HttpResponseRedirect
 from django.views.generic.base import View
-from django.views.generic import TemplateView
 from django.views.decorators.csrf import csrf_exempt
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from datetime import date, timedelta
 
 from systems.models import *
 from systems.serializers import *
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 
-import hashlib, time
+import hashlib, time, string
 
 system_fields = {
   'support_sql': 'SQL',
@@ -278,7 +272,6 @@ class DatabaseVersionPage(View):
     return render(request, 'database.html',
         context)
 
-
 class DatabaseCreationPage(View):
 
   @csrf_exempt
@@ -356,6 +349,50 @@ class FetchAllSystems(APIView):
   def get(self, request):
     systems = SystemSerializer(System.objects.all(), many = True)
     return Response(systems.data)
+
+class AdvancedSearchView(View):
+
+  savedData = []
+
+  @staticmethod
+  def alphabetize_dbs_data():
+    if AdvancedSearchView.savedData:
+      return AdvancedSearchView.savedData
+    dbs = sorted(map(lambda x: (x.name.replace(" ", "-"), {"id": x.id, "data": LightSystemSerializer(x.current_version.all()[0]).data}), SystemManager.objects.all()))
+    ordered_dbs_dict = {letter: [] for letter in string.digits + string.ascii_lowercase}
+    ordered_dbs_list = []
+    for (db_name, db_data) in dbs:
+      if not db_name: continue
+      letter = db_name.lower()[0]
+      ordered_dbs_dict[letter].append(db_data)
+    for letter in string.digits + string.ascii_lowercase:
+      ordered_dbs_list.append({'letter': letter.upper(), 'dbs': ordered_dbs_dict[letter]})
+    AdvancedSearchView.savedData = ordered_dbs_list
+    return ordered_dbs_list
+
+  @staticmethod
+  def alphabetize_dbs_name():
+    dbs = sorted(map(lambda x: (x.name.replace(" ", "-"), {"name": x.name, "id":x.id}), SystemManager.objects.all()))
+    ordered_dbs_dict = {letter: [] for letter in string.digits + string.ascii_lowercase}
+    ordered_dbs_list = []
+    for (db_name, db_data) in dbs:
+      if not db_name: continue
+      letter = db_name.lower()[0]
+      ordered_dbs_dict[letter].append(db_data)
+    for letter in string.digits + string.ascii_lowercase:
+      ordered_dbs_list.append({'letter': letter.upper(), 'dbs': ordered_dbs_dict[letter]})
+    return ordered_dbs_list
+
+
+  def get(self, request):
+    context = LoadContext.load_base_context(request)
+    context["ordered_dbs_list"] = AdvancedSearchView.alphabetize_dbs_name()
+    return render(request, 'advanced_search.html', context)
+
+class AlphabetizedData(APIView):
+
+  def get(self, request):
+    return Response(AdvancedSearchView.alphabetize_dbs_data());
 
 class LatestEdits(Feed):
   title = "Latest edits to databas pages."
