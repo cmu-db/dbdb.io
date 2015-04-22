@@ -56,7 +56,7 @@
 
 .check-img.grey-check {
   width: 30px;
-  content: url(/static/images/grey-check.png);
+  content: url(/static/images/black-cross.png);
 }
 
 .check-img.question-check {
