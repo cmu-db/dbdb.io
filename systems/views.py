@@ -356,18 +356,12 @@ class AdvancedSearchView(View):
 
   @staticmethod
   def alphabetize_dbs_data():
-    if AdvancedSearchView.savedData:
-      return AdvancedSearchView.savedData
-    dbs = sorted(map(lambda x: (x.name.replace(" ", "-"), {"id": x.id, "data": LightSystemSerializer(x.current_version.all()[0]).data}), SystemManager.objects.all()))
-    ordered_dbs_dict = {letter: [] for letter in string.digits + string.ascii_lowercase}
+    # if AdvancedSearchView.savedData:
+    #   return AdvancedSearchView.savedData
+    dbs = map(lambda x: {"id": x.id, "data": LightSystemSerializer(x.current_version.all()[0]).data}, SystemManager.objects.all())
     ordered_dbs_list = []
-    for (db_name, db_data) in dbs:
-      if not db_name: continue
-      letter = db_name.lower()[0]
-      ordered_dbs_dict[letter].append(db_data)
-    for letter in string.digits + string.ascii_lowercase:
-      ordered_dbs_list.append({'letter': letter.upper(), 'dbs': ordered_dbs_dict[letter]})
-    AdvancedSearchView.savedData = ordered_dbs_list
+    ordered_dbs_list.append({'letter': "-", 'dbs': dbs})
+    # AdvancedSearchView.savedData = ordered_dbs_list
     return ordered_dbs_list
 
   @staticmethod

@@ -140,8 +140,7 @@ $(document).ready(function() {
         }
       }
       current_dbs = db_names
-      // clear_all_dbs();
-      // populate_current_dbs();
+      console.log(current_dbs)
       load_clickers();
     },
     error: function(a , b, c){
