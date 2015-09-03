@@ -8,9 +8,6 @@
 
 {% block body %}
 
-<div class="cover-up">
-</div>
-
 <div class="row outside-row" style="margin-top:-20px;">
 
   <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1">
@@ -22,16 +19,23 @@
   </div>
 
   <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1">
-    <form style="margin-bottom:0;">
-      <div class="row">
-        {% for field in system_fields %}
-          <span class="col-md-3 col-sm-4 col-xs-6 search-check">
-            <input type="checkbox" class="search-checkbox" name="{{ field }}" value="{{ field }}">
-            {{ field }}
-          </span>
-        {% endfor %}
-      </div>
-    </form>
+    <div class="row">
+      {% for field in system_fields %}
+        <span class="col-md-3 col-sm-4 col-xs-6 search-check">
+          {% if field in questionchecks %}
+            <img class="field-selector check-img question-check" data-current-check="question-check" data-field="{{field}}">
+          {% elif field in greenchecks %}
+            <img class="field-selector check-img green-check" data-current-check="green-check" data-field="{{field}}">
+          {% else %}
+            <img class="field-selector check-img grey-check" data-current-check="grey-check" data-field="{{field}}">
+          {% endif %}
+          <span class="field-text">{{ field }}</span>
+        </span>
+      {% endfor %}
+    </div>
+    <div class="col-md-4 col-xs-6 col-md-offset-4 col-xs-offset-3">
+      <button class="btn btn-default btn-lg search-button" style="width:100%" type="submit">Search</button>
+    </div>
   </div>
 </div>
 
@@ -41,21 +45,18 @@
       <div class="words-area">
       {% for data in ordered_dbs_list %}
         {% if data.dbs %}
-          <!-- <div class=" col-lg-3 col-md-4 col-sm-4 col-xs-6" id="letter-{{ data.letter }}"> -->
-          
             <div class="letter-area" id="letter-{{ data.letter }}">
-              <div class="letter-title">
+              <div class="letter-title green-text">
                 {{ data.letter }}
               </div>
               <div class="db-name-area">
-                {% for db in data.dbs %}
-                  <div class="db-name" id="{{ db.id }}">
-                    <a href="/db/{{db.name}}" style="color:#595959;">{{ db.name }}</a>
+                {% for db_name in data.dbs %}
+                  <div class="db-name">
+                    <a href="/db/{{ db_name }}" style="color:white">{{ db_name }}</a>
                   </div>
                 {% endfor %}
               </div>
             </div>
-          <!-- </div> -->
         {% endif %}
       {% endfor %}
       </div>

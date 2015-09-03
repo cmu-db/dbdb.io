@@ -8,9 +8,10 @@
 }
 
 .version-info {
-  font-size: 70%;
   font-weight: 100;
   margin-left: 15px;
+  text-align: right;
+  margin-top: 45px;
 }
 
 .hidden {

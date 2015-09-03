@@ -29,6 +29,8 @@ system_fields = {
   'support_foreignkeys': 'FOREIGN KEYS'
 }
 
+inv_fields = {v: k for k, v in system_fields.items()}
+
 class LoadContext(object):
 
   @staticmethod
@@ -352,35 +354,40 @@ class FetchAllSystems(APIView):
 
 class AdvancedSearchView(View):
 
-  savedData = []
+  def create_query_dict(self, raw_dict):
+    drop_keys = []
+    new_dict = {}
+    questioncheck = []
+    greencheck = []
+    greycheck = []
+    for key in raw_dict:
+      if raw_dict[key][0] == "question-check":
+        questioncheck.append(key)
+      elif raw_dict[key][0] == "green-check":
+        new_dict[inv_fields[key]] = True
+        greencheck.append(key)
+      else:
+        new_dict[inv_fields[key]] = False
+        greycheck.append(key);
+    return new_dict, questioncheck, greencheck, greycheck
 
-  @staticmethod
-  def alphabetize_dbs_data():
-    # if AdvancedSearchView.savedData:
-    #   return AdvancedSearchView.savedData
-    dbs = map(lambda x: {"id": x.id, "data": LightSystemSerializer(x.current_version.all()[0]).data}, SystemManager.objects.all())
-    ordered_dbs_list = []
-    ordered_dbs_list.append({'letter': "-", 'dbs': dbs})
-    # AdvancedSearchView.savedData = ordered_dbs_list
-    return ordered_dbs_list
-
-  @staticmethod
-  def alphabetize_dbs_name():
-    dbs = sorted(map(lambda x: (x.name.replace(" ", "-"), {"name": x.name, "id":x.id}), SystemManager.objects.all()))
-    ordered_dbs_dict = {letter: [] for letter in string.digits + string.ascii_lowercase}
-    ordered_dbs_list = []
-    for (db_name, db_data) in dbs:
-      if not db_name: continue
-      letter = db_name.lower()[0]
-      ordered_dbs_dict[letter].append(db_data)
-    for letter in string.digits + string.ascii_lowercase:
-      ordered_dbs_list.append({'letter': letter.upper(), 'dbs': ordered_dbs_dict[letter]})
-    return ordered_dbs_list
-
+  def make_ordered_list(self, dbs):
+    start_letters = string.ascii_lowercase + string.digits
+    ordered_list = [ {"letter": letter, "dbs": []} for letter in start_letters]
+    for db in dbs:
+      name = db.name
+      letter_idx = start_letters.index(name[0].lower())
+      ordered_list[letter_idx]["dbs"].append(name)
+    return ordered_list
 
   def get(self, request):
     context = LoadContext.load_base_context(request)
-    context["ordered_dbs_list"] = AdvancedSearchView.alphabetize_dbs_name()
+    params, question, green, grey = self.create_query_dict(dict(request.GET))
+    context["questionchecks"] = question
+    context["greenchecks"] = green
+    context["greychecks"] = grey
+    dbs = System.objects.filter(**params)
+    context["ordered_dbs_list"] = self.make_ordered_list(dbs)
     return render(request, 'advanced_search.html', context)
 
 class AlphabetizedData(APIView):
