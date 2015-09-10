@@ -9,6 +9,7 @@ admin.site.register(ProgrammingLanguage)
 admin.site.register(License)
 admin.site.register(System)
 admin.site.register(SystemManager)
+admin.site.register(SuggestedSystem)
 
 
 class PublicationAdmin(admin.ModelAdmin):

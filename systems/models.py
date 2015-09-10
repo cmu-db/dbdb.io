@@ -61,6 +61,18 @@ class Publication(models.Model):
     bibtex = models.TextField(default=None, null=True, blank=True)
     download = models.URLField(default=None, null=True, blank=True)
     year = models.IntegerField()
+    def __unicode__(self):
+        return self.title
+
+class SuggestedSystem(models.Model):
+    name = models.CharField(max_length=64)
+    description = models.TextField(default=None, null=True, blank=True)
+    email = models.CharField(max_length=100)
+    website = models.URLField(default="", null=True)
+    approved = models.NullBooleanField()
+    secret_key = models.CharField(max_length = 100, default = None)
+    def __unicode__(self):
+        return self.name
 
 class System(models.Model):
     name = models.CharField(max_length=64)

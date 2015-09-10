@@ -22,12 +22,12 @@
     <div class="row">
       {% for field in system_fields %}
         <span class="col-md-3 col-sm-4 col-xs-6 search-check">
-          {% if field in questionchecks %}
-            <img class="field-selector check-img question-check" data-current-check="question-check" data-field="{{field}}">
+          {% if field in greychecks %}
+            <img class="field-selector check-img grey-check" data-current-check="grey-check" data-field="{{field}}">
           {% elif field in greenchecks %}
             <img class="field-selector check-img green-check" data-current-check="green-check" data-field="{{field}}">
           {% else %}
-            <img class="field-selector check-img grey-check" data-current-check="grey-check" data-field="{{field}}">
+            <img class="field-selector check-img question-check" data-current-check="question-check" data-field="{{field}}">
           {% endif %}
           <span class="field-text">{{ field }}</span>
         </span>

@@ -395,6 +395,21 @@ class AlphabetizedData(APIView):
   def get(self, request):
     return Response(AdvancedSearchView.alphabetize_dbs_data());
 
+class MissingSystemView(View):
+
+  def post(self, request):
+    data = dict(request.POST)
+    data = {k: v[0] for k, v in data.items()}
+    data.pop("csrfmiddlewaretoken", None)
+    data["secret_key"] = DatabaseCreationPage.create_secret_key()
+    system = SuggestedSystem(**data)
+    system.save()
+    return HttpResponseRedirect("/")
+
+  def get(self, request):
+    context = LoadContext.load_base_context(request)
+    return render(request, 'missing_system.html', context)
+
 class LatestEdits(Feed):
   title = "Latest edits to databas pages."
   link = '/editrss/'
