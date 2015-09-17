@@ -7,6 +7,22 @@ var option_states = {"written_in": [], "oses": [], "support_languages": []};
 var option_adds = {"written_in": [], "oses": [], "support_languages": []};
 var option_removes = {"written_in": [], "oses": [], "support_languages": []};
 
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 function close_text_area($elem, text) {
   $(".save-button").show(500);
   $elem.removeClass("editing");
@@ -250,6 +266,51 @@ function load_click_handlers() {
       },
       dataType: "json"
     });
+  })
+
+  $(".add-citation-done-btn").click(function() {
+    var data = {}
+    var cite_num = parseInt($(".num-citations").attr("data-num"))
+    var db_name = $(".db-name").attr("data-name");
+    data["number"] = cite_num + 1;
+    data["db_name"] = db_name;
+    data["authors"] = $("#authors").val();
+    $("#authors").val("");
+    data["title"] = $("#title").val();
+    $("#title").val("");
+    data["journal"] = $("#journal").val();
+    $("#journal").val("");
+    data["volume"] = $("#volume").val();
+    $("#volume").val("");
+    data["year"] = $("#year").val();
+    $("#year").val("")
+    data["pages"] = $("#pages").val();
+    $("#pages").val("");
+    data["download"] = $("#download-url").val();
+    $("#download-url").val("");
+    var csrftoken = getCookie('csrftoken');
+    $.ajax({
+      type: "POST",
+      url: "/addpublication/",
+      data: data,
+      beforeSend: function (xhr) {
+        xhr.withCredentials = true;
+        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+      },
+      success: function(data) {
+        $(".num-citations").attr("data-num", cite_num + 1);
+        var cite_div = document.createElement("div");
+        cite_div.className = "citation";
+        var cite_text = document.createTextNode("[" + (cite_num + 1) + "] " + data.cite);
+        cite_div.appendChild(cite_text);
+        var cite_area = document.getElementsByClassName("citations-area")[0];
+        cite_area.appendChild(cite_div);
+      },
+      error: function(x, y, z) {
+        console.log("failed: " + z);
+      },
+      dataType: "json"
+    })
   })
 }
 

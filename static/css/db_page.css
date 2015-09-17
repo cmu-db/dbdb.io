@@ -11,7 +11,6 @@
   font-weight: 100;
   margin-left: 15px;
   text-align: right;
-  margin-top: 45px;
 }
 
 .hidden {
@@ -27,7 +26,6 @@
   color: #101010;
   font-size: 200%;
   font-weight: 700;
-  margin-bottom: 20px;
 }
 
 .header-text {
@@ -102,3 +100,10 @@
   margin-right: 10px;
 }
 
+.citation-row {
+  margin-top: 30px;
+}
+
+.citation {
+  margin-top: 15px;
+}

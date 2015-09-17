@@ -107,4 +107,20 @@
   margin-top: 10px;
 }
 
+.add-citation-btn {
+  width: 100%;
+  text-align: left;
+  background-image: none;
+  border-color: white;
+  background-color: white;
+  color: black;
+  box-shadow: none;
+}
+
+.add-citation-btn:hover {
+  background-color: #eee;
+  color: black;
+  border-color:  white;
+  box-shadow: none;
+}
 

@@ -443,6 +443,76 @@
       </div>
     </div>
 
+    <div class="row citation-row">
+      <div class="col-md-12">
+        <div class="citations-header subsection-heading">
+          Citations
+        </div>
+        <div class="citations-area">
+          {% for pub in db.pubs %}
+            <div class="citation">
+              {% if pub.link %}
+                [{{pub.number}}] <a href="{{pub.link}}">{{pub.cite}}</a>
+              {% else %}
+                [{{pub.number}}] {{pub.cite}}
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+        <div class="add-citations-area">
+          <div class="num-citations" style="display:none;" data-num="{{db.num_pubs}}"></div>
+          <div class="db-name" style="display:none;" data-name="{{db.name}}"></div>
+          <button type="button" class="btn btn-primary btn-lg add-citation-btn" data-toggle="modal" data-target="#addCitation">
+            <i class="fa fa-plus" style="margin-right:15px;"></i> Add a citation
+          </button>
+          <div class="modal fade" id="addCitation" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="myModalLabel">Create and Add Citation</h4>
+                </div>
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Authors</label>
+                    <input type="text" name ="authors" class="form-control" id="authors" placeholder="Last, First M...">
+                  </div> 
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Title of Publication</label>
+                    <input type="text" name="title" class="form-control" id="title" placeholder="Title">
+                  </div> 
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Journal</label>
+                    <input type="text" name="journal" class="form-control" id="journal" placeholder="Journal published in">
+                  </div> 
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Volume</label>
+                    <input type="text" class="form-control" id="volume" placeholder="Journal Volume">
+                  </div> 
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Year</label>
+                    <input type="text" class="form-control" id="year" placeholder="Year of publication">
+                  </div> 
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Pages</label>
+                    <input type="text" class="form-control" id="pages" placeholder="xx-yy">
+                  </div> 
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Download URL</label>
+                    <input type="text" class="form-control" id="download-url" placeholder="http://download.this.paper.com">
+                  </div> 
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default add-citation-done-btn" data-dismiss="modal">Add</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
   </div><!--/col-12-->
 </div>
 

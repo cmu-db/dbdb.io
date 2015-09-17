@@ -25,7 +25,9 @@
               View Revision History
             </button>
           </div>
-          <div class="version-info">
+        </div>
+        <div class="row">
+          <div class="col-md-12 version-info">
             Last Updated: {{ db.created }}
           </div>
         </div>
@@ -35,7 +37,7 @@
     <!-- features row -->
     <div class="row">
       <!-- yes/no feature area -->
-      <div class="col-md-6 col-xs-12">
+      <div class="col-md-8 col-xs-12">
 
         <div class="subsection-heading">DESCRIPTION</div>
         <div id = "db-description" class="description-description">
@@ -348,9 +350,9 @@
       </div>
 
       <!-- metadata area -->
-      <div class="col-md-6 col-xs-12" id="metadata-area">
+      <div class="col-md-4 col-xs-12" id="metadata-area">
         <div class="metadata-row">
-          <span class="header-text">Website: </span><span class="metadata-data" data-type="website">{{ db.website }}</span>
+          <span class="header-text">Website: </span><span class="metadata-data" data-type="website"><a href="{{ db.website }}">{{db.website}}</a></span>
         </div>
         <div class="metadata-row">
           <span class="header-text">Developer: </span><span class="metadata-data" data-type="developer">{{ db.developer }}</span>
@@ -390,6 +392,25 @@
               <a href="/search/support_lang/{{lang}}">{{lang}}</a>, 
             {% endfor %}
           </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="row citation-row">
+      <div class="col-md-12">
+        <div class="citations-header subsection-heading">
+          Citations
+        </div>
+        <div class="citations-area">
+          {% for pub in db.pubs %}
+            <div class="citation">
+              {% if pub.link %}
+                [{{pub.number}}] <a href="{{pub.link}}">{{pub.cite}}</a>
+              {% else %}
+                [{{pub.number}}] {{pub.cite}}
+              {% endif %}
+            </div>
+          {% endfor %}
         </div>
       </div>
     </div>

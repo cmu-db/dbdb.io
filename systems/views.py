@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest
 from django.contrib.syndication.views import Feed
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.views.generic.base import View
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
@@ -11,7 +11,7 @@ from datetime import date, timedelta
 from systems.models import *
 from systems.serializers import *
 
-import hashlib, time, string
+import hashlib, time, string, json
 
 system_fields = {
   'support_sql': 'SQL',
@@ -46,7 +46,11 @@ class LoadContext(object):
   @staticmethod
   def load_db_data(db):
     db["name"] = db["name"].replace(" ", "-")
-    written_lang, oses, support_langs = [], [], []
+    link = db["website"]
+    if not link.startswith("http://") or link.startswith("https://"):
+      link = "http://" + link
+    db["website"] = link
+    written_lang, oses, support_langs, pubs = [], [], [], []
     for os_id in db["oses"]:
       os = OperatingSystem.objects.get(id = os_id)
       oses.append(OperatingSystemSerializer(os).data['name'].replace(" ", "-"))
@@ -56,9 +60,16 @@ class LoadContext(object):
     for lang_id in db["written_in"]:
       lang = ProgrammingLanguage.objects.get(id = lang_id)
       written_lang.append(ProgrammingLanguageSerializer(lang).data['name'].replace(" ", "-"))
+    for pub_id in db["publications"]:
+      pub = Publication.objects.get(id = pub_id)
+      pubs.append((pub.number, {"cite": pub.cite, "number": pub.number,
+                                "link": pub.download}))
+    pubs.sort()
     db["oses"] = oses
     db["written_in"] = written_lang
     db["support_languages"] = support_langs
+    db["pubs"] = map(lambda x: x[1], pubs)
+    db["num_pubs"] = len(db["pubs"])
     return db
 
   @staticmethod
@@ -409,6 +420,38 @@ class MissingSystemView(View):
   def get(self, request):
     context = LoadContext.load_base_context(request)
     return render(request, 'missing_system.html', context)
+
+class AddPublication(View):
+
+  def create_cite(self, data):
+    cite = ""
+    cite += data["authors"] + ". "
+    if data["title"][0] == '"':
+      cite += data["title"]
+    else:
+      cite += '"' + data["title"]
+    if data["title"][-1] != '"':
+      cite += '"'
+    cite += ". "
+    cite += data["journal"] + " "
+    cite += data["year"] + ". "
+    cite += data["pages"] + "."
+    return cite
+
+  def post(self, request):
+    data = dict(request.POST)
+    data = {k: v[0] for k, v in data.items()}
+    link = data["download"]
+    if not link.startswith("http://") or link.startswith("https://"):
+      link = "http://" + link
+    pub = Publication(title=data["title"], authors=data["authors"],
+      download=link, year=data["year"], number=data["number"],
+      cite=self.create_cite(data))
+    pub.save()
+    db_man = SystemManager.objects.get(name=data["db_name"])
+    db = db_man.current_version.get(version=db_man.version_number)
+    db.publications.add(pub)
+    return HttpResponse(json.dumps({"cite": pub.cite}), content_type="application/json")
 
 class LatestEdits(Feed):
   title = "Latest edits to databas pages."
