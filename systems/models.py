@@ -122,6 +122,8 @@ class System(models.Model):
     description_userconcepts = MarkupField(default="")
     support_transactionconcepts = models.NullBooleanField()
     description_transactionconcepts = MarkupField(default="")
+    support_querycompilation = models.NullBooleanField()
+    description_querycompilation = MarkupField(default="")
     support_languages = models.ManyToManyField(ProgrammingLanguage, related_name='systems_supported')
     default_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
     max_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
@@ -129,7 +131,7 @@ class System(models.Model):
     secret_key = models.CharField(max_length = 100, default = None)
 
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    updated = models.DateTimeField(auto_now_add=True, auto_now=True, null=True, blank=True)
+    updated = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     version = models.IntegerField(default=0)
     creator = models.CharField(max_length=100, default="unknown")
     version_message = models.TextField(max_length=500, default="")
