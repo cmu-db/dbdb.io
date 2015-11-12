@@ -59,9 +59,9 @@ class LoadContext(object):
       support_langs.append(ProgrammingLanguageSerializer(lang).data['name'].replace(" ", "-"))
     for lang in db_model.written_in.all():
       written_lang.append(ProgrammingLanguageSerializer(lang).data['name'].replace(" ", "-"))
-    for pub in db_model.publications.all():
-      pubs.append((pub.number, {"cite": pub.cite, "number": pub.number,
-                                "link": pub.download}))
+    # for pub in db_model.publications.all():
+    #   pubs.append((pub.number, {"cite": pub.cite, "number": pub.number,
+    #                             "link": pub.download}))
     pubs.sort()
     db["oses"] = oses
     db["written_in"] = written_lang
