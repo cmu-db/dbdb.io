@@ -26,7 +26,8 @@ system_fields = {
   'support_secondary': 'SECONDARY INDEXES',
   'support_datascheme': 'DATA SCHEME',
   'support_typing': 'TYPING',
-  'support_foreignkeys': 'FOREIGN KEYS'
+  'support_foreignkeys': 'FOREIGN KEYS',
+  'support_querycompilation': 'QUERY COMPILATION'
 }
 
 inv_fields = {v: k for k, v in system_fields.items()}
@@ -44,24 +45,21 @@ class LoadContext(object):
     return context
 
   @staticmethod
-  def load_db_data(db):
+  def load_db_data(db_model):
+    db = db_model.__dict__
     db["name"] = db["name"].replace(" ", "-")
     link = db["website"]
     if not link.startswith("http://") or link.startswith("https://"):
       link = "http://" + link
     db["website"] = link
     written_lang, oses, support_langs, pubs = [], [], [], []
-    for os_id in db["oses"]:
-      os = OperatingSystem.objects.get(id = os_id)
+    for os in db_model.oses.all():
       oses.append(OperatingSystemSerializer(os).data['name'].replace(" ", "-"))
-    for lang_id in db["support_languages"]:
-      lang = ProgrammingLanguage.objects.get(id = lang_id)
+    for lang in db_model.support_languages.all():
       support_langs.append(ProgrammingLanguageSerializer(lang).data['name'].replace(" ", "-"))
-    for lang_id in db["written_in"]:
-      lang = ProgrammingLanguage.objects.get(id = lang_id)
+    for lang in db_model.written_in.all():
       written_lang.append(ProgrammingLanguageSerializer(lang).data['name'].replace(" ", "-"))
-    for pub_id in db["publications"]:
-      pub = Publication.objects.get(id = pub_id)
+    for pub in db_model.publications.all():
       pubs.append((pub.number, {"cite": pub.cite, "number": pub.number,
                                 "link": pub.download}))
     pubs.sort()
@@ -127,10 +125,10 @@ class DatabasePage(View):
 
   def get(self, request, db_name):
     db_name = db_name.replace("-", " ")
-    dbManager = SystemManager.objects.get(name = db_name)
+    dbManager = SystemManager.objects.get(name__iexact = db_name)
     database = dbManager.current_version.all()[0]
     context = LoadContext.load_base_context(request)
-    context["db"] = LoadContext.load_db_data(SystemSerializer(database).data)
+    context["db"] = LoadContext.load_db_data(database)
     context["isVersionPage"] = False
     return render(request, 'database.html',
         context)
@@ -141,20 +139,20 @@ class OSPage(View):
     name = name.replace("-", " ")
     context = LoadContext.load_base_context(request)
     if page_type == "os":
-      os = OperatingSystem.objects.get(name = name)
-      systems = SystemSerializer(os.systems.all(), many=True).data
+      os = OperatingSystem.objects.get(name__iexact = name)
+      systems = os.systems.all()
       obj_data = OperatingSystemSerializer(os).data
       page_info = {"page_type": "Operating System",
                    "name": obj_data["name"]}
     elif page_type == "written_lang":
-      lang = ProgrammingLanguage.objects.get(name = name)
-      systems = SystemSerializer(lang.systems_written.all(), many=True).data
+      lang = ProgrammingLanguage.objects.get(name__iexact = name)
+      systems = lang.systems_written.all()
       obj_data = ProgrammingLanguageSerializer(lang).data
       page_info = {"page_type": "Programming Language",
                  "name": "Written in " + obj_data["name"]}
     elif page_type == "support_lang":
-      lang = ProgrammingLanguage.objects.get(name = name)
-      systems = SystemSerializer(lang.systems_supported.all(), many=True).data
+      lang = ProgrammingLanguage.objects.get(name__iexact = name)
+      systems = lang.systems_supported.all()
       obj_data = ProgrammingLanguageSerializer(lang).data
       page_info = {"page_type": "Programming Language",
                  "name": "Supports " + obj_data["name"]}
@@ -172,8 +170,8 @@ class LangPage(View):
 
   def get(self, request, lang_name):
     lang_name = lang_name.replace("-", " ")
-    lang = ProgrammingLanguage.objects.get(name = lang_name)
-    systems = SystemSerializer(lang.systems_supported.all(), many=True).data
+    lang = ProgrammingLanguage.objects.get(name__iexact = lang_name)
+    systems = lang.systems_supported.all()
     systems_data = []
     for system in systems:
       systems_data.append(LoadContext.load_db_data(system))
@@ -198,7 +196,7 @@ class DatabaseEditingPage(View):
         ip = request.META.get('REMOTE_ADDR')
     db_name = db_name.replace("-", " ")
     savedModels = DatabaseEditingPage.savedModels
-    dbManager = SystemManager.objects.get(name = db_name)
+    dbManager = SystemManager.objects.get(name__iexact = db_name)
     db = dbManager.current_version.all()[0]
     dbManager.current_version.remove(db)
     db.pk = None
@@ -232,7 +230,7 @@ class DatabaseEditingPage(View):
       if lang_name in savedModels and savedModels[lang_name]:
         lang = savedModels[lang_name]
       else:
-        lang = ProgrammingLanguage.objects.get(name = lang_name)
+        lang = ProgrammingLanguage.objects.get(name__iexact = lang_name)
         savedModels[lang_name] = lang
       if task == "add": db.written_in.add(lang)
       else: db.written_in.remove(lang)
@@ -241,7 +239,7 @@ class DatabaseEditingPage(View):
       if lang_name in savedModels and savedModels[lang_name]:
         lang = savedModels[lang_name]
       else:
-        lang = ProgrammingLanguage.objects.get(name = lang_name)
+        lang = ProgrammingLanguage.objects.get(name__iexact = lang_name)
         savedModels[lang_name] = lang
       if task == "add": db.support_languages.add(lang)
       else: db.support_languages.remove(lang)
@@ -250,7 +248,7 @@ class DatabaseEditingPage(View):
       if os_name in savedModels and savedModels[os_name]:
         os = savedModels[os_name]
       else:
-        os = OperatingSystem.objects.get(name = os_name)
+        os = OperatingSystem.objects.get(name__iexact = os_name)
         savedModels[os_name] = os
       if task == "add": db.oses.add(os)
       else: db.oses.remove(os) 
@@ -258,11 +256,11 @@ class DatabaseEditingPage(View):
 
   def get(self, request, db_name, key):
     db_name = db_name.replace("-", " ")
-    dbManager = SystemManager.objects.get(name = db_name)
+    dbManager = SystemManager.objects.get(name__iexact = db_name)
     database = dbManager.current_version.all()[0]
     if database.secret_key == key:
       context = LoadContext.load_base_context(request)
-      context["db"] = LoadContext.load_db_data(SystemSerializer(database).data)
+      context["db"] = LoadContext.load_db_data(database)
       context["key"] = key
       LoadContext.load_db_raw_markdown_fields(context["db"], database)
       return render(request, 'database_edit.html',
@@ -275,12 +273,12 @@ class DatabaseVersionPage(View):
   def get(self, request, db_name, version):
     version = int(version)
     db_name = db_name.replace("-", " ")
-    dbManager = SystemManager.objects.get(name = db_name)
+    dbManager = SystemManager.objects.get(name__iexact = db_name)
     if dbManager.max_version < version:
       return HttpResponseRedirect("/")
-    database = System.objects.get(name=db_name, version = version)
+    database = System.objects.get(name__iexact =db_name, version = version)
     context = LoadContext.load_base_context(request)
-    context["db"] = LoadContext.load_db_data(SystemSerializer(database).data)
+    context["db"] = LoadContext.load_db_data(database)
     context["isVersionPage"] = True
     return render(request, 'database.html',
         context)
@@ -305,7 +303,7 @@ class DatabaseCreationPage(View):
     if request.POST.get('name', False):
       name = request.POST.get('name')
       key = DatabaseCreationPage.create_secret_key()
-      newDB = System(name = name, secret_key = key)
+      newDB = System(name__iexact = name, secret_key = key)
       newDB.save()
       return redirect("/db/%s/%s" % (name, key))
 
@@ -313,11 +311,11 @@ class DatabaseRevisionsPage(View):
 
   def get(self, request, db_name, key = ""):
     db_name = db_name.replace("-", " ")
-    dbManager = SystemManager.objects.get(name = db_name)
+    dbManager = SystemManager.objects.get(name__iexact = db_name)
     database = dbManager.current_version.all()[0]
     context = LoadContext.load_base_context(request)
-    context["db"] = LoadContext.load_db_data(SystemSerializer(database).data)
-    revisions = System.objects.filter(name = db_name).order_by("created")[::-1]
+    context["db"] = LoadContext.load_db_data(database)
+    revisions = System.objects.filter(name__iexact = db_name).order_by("created")[::-1]
     context["revisions"] = []
     for revision in revisions:
       obj = {}
@@ -340,7 +338,7 @@ class PLCreationView(View):
   def post(self, request):
     if request.POST.get('name', False):
       name = request.POST.get('name')
-      newDB = ProgrammingLanguage(name = name)
+      newDB = ProgrammingLanguage(name__iexact = name)
       newDB.save()
       return HttpResponseRedirect("/createdb")
 
@@ -353,7 +351,7 @@ class OSCreationView(View):
   def post(self, request):
     if request.POST.get('name', False):
       name = request.POST.get('name')
-      newDB = OperatingSystem(name = name)
+      newDB = OperatingSystem(name__iexact = name)
       newDB.save()
       return HttpResponseRedirect("/createdb")
 
@@ -362,6 +360,13 @@ class FetchAllSystems(APIView):
   def get(self, request):
     systems = SystemSerializer(System.objects.all(), many = True)
     return Response(systems.data)
+
+def get_current_version_dbs():
+  sms = SystemManager.objects.all()
+  dbs = []
+  for sm in sms:
+    dbs.append(System.objects.get(name__iexact=sm.name, version=sm.version_number))
+  return dbs
 
 class AdvancedSearchView(View):
 
@@ -388,7 +393,8 @@ class AdvancedSearchView(View):
     for db in dbs:
       name = db.name
       letter_idx = start_letters.index(name[0].lower())
-      ordered_list[letter_idx]["dbs"].append(name)
+      ordered_list[letter_idx]["dbs"].append({"screen_name": name,
+        "hash_name": name.replace(" ", "-")})
     return ordered_list
 
   def get(self, request):
@@ -397,7 +403,7 @@ class AdvancedSearchView(View):
     context["questionchecks"] = question
     context["greenchecks"] = green
     context["greychecks"] = grey
-    dbs = System.objects.filter(**params)
+    dbs = get_current_version_dbs()
     context["ordered_dbs_list"] = self.make_ordered_list(dbs)
     return render(request, 'advanced_search.html', context)
 
@@ -448,7 +454,7 @@ class AddPublication(View):
       download=link, year=data["year"], number=data["number"],
       cite=self.create_cite(data))
     pub.save()
-    db_man = SystemManager.objects.get(name=data["db_name"])
+    db_man = SystemManager.objects.get(name__iexact =data["db_name"])
     db = db_man.current_version.get(version=db_man.version_number)
     db.publications.add(pub)
     return HttpResponse(json.dumps({"cite": pub.cite}), content_type="application/json")
