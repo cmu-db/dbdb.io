@@ -315,7 +315,7 @@
           </div>
           {% if db.support_typing %}
             <div class="yesno-description" data-type="typing" data-exists="1">
-              {{ db.description_typing }}
+              {{ db.x_description_typing_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="typing" data-exists="0">
@@ -338,10 +338,33 @@
           </div>
           {% if db.support_transactionconcepts %}
             <div class="yesno-description" data-type="transactionconcepts" data-exists="1">
-              {{ db.description_typing }}
+              {{ db.description_transactionconcepts }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="transactionconcepts" data-exists="0">
+            </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        {% if db.support_querycompilation != None %}
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            {% if db.support_querycompilation == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_querycompilation %}
+              <img class = "check-img green-check">
+            {% else %}
+              <img class = "check-img grey-check">
+            {% endif %}
+            <span class="yesno-title">QUERY COMPILATION</span>
+          </div>
+          {% if db.support_querycompilation %}
+            <div class="yesno-description" data-type="querycompilation" data-exists="1">
+              {{ db.description_ }}
+            </div>
+          {% else %}
+            <div class="yesno-description" data-type="querycompilation" data-exists="0">
             </div>
           {% endif %}
         </div>

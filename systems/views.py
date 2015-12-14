@@ -68,11 +68,16 @@ class LoadContext(object):
     db["support_languages"] = support_langs
     db["pubs"] = map(lambda x: x[1], pubs)
     db["num_pubs"] = len(db["pubs"])
+    for field in db:
+      if field.startswith("_"):
+        db["x" + field] = db[field]
+        db.pop(field, None)
     return db
 
   @staticmethod
   def load_db_raw_markdown_fields(db_data, db_ojb):
-    for field in db_ojb.__dict__:
+    fields = db_ojb.__dict__.keys()
+    for field in fields:
       if "rendered" in field:
         fieldName = field[1:-9]
         if db_ojb.__getattribute__(fieldName):
@@ -387,10 +392,15 @@ class AdvancedSearchView(View):
         greycheck.append(key);
     return new_dict, questioncheck, greencheck, greycheck
 
-  def make_ordered_list(self, dbs):
+  def make_ordered_list(self, dbs, params=None):
     start_letters = string.ascii_lowercase + string.digits
     ordered_list = [ {"letter": letter, "dbs": []} for letter in start_letters]
     for db in dbs:
+      if params:
+        invalid = False
+        for field in params:
+          if db.__getattribute__(field) != params[field]: invalid = True
+        if invalid: continue
       name = db.name
       letter_idx = start_letters.index(name[0].lower())
       ordered_list[letter_idx]["dbs"].append({"screen_name": name,
@@ -404,7 +414,7 @@ class AdvancedSearchView(View):
     context["greenchecks"] = green
     context["greychecks"] = grey
     dbs = get_current_version_dbs()
-    context["ordered_dbs_list"] = self.make_ordered_list(dbs)
+    context["ordered_dbs_list"] = self.make_ordered_list(dbs, params)
     return render(request, 'advanced_search.html', context)
 
 class AlphabetizedData(APIView):

@@ -36,6 +36,8 @@ features_mapping = {
   "Transaction concepts": "transactionconcepts",
 }
 
+markup_fields = features_mapping.values()
+
 def make_truefalse_fields(model):
   for field in model:
     if "description_" in field:
@@ -215,10 +217,12 @@ def enterModels(dryRun = True):
   models = {"licenses": {}, "dbmodels": {}, "access_methods": {},
             "languages": {}, "oses": {}}
   for fileName in os.listdir(dataDir):
+    if fileName == ".DS_Store": continue
     print "Doing %s ..." % (fileName.split(".")[0]),
     db_file_name = dataDir + "/" + fileName
     dbFile = open(db_file_name, "r")
     (db_model, m2m_model) = map(eval, dbFile.read().splitlines())
+    dbFile.close()
     cleanData(db_model)
     if "written_in" in m2m_model:
       cleanWrittenIn(m2m_model)
@@ -238,8 +242,8 @@ def enterModels(dryRun = True):
       try:
         system.save()
       except:
-	print "failed!"
-	continue
+      	print "failed!"
+      	continue
       if "dbmodel" in m2m_model:
         addDBModels(models, m2m_model, system)
       if "oses" in m2m_model:
@@ -258,7 +262,7 @@ def enterModels(dryRun = True):
     print "done!"
   return True
 
-# enterModels(True)
+# enterModels(False)
     
     
     

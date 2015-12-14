@@ -3,8 +3,8 @@ from systems.models import System, OperatingSystem, ProgrammingLanguage
 
 class SystemSerializer(serializers.ModelSerializer):
   class Meta:
-  	model = System
-   	fields = ('description', 'history', 'website', 'tech_docs', 'developer', 'written_in',
+    model = System
+    fields = ('description', 'history', 'website', 'tech_docs', 'developer', 'written_in',
     'oses', 'publications', 'project_type', 'start_year', 'end_year', 'derived_from',
     'logo_img', 'dbmodel', 'license', 'access_methods', 'support_sql', 'description_sql',
     'support_foreignkeys', 'description_foreignkeys', 'support_serverside',
@@ -16,7 +16,6 @@ class SystemSerializer(serializers.ModelSerializer):
     'description_transactionconcepts','support_querycompilation','description_querycompilation',
     'support_languages','default_isolation','max_isolation','secret_key','created','updated',
     'version','creator','version_message')
-
 
 class LightSystemSerializer(serializers.ModelSerializer):
   class Meta:
