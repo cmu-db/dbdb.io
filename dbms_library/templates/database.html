@@ -41,11 +41,11 @@
 
         <div class="subsection-heading">DESCRIPTION</div>
         <div id = "db-description" class="description-description">
-          {{ db.description }}
+          {{ db.x_description_rendered | safe }}
         </div>
         <div class="subsection-heading">HISTORY</div>
         <div id = "db-history" class="description-description">
-          {{ db.history }}
+          {{ db.x_history_rendered | safe }}
         </div>
 
         {% if db.support_sql != None %}
