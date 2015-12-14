@@ -237,7 +237,9 @@ def enterModels(dryRun = True):
         pass
       elif not m2m_model:
         system.save()
-        pass
+        sm = SystemManager(name = dbSystemName)
+        sm.save()
+        sm.current_version.add(system)
       else:
         print "saving model...",
         try:
@@ -256,10 +258,10 @@ def enterModels(dryRun = True):
         if "support_languages" in m2m_model:
           addSupportLangs(models, m2m_model, system)
         if "written_in" in m2m_model  :
-          addWrittenIn(models, m2m_model, system)  
+          addWrittenIn(models, m2m_model, system) 
         sm = SystemManager(name = dbSystemName)
         sm.save()
-        sm.current_version.add(system)
+        sm.current_version.add(system) 
       print "done!"
     except:
       print "failed"

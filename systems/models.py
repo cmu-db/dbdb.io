@@ -76,9 +76,10 @@ class SuggestedSystem(models.Model):
     def __unicode__(self):
         return self.name
 
+def upload_logo_path(self, fn):
+    return "logo/%d/%s" % (self.id, fn)
+
 class System(models.Model):
-    def upload_logo_path(self, fn):
-        return "logo/%d/%s" % (self.id, fn)
 
     name = models.CharField(max_length=64)
     description = MarkupField(default="")
