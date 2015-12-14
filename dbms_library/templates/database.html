@@ -315,7 +315,7 @@
           </div>
           {% if db.support_typing %}
             <div class="yesno-description" data-type="typing" data-exists="1">
-              {{ db.description_typing }}
+              {{ db.x_description_typing_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="typing" data-exists="0">

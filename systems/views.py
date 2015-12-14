@@ -68,11 +68,16 @@ class LoadContext(object):
     db["support_languages"] = support_langs
     db["pubs"] = map(lambda x: x[1], pubs)
     db["num_pubs"] = len(db["pubs"])
+    for field in db:
+      if field.startswith("_"):
+        db["x" + field] = db[field]
+        db.pop(field, None)
     return db
 
   @staticmethod
   def load_db_raw_markdown_fields(db_data, db_ojb):
-    for field in db_ojb.__dict__:
+    fields = db_ojb.__dict__.keys()
+    for field in fields:
       if "rendered" in field:
         fieldName = field[1:-9]
         if db_ojb.__getattribute__(fieldName):
