@@ -217,49 +217,52 @@ def enterModels(dryRun = True):
   models = {"licenses": {}, "dbmodels": {}, "access_methods": {},
             "languages": {}, "oses": {}}
   for fileName in os.listdir(dataDir):
-    if fileName == ".DS_Store": continue
-    print "Doing %s ..." % (fileName.split(".")[0]),
-    db_file_name = dataDir + "/" + fileName
-    dbFile = open(db_file_name, "r")
-    (db_model, m2m_model) = map(eval, dbFile.read().splitlines())
-    dbFile.close()
-    cleanData(db_model)
-    if "written_in" in m2m_model:
-      cleanWrittenIn(m2m_model)
-    dbSystemName = db_model["name"]
-    if System.objects.filter(name = dbSystemName).count():
-      print "done. Already made!"
-      continue
-    system = System(**db_model)
-    system.secret_key = DatabaseCreationPage.create_secret_key()
-    if dryRun:
-      pass
-    elif not m2m_model:
-      system.save()
-      pass
-    else:
-      print "saving model...",
-      try:
+    try:
+      if fileName == ".DS_Store": continue
+      print "Doing %s ..." % (fileName.split(".")[0]),
+      db_file_name = dataDir + "/" + fileName
+      dbFile = open(db_file_name, "r")
+      (db_model, m2m_model) = map(eval, dbFile.read().splitlines())
+      dbFile.close()
+      cleanData(db_model)
+      if "written_in" in m2m_model:
+        cleanWrittenIn(m2m_model)
+      dbSystemName = db_model["name"]
+      if System.objects.filter(name = dbSystemName).count():
+        print "done. Already made!"
+        continue
+      system = System(**db_model)
+      system.secret_key = DatabaseCreationPage.create_secret_key()
+      if dryRun:
+        pass
+      elif not m2m_model:
         system.save()
-      except:
-      	print "failed!"
-      	continue
-      if "dbmodel" in m2m_model:
-        addDBModels(models, m2m_model, system)
-      if "oses" in m2m_model:
-        addOses(models, m2m_model, system)
-      if "license" in m2m_model:
-        addLicenses(models, m2m_model, system)
-      if "access_methods" in m2m_model:
-        addAccessMethods(models, m2m_model, system)
-      if "support_languages" in m2m_model:
-        addSupportLangs(models, m2m_model, system)
-      if "written_in" in m2m_model  :
-        addWrittenIn(models, m2m_model, system)  
-      sm = SystemManager(name = dbSystemName)
-      sm.save()
-      sm.current_version.add(system)
-    print "done!"
+        pass
+      else:
+        print "saving model...",
+        try:
+          system.save()
+        except:
+        	print "failed!"
+        	continue
+        if "dbmodel" in m2m_model:
+          addDBModels(models, m2m_model, system)
+        if "oses" in m2m_model:
+          addOses(models, m2m_model, system)
+        if "license" in m2m_model:
+          addLicenses(models, m2m_model, system)
+        if "access_methods" in m2m_model:
+          addAccessMethods(models, m2m_model, system)
+        if "support_languages" in m2m_model:
+          addSupportLangs(models, m2m_model, system)
+        if "written_in" in m2m_model  :
+          addWrittenIn(models, m2m_model, system)  
+        sm = SystemManager(name = dbSystemName)
+        sm.save()
+        sm.current_version.add(system)
+      print "done!"
+    except:
+      print "failed"
   return True
 
 # enterModels(False)
