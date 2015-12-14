@@ -79,7 +79,7 @@ class LoadContext(object):
     fields = db_ojb.__dict__.keys()
     for field in fields:
       if "rendered" in field:
-        fieldName = field[1:-9]
+        fieldName = field[2:-9]
         if db_ojb.__getattribute__(fieldName):
           rawField = db_ojb.__getattribute__(fieldName).raw
           db_data[fieldName + "_raw"] = rawField
