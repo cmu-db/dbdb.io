@@ -50,9 +50,9 @@
                 {{ data.letter }}
               </div>
               <div class="db-name-area">
-                {% for db_name in data.dbs %}
+                {% for db in data.dbs %}
                   <div class="db-name">
-                    <a href="/db/{{ db_name }}" style="color:white">{{ db_name }}</a>
+                    <a href="/db/{{ db.hash_name }}" style="color:white">{{ db.screen_name }}</a>
                   </div>
                 {% endfor %}
               </div>
