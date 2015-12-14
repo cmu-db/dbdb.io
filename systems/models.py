@@ -77,6 +77,9 @@ class SuggestedSystem(models.Model):
         return self.name
 
 class System(models.Model):
+    def upload_logo_path(self, fn):
+        return "logo/%d/%s" % (self.id, fn)
+
     name = models.CharField(max_length=64)
     description = MarkupField(default="")
     history = MarkupField(default="")
@@ -94,6 +97,7 @@ class System(models.Model):
     dbmodel = models.ManyToManyField(DBModel, related_name="systems")
     license = models.ManyToManyField(License, related_name="systems")
     access_methods = models.ManyToManyField(APIAccessMethods, related_name="systems")
+    logo = models.FileField(upload_to=upload_logo_path)
     
     # Features
     support_sql = models.NullBooleanField()
