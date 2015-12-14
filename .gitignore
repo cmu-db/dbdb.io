@@ -57,3 +57,6 @@ coverage.xml
 docs/_build/
 
 settingManager.py
+dbms_library/settings.py
+
+systems/migrations/*
