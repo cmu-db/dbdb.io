@@ -62,7 +62,7 @@
           </div>
           {% if db.support_sql %}
             <div class="yesno-description" data-type="sql" data-exists="1">
-              {{ db.description_sql }}
+              {{ db.x_description_sql_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="sql" data-exists="0">
@@ -85,7 +85,7 @@
           </div>
           {% if db.support_foreignkeys %}
             <div class="yesno-description" data-type="foreignkeys" data-exists="1">
-              {{ db.description_foreignkeys }}
+              {{ db.x_description_foreignkeys_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="foreignkeys" data-exists="0">
@@ -108,7 +108,7 @@
           </div>
           {% if db.support_serverside %}
             <div class="yesno-description" data-type="serverside" data-exists="1">
-              {{ db.description_serverside }}
+              {{ db.x_description_serverside_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="serverside" data-exists="0">
@@ -131,7 +131,7 @@
           </div>
           {% if db.support_mapreduce %}
             <div class="yesno-description" data-type="mapreduce" data-exists="1">
-              {{ db.description_mapreduce }}
+              {{ db.x_description_mapreduce_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="mapreduce" data-exists="0">
@@ -154,7 +154,7 @@
           </div>
           {% if db.support_secondary %}
             <div class="yesno-description" data-type="secondary" data-exists="1">
-              {{ db.description_secondary }}
+              {{ db.x_description_secondary_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="secondary" data-exists="0">
@@ -177,7 +177,7 @@
           </div>
           {% if db.support_durability %}
             <div class="yesno-description" data-type="durability" data-exists="1">
-              {{ db.description_durability }}
+              {{ db.x_description_durability_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="durability" data-exists="0">
@@ -200,7 +200,7 @@
           </div>
           {% if db.support_triggers %}
             <div class="yesno-description" data-type="triggers" data-exists="1">
-              {{ db.description_triggers }}
+              {{ db.x_description_triggers_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="triggers" data-exists="0">
@@ -223,7 +223,7 @@
           </div>
           {% if db.support_concurrency %}
             <div class="yesno-description" data-type="concurrency" data-exists="1">
-              {{ db.description_concurrency }}
+              {{ db.x_description_concurrency_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="concurrency" data-exists="0">
@@ -246,7 +246,7 @@
           </div>
           {% if db.support_userconcepts %}
             <div class="yesno-description" data-type="userconcepts" data-exists="1">
-              {{ db.description_userconcepts }}
+              {{ db.x_description_userconcepts_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="userconcepts" data-exists="0">
@@ -269,7 +269,7 @@
           </div>
           {% if db.support_datascheme %}
             <div class="yesno-description" data-type="datascheme" data-exists="1">
-              {{ db.description_datascheme }}
+              {{ db.x_description_datascheme_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="datascheme" data-exists="0">
@@ -292,7 +292,7 @@
           </div>
           {% if db.support_xml %}
             <div class="yesno-description" data-type="xml" data-exists="1">
-              {{ db.description_xml }}
+              {{ db.x_description_xml_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="xml" data-exists="0">
@@ -338,7 +338,7 @@
           </div>
           {% if db.support_transactionconcepts %}
             <div class="yesno-description" data-type="transactionconcepts" data-exists="1">
-              {{ db.description_transactionconcepts }}
+              {{ db.x_description_transactionconcepts_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="transactionconcepts" data-exists="0">
@@ -361,7 +361,7 @@
           </div>
           {% if db.support_querycompilation %}
             <div class="yesno-description" data-type="querycompilation" data-exists="1">
-              {{ db.description_ }}
+              {{ db.x_description_querycompilation_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="querycompilation" data-exists="0">
