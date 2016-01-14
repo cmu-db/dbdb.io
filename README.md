@@ -1,9 +1,7 @@
-dbms-library
+Carnegie Mellon Encyclopedia of Database Systems
 ============
 
-On-Line Library of Database Management Systems
-
-# Requirements
+## Requirements
 
 * python-django-south
 * python-djangorestframework
