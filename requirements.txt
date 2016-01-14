@@ -1,5 +1,7 @@
 djangorestframework==3.3.1
+django-markupfield==1.4.0
 bibtexparser==0.6.0
 Django==1.9.1
 Markdown==2.6.2
 South==1.0.2
+MySQL-python==1.2.3

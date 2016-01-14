@@ -1,5 +1,5 @@
 """
-Django settings for dbms_library project.
+Django settings for DBDB.IO project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.6/topics/settings/
@@ -7,13 +7,11 @@ https://docs.djangoproject.com/en/1.6/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
-import markdown
-from settingManager import *
-import markdown
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+import markdown
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -30,13 +28,6 @@ ALLOWED_HOSTS = []
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    os.path.join(PROJECT_ROOT, 'templates').replace('\\','/'),
-)
-
 MARKUP_FIELD_TYPES = (
     ('markdown', markdown.markdown),
 )
@@ -44,9 +35,9 @@ MARKUP_FIELD_TYPES = (
 # Application definition
 
 INSTALLED_APPS = (
-    'django.contrib.contenttypes',
     'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -64,31 +55,45 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'dbms_library.urls'
+ROOT_URLCONF = 'website.urls'
 
-WSGI_APPLICATION = 'dbms_library.wsgi.application'
+WSGI_APPLICATION = 'website.wsgi.application'
 
+TEMPLATES = [
+    {
+        'DIRS': [
+            os.path.join(PROJECT_ROOT, 'templates').replace('\\','/')   
+        ],
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        #'TEMPLATE_DEBUG': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.core.context_processors.static',
+                'django.template.context_processors.media',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+            
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
-if isDev:
-  DATABASES = {
-      'default': {
-          'ENGINE': 'django.db.backends.sqlite3',
-          'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-      }
-  }
-else:
-  DATABASES = {
-      'default': {
-          'ENGINE': 'django.db.backends.mysql',
-          'NAME': 'dbdb_io',
-          'USER': '***CHANGE ME***',
-          'PASSWORD': '***CHANGE ME***',
-          'HOST': 'localhost',
-          'PORT': '3306'
-      }
-  }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'dbdb_io',
+        'USER': '***CHANGE ME***',
+        'PASSWORD': '***CHANGE ME***',
+        'HOST': 'localhost',
+        'PORT': '3306'
+    }
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
@@ -108,8 +113,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "static"),
+    os.path.join(PROJECT_ROOT, "static"),
 )
-
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
