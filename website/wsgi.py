@@ -1,5 +1,5 @@
 """
-WSGI config for dbms_library project.
+WSGI config for DBDB.IO project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -9,10 +9,11 @@ https://docs.djangoproject.com/en/1.6/howto/deployment/wsgi/
 
 import os, sys
 
-sys.path.append('/var/www/databaseology')
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+sys.path.append(os.path.abspath(os.path.join(BASE_DIR, "..")))
 
-os.environ["DJANGO_SETTINGS_MODULE"] = "dbms_library.settings"
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dbms_library.settings")
+os.environ["DJANGO_SETTINGS_MODULE"] = "website.settings"
+# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "website.settings")
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
