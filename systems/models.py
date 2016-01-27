@@ -8,7 +8,7 @@ PROJECT_TYPES = (
 )
 for x,y in PROJECT_TYPES:
     globals()['PROJECT_TYPE_' + y.upper()] = x
-    
+
 
 ISOLATION_LEVELS = (
     ('RC', 'Read Committed'),
@@ -80,7 +80,7 @@ def upload_logo_path(self, fn):
     return "logo/%d/%s" % (self.id, fn)
 
 class System(models.Model):
-
+    system_id = models.CharField(max_length = 100, default = None)
     name = models.CharField(max_length=64)
     description = MarkupField(default="")
     history = MarkupField(default="")
@@ -99,7 +99,7 @@ class System(models.Model):
     license = models.ManyToManyField(License, related_name="systems")
     access_methods = models.ManyToManyField(APIAccessMethods, related_name="systems")
     logo = models.FileField(upload_to=upload_logo_path)
-    
+
     # Features
     support_sql = models.NullBooleanField()
     description_sql = MarkupField(default="", default_markup_type='markdown')
@@ -140,18 +140,22 @@ class System(models.Model):
     version = models.IntegerField(default=0)
     creator = models.CharField(max_length=100, default="unknown")
     version_message = models.TextField(max_length=500, default="")
-    
     def __unicode__(self):
         return self.name
+
+class SystemData(models.Model):
+    system_id = models.CharField(max_length = 100, default = None)
+
 
 class SystemManager(models.Model):
     name = models.CharField(max_length=64)
     current_version = models.ManyToManyField(System, related_name='manager')
     version_number = models.IntegerField(default=0)
     max_version = models.IntegerField(default=0)
-
+    def get_current_version(self):
+        return self.current_version
+    get_current_version.short_description = "Current Verstion"
     def __unicode__(self):
-        return self.name + " Manager" 
+        return self.name + " Manager"
 
 # CLASS
-
