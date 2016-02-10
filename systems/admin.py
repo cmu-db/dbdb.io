@@ -12,10 +12,6 @@ class ProgrammingLanguageAdmin(admin.ModelAdmin):
 class LicenseAdmin(admin.ModelAdmin):
     pass
 
-class SystemManagerAdmin(admin.ModelAdmin):
-    empty_value_display = 'unknown'
-    list_display = ('name', 'version_number')
-
 class SuggestedSystemAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
     list_display = ('name', 'email', 'approved')
@@ -41,7 +37,11 @@ class SystemAdmin(admin.ModelAdmin):
     This class manages how systems are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
-    list_display = ('name', 'created', 'updated', 'version')
+    list_display = ('name', 'created', 'updated', 'current_version')
+
+class SystemDataAdmin(admin.ModelAdmin):
+    empty_value_display = 'unknown'
+    list_display = ('name', 'version_number')
 
 
 ## CLASS
@@ -49,7 +49,7 @@ class SystemAdmin(admin.ModelAdmin):
 admin.site.register(OperatingSystem, OperatingSystemAdmin)
 admin.site.register(ProgrammingLanguage, ProgrammingLanguageAdmin)
 admin.site.register(License, LicenseAdmin)
-admin.site.register(SystemManager, SystemManagerAdmin)
 admin.site.register(SuggestedSystem, SuggestedSystemAdmin)
 admin.site.register(Publication, PublicationAdmin)
 admin.site.register(System, SystemAdmin)
+admin.site.register(SystemData, SystemDataAdmin)

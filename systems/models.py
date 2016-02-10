@@ -24,6 +24,8 @@ for x,y in ISOLATION_LEVELS:
 
 # ----------------------------------------------------------------------------
 
+def upload_logo_path(self, fn):
+    return "logo/%d/%s" % (self.id, fn)
 
 class OperatingSystem(models.Model):
     name = models.CharField(max_length=16)
@@ -76,11 +78,45 @@ class SuggestedSystem(models.Model):
     def __unicode__(self):
         return self.name
 
-def upload_logo_path(self, fn):
-    return "logo/%d/%s" % (self.id, fn)
-
 class System(models.Model):
+    """Base article for a system that revisions point back to"""
+
+    #unique id for this system
     system_id = models.CharField(max_length = 100, default = None)
+
+    #basic, persistent information about the system
+    name = models.CharField(max_length=64)
+    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    current_version = models.IntegerField(default=0)
+    creator = models.CharField(max_length=100, default="unknown")
+
+    # authentication key for editing
+    secret_key = models.CharField(max_length = 100, default = None)
+
+class SystemData(models.Model):
+    """SystemData are revisions of the system identified by system_id"""
+
+    # system that this revision points back to
+    system = models.ForeignKey(System)
+
+    # version of this revision
+    version_number = models.IntegerField(default=0)
+
+    # when this revision was created
+    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+    # when this revision was last updated
+    updated = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+    # who created this revision
+    creator = models.CharField(max_length=100, default="unknown")
+
+    # a message that goes along with this revision
+    version_message = models.TextField(max_length=500, default="")
+
+    # basic information about the system, subject to change between
+    # revisions
     name = models.CharField(max_length=64)
     description = MarkupField(default="")
     history = MarkupField(default="")
@@ -89,16 +125,16 @@ class System(models.Model):
     developer = models.CharField(max_length=64, default="", null=True)
     written_in = models.ManyToManyField(ProgrammingLanguage, related_name='systems_written')
     oses = models.ManyToManyField(OperatingSystem, related_name='systems')
-    publications = models.ManyToManyField(Publication, related_name='systems')
+    #publications = models.ManyToManyField(Publication, related_name='systems')
     project_type = models.CharField(max_length=1, choices=PROJECT_TYPES, default="", null=True)
     start_year = models.IntegerField(default=0, null=True)
     end_year = models.IntegerField(default=0, null=True)
-    derived_from = models.ManyToManyField('self', related_name='derivatives')
+    #derived_from = models.ManyToManyField('self', related_name='derivatives')
     logo_img = models.CharField(max_length=200, default=None, null=True)
-    dbmodel = models.ManyToManyField(DBModel, related_name="systems")
+    #dbmodel = models.ManyToManyField(DBModel, related_name="systems")
     license = models.ManyToManyField(License, related_name="systems")
-    access_methods = models.ManyToManyField(APIAccessMethods, related_name="systems")
-    logo = models.FileField(upload_to=upload_logo_path)
+    #access_methods = models.ManyToManyField(APIAccessMethods, related_name="systems")
+    #logo = models.FileField(upload_to=upload_logo_path)
 
     # Features
     support_sql = models.NullBooleanField()
@@ -132,30 +168,8 @@ class System(models.Model):
     support_languages = models.ManyToManyField(ProgrammingLanguage, related_name='systems_supported')
     default_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
     max_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
-    # authentication key for editing
-    secret_key = models.CharField(max_length = 100, default = None)
 
-    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    updated = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    version = models.IntegerField(default=0)
-    creator = models.CharField(max_length=100, default="unknown")
-    version_message = models.TextField(max_length=500, default="")
     def __unicode__(self):
         return self.name
-
-class SystemData(models.Model):
-    system_id = models.CharField(max_length = 100, default = None)
-
-
-class SystemManager(models.Model):
-    name = models.CharField(max_length=64)
-    current_version = models.ManyToManyField(System, related_name='manager')
-    version_number = models.IntegerField(default=0)
-    max_version = models.IntegerField(default=0)
-    def get_current_version(self):
-        return self.current_version
-    get_current_version.short_description = "Current Verstion"
-    def __unicode__(self):
-        return self.name + " Manager"
 
 # CLASS
