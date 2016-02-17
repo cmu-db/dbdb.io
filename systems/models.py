@@ -107,6 +107,7 @@ class SystemVersion(models.Model):
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     # when this revision was last updated
+    # TODO: not used anywhere
     updated = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     # who created this revision
@@ -117,8 +118,8 @@ class SystemVersion(models.Model):
 
     # basic information about the system, subject to change between revisions
     name = models.CharField(max_length=64)
-    description = MarkupField(default="")
-    history = MarkupField(default="")
+    description = MarkupField(default="", default_markup_type='markdown')
+    history = MarkupField(default="", default_markup_type='markdown')
     website = models.URLField(default="", null=True)
     tech_docs = models.URLField(default="", null=True)
     developer = models.CharField(max_length=64, default="", null=True)

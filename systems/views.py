@@ -102,9 +102,12 @@ class HomePage(View):
   def get(self, request):
     context = LoadContext.load_base_context(request)
     enddate = date.today() - timedelta(days=3)
-    edits = SystemData.objects.filter(created__gt=enddate)
+    edits = SystemVersion.objects.filter(created__gt=enddate)
     context["edits"] = []
     today = date.today()
+
+    # gets first 10 system versions edited within the past 3 days
+    # by the most recently edited version (Recent Activity)
     for edit in edits[::-1][:10]:
       obj = {}
       obj["name"] = edit.name
@@ -113,9 +116,12 @@ class HomePage(View):
       obj["creator"] = edit.creator
       context["edits"].append(obj)
 
+    # gets first 10 systems and orders them by which has the highest
+    # current version (Most Edited Databases)
     sms = System.objects.all().order_by("current_version")[::-1][:10]
     context["top_sms"] = []
     for (i, sm) in enumerate(sms):
+      # ignore the system if the current version is less than 1 (invalid)
       if sm.current_version < 1:
         continue
       obj = {}
@@ -130,9 +136,10 @@ class DatabasePage(View):
 
   def get(self, request, db_name):
     db_name = db_name.replace("-", " ")
+    # iexact is a case sensitive match
     db_article = System.objects.get(name__iexact = db_name)
     print(db_article)
-    db_revision = SystemData.objects.get(system = db_article,
+    db_revision = SystemVersion.objects.get(system = db_article,
                                     version_number = db_article.current_version)
     context = LoadContext.load_base_context(request)
     context["db"] = LoadContext.load_db_data(db_revision)
@@ -208,7 +215,7 @@ class DatabaseEditingPage(View):
       return HttpResponseBadRequest()
 
     #get the latest revision of the article
-    db_revision = SystemData.objects.get(name=db_article.name,
+    db_revision = SystemVersion.objects.get(name=db_article.name,
                                         version_number=db_article.current_version)
     #update the current version number of the article
     db_article.current_version = db_article.current_version + 1
@@ -289,7 +296,7 @@ class DatabaseVersionPage(View):
     db_article = System.objects.get(name__iexact = db_name)
     if db_article.current_version < version:
       return HttpResponseRedirect("/")
-    db_revision = SystemData.objects.get(name__iexact =db_name, version_number = version)
+    db_revision = SystemVersion.objects.get(name__iexact =db_name, version_number = version)
     context = LoadContext.load_base_context(request)
     context["db"] = LoadContext.load_db_data(database)
     context["isVersionPage"] = True
@@ -325,11 +332,11 @@ class DatabaseRevisionsPage(View):
   def get(self, request, db_name, key = ""):
     db_name = db_name.replace("-", " ")
     db_article = System.objects.get(name__iexact = db_name)
-    db_revision = SystemData.objects.get(name=db_article.name,
+    db_revision = SystemVersion.objects.get(name=db_article.name,
                                         version_number=db_article.current_version)
     context = LoadContext.load_base_context(request)
     context["db"] = LoadContext.load_db_data(db_revision)
-    revisions = SystemData.objects.filter(name__iexact = db_name).order_by("created")[::-1]
+    revisions = SystemVersion.objects.filter(name__iexact = db_name).order_by("created")[::-1]
     context["revisions"] = []
     for revision in revisions:
       obj = {}
@@ -372,7 +379,7 @@ class OSCreationView(View):
 class FetchAllSystems(APIView):
 
   def get(self, request):
-    systems = SystemSerializer(SystemData.objects.all(), many = True)
+    systems = SystemSerializer(SystemVersion.objects.all(), many = True)
     return Response(systems.data)
 
 def get_current_version_dbs():
