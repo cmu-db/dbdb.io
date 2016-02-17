@@ -81,9 +81,6 @@ class SuggestedSystem(models.Model):
 class System(models.Model):
     """Base article for a system that revisions point back to"""
 
-    # unique id for this system
-    system_id = models.CharField(max_length = 100, default = None)
-
     # basic, persistent information about the system
     name = models.CharField(max_length=64)
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)

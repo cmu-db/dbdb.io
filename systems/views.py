@@ -139,10 +139,10 @@ class DatabasePage(View):
     # iexact is a case sensitive match
     db_article = System.objects.get(name__iexact = db_name)
     print(db_article)
-    db_revision = SystemVersion.objects.get(system = db_article,
+    db_version = SystemVersion.objects.get(system = db_article,
                                     version_number = db_article.current_version)
     context = LoadContext.load_base_context(request)
-    context["db"] = LoadContext.load_db_data(db_revision)
+    context["db"] = LoadContext.load_db_data(db_version)
     context["isVersionPage"] = False
     return render(request, 'database.html',
         context)
@@ -215,13 +215,13 @@ class DatabaseEditingPage(View):
       return HttpResponseBadRequest()
 
     #get the latest revision of the article
-    db_revision = SystemVersion.objects.get(name=db_article.name,
+    db_version = SystemVersion.objects.get(name=db_article.name,
                                         version_number=db_article.current_version)
     #update the current version number of the article
     db_article.current_version = db_article.current_version + 1
     db_article.save()
-    db_revision.version_number = db_article.current_version
-    db_revision.save()
+    db_version.version_number = db_article.current_version
+    db_version.save()
     data = dict(request.POST)
 
     for field in data:
@@ -231,10 +231,10 @@ class DatabaseEditingPage(View):
         data[field][0] = True if data[field][0] == "1" else False
       elif "year" in field:
         data[field][0] = int(data[field][0])
-      if db_revision.__getattribute__(field) != data[field][0]:
-        db_revision.__setattr__(field, data[field][0])
-    db_revision.creator = str(ip)
-    db_revision.save()
+      if db_version.__getattribute__(field) != data[field][0]:
+        db_version.__setattr__(field, data[field][0])
+    db_version.creator = str(ip)
+    db_version.save()
     options = eval(data["model_stuff"][0])
     adds = dict(map(lambda x: (x, map(lambda y: "add_" + y, options["adds"][x])), options["adds"]))
     removes = dict(map(lambda x: (x, map(lambda y: "rem_" + y, options["removes"][x])), options["removes"]))
@@ -247,9 +247,9 @@ class DatabaseEditingPage(View):
         lang = ProgrammingLanguage.objects.get(name__iexact = lang_name)
         savedModels[lang_name] = lang
       if task == "add":
-          db_revision.written_in.add(lang)
+          db_version.written_in.add(lang)
       else:
-          db_revision.written_in.remove(lang)
+          db_version.written_in.remove(lang)
     for lang_name in adds["support_languages"]:
       task, lang_name = lang_name[:3], lang_name[4:]
       if lang_name in savedModels and savedModels[lang_name]:
@@ -258,9 +258,9 @@ class DatabaseEditingPage(View):
         lang = ProgrammingLanguage.objects.get(name__iexact = lang_name)
         savedModels[lang_name] = lang
       if task == "add":
-          db_revision.support_languages.add(lang)
+          db_version.support_languages.add(lang)
       else:
-          db_revision.support_languages.remove(lang)
+          db_version.support_languages.remove(lang)
     for os_name in adds["oses"]:
       task, os_name = os_name[:3], os_name[4:]
       if os_name in savedModels and savedModels[os_name]:
@@ -269,20 +269,21 @@ class DatabaseEditingPage(View):
         os = OperatingSystem.objects.get(name__iexact = os_name)
         savedModels[os_name] = os
       if task == "add":
-          db_revision.oses.add(os)
+          db_version.oses.add(os)
       else:
-          db_revision.oses.remove(os)
+          db_version.oses.remove(os)
     return HttpResponseRedirect("/db/%s" % db_name)
 
   def get(self, request, db_name, key):
     db_name = db_name.replace("-", " ")
-    db_article = SystemManager.objects.get(name__iexact = db_name)
-    database = db_article.current_version.all()[0]
-    if database.secret_key == key:
+    db_article = System.objects.get(name__iexact = db_name)
+    db_version = SystemVersion.objects.get(name=db_article.name,
+                                    version_number=db_article.current_version)
+    if db_article.secret_key == key:
       context = LoadContext.load_base_context(request)
-      context["db"] = LoadContext.load_db_data(database)
+      context["db"] = LoadContext.load_db_data(db_version)
       context["key"] = key
-      LoadContext.load_db_raw_markdown_fields(context["db"], database)
+      LoadContext.load_db_raw_markdown_fields(context["db"], db_version)
       return render(request, 'database_edit.html',
         context)
     else:
@@ -296,9 +297,9 @@ class DatabaseVersionPage(View):
     db_article = System.objects.get(name__iexact = db_name)
     if db_article.current_version < version:
       return HttpResponseRedirect("/")
-    db_revision = SystemVersion.objects.get(name__iexact =db_name, version_number = version)
+    db_version = SystemVersion.objects.get(name__iexact =db_name, version_number = version)
     context = LoadContext.load_base_context(request)
-    context["db"] = LoadContext.load_db_data(database)
+    context["db"] = LoadContext.load_db_data(db_version)
     context["isVersionPage"] = True
     return render(request, 'database.html',
         context)
@@ -321,15 +322,16 @@ class DatabaseCreationPage(View):
 
   def post(self, request):
     if request.POST.get('name', False):
-      db_name = request.POST.get('name')
-      existingDB = SystemManager.objects.filter(name__iexact = name)
+      name = request.POST.get('name')
+      existingDB = System.objects.filter(name__iexact = name)
       if len(existingDB) == 0:
         key = DatabaseCreationPage.create_secret_key()
-        newDBSystem = System(name = db_name, secret_key = key)
+        newDBSystem = System(name=name, secret_key=key, current_version=1)
         newDBSystem.save()
 
         newDBVersion = SystemVersion(name = name, version_number=1,
                                        system=newDBSystem)
+        newDBVersion.save()
         return redirect("/db/%s/%s" % (name, key))
     # there is already a db with that name or no name was provided
     return render(request, 'database_create.html',
@@ -340,10 +342,10 @@ class DatabaseRevisionsPage(View):
   def get(self, request, db_name, key = ""):
     db_name = db_name.replace("-", " ")
     db_article = System.objects.get(name__iexact = db_name)
-    db_revision = SystemVersion.objects.get(name=db_article.name,
+    db_version = SystemVersion.objects.get(name=db_article.name,
                                         version_number=db_article.current_version)
     context = LoadContext.load_base_context(request)
-    context["db"] = LoadContext.load_db_data(db_revision)
+    context["db"] = LoadContext.load_db_data(db_version)
     revisions = SystemVersion.objects.filter(name__iexact = db_name).order_by("created")[::-1]
     context["revisions"] = []
     for revision in revisions:
@@ -490,8 +492,8 @@ class AddPublication(View):
       cite=self.create_cite(data))
     pub.save()
     db_article = System.objects.get(name__iexact =data["db_name"])
-    db_revision = db_.current_version.get(version=db_article.current_version)
-    db_revision.publications.add(pub)
+    db_version = db_.current_version.get(version=db_article.current_version)
+    db_version.publications.add(pub)
     return HttpResponse(json.dumps({"cite": pub.cite}), content_type="application/json")
 
 class LatestEdits(Feed):
