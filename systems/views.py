@@ -138,7 +138,6 @@ class DatabasePage(View):
     db_name = db_name.replace("-", " ")
     # iexact is a case sensitive match
     db_article = System.objects.get(name__iexact = db_name)
-    print(db_article)
     db_version = SystemVersion.objects.get(system = db_article,
                                     version_number = db_article.current_version)
     context = LoadContext.load_base_context(request)
@@ -214,10 +213,10 @@ class DatabaseEditingPage(View):
     if db_article.secret_key != key:
       return HttpResponseBadRequest()
 
-    #get the latest revision of the article
+    # get the latest revision of the article
     db_version = SystemVersion.objects.get(name=db_article.name,
                                         version_number=db_article.current_version)
-    #update the current version number of the article
+    # update the current version number of the article
     db_article.current_version = db_article.current_version + 1
     db_article.save()
     db_version.version_number = db_article.current_version
@@ -334,6 +333,8 @@ class DatabaseCreationPage(View):
         newDBVersion.save()
         return redirect("/db/%s/%s" % (name, key))
     # there is already a db with that name or no name was provided
+    # TODO: create front end code that requires that a name is in some field
+    # similar to how it's done in the suggest a system page
     return render(request, 'database_create.html',
            LoadContext.load_base_context(request))
 
@@ -352,10 +353,10 @@ class DatabaseRevisionsPage(View):
       obj = {}
       if revision.created:
         obj["date"] = revision.created.strftime("%m/%d/%Y %H:%H:%S")
-      obj["isCurrent"] = (revision.version == db_article.current_version)
+      obj["isCurrent"] = (revision.version_number == db_article.current_version)
       obj["user"] = revision.creator
       obj["comment"] = revision.version_message
-      obj["version_number"] = revision.version
+      obj["version_number"] = revision.version_number
       context["revisions"].append(obj)
     context["key"] = key
     return render(request, 'database_revision.html', context)
@@ -369,8 +370,9 @@ class PLCreationView(View):
   def post(self, request):
     if request.POST.get('name', False):
       name = request.POST.get('name')
-      newDB = ProgrammingLanguage(name__iexact = name)
+      newDB = ProgrammingLanguage(name = name)
       newDB.save()
+      # TODO: handle the no name case w/ front end code
       return HttpResponseRedirect("/createdb")
 
 class OSCreationView(View):
@@ -382,8 +384,9 @@ class OSCreationView(View):
   def post(self, request):
     if request.POST.get('name', False):
       name = request.POST.get('name')
-      newDB = OperatingSystem(name__iexact = name)
+      newDB = OperatingSystem(name = name)
       newDB.save()
+      # TODO: handle the no name case w/ front end code
       return HttpResponseRedirect("/createdb")
 
 class FetchAllSystems(APIView):
@@ -511,4 +514,4 @@ class LatestEdits(Feed):
     return item.version_message
 
   def item_link(self, item):
-    return "/db/version/" + item.name + "/" + str(item.version)
+    return "/db/version/" + item.name + "/" + str(item.version_number)
