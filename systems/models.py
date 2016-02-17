@@ -87,6 +87,7 @@ class System(models.Model):
     # basic, persistent information about the system
     name = models.CharField(max_length=64)
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    # TODO: not used anywhere
     updated = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     current_version = models.IntegerField(default=0)
     creator = models.CharField(max_length=100, default="unknown")

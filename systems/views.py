@@ -321,11 +321,19 @@ class DatabaseCreationPage(View):
 
   def post(self, request):
     if request.POST.get('name', False):
-      name = request.POST.get('name')
-      key = DatabaseCreationPage.create_secret_key()
-      newDB = System(name__iexact = name, secret_key = key)
-      newDB.save()
-      return redirect("/db/%s/%s" % (name, key))
+      db_name = request.POST.get('name')
+      existingDB = SystemManager.objects.filter(name__iexact = name)
+      if len(existingDB) == 0:
+        key = DatabaseCreationPage.create_secret_key()
+        newDBSystem = System(name = db_name, secret_key = key)
+        newDBSystem.save()
+
+        newDBVersion = SystemVersion(name = name, version_number=1,
+                                       system=newDBSystem)
+        return redirect("/db/%s/%s" % (name, key))
+    # there is already a db with that name or no name was provided
+    return render(request, 'database_create.html',
+           LoadContext.load_base_context(request))
 
 class DatabaseRevisionsPage(View):
 
