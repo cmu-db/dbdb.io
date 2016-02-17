@@ -81,10 +81,10 @@ class SuggestedSystem(models.Model):
 class System(models.Model):
     """Base article for a system that revisions point back to"""
 
-    #unique id for this system
+    # unique id for this system
     system_id = models.CharField(max_length = 100, default = None)
 
-    #basic, persistent information about the system
+    # basic, persistent information about the system
     name = models.CharField(max_length=64)
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated = models.DateTimeField(auto_now_add=True, null=True, blank=True)
@@ -94,8 +94,8 @@ class System(models.Model):
     # authentication key for editing
     secret_key = models.CharField(max_length = 100, default = None)
 
-class SystemData(models.Model):
-    """SystemData are revisions of the system identified by system_id"""
+class SystemVersion(models.Model):
+    """SystemVersion are revisions of the system identified by system"""
 
     # system that this revision points back to
     system = models.ForeignKey(System)
@@ -115,8 +115,7 @@ class SystemData(models.Model):
     # a message that goes along with this revision
     version_message = models.TextField(max_length=500, default="")
 
-    # basic information about the system, subject to change between
-    # revisions
+    # basic information about the system, subject to change between revisions
     name = models.CharField(max_length=64)
     description = MarkupField(default="")
     history = MarkupField(default="")
@@ -125,16 +124,16 @@ class SystemData(models.Model):
     developer = models.CharField(max_length=64, default="", null=True)
     written_in = models.ManyToManyField(ProgrammingLanguage, related_name='systems_written')
     oses = models.ManyToManyField(OperatingSystem, related_name='systems')
-    #publications = models.ManyToManyField(Publication, related_name='systems')
+    publications = models.ManyToManyField(Publication, related_name='systems')
     project_type = models.CharField(max_length=1, choices=PROJECT_TYPES, default="", null=True)
     start_year = models.IntegerField(default=0, null=True)
     end_year = models.IntegerField(default=0, null=True)
-    #derived_from = models.ManyToManyField('self', related_name='derivatives')
+    derived_from = models.ManyToManyField('self', related_name='derivatives')
     logo_img = models.CharField(max_length=200, default=None, null=True)
-    #dbmodel = models.ManyToManyField(DBModel, related_name="systems")
+    dbmodel = models.ManyToManyField(DBModel, related_name="systems")
     license = models.ManyToManyField(License, related_name="systems")
-    #access_methods = models.ManyToManyField(APIAccessMethods, related_name="systems")
-    #logo = models.FileField(upload_to=upload_logo_path)
+    access_methods = models.ManyToManyField(APIAccessMethods, related_name="systems")
+    logo = models.FileField(upload_to=upload_logo_path)
 
     # Features
     support_sql = models.NullBooleanField()
@@ -171,5 +170,42 @@ class SystemData(models.Model):
 
     def __unicode__(self):
         return self.name
+
+class Feature(models.Model):
+    """Feature that describes a certain aspect of the system
+    """
+
+    # what the field is or its 'label'
+    field = models.CharField(max_length=64)
+
+    # if the feature is supported at all
+    support = models.BooleanField()
+
+    # if the feature has multiple options (FeatureOption)
+    multivalued = models.BooleanField()
+
+class FeatureOption(models.Model):
+    """Option for a feature"""
+
+    # feature this option is for
+    feature = models.ForeignKey(Feature)
+
+    # what this option actually is
+    value = models.CharField(max_length=64)
+
+    # description for what the option means
+    description = models.TextField(max_length=500, default="")
+
+class SystemFeatureOption(models.Model):
+    """A system version of a feature. Features can evolve over time"""
+
+    # version of a system that had this option
+    system_version = models.ForeignKey(SystemVersion)
+
+    # what the field is or its 'label'
+    field = models.CharField(max_length=64)
+
+    # option that is being versioned
+    feature_option = models.ForeignKey(FeatureOption)
 
 # CLASS

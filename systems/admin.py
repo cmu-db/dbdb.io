@@ -33,16 +33,34 @@ class PublicationAdmin(admin.ModelAdmin):
         obj.save()
 
 class SystemAdmin(admin.ModelAdmin):
-    """docstring for SystemAdmin
-    This class manages how systems are displayed
+    """This class manages how system articles are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('name', 'created', 'updated', 'current_version')
 
-class SystemDataAdmin(admin.ModelAdmin):
+class SystemVersionAdmin(admin.ModelAdmin):
+    """This class manages how system versions are displayed
+    on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('name', 'version_number')
 
+class FeatureAdmin(admin.ModelAdmin):
+    """This class manages how features are displayed
+    on the django administration page"""
+    empty_value_display = 'unknown'
+    list_display = ('field', 'support', 'multivalued')
+
+class FeatureOptionAdmin(admin.ModelAdmin):
+    """This class manages how feature options are displayed
+    on the django administration page"""
+    empty_value_display = 'unknown'
+    list_display = ('feature', 'value', 'description')
+
+class SystemFeatureOptionAdmin(admin.ModelAdmin):
+    """This class manages how system feature options are displayed
+    on the django administration page"""
+    empty_value_display = 'unknown'
+    list_display = ('system_version', 'field', 'feature_option')
 
 ## CLASS
 # Register your models here.
@@ -52,4 +70,7 @@ admin.site.register(License, LicenseAdmin)
 admin.site.register(SuggestedSystem, SuggestedSystemAdmin)
 admin.site.register(Publication, PublicationAdmin)
 admin.site.register(System, SystemAdmin)
-admin.site.register(SystemData, SystemDataAdmin)
+admin.site.register(SystemVersion, SystemVersionAdmin)
+admin.site.register(Feature, FeatureAdmin)
+admin.site.register(FeatureOption, FeatureOptionAdmin)
+admin.site.register(SystemFeatureOption, SystemFeatureOptionAdmin)

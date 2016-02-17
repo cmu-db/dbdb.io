@@ -131,6 +131,7 @@ class DatabasePage(View):
   def get(self, request, db_name):
     db_name = db_name.replace("-", " ")
     db_article = System.objects.get(name__iexact = db_name)
+    print(db_article)
     db_revision = SystemData.objects.get(system = db_article,
                                     version_number = db_article.current_version)
     context = LoadContext.load_base_context(request)
@@ -379,7 +380,7 @@ def get_current_version_dbs():
   dbs = []
   for sm in sms:
     dbs.append(System.objects.get(name__iexact=sm.name,
-    version=sm.current_version))
+    current_version=sm.current_version))
   return dbs
 
 class AdvancedSearchView(View):
