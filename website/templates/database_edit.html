@@ -68,14 +68,14 @@
           </div>
           {% if db.support_sql %}
             <div class="yesno-description" data-type="sql" data-exists="1">
-              {{ db.description_sql.value }}
+              {{ db.description_sql.description }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="sql" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{ db.description_sql.value_raw }}
+            {{ db.description_sql.description_raw }}
           </div>
         </div>
 
@@ -92,14 +92,14 @@
           </div>
           {% if db.support_foreignkeys %}
             <div class="yesno-description" data-type="foreignkeys" data-exists="1">
-              {{ db.description_foreignkeys.value }}
+              {{ db.description_foreignkeys.description }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="foreignkeys" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{ db.description_foreignkeys.value_raw }}
+            {{ db.description_foreignkeys.description_raw }}
           </div>
         </div>
 
@@ -116,14 +116,14 @@
           </div>
           {% if db.support_serverside %}
             <div class="yesno-description" data-type="serverside" data-exists="1">
-              {{ db.description_serverside.value }}
+              {{ db.description_serverside.description }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="serverside" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{ db.description_serverside.value_raw }}
+            {{ db.description_serverside.description_raw }}
           </div>
         </div>
 
@@ -140,14 +140,14 @@
           </div>
           {% if db.support_mapreduce %}
             <div class="yesno-description" data-type="mapreduce" data-exists="1">
-              {{ db.description_mapreduce.value }}
+              {{ db.description_mapreduce.description }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="mapreduce" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{ db.description_mapreduce.value_raw }}
+            {{ db.description_mapreduce.description_raw }}
           </div>
         </div>
 
@@ -164,14 +164,14 @@
           </div>
           {% if db.support_secondary %}
             <div class="yesno-description" data-type="secondary" data-exists="1">
-              {{ db.description_secondary.value }}
+              {{ db.description_secondary.description }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="secondary" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{ db.description_secondary.value_raw }}
+            {{ db.description_secondary.description_raw }}
           </div>
         </div>
 
@@ -188,14 +188,14 @@
           </div>
           {% if db.support_durability %}
             <div class="yesno-description" data-type="durability" data-exists="1">
-              {{ db.description_durability.value }}
+              {{ db.description_durability.description }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="durability" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{ db.description_durability.value_raw }}
+            {{ db.description_durability.description_raw }}
           </div>
         </div>
 
@@ -212,14 +212,14 @@
           </div>
           {% if db.support_triggers %}
             <div class="yesno-description" data-type="triggers" data-exists="1">
-              {{ db.description_triggers.value }}
+              {{ db.description_triggers.description }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="triggers" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{ db.description_triggers.value_raw }}
+            {{ db.description_triggers.description_raw }}
           </div>
         </div>
 
@@ -236,14 +236,14 @@
           </div>
           {% if db.support_concurrency %}
             <div class="yesno-description" data-type="concurrency" data-exists="1">
-              {{ db.description_concurrency.value }}
+              {{ db.description_concurrency.description }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="concurrency" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{ db.description_concurrency.value_raw }}
+            {{ db.description_concurrency.description_raw }}
           </div>
         </div>
 
@@ -260,20 +260,20 @@
           </div>
           {% if db.support_userconcepts %}
             <div class="yesno-description" data-type="userconcepts" data-exists="1">
-              {{ db.description_userconcepts.value }}
+              {{ db.description_userconcepts.description }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="userconcepts" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{ db.description_userconcepts.value_raw }}
+            {{ db.description_userconcepts.description_raw }}
           </div>
         </div>
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_datashceme == None %}
+            {% if db.support_datascheme == None %}
               <img class = "check-img question-check">
             {% elif db.support_datascheme %}
               <img class = "check-img green-check">
@@ -284,14 +284,14 @@
           </div>
           {% if db.support_datascheme %}
             <div class="yesno-description" data-type="datascheme" data-exists="1">
-              {{ db.description_datascheme.value }}
+              {{ db.description_datascheme.description }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="datascheme" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{ db.description_datascheme.value_raw }}
+            {{ db.description_datascheme.description_raw }}
           </div>
         </div>
 
@@ -308,14 +308,14 @@
           </div>
           {% if db.support_xml %}
             <div class="yesno-description" data-type="xml" data-exists="1">
-              {{ db.description_xml.value }}
+              {{ db.description_xml.description }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="xml" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{ db.description_xml.value_raw }}
+            {{ db.description_xml.description_raw }}
           </div>
         </div>
 
@@ -332,14 +332,14 @@
           </div>
           {% if db.support_typing %}
             <div class="yesno-description" data-type="typing" data-exists="1">
-              {{ db.description_typing.value }}
+              {{ db.description_typing.description }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="typing" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{ db.description_typing.value_raw }}
+            {{ db.description_typing.description_raw }}
           </div>
         </div>
 
@@ -356,14 +356,14 @@
           </div>
           {% if db.support_transactionconcepts %}
             <div class="yesno-description" data-type="transactionconcepts" data-exists="1">
-              {{ db.description_transactionconcepts.value }}
+              {{ db.description_transactionconcepts.description }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="transactionconcepts" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{ db.description_transationconcepts.value_raw }}
+            {{ db.description_transationconcepts.description_raw }}
           </div>
         </div>
 

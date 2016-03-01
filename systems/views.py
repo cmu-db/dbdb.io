@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest
 from django.contrib.syndication.views import Feed
 from django.http import HttpResponseRedirect, HttpResponse
+from django.utils.text import slugify
 from django.views.generic.base import View
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
@@ -120,6 +121,7 @@ class HomePage(View):
     # gets first 10 systems and orders them by which has the highest
     # current version (Most Edited Databases)
     sms = System.objects.all().order_by("current_version")[::-1][:10]
+    print(len(sms))
     context["top_sms"] = []
     for (i, sm) in enumerate(sms):
       # ignore the system if the current version is less than 1 (invalid)
@@ -136,9 +138,7 @@ class HomePage(View):
 class DatabasePage(View):
 
   def get(self, request, db_name):
-    db_name = db_name.replace("-", " ")
-    # iexact is a case sensitive match
-    db_article = System.objects.get(name__iexact = db_name)
+    db_article = System.objects.get(slug = slugify(db_name))
     db_version = SystemVersion.objects.get(system = db_article,
                                     version_number = db_article.current_version)
     context = LoadContext.load_base_context(request)
@@ -150,22 +150,21 @@ class DatabasePage(View):
 class OSPage(View):
 
   def get(self, request, page_type, name):
-    name = name.replace("-", " ")
     context = LoadContext.load_base_context(request)
     if page_type == "os":
-      os = OperatingSystem.objects.get(name__iexact = name)
+      os = OperatingSystem.objects.get(slug = slugify(name))
       systems = os.systems.all()
       obj_data = OperatingSystemSerializer(os).data
       page_info = {"page_type": "Operating System",
                    "name": obj_data["name"]}
     elif page_type == "written_lang":
-      lang = ProgrammingLanguage.objects.get(name__iexact = name)
+      lang = ProgrammingLanguage.objects.get(slug = slugify(name))
       systems = lang.systems_written.all()
       obj_data = ProgrammingLanguageSerializer(lang).data
       page_info = {"page_type": "Programming Language",
                  "name": "Written in " + obj_data["name"]}
     elif page_type == "support_lang":
-      lang = ProgrammingLanguage.objects.get(name__iexact = name)
+      lang = ProgrammingLanguage.objects.get(slug = slugify(name))
       systems = lang.systems_supported.all()
       obj_data = ProgrammingLanguageSerializer(lang).data
       page_info = {"page_type": "Programming Language",
@@ -183,8 +182,7 @@ class OSPage(View):
 class LangPage(View):
 
   def get(self, request, lang_name):
-    lang_name = lang_name.replace("-", " ")
-    lang = ProgrammingLanguage.objects.get(name__iexact = lang_name)
+    lang = ProgrammingLanguage.objects.get(slug = slugify(lang_name))
     systems = lang.systems_supported.all()
     systems_data = []
     for system in systems:
@@ -210,7 +208,7 @@ class DatabaseEditingPage(View):
         ip = request.META.get('REMOTE_ADDR')
     db_name = db_name.replace("-", " ")
     savedModels = DatabaseEditingPage.savedModels
-    db_article = System.objects.get(name__iexact = db_name)
+    db_article = System.objects.get(slug = slugify(db_name))
     if db_article.secret_key != key:
       return HttpResponseBadRequest()
 
@@ -244,7 +242,7 @@ class DatabaseEditingPage(View):
       if lang_name in savedModels and savedModels[lang_name]:
         lang = savedModels[lang_name]
       else:
-        lang = ProgrammingLanguage.objects.get(name__iexact = lang_name)
+        lang = ProgrammingLanguage.objects.get(slug = slugify(lang_name))
         savedModels[lang_name] = lang
       if task == "add":
           db_version.written_in.add(lang)
@@ -255,7 +253,7 @@ class DatabaseEditingPage(View):
       if lang_name in savedModels and savedModels[lang_name]:
         lang = savedModels[lang_name]
       else:
-        lang = ProgrammingLanguage.objects.get(name__iexact = lang_name)
+        lang = ProgrammingLanguage.objects.get(slug = slugify(lang_name))
         savedModels[lang_name] = lang
       if task == "add":
           db_version.support_languages.add(lang)
@@ -266,7 +264,7 @@ class DatabaseEditingPage(View):
       if os_name in savedModels and savedModels[os_name]:
         os = savedModels[os_name]
       else:
-        os = OperatingSystem.objects.get(name__iexact = os_name)
+        os = OperatingSystem.objects.get(slug = slugify(os_name))
         savedModels[os_name] = os
       if task == "add":
           db_version.oses.add(os)
@@ -275,8 +273,7 @@ class DatabaseEditingPage(View):
     return HttpResponseRedirect("/db/%s" % db_name)
 
   def get(self, request, db_name, key):
-    db_name = db_name.replace("-", " ")
-    db_article = System.objects.get(name__iexact = db_name)
+    db_article = System.objects.get(slug = slugify(db_name))
     db_version = SystemVersion.objects.get(name=db_article.name,
                                     version_number=db_article.current_version)
     if db_article.secret_key == key:
@@ -293,11 +290,11 @@ class DatabaseVersionPage(View):
 
   def get(self, request, db_name, version):
     version = int(version)
-    db_name = db_name.replace("-", " ")
-    db_article = System.objects.get(name__iexact = db_name)
+    db_article = System.objects.get(slug = slugify(db_name))
     if db_article.current_version < version:
       return HttpResponseRedirect("/")
-    db_version = SystemVersion.objects.get(name__iexact =db_name, version_number = version)
+
+    db_version = SystemVersion.objects.get(system=db_article, version_number = version)
     context = LoadContext.load_base_context(request)
     context["db"] = LoadContext.load_db_data(db_version)
     context["isVersionPage"] = True
@@ -323,7 +320,7 @@ class DatabaseCreationPage(View):
   def post(self, request):
     if request.POST.get('name', False):
       name = request.POST.get('name')
-      existingDB = System.objects.filter(name__iexact = name)
+      existingDB = System.objects.filter(slug = slugify(name))
       if len(existingDB) == 0:
         key = DatabaseCreationPage.create_secret_key()
         newDBSystem = System(name=name, secret_key=key, current_version=1)
@@ -342,13 +339,12 @@ class DatabaseCreationPage(View):
 class DatabaseRevisionsPage(View):
 
   def get(self, request, db_name, key = ""):
-    db_name = db_name.replace("-", " ")
-    db_article = System.objects.get(name__iexact = db_name)
+    db_article = System.objects.get(slug = slugify(db_name))
     db_version = SystemVersion.objects.get(name=db_article.name,
                                         version_number=db_article.current_version)
     context = LoadContext.load_base_context(request)
     context["db"] = LoadContext.load_db_data(db_version)
-    revisions = SystemVersion.objects.filter(name__iexact = db_name).order_by("created")[::-1]
+    revisions = SystemVersion.objects.filter(system=db_article).order_by("created")[::-1]
     context["revisions"] = []
     for revision in revisions:
       obj = {}
@@ -400,7 +396,7 @@ def get_current_version_dbs():
   sms = System.objects.all()
   dbs = []
   for sm in sms:
-    dbs.append(System.objects.get(name__iexact=sm.name,
+    dbs.append(System.objects.get(slug = slugify(sm.name),
     current_version=sm.current_version))
   return dbs
 
@@ -495,7 +491,7 @@ class AddPublication(View):
       download=link, year=data["year"], number=data["number"],
       cite=self.create_cite(data))
     pub.save()
-    db_article = System.objects.get(name__iexact =data["db_name"])
+    db_article = System.objects.get(slug = slugify(data["db_name"]))
     db_version = db_.current_version.get(version=db_article.current_version)
     db_version.publications.add(pub)
     return HttpResponse(json.dumps({"cite": pub.cite}), content_type="application/json")
