@@ -45,19 +45,19 @@
           {{ db.description }}
         </div>
         <div class="description-raw" style="display:none;">
-            {{db.description_raw}}
+            {{ db.description_raw }}
         </div>
         <div class="subsection-heading">HISTORY</div>
         <div class="description-description db-description" id="db-description" data-type="history">
           {{ db.history }}
         </div>
         <div class="description-raw" style="display:none;">
-            {{db.history_raw}}
+            {{ db.history_raw }}
         </div>
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_sql == None%}
+            {% if db.support_sql == None %}
               <img class = "check-img question-check">
             {% elif db.support_sql %}
               <img class = "check-img green-check">
@@ -68,20 +68,20 @@
           </div>
           {% if db.support_sql %}
             <div class="yesno-description" data-type="sql" data-exists="1">
-              {{ db.description_sql }}
+              {{ db.description_sql.value }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="sql" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{db.description_sql_raw}}
+            {{ db.description_sql.value_raw }}
           </div>
         </div>
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_foreignkeys == None%}
+            {% if db.support_foreignkeys == None %}
               <img class = "check-img question-check">
             {% elif db.support_foreignkeys %}
               <img class = "check-img green-check">
@@ -92,20 +92,20 @@
           </div>
           {% if db.support_foreignkeys %}
             <div class="yesno-description" data-type="foreignkeys" data-exists="1">
-              {{ db.description_foreignkeys }}
+              {{ db.description_foreignkeys.value }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="foreignkeys" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{db.description_foreignkeys_raw}}
+            {{ db.description_foreignkeys.value_raw }}
           </div>
         </div>
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_serverside == None%}
+            {% if db.support_serverside == None %}
               <img class = "check-img question-check">
             {% elif db.support_serverside %}
               <img class = "check-img green-check">
@@ -116,20 +116,20 @@
           </div>
           {% if db.support_serverside %}
             <div class="yesno-description" data-type="serverside" data-exists="1">
-              {{ db.description_serverside }}
+              {{ db.description_serverside.value }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="serverside" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{db.description_serverside_raw}}
+            {{ db.description_serverside.value_raw }}
           </div>
         </div>
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_mapreduce == None%}
+            {% if db.support_mapreduce == None %}
               <img class = "check-img question-check">
             {% elif db.support_mapreduce %}
               <img class = "check-img green-check">
@@ -140,20 +140,20 @@
           </div>
           {% if db.support_mapreduce %}
             <div class="yesno-description" data-type="mapreduce" data-exists="1">
-              {{ db.description_mapreduce }}
+              {{ db.description_mapreduce.value }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="mapreduce" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{db.description_mapreduce_raw}}
+            {{ db.description_mapreduce.value_raw }}
           </div>
         </div>
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_secondary == None%}
+            {% if db.support_secondary == None %}
               <img class = "check-img question-check">
             {% elif db.support_secondary %}
               <img class = "check-img green-check">
@@ -164,20 +164,20 @@
           </div>
           {% if db.support_secondary %}
             <div class="yesno-description" data-type="secondary" data-exists="1">
-              {{ db.description_secondary }}
+              {{ db.description_secondary.value }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="secondary" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{db.description_secondary_raw}}
+            {{ db.description_secondary.value_raw }}
           </div>
         </div>
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_durability == None%}
+            {% if db.support_durability == None %}
               <img class = "check-img question-check">
             {% elif db.support_durability %}
               <img class = "check-img green-check">
@@ -188,20 +188,20 @@
           </div>
           {% if db.support_durability %}
             <div class="yesno-description" data-type="durability" data-exists="1">
-              {{ db.description_durability }}
+              {{ db.description_durability.value }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="durability" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{db.description_durability_raw}}
+            {{ db.description_durability.value_raw }}
           </div>
         </div>
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_triggers == None%}
+            {% if db.support_triggers == None %}
               <img class = "check-img question-check">
             {% elif db.support_triggers %}
               <img class = "check-img green-check">
@@ -212,20 +212,20 @@
           </div>
           {% if db.support_triggers %}
             <div class="yesno-description" data-type="triggers" data-exists="1">
-              {{ db.description_triggers }}
+              {{ db.description_triggers.value }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="triggers" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{db.description_triggers_raw}}
+            {{ db.description_triggers.value_raw }}
           </div>
         </div>
 
         <div class="yesno-row">
           <div class="yesno-title-area">
-            {% if db.support_concurrency == None%}
+            {% if db.support_concurrency == None %}
               <img class = "check-img question-check">
             {% elif db.support_concurrency %}
               <img class = "check-img green-check">
@@ -236,14 +236,14 @@
           </div>
           {% if db.support_concurrency %}
             <div class="yesno-description" data-type="concurrency" data-exists="1">
-              {{ db.description_concurrency }}
+              {{ db.description_concurrency.value }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="concurrency" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{db.description_concurrency_raw}}
+            {{ db.description_concurrency.value_raw }}
           </div>
         </div>
 
@@ -260,14 +260,14 @@
           </div>
           {% if db.support_userconcepts %}
             <div class="yesno-description" data-type="userconcepts" data-exists="1">
-              {{ db.description_userconcepts }}
+              {{ db.description_userconcepts.value }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="userconcepts" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{db.description_userconcepts_raw}}
+            {{ db.description_userconcepts.value_raw }}
           </div>
         </div>
 
@@ -284,14 +284,14 @@
           </div>
           {% if db.support_datascheme %}
             <div class="yesno-description" data-type="datascheme" data-exists="1">
-              {{ db.description_datascheme }}
+              {{ db.description_datascheme.value }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="datascheme" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{db.description_datascheme_raw}}
+            {{ db.description_datascheme.value_raw }}
           </div>
         </div>
 
@@ -308,14 +308,14 @@
           </div>
           {% if db.support_xml %}
             <div class="yesno-description" data-type="xml" data-exists="1">
-              {{ db.description_xml }}
+              {{ db.description_xml.value }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="xml" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{db.description_xml_raw}}
+            {{ db.description_xml.value_raw }}
           </div>
         </div>
 
@@ -332,14 +332,14 @@
           </div>
           {% if db.support_typing %}
             <div class="yesno-description" data-type="typing" data-exists="1">
-              {{ db.description_typing }}
+              {{ db.description_typing.value }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="typing" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{db.description_typing_raw}}
+            {{ db.description_typing.value_raw }}
           </div>
         </div>
 
@@ -356,14 +356,14 @@
           </div>
           {% if db.support_transactionconcepts %}
             <div class="yesno-description" data-type="transactionconcepts" data-exists="1">
-              {{ db.description_transactionconcepts }}
+              {{ db.description_transactionconcepts.value }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="transactionconcepts" data-exists="0">
             </div>
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
-            {{db.description_transationconcepts_raw}}
+            {{ db.description_transationconcepts.value_raw }}
           </div>
         </div>
 
@@ -452,9 +452,9 @@
           {% for pub in db.pubs %}
             <div class="citation">
               {% if pub.link %}
-                [{{pub.number}}] <a href="{{pub.link}}">{{pub.cite}}</a>
+                [{{ pub.number }}] <a href="{{pub.link}}">{{ pub.cite }}</a>
               {% else %}
-                [{{pub.number}}] {{pub.cite}}
+                [{{ pub.number }}] {{ pub.cite }}
               {% endif %}
             </div>
           {% endfor %}
@@ -476,31 +476,31 @@
                   <div class="form-group">
                     <label for="exampleInputEmail1">Authors</label>
                     <input type="text" name ="authors" class="form-control" id="authors" placeholder="Last, First M...">
-                  </div> 
+                  </div>
                   <div class="form-group">
                     <label for="exampleInputEmail1">Title of Publication</label>
                     <input type="text" name="title" class="form-control" id="title" placeholder="Title">
-                  </div> 
+                  </div>
                   <div class="form-group">
                     <label for="exampleInputEmail1">Journal</label>
                     <input type="text" name="journal" class="form-control" id="journal" placeholder="Journal published in">
-                  </div> 
+                  </div>
                   <div class="form-group">
                     <label for="exampleInputEmail1">Volume</label>
                     <input type="text" class="form-control" id="volume" placeholder="Journal Volume">
-                  </div> 
+                  </div>
                   <div class="form-group">
                     <label for="exampleInputEmail1">Year</label>
                     <input type="text" class="form-control" id="year" placeholder="Year of publication">
-                  </div> 
+                  </div>
                   <div class="form-group">
                     <label for="exampleInputEmail1">Pages</label>
                     <input type="text" class="form-control" id="pages" placeholder="xx-yy">
-                  </div> 
+                  </div>
                   <div class="form-group">
                     <label for="exampleInputEmail1">Download URL</label>
                     <input type="text" class="form-control" id="download-url" placeholder="http://download.this.paper.com">
-                  </div> 
+                  </div>
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-default add-citation-done-btn" data-dismiss="modal">Add</button>
@@ -523,4 +523,3 @@
 <script src="{% static 'js/database_edit.js' %}"></script>
 
 {% endblock %}
-

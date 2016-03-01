@@ -62,7 +62,7 @@
           </div>
           {% if db.support_sql %}
             <div class="yesno-description" data-type="sql" data-exists="1">
-              {{ db.x_description_sql_rendered | safe }}
+              {{ db.x_description_sql.value_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="sql" data-exists="0">
@@ -85,7 +85,7 @@
           </div>
           {% if db.support_foreignkeys %}
             <div class="yesno-description" data-type="foreignkeys" data-exists="1">
-              {{ db.x_description_foreignkeys_rendered | safe }}
+              {{ db.x_description_foreignkeys.value_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="foreignkeys" data-exists="0">
@@ -108,7 +108,7 @@
           </div>
           {% if db.support_serverside %}
             <div class="yesno-description" data-type="serverside" data-exists="1">
-              {{ db.x_description_serverside_rendered | safe }}
+              {{ db.x_description_serverside.value_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="serverside" data-exists="0">
@@ -131,7 +131,7 @@
           </div>
           {% if db.support_mapreduce %}
             <div class="yesno-description" data-type="mapreduce" data-exists="1">
-              {{ db.x_description_mapreduce_rendered | safe }}
+              {{ db.x_description_mapreduce.value_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="mapreduce" data-exists="0">
@@ -154,7 +154,7 @@
           </div>
           {% if db.support_secondary %}
             <div class="yesno-description" data-type="secondary" data-exists="1">
-              {{ db.x_description_secondary_rendered | safe }}
+              {{ db.x_description_secondary.value_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="secondary" data-exists="0">
@@ -177,7 +177,7 @@
           </div>
           {% if db.support_durability %}
             <div class="yesno-description" data-type="durability" data-exists="1">
-              {{ db.x_description_durability_rendered | safe }}
+              {{ db.x_description_durability.value_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="durability" data-exists="0">
@@ -200,7 +200,7 @@
           </div>
           {% if db.support_triggers %}
             <div class="yesno-description" data-type="triggers" data-exists="1">
-              {{ db.x_description_triggers_rendered | safe }}
+              {{ db.x_description_triggers.value_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="triggers" data-exists="0">
@@ -223,7 +223,7 @@
           </div>
           {% if db.support_concurrency %}
             <div class="yesno-description" data-type="concurrency" data-exists="1">
-              {{ db.x_description_concurrency_rendered | safe }}
+              {{ db.x_description_concurrency.value_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="concurrency" data-exists="0">
@@ -246,7 +246,7 @@
           </div>
           {% if db.support_userconcepts %}
             <div class="yesno-description" data-type="userconcepts" data-exists="1">
-              {{ db.x_description_userconcepts_rendered | safe }}
+              {{ db.x_description_userconcepts.value_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="userconcepts" data-exists="0">
@@ -269,7 +269,7 @@
           </div>
           {% if db.support_datascheme %}
             <div class="yesno-description" data-type="datascheme" data-exists="1">
-              {{ db.x_description_datascheme_rendered | safe }}
+              {{ db.x_description_datascheme.value_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="datascheme" data-exists="0">
@@ -292,7 +292,7 @@
           </div>
           {% if db.support_xml %}
             <div class="yesno-description" data-type="xml" data-exists="1">
-              {{ db.x_description_xml_rendered | safe }}
+              {{ db.x_description_xml.value_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="xml" data-exists="0">
@@ -315,7 +315,7 @@
           </div>
           {% if db.support_typing %}
             <div class="yesno-description" data-type="typing" data-exists="1">
-              {{ db.x_description_typing_rendered | safe }}
+              {{ db.x_description_typing.value_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="typing" data-exists="0">
@@ -338,7 +338,7 @@
           </div>
           {% if db.support_transactionconcepts %}
             <div class="yesno-description" data-type="transactionconcepts" data-exists="1">
-              {{ db.x_description_transactionconcepts_rendered | safe }}
+              {{ db.x_description_transactionconcepts.value_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="transactionconcepts" data-exists="0">
@@ -361,7 +361,7 @@
           </div>
           {% if db.support_querycompilation %}
             <div class="yesno-description" data-type="querycompilation" data-exists="1">
-              {{ db.x_description_querycompilation_rendered | safe }}
+              {{ db.x_description_querycompilation.value_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="querycompilation" data-exists="0">
@@ -390,7 +390,7 @@
           <span class="header-text">Written in: </span>
           <span class="metadata-data" data-type="written_in">
             {% for lang in db.written_in %}
-              <a href="/search/written_lang/{{lang}}">{{lang}}</a>, 
+              <a href="/search/written_lang/{{lang}}">{{lang}}</a>,
             {% endfor %}
           </span>
         </div>
@@ -412,7 +412,7 @@
           <span class="header-text">Support Language: </span>
           <span class="metadata-data" data-type="support_languages">
             {% for lang in db.support_languages %}
-              <a href="/search/support_lang/{{lang}}">{{lang}}</a>, 
+              <a href="/search/support_lang/{{lang}}">{{lang}}</a>,
             {% endfor %}
           </span>
         </div>
@@ -448,4 +448,3 @@
   <script src="{% static 'js/database.js' %}"></script>
 
 {% endblock %}
-

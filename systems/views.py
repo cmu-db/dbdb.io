@@ -38,6 +38,7 @@ class LoadContext(object):
   def load_base_context(request):
     context = {}
     context["user"] = request.user
+    print System.objects.all()
     context["databases"] = map(lambda x: x.name.replace(" ", "-"), System.objects.all())
     context["languages"] = map(lambda x: x.name.replace(" ", "-"), ProgrammingLanguage.objects.all())
     context["oses"] = map(lambda x: x.name.replace(" ", "-"), OperatingSystem.objects.all())
@@ -372,7 +373,7 @@ class PLCreationView(View):
       name = request.POST.get('name')
       newDB = ProgrammingLanguage(name = name)
       newDB.save()
-      # TODO: handle the no name case w/ front end code
+      # TODO: handle the no name case by imposing form restrictions
       return HttpResponseRedirect("/createdb")
 
 class OSCreationView(View):
@@ -386,13 +387,13 @@ class OSCreationView(View):
       name = request.POST.get('name')
       newDB = OperatingSystem(name = name)
       newDB.save()
-      # TODO: handle the no name case w/ front end code
+      # TODO: handle the no name case by imposing form restrictions
       return HttpResponseRedirect("/createdb")
 
 class FetchAllSystems(APIView):
 
   def get(self, request):
-    systems = SystemSerializer(SystemVersion.objects.all(), many = True)
+    systems = SystemVersionSerializer(SystemVersion.objects.all(), many = True)
     return Response(systems.data)
 
 def get_current_version_dbs():

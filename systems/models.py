@@ -1,5 +1,6 @@
 from django.db import models
 from markupfield.fields import MarkupField
+from django.utils.text import slugify
 
 PROJECT_TYPES = (
     ('C', 'Commercial'),
@@ -18,6 +19,8 @@ ISOLATION_LEVELS = (
     ('CR', 'Consistent Read'),
     ('S', 'Serializability'),
 )
+
+default_slug = slugify("foo")
 for x,y in ISOLATION_LEVELS:
     globals()['ISOLATION_LEVEL_' + y.upper()] = x
 
@@ -82,12 +85,11 @@ class System(models.Model):
     """Base article for a system that revisions point back to"""
 
     # basic, persistent information about the system
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=64, null=False)
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    # TODO: not used anywhere
-    updated = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     current_version = models.IntegerField(default=0)
     creator = models.CharField(max_length=100, default="unknown")
+    slug = models.SlugField(max_length=50)
 
     # authentication key for editing
     secret_key = models.CharField(max_length = 100, default = None)
@@ -103,10 +105,6 @@ class SystemVersion(models.Model):
 
     # when this revision was created
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-
-    # when this revision was last updated
-    # TODO: not used anywhere
-    updated = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     # who created this revision
     creator = models.CharField(max_length=100, default="unknown")
@@ -136,33 +134,48 @@ class SystemVersion(models.Model):
 
     # Features
     support_sql = models.NullBooleanField()
-    description_sql = MarkupField(default="", default_markup_type='markdown')
+    description_sql = models.ForeignKey('FeatureOption', related_name='description_sql', null=True, blank=True)
+
     support_foreignkeys = models.NullBooleanField()
-    description_foreignkeys = MarkupField(default="", default_markup_type='markdown')
+    description_foreignkeys = models.ForeignKey('FeatureOption', related_name='description_foreignkeys', null=True, blank=True)
+
     support_serverside = models.NullBooleanField()
-    description_serverside = MarkupField(default="", default_markup_type='markdown')
+    description_serverside = models.ForeignKey('FeatureOption', related_name='description_serverside', null=True, blank=True)
+
     support_mapreduce = models.NullBooleanField()
-    description_mapreduce = MarkupField(default="", default_markup_type='markdown')
+    description_mapreduce = models.ForeignKey('FeatureOption', related_name='description_mapreduce', null=True, blank=True)
+
     support_secondary = models.NullBooleanField()
-    description_secondary = MarkupField(default="", default_markup_type='markdown')
+    description_secondary = models.ForeignKey('FeatureOption', related_name='description_secondary', null=True, blank=True)
+
     support_durability = models.NullBooleanField()
-    description_durability = MarkupField(default="", default_markup_type='markdown')
+    description_durability = models.ForeignKey('FeatureOption', related_name='description_durability', null=True, blank=True)
+
     support_triggers = models.NullBooleanField()
-    description_triggers = MarkupField(default="", default_markup_type='markdown')
+    description_triggers = models.ForeignKey('FeatureOption', related_name='description_triggers', null=True, blank=True)
+
     support_concurrency = models.NullBooleanField()
-    description_concurrency = MarkupField(default="", default_markup_type='markdown')
+    description_concurrency = models.ForeignKey('FeatureOption', related_name='description_concurrency', null=True, blank=True)
+
     support_datascheme = models.NullBooleanField()
-    description_datascheme = MarkupField(default="", default_markup_type='markdown')
+    description_datascheme = models.ForeignKey('FeatureOption', related_name='description_datascheme', null=True, blank=True)
+
     support_xml = models.NullBooleanField()
-    description_xml = MarkupField(default="", default_markup_type='markdown')
+    description_xml = models.ForeignKey('FeatureOption', related_name='description_xml', null=True, blank=True)
+
     support_typing = models.NullBooleanField()
-    description_typing = MarkupField(default="", default_markup_type='markdown')
+    description_typing = models.ForeignKey('FeatureOption', related_name='description_typing', null=True, blank=True)
+
     support_userconcepts = models.NullBooleanField()
-    description_userconcepts = MarkupField(default="", default_markup_type='markdown')
+    description_userconcepts = models.ForeignKey('FeatureOption', related_name='description_userconcepts', null=True, blank=True)
+
     support_transactionconcepts = models.NullBooleanField()
-    description_transactionconcepts = MarkupField(default="", default_markup_type='markdown')
+    description_transactionconcepts = models.ForeignKey('FeatureOption', related_name='description_transactionconcepts', null=True, blank=True)
+
     support_querycompilation = models.NullBooleanField()
-    description_querycompilation = MarkupField(default="", default_markup_type='markdown')
+    description_querycompilation = models.ForeignKey('FeatureOption', related_name='description_querycompilation', null=True, blank=True)
+
+    # Support languages and isolation levels
     support_languages = models.ManyToManyField(ProgrammingLanguage, related_name='systems_supported')
     default_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
     max_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
@@ -171,40 +184,24 @@ class SystemVersion(models.Model):
         return self.name
 
 class Feature(models.Model):
-    """Feature that describes a certain aspect of the system
-    """
+    """Feature that describes a certain aspect of the system"""
 
     # what the field is or its 'label'
-    field = models.CharField(max_length=64)
-
-    # if the feature is supported at all
-    support = models.BooleanField()
+    field = models.CharField(max_length=64, default='')
 
     # if the feature has multiple options (FeatureOption)
-    multivalued = models.BooleanField()
+    multivalued = models.NullBooleanField()
 
 class FeatureOption(models.Model):
     """Option for a feature"""
 
     # feature this option is for
-    feature = models.ForeignKey(Feature)
+    feature = models.ForeignKey('Feature', null=True, blank=True)
 
     # what this option actually is
-    value = models.CharField(max_length=64)
+    value = MarkupField(default='', default_markup_type='markdown', null=True)
 
     # description for what the option means
     description = models.TextField(max_length=500, default="")
-
-class SystemFeatureOption(models.Model):
-    """A system version of a feature. Features can evolve over time"""
-
-    # version of a system that had this option
-    system_version = models.ForeignKey(SystemVersion)
-
-    # what the field is or its 'label'
-    field = models.CharField(max_length=64)
-
-    # option that is being versioned
-    feature_option = models.ForeignKey(FeatureOption)
 
 # CLASS

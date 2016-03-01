@@ -36,31 +36,31 @@ class SystemAdmin(admin.ModelAdmin):
     """This class manages how system articles are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
-    list_display = ('name', 'created', 'updated', 'current_version')
+    list_display = ('name', 'created', 'current_version')
 
 class SystemVersionAdmin(admin.ModelAdmin):
     """This class manages how system versions are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
-    list_display = ('name', 'version_number')
+    list_display = ('name', 'version_number',)
 
 class FeatureAdmin(admin.ModelAdmin):
     """This class manages how features are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
-    list_display = ('field', 'support', 'multivalued')
+    list_display = ('field', 'multivalued',)
 
 class FeatureOptionAdmin(admin.ModelAdmin):
     """This class manages how feature options are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
-    list_display = ('feature', 'value', 'description')
+    list_display = ('feature', 'value', 'description',)
 
-class SystemFeatureOptionAdmin(admin.ModelAdmin):
-    """This class manages how system feature options are displayed
-    on the django administration page"""
-    empty_value_display = 'unknown'
-    list_display = ('system_version', 'field', 'feature_option')
+# class SystemFeatureOptionAdmin(admin.ModelAdmin):
+#     """This class manages how system feature options are displayed
+#     on the django administration page"""
+#     empty_value_display = 'unknown'
+#     list_display = ('system_version', 'field', 'feature_option',)
 
 ## CLASS
 # Register your models here.
@@ -73,4 +73,4 @@ admin.site.register(System, SystemAdmin)
 admin.site.register(SystemVersion, SystemVersionAdmin)
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(FeatureOption, FeatureOptionAdmin)
-admin.site.register(SystemFeatureOption, SystemFeatureOptionAdmin)
+# admin.site.register(SystemFeatureOption, SystemFeatureOptionAdmin)
