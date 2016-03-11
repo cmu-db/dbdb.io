@@ -112,7 +112,7 @@
             {% else %}
               <img class = "check-img grey-check">
             {% endif %}
-            <span class="yesno-title">SERVER-SIDE</span>
+            <span class="yesno-title">SERVER SIDE</span>
           </div>
           {% if db.support_serverside %}
             <div class="yesno-description" data-type="serverside" data-exists="1">
@@ -256,7 +256,7 @@
             {% else %}
               <img class = "check-img grey-check">
             {% endif %}
-            <span class="yesno-title">USER-CONCEPTS</span>
+            <span class="yesno-title">USER CONCEPTS</span>
           </div>
           {% if db.support_userconcepts %}
             <div class="yesno-description" data-type="userconcepts" data-exists="1">
@@ -364,6 +364,30 @@
           {% endif %}
           <div class="yesno-description-raw" style="display:none;">
             {{ db.description_transationconcepts.description_raw }}
+          </div>
+        </div>
+
+        <div class="yesno-row">
+          <div class="yesno-title-area">
+            {% if db.support_querycompilation == None %}
+              <img class = "check-img question-check">
+            {% elif db.support_querycompilation %}
+              <img class = "check-img green-check">
+            {% else %}
+              <img class = "check-img grey-check">
+            {% endif %}
+            <span class="yesno-title">QUERY COMPILATION</span>
+          </div>
+          {% if db.support_querycompilation %}
+            <div class="yesno-description" data-type="querycompilation" data-exists="1">
+              {{ db.description_querycompilation.description }}
+            </div>
+          {% else %}
+            <div class="yesno-description" data-type="querycompilation" data-exists="0">
+            </div>
+          {% endif %}
+          <div class="yesno-description-raw" style="display:none;">
+            {{ db.description_querycompilation.description_raw }}
           </div>
         </div>
 

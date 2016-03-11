@@ -62,7 +62,7 @@
           </div>
           {% if db.support_sql %}
             <div class="yesno-description" data-type="sql" data-exists="1">
-              {{ db.x_description_sql.description_rendered | safe }}
+              {{ db.description_sql.get_description_rendered | safe }}
             </div>
           {% else %}
             <div class="yesno-description" data-type="sql" data-exists="0">
@@ -104,7 +104,7 @@
             {% else %}
               <img class = "check-img grey-check">
             {% endif %}
-            <span class="yesno-title">SERVER-SIDE</span>
+            <span class="yesno-title">SERVER SIDE</span>
           </div>
           {% if db.support_serverside %}
             <div class="yesno-description" data-type="serverside" data-exists="1">
@@ -242,7 +242,7 @@
             {% else %}
               <img class = "check-img grey-check">
             {% endif %}
-            <span class="yesno-title">USER-CONCEPTS</span>
+            <span class="yesno-title">USER CONCEPTS</span>
           </div>
           {% if db.support_userconcepts %}
             <div class="yesno-description" data-type="userconcepts" data-exists="1">

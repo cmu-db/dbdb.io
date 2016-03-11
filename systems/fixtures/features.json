@@ -1,0 +1,114 @@
+[
+    {
+        "pk": 1,
+        "model": "systems.Feature",
+        "fields": {
+            "field": "SQL",
+            "multivalued": true
+        }
+    },
+    {
+        "pk": 2,
+        "model": "systems.Feature",
+        "fields": {
+            "field": "FOREIGN KEYS",
+            "multivalued": true
+        }
+    },
+    {
+        "pk": 3,
+        "model": "systems.Feature",
+        "fields": {
+            "field": "SERVER SIDE",
+            "multivalued": true
+        }
+    },
+    {
+        "pk": 4,
+        "model": "systems.Feature",
+        "fields": {
+            "field": "MAPREDUCE",
+            "multivalued": true
+        }
+    },
+    {
+        "pk": 5,
+        "model": "systems.Feature",
+        "fields": {
+            "field": "SECONDARY INDEXES",
+            "multivalued": true
+        }
+    },
+    {
+        "pk": 6,
+        "model": "systems.Feature",
+        "fields": {
+            "field": "DURABILITY",
+            "multivalued": true
+        }
+    },
+    {
+        "pk": 7,
+        "model": "systems.Feature",
+        "fields": {
+            "field": "TRIGGERS",
+            "multivalued": true
+        }
+    },
+    {
+        "pk": 8,
+        "model": "systems.Feature",
+        "fields": {
+            "field": "CONCURRENCY",
+            "multivalued": true
+        }
+    },
+    {
+        "pk": 9,
+        "model": "systems.Feature",
+        "fields": {
+            "field": "USER CONCEPTS",
+            "multivalued": true
+        }
+    },
+    {
+        "pk": 10,
+        "model": "systems.Feature",
+        "fields": {
+            "field": "DATA SCHEME",
+            "multivalued": true
+        }
+    },
+    {
+        "pk": 11,
+        "model": "systems.Feature",
+        "fields": {
+            "field": "XML",
+            "multivalued": true
+        }
+    },
+    {
+        "pk": 12,
+        "model": "systems.Feature",
+        "fields": {
+            "field": "TYPING",
+            "multivalued": true
+        }
+    },
+    {
+        "pk": 13,
+        "model": "systems.Feature",
+        "fields": {
+            "field": "TRANSACTION CONCEPTS",
+            "multivalued": true
+        }
+    },
+    {
+        "pk": 14,
+        "model": "systems.Feature",
+        "fields": {
+            "field": "QUERY COMPILATION",
+            "multivalued": true
+        }
+    }
+]

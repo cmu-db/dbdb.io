@@ -10,7 +10,6 @@ PROJECT_TYPES = (
 for x,y in PROJECT_TYPES:
     globals()['PROJECT_TYPE_' + y.upper()] = x
 
-
 ISOLATION_LEVELS = (
     ('RC', 'Read Committed'),
     ('RR', 'Repeatable Read'),
@@ -18,18 +17,6 @@ ISOLATION_LEVELS = (
     ('SI', 'Snapshot Isolation'),
     ('CR', 'Consistent Read'),
     ('S', 'Serializability'),
-)
-
-FEATURES = (
-    ('SQL', 'SQL'),
-    ('FOREIGN KEYS', 'FOREIGN KEYS'),
-    ('SERVER-SIDE', 'SERVER-SIDE'),
-    ('MAPREDUCE', 'MAPREDUCE'),
-    ('SECONDARY INDEXES', 'SECONDARY INDEXES'),
-    ('DURABILITY', 'DURABILITY'),
-    ('TRIGGERS', 'TRIGGERS'),
-    ('CONCURRENCY', 'CONCURRENCY'),
-    ('TYPING', 'TYPING')
 )
 
 for x,y in ISOLATION_LEVELS:
@@ -41,9 +28,9 @@ def upload_logo_path(self, fn):
     return "logo/%d/%s" % (self.id, fn)
 
 class OperatingSystem(models.Model):
-    name = models.CharField(max_length=32)
+    name = models.CharField(max_length=64)
     website = models.URLField(default="", null=True)
-    slug = models.SlugField(max_length=50)
+    slug = models.SlugField(max_length=64)
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -54,9 +41,9 @@ class OperatingSystem(models.Model):
         return self.name
 
 class ProgrammingLanguage(models.Model):
-    name = models.CharField(max_length=32)
+    name = models.CharField(max_length=64)
     website = models.URLField(default="", null=True)
-    slug = models.SlugField(max_length=50)
+    slug = models.SlugField(max_length=64)
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -118,7 +105,7 @@ class System(models.Model):
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     current_version = models.IntegerField(default=0)
     creator = models.CharField(max_length=100, default="unknown")
-    slug = models.SlugField(max_length=50)
+    slug = models.SlugField(max_length=64)
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -173,45 +160,88 @@ class SystemVersion(models.Model):
     # Features
     support_sql = models.NullBooleanField()
     description_sql = models.ForeignKey('Feature', related_name='description_sql', null=True, blank=True)
+    def get_description_sql(self):
+        return 'Hi!'
+        # if self.description_sql is not None:
+        #     return FeatureOption.objects.filter(system_version=self,feature=self.description_sql)
 
     support_foreignkeys = models.NullBooleanField()
     description_foreignkeys = models.ForeignKey('Feature', related_name='description_foreignkeys', null=True, blank=True)
+    def get_description_foreignkeys(self, *args, **kwargs):
+        if self.description_foreignkeys is not None:
+            return FeatureOption.objects.filter(system_version=self,feature=self.description_foreignkeys)
 
     support_serverside = models.NullBooleanField()
     description_serverside = models.ForeignKey('Feature', related_name='description_serverside', null=True, blank=True)
+    def get_description_serverside(self, *args, **kwargs):
+        if self.description_serverside is not None:
+            return FeatureOption.objects.filter(system_version=self,feature=self.description_serverside)
 
     support_mapreduce = models.NullBooleanField()
     description_mapreduce = models.ForeignKey('Feature', related_name='description_mapreduce', null=True, blank=True)
+    def get_description_mapreduce(self, *args, **kwargs):
+        if self.description_mapreduce is not None:
+            return FeatureOption.objects.filter(system_version=self,feature=self.description_mapreduce)
 
     support_secondary = models.NullBooleanField()
     description_secondary = models.ForeignKey('Feature', related_name='description_secondary', null=True, blank=True)
+    def get_description_secondary(self, *args, **kwargs):
+        if self.description_secondary is not None:
+            return FeatureOption.objects.filter(system_version=self,feature=self.description_secondary)
 
     support_durability = models.NullBooleanField()
     description_durability = models.ForeignKey('Feature', related_name='description_durability', null=True, blank=True)
+    def get_description_durability(self, *args, **kwargs):
+        if self.description_durability is not None:
+            return FeatureOption.objects.filter(system_version=self,feature=self.description_durability)
 
     support_triggers = models.NullBooleanField()
     description_triggers = models.ForeignKey('Feature', related_name='description_triggers', null=True, blank=True)
+    def get_description_triggers(self, *args, **kwargs):
+        if self.description_sql is not None:
+            return FeatureOption.objects.filter(system_version=self,feature=self.description_sql)
 
     support_concurrency = models.NullBooleanField()
     description_concurrency = models.ForeignKey('Feature', related_name='description_concurrency', null=True, blank=True)
-
-    support_datascheme = models.NullBooleanField()
-    description_datascheme = models.ForeignKey('Feature', related_name='description_datascheme', null=True, blank=True)
-
-    support_xml = models.NullBooleanField()
-    description_xml = models.ForeignKey('Feature', related_name='description_xml', null=True, blank=True)
-
-    support_typing = models.NullBooleanField()
-    description_typing = models.ForeignKey('Feature', related_name='description_typing', null=True, blank=True)
+    def get_description_concurrency(self, *args, **kwargs):
+        if self.description_sql is not None:
+            return FeatureOption.objects.filter(system_version=self,feature=self.description_sql)
 
     support_userconcepts = models.NullBooleanField()
     description_userconcepts = models.ForeignKey('Feature', related_name='description_userconcepts', null=True, blank=True)
+    def get_description_userconcepts(self, *args, **kwargs):
+        if self.description_sql is not None:
+            return FeatureOption.objects.filter(system_version=self,feature=self.description_sql)
+
+    support_datascheme = models.NullBooleanField()
+    description_datascheme = models.ForeignKey('Feature', related_name='description_datascheme', null=True, blank=True)
+    def get_description_datascheme(self, *args, **kwargs):
+        if self.description_sql is not None:
+            return FeatureOption.objects.filter(system_version=self,feature=self.description_sql)
+
+    support_xml = models.NullBooleanField()
+    description_xml = models.ForeignKey('Feature', related_name='description_xml', null=True, blank=True)
+    def get_description_xml(self, *args, **kwargs):
+        if self.description_sql is not None:
+            return FeatureOption.objects.filter(system_version=self,feature=self.description_sql)
+
+    support_typing = models.NullBooleanField()
+    description_typing = models.ForeignKey('Feature', related_name='description_typing', null=True, blank=True)
+    def get_description_typing(self, *args, **kwargs):
+        if self.description_sql is not None:
+            return FeatureOption.objects.filter(system_version=self,feature=self.description_sql)
 
     support_transactionconcepts = models.NullBooleanField()
     description_transactionconcepts = models.ForeignKey('Feature', related_name='description_transactionconcepts', null=True, blank=True)
+    def get_description_transactionconcepts(self, *args, **kwargs):
+        if self.description_sql is not None:
+            return FeatureOption.objects.filter(system_version=self,feature=self.description_sql)
 
     support_querycompilation = models.NullBooleanField()
     description_querycompilation = models.ForeignKey('Feature', related_name='description_querycompilation', null=True, blank=True)
+    def get_description_querycompilation(self, *args, **kwargs):
+        if self.description_sql is not None:
+            return FeatureOption.objects.filter(system_version=self,feature=self.description_sql)
 
     # Support languages and isolation levels
     support_languages = models.ManyToManyField('ProgrammingLanguage', related_name='systems_supported')
@@ -225,7 +255,7 @@ class Feature(models.Model):
     """Feature that describes a certain aspect of the system"""
 
     # what the field is or its 'label'
-    field = models.CharField(max_length=64, choices=FEATURES)
+    field = models.CharField(max_length=64)
 
     # if the feature has multiple options (FeatureOption)
     multivalued = models.NullBooleanField()
@@ -236,6 +266,7 @@ class Feature(models.Model):
 class FeatureOption(models.Model):
     """Option for a feature"""
 
+    # System version
     system_version = models.ForeignKey('SystemVersion', null=True, blank=True)
 
     # feature this option is for
@@ -244,7 +275,10 @@ class FeatureOption(models.Model):
     # description for what the option means
     description = MarkupField(default='', default_markup_type='markdown', null=True)
 
+    def get_description(self, *args, **kwargs):
+        return self.description
+
     def __unicode__(self):
-        return self.value
+        return self.feature.field
 
 # CLASS

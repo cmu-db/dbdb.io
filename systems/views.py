@@ -1,13 +1,13 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponseBadRequest
+from datetime import date, timedelta
 from django.contrib.syndication.views import Feed
-from django.http import HttpResponseRedirect, HttpResponse
+from django.forms.models import model_to_dict
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, HttpResponse
+from django.shortcuts import render, redirect
 from django.utils.text import slugify
 from django.views.generic.base import View
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from datetime import date, timedelta
 
 from systems.models import *
 from systems.serializers import *
@@ -16,18 +16,18 @@ import hashlib, time, string, json
 
 system_fields = {
   'support_sql': 'SQL',
-  'support_userconcepts': 'USER CONCEPTS',
-  'support_triggers': 'TRIGGERS',
-  'support_mapreduce': 'MAP REDUCE',
-  'support_xml': 'XML',
-  'support_transactionconcepts': 'TRANSACTION CONCEPTS',
-  'support_concurrency': 'CONCURRENCY',
-  'support_durability': 'DURABILITY',
-  'support_serverside': 'SERVER SIDE',
-  'support_secondary': 'SECONDARY INDEXES',
-  'support_datascheme': 'DATA SCHEME',
-  'support_typing': 'TYPING',
   'support_foreignkeys': 'FOREIGN KEYS',
+  'support_serverside': 'SERVER SIDE',
+  'support_mapreduce': 'MAP REDUCE',
+  'support_secondary': 'SECONDARY INDEXES',
+  'support_durability': 'DURABILITY',
+  'support_triggers': 'TRIGGERS',
+  'support_concurrency': 'CONCURRENCY',
+  'support_userconcepts': 'USER CONCEPTS',
+  'support_datascheme': 'DATA SCHEME',
+  'support_xml': 'XML',
+  'support_typing': 'TYPING',
+  'support_transactionconcepts': 'TRANSACTION CONCEPTS',
   'support_querycompilation': 'QUERY COMPILATION'
 }
 
@@ -39,7 +39,6 @@ class LoadContext(object):
   def load_base_context(request):
     context = {}
     context["user"] = request.user
-    print System.objects.all()
     context["databases"] = map(lambda x: x.name.replace(" ", "-"), System.objects.all())
     context["languages"] = map(lambda x: x.name.replace(" ", "-"), ProgrammingLanguage.objects.all())
     context["oses"] = map(lambda x: x.name.replace(" ", "-"), OperatingSystem.objects.all())
@@ -49,6 +48,7 @@ class LoadContext(object):
   @staticmethod
   def load_db_data(db_model):
     db = db_model.__dict__
+    print(db)
     db["name"] = db["name"].replace(" ", "-")
     link = db["website"]
     if not link.startswith("http://") or link.startswith("https://"):
@@ -70,10 +70,12 @@ class LoadContext(object):
     db["support_languages"] = support_langs
     db["pubs"] = map(lambda x: x[1], pubs)
     db["num_pubs"] = len(db["pubs"])
+    db_dict = model_to_dict(db_model)
+    print(db_dict)
     for field in db:
-      if field.startswith("_"):
-        db["x" + field] = db[field]
-        db.pop(field, None)
+      if field.startswith("description_"):
+        print('field: ' + str(db[field]))
+        db[field] = Feature.objects.filter(id=int(db[field]))
     return db
 
   @staticmethod
@@ -121,7 +123,6 @@ class HomePage(View):
     # gets first 10 systems and orders them by which has the highest
     # current version (Most Edited Databases)
     sms = System.objects.all().order_by("current_version")[::-1][:10]
-    print(len(sms))
     context["top_sms"] = []
     for (i, sm) in enumerate(sms):
       # ignore the system if the current version is less than 1 (invalid)
