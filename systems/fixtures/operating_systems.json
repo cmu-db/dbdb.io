@@ -4,7 +4,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "AIX"
+            "name": "AIX",
+            "slug": "aix"
         }
     },
     {
@@ -12,7 +13,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "All OS with a Java VM"
+            "name": "All OS with a Java VM",
+            "slug": "all-os-with-a-java-vm"
         }
     },
     {
@@ -20,7 +22,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "All OS with a Java VM and a servlet container"
+            "name": "All OS with a Java VM and a servlet container",
+            "slug": "all-os-with-a-java-vm-and-a-servlet-container"
         }
     },
     {
@@ -28,7 +31,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "Android"
+            "name": "Android",
+            "slug": "android"
         }
     },
     {
@@ -36,7 +40,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "BSD"
+            "name": "BSD",
+            "slug": "bsd"
         }
     },
     {
@@ -44,7 +49,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "DOS"
+            "name": "DOS",
+            "slug": "dos"
         }
     },
     {
@@ -52,7 +58,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "FreeBSD"
+            "name": "FreeBSD",
+            "slug": "freebsd"
         }
     },
     {
@@ -60,7 +67,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "HP-UX"
+            "name": "HP-UX",
+            "slug": "hp-ux"
         }
     },
     {
@@ -68,7 +76,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "Linux"
+            "name": "Linux",
+            "slug": "linux"
         }
     },
     {
@@ -76,7 +85,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "NetBSD"
+            "name": "NetBSD",
+            "slug": "netbsd"
         }
     },
     {
@@ -84,7 +94,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "OS X"
+            "name": "OS X",
+            "slug": "os-x"
         }
     },
     {
@@ -92,7 +103,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "Raspbian"
+            "name": "Raspbian",
+            "slug": "raspbian"
         }
     },
     {
@@ -100,7 +112,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "Solaris"
+            "name": "Solaris",
+            "slug": "solaris"
         }
     },
     {
@@ -108,7 +121,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "Unix"
+            "name": "Unix",
+            "slug": "unix"
         }
     },
     {
@@ -116,7 +130,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "VxWorks"
+            "name": "VxWorks",
+            "slug": "vxworks"
         }
     },
     {
@@ -124,7 +139,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "Windows"
+            "name": "Windows",
+            "slug": "windows"
         }
     },
     {
@@ -132,7 +148,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "hosted"
+            "name": "hosted",
+            "slug": "hosted"
         }
     },
     {
@@ -140,7 +157,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "iOS"
+            "name": "iOS",
+            "slug": "ios"
         }
     },
     {
@@ -148,7 +166,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "server-less"
+            "name": "server-less",
+            "slug": "server-less"
         }
     },
     {
@@ -156,7 +175,8 @@
         "model": "systems.OperatingSystem",
         "fields": {
             "website": null,
-            "name": "z/OS"
+            "name": "z/OS",
+            "slug": "zos"
         }
     }
 ]

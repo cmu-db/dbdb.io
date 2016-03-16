@@ -215,14 +215,19 @@ class DatabaseEditingPage(View):
 
     # get the latest revision of the article
     db_version = SystemVersion.objects.get(name=db_article.name,
-                                        version_number=db_article.current_version)
+                                    version_number=db_article.current_version)
+
+    # copy the model instance into a new one
+    db_version.pk = None
+    db_version.save()
+
     # update the current version number of the article
     db_article.current_version = db_article.current_version + 1
     db_article.save()
     db_version.version_number = db_article.current_version
     db_version.save()
-    data = dict(request.POST)
 
+    data = dict(request.POST)
     for field in data:
       if field == "model_stuff":
         continue

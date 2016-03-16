@@ -4,7 +4,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": ".Net"
+            "name": ".Net",
+            "slug": "net"
         }
     },
     {
@@ -12,7 +13,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Actionscript"
+            "name": "Actionscript",
+            "slug": "actionscript"
         }
     },
     {
@@ -20,7 +22,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Ada"
+            "name": "Ada",
+            "slug": "ada"
         }
     },
     {
@@ -28,7 +31,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Basic"
+            "name": "Basic",
+            "slug": "basic"
         }
     },
     {
@@ -36,7 +40,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "C"
+            "name": "C",
+            "slug": "c"
         }
     },
     {
@@ -44,7 +49,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "C#"
+            "name": "C#",
+            "slug": "c"
         }
     },
     {
@@ -52,7 +58,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "C++"
+            "name": "C++",
+            "slug": "c"
         }
     },
     {
@@ -60,7 +67,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Clojure"
+            "name": "Clojure",
+            "slug": "clojure"
         }
     },
     {
@@ -68,7 +76,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Cobol"
+            "name": "Cobol",
+            "slug": "cobol"
         }
     },
     {
@@ -76,7 +85,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Cocoa"
+            "name": "Cocoa",
+            "slug": "cocoa"
         }
     },
     {
@@ -84,7 +94,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Coldfusion"
+            "name": "Coldfusion",
+            "slug": "coldfusion"
         }
     },
     {
@@ -92,7 +103,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "D"
+            "name": "D",
+            "slug": "d"
         }
     },
     {
@@ -100,7 +112,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Dart"
+            "name": "Dart",
+            "slug": "dart"
         }
     },
     {
@@ -108,7 +121,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Delphi"
+            "name": "Delphi",
+            "slug": "delphi"
         }
     },
     {
@@ -116,7 +130,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Eiffel"
+            "name": "Eiffel",
+            "slug": "eiffel"
         }
     },
     {
@@ -124,7 +139,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Erlang"
+            "name": "Erlang",
+            "slug": "erlang"
         }
     },
     {
@@ -132,7 +148,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Forth"
+            "name": "Forth",
+            "slug": "forth"
         }
     },
     {
@@ -140,7 +157,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Fortran"
+            "name": "Fortran",
+            "slug": "fortran"
         }
     },
     {
@@ -148,7 +166,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Go"
+            "name": "Go",
+            "slug": "go"
         }
     },
     {
@@ -156,7 +175,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Groovy"
+            "name": "Groovy",
+            "slug": "groovy"
         }
     },
     {
@@ -164,7 +184,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Haskell"
+            "name": "Haskell",
+            "slug": "haskell"
         }
     },
     {
@@ -172,7 +193,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Java"
+            "name": "Java",
+            "slug": "java"
         }
     },
     {
@@ -180,7 +202,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Java (Jdbc-Odbc)"
+            "name": "Java (Jdbc-Odbc)",
+            "slug": "java-jdbc-odbc"
         }
     },
     {
@@ -188,7 +211,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Javascript"
+            "name": "Javascript",
+            "slug": "javascript"
         }
     },
     {
@@ -196,7 +220,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Javascript (Node.Js)"
+            "name": "Javascript (Node.Js)",
+            "slug": "javascript-nodejs"
         }
     },
     {
@@ -204,7 +229,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Lisp"
+            "name": "Lisp",
+            "slug": "lisp"
         }
     },
     {
@@ -212,7 +238,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Lua"
+            "name": "Lua",
+            "slug": "lua"
         }
     },
     {
@@ -220,7 +247,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Matlab"
+            "name": "Matlab",
+            "slug": "matlab"
         }
     },
     {
@@ -228,7 +256,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Ocaml"
+            "name": "Ocaml",
+            "slug": "ocaml"
         }
     },
     {
@@ -236,7 +265,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Objective C"
+            "name": "Objective C",
+            "slug": "objective-c"
         }
     },
     {
@@ -244,7 +274,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Objective-C"
+            "name": "Objective-C",
+            "slug": "objective-c"
         }
     },
     {
@@ -252,7 +283,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Php"
+            "name": "Php",
+            "slug": "php"
         }
     },
     {
@@ -268,7 +300,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Pl/Sql"
+            "name": "Pl/Sql",
+            "slug": "plsql"
         }
     },
     {
@@ -276,7 +309,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Perl"
+            "name": "Perl",
+            "slug": "perl"
         }
     },
     {
@@ -284,7 +318,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Pike"
+            "name": "Pike",
+            "slug": "pike"
         }
     },
     {
@@ -292,7 +327,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Powershell"
+            "name": "Powershell",
+            "slug": "powershell"
         }
     },
     {
@@ -300,7 +336,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Prolog"
+            "name": "Prolog",
+            "slug": "prolog"
         }
     },
     {
@@ -308,7 +345,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Python"
+            "name": "Python",
+            "slug": "python"
         }
     },
     {
@@ -316,7 +354,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Qt"
+            "name": "Qt",
+            "slug": "qt"
         }
     },
     {
@@ -324,7 +363,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "R"
+            "name": "R",
+            "slug": "r"
         }
     },
     {
@@ -332,7 +372,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Rebol"
+            "name": "Rebol",
+            "slug": "rebol"
         }
     },
     {
@@ -340,7 +381,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Ruby"
+            "name": "Ruby",
+            "slug": "ruby"
         }
     },
     {
@@ -348,7 +390,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Scala"
+            "name": "Scala",
+            "slug": "scala"
         }
     },
     {
@@ -356,7 +399,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Scheme"
+            "name": "Scheme",
+            "slug": "scheme"
         }
     },
     {
@@ -364,7 +408,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Smalltalk"
+            "name": "Smalltalk",
+            "slug": "smalltalk"
         }
     },
     {
@@ -372,7 +417,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Tcl"
+            "name": "Tcl",
+            "slug": "tcl"
         }
     },
     {
@@ -380,7 +426,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Vba"
+            "name": "Vba",
+            "slug": "vba"
         }
     },
     {
@@ -388,7 +435,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Visual Basic"
+            "name": "Visual Basic",
+            "slug": "visual-basic"
         }
     },
     {
@@ -396,7 +444,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Visual Basic.Net"
+            "name": "Visual Basic.Net",
+            "slug": "visual-basicnet"
         }
     },
     {
@@ -404,7 +453,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Any Language That Supports Sockets And Either Xml Or Json"
+            "name": "Any Language That Supports Sockets And Either Xml Or Json",
+            "slug": "any-language-that-supports-sockets-and-either-xml-or-json"
         }
     },
     {
@@ -412,7 +462,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Dbase Proprietary Ide"
+            "name": "Dbase Proprietary Ide",
+            "slug": "dbase-proprietary-ide"
         }
     },
     {
@@ -420,7 +471,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Others"
+            "name": "Others",
+            "slug": "others"
         }
     }
 ]
