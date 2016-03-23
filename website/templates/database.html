@@ -48,6 +48,14 @@
           {{ db.x_history_rendered | safe }}
         </div>
 
+        {% for feature in db.get_features %}
+          {{ feature.label }}
+            {% for feature_option in feature.feature_options %}
+              {{ feature_option.value }}
+              {{ feature_option.description }}
+            {% endfor %}
+        {% endfor %}
+
         {% if db.support_sql != None %}
         <div class="yesno-row">
           <div class="yesno-title-area">
