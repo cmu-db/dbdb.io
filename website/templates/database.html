@@ -48,335 +48,38 @@
           {{ db.x_history_rendered | safe }}
         </div>
 
-        {% for feature in db.get_features %}
-          {{ feature.label }}
-            {% for feature_option in feature.feature_options %}
-              {{ feature_option.value }}
-              {{ feature_option.description }}
-            {% endfor %}
+        {% for feature in db_version.get_features %}
+          <div class="yesno-row">
+
+            <div class="yesno-title-area">
+              {% if feature.is_supported == None %}
+                <img class = "check-img question-check">
+              {% elif feature.is_supported %}
+                <img class = "check-img green-check">
+              {% else %}
+                <img class = "check-img grey-check">
+              {% endif %}
+              <span class="yesno-title">{{ feature.label }}</span>
+            </div>
+
+            {% if feature.is_supported and feature.multivalued %}
+              {% for feature_option in feature.feature_options %}
+                {{ feature_option.value }}
+                <div class="yesno-description" data-type="{{ feature.label }}" data-exists="1">
+                  {{ feature_option.get_description_rendered | safe }}
+                </div>
+              {% endfor %}
+            {% elif feature.is_supported and not feature.multivalued %}
+              {{ feature.feature_options.0.value }}
+              <div class="yesno-description" data-type="{{ feature.label }}" data-exists="1">
+                {{ feature.feature_options.0.get_description_rendered | safe }}
+              </div>
+            {% else %}
+              <div class="yesno-description" data-type="{{ feature.label }}" data-exists="0"></div>
+            {% endif %}
+
+          </div>
         {% endfor %}
-
-        {% if db.support_sql != None %}
-        <div class="yesno-row">
-          <div class="yesno-title-area">
-            {% if db.support_sql == None %}
-              <img class = "check-img question-check">
-            {% elif db.support_sql %}
-              <img class = "check-img green-check">
-            {% else %}
-              <img class = "check-img grey-check">
-            {% endif %}
-            <span class="yesno-title">SQL</span>
-          </div>
-          {% if db.support_sql %}
-            <div class="yesno-description" data-type="sql" data-exists="1">
-              {{ db.description_sql.get_description_rendered | safe }}
-            </div>
-          {% else %}
-            <div class="yesno-description" data-type="sql" data-exists="0">
-            </div>
-          {% endif %}
-        </div>
-        {% endif %}
-
-        {% if db.support_foreignkeys != None %}
-        <div class="yesno-row">
-          <div class="yesno-title-area">
-            {% if db.support_foreignkeys == None %}
-              <img class = "check-img question-check">
-            {% elif db.support_foreignkeys %}
-              <img class = "check-img green-check">
-            {% else %}
-              <img class = "check-img grey-check">
-            {% endif %}
-            <span class="yesno-title">FOREIGN KEYS</span>
-          </div>
-          {% if db.support_foreignkeys %}
-            <div class="yesno-description" data-type="foreignkeys" data-exists="1">
-              {{ db.x_description_foreignkeys.description_rendered | safe }}
-            </div>
-          {% else %}
-            <div class="yesno-description" data-type="foreignkeys" data-exists="0">
-            </div>
-          {% endif %}
-        </div>
-        {% endif %}
-
-        {% if db.support_serverside != None %}
-        <div class="yesno-row">
-          <div class="yesno-title-area">
-            {% if db.support_serverside == None %}
-              <img class = "check-img question-check">
-            {% elif db.support_serverside %}
-              <img class = "check-img green-check">
-            {% else %}
-              <img class = "check-img grey-check">
-            {% endif %}
-            <span class="yesno-title">SERVER SIDE</span>
-          </div>
-          {% if db.support_serverside %}
-            <div class="yesno-description" data-type="serverside" data-exists="1">
-              {{ db.x_description_serverside.description_rendered | safe }}
-            </div>
-          {% else %}
-            <div class="yesno-description" data-type="serverside" data-exists="0">
-            </div>
-          {% endif %}
-        </div>
-        {% endif %}
-
-        {% if db.support_mapreduce != None %}
-        <div class="yesno-row">
-          <div class="yesno-title-area">
-            {% if db.support_mapreduce == None %}
-              <img class = "check-img question-check">
-            {% elif db.support_mapreduce %}
-              <img class = "check-img green-check">
-            {% else %}
-              <img class = "check-img grey-check">
-            {% endif %}
-            <span class="yesno-title">MAPREDUCE</span>
-          </div>
-          {% if db.support_mapreduce %}
-            <div class="yesno-description" data-type="mapreduce" data-exists="1">
-              {{ db.x_description_mapreduce.description_rendered | safe }}
-            </div>
-          {% else %}
-            <div class="yesno-description" data-type="mapreduce" data-exists="0">
-            </div>
-          {% endif %}
-        </div>
-        {% endif %}
-
-        {% if db.support_secondary != None %}
-        <div class="yesno-row">
-          <div class="yesno-title-area">
-            {% if db.support_secondary == None %}
-              <img class = "check-img question-check">
-            {% elif db.support_secondary %}
-              <img class = "check-img green-check">
-            {% else %}
-              <img class = "check-img grey-check">
-            {% endif %}
-            <span class="yesno-title">SECONDARY INDEXES</span>
-          </div>
-          {% if db.support_secondary %}
-            <div class="yesno-description" data-type="secondary" data-exists="1">
-              {{ db.x_description_secondary.description_rendered | safe }}
-            </div>
-          {% else %}
-            <div class="yesno-description" data-type="secondary" data-exists="0">
-            </div>
-          {% endif %}
-        </div>
-        {% endif %}
-
-        {% if db.support_durability != None %}
-        <div class="yesno-row">
-          <div class="yesno-title-area">
-            {% if db.support_durability == None %}
-              <img class = "check-img question-check">
-            {% elif db.support_durability %}
-              <img class = "check-img green-check">
-            {% else %}
-              <img class = "check-img grey-check">
-            {% endif %}
-            <span class="yesno-title">DURABILITY</span>
-          </div>
-          {% if db.support_durability %}
-            <div class="yesno-description" data-type="durability" data-exists="1">
-              {{ db.x_description_durability.description_rendered | safe }}
-            </div>
-          {% else %}
-            <div class="yesno-description" data-type="durability" data-exists="0">
-            </div>
-          {% endif %}
-        </div>
-        {% endif %}
-
-        {% if db.support_triggers != None %}
-        <div class="yesno-row">
-          <div class="yesno-title-area">
-            {% if db.support_triggers == None %}
-              <img class = "check-img question-check">
-            {% elif db.support_triggers %}
-              <img class = "check-img green-check">
-            {% else %}
-              <img class = "check-img grey-check">
-            {% endif %}
-            <span class="yesno-title">TRIGGERS</span>
-          </div>
-          {% if db.support_triggers %}
-            <div class="yesno-description" data-type="triggers" data-exists="1">
-              {{ db.x_description_triggers.description_rendered | safe }}
-            </div>
-          {% else %}
-            <div class="yesno-description" data-type="triggers" data-exists="0">
-            </div>
-          {% endif %}
-        </div>
-        {% endif %}
-
-        {% if db.support_concurrency != None %}
-        <div class="yesno-row">
-          <div class="yesno-title-area">
-            {% if db.support_concurrency == None %}
-              <img class = "check-img question-check">
-            {% elif db.support_concurrency %}
-              <img class = "check-img green-check">
-            {% else %}
-              <img class = "check-img grey-check">
-            {% endif %}
-            <span class="yesno-title">CONCURRENCY</span>
-          </div>
-          {% if db.support_concurrency %}
-            <div class="yesno-description" data-type="concurrency" data-exists="1">
-              {{ db.x_description_concurrency.description_rendered | safe }}
-            </div>
-          {% else %}
-            <div class="yesno-description" data-type="concurrency" data-exists="0">
-            </div>
-          {% endif %}
-        </div>
-        {% endif %}
-
-        {% if db.support_userconcepts != None %}
-        <div class="yesno-row">
-          <div class="yesno-title-area">
-            {% if db.support_userconcepts == None %}
-              <img class = "check-img question-check">
-            {% elif db.support_userconcepts %}
-              <img class = "check-img green-check">
-            {% else %}
-              <img class = "check-img grey-check">
-            {% endif %}
-            <span class="yesno-title">USER CONCEPTS</span>
-          </div>
-          {% if db.support_userconcepts %}
-            <div class="yesno-description" data-type="userconcepts" data-exists="1">
-              {{ db.x_description_userconcepts.description_rendered | safe }}
-            </div>
-          {% else %}
-            <div class="yesno-description" data-type="userconcepts" data-exists="0">
-            </div>
-          {% endif %}
-        </div>
-        {% endif %}
-
-        {% if db.support_datascheme != None %}
-        <div class="yesno-row">
-          <div class="yesno-title-area">
-            {% if db.support_datascheme == None %}
-              <img class = "check-img question-check">
-            {% elif db.support_datascheme %}
-              <img class = "check-img green-check">
-            {% else %}
-              <img class = "check-img grey-check">
-            {% endif %}
-            <span class="yesno-title">DATA SCHEME</span>
-          </div>
-          {% if db.support_datascheme %}
-            <div class="yesno-description" data-type="datascheme" data-exists="1">
-              {{ db.x_description_datascheme.description_rendered | safe }}
-            </div>
-          {% else %}
-            <div class="yesno-description" data-type="datascheme" data-exists="0">
-            </div>
-          {% endif %}
-        </div>
-        {% endif %}
-
-        {% if db.support_xml != None %}
-        <div class="yesno-row">
-          <div class="yesno-title-area">
-            {% if db.support_xml == None %}
-              <img class = "check-img question-check">
-            {% elif db.support_xml %}
-              <img class = "check-img green-check">
-            {% else %}
-              <img class = "check-img grey-check">
-            {% endif %}
-            <span class="yesno-title">XML</span>
-          </div>
-          {% if db.support_xml %}
-            <div class="yesno-description" data-type="xml" data-exists="1">
-              {{ db.x_description_xml.description_rendered | safe }}
-            </div>
-          {% else %}
-            <div class="yesno-description" data-type="xml" data-exists="0">
-            </div>
-          {% endif %}
-        </div>
-        {% endif %}
-
-        {% if db.support_typing != None %}
-        <div class="yesno-row">
-          <div class="yesno-title-area">
-            {% if db.support_typing == None %}
-              <img class = "check-img question-check">
-            {% elif db.support_typing %}
-              <img class = "check-img green-check">
-            {% else %}
-              <img class = "check-img grey-check">
-            {% endif %}
-            <span class="yesno-title">TYPING</span>
-          </div>
-          {% if db.support_typing %}
-            <div class="yesno-description" data-type="typing" data-exists="1">
-              {{ db.x_description_typing.description_rendered | safe }}
-            </div>
-          {% else %}
-            <div class="yesno-description" data-type="typing" data-exists="0">
-            </div>
-          {% endif %}
-        </div>
-        {% endif %}
-
-        {% if db.support_transactionconcepts != None %}
-        <div class="yesno-row">
-          <div class="yesno-title-area">
-            {% if db.support_transactionconcepts == None %}
-              <img class = "check-img question-check">
-            {% elif db.support_transactionconcepts %}
-              <img class = "check-img green-check">
-            {% else %}
-              <img class = "check-img grey-check">
-            {% endif %}
-            <span class="yesno-title">TRANSACTION CONCEPTS</span>
-          </div>
-          {% if db.support_transactionconcepts %}
-            <div class="yesno-description" data-type="transactionconcepts" data-exists="1">
-              {{ db.x_description_transactionconcepts.description_rendered | safe }}
-            </div>
-          {% else %}
-            <div class="yesno-description" data-type="transactionconcepts" data-exists="0">
-            </div>
-          {% endif %}
-        </div>
-        {% endif %}
-
-        {% if db.support_querycompilation != None %}
-        <div class="yesno-row">
-          <div class="yesno-title-area">
-            {% if db.support_querycompilation == None %}
-              <img class = "check-img question-check">
-            {% elif db.support_querycompilation %}
-              <img class = "check-img green-check">
-            {% else %}
-              <img class = "check-img grey-check">
-            {% endif %}
-            <span class="yesno-title">QUERY COMPILATION</span>
-          </div>
-          {% if db.support_querycompilation %}
-            <div class="yesno-description" data-type="querycompilation" data-exists="1">
-              {{ db.x_description_querycompilation.description_rendered | safe }}
-            </div>
-          {% else %}
-            <div class="yesno-description" data-type="querycompilation" data-exists="0">
-            </div>
-          {% endif %}
-        </div>
-        {% endif %}
 
       </div>
 
@@ -398,7 +101,7 @@
           <span class="header-text">Written in: </span>
           <span class="metadata-data" data-type="written_in">
             {% for lang in db.written_in %}
-              <a href="/search/written_lang/{{lang}}">{{lang}}</a>,
+              <a href="/search/written_lang/{{ lang }}">{{ lang }}</a>,
             {% endfor %}
           </span>
         </div>
@@ -406,7 +109,7 @@
           <span class="header-text">OSes: </span>
           <span class="metadata-data" data-type="oses">
             {% for os in db.oses %}
-              <a href="/search/os/{{os}}">{{os}}</a>,
+              <a href="/search/os/{{ os }}">{{ os }}</a>,
             {% endfor %}
           </span>
         </div>
@@ -420,7 +123,7 @@
           <span class="header-text">Support Language: </span>
           <span class="metadata-data" data-type="support_languages">
             {% for lang in db.support_languages %}
-              <a href="/search/support_lang/{{lang}}">{{lang}}</a>,
+              <a href="/search/support_lang/{{ lang }}">{{ lang }}</a>,
             {% endfor %}
           </span>
         </div>
@@ -436,9 +139,9 @@
           {% for pub in db.pubs %}
             <div class="citation">
               {% if pub.link %}
-                [{{pub.number}}] <a href="{{pub.link}}">{{pub.cite}}</a>
+                [{{ pub.number }}] <a href="{{ pub.link }}">{{ pub.cite }}</a>
               {% else %}
-                [{{pub.number}}] {{pub.cite}}
+                [{{ pub.number }}] {{ pub.cite }}
               {% endif %}
             </div>
           {% endfor %}

@@ -48,7 +48,6 @@ class LoadContext(object):
   @staticmethod
   def load_db_data(db_model):
     db = db_model.__dict__
-    print(db)
     db["name"] = db["name"].replace(" ", "-")
     link = db["website"]
     if not link.startswith("http://") or link.startswith("https://"):
@@ -70,12 +69,10 @@ class LoadContext(object):
     db["support_languages"] = support_langs
     db["pubs"] = map(lambda x: x[1], pubs)
     db["num_pubs"] = len(db["pubs"])
-    db_dict = model_to_dict(db_model)
-    print(db_dict)
     for field in db:
-      if field.startswith("description_"):
-        print('field: ' + str(db[field]))
-        db[field] = Feature.objects.filter(id=int(db[field]))
+      if field.startswith("_"):
+        db["x" + field] = db[field]
+        db.pop(field, None)
     return db
 
   @staticmethod
@@ -144,6 +141,7 @@ class DatabasePage(View):
                                     version_number = db_article.current_version)
     context = LoadContext.load_base_context(request)
     context["db"] = LoadContext.load_db_data(db_version)
+    context["db_version"] = db_version
     context["isVersionPage"] = False
     return render(request, 'database.html',
         context)
@@ -228,15 +226,25 @@ class DatabaseEditingPage(View):
     db_version.save()
 
     data = dict(request.POST)
+    print(data)
     for field in data:
+	  db_field = ''
       if field == "model_stuff":
         continue
-      if "support_" in field:
+      if field.startswith('support'):
         data[field][0] = True if data[field][0] == "1" else False
+		db_field = field.lower().replace(' ', '')
+		if db_version.__getattribute__(db_field) != data[field][0]:
+	      db_version.__setattr__(db_field, data[field][0])
+      elif field.startswith('description'):
+        db_field = field.lower().replace('description', 'feature').replace(' ','')
+		if db_version.__getattribute__(db_field) != data[field][0]:
+	      db_version.__setattr__(db_field, data[field][0])
       elif "year" in field:
         data[field][0] = int(data[field][0])
-      if db_version.__getattribute__(field) != data[field][0]:
-        db_version.__setattr__(field, data[field][0])
+	    if db_version.__getattribute__(field) != data[field][0]:
+	      db_version.__setattr__(field, data[field][0])
+
     db_version.creator = str(ip)
     db_version.save()
     options = eval(data["model_stuff"][0])
@@ -285,6 +293,7 @@ class DatabaseEditingPage(View):
     if db_article.secret_key == key:
       context = LoadContext.load_base_context(request)
       context["db"] = LoadContext.load_db_data(db_version)
+      context["db_version"] = db_version
       context["key"] = key
       LoadContext.load_db_raw_markdown_fields(context["db"], db_version)
       return render(request, 'database_edit.html',

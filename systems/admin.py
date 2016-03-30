@@ -59,7 +59,7 @@ class FeatureAdmin(admin.ModelAdmin):
     """This class manages how features are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
-    list_display = ('field', 'multivalued',)
+    list_display = ('label', 'multivalued',)
 
 class FeatureOptionAdmin(admin.ModelAdmin):
     """This class manages how feature options are displayed

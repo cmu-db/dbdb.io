@@ -3,7 +3,7 @@
         "pk": 1,
         "model": "systems.Feature",
         "fields": {
-            "field": "SQL",
+            "label": "SQL",
             "multivalued": true
         }
     },
@@ -11,7 +11,7 @@
         "pk": 2,
         "model": "systems.Feature",
         "fields": {
-            "field": "FOREIGN KEYS",
+            "label": "FOREIGN KEYS",
             "multivalued": true
         }
     },
@@ -19,7 +19,7 @@
         "pk": 3,
         "model": "systems.Feature",
         "fields": {
-            "field": "SERVER SIDE",
+            "label": "SERVER SIDE",
             "multivalued": true
         }
     },
@@ -27,7 +27,7 @@
         "pk": 4,
         "model": "systems.Feature",
         "fields": {
-            "field": "MAPREDUCE",
+            "label": "MAPREDUCE",
             "multivalued": true
         }
     },
@@ -35,7 +35,7 @@
         "pk": 5,
         "model": "systems.Feature",
         "fields": {
-            "field": "SECONDARY INDEXES",
+            "label": "SECONDARY INDEXES",
             "multivalued": true
         }
     },
@@ -43,7 +43,7 @@
         "pk": 6,
         "model": "systems.Feature",
         "fields": {
-            "field": "DURABILITY",
+            "label": "DURABILITY",
             "multivalued": true
         }
     },
@@ -51,7 +51,7 @@
         "pk": 7,
         "model": "systems.Feature",
         "fields": {
-            "field": "TRIGGERS",
+            "label": "TRIGGERS",
             "multivalued": true
         }
     },
@@ -59,7 +59,7 @@
         "pk": 8,
         "model": "systems.Feature",
         "fields": {
-            "field": "CONCURRENCY",
+            "label": "CONCURRENCY",
             "multivalued": true
         }
     },
@@ -67,7 +67,7 @@
         "pk": 9,
         "model": "systems.Feature",
         "fields": {
-            "field": "USER CONCEPTS",
+            "label": "USER CONCEPTS",
             "multivalued": true
         }
     },
@@ -75,7 +75,7 @@
         "pk": 10,
         "model": "systems.Feature",
         "fields": {
-            "field": "DATA SCHEME",
+            "label": "DATA SCHEME",
             "multivalued": true
         }
     },
@@ -83,7 +83,7 @@
         "pk": 11,
         "model": "systems.Feature",
         "fields": {
-            "field": "XML",
+            "label": "XML",
             "multivalued": true
         }
     },
@@ -91,7 +91,7 @@
         "pk": 12,
         "model": "systems.Feature",
         "fields": {
-            "field": "TYPING",
+            "label": "TYPING",
             "multivalued": true
         }
     },
@@ -99,7 +99,7 @@
         "pk": 13,
         "model": "systems.Feature",
         "fields": {
-            "field": "TRANSACTION CONCEPTS",
+            "label": "TRANSACTION CONCEPTS",
             "multivalued": true
         }
     },
@@ -107,7 +107,7 @@
         "pk": 14,
         "model": "systems.Feature",
         "fields": {
-            "field": "QUERY COMPILATION",
+            "label": "QUERY COMPILATION",
             "multivalued": true
         }
     }
