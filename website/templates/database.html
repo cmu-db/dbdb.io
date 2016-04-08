@@ -47,7 +47,7 @@
         <div id = "db-history" class="description-description">
           {{ db.x_history_rendered | safe }}
         </div>
-        
+
 <!-- Begin features section -->
         {% for feature in db_version.get_features %}
           <div class="yesno-row">
@@ -68,7 +68,7 @@
                 {{ feature_option.value }}
               {% endfor %}
               <div class="yesno-description" data-type="{{ feature.label }}" data-exists="1">
-                {{ feature.get_description_rendered | safe }}
+                {{ feature.description | safe }}
               </div>
             {% else %}
               <div class="yesno-description" data-type="{{ feature.label }}" data-exists="0"></div>

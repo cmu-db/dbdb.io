@@ -142,8 +142,6 @@ class DatabasePage(View):
     context = LoadContext.load_base_context(request)
     context["db"] = LoadContext.load_db_data(db_version)
     context["db_version"] = db_version
-    for f in db_version.get_features():
-      print(f['description'].raw)
     context["isVersionPage"] = False
     return render(request, 'database.html',
         context)

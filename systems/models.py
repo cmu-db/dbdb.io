@@ -170,8 +170,8 @@ class SystemVersion(models.Model):
     support_mapreduce = models.NullBooleanField()
     feature_mapreduce = models.ForeignKey('Feature', related_name='feature_mapreduce', null=True, blank=True)
 
-    support_secondary = models.NullBooleanField()
-    feature_secondary = models.ForeignKey('Feature', related_name='feature_secondary', null=True, blank=True)
+    support_secondaryindexes = models.NullBooleanField()
+    feature_secondaryindexes = models.ForeignKey('Feature', related_name='feature_secondaryindexes', null=True, blank=True)
 
     support_durability = models.NullBooleanField()
     feature_durability = models.ForeignKey('Feature', related_name='feature_durability', null=True, blank=True)
@@ -213,12 +213,14 @@ class SystemVersion(models.Model):
                 label = feature.label
                 # multivalued = feature.multivalued
                 description = feature.description
+                rendered_description = feature.get_description_rendered()
                 feature_options = FeatureOption.objects.filter(system_version=self, feature=feature)
                 feature = {
                     'is_supported': self.__dict__[key.replace('feature','support').replace('_id','')],
                     'label': label,
                     # 'multivalued': multivalued,
                     'description': description,
+                    'rendered_description': rendered_description,
                     'feature_options': feature_options,
                 }
                 features.append(feature)
