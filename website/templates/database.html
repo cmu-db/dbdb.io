@@ -47,7 +47,8 @@
         <div id = "db-history" class="description-description">
           {{ db.x_history_rendered | safe }}
         </div>
-
+        
+<!-- Begin features section -->
         {% for feature in db_version.get_features %}
           <div class="yesno-row">
 
@@ -62,17 +63,12 @@
               <span class="yesno-title">{{ feature.label }}</span>
             </div>
 
-            {% if feature.is_supported and feature.multivalued %}
+            {% if feature.is_supported %}
               {% for feature_option in feature.feature_options %}
                 {{ feature_option.value }}
-                <div class="yesno-description" data-type="{{ feature.label }}" data-exists="1">
-                  {{ feature_option.get_description_rendered | safe }}
-                </div>
               {% endfor %}
-            {% elif feature.is_supported and not feature.multivalued %}
-              {{ feature.feature_options.0.value }}
               <div class="yesno-description" data-type="{{ feature.label }}" data-exists="1">
-                {{ feature.feature_options.0.get_description_rendered | safe }}
+                {{ feature.get_description_rendered | safe }}
               </div>
             {% else %}
               <div class="yesno-description" data-type="{{ feature.label }}" data-exists="0"></div>
@@ -80,7 +76,7 @@
 
           </div>
         {% endfor %}
-
+<!-- End features section -->
       </div>
 
       <!-- metadata area -->

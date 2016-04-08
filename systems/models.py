@@ -211,23 +211,23 @@ class SystemVersion(models.Model):
             if key.startswith('feature_'):
                 feature = Feature.objects.get(id=self.__dict__[key])
                 label = feature.label
-                multivalued = feature.multivalued
+                # multivalued = feature.multivalued
+                description = feature.description
                 feature_options = FeatureOption.objects.filter(system_version=self, feature=feature)
                 feature = {
                     'is_supported': self.__dict__[key.replace('feature','support').replace('_id','')],
                     'label': label,
-                    'multivalued': multivalued,
+                    # 'multivalued': multivalued,
+                    'description': description,
                     'feature_options': feature_options,
                 }
-                for feature_option in feature_options:
-                    print(feature_option.__dict__)
                 features.append(feature)
 
         features.sort(cmp = lambda x,y: cmp(x['label'], y['label']))
         return features
 
     def __unicode__(self):
-        return self.name
+        return self.name + '-' + str(self.version_number)
 
 class Feature(models.Model):
     """Feature that describes a certain aspect of the system"""
@@ -235,11 +235,18 @@ class Feature(models.Model):
     # label for this feature
     label = models.CharField(max_length=64)
 
-    # if the feature has multiple options (FeatureOption)
-    multivalued = models.NullBooleanField()
+    # System version
+    system_version = models.ForeignKey('SystemVersion', null=True, blank=True)
+
+    # description for the selected feature options
+    description = MarkupField(default='', default_markup_type='markdown', null=True)
+
+    # https://github.com/jamesturk/django-markupfield#usage
+    def get_description_rendered(self, *args, **kwargs):
+        return self.__dict__['_description_rendered']
 
     def __unicode__(self):
-        return self.label
+        return self.label + '-' + str(self.system_version)
 
 class FeatureOption(models.Model):
     """Option for a feature"""
@@ -252,13 +259,6 @@ class FeatureOption(models.Model):
 
     # value of this feature option
     value = models.CharField(max_length=64, default='foo')
-
-    # description for what the value means
-    description = MarkupField(default='', default_markup_type='markdown', null=True)
-
-    # https://github.com/jamesturk/django-markupfield#usage
-    def get_description_rendered(self, *args, **kwargs):
-        return self.__dict__['_description_rendered']
 
     def __unicode__(self):
         return self.value

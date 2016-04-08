@@ -142,6 +142,8 @@ class DatabasePage(View):
     context = LoadContext.load_base_context(request)
     context["db"] = LoadContext.load_db_data(db_version)
     context["db_version"] = db_version
+    for f in db_version.get_features():
+      print(f['description'].raw)
     context["isVersionPage"] = False
     return render(request, 'database.html',
         context)
@@ -217,6 +219,7 @@ class DatabaseEditingPage(View):
 
     # copy the model instance into a new one
     db_version.pk = None
+    db_version.id = None
     db_version.save()
 
     # update the current version number of the article
@@ -227,26 +230,52 @@ class DatabaseEditingPage(View):
 
     data = dict(request.POST)
     print(data)
+
     for field in data:
-	  db_field = ''
+      db_field = None
+
+      # skip model_stuff key
       if field == "model_stuff":
         continue
-      if field.startswith('support'):
+
+      # convert to db_field for support and features
+      # set support and feature description if db_field is set
+      # otherwise just set field directly in db model
+      if "support_" in field:
+        db_field = field.lower().replace(' ','')
         data[field][0] = True if data[field][0] == "1" else False
-		db_field = field.lower().replace(' ', '')
-		if db_version.__getattribute__(db_field) != data[field][0]:
-	      db_version.__setattr__(db_field, data[field][0])
-      elif field.startswith('description'):
-        db_field = field.lower().replace('description', 'feature').replace(' ','')
-		if db_version.__getattribute__(db_field) != data[field][0]:
-	      db_version.__setattr__(db_field, data[field][0])
+        db_version.__setattr__(db_field, data[field][0])
+      elif 'description_' in field:
+        db_field = field.lower().replace('description', 'feature').replace(' ', '')
+        feature = db_version.__getattribute__(db_field)
+
+        # Features are foreign key objects so always want to update
+
+        # set new attributes
+        feature.__setattr__('description', data[field][0])
+        feature.__setattr__('system_version', db_version)
+        feature.__setattr__('label', field[field.index('_')+1::])
+
+        # save the new feature
+        feature.save()
+
+        # update this feature for the new version
+        db_version.__setattr__(db_field, feature)
+
       elif "year" in field:
         data[field][0] = int(data[field][0])
-	    if db_version.__getattribute__(field) != data[field][0]:
-	      db_version.__setattr__(field, data[field][0])
+        if db_version.__getattribute__(field) != data[field][0]:
+          db_version.__setattr__(field, data[field][0])
+      else:
+        if db_version.__getattribute__(field) != data[field][0]:
+          db_version.__setattr__(field, data[field][0])
 
     db_version.creator = str(ip)
     db_version.save()
+
+    for f in db_version.get_features():
+      print(f['description'].raw)
+
     options = eval(data["model_stuff"][0])
     adds = dict(map(lambda x: (x, map(lambda y: "add_" + y, options["adds"][x])), options["adds"]))
     removes = dict(map(lambda x: (x, map(lambda y: "rem_" + y, options["removes"][x])), options["removes"]))

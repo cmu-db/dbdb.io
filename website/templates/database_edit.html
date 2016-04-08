@@ -54,7 +54,8 @@
         <div class="description-raw" style="display:none;">
             {{ db.history_raw }}
         </div>
-
+        
+<!-- Begin features section -->
         {% for feature in db_version.get_features %}
           <div class="yesno-row">
 
@@ -69,34 +70,23 @@
               <span class="yesno-title">{{ feature.label }}</span>
             </div>
 
-            {% if feature.is_supported and feature.multivalued %}
+            {% if feature.is_supported %}
               {% for feature_option in feature.feature_options %}
                 {{ feature_option.value }}
-                <div class="yesno-description" data-type="{{ feature.label }}" data-exists="1">
-                  {{ feature_option.description }}
-                </div>
-                <div class="yesno-description-raw" style="display:none;">
-                  {{ feature_option.description_raw }}
-                </div>
               {% endfor %}
-            {% elif feature.is_supported and not feature.multivalued %}
-              {{ feature.feature_options.0.value }}
               <div class="yesno-description" data-type="{{ feature.label }}" data-exists="1">
-                {{ feature.feature_options.0.description }}
-              </div>
-              <div class="yesno-description-raw" style="display:none;">
-                {{ feature.feature_options.0.description_raw }}
+                {{ feature.description }}
               </div>
             {% else %}
               <div class="yesno-description" data-type="{{ feature.label }}" data-exists="0"></div>
-              <div class="yesno-description-raw" style="display:none;">
-                {{ feature.feature_options.0.description_raw }}
-              </div>
             {% endif %}
+            <div class="yesno-description-raw" style="display:none;">
+              {{ feature.description_raw }}
+            </div>
 
           </div>
         {% endfor %}
-
+<!-- End features section -->
       </div>
 
       <!-- metadata area -->
