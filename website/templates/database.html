@@ -68,7 +68,7 @@
                 {{ feature_option.value }}
               {% endfor %}
               <div class="yesno-description" data-type="{{ feature.label }}" data-exists="1">
-                {{ feature.description | safe }}
+                {{ feature.rendered_description | safe }}
               </div>
             {% else %}
               <div class="yesno-description" data-type="{{ feature.label }}" data-exists="0"></div>

@@ -65,7 +65,7 @@ class FeatureOptionAdmin(admin.ModelAdmin):
     """This class manages how feature options are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
-    list_display = ('system_version', 'feature', 'value',)
+    list_display = ('feature', 'value',)
 
 ## CLASS
 # Register your models here.

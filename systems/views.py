@@ -39,9 +39,9 @@ class LoadContext(object):
   def load_base_context(request):
     context = {}
     context["user"] = request.user
-    context["databases"] = map(lambda x: x.name.replace(" ", "-"), System.objects.all())
-    context["languages"] = map(lambda x: x.name.replace(" ", "-"), ProgrammingLanguage.objects.all())
-    context["oses"] = map(lambda x: x.name.replace(" ", "-"), OperatingSystem.objects.all())
+    context["databases"] = map(lambda x: x.slug, System.objects.all())
+    context["languages"] = map(lambda x: x.slug, ProgrammingLanguage.objects.all())
+    context["oses"] = map(lambda x: x.slug, OperatingSystem.objects.all())
     context["system_fields"] = system_fields.values()
     return context
 
@@ -247,12 +247,13 @@ class DatabaseEditingPage(View):
         db_field = field.lower().replace('description', 'feature').replace(' ', '')
         feature = db_version.__getattribute__(db_field)
 
-        # Features are foreign key objects so always want to update
+        feature.pk = None
+        feature.id = None
 
         # set new attributes
         feature.__setattr__('description', data[field][0])
         feature.__setattr__('system_version', db_version)
-        feature.__setattr__('label', field[field.index('_')+1::])
+        #feature.__setattr__('label', field[field.index('_')+1::])
 
         # save the new feature
         feature.save()
@@ -311,7 +312,8 @@ class DatabaseEditingPage(View):
           db_version.oses.add(os)
       else:
           db_version.oses.remove(os)
-    return HttpResponseRedirect("/db/%s" % db_name)
+    print('updated db')
+    return HttpResponseRedirect("/db/%s" % slugify(db_name))
 
   def get(self, request, db_name, key):
     db_article = System.objects.get(slug = slugify(db_name))
@@ -333,12 +335,13 @@ class DatabaseVersionPage(View):
   def get(self, request, db_name, version):
     version = int(version)
     db_article = System.objects.get(slug = slugify(db_name))
-    if db_article.current_version < version:
+    if version > db_article.current_version:
       return HttpResponseRedirect("/")
 
     db_version = SystemVersion.objects.get(system=db_article, version_number = version)
     context = LoadContext.load_base_context(request)
     context["db"] = LoadContext.load_db_data(db_version)
+    context["db_version"] = db_version
     context["isVersionPage"] = True
     return render(request, 'database.html',
         context)
@@ -365,13 +368,14 @@ class DatabaseCreationPage(View):
       existingDB = System.objects.filter(slug = slugify(name))
       if len(existingDB) == 0:
         key = DatabaseCreationPage.create_secret_key()
-        newDBSystem = System(name=name, secret_key=key, current_version=1)
+        newDBSystem = System(name=name, secret_key=key, current_version=1,
+                                slug=slugify(name))
         newDBSystem.save()
 
-        newDBVersion = SystemVersion(name = name, version_number=1,
+        newDBVersion = SystemVersion(name=name, version_number=1,
                                        system=newDBSystem)
         newDBVersion.save()
-        return redirect("/db/%s/%s" % (name, key))
+        return redirect("/db/%s/%s" % (slugify(name), key))
     # there is already a db with that name or no name was provided
     # TODO: create front end code that requires that a name is in some field
     # similar to how it's done in the suggest a system page

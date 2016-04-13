@@ -1,6 +1,7 @@
 from django.db import models
 from markupfield.fields import MarkupField
 from django.utils.text import slugify
+from django.forms.models import model_to_dict
 
 PROJECT_TYPES = (
     ('C', 'Commercial'),
@@ -21,6 +22,23 @@ ISOLATION_LEVELS = (
 
 for x,y in ISOLATION_LEVELS:
     globals()['ISOLATION_LEVEL_' + y.upper()] = x
+
+FEATURE_LABELS = (
+    ('SQL', 'SQL'),
+    ('FOREIGN KEYS', 'FOREIGN KEYS'),
+    ('SERVER SIDE', 'SERVER SIDE'),
+    ('MAPREDUCE', 'MAPREDUCE'),
+    ('SECONDARY INDEXES', 'SECONDARY INDEXES'),
+    ('DURABILITY', 'DURABILITY'),
+    ('TRIGGERS', 'TRIGGERS'),
+    ('CONCURRENCY', 'CONCURRENCY'),
+    ('USER CONCEPTS', 'USER CONCEPTS'),
+    ('DATA SCHEME', 'DATA SCHEME'),
+    ('XML', 'XML'),
+    ('TYPING', 'TYPING'),
+    ('TRANSACTION CONCEPTS', 'TRANSACTION CONCEPTS'),
+    ('QUERY COMPILATION', 'QUERY COMPILATION'),
+)
 
 # ----------------------------------------------------------------------------
 
@@ -104,7 +122,6 @@ class System(models.Model):
     name = models.CharField(max_length=64, null=False)
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     current_version = models.IntegerField(default=0)
-    creator = models.CharField(max_length=100, default="unknown")
     slug = models.SlugField(max_length=64)
 
     def save(self, *args, **kwargs):
@@ -158,47 +175,47 @@ class SystemVersion(models.Model):
     logo = models.FileField(upload_to=upload_logo_path, blank=True)
 
     # Features
-    support_sql = models.NullBooleanField()
-    feature_sql = models.ForeignKey('Feature', related_name='feature_sql', null=True, blank=True)
-
-    support_foreignkeys = models.NullBooleanField()
-    feature_foreignkeys = models.ForeignKey('Feature', related_name='feature_foreignkeys', null=True, blank=True)
-
-    support_serverside = models.NullBooleanField()
-    feature_serverside = models.ForeignKey('Feature', related_name='feature_serverside', null=True, blank=True)
-
-    support_mapreduce = models.NullBooleanField()
-    feature_mapreduce = models.ForeignKey('Feature', related_name='feature_mapreduce', null=True, blank=True)
-
-    support_secondaryindexes = models.NullBooleanField()
-    feature_secondaryindexes = models.ForeignKey('Feature', related_name='feature_secondaryindexes', null=True, blank=True)
-
-    support_durability = models.NullBooleanField()
-    feature_durability = models.ForeignKey('Feature', related_name='feature_durability', null=True, blank=True)
-
-    support_triggers = models.NullBooleanField()
-    feature_triggers = models.ForeignKey('Feature', related_name='feature_triggers', null=True, blank=True)
-
     support_concurrency = models.NullBooleanField()
-    feature_concurrency = models.ForeignKey('Feature', related_name='feature_concurrency', null=True, blank=True)
-
-    support_userconcepts = models.NullBooleanField()
-    feature_userconcepts = models.ForeignKey('Feature', related_name='feature_userconcepts', null=True, blank=True)
+    feature_concurrency = models.ForeignKey('Feature', related_name='feature_concurrency', default=1)
 
     support_datascheme = models.NullBooleanField()
-    feature_datascheme = models.ForeignKey('Feature', related_name='feature_datascheme', null=True, blank=True)
+    feature_datascheme = models.ForeignKey('Feature', related_name='feature_datascheme', default=2)
 
-    support_xml = models.NullBooleanField()
-    feature_xml = models.ForeignKey('Feature', related_name='feature_xml', null=True, blank=True)
+    support_durability = models.NullBooleanField()
+    feature_durability = models.ForeignKey('Feature', related_name='feature_durability', default=3)
 
-    support_typing = models.NullBooleanField()
-    feature_typing = models.ForeignKey('Feature', related_name='feature_typing', null=True, blank=True)
+    support_foreignkeys = models.NullBooleanField()
+    feature_foreignkeys = models.ForeignKey('Feature', related_name='feature_foreignkeys', default=4)
 
-    support_transactionconcepts = models.NullBooleanField()
-    feature_transactionconcepts = models.ForeignKey('Feature', related_name='feature_transactionconcepts', null=True, blank=True)
+    support_mapreduce = models.NullBooleanField()
+    feature_mapreduce = models.ForeignKey('Feature', related_name='feature_mapreduce', default=5)
 
     support_querycompilation = models.NullBooleanField()
-    feature_querycompilation = models.ForeignKey('Feature', related_name='feature_querycompilation', null=True, blank=True)
+    feature_querycompilation = models.ForeignKey('Feature', related_name='feature_querycompilation', default=6)
+
+    support_secondaryindexes = models.NullBooleanField()
+    feature_secondaryindexes = models.ForeignKey('Feature', related_name='feature_secondaryindexes', default=7)
+
+    support_serverside = models.NullBooleanField()
+    feature_serverside = models.ForeignKey('Feature', related_name='feature_serverside', default=8)
+
+    support_sql = models.NullBooleanField()
+    feature_sql = models.ForeignKey('Feature', related_name='feature_sql', default=9)
+
+    support_transactionconcepts = models.NullBooleanField()
+    feature_transactionconcepts = models.ForeignKey('Feature', related_name='feature_transactionconcepts', default=10)
+
+    support_triggers = models.NullBooleanField()
+    feature_triggers = models.ForeignKey('Feature', related_name='feature_triggers', default=11)
+
+    support_typing = models.NullBooleanField()
+    feature_typing = models.ForeignKey('Feature', related_name='feature_typing', default=12)
+
+    support_userconcepts = models.NullBooleanField()
+    feature_userconcepts = models.ForeignKey('Feature', related_name='feature_userconcepts', default=13)
+
+    support_xml = models.NullBooleanField()
+    feature_xml = models.ForeignKey('Feature', related_name='feature_xml', default=14)
 
     # Support languages and isolation levels
     support_languages = models.ManyToManyField('ProgrammingLanguage', related_name='systems_supported')
@@ -207,24 +224,23 @@ class SystemVersion(models.Model):
 
     def get_features(self, *args, **kwargs):
         features = []
+        print('here1')
         for key in self.__dict__:
             if key.startswith('feature_'):
                 feature = Feature.objects.get(id=self.__dict__[key])
                 label = feature.label
-                # multivalued = feature.multivalued
                 description = feature.description
                 rendered_description = feature.get_description_rendered()
-                feature_options = FeatureOption.objects.filter(system_version=self, feature=feature)
+                feature_options = FeatureOption.objects.filter(feature=feature)
+                all_feature_options = FeatureOption.objects.all().exclude()
                 feature = {
                     'is_supported': self.__dict__[key.replace('feature','support').replace('_id','')],
                     'label': label,
-                    # 'multivalued': multivalued,
                     'description': description,
                     'rendered_description': rendered_description,
                     'feature_options': feature_options,
                 }
                 features.append(feature)
-
         features.sort(cmp = lambda x,y: cmp(x['label'], y['label']))
         return features
 
@@ -235,7 +251,7 @@ class Feature(models.Model):
     """Feature that describes a certain aspect of the system"""
 
     # label for this feature
-    label = models.CharField(max_length=64)
+    label = models.CharField(max_length=64, choices=FEATURE_LABELS)
 
     # System version
     system_version = models.ForeignKey('SystemVersion', null=True, blank=True)
@@ -252,9 +268,6 @@ class Feature(models.Model):
 
 class FeatureOption(models.Model):
     """Option for a feature"""
-
-    # System version
-    system_version = models.ForeignKey('SystemVersion', null=True, blank=True)
 
     # feature this option is for
     feature = models.ForeignKey('Feature', null=True, blank=True)
