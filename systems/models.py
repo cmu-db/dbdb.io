@@ -3,6 +3,8 @@ from markupfield.fields import MarkupField
 from django.utils.text import slugify
 from django.forms.models import model_to_dict
 
+import hashlib, time
+
 PROJECT_TYPES = (
     ('C', 'Commercial'),
     ('A', 'Academic'),
@@ -51,9 +53,9 @@ class OperatingSystem(models.Model):
     slug = models.SlugField(max_length=64)
 
     def save(self, *args, **kwargs):
-        if not self.id:
-            # Only generate the slug when the object is created
+        if not self.slug and self.name:
             self.slug = slugify(self.name)
+        super(OperatingSystem, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.name
@@ -64,9 +66,9 @@ class ProgrammingLanguage(models.Model):
     slug = models.SlugField(max_length=64)
 
     def save(self, *args, **kwargs):
-        if not self.id:
-            # Only generate the slug when the object is created
+        if not self.slug and self.name:
             self.slug = slugify(self.name)
+        super(ProgrammingLanguage, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.name
@@ -112,6 +114,13 @@ class SuggestedSystem(models.Model):
     approved = models.NullBooleanField()
     secret_key = models.CharField(max_length = 100, default = None)
 
+    def save(self, *args, **kwargs):
+        if not self.secret_key:
+            key = hashlib.sha1()
+            key.update(str(time.time()))
+            self.secret_key = key.hexdigest()[:11]
+        super(SuggestedSystem, self).save(*args, **kwargs)
+
     def __unicode__(self):
         return self.name
 
@@ -124,15 +133,18 @@ class System(models.Model):
     current_version = models.IntegerField(default=0)
     slug = models.SlugField(max_length=64)
 
-    def save(self, *args, **kwargs):
-        if not self.id:
-            # Only generate the slug when the object is created
-            self.slug = slugify(self.name)
-
-        super(System, self).save(*args, **kwargs)
-
     # authentication key for editing
     secret_key = models.CharField(max_length = 100, default = None)
+
+    def save(self, *args, **kwargs):
+        if not self.slug and self.name:
+            self.slug = slugify(self.name)
+        if not self.secret_key:
+            key = hashlib.sha1()
+            key.update(str(time.time()))
+            self.secret_key = key.hexdigest()[:11]
+        super(System, self).save(*args, **kwargs)
+
     def __unicode__(self):
         return self.name
 
@@ -224,21 +236,31 @@ class SystemVersion(models.Model):
 
     def get_features(self, *args, **kwargs):
         features = []
-        print('here1')
         for key in self.__dict__:
             if key.startswith('feature_'):
                 feature = Feature.objects.get(id=self.__dict__[key])
                 label = feature.label
                 description = feature.description
                 rendered_description = feature.get_description_rendered()
+
+                # get a list of all feature options already selected for this feature
                 feature_options = FeatureOption.objects.filter(feature=feature)
-                all_feature_options = FeatureOption.objects.all().exclude()
+                feature_options = [x.value for x in feature_options if x.feature.system_version == self]
+
+                # get all feature options, then create a list based on just the labels that match
+                all_feature_options = FeatureOption.objects.all()
+                all_feature_options = [x.value for x in all_feature_options if x.feature.label == label
+                                        and not x.feature.system_version]
+
                 feature = {
                     'is_supported': self.__dict__[key.replace('feature','support').replace('_id','')],
                     'label': label,
                     'description': description,
                     'rendered_description': rendered_description,
                     'feature_options': feature_options,
+                    'all_feature_options': all_feature_options,
+                    'multivalued': feature.multivalued,
+                    'options_size': len(all_feature_options)
                 }
                 features.append(feature)
         features.sort(cmp = lambda x,y: cmp(x['label'], y['label']))
@@ -247,11 +269,23 @@ class SystemVersion(models.Model):
     def __unicode__(self):
         return self.name + '-' + str(self.version_number)
 
+    def save(self, *args, **kwargs):
+        if not self.name and self.system:
+            self.name = self.system.name
+        if not self.version_number and self.system:
+            self.version_number = self.system.current_version + 1
+            self.system.current_version = self.version_number
+            self.system.save()
+        super(SystemVersion, self).save(*args, **kwargs)
+
 class Feature(models.Model):
     """Feature that describes a certain aspect of the system"""
 
     # label for this feature
     label = models.CharField(max_length=64, choices=FEATURE_LABELS)
+
+    # multivalued
+    multivalued = models.NullBooleanField(default=True)
 
     # System version
     system_version = models.ForeignKey('SystemVersion', null=True, blank=True)

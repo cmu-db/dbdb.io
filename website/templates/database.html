@@ -65,7 +65,7 @@
 
             {% if feature.is_supported %}
               {% for feature_option in feature.feature_options %}
-                {{ feature_option.value }}
+                {{ feature_option }}
               {% endfor %}
               <div class="yesno-description" data-type="{{ feature.label }}" data-exists="1">
                 {{ feature.rendered_description | safe }}
@@ -77,6 +77,7 @@
           </div>
         {% endfor %}
 <!-- End features section -->
+
       </div>
 
       <!-- metadata area -->

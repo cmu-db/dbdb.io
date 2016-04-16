@@ -6,10 +6,16 @@ from pprint import pprint
 class OperatingSystemAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
     list_display = ('name', 'website', 'slug',)
+    fieldsets = [
+        (None,          {'fields': ['name', 'website']}),
+    ]
 
 class ProgrammingLanguageAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
     list_display = ('name', 'website', 'slug',)
+    fieldsets = [
+        (None,          {'fields': ['name', 'website']}),
+    ]
 
 class LicenseAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
@@ -48,24 +54,55 @@ class SystemAdmin(admin.ModelAdmin):
     on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('name', 'created', 'current_version',)
+    list_filter = ['name', 'created', 'current_version']
+    fieldsets = [
+        (None,          {'fields': ['name']}),
+    ]
 
 class SystemVersionAdmin(admin.ModelAdmin):
     """This class manages how system versions are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
-    list_display = ('name', 'version_number',)
+    list_display = ('name', 'version_number', 'created')
+    list_filter = ['name', 'version_number', 'created']
+    fieldsets = [
+        (None,          {'fields': ['system', 'creator', 'version_message']}),
+        ('Metadata',    {'fields': ['description', 'history', 'website', 'tech_docs',
+                                     'developer', 'written_in', 'oses', 'publications',
+                                     'project_type', 'start_year', 'end_year', 'derived_from',
+                                     'logo_img', 'dbmodel', 'license','access_methods',
+                                     'logo']}),
+        ('Features',    {'fields': ['support_concurrency', 'feature_concurrency',
+                                     'support_datascheme', 'feature_datascheme',
+                                     'support_durability', 'feature_durability',
+                                     'support_foreignkeys', 'feature_foreignkeys',
+                                     'support_mapreduce', 'feature_mapreduce',
+                                     'support_querycompilation', 'feature_querycompilation',
+                                     'support_secondaryindexes', 'feature_secondaryindexes',
+                                     'support_serverside', 'feature_serverside',
+                                     'support_sql', 'feature_sql',
+                                     'support_transactionconcepts', 'feature_transactionconcepts',
+                                     'support_triggers', 'feature_triggers',
+                                     'support_typing', 'feature_typing',
+                                     'support_userconcepts', 'feature_userconcepts',
+                                     'support_xml', 'feature_xml']}),
+        ('Support',     {'fields': ['support_languages']}),
+        ('Isolation',   {'fields': ['default_isolation', 'max_isolation']})
+    ]
 
 class FeatureAdmin(admin.ModelAdmin):
     """This class manages how features are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
-    list_display = ('label', 'system_version')
+    list_display = ('label', 'system_version', 'multivalued')
+    list_filter = ['label', 'system_version']
 
 class FeatureOptionAdmin(admin.ModelAdmin):
     """This class manages how feature options are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('feature', 'value',)
+    list_filter = ['feature']
 
 ## CLASS
 # Register your models here.

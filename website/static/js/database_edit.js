@@ -130,7 +130,14 @@ function load_selection_clicks() {
     var option_name = $(this).text();
     var newOption = make_selection_option_item(option_name);
     var type = $(this).parent().prev().attr("data-type");
+    $(".save-button").show(500);
+    if (!(type in option_adds)) {
+      option_adds[type] = [];
+    }
     option_adds[type].push($.trim(option_name));
+    if (!(type in option_removes)) {
+      option_removes[type] = [];
+    }
     remove_from_list(option_removes[type], option_name);
     $(this).parent().prev().append(newOption);
     $(this).remove();
@@ -244,7 +251,7 @@ function load_click_handlers() {
 
     $edited_elems.each(function() {
       if ($(this).hasClass("yesno-description")) {
-        description_key = "description_" + $(this).attr("data-type") 
+        description_key = "description_" + $(this).attr("data-type")
         exists_key = "support_" + $(this).attr("data-type");
         changed_data[exists_key] = $(this).attr("data-exists");
         changed_data[description_key] = $(this).text();
@@ -256,13 +263,12 @@ function load_click_handlers() {
     options = {"adds": option_adds, "removes": option_removes}
     changed_data["model_stuff"] = JSON.stringify(options);
     var url = document
-
     $.ajax({
       type: "POST",
       url: window.location.pathname,
       data: changed_data,
       success: function() {
-	location.reload();
+        location.reload();
       },
       dataType: "json"
     });

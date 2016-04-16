@@ -207,13 +207,13 @@ class DatabaseEditingPage(View):
         ip = request.META.get('REMOTE_ADDR')
     db_name = db_name.replace("-", " ")
     savedModels = DatabaseEditingPage.savedModels
-    db_article = System.objects.get(slug = slugify(db_name))
-    if db_article.secret_key != key:
+    db = System.objects.get(slug = slugify(db_name))
+    if db.secret_key != key:
       return HttpResponseBadRequest()
 
     # get the latest revision of the article
-    db_version = SystemVersion.objects.get(name=db_article.name,
-                                    version_number=db_article.current_version)
+    db_version = SystemVersion.objects.get(name=db.name,
+                                    version_number=db.current_version)
 
     # copy the model instance into a new one
     db_version.pk = None
@@ -221,9 +221,9 @@ class DatabaseEditingPage(View):
     db_version.save()
 
     # update the current version number of the article
-    db_article.current_version = db_article.current_version + 1
-    db_article.save()
-    db_version.version_number = db_article.current_version
+    db.current_version = db.current_version + 1
+    db.save()
+    db_version.version_number = db.current_version
     db_version.save()
 
     data = dict(request.POST)
@@ -253,7 +253,7 @@ class DatabaseEditingPage(View):
         # set new attributes
         feature.__setattr__('description', data[field][0])
         feature.__setattr__('system_version', db_version)
-        #feature.__setattr__('label', field[field.index('_')+1::])
+        feature.__setattr__('label', field[field.index('_')+1::])
 
         # save the new feature
         feature.save()
@@ -271,9 +271,6 @@ class DatabaseEditingPage(View):
 
     db_version.creator = str(ip)
     db_version.save()
-
-    for f in db_version.get_features():
-      print(f['description'].raw)
 
     options = eval(data["model_stuff"][0])
     adds = dict(map(lambda x: (x, map(lambda y: "add_" + y, options["adds"][x])), options["adds"]))
@@ -312,8 +309,54 @@ class DatabaseEditingPage(View):
           db_version.oses.add(os)
       else:
           db_version.oses.remove(os)
-    print('updated db')
-    return HttpResponseRedirect("/db/%s" % slugify(db_name))
+
+    add_feature_options = {}
+    for addition in adds:
+      if addition.endswith("_options"):
+        feature_name = addition[0:addition.index('_')]
+        feature_name = 'feature_' + feature_name.lower().replace(' ', '')
+        add_feature_options[feature_name] = adds[addition]
+
+    # rem_feature_options = {}
+    # for removal in removes:
+    #   if removal.endswith("_options"):
+    #     feature_name = removal[0:removal.index('_')]
+    #     feature_name = 'feature_' + feature_name.lower().replace(' ', '')
+    #     rem_feature_options[feature_name] = removes[removal]
+    #
+    # old_version = SystemVersion.objects.get(system=db, version_number=db_version.version_number-1)
+
+    for feature in add_feature_options:
+    #   old_feature = old_version.__getattribute__(feature)
+    #   old_feature_options = FeatureOptions.get(feature=old_feature)
+      new_feature = db_version.__getattribute__(feature)
+
+      for option in add_feature_options[feature]:
+        option_name = option[option.index('_')+1:]
+        new_option = FeatureOption(feature=new_feature, value=option_name)
+        new_option.save()
+
+    db_version.save()
+    url = '/db/%s' % slugify(db_name)
+    print(url)
+    return HttpResponse()
+  #
+  # def remove_feature_option(self, version, feature_option):
+  #
+  #   return
+  #
+  # def check_if_new(self, version, additions, removals):
+  #   for addition in additions:
+  #     if addition in removals:
+  #       for
+  #   else if addition not in removals:
+  #     feature = version.__getattribute__(addition)
+  #     value =
+  #     self.add_feature_option(feature)
+  #
+  # def add_feature_option(self, feature, value):
+  #   new_feature_option = FeatureOption(feature=feature, value=value)
+  #   new_feature_option.save()
 
   def get(self, request, db_name, key):
     db_article = System.objects.get(slug = slugify(db_name))
@@ -368,11 +411,11 @@ class DatabaseCreationPage(View):
       existingDB = System.objects.filter(slug = slugify(name))
       if len(existingDB) == 0:
         key = DatabaseCreationPage.create_secret_key()
-        newDBSystem = System(name=name, secret_key=key, current_version=1,
+        newDBSystem = System(name=name, secret_key=key, current_version=0,
                                 slug=slugify(name))
         newDBSystem.save()
 
-        newDBVersion = SystemVersion(name=name, version_number=1,
+        newDBVersion = SystemVersion(name=name, version_number=0,
                                        system=newDBSystem)
         newDBVersion.save()
         return redirect("/db/%s/%s" % (slugify(name), key))

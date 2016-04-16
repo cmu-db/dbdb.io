@@ -3,7 +3,7 @@
         "pk": 1,
         "model": "systems.Feature",
         "fields": {
-            "label": "SQL",
+            "label": "CONCURRENCY",
             "description": "Describe the feature here"
         }
     },
@@ -11,7 +11,7 @@
         "pk": 2,
         "model": "systems.Feature",
         "fields": {
-            "label": "FOREIGN KEYS",
+            "label": "DATA SCHEME",
             "description": "Describe the feature here"
         }
     },
@@ -19,7 +19,7 @@
         "pk": 3,
         "model": "systems.Feature",
         "fields": {
-            "label": "SERVER SIDE",
+            "label": "DURABILITY",
             "description": "Describe the feature here"
         }
     },
@@ -27,7 +27,7 @@
         "pk": 4,
         "model": "systems.Feature",
         "fields": {
-            "label": "MAPREDUCE",
+            "label": "FOREIGN KEYS",
             "description": "Describe the feature here"
         }
     },
@@ -35,7 +35,7 @@
         "pk": 5,
         "model": "systems.Feature",
         "fields": {
-            "label": "SECONDARY INDEXES",
+            "label": "MAPREDUCE",
             "description": "Describe the feature here"
         }
     },
@@ -43,7 +43,7 @@
         "pk": 6,
         "model": "systems.Feature",
         "fields": {
-            "label": "DURABILITY",
+            "label": "QUERY COMPILATION",
             "description": "Describe the feature here"
         }
     },
@@ -51,7 +51,7 @@
         "pk": 7,
         "model": "systems.Feature",
         "fields": {
-            "label": "TRIGGERS",
+            "label": "SECONDARY INDEXES",
             "description": "Describe the feature here"
         }
     },
@@ -59,7 +59,7 @@
         "pk": 8,
         "model": "systems.Feature",
         "fields": {
-            "label": "CONCURRENCY",
+            "label": "SERVER SIDE",
             "description": "Describe the feature here"
         }
     },
@@ -67,7 +67,7 @@
         "pk": 9,
         "model": "systems.Feature",
         "fields": {
-            "label": "USER CONCEPTS",
+            "label": "SQL",
             "description": "Describe the feature here"
         }
     },
@@ -75,7 +75,7 @@
         "pk": 10,
         "model": "systems.Feature",
         "fields": {
-            "label": "DATA SCHEME",
+            "label": "TRANSACTION CONCEPTS",
             "description": "Describe the feature here"
         }
     },
@@ -83,7 +83,7 @@
         "pk": 11,
         "model": "systems.Feature",
         "fields": {
-            "label": "XML",
+            "label": "TRIGGERS",
             "description": "Describe the feature here"
         }
     },
@@ -99,7 +99,7 @@
         "pk": 13,
         "model": "systems.Feature",
         "fields": {
-            "label": "TRANSACTION CONCEPTS",
+            "label": "USER CONCEPTS",
             "description": "Describe the feature here"
         }
     },
@@ -107,7 +107,7 @@
         "pk": 14,
         "model": "systems.Feature",
         "fields": {
-            "label": "QUERY COMPILATION",
+            "label": "XML",
             "description": "Describe the feature here"
         }
     }

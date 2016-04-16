@@ -1,0 +1,226 @@
+[
+    {
+        "pk": 1,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 1,
+            "value": "cc1"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 1,
+            "value": "cc2"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 1,
+            "value": "cc3"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 1,
+            "value": "cc4"
+        }
+    },
+    {
+        "pk": 5,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 1,
+            "value": "cc5"
+        }
+    },
+    {
+        "pk": 6,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 2,
+            "value": "ds1"
+        }
+    },
+    {
+        "pk": 7,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 3,
+            "value": "du1"
+        }
+    },
+    {
+        "pk": 8,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 3,
+            "value": "du2"
+        }
+    },
+    {
+        "pk": 9,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 3,
+            "value": "du3"
+        }
+    },
+    {
+        "pk": 10,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 4,
+            "value": "fk1"
+        }
+    },
+    {
+        "pk": 11,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 5,
+            "value": "mr1"
+        }
+    },
+    {
+        "pk": 12,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 5,
+            "value": "mr2"
+        }
+    },
+    {
+        "pk": 13,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 5,
+            "value": "mr3"
+        }
+    },
+    {
+        "pk": 14,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 5,
+            "value": "mr4"
+        }
+    },
+    {
+        "pk": 15,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 6,
+            "value": "qc1"
+        }
+    },
+    {
+        "pk": 16,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 6,
+            "value": "qc2"
+        }
+    },
+    {
+        "pk": 17,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 7,
+            "value": "si1"
+        }
+    },
+    {
+        "pk": 18,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 7,
+            "value": "si2"
+        }
+    },
+    {
+        "pk": 19,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 7,
+            "value": "si3"
+        }
+    },
+    {
+        "pk": 20,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 8,
+            "value": "ss1"
+        }
+    },
+    {
+        "pk": 21,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 9,
+            "value": "sql1"
+        }
+    },
+    {
+        "pk": 22,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 9,
+            "value": "sql2"
+        }
+    },
+    {
+        "pk": 23,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 10,
+            "value": "tc1"
+        }
+    },
+    {
+        "pk": 24,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 11,
+            "value": "tr1"
+        }
+    },
+    {
+        "pk": 25,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 12,
+            "value": "ty1"
+        }
+    },
+    {
+        "pk": 26,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 13,
+            "value": "uc1"
+        }
+    },
+    {
+        "pk": 27,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 14,
+            "value": "xml1"
+        }
+    },
+    {
+        "pk": 28,
+        "model": "systems.FeatureOption",
+        "fields": {
+            "feature": 14,
+            "value": "xml2"
+        }
+    }
+]
