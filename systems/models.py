@@ -3,6 +3,7 @@ from markupfield.fields import MarkupField
 from django.utils.text import slugify
 from django.forms.models import model_to_dict
 
+import util
 import hashlib, time
 
 PROJECT_TYPES = (
@@ -140,10 +141,9 @@ class System(models.Model):
         if not self.slug and self.name:
             self.slug = slugify(self.name)
         if not self.secret_key:
-            key = hashlib.sha1()
-            key.update(str(time.time()))
-            self.secret_key = key.hexdigest()[:11]
+            self.secret_key = util.generateSecretKey()
         super(System, self).save(*args, **kwargs)
+    ## DEF
 
     def __unicode__(self):
         return self.name

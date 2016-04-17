@@ -54,7 +54,7 @@ class SystemAdmin(admin.ModelAdmin):
     on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('name', 'created', 'current_version',)
-    list_filter = ['name', 'created', 'current_version']
+    list_filter = ['created' ]
     fieldsets = [
         (None,          {'fields': ['name']}),
     ]
