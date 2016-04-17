@@ -11,8 +11,8 @@
         "pk": 2,
         "model": "systems.Feature",
         "fields": {
-            "label": "Query Interface",
-            "description": "What language or API does the DBMS support for the application to load data and execute queries."
+            "label": "Data Model",
+            "description": "What is the primary data model of the DBMS?"
         }
     },
     {
@@ -27,12 +27,20 @@
         "pk": 4,
         "model": "systems.Feature",
         "fields": {
+            "label": "Query Interface",
+            "description": "What language or API does the DBMS support for the application to load data and execute queries."
+        }
+    },
+    {
+        "pk": 5,
+        "model": "systems.Feature",
+        "fields": {
             "label": "Storage Architecture",
             "description": "Is the system a disk-oriented or in-memory DBMS? If the latter, does it support larger-than-memory databases?"
         }
     },
     {
-        "pk": 5,
+        "pk": 6,
         "model": "systems.Feature",
         "fields": {
             "label": "Concurrency Control",
@@ -40,7 +48,7 @@
         }
     },
     {
-        "pk": 6,
+        "pk": 7,
         "model": "systems.Feature",
         "fields": {
             "label": "Isolation Levels",
@@ -48,7 +56,7 @@
         }
     },
     {
-        "pk": 7,
+        "pk": 8,
         "model": "systems.Feature",
         "fields": {
             "label": "Indexes",
@@ -56,7 +64,7 @@
         }
     },
     {
-        "pk": 8,
+        "pk": 9,
         "model": "systems.Feature",
         "fields": {
             "label": "Foreign Keys",
@@ -64,7 +72,7 @@
         }
     },
     {
-        "pk": 9,
+        "pk": 10,
         "model": "systems.Feature",
         "fields": {
             "label": "Logging",
@@ -72,7 +80,7 @@
         }
     },
     {
-        "pk": 10,
+        "pk": 11,
         "model": "systems.Feature",
         "fields": {
             "label": "Checkpoints",
@@ -80,19 +88,11 @@
         }
     },
     {
-        "pk": 11,
+        "pk": 12,
         "model": "systems.Feature",
         "fields": {
             "label": "Views",
             "description": "Does the DBMS support views or materialized views? How complex of a query does it support?"
-        }
-    },
-    {
-        "pk": 12,
-        "model": "systems.Feature",
-        "fields": {
-            "label": "",
-            "description": ""
         }
     },
     {
@@ -123,7 +123,7 @@
         "pk": 16,
         "model": "systems.Feature",
         "fields": {
-            "label": "Code Gen",
+            "label": "Query Compilation",
             "description": "Does the DBMS support code generation or JIT optimizations? How does it do this (e.g., LLVM, templates, code gen)?"
         }
     }

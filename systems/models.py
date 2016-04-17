@@ -129,13 +129,13 @@ class System(models.Model):
     """Base article for a system that revisions point back to"""
 
     # basic, persistent information about the system
-    name = models.CharField(max_length=64, null=False)
+    name = models.CharField(max_length=64, null=False, blank=False)
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    current_version = models.IntegerField(default=0)
+    current_version = models.PositiveIntegerField(default=0)
     slug = models.SlugField(max_length=64)
 
     # authentication key for editing
-    secret_key = models.CharField(max_length = 100, default = None)
+    secret_key = models.CharField(max_length=100, default=None)
 
     def save(self, *args, **kwargs):
         if not self.slug and self.name:
@@ -155,7 +155,7 @@ class SystemVersion(models.Model):
     system = models.ForeignKey(System)
 
     # version of this revision
-    version_number = models.IntegerField(default=0)
+    version_number = models.PositiveIntegerField(default=0)
 
     # when this revision was created
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)

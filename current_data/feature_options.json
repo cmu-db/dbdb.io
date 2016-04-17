@@ -1,0 +1,97 @@
+{
+    "System Architecture": [
+        "Shared-Everything",
+        "Shared-Disk",
+        "Shared-Nothing"
+    ],
+    "Query Interface": [
+        "SQL",
+        "SQL/PGM",
+        "PL/SQL",
+        "Custom API"
+    ],
+    "Data Model": [
+        "Relational",
+        "Hierarchical",
+        "Network",
+        "Document / XML",
+        "Key/Value",
+        "Column Family",
+        "Other"
+    ],
+    "Storage Model": [
+        "N-ary Storage Model",
+        "Decomposition Storage Model",
+        "Hybrid",
+        "Custom"
+    ],
+    "Storage Architecture": [
+        "Disk-oriented",
+        "In-Memory",
+        "Hybrid"
+    ],
+    "Concurrency Control": [
+        "Two-Phase Locking (Deadlock Detection)",
+        "Two-Phase Locking (Deadlock Prevention)",
+        "Optimistic Concurrency Control (OCC)",
+        "Multi-version Concurrency Control (MVCC)",
+        "Timestamp Ordering"
+    ],
+    "Isolation Levels": [
+        "Read Uncommitted",
+        "Read Committed",
+        "Cursor Stability",
+        "Repeatable Read",
+        "Snapshot Isolation",
+        "Serializable"
+    ],
+    "Indexes": [
+        "B+Tree",
+        "R-Tree",
+        "KD-Tree",
+        "Skip List",
+        "Bw-Tree",
+        "BitMap",
+        "Hash Table",
+        "Other"
+    ],
+    "Foreign Keys": [
+    
+    ],
+    "Logging": [
+        "Physical Logging",
+        "Physiological Logging",
+        "Logical Logging",
+        "Command Logging",
+        "Other"
+    ],
+    "Checkpoints": [
+        "Blocking",
+        "Non-Blocking",
+        "Consistent",
+        "Fuzzy"
+    ],
+    "Views": [
+        "Virtual Views",
+        "Materialized Views"
+    ],
+    "Query Execution": [
+        "Tuple-at-a-Time Model",
+        "Vectorized Model",
+        "Materialized Model"
+    ],
+    "Stored Procedures": [
+    
+    ],
+    "Joins": [
+        "Nested Loop",
+        "Hash",
+        "Sort-Merge",
+        "Semi",
+        "Broadcast"
+    ],
+    "Query Compilation": [
+        "Code Generation",
+        "JIT Compilation"
+    ]
+}
