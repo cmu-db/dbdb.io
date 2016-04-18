@@ -27,19 +27,21 @@ for x,y in ISOLATION_LEVELS:
     globals()['ISOLATION_LEVEL_' + y.upper()] = x
 
 FEATURE_LABELS = (
-    ('SQL', 'SQL'),
     ('FOREIGN KEYS', 'FOREIGN KEYS'),
-    ('SERVER SIDE', 'SERVER SIDE'),
-    ('MAPREDUCE', 'MAPREDUCE'),
-    ('SECONDARY INDEXES', 'SECONDARY INDEXES'),
-    ('DURABILITY', 'DURABILITY'),
-    ('TRIGGERS', 'TRIGGERS'),
-    ('CONCURRENCY', 'CONCURRENCY'),
-    ('USER CONCEPTS', 'USER CONCEPTS'),
-    ('DATA SCHEME', 'DATA SCHEME'),
+    ('QUERY INTERFACE', 'QUERY INTERFACE'),
+    ('INDEXES', 'INDEXES'),
+    ('STORAGE ARCHITECTURE', 'STORAGE ARCHITECTURE'),
+    ('ISOLATION LEVELS', 'ISOLATION LEVELS'),
+    ('STORAGE MODEL', 'STORAGE MODEL'),
+    ('CHECKPOINTS', 'CHECKPOINTS'),
+    ('SYSTEM ARCHITECTURE', 'SYSTEM ARCHITECTURE'),
+    ('QUERY EXECUTION', 'QUERY EXECUTION'),
+    ('DATA MODEL', 'DATA MODEL'),
     ('XML', 'XML'),
-    ('TYPING', 'TYPING'),
-    ('TRANSACTION CONCEPTS', 'TRANSACTION CONCEPTS'),
+    ('VIEWS', 'VIEWS'),
+    ('LOGGING', 'LOGGING'),
+    ('CONCURRENCY CONTROL', 'CONCURRENCY CONTROL'),
+    ('JOINS', 'JOINS'),
     ('QUERY COMPILATION', 'QUERY COMPILATION'),
 )
 
@@ -117,9 +119,7 @@ class SuggestedSystem(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.secret_key:
-            key = hashlib.sha1()
-            key.update(str(time.time()))
-            self.secret_key = key.hexdigest()[:11]
+            self.secret_key = util.generateSecretKey()
         super(SuggestedSystem, self).save(*args, **kwargs)
 
     def __unicode__(self):
@@ -187,47 +187,53 @@ class SystemVersion(models.Model):
     logo = models.FileField(upload_to=upload_logo_path, blank=True)
 
     # Features
-    support_concurrency = models.NullBooleanField()
-    feature_concurrency = models.ForeignKey('Feature', related_name='feature_concurrency', default=1)
+    support_systemarchitecture = models.NullBooleanField()
+    feature_systemarchitecture = models.ForeignKey('Feature', related_name='feature_systemarchitecture', default=1)
 
-    support_datascheme = models.NullBooleanField()
-    feature_datascheme = models.ForeignKey('Feature', related_name='feature_datascheme', default=2)
+    support_datamodel = models.NullBooleanField()
+    feature_datamodel = models.ForeignKey('Feature', related_name='feature_datamodel', default=2)
 
-    support_durability = models.NullBooleanField()
-    feature_durability = models.ForeignKey('Feature', related_name='feature_durability', default=3)
+    support_storagemodel = models.NullBooleanField()
+    feature_storagemodel = models.ForeignKey('Feature', related_name='feature_storagemodel', default=3)
+
+    support_queryinterface = models.NullBooleanField()
+    feature_queryinterface = models.ForeignKey('Feature', related_name='feature_queryinterface', default=4)
+
+    support_storagearchitecture = models.NullBooleanField()
+    feature_storagearchitecture = models.ForeignKey('Feature', related_name='feature_storagearchitecture', default=5)
+
+    support_concurrencycontrol = models.NullBooleanField()
+    feature_concurrencycontrol = models.ForeignKey('Feature', related_name='feature_concurrencycontrol', default=6)
+
+    support_isolationlevels = models.NullBooleanField()
+    feature_isolationlevels = models.ForeignKey('Feature', related_name='feature_isolationlevels', default=7)
+
+    support_indexes = models.NullBooleanField()
+    feature_indexes = models.ForeignKey('Feature', related_name='feature_indexes', default=8)
 
     support_foreignkeys = models.NullBooleanField()
-    feature_foreignkeys = models.ForeignKey('Feature', related_name='feature_foreignkeys', default=4)
+    feature_foreignkeys = models.ForeignKey('Feature', related_name='feature_foreignkeys', default=9)
 
-    support_mapreduce = models.NullBooleanField()
-    feature_mapreduce = models.ForeignKey('Feature', related_name='feature_mapreduce', default=5)
+    support_logging = models.NullBooleanField()
+    feature_logging = models.ForeignKey('Feature', related_name='feature_logging', default=10)
+
+    support_checkpoints = models.NullBooleanField()
+    feature_checkpoints = models.ForeignKey('Feature', related_name='feature_checkpoints', default=11)
+
+    support_views = models.NullBooleanField()
+    feature_views = models.ForeignKey('Feature', related_name='feature_views', default=12)
+
+    support_queryexecution = models.NullBooleanField()
+    feature_queryexecution = models.ForeignKey('Feature', related_name='feature_queryexecution', default=13)
+
+    support_storedprocedures = models.NullBooleanField()
+    feature_storedprocedures = models.ForeignKey('Feature', related_name='feature_storedprocedures', default=14)
+
+    support_joins = models.NullBooleanField()
+    feature_joins = models.ForeignKey('Feature', related_name='feature_joins', default=15)
 
     support_querycompilation = models.NullBooleanField()
-    feature_querycompilation = models.ForeignKey('Feature', related_name='feature_querycompilation', default=6)
-
-    support_secondaryindexes = models.NullBooleanField()
-    feature_secondaryindexes = models.ForeignKey('Feature', related_name='feature_secondaryindexes', default=7)
-
-    support_serverside = models.NullBooleanField()
-    feature_serverside = models.ForeignKey('Feature', related_name='feature_serverside', default=8)
-
-    support_sql = models.NullBooleanField()
-    feature_sql = models.ForeignKey('Feature', related_name='feature_sql', default=9)
-
-    support_transactionconcepts = models.NullBooleanField()
-    feature_transactionconcepts = models.ForeignKey('Feature', related_name='feature_transactionconcepts', default=10)
-
-    support_triggers = models.NullBooleanField()
-    feature_triggers = models.ForeignKey('Feature', related_name='feature_triggers', default=11)
-
-    support_typing = models.NullBooleanField()
-    feature_typing = models.ForeignKey('Feature', related_name='feature_typing', default=12)
-
-    support_userconcepts = models.NullBooleanField()
-    feature_userconcepts = models.ForeignKey('Feature', related_name='feature_userconcepts', default=13)
-
-    support_xml = models.NullBooleanField()
-    feature_xml = models.ForeignKey('Feature', related_name='feature_xml', default=14)
+    feature_querycompilation = models.ForeignKey('Feature', related_name='feature_querycompilation', default=16)
 
     # Support languages and isolation levels
     support_languages = models.ManyToManyField('ProgrammingLanguage', related_name='systems_supported')
