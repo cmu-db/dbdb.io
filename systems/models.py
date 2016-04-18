@@ -37,7 +37,7 @@ FEATURE_LABELS = (
     ('SYSTEM ARCHITECTURE', 'SYSTEM ARCHITECTURE'),
     ('QUERY EXECUTION', 'QUERY EXECUTION'),
     ('DATA MODEL', 'DATA MODEL'),
-    ('XML', 'XML'),
+    ('STORED PROCEDURES', 'STORED PROCEDURES'),
     ('VIEWS', 'VIEWS'),
     ('LOGGING', 'LOGGING'),
     ('CONCURRENCY CONTROL', 'CONCURRENCY CONTROL'),
@@ -252,11 +252,13 @@ class SystemVersion(models.Model):
                 # get a list of all feature options already selected for this feature
                 feature_options = FeatureOption.objects.filter(feature=feature)
                 feature_options = [x.value for x in feature_options if x.feature.system_version == self]
+                feature_options.sort()
 
                 # get all feature options, then create a list based on just the labels that match
                 all_feature_options = FeatureOption.objects.all()
                 all_feature_options = [x.value for x in all_feature_options if x.feature.label == label
                                         and not x.feature.system_version]
+                all_feature_options.sort()
 
                 feature = {
                     'is_supported': self.__dict__[key.replace('feature','support').replace('_id','')],

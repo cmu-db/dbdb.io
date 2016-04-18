@@ -55,9 +55,9 @@ class SystemAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
     list_display = ('name', 'created', 'current_version',)
     list_filter = ['created' ]
-    fieldsets = [
-        (None,          {'fields': ['name']}),
-    ]
+    # fieldsets = [
+    #     (None,          {'fields': ['name']}),
+    # ]
 
 class SystemVersionAdmin(admin.ModelAdmin):
     """This class manages how system versions are displayed
@@ -72,20 +72,22 @@ class SystemVersionAdmin(admin.ModelAdmin):
                                      'project_type', 'start_year', 'end_year', 'derived_from',
                                      'logo_img', 'dbmodel', 'license','access_methods',
                                      'logo']}),
-        ('Features',    {'fields': ['support_concurrency', 'feature_concurrency',
-                                     'support_datascheme', 'feature_datascheme',
-                                     'support_durability', 'feature_durability',
+        ('Features',    {'fields': ['support_systemarchitecture', 'feature_systemarchitecture',
+                                     'support_datamodel', 'feature_datamodel',
+                                     'support_storagemodel', 'feature_storagemodel',
+                                     'support_queryinterface', 'feature_queryinterface',
+                                     'support_storagearchitecture', 'feature_storagearchitecture',
+                                     'support_concurrencycontrol', 'feature_concurrencycontrol',
+                                     'support_isolationlevels', 'feature_isolationlevels',
+                                     'support_indexes', 'feature_indexes',
                                      'support_foreignkeys', 'feature_foreignkeys',
-                                     'support_mapreduce', 'feature_mapreduce',
-                                     'support_querycompilation', 'feature_querycompilation',
-                                     'support_secondaryindexes', 'feature_secondaryindexes',
-                                     'support_serverside', 'feature_serverside',
-                                     'support_sql', 'feature_sql',
-                                     'support_transactionconcepts', 'feature_transactionconcepts',
-                                     'support_triggers', 'feature_triggers',
-                                     'support_typing', 'feature_typing',
-                                     'support_userconcepts', 'feature_userconcepts',
-                                     'support_xml', 'feature_xml']}),
+                                     'support_logging', 'feature_logging',
+                                     'support_checkpoints', 'feature_checkpoints',
+                                     'support_views', 'feature_views',
+                                     'support_queryexecution', 'feature_queryexecution',
+                                     'support_storedprocedures', 'feature_storedprocedures',
+                                     'support_joins', 'feature_joins',
+                                     'support_querycompilation', 'feature_querycompilation']}),
         ('Support',     {'fields': ['support_languages']}),
         ('Isolation',   {'fields': ['default_isolation', 'max_isolation']})
     ]
