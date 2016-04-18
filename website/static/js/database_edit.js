@@ -267,10 +267,10 @@ function load_click_handlers() {
       type: "POST",
       url: window.location.pathname,
       data: changed_data,
+      dataType: "json",
       success: function() {
         location.reload();
-      },
-      dataType: "json"
+      }
     });
   })
 

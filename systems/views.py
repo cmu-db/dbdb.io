@@ -39,27 +39,27 @@ class LoadContext(object):
   def load_base_context(request):
     context = {}
     context["user"] = request.user
-    context["databases"] = map(lambda x: x.slug, System.objects.all())
-    context["languages"] = map(lambda x: x.slug, ProgrammingLanguage.objects.all())
-    context["oses"] = map(lambda x: x.slug, OperatingSystem.objects.all())
+    context["databases"] = map(lambda x: x, System.objects.all())
+    context["languages"] = map(lambda x: x, ProgrammingLanguage.objects.all())
+    context["oses"] = map(lambda x: x, OperatingSystem.objects.all())
     context["system_fields"] = system_fields.values()
     return context
 
   @staticmethod
   def load_db_data(db_model):
     db = db_model.__dict__
-    db["name"] = db["name"].replace(" ", "-")
+    db["slug"] = db_model.system.slug
     link = db["website"]
     if not link.startswith("http://") or link.startswith("https://"):
       link = "http://" + link
     db["website"] = link
     written_lang, oses, support_langs, pubs = [], [], [], []
     for os in db_model.oses.all():
-      oses.append(OperatingSystemSerializer(os).data['name'].replace(" ", "-"))
+      oses.append(OperatingSystemSerializer(os).data['name'])
     for lang in db_model.support_languages.all():
-      support_langs.append(ProgrammingLanguageSerializer(lang).data['name'].replace(" ", "-"))
+      support_langs.append(ProgrammingLanguageSerializer(lang).data['name'])
     for lang in db_model.written_in.all():
-      written_lang.append(ProgrammingLanguageSerializer(lang).data['name'].replace(" ", "-"))
+      written_lang.append(ProgrammingLanguageSerializer(lang).data['name'])
     # for pub in db_model.publications.all():
     #   pubs.append((pub.number, {"cite": pub.cite, "number": pub.number,
     #                             "link": pub.download}))
@@ -115,6 +115,7 @@ class HomePage(View):
       obj["date"] = edit.created
       obj["version_message"] = edit.version_message
       obj["creator"] = edit.creator
+      obj["slug"] = edit.system.slug
       context["edits"].append(obj)
 
     # gets first 10 systems and orders them by which has the highest
@@ -129,6 +130,7 @@ class HomePage(View):
       obj["name"] = sm.name
       obj["edits"] = sm.current_version
       obj["rank"] = i + 1
+      obj["slug"] = sm.slug
       context["top_sms"].append(obj)
     return render(request, 'homepage.html',
       context)
@@ -205,7 +207,6 @@ class DatabaseEditingPage(View):
         ip = x_forwarded_for.split(',')[0]
     else:
         ip = request.META.get('REMOTE_ADDR')
-    db_name = db_name.replace("-", " ")
     savedModels = DatabaseEditingPage.savedModels
     db = System.objects.get(slug = slugify(db_name))
     if db.secret_key != key:
@@ -339,7 +340,7 @@ class DatabaseEditingPage(View):
     db_version.save()
     url = '/db/%s' % slugify(db_name)
     print(url)
-    return HttpResponse()
+    return HttpResponseRedirect(url)
   #
   # def remove_feature_option(self, version, feature_option):
   #
@@ -520,7 +521,7 @@ class AdvancedSearchView(View):
       name = db.name
       letter_idx = start_letters.index(name[0].lower())
       ordered_list[letter_idx]["dbs"].append({"screen_name": name,
-        "hash_name": name.replace(" ", "-")})
+        "hash_name": slugify(name)})
     return ordered_list
 
   def get(self, request):

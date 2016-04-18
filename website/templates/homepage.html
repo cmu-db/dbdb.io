@@ -40,7 +40,7 @@
         </div>
         <div class="col-md-8 col-xs-9">
           <div class="revision-metadata">
-            {{ edit.creator }} edited <a href="/db/{{edit.name}}">{{ edit.name }}</a>
+            {{ edit.creator }} edited <a href="/db/{{edit.slug}}">{{ edit.name }}</a>
           </div>
           <div class="revision-message">
             {{ edit.version_message }}
@@ -63,7 +63,7 @@
       </thead>
       <tbody>
         {% for sm in top_sms %}
-          <tr class="top-db-row" data-url="/db/{{sm.name}}">
+          <tr class="top-db-row" data-url="/db/{{ sm.slug }}">
             <td>{{ sm.rank }}</td>
             <td>{{ sm.name }}</td>
             <td>{{ sm.edits }}</td>
