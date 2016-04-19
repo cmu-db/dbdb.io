@@ -16,20 +16,22 @@ from systems.serializers import *
 import hashlib, time, string, json
 
 system_fields = {
-  'support_sql': 'SQL',
-  'support_foreignkeys': 'FOREIGN KEYS',
-  'support_serverside': 'SERVER SIDE',
-  'support_mapreduce': 'MAP REDUCE',
-  'support_secondary': 'SECONDARY INDEXES',
-  'support_durability': 'DURABILITY',
-  'support_triggers': 'TRIGGERS',
-  'support_concurrency': 'CONCURRENCY',
-  'support_userconcepts': 'USER CONCEPTS',
-  'support_datascheme': 'DATA SCHEME',
-  'support_xml': 'XML',
-  'support_typing': 'TYPING',
-  'support_transactionconcepts': 'TRANSACTION CONCEPTS',
-  'support_querycompilation': 'QUERY COMPILATION'
+  'support_systemarchitecture': 'System Architecture',
+  'support_datamodel': 'Data Model',
+  'support_storagemodel': 'Storage Model',
+  'support_queryinterface': 'Query Interface',
+  'support_storagearchitecture': 'Storage Architecture',
+  'support_concurrencycontrol': 'Concurrency Control',
+  'support_isolationlevels': 'Isolation Levels',
+  'support_indexes': 'Indexes',
+  'support_foreignkeys': 'Foreign Keys',
+  'support_logging': 'Logging',
+  'support_checkpoints': 'Checkpoints',
+  'support_views': 'Views',
+  'support_queryexecution': 'Query Execution',
+  'support_storedprocedures': 'Stored Procedures',
+  'support_joins': 'Joins',
+  'support_querycompilation': 'Query Compilation'
 }
 
 inv_fields = {v: k for k, v in system_fields.items()}

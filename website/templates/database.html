@@ -65,7 +65,9 @@
 
             {% if feature.is_supported %}
               {% for feature_option in feature.feature_options %}
-                {{ feature_option }}
+                <button type="button" class="btn btn-success">
+                  {{ feature_option }}
+                </button>
               {% endfor %}
               <div class="yesno-description" data-type="{{ feature.label }}" data-exists="1">
                 {{ feature.rendered_description | safe }}

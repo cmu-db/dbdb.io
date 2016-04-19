@@ -26,24 +26,24 @@ ISOLATION_LEVELS = (
 for x,y in ISOLATION_LEVELS:
     globals()['ISOLATION_LEVEL_' + y.upper()] = x
 
-FEATURE_LABELS = (
-    ('FOREIGN KEYS', 'FOREIGN KEYS'),
-    ('QUERY INTERFACE', 'QUERY INTERFACE'),
-    ('INDEXES', 'INDEXES'),
-    ('STORAGE ARCHITECTURE', 'STORAGE ARCHITECTURE'),
-    ('ISOLATION LEVELS', 'ISOLATION LEVELS'),
-    ('STORAGE MODEL', 'STORAGE MODEL'),
-    ('CHECKPOINTS', 'CHECKPOINTS'),
-    ('SYSTEM ARCHITECTURE', 'SYSTEM ARCHITECTURE'),
-    ('QUERY EXECUTION', 'QUERY EXECUTION'),
-    ('DATA MODEL', 'DATA MODEL'),
-    ('STORED PROCEDURES', 'STORED PROCEDURES'),
-    ('VIEWS', 'VIEWS'),
-    ('LOGGING', 'LOGGING'),
-    ('CONCURRENCY CONTROL', 'CONCURRENCY CONTROL'),
-    ('JOINS', 'JOINS'),
-    ('QUERY COMPILATION', 'QUERY COMPILATION'),
-)
+# FEATURE_LABELS = (
+#   ('support_systemarchitecture', 'SYSTEM ARCHITECTURE'),
+#   ('support_datamodel', 'DATA MODEL'),
+#   ('support_storagemodel', 'STORAGE MODEL'),
+#   ('support_queryinterface', 'QUERY INTERFACE'),
+#   ('support_storagearchitecture', 'STORAGE ARCHITECTURE'),
+#   ('support_concurrencycontrol', 'CONCURRENCY CONTROL'),
+#   ('support_isolationlevels', 'ISOLATION LEVELS'),
+#   ('support_indexes', 'INDEXES'),
+#   ('support_foreignkeys', 'FOREIGN KEYS'),
+#   ('support_logging', 'LOGGING'),
+#   ('support_checkpoints', 'CHECKPOINTS'),
+#   ('support_views', 'VIEWS'),
+#   ('support_queryexecution', 'QUERY EXECUTION'),
+#   ('support_storedprocedures', 'STORED PROCEDURES'),
+#   ('support_joins', 'JOINS'),
+#   ('support_querycompilation', 'QUERY COMPILATION'),
+# )
 
 # ----------------------------------------------------------------------------
 
@@ -290,7 +290,7 @@ class Feature(models.Model):
     """Feature that describes a certain aspect of the system"""
 
     # label for this feature
-    label = models.CharField(max_length=64, choices=FEATURE_LABELS)
+    label = models.CharField(max_length=64)
 
     # multivalued
     multivalued = models.NullBooleanField(default=True)

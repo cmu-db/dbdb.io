@@ -127,20 +127,43 @@ function remove_from_list(list, elem) {
 
 function load_selection_clicks() {
   $(".selection-option").click(function() {
+    console.log(option_adds);
     var option_name = $(this).text();
     var newOption = make_selection_option_item(option_name);
     var type = $(this).parent().prev().attr("data-type");
+    console.log(type);
+    if (type in option_adds) {
+      console.log("?");
+    } else {
+      console.log("!");
+    }
+    var mult = $(this).parent().prev().attr("mult");
+    var existing = $(this).parent().prev().children();
+    console.log(existing.length)
+    console.log(mult);
     $(".save-button").show(500);
     if (!(type in option_adds)) {
       option_adds[type] = [];
+      console.log("here")
     }
-    option_adds[type].push($.trim(option_name));
+    if (existing.length == 0) {
+      option_adds[type].push($.trim(option_name));
+      $(this).parent().prev().append(newOption);
+      $(this).remove();
+      console.log("here1");
+    } else if (mult == "True") {
+      option_adds[type].push($.trim(option_name));
+      $(this).parent().prev().append(newOption);
+      $(this).remove();
+      console.log("here2");
+    } else {
+      // This feature is not multivalued
+      console.log("here3");
+    }
     if (!(type in option_removes)) {
       option_removes[type] = [];
     }
     remove_from_list(option_removes[type], option_name);
-    $(this).parent().prev().append(newOption);
-    $(this).remove();
   });
 
   $(".selection-close").click(function(event) {
@@ -236,7 +259,8 @@ function load_click_handlers() {
   $(".header-text").click(function(event) {
     $(this).next().click();
   })
-
+  console.log("here4");
+  console.log(option_adds)
   load_selection_clicks();
 
   $(".save-button").click(function() {

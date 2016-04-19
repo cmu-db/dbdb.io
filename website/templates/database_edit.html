@@ -83,7 +83,7 @@
 
             <div class="metadata-row">
               <span class="header-text">Options: </span>
-              <span class="metadata-data selection" data-type="{{ feature.label }}_options">
+              <span class="metadata-data selection" data-type="{{ feature.label }}_options" mult="{{ feature.multivalued }}">
                 {% for feature_option in feature.feature_options %}
                   <span class="selection-item {{ feature.label }}_options-section">
                     {{ feature_option }}
@@ -94,7 +94,7 @@
               {% if feature.multivalued %}
                 <select multiple class="form-control choices-selection">
               {% else %}
-                <select class="form-control choices-selection" size="{{ feature.options_size }}">
+                <select class="form-control choices-selection" multiple="no">
               {% endif %}
                 {% for feature_option in feature.all_feature_options %}
                   {% if feature_option not in feature.feature_options %}
