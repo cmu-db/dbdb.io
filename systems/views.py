@@ -231,7 +231,6 @@ class DatabaseEditingPage(View):
     db_version.save()
 
     data = dict(request.POST)
-    print(data)
 
     for field in data:
       db_field = None
@@ -276,7 +275,6 @@ class DatabaseEditingPage(View):
     db_version.save()
 
     options = eval(data["model_stuff"][0])
-    print(options)
     adds = dict(map(lambda x: (x, map(lambda y: "add_" + y, options["adds"][x])), options["adds"]))
     removes = dict(map(lambda x: (x, map(lambda y: "rem_" + y, options["removes"][x])), options["removes"]))
     map(lambda x: adds[x].extend(removes[x]), adds)
@@ -314,11 +312,6 @@ class DatabaseEditingPage(View):
       else:
           db_version.oses.remove(os)
 
-    print('adds')
-    print(adds)
-    print('removes')
-    print(removes)
-
     add_feature_options = {}
     for addition in adds:
       if addition.endswith("_options"):
@@ -343,24 +336,15 @@ class DatabaseEditingPage(View):
       removed_options = rem_feature_options.get(feature_name, None)
       new_options = existing_options
 
-      print('before')
-      print(new_options)
       # new options are existing or added and not removed
       if added_options:
         # gets rid of 'add_' prefix, I'll take care of this later..
         added_options = [x[x.index('_')+1:] for x in added_options]
         new_options = existing_options | set(added_options)
-        print('added')
-        print(new_options)
       if removed_options:
         # gets rid of 'rem_' prefix, I'll take care of this later..
         removed_options = [x[x.index('_')+1:] for x in removed_options]
         new_options = new_options - set(removed_options)
-        print('removed')
-        print(new_options)
-
-      print('after')
-      print(new_options)
 
       # new_options = list((existing_options | added_options) - removed_options)
       new_feature = db_version.__getattribute__(feature_name)
@@ -384,32 +368,9 @@ class DatabaseEditingPage(View):
       for new_option in new_options:
         feature_option = FeatureOption(feature=new_feature, value=new_option)
         feature_option.save()
-    #
-    # # carry all new feature options
-    # for feature_name in add_feature_options:
-    #   old_feature = old_version.__getattribute__(feature_name)
-    #   new_feature = db_version.__getattribute__(feature_name)
-    #
-    #   for option in add_feature_options[feature]:
-    #     value = option[option.index('_')+1:]
-    #     if value not in rem_feature_options[feature_name]
-    #       new_option = FeatureOption(feature=new_feature, value=value)
-    #       new_option.save()
-    #
-    # for feature_name in rem_feature_options:
-    #   old_feature = old_version.__getattribute__(feature_name)
-    #   new_feature = db_version.__getattribute__(feature_name)
-    #
-    #   for option in rem_feature_options[feature_name]:
-    #     value = option[option.index('_')+1:]
-    #     if FeatureOption.get(feature=old_feature, value=value):
-    #       new_option = FeatureOption(feature=new_feature, value=value)
-    #       new_option.save()
-
 
     db_version.save()
     url = '/db/%s' % slugify(db_name)
-    print(url)
     return HttpResponseRedirect(url)
 
   def get(self, request, db_name, key):
