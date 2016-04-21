@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from django.contrib.syndication.views import Feed
 from django.forms.models import model_to_dict
-from django.http import HttpResponseBadRequest, HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.utils.text import slugify
 from django.views.generic.base import View
@@ -371,7 +371,7 @@ class DatabaseEditingPage(View):
 
     db_version.save()
     url = '/db/%s' % slugify(db_name)
-    return HttpResponseRedirect(url)
+    return JsonResponse({'redirect': url})
 
   def get(self, request, db_name, key):
     db_article = System.objects.get(slug = slugify(db_name))

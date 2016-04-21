@@ -140,13 +140,10 @@ function load_selection_clicks() {
       option_adds[type].push($.trim(option_name));
       $(this).parent().prev().append(newOption);
       $(this).remove();
-    } else if (mult == "True") {
+    } else if (mult == "True" || mult == undefined) {
       option_adds[type].push($.trim(option_name));
       $(this).parent().prev().append(newOption);
       $(this).remove();
-    } else {
-      // This feature is not multivalued
-      // Should display something
     }
     if (!(type in option_removes)) {
       option_removes[type] = [];
@@ -156,13 +153,19 @@ function load_selection_clicks() {
 
   $(".selection-close").click(function(event) {
     event.stopPropagation();
-    var option_name = $(this).parent().text();
+    var option_name = $.trim($(this).parent().text());
     var newOption = make_selection_option_menu_item(option_name);
     var type = $(this).parent().parent().attr("data-type");
+    if (!(type in option_removes)) {
+      option_removes[type] = [];
+    }
     option_removes[type].push($.trim(option_name));
-    remove_from_list(option_adds[type], option_name);
+    if (option_adds[type] != undefined && option_name in option_adds[type]) {
+      remove_from_list(option_adds[type], option_name);
+    }
     $(this).parent().parent().next().append(newOption);
     $(this).parent().remove();
+    $(this).remove();
   })
 }
 
@@ -277,8 +280,12 @@ function load_click_handlers() {
       url: window.location.pathname,
       data: changed_data,
       dataType: "json",
-      success: function() {
-        location.reload();
+      success: function(data) {
+        window.location.replace(data.redirect);
+      },
+      error: function(e, xhr)
+      {
+        console.log(e);
       }
     });
   })

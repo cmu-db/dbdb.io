@@ -94,6 +94,7 @@
               {% if feature.multivalued %}
                 <select multiple class="form-control choices-selection">
               {% else %}
+                You may only select one option for this feature.
                 <select class="form-control choices-selection" multiple="no">
               {% endif %}
                 {% for feature_option in feature.all_feature_options %}
