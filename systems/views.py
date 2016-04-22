@@ -247,22 +247,9 @@ class DatabaseEditingPage(View):
         data[field][0] = True if data[field][0] == "1" else False
         db_version.__setattr__(db_field, data[field][0])
       elif 'description_' in field:
-        db_field = field.lower().replace('description', 'feature').replace(' ', '')
-        feature = db_version.__getattribute__(db_field)
-
-        feature.pk = None
-        feature.id = None
-
-        # set new attributes
-        feature.__setattr__('description', data[field][0])
-        feature.__setattr__('system_version', db_version)
-        feature.__setattr__('label', field[field.index('_')+1::])
-
-        # save the new feature
-        feature.save()
-
-        # update this feature for the new version
-        db_version.__setattr__(db_field, feature)
+        print(field)
+        db_field = field.lower().replace(' ','')
+        db_version.__setattr__(db_field, data[field][0])
       elif "year" in field:
         data[field][0] = int(data[field][0])
         if db_version.__getattribute__(field) != data[field][0]:

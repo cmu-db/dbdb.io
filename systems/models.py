@@ -186,54 +186,56 @@ class SystemVersion(models.Model):
     access_methods = models.ManyToManyField('APIAccessMethods', related_name="systems", blank=True)
     logo = models.FileField(upload_to=upload_logo_path, blank=True)
 
-    # Features
+    # Feature support and descriptions
     support_systemarchitecture = models.NullBooleanField()
-    feature_systemarchitecture = models.ForeignKey('Feature', related_name='feature_systemarchitecture', default=1)
+    description_systemarchitecture = MarkupField(default="", default_markup_type='markdown')
 
     support_datamodel = models.NullBooleanField()
-    feature_datamodel = models.ForeignKey('Feature', related_name='feature_datamodel', default=2)
+    description_datamodel = MarkupField(default="", default_markup_type='markdown')
 
     support_storagemodel = models.NullBooleanField()
-    feature_storagemodel = models.ForeignKey('Feature', related_name='feature_storagemodel', default=3)
+    description_storagemodel = MarkupField(default="", default_markup_type='markdown')
 
     support_queryinterface = models.NullBooleanField()
-    feature_queryinterface = models.ForeignKey('Feature', related_name='feature_queryinterface', default=4)
+    description_queryinterface = MarkupField(default="", default_markup_type='markdown')
 
     support_storagearchitecture = models.NullBooleanField()
-    feature_storagearchitecture = models.ForeignKey('Feature', related_name='feature_storagearchitecture', default=5)
+    description_storagearchitecture = MarkupField(default="", default_markup_type='markdown')
 
     support_concurrencycontrol = models.NullBooleanField()
-    feature_concurrencycontrol = models.ForeignKey('Feature', related_name='feature_concurrencycontrol', default=6)
+    description_concurrencycontrol = MarkupField(default="", default_markup_type='markdown')
 
     support_isolationlevels = models.NullBooleanField()
-    feature_isolationlevels = models.ForeignKey('Feature', related_name='feature_isolationlevels', default=7)
+    description_isolationlevels = MarkupField(default="", default_markup_type='markdown')
 
     support_indexes = models.NullBooleanField()
-    feature_indexes = models.ForeignKey('Feature', related_name='feature_indexes', default=8)
+    description_indexes = MarkupField(default="", default_markup_type='markdown')
 
     support_foreignkeys = models.NullBooleanField()
-    feature_foreignkeys = models.ForeignKey('Feature', related_name='feature_foreignkeys', default=9)
+    description_foreignkeys = MarkupField(default="", default_markup_type='markdown')
 
     support_logging = models.NullBooleanField()
-    feature_logging = models.ForeignKey('Feature', related_name='feature_logging', default=10)
+    description_logging = MarkupField(default="", default_markup_type='markdown')
 
     support_checkpoints = models.NullBooleanField()
-    feature_checkpoints = models.ForeignKey('Feature', related_name='feature_checkpoints', default=11)
+    description_checkpoints = MarkupField(default="", default_markup_type='markdown')
 
     support_views = models.NullBooleanField()
-    feature_views = models.ForeignKey('Feature', related_name='feature_views', default=12)
+    description_views = MarkupField(default="", default_markup_type='markdown')
 
     support_queryexecution = models.NullBooleanField()
-    feature_queryexecution = models.ForeignKey('Feature', related_name='feature_queryexecution', default=13)
+    description_queryexecution = MarkupField(default="", default_markup_type='markdown')
 
     support_storedprocedures = models.NullBooleanField()
-    feature_storedprocedures = models.ForeignKey('Feature', related_name='feature_storedprocedures', default=14)
+    description_storedprocedures = MarkupField(default="", default_markup_type='markdown')
 
     support_joins = models.NullBooleanField()
-    feature_joins = models.ForeignKey('Feature', related_name='feature_joins', default=15)
+    description_joins = MarkupField(default="", default_markup_type='markdown')
 
     support_querycompilation = models.NullBooleanField()
-    feature_querycompilation = models.ForeignKey('Feature', related_name='feature_querycompilation', default=16)
+    description_querycompilation = MarkupField(default="", default_markup_type='markdown')
+
+    features = models.ManyToManyField('FeatureOption', related_name='features')
 
     # Support languages and isolation levels
     support_languages = models.ManyToManyField('ProgrammingLanguage', related_name='systems_supported')
@@ -242,37 +244,73 @@ class SystemVersion(models.Model):
 
     def get_features(self, *args, **kwargs):
         features = []
-        for key in self.__dict__:
-            if key.startswith('feature_'):
-                feature = Feature.objects.get(id=self.__dict__[key])
-                label = feature.label
-                description = feature.description
-                rendered_description = feature.get_description_rendered()
+        all_features = Feature.objects.all()
+        for feature in all_features:
+            label = feature.label
 
-                # get a list of all feature options already selected for this feature
-                feature_options = FeatureOption.objects.filter(feature=feature)
-                feature_options = [x.value for x in feature_options if x.feature.system_version == self]
-                feature_options.sort()
+            # get support and description field based on label name
+            is_supported = self.__dict__['support_' + label.lower().replace(' ', '')]
+            description = self.__dict__['description_' + label.lower().replace(' ', '')]
+            rendered_description = self.__dict__['_description_' + label.lower().replace(' ', '') + '_rendered']
 
-                # get all feature options, then create a list based on just the labels that match
-                all_feature_options = FeatureOption.objects.all()
-                all_feature_options = [x.value for x in all_feature_options if x.feature.label == label
-                                        and not x.feature.system_version]
-                all_feature_options.sort()
+            # all feature options for this feature belonging to this version
+            feature_options = self.features.all()
+            feature_options = [x.value for x in feature_options if x.feature == feature]
 
-                feature = {
-                    'is_supported': self.__dict__[key.replace('feature','support').replace('_id','')],
-                    'label': label,
-                    'description': description,
-                    'rendered_description': rendered_description,
-                    'feature_options': feature_options,
-                    'all_feature_options': all_feature_options,
-                    'multivalued': feature.multivalued,
-                    'options_size': len(all_feature_options)
-                }
-                features.append(feature)
+            # all options for this feature
+            all_feature_options = FeatureOption.objects.get(feature=feature)
+            all_feature_options = [x.value fo x in all_feature_options]
+
+            feature = {
+                'is_supported': is_supported,
+                'label': label,
+                'description': description,
+                'feature_options': feature_options,
+                'all_feature_options': all_feature_options,
+                'multivalued': feature.multivalued
+            }
+            features.append(feature)
+            
         features.sort(cmp = lambda x,y: cmp(x['label'], y['label']))
         return features
+
+
+    # def get_features(self, *args, **kwargs):
+    #     features = []
+    #     for key in self.__dict__:
+    #         if key.startswith('description_'):
+    #
+    #             description = Feature.objects.get(id=self.__dict__[key])
+    #             label = feature.label
+    #             description = feature.description
+    #             rendered_description = feature.get_description_rendered()
+    #
+    #             is_supported = self.__dict__[key.replace('feature','support').replace('_id','')]
+    #
+    #             # get a list of all feature options already selected for this feature
+    #             feature_options = FeatureOption.objects.filter(feature=feature)
+    #             feature_options = [x.value for x in feature_options if x.feature.system_version == self]
+    #             feature_options.sort()
+    #
+    #             # get all feature options, then create a list based on just the labels that match
+    #             all_feature_options = FeatureOption.objects.all()
+    #             all_feature_options = [x.value for x in all_feature_options if x.feature.label == label
+    #                                     and not x.feature.system_version]
+    #             all_feature_options.sort()
+    #
+    #             feature = {
+    #                 'is_supported': is_supported,
+    #                 'label': label,
+    #                 'description': description,
+    #                 'rendered_description': rendered_description,
+    #                 'feature_options': feature_options,
+    #                 'all_feature_options': all_feature_options,
+    #                 'multivalued': feature.multivalued,
+    #                 'options_size': len(all_feature_options)
+    #             }
+    #             features.append(feature)
+    #     features.sort(cmp = lambda x,y: cmp(x['label'], y['label']))
+    #     return features
 
     def __unicode__(self):
         return self.name + '-' + str(self.version_number)
@@ -295,18 +333,12 @@ class Feature(models.Model):
     # multivalued
     multivalued = models.NullBooleanField(default=True)
 
-    # System version
-    system_version = models.ForeignKey('SystemVersion', null=True, blank=True)
-
-    # description for the selected feature options
-    description = MarkupField(default='', default_markup_type='markdown', null=True)
-
     # https://github.com/jamesturk/django-markupfield#usage
     def get_description_rendered(self, *args, **kwargs):
         return self.__dict__['_description_rendered']
 
     def __unicode__(self):
-        return self.label + '-' + str(self.system_version)
+        return self.label
 
 class FeatureOption(models.Model):
     """Option for a feature"""
@@ -315,9 +347,18 @@ class FeatureOption(models.Model):
     feature = models.ForeignKey('Feature', null=True, blank=True)
 
     # value of this feature option
-    value = models.CharField(max_length=64, default='foo')
+    value = models.CharField(max_length=64, default='')
 
     def __unicode__(self):
         return self.value
+
+# class FeatureReference(models.Model):
+#     """Cross refernce table entry for SystemVersions and FeatureOptions"""
+#
+#     # system version this points to
+#     system_version = models.ForeignKey('SystemVersion')
+#
+#     # feature option this points to
+#     feature_option = models.ForeignKey('FeatureOption')
 
 # CLASS
