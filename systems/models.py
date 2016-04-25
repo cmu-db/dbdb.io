@@ -259,6 +259,7 @@ class SystemVersion(models.Model):
     support_querycompilation = models.NullBooleanField()
     description_querycompilation = MarkupField(default="", default_markup_type='markdown')
 
+    # feature options
     feature_options = models.ManyToManyField('FeatureOption', related_name='feature_options',
                                              through='SystemVersionFeatureOption')
 
@@ -280,7 +281,9 @@ class SystemVersion(models.Model):
             # get support and description field based on field
             is_supported = self.__dict__['support_' + field]
             description = self.__dict__['description_' + field]
-            rendered_description = self.__dict__['x_description_' + field + '_rendered']
+            rendered_description = self.__dict__.get('x_description_' + field + '_rendered', None)
+            if not rendered_description:
+                rendered_description = self.__dict__['_description_' + field + '_rendered']
 
             # all feature options for this feature belonging to this version
             feature_options = SystemVersionFeatureOption.objects.filter(system_version=self)
@@ -305,44 +308,6 @@ class SystemVersion(models.Model):
         features.sort(cmp = lambda x,y: cmp(x['label'], y['label']))
         return features
 
-
-    # def get_features(self, *args, **kwargs):
-    #     features = []
-    #     for key in self.__dict__:
-    #         if key.startswith('description_'):
-    #
-    #             description = Feature.objects.get(id=self.__dict__[key])
-    #             label = feature.label
-    #             description = feature.description
-    #             rendered_description = feature.get_description_rendered()
-    #
-    #             is_supported = self.__dict__[key.replace('feature','support').replace('_id','')]
-    #
-    #             # get a list of all feature options already selected for this feature
-    #             feature_options = FeatureOption.objects.filter(feature=feature)
-    #             feature_options = [x.value for x in feature_options if x.feature.system_version == self]
-    #             feature_options.sort()
-    #
-    #             # get all feature options, then create a list based on just the labels that match
-    #             all_feature_options = FeatureOption.objects.all()
-    #             all_feature_options = [x.value for x in all_feature_options if x.feature.label == label
-    #                                     and not x.feature.system_version]
-    #             all_feature_options.sort()
-    #
-    #             feature = {
-    #                 'is_supported': is_supported,
-    #                 'label': label,
-    #                 'description': description,
-    #                 'rendered_description': rendered_description,
-    #                 'feature_options': feature_options,
-    #                 'all_feature_options': all_feature_options,
-    #                 'multivalued': feature.multivalued,
-    #                 'options_size': len(all_feature_options)
-    #             }
-    #             features.append(feature)
-    #     features.sort(cmp = lambda x,y: cmp(x['label'], y['label']))
-    #     return features
-
     def __unicode__(self):
         return self.name + '-' + str(self.version_number)
 
@@ -359,14 +324,5 @@ class SystemVersionFeatureOption(models.Model):
     """Cross references a system version with a feature option"""
     system_version = models.ForeignKey(SystemVersion)
     feature_option = models.ForeignKey(FeatureOption)
-
-# class FeatureReference(models.Model):
-#     """Cross refernce table entry for SystemVersions and FeatureOptions"""
-#
-#     # system version this points to
-#     system_version = models.ForeignKey('SystemVersion')
-#
-#     # feature option this points to
-#     feature_option = models.ForeignKey('FeatureOption')
 
 # CLASS

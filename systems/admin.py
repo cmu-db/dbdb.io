@@ -55,13 +55,13 @@ class SystemAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
     list_display = ('name', 'created', 'current_version',)
     list_filter = ['created' ]
-    # fieldsets = [
-    #     (None,          {'fields': ['name']}),
-    # ]
+    fieldsets = [
+        (None,          {'fields': ['name']}),
+    ]
 
 class FeatureOptionInline(admin.TabularInline):
     model = SystemVersionFeatureOption
-    extra = 5
+    extra = 18
 
 class SystemVersionAdmin(admin.ModelAdmin):
     """This class manages how system versions are displayed
@@ -111,6 +111,13 @@ class FeatureOptionAdmin(admin.ModelAdmin):
     list_display = ('feature', 'value',)
     list_filter = ['feature']
 
+class SystemVersionFeatureOptionAdmin(admin.ModelAdmin):
+    """This class manages how feature options are displayed
+    on the django administration page"""
+    empty_value_display = 'unknown'
+    list_display = ('system_version', 'feature_option',)
+    list_filter = ['system_version', 'feature_option']
+
 ## CLASS
 # Register your models here.
 admin.site.register(OperatingSystem, OperatingSystemAdmin)
@@ -124,3 +131,4 @@ admin.site.register(System, SystemAdmin)
 admin.site.register(SystemVersion, SystemVersionAdmin)
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(FeatureOption, FeatureOptionAdmin)
+admin.site.register(SystemVersionFeatureOption, SystemVersionFeatureOptionAdmin)

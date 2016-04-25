@@ -233,8 +233,7 @@ class DatabaseEditingPage(View):
     data = dict(request.POST)
 
     for field in data:
-      db_field = None
-
+      db_field = field
       # skip model_stuff key
       if field == "model_stuff":
         continue
@@ -243,20 +242,14 @@ class DatabaseEditingPage(View):
       # set support and feature description if db_field is set
       # otherwise just set field directly in db model
       if "support_" in field:
-        db_field = field.lower().replace(' ','')
+        db_field = str(field.lower().replace(' ',''))
         data[field][0] = True if data[field][0] == "1" else False
-        db_version.__setattr__(db_field, data[field][0])
       elif 'description_' in field:
-        print(field)
-        db_field = field.lower().replace(' ','')
-        db_version.__setattr__(db_field, data[field][0])
+        db_field = str(field.lower().replace(' ',''))
       elif "year" in field:
         data[field][0] = int(data[field][0])
-        if db_version.__getattribute__(field) != data[field][0]:
-          db_version.__setattr__(field, data[field][0])
-      else:
-        if db_version.__getattribute__(field) != data[field][0]:
-          db_version.__setattr__(field, data[field][0])
+      if db_version.__getattribute__(db_field) != data[field][0]:
+        db_version.__setattr__(db_field, data[field][0])
 
     db_version.creator = str(ip)
     db_version.save()
@@ -303,58 +296,38 @@ class DatabaseEditingPage(View):
     for addition in adds:
       if addition.endswith("_options"):
         feature_name = addition[0:addition.index('_')]
-        feature_name = 'feature_' + feature_name.lower().replace(' ', '')
         add_feature_options[feature_name] = adds[addition]
 
     rem_feature_options = {}
     for removal in removes:
       if removal.endswith("_options"):
         feature_name = removal[0:removal.index('_')]
-        feature_name = 'feature_' + feature_name.lower().replace(' ', '')
         rem_feature_options[feature_name] = removes[removal]
 
     old_version = SystemVersion.objects.get(system=db, version_number=db_version.version_number-1)
     old_features = old_version.get_features()
 
     for old_feature in old_features:
-      feature_name = 'feature_' + old_feature['label'].lower().replace(' ', '')
-      existing_options = old_feature['feature_options']
-      added_options = add_feature_options.get(feature_name, None)
-      removed_options = rem_feature_options.get(feature_name, None)
+      existing_options = old_feature.get('feature_options', None)
+      added_options = add_feature_options.get(old_feature['label'], None)
+      removed_options = rem_feature_options.get(old_feature['label'], None)
       new_options = set(existing_options)
 
       # new options are existing or added and not removed
       if added_options:
         # gets rid of 'add_' prefix, I'll take care of this later..
         added_options = [x[x.index('_')+1:] for x in added_options]
-        new_options = existing_options | set(added_options)
+        new_options = new_options | set(added_options)
       if removed_options:
         # gets rid of 'rem_' prefix, I'll take care of this later..
         removed_options = [x[x.index('_')+1:] for x in removed_options]
         new_options = new_options - set(removed_options)
 
-      # new_options = list((existing_options | added_options) - removed_options)
-      new_feature = db_version.__getattribute__(feature_name)
-
-      # if this new feature still points to the old revision
-      if (new_feature.system_version != db_version):
-        new_feature.pk = None
-        new_feature.id = None
-
-        # set new attributes
-        # new_feature.__setattr__('description', data[field][0])
-        new_feature.__setattr__('system_version', db_version)
-        # new_feature.__setattr__('label', field[field.index('_')+1::])
-
-        # save the new feature
-        new_feature.save()
-
-        # update this feature for the new version
-        db_version.__setattr__(feature_name, new_feature)
-
       for new_option in new_options:
-        feature_option = FeatureOption(feature=new_feature, value=new_option)
-        feature_option.save()
+        feature_option = FeatureOption.objects.get(value=new_option)
+        option = SystemVersionFeatureOption(system_version=db_version,
+                                            feature_option = feature_option)
+        option.save()
 
     db_version.save()
     url = '/db/%s' % slugify(db_name)
