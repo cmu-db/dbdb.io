@@ -59,12 +59,17 @@ class SystemAdmin(admin.ModelAdmin):
     #     (None,          {'fields': ['name']}),
     # ]
 
+class FeatureOptionInline(admin.TabularInline):
+    model = SystemVersionFeatureOption
+    extra = 5
+
 class SystemVersionAdmin(admin.ModelAdmin):
     """This class manages how system versions are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('name', 'version_number', 'created')
     list_filter = ['created']
+    inlines = (FeatureOptionInline,)
     fieldsets = [
         (None,          {'fields': ['system', 'creator', 'version_message']}),
         ('Metadata',    {'fields': ['description', 'history', 'website', 'tech_docs',
@@ -72,22 +77,22 @@ class SystemVersionAdmin(admin.ModelAdmin):
                                      'project_type', 'start_year', 'end_year', 'derived_from',
                                      'logo_img', 'dbmodel', 'license','access_methods',
                                      'logo']}),
-        ('Features',    {'fields': ['support_systemarchitecture', 'feature_systemarchitecture',
-                                    'support_datamodel', 'feature_datamodel',
-                                    'support_storagemodel', 'feature_storagemodel',
-                                    'support_queryinterface', 'feature_queryinterface',
-                                    'support_storagearchitecture', 'feature_storagearchitecture',
-                                    'support_concurrencycontrol', 'feature_concurrencycontrol',
-                                    'support_isolationlevels', 'feature_isolationlevels',
-                                    'support_indexes', 'feature_indexes',
-                                    'support_foreignkeys', 'feature_foreignkeys',
-                                    'support_logging', 'feature_logging',
-                                    'support_checkpoints', 'feature_checkpoints',
-                                    'support_views', 'feature_views',
-                                    'support_queryexecution', 'feature_queryexecution',
-                                    'support_storedprocedures', 'feature_storedprocedures',
-                                    'support_joins', 'feature_joins',
-                                    'support_querycompilation', 'feature_querycompilation']}),
+        ('Features',    {'fields': ['support_systemarchitecture', 'description_systemarchitecture',
+                                    'support_datamodel', 'description_datamodel',
+                                    'support_storagemodel', 'description_storagemodel',
+                                    'support_queryinterface', 'description_queryinterface',
+                                    'support_storagearchitecture', 'description_storagearchitecture',
+                                    'support_concurrencycontrol', 'description_concurrencycontrol',
+                                    'support_isolationlevels', 'description_isolationlevels',
+                                    'support_indexes', 'description_indexes',
+                                    'support_foreignkeys', 'description_foreignkeys',
+                                    'support_logging', 'description_logging',
+                                    'support_checkpoints', 'description_checkpoints',
+                                    'support_views', 'description_views',
+                                    'support_queryexecution', 'description_queryexecution',
+                                    'support_storedprocedures', 'description_storedprocedures',
+                                    'support_joins', 'description_joins',
+                                    'support_querycompilation', 'description_querycompilation']}),
         ('Support',     {'fields': ['support_languages']}),
         ('Isolation',   {'fields': ['default_isolation', 'max_isolation']})
     ]
@@ -96,8 +101,8 @@ class FeatureAdmin(admin.ModelAdmin):
     """This class manages how features are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
-    list_display = ('label', 'system_version', 'multivalued')
-    list_filter = ['label', 'system_version']
+    list_display = ('label', 'multivalued')
+    list_filter = ['label']
 
 class FeatureOptionAdmin(admin.ModelAdmin):
     """This class manages how feature options are displayed

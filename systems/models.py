@@ -109,6 +109,30 @@ class Publication(models.Model):
     def __unicode__(self):
         return self.title
 
+class Feature(models.Model):
+    """Feature that describes a certain aspect of the system"""
+
+    # label for this feature
+    label = models.CharField(max_length=64)
+
+    # multivalued
+    multivalued = models.NullBooleanField(default=True)
+
+    def __unicode__(self):
+        return self.label
+
+class FeatureOption(models.Model):
+    """Option for a feature"""
+
+    # feature this option is for
+    feature = models.ForeignKey('Feature', null=True, blank=True)
+
+    # value of this feature option
+    value = models.CharField(max_length=64, default='')
+
+    def __unicode__(self):
+        return self.value
+
 class SuggestedSystem(models.Model):
     name = models.CharField(max_length=64)
     description = models.TextField(default=None, null=True, blank=True)
@@ -235,42 +259,49 @@ class SystemVersion(models.Model):
     support_querycompilation = models.NullBooleanField()
     description_querycompilation = MarkupField(default="", default_markup_type='markdown')
 
-    features = models.ManyToManyField('FeatureOption', related_name='features')
+    feature_options = models.ManyToManyField('FeatureOption', related_name='feature_options',
+                                             through='SystemVersionFeatureOption')
 
     # Support languages and isolation levels
     support_languages = models.ManyToManyField('ProgrammingLanguage', related_name='systems_supported')
     default_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
     max_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
 
-    def get_features(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        super(SystemVersion, self).__init__(*args, **kwargs)
+
+    def get_features(self):
         features = []
         all_features = Feature.objects.all()
         for feature in all_features:
             label = feature.label
+            field = label.lower().replace(' ', '')
 
-            # get support and description field based on label name
-            is_supported = self.__dict__['support_' + label.lower().replace(' ', '')]
-            description = self.__dict__['description_' + label.lower().replace(' ', '')]
-            rendered_description = self.__dict__['_description_' + label.lower().replace(' ', '') + '_rendered']
+            # get support and description field based on field
+            is_supported = self.__dict__['support_' + field]
+            description = self.__dict__['description_' + field]
+            rendered_description = self.__dict__['x_description_' + field + '_rendered']
 
             # all feature options for this feature belonging to this version
-            feature_options = self.features.all()
+            feature_options = SystemVersionFeatureOption.objects.filter(system_version=self)
+            feature_options = [x.feature_option for x in feature_options]
             feature_options = [x.value for x in feature_options if x.feature == feature]
 
             # all options for this feature
-            all_feature_options = FeatureOption.objects.get(feature=feature)
-            all_feature_options = [x.value fo x in all_feature_options]
+            all_feature_options = FeatureOption.objects.filter(feature=feature)
+            all_feature_options = [x.value for x in all_feature_options]
 
             feature = {
                 'is_supported': is_supported,
                 'label': label,
                 'description': description,
+                'rendered_description': rendered_description,
                 'feature_options': feature_options,
                 'all_feature_options': all_feature_options,
                 'multivalued': feature.multivalued
             }
             features.append(feature)
-            
+
         features.sort(cmp = lambda x,y: cmp(x['label'], y['label']))
         return features
 
@@ -324,33 +355,10 @@ class SystemVersion(models.Model):
             self.system.save()
         super(SystemVersion, self).save(*args, **kwargs)
 
-class Feature(models.Model):
-    """Feature that describes a certain aspect of the system"""
-
-    # label for this feature
-    label = models.CharField(max_length=64)
-
-    # multivalued
-    multivalued = models.NullBooleanField(default=True)
-
-    # https://github.com/jamesturk/django-markupfield#usage
-    def get_description_rendered(self, *args, **kwargs):
-        return self.__dict__['_description_rendered']
-
-    def __unicode__(self):
-        return self.label
-
-class FeatureOption(models.Model):
-    """Option for a feature"""
-
-    # feature this option is for
-    feature = models.ForeignKey('Feature', null=True, blank=True)
-
-    # value of this feature option
-    value = models.CharField(max_length=64, default='')
-
-    def __unicode__(self):
-        return self.value
+class SystemVersionFeatureOption(models.Model):
+    """Cross references a system version with a feature option"""
+    system_version = models.ForeignKey(SystemVersion)
+    feature_option = models.ForeignKey(FeatureOption)
 
 # class FeatureReference(models.Model):
 #     """Cross refernce table entry for SystemVersions and FeatureOptions"""

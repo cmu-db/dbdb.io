@@ -318,10 +318,10 @@ class DatabaseEditingPage(View):
 
     for old_feature in old_features:
       feature_name = 'feature_' + old_feature['label'].lower().replace(' ', '')
-      existing_options = set(old_feature['feature_options'])
+      existing_options = old_feature['feature_options']
       added_options = add_feature_options.get(feature_name, None)
       removed_options = rem_feature_options.get(feature_name, None)
-      new_options = existing_options
+      new_options = set(existing_options)
 
       # new options are existing or added and not removed
       if added_options:
