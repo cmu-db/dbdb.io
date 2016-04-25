@@ -3,128 +3,112 @@
         "pk": 1,
         "model": "systems.Feature",
         "fields": {
-            "label": "System Architecture",
-            "description": "Is it a shared-memory, shared-disk, or shared-nothing DBMS? Does it rely on special hardware (e.g., GPU, FPGA)?"
+            "label": "System Architecture"
         }
     },
     {
         "pk": 2,
         "model": "systems.Feature",
         "fields": {
-            "label": "Data Model",
-            "description": "What is the primary data model of the DBMS?"
+            "label": "Data Model"
         }
     },
     {
         "pk": 3,
         "model": "systems.Feature",
         "fields": {
-            "label": "Storage Model",
-            "description": "What kind of storage models does the DBMS support (e.g., NSM, DSM)?"
+            "label": "Storage Model"
         }
     },
     {
         "pk": 4,
         "model": "systems.Feature",
         "fields": {
-            "label": "Query Interface",
-            "description": "What language or API does the DBMS support for the application to load data and execute queries."
+            "label": "Query Interface"
         }
     },
     {
         "pk": 5,
         "model": "systems.Feature",
         "fields": {
-            "label": "Storage Architecture",
-            "description": "Is the system a disk-oriented or in-memory DBMS? If the latter, does it support larger-than-memory databases?"
+            "label": "Storage Architecture"
         }
     },
     {
         "pk": 6,
         "model": "systems.Feature",
         "fields": {
-            "label": "Concurrency Control",
-            "description": "Does the DBMS support transactions and if so what concurrency control scheme does it use?"
+            "label": "Concurrency Control"
         }
     },
     {
         "pk": 7,
         "model": "systems.Feature",
         "fields": {
-            "label": "Isolation Levels",
-            "description": "What isolation levels does it support? Which one is the default? How does it implement each one?"
+            "label": "Isolation Levels"
         }
     },
     {
         "pk": 8,
         "model": "systems.Feature",
         "fields": {
-            "label": "Indexes",
-            "description": "What kind of indexes does the DBMS support (e.g., primary key, secondary, derived, partial)? What data structures does the DBMS support? What is the default?"
+            "label": "Indexes"
         }
     },
     {
         "pk": 9,
         "model": "systems.Feature",
         "fields": {
-            "label": "Foreign Keys",
-            "description": "Does the system support foreign key constraints?"
+            "label": "Foreign Keys"
         }
     },
     {
         "pk": 10,
         "model": "systems.Feature",
         "fields": {
-            "label": "Logging",
-            "description": "How does the system support data durability? What kind of logging scheme does it use (e.g., physical, logical, physiological)?"
+            "label": "Logging"
         }
     },
     {
         "pk": 11,
         "model": "systems.Feature",
         "fields": {
-            "label": "Checkpoints",
-            "description": "How does the DBMS take checkpoints? What kind of checkpoints are they (e.g., fuzzy vs. non-fuzzy)?"
+            "label": "Checkpoints"
         }
     },
     {
         "pk": 12,
         "model": "systems.Feature",
         "fields": {
-            "label": "Views",
-            "description": "Does the DBMS support views or materialized views? How complex of a query does it support?"
+            "label": "Views"
         }
     },
     {
         "pk": 13,
         "model": "systems.Feature",
         "fields": {
-            "label": "Query Execution",
-            "description": "What query processing model does the DBMS support (e.g., iterator vs. vectorized)? What kind of intra-query parallelism does it support?"
+            "label": "Query Execution"
         }
     },
     {
         "pk": 14,
         "model": "systems.Feature",
         "fields": {
-            "label": "Stored Procedures",
-            "description": "Does the DBMS support stored procedures? If so, what language(s) can they be written in?"
+            "label": "Stored Procedures"
         }
     },
     {
         "pk": 15,
         "model": "systems.Feature",
         "fields": {
-            "label": "Joins",
-            "description": "What join algorithms does the DBMS support? What is notable or special about them (e.g., low-memory, parallelism)?"
+            "label": "Joins"
         }
     },
     {
         "pk": 16,
         "model": "systems.Feature",
         "fields": {
-            "label": "Query Compilation",
-            "description": "Does the DBMS support code generation or JIT optimizations? How does it do this (e.g., LLVM, templates, code gen)?"
+            "label": "Query Compilation"
         }
     }
 ]
