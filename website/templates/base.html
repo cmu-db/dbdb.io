@@ -3,7 +3,7 @@
 
   <head>
 
-    <title>{% block title %}Databaseology{% endblock %}</title>
+    <title>{% block title %}Carnegie Mellon Database of Database Systems{% endblock %}</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -34,7 +34,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">Carnegie Mellon Encyclopedia of Database Systems</a>
+          <a class="navbar-brand" href="/">Carnegie Mellon Database of Database Systems</a>
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
@@ -70,7 +70,10 @@
     {% endfor %}
 
     <div class="footer">
-      <div class="footer-text">Copyright © 2015 · Carnegie Mellon Database Group</div>
+        <div class="footer-text">
+            Copyright © {% now "Y" %} &bullet;
+            <a href="http://db.cs.cmu.edu">Carnegie Mellon Database Group</a>
+        </div>
     </div>
 
     <!-- Loading Javascript libraries -->
