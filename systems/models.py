@@ -282,7 +282,7 @@ class SystemVersion(models.Model):
             is_supported = self.__dict__['support_' + field]
             description = self.__dict__['description_' + field]
             rendered_description = self.__dict__.get('x_description_' + field + '_rendered', None)
-            if not rendered_description:
+            if rendered_description == None:
                 rendered_description = self.__dict__['_description_' + field + '_rendered']
 
             # all feature options for this feature belonging to this version
