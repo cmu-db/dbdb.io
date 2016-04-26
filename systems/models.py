@@ -4,7 +4,7 @@ from django.utils.text import slugify
 from django.forms.models import model_to_dict
 
 import util
-import hashlib, time
+import hashlib, json, time
 
 PROJECT_TYPES = (
     ('C', 'Commercial'),
@@ -212,52 +212,82 @@ class SystemVersion(models.Model):
 
     # Feature support and descriptions
     support_systemarchitecture = models.NullBooleanField()
-    description_systemarchitecture = MarkupField(default="", default_markup_type='markdown')
+    description_systemarchitecture = MarkupField(default='Is it a shared-memory'
+    ', shared-disk, or shared-nothing DBMS? Does it rely on special hardware '
+    '(e.g., GPU, FPGA)?', default_markup_type='markdown')
 
     support_datamodel = models.NullBooleanField()
-    description_datamodel = MarkupField(default="", default_markup_type='markdown')
+    description_datamodel = MarkupField(default='What is the primary data model'
+    ' of the DBMS?', default_markup_type='markdown')
 
     support_storagemodel = models.NullBooleanField()
-    description_storagemodel = MarkupField(default="", default_markup_type='markdown')
+    description_storagemodel = MarkupField(default='What kind of storage models'
+    ' does the DBMS support (e.g., NSM, DSM)?', default_markup_type='markdown')
 
     support_queryinterface = models.NullBooleanField()
-    description_queryinterface = MarkupField(default="", default_markup_type='markdown')
+    description_queryinterface = MarkupField(default='What language or API does'
+    ' the DBMS support for the application to load data and execute queries.',
+    default_markup_type='markdown')
 
     support_storagearchitecture = models.NullBooleanField()
-    description_storagearchitecture = MarkupField(default="", default_markup_type='markdown')
+    description_storagearchitecture = MarkupField(default='Is the system a '
+    'disk-oriented or in-memory DBMS? If the latter, does it support '
+    'larger-than-memory databases?', default_markup_type='markdown')
 
     support_concurrencycontrol = models.NullBooleanField()
-    description_concurrencycontrol = MarkupField(default="", default_markup_type='markdown')
+    description_concurrencycontrol = MarkupField(default='Does the DBMS support'
+    ' transactions and if so what concurrency control scheme does it use?',
+    default_markup_type='markdown')
 
     support_isolationlevels = models.NullBooleanField()
-    description_isolationlevels = MarkupField(default="", default_markup_type='markdown')
+    description_isolationlevels = MarkupField(default='What isolation levels '
+    'does it support? Which one is the default? How does it implement each one?',
+    default_markup_type='markdown')
 
     support_indexes = models.NullBooleanField()
-    description_indexes = MarkupField(default="", default_markup_type='markdown')
+    description_indexes = MarkupField(default='What kind of indexes does the '
+    'DBMS support (e.g., primary key, secondary, derived, partial)? What data '
+    'structures does the DBMS support? What is the default?',
+    default_markup_type='markdown')
 
     support_foreignkeys = models.NullBooleanField()
-    description_foreignkeys = MarkupField(default="", default_markup_type='markdown')
+    description_foreignkeys = MarkupField(default='Does the system support '
+    'foreign key constraints?', default_markup_type='markdown')
 
     support_logging = models.NullBooleanField()
-    description_logging = MarkupField(default="", default_markup_type='markdown')
+    description_logging = MarkupField(default='How does the system support data '
+    'durability? What kind of logging scheme does it use (e.g., physical, '
+    'logical, physiological)?', default_markup_type='markdown')
 
     support_checkpoints = models.NullBooleanField()
-    description_checkpoints = MarkupField(default="", default_markup_type='markdown')
+    description_checkpoints = MarkupField(default='How does the DBMS take '
+    'checkpoints? What kind of checkpoints are they (e.g., fuzzy vs. non-fuzzy)?',
+    default_markup_type='markdown')
 
     support_views = models.NullBooleanField()
-    description_views = MarkupField(default="", default_markup_type='markdown')
+    description_views = MarkupField(default='Does the DBMS support views or '
+    'materialized views? How complex of a query does it support?',
+    default_markup_type='markdown')
 
     support_queryexecution = models.NullBooleanField()
-    description_queryexecution = MarkupField(default="", default_markup_type='markdown')
+    description_queryexecution = MarkupField(default='What query processing '
+    'model does the DBMS support (e.g., iterator vs. vectorized)? What kind of'
+    ' intra-query parallelism does it support?', default_markup_type='markdown')
 
     support_storedprocedures = models.NullBooleanField()
-    description_storedprocedures = MarkupField(default="", default_markup_type='markdown')
+    description_storedprocedures = MarkupField(default='Does the DBMS support '
+    'stored procedures? If so, what language(s) can they be written in?',
+    default_markup_type='markdown')
 
     support_joins = models.NullBooleanField()
-    description_joins = MarkupField(default="", default_markup_type='markdown')
+    description_joins = MarkupField(default='What join algorithms does the '
+    'DBMS support? What is notable or special about them (e.g., low-memory, '
+    'parallelism)?', default_markup_type='markdown')
 
     support_querycompilation = models.NullBooleanField()
-    description_querycompilation = MarkupField(default="", default_markup_type='markdown')
+    description_querycompilation = MarkupField(default='Does the DBMS support '
+    'code generation or JIT optimizations? How does it do this (e.g., LLVM, '
+    'templates, code gen)?', default_markup_type='markdown')
 
     # feature options
     feature_options = models.ManyToManyField('FeatureOption', related_name='feature_options',
@@ -281,6 +311,7 @@ class SystemVersion(models.Model):
             # get support and description field based on field
             is_supported = self.__dict__['support_' + field]
             description = self.__dict__['description_' + field]
+            description_raw = self.__dict__['description_' + field + '_raw']
             rendered_description = self.__dict__.get('x_description_' + field + '_rendered', None)
             if rendered_description == None:
                 rendered_description = self.__dict__['_description_' + field + '_rendered']
@@ -298,6 +329,7 @@ class SystemVersion(models.Model):
                 'is_supported': is_supported,
                 'label': label,
                 'description': description,
+                'description_raw': description_raw,
                 'rendered_description': rendered_description,
                 'feature_options': feature_options,
                 'all_feature_options': all_feature_options,
