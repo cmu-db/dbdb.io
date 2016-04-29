@@ -156,19 +156,19 @@ class OSPage(View):
   def get(self, request, page_type, name):
     context = LoadContext.load_base_context(request)
     if page_type == "os":
-      os = OperatingSystem.objects.get(slug = slugify(name))
+      os = OperatingSystem.objects.get(name = name)
       systems = os.systems.all()
       obj_data = OperatingSystemSerializer(os).data
       page_info = {"page_type": "Operating System",
                    "name": obj_data["name"]}
     elif page_type == "written_lang":
-      lang = ProgrammingLanguage.objects.get(slug = slugify(name))
+      lang = ProgrammingLanguage.objects.get(name = name)
       systems = lang.systems_written.all()
       obj_data = ProgrammingLanguageSerializer(lang).data
       page_info = {"page_type": "Programming Language",
                  "name": "Written in " + obj_data["name"]}
     elif page_type == "support_lang":
-      lang = ProgrammingLanguage.objects.get(slug = slugify(name))
+      lang = ProgrammingLanguage.objects.get(name = name)
       systems = lang.systems_supported.all()
       obj_data = ProgrammingLanguageSerializer(lang).data
       page_info = {"page_type": "Programming Language",
@@ -263,7 +263,7 @@ class DatabaseEditingPage(View):
       if lang_name in savedModels and savedModels[lang_name]:
         lang = savedModels[lang_name]
       else:
-        lang = ProgrammingLanguage.objects.get(slug = slugify(lang_name))
+        lang = ProgrammingLanguage.objects.get(name = lang_name)
         savedModels[lang_name] = lang
       if task == "add":
           db_version.written_in.add(lang)
@@ -274,7 +274,7 @@ class DatabaseEditingPage(View):
       if lang_name in savedModels and savedModels[lang_name]:
         lang = savedModels[lang_name]
       else:
-        lang = ProgrammingLanguage.objects.get(slug = slugify(lang_name))
+        lang = ProgrammingLanguage.objects.get(name = lang_name)
         savedModels[lang_name] = lang
       if task == "add":
           db_version.support_languages.add(lang)
@@ -285,7 +285,7 @@ class DatabaseEditingPage(View):
       if os_name in savedModels and savedModels[os_name]:
         os = savedModels[os_name]
       else:
-        os = OperatingSystem.objects.get(slug = slugify(os_name))
+        os = OperatingSystem.objects.get(name = os_name)
         savedModels[os_name] = os
       if task == "add":
           db_version.oses.add(os)

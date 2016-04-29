@@ -26,25 +26,6 @@ ISOLATION_LEVELS = (
 for x,y in ISOLATION_LEVELS:
     globals()['ISOLATION_LEVEL_' + y.upper()] = x
 
-# FEATURE_LABELS = (
-#   ('support_systemarchitecture', 'SYSTEM ARCHITECTURE'),
-#   ('support_datamodel', 'DATA MODEL'),
-#   ('support_storagemodel', 'STORAGE MODEL'),
-#   ('support_queryinterface', 'QUERY INTERFACE'),
-#   ('support_storagearchitecture', 'STORAGE ARCHITECTURE'),
-#   ('support_concurrencycontrol', 'CONCURRENCY CONTROL'),
-#   ('support_isolationlevels', 'ISOLATION LEVELS'),
-#   ('support_indexes', 'INDEXES'),
-#   ('support_foreignkeys', 'FOREIGN KEYS'),
-#   ('support_logging', 'LOGGING'),
-#   ('support_checkpoints', 'CHECKPOINTS'),
-#   ('support_views', 'VIEWS'),
-#   ('support_queryexecution', 'QUERY EXECUTION'),
-#   ('support_storedprocedures', 'STORED PROCEDURES'),
-#   ('support_joins', 'JOINS'),
-#   ('support_querycompilation', 'QUERY COMPILATION'),
-# )
-
 # ----------------------------------------------------------------------------
 
 def upload_logo_path(self, fn):
@@ -298,9 +279,6 @@ class SystemVersion(models.Model):
     default_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
     max_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
 
-    def __init__(self, *args, **kwargs):
-        super(SystemVersion, self).__init__(*args, **kwargs)
-
     def get_features(self):
         features = []
         all_features = Feature.objects.all()
@@ -310,11 +288,12 @@ class SystemVersion(models.Model):
 
             # get support and description field based on field
             is_supported = self.__dict__['support_' + field]
-            description = self.__dict__['description_' + field]
-            description_raw = self.__dict__['description_' + field + '_raw']
+            description = self.__getattribute__('description_' + field)
+            description_raw = description.raw
             rendered_description = self.__dict__.get('x_description_' + field + '_rendered', None)
             if rendered_description == None:
-                rendered_description = self.__dict__['_description_' + field + '_rendered']
+                rendered_description = self.__dict__.get('_description_' + field + '_rendered', None)
+            description = self.__dict__['description_' + field]
 
             # all feature options for this feature belonging to this version
             feature_options = SystemVersionFeatureOption.objects.filter(system_version=self)
@@ -347,7 +326,10 @@ class SystemVersion(models.Model):
         if not self.name and self.system:
             self.name = self.system.name
         if not self.version_number and self.system:
-            self.version_number = self.system.current_version + 1
+            if self.system.current_version == 0:
+                self.version_number = 0
+            else:
+                self.version_number = self.system.current_version + 1
             self.system.current_version = self.version_number
             self.system.save()
         super(SystemVersion, self).save(*args, **kwargs)
