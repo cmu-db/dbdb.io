@@ -156,19 +156,19 @@ class OSPage(View):
   def get(self, request, page_type, name):
     context = LoadContext.load_base_context(request)
     if page_type == "os":
-      os = OperatingSystem.objects.get(name = name)
+      os = OperatingSystem.objects.get(slug = slugify(name))
       systems = os.systems.all()
       obj_data = OperatingSystemSerializer(os).data
       page_info = {"page_type": "Operating System",
                    "name": obj_data["name"]}
     elif page_type == "written_lang":
-      lang = ProgrammingLanguage.objects.get(name = name)
+      lang = ProgrammingLanguage.objects.get(slug = slugify(name))
       systems = lang.systems_written.all()
       obj_data = ProgrammingLanguageSerializer(lang).data
       page_info = {"page_type": "Programming Language",
                  "name": "Written in " + obj_data["name"]}
     elif page_type == "support_lang":
-      lang = ProgrammingLanguage.objects.get(name = name)
+      lang = ProgrammingLanguage.objects.get(slug = slugify(name))
       systems = lang.systems_supported.all()
       obj_data = ProgrammingLanguageSerializer(lang).data
       page_info = {"page_type": "Programming Language",
@@ -431,7 +431,7 @@ class PLCreationView(View):
   def post(self, request):
     if request.POST.get('name', False):
       name = request.POST.get('name')
-      newDB = ProgrammingLanguage(name = name)
+      newDB = ProgrammingLanguage(slug = slugify(name))
       newDB.save()
       # TODO: handle the no name case by imposing form restrictions
       return HttpResponseRedirect("/createdb")
@@ -445,7 +445,7 @@ class OSCreationView(View):
   def post(self, request):
     if request.POST.get('name', False):
       name = request.POST.get('name')
-      newDB = OperatingSystem(name = name)
+      newDB = OperatingSystem(slug = slugify(name))
       newDB.save()
       # TODO: handle the no name case by imposing form restrictions
       return HttpResponseRedirect("/createdb")

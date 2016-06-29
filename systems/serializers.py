@@ -51,7 +51,7 @@ class LightSystemSerializer(serializers.ModelSerializer):
 class OperatingSystemSerializer(serializers.ModelSerializer):
   class Meta:
     model = OperatingSystem
-    fields = ('name','website')
+    fields = ('name','website','slug')
 
 class ProgrammingLanguageSerializer(serializers.ModelSerializer):
   class Meta:
