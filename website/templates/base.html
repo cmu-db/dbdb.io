@@ -58,15 +58,15 @@
 
     <!-- create dummy nodes to store name of databases for autocomplete widget -->
     {% for db in databases %}
-      <div class = "database-name" data-name = "{{ db }}"></div>
+      <div class = "database-name" data-name = "{{ db.name }}" link-name = "{{ db.slug }}"></div>
     {% endfor %}
 
     {% for lang in languages %}
-      <div class = "language-name" data-name = "{{ lang }}"></div>
+      <div class = "language-name" data-name = "{{ lang.name }}" link-name = "{{ lang.slug }}"></div>
     {% endfor %}
 
     {% for os in oses %}
-      <div class = "os-name" data-name = "{{ os }}"></div>
+      <div class = "os-name" data-name = "{{ os.name }}" link-name = "{{ os.slug }}"></div>
     {% endfor %}
 
     <div class="footer">
@@ -97,7 +97,7 @@
           db_names.push(name);
           all_names.push({
             label: name,
-            link: "/db/" + name
+            link: "/db/" + $(this).attr("link-name")
           });
           $(this).remove(); // remove to lessen size of page being loaded
         })
@@ -107,7 +107,7 @@
           lang_names.push(name);
           all_names.push({
             label: name,
-            link: "/search/support_lang/" + name
+            link: "/search/support_lang/" + $(this).attr("link-name")
           });
           $(this).remove(); // remove to lessen size of page being loaded
         })
@@ -117,7 +117,7 @@
           os_names.push(name);
           all_names.push({
             label: name,
-            link: "/search/os/" + name
+            link: "/search/os/" + $(this).attr("link-name")
           });
           $(this).remove(); // remove to lessen size of page being loaded
         })

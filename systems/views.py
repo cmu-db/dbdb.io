@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from django.contrib.auth.decorators import login_required
 from django.contrib.syndication.views import Feed
 from django.forms.models import model_to_dict
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, HttpResponse, JsonResponse
@@ -15,26 +16,24 @@ from systems.serializers import *
 
 import hashlib, time, string, json
 
-system_fields = {
-  'support_systemarchitecture': 'System Architecture',
-  'support_datamodel': 'Data Model',
-  'support_storagemodel': 'Storage Model',
-  'support_queryinterface': 'Query Interface',
+SYSTEM_FIELDS = {
+  'support_checkpoints':         'Checkpoints',
+  'support_concurrencycontrol':  'Concurrency Control',
+  'support_datamodel':           'Data Model',
+  'support_foreignkeys':         'Foreign Keys',
+  'support_indexes':             'Indexes',
+  'support_isolationlevels':     'Isolation Levels',
+  'support_joins':               'Joins',
+  'support_logging':             'Logging',
+  'support_querycompilation':    'Query Compilation',
+  'support_queryexecution':      'Query Execution',
+  'support_queryinterface':      'Query Interface',
   'support_storagearchitecture': 'Storage Architecture',
-  'support_concurrencycontrol': 'Concurrency Control',
-  'support_isolationlevels': 'Isolation Levels',
-  'support_indexes': 'Indexes',
-  'support_foreignkeys': 'Foreign Keys',
-  'support_logging': 'Logging',
-  'support_checkpoints': 'Checkpoints',
-  'support_views': 'Views',
-  'support_queryexecution': 'Query Execution',
-  'support_storedprocedures': 'Stored Procedures',
-  'support_joins': 'Joins',
-  'support_querycompilation': 'Query Compilation'
+  'support_storagemodel':        'Storage Model',
+  'support_storedprocedures':    'Stored Procedures',
+  'support_systemarchitecture':  'System Architecture',
+  'support_views':               'Views'
 }
-
-inv_fields = {v: k for k, v in system_fields.items()}
 
 class LoadContext(object):
 
@@ -42,36 +41,48 @@ class LoadContext(object):
   def load_base_context(request):
     context = {}
     context["user"] = request.user
-    context["databases"] = map(lambda x: x, System.objects.all())
-    context["languages"] = map(lambda x: x, ProgrammingLanguage.objects.all())
-    context["oses"] = map(lambda x: x, OperatingSystem.objects.all())
-    context["system_fields"] = system_fields.values()
+    context["databases"] = map(lambda x: {'name': x.name, 'slug': x.slug},
+                               System.objects.all())
+    context["languages"] = map(lambda x: {'name': x.name, 'slug': x.slug},
+                               ProgrammingLanguage.objects.all())
+    context["oses"] = map(lambda x: {'name': x.name, 'slug': x.slug},
+                          OperatingSystem.objects.all())
+    context["system_fields"] = sorted(SYSTEM_FIELDS.values())
     return context
 
   @staticmethod
-  def load_db_data(db_model):
-    db = db_model.__dict__
-    db["slug"] = db_model.system.slug
+  def load_db_data(db_version):
+    db = db_version.__dict__
+    db["slug"] = db_version.system.slug
     link = db["website"]
     if not link.startswith("http://") or link.startswith("https://"):
       link = "http://" + link
     db["website"] = link
-    written_lang, oses, support_langs, pubs = [], [], [], []
-    for os in db_model.oses.all():
-      oses.append(OperatingSystemSerializer(os).data['name'])
-    for lang in db_model.support_languages.all():
-      support_langs.append(ProgrammingLanguageSerializer(lang).data['name'])
-    for lang in db_model.written_in.all():
-      written_lang.append(ProgrammingLanguageSerializer(lang).data['name'])
-    # for pub in db_model.publications.all():
+
+    written_langs, oses, support_langs, pubs = [], [], [], []
+    for os in db_version.oses.all():
+      name = OperatingSystemSerializer(os).data['name']
+      slug = OperatingSystemSerializer(os).data['slug']
+      oses.append({'name': name, 'slug': slug})
+    for lang in db_version.support_languages.all():
+      name = ProgrammingLanguageSerializer(lang).data['name']
+      slug = ProgrammingLanguageSerializer(lang).data['slug']
+      support_langs.append({'name': name, 'slug': slug})
+    for lang in db_version.written_in.all():
+      name = ProgrammingLanguageSerializer(lang).data['name']
+      slug = ProgrammingLanguageSerializer(lang).data['slug']
+      written_langs.append({'name': name, 'slug': slug})
+    # for pub in db_version.publications.all():
     #   pubs.append((pub.number, {"cite": pub.cite, "number": pub.number,
     #                             "link": pub.download}))
-    pubs.sort()
+    # pubs.sort()
+
     db["oses"] = oses
-    db["written_in"] = written_lang
+    db["written_in"] = written_langs
     db["support_languages"] = support_langs
-    db["pubs"] = map(lambda x: x[1], pubs)
-    db["num_pubs"] = len(db["pubs"])
+    # db["pubs"] = map(lambda x: x[1], pubs)
+    # db["num_pubs"] = len(db["pubs"])
+
     for field in db:
       if field.startswith("_"):
         db["x" + field] = db[field]
@@ -79,13 +90,13 @@ class LoadContext(object):
     return db
 
   @staticmethod
-  def load_db_raw_markdown_fields(db_data, db_ojb):
-    fields = db_ojb.__dict__.keys()
+  def load_db_raw_markdown_fields(db_data, db_version):
+    fields = db_version.__dict__.keys()
     for field in fields:
       if "rendered" in field:
         fieldName = field[2:-9]
-        if db_ojb.__getattribute__(fieldName):
-          rawField = db_ojb.__getattribute__(fieldName).raw
+        if db_version.__getattribute__(fieldName):
+          rawField = db_version.__getattribute__(fieldName).raw
           db_data[fieldName + "_raw"] = rawField
         else:
           db_data[fieldName + "_raw"] = rawField
@@ -95,7 +106,7 @@ class LoadContext(object):
     field_supports = []
     for field in db:
       if "support_" in field and field != "support_languages":
-        name = system_fields[field]
+        name = SYSTEM_FIELDS[field]
         data = {"field_name": name,
                 "support": db[field]}
         field_supports.append(data)
@@ -364,42 +375,6 @@ class DatabaseVersionPage(View):
     return render(request, 'database.html',
         context)
 
-class DatabaseCreationPage(View):
-
-  @csrf_exempt
-  def dispatch(self, *args, **kwargs):
-    return super(DatabaseCreationPage, self).dispatch(*args, **kwargs)
-
-  @staticmethod
-  def create_secret_key():
-    key = hashlib.sha1()
-    key.update(str(time.time()))
-    return key.hexdigest()[:11]
-
-  def get(self, request):
-    return render(request, 'database_create.html',
-      LoadContext.load_base_context(request))
-
-  def post(self, request):
-    if request.POST.get('name', False):
-      name = request.POST.get('name')
-      existingDB = System.objects.filter(slug = slugify(name))
-      if len(existingDB) == 0:
-        key = util.generateSecretKey()
-        newDBSystem = System(name=name, secret_key=key, current_version=0,
-                                slug=slugify(name))
-        newDBSystem.save()
-
-        newDBVersion = SystemVersion(name=name, version_number=0,
-                                       system=newDBSystem)
-        newDBVersion.save()
-        return redirect("/db/%s/%s" % (slugify(name), key))
-    # there is already a db with that name or no name was provided
-    # TODO: create front end code that requires that a name is in some field
-    # similar to how it's done in the suggest a system page
-    return render(request, 'database_create.html',
-           LoadContext.load_base_context(request))
-
 class DatabaseRevisionsPage(View):
 
   def get(self, request, db_name, key = ""):
@@ -421,6 +396,44 @@ class DatabaseRevisionsPage(View):
       context["revisions"].append(obj)
     context["key"] = key
     return render(request, 'database_revision.html', context)
+
+class DatabaseCreationPage(View):
+
+  @csrf_exempt
+  def dispatch(self, *args, **kwargs):
+    return super(DatabaseCreationPage, self).dispatch(*args, **kwargs)
+
+  @staticmethod
+  def create_secret_key():
+    key = hashlib.sha1()
+    key.update(str(time.time()))
+    return key.hexdigest()[:11]
+
+  # @login_required(login_url)
+  def get(self, request):
+    return render(request, 'database_create.html',
+      LoadContext.load_base_context(request))
+
+  # @login_required(login_url)
+  def post(self, request):
+    if request.POST.get('name', False):
+      name = request.POST.get('name')
+      existingDB = System.objects.filter(slug = slugify(name))
+      if len(existingDB) == 0:
+        key = util.generateSecretKey()
+        newDBSystem = System(name=name, secret_key=key, current_version=0,
+                                slug=slugify(name))
+        newDBSystem.save()
+
+        newDBVersion = SystemVersion(name=name, version_number=0,
+                                       system=newDBSystem)
+        newDBVersion.save()
+        return redirect("/db/%s/%s" % (slugify(name), key))
+    # there is already a db with that name or no name was provided
+    # TODO: create front end code that requires that a name is in some field
+    # similar to how it's done in the suggest a system page
+    return render(request, 'database_create.html',
+           LoadContext.load_base_context(request))
 
 class PLCreationView(View):
 
@@ -472,6 +485,7 @@ class AdvancedSearchView(View):
     questioncheck = []
     greencheck = []
     greycheck = []
+    inv_fields = {v: k for k, v in SYSTEM_FIELDS.items()}
     for key in raw_dict:
       if raw_dict[key][0] == "question-check":
         questioncheck.append(key)
@@ -566,7 +580,7 @@ class LatestEdits(Feed):
   description = "A live feed of all changes made to any database recently"
 
   def items(self):
-    return System.objects.all().order_by("created")[::-1][:30]
+    return SystemVersion.objects.all().order_by("created")[::-1][:30]
 
   def item_title(self, item):
     return item.creator + " edited " + item.name

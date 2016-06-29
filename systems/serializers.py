@@ -56,4 +56,4 @@ class OperatingSystemSerializer(serializers.ModelSerializer):
 class ProgrammingLanguageSerializer(serializers.ModelSerializer):
   class Meta:
     model = ProgrammingLanguage
-    fields = ('name','website')
+    fields = ('name','website','slug')

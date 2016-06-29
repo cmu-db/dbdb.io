@@ -129,7 +129,7 @@
           <span class="header-text">Written in: </span><span class="metadata-data selection" data-type="written_in">
             {% for lang in db.written_in %}
               <span class="selection-item written_in-section">
-                {{ lang }}
+                {{ lang.name }}
                 <span class="fa fa-times selection-close"></span>
               </span>
             {% endfor %}
@@ -137,7 +137,7 @@
           <select multiple class="form-control choices-selection">
             {% for lang in languages %}
               {% if lang not in db.written_in %}
-                <option class="selection-option">{{ lang }}</option>
+                <option class="selection-option">{{ lang.name }}</option>
               {% endif %}
             {% endfor %}
           </select>
@@ -146,7 +146,7 @@
           <span class="header-text">OSes: </span><span class="metadata-data selection" data-type="oses">
             {% for os in db.oses %}
               <span class="selection-item oses-section">
-                {{ os }}
+                {{ os.name }}
                 <span class="fa fa-times selection-close"></span>
               </span>
             {% endfor %}
@@ -154,7 +154,7 @@
           <select multiple class="form-control choices-selection">
             {% for os in oses %}
               {% if os not in db.oses %}
-                <option class="selection-option">{{ os }}</option>
+                <option class="selection-option">{{ os.name }}</option>
               {% endif %}
             {% endfor %}
           </select>
@@ -176,8 +176,8 @@
           </span>
           <select multiple class="form-control choices-selection">
             {% for lang in languages %}
-              {% if land not in db.support_languages %}
-                <option class="selection-option">{{ lang }}</option>
+              {% if lang not in db.support_languages %}
+                <option class="selection-option">{{ lang.name }}</option>
               {% endif %}
             {% endfor %}
           </select>
