@@ -1,24 +1,24 @@
 {
     "Email": "ssanturk@andrew.cmu.edu",
 
-    
+
     "Name": "BerkeleyDB",
-    
-    
+
+
     "Description": "BerkeleyDB is a simple and flexible, embedded open-source, database storage library. The simplicity arises from the fact that it is a basic key-value store and not a full-fledged database system that provides querying and schema constraints. It offers flexibility by being schema-less and by providing convenient mechanisms to include and discard features. BerkeleyDB provides complete ACID compliance through its five subsystems, namely, caching, datastore, locking, logging and recovery. All these five subsystems are implemented using concepts like two-phase locking, undo/redo write-ahead logging, etc. This enables it to offer high performance for a variety of workloads and handle very large-sized key-vale stores (order of Terabytes). Due to these properties, many applications like filesystems, LDAP servers and database systems (like MySQL) use BerkeleyDB for their backend storage requirements.",
     "Description Citations": [
         "https://en.wikipedia.org/wiki/Berkeley_DB",
         "http://www.pdl.cmu.edu/SDI/2015/111215.html"
     ],
-    
-    
+
+
     "History": "*BerkeleyDB originally started off to replace the existing decoupled in-memory and on-disk hashing systems with a single unified system that caches an on-disk table into memory and uses in-memory buffer pooling to provide an illusion of infinite memory availability. This library used linear hashing to efficiently mp keys to values for constant time lookups and store a large volume of data backed by the disk. This was extended to include the BTree access method and then followed up by a simple CRUD API that provides call agnostic to the access method deployed. The initial releases developed by Keith Bostic and Margo Seltzer (who were graduate students at the time) were upgraded to provide complete transactional processing, through the sponsorship of Netscape for developing a LDAP server. The developers then began to create releases as Sleepycat Software which finally got acquired by Oracle in 2006. Presently Oracle presently develops and maintains releases and permits free and open source usage bounded by the GNU AGPL license terms. ",
     "History Citations": [
         "{URL1}",
         "{URL2}"
     ],
-    
-    
+
+
     "System Architecture Options": [
         "Shared-Everything",
         "Shared-Nothing"
@@ -29,8 +29,8 @@
         "http://www.aosabook.org/en/bdb.html",
         "http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/index.html"
     ],
-    
-    
+
+
     "Query Interface Options": [
         "SQL",
         "PL/SQL",
@@ -41,8 +41,8 @@
         "http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/index-085366.html",
         "https://en.wikipedia.org/wiki/Berkeley_DB"
     ],
-    
-    
+
+
     "Data Model Options": [
         "Document / XML",
         "Key/Value"
@@ -52,8 +52,8 @@
         "http://www.aosabook.org/en/bdb.html",
         "https://web.stanford.edu/class/cs276a/projects/docs/berkeleydb/ref/simple_tut/keydata.html"
     ],
-    
-    
+
+
     "Storage Model Options": [
         "Custom"
     ],
@@ -62,8 +62,8 @@
         "https://web.stanford.edu/class/cs276a/projects/docs/berkeleydb/api_c/dbt_class.html",
         "https://en.wikipedia.org/wiki/Berkeley_DB"
     ],
-    
-        
+
+
     "Storage Architecture Options": [
         "Disk-oriented"
     ],
@@ -72,8 +72,8 @@
         "http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/index-085366.html",
         "http://www.aosabook.org/en/bdb.html"
     ],
-    
-    
+
+
     "Concurrency Control Options": [
         "Two-Phase Locking (Deadlock Prevention)",
         "Multi-version Concurrency Control"
@@ -84,8 +84,8 @@
         "https://docs.oracle.com/cd/E17275_01/html/programmer_reference/cam.html"
 
     ],
-    
-    
+
+
     "Isolation Levels Options": [
         "Snapshot Isolation",
         "Serializable"
@@ -96,8 +96,8 @@
         "https://docs.oracle.com/cd/E17076_03/html/programmer_reference/transapp_read.html#snapshot_isolation",
         "https://docs.oracle.com/cd/E17076_03/html/programmer_reference/transapp_read.html"
     ],
-    
-    
+
+
     "Indexes Options": [
         "B+Tree",
         "Hash Table",
@@ -108,8 +108,8 @@
         "Olson, Michael A., Keith Bostic, and Margo I. Seltzer. \"Berkeley DB.\" USENIX Annual Technical Conference, FREENIX Track. 1999.",
         "http://www.aosabook.org/en/bdb.html"
     ],
-    
-    
+
+
     "Foreign Keys Options": [
         "Supported"
     ],
@@ -117,8 +117,8 @@
     "Foreign Keys Citations": [
         "http://docs.oracle.com/cd/E17076_04/html/programmer_reference/am_foreign.html"
     ],
-    
-    
+
+
     "Logging Options": [
         "Physical Logging"
     ],
@@ -127,8 +127,8 @@
         "http://www.aosabook.org/en/bdb.html",
         "http://www.oracle.com/technetwork/products/berkeleydb/overview/storage-160885.html"
     ],
-    
-    
+
+
     "Checkpoints Options": [
         "Fuzzy"
     ],
@@ -137,8 +137,8 @@
         "https://web.stanford.edu/class/cs276a/projects/docs/berkeleydb/ref/transapp/checkpoint.html",
         "http://www.aosabook.org/en/bdb.html"
     ],
-    
-    
+
+
     "Views Options": [
         "Not Supported"
     ],
@@ -146,18 +146,18 @@
     "Views Citations": [
         "https://en.wikipedia.org/wiki/View_%28SQL%29"
     ],
-    
-    
+
+
     "Query Execution Options": [
         "Tuple-at-a-Time Model"
     ],
-    "Query Execution": "BerkeleyDB, on its own, does not support query execution. BerkeleyDB uses Sqlite to provide an API to execute SQL queries and Sqlite uses the Tuple-at-a-Time query execution model.",
+    "Query Execution Description": "BerkeleyDB, on its own, does not support query execution. BerkeleyDB uses Sqlite to provide an API to execute SQL queries and Sqlite uses the Tuple-at-a-Time query execution model.",
     "Query Execution Citations": [
         "https://www.sqlite.org/c3ref/step.html",
         "http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/sql-160887.html"
     ],
-    
-    
+
+
     "Stored Procedures Options": [
         "Not Supported"
     ],
@@ -166,7 +166,7 @@
         "http://www.oracle.com/technetwork/database/berkeleydb/db-faq-095848.html#DoesBerkeleyDBsupportstoredprocedures"
     ],
 
-    
+
     "Joins Options": [
         "Nested Loop",
         "Sort-Merge"
@@ -177,8 +177,8 @@
         "https://www.sqlite.org/optoverview.html",
         "https://www.sqlite.org/queryplanner-ng.html"
     ],
-    
-    
+
+
     "Query Compilation Options": [
         "Code Generation"
     ],
@@ -187,11 +187,11 @@
         "https://www.sqlite.org/arch.html",
         "http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/sql-160887.html"
     ],
-    
-    
+
+
     "Website": "http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/index.html",
-    
-    
+
+
     "Programming Language": [
         ".NET",
         "C",
@@ -224,8 +224,8 @@
         "Tcl",
         "Visual Basic"
     ],
-    
-    
+
+
     "Operating Systems": [
         "AIX",
         "All OS with Java VM",
@@ -244,22 +244,22 @@
         "iOS",
         "z/OS"
     ],
-    
-    
+
+
     "Project Type": [
         "Mixed"
     ],
-    
-    
+
+
     "Developer": "Sleepycat Software and Oracle",
-    
-    
+
+
     "Start Date": "1994",
     "Start Date Citations": [
         "https://en.wikipedia.org/wiki/Berkeley_DB"
     ],
-     
-    
+
+
     "License": [
         "AGPL v3",
         "BSD"

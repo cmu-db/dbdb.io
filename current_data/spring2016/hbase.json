@@ -133,7 +133,7 @@
     "Query Execution Options": [
         "Tuple-at-a-Time Model"
     ],
-    "Query Execution": "",
+    "Query Execution Description": "",
     "Query Execution Citations": [
         "http://hbase.apache.org/0.94/book/data_model_operations.html"
     ],

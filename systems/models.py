@@ -131,7 +131,7 @@ class SuggestedSystem(models.Model):
         return self.name
 
 class System(models.Model):
-    """Base article for a system that revisions point back to"""
+    """Base article for a system that revisions point to"""
 
     # basic, persistent information about the system
     name = models.CharField(max_length=64, null=False, blank=False)
