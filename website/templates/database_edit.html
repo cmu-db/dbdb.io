@@ -56,7 +56,7 @@
         </div>
 
 <!-- Begin features section -->
-        {% for feature in db_version.get_features %}
+        {% for feature in db.features %}
           <div class="yesno-row">
 
             <div class="yesno-title-area">
@@ -169,7 +169,7 @@
           <span class="header-text">Support Language: </span><span class="metadata-data selection" data-type="support_languages">
             {% for lang in db.support_languages %}
               <span class="selection-item support_languages-section">
-                {{ lang }}
+                {{ lang.name }}
                 <span class="fa fa-times selection-close"></span>
               </span>
             {% endfor %}

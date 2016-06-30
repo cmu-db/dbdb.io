@@ -80,6 +80,7 @@ class LoadContext(object):
     db["oses"] = oses
     db["written_in"] = written_langs
     db["support_languages"] = support_langs
+    db['features'] = db_version.get_features()
     # db["pubs"] = map(lambda x: x[1], pubs)
     # db["num_pubs"] = len(db["pubs"])
 
@@ -157,7 +158,6 @@ class DatabasePage(View):
                                     version_number = db_article.current_version)
     context = LoadContext.load_base_context(request)
     context["db"] = LoadContext.load_db_data(db_version)
-    context["db_version"] = db_version
     context["isVersionPage"] = False
     return render(request, 'database.html',
         context)
@@ -205,6 +205,7 @@ class LangPage(View):
     context = LoadContext.load_base_context(request)
     context["lang"] = ProgrammingLanguageSerializer(lang).data
     context["systems"] = systems_data
+    # No lang.html
     return render(request, 'lang.html', context)
 
 class DatabaseEditingPage(View):
@@ -306,13 +307,13 @@ class DatabaseEditingPage(View):
     add_feature_options = {}
     for addition in adds:
       if addition.endswith("_options"):
-        feature_name = addition[0:addition.index('_')]
+        feature_name = addition[:addition.index('_')]
         add_feature_options[feature_name] = adds[addition]
 
     rem_feature_options = {}
     for removal in removes:
       if removal.endswith("_options"):
-        feature_name = removal[0:removal.index('_')]
+        feature_name = removal[:removal.index('_')]
         rem_feature_options[feature_name] = removes[removal]
 
     old_version = SystemVersion.objects.get(system=db, version_number=db_version.version_number-1)
@@ -324,14 +325,12 @@ class DatabaseEditingPage(View):
       removed_options = rem_feature_options.get(old_feature['label'], None)
       new_options = set(existing_options)
 
-      # new options are existing or added and not removed
+      # new options that are existing or added and not removed
       if added_options:
-        # gets rid of 'add_' prefix, I'll take care of this later..
-        added_options = [x[x.index('_')+1:] for x in added_options]
+        added_options = [x[4:] for x in added_options]
         new_options = new_options | set(added_options)
       if removed_options:
-        # gets rid of 'rem_' prefix, I'll take care of this later..
-        removed_options = [x[x.index('_')+1:] for x in removed_options]
+        removed_options = [x[4:] for x in removed_options]
         new_options = new_options - set(removed_options)
 
       for new_option in new_options:
@@ -351,7 +350,6 @@ class DatabaseEditingPage(View):
     if db_article.secret_key == key:
       context = LoadContext.load_base_context(request)
       context["db"] = LoadContext.load_db_data(db_version)
-      context["db_version"] = db_version
       context["key"] = key
       LoadContext.load_db_raw_markdown_fields(context["db"], db_version)
       return render(request, 'database_edit.html',
@@ -370,7 +368,6 @@ class DatabaseVersionPage(View):
     db_version = SystemVersion.objects.get(system=db_article, version_number = version)
     context = LoadContext.load_base_context(request)
     context["db"] = LoadContext.load_db_data(db_version)
-    context["db_version"] = db_version
     context["isVersionPage"] = True
     return render(request, 'database.html',
         context)
@@ -429,9 +426,6 @@ class DatabaseCreationPage(View):
                                        system=newDBSystem)
         newDBVersion.save()
         return redirect("/db/%s/%s" % (slugify(name), key))
-    # there is already a db with that name or no name was provided
-    # TODO: create front end code that requires that a name is in some field
-    # similar to how it's done in the suggest a system page
     return render(request, 'database_create.html',
            LoadContext.load_base_context(request))
 
@@ -446,7 +440,6 @@ class PLCreationView(View):
       name = request.POST.get('name')
       newDB = ProgrammingLanguage(slug = slugify(name))
       newDB.save()
-      # TODO: handle the no name case by imposing form restrictions
       return HttpResponseRedirect("/createdb")
 
 class OSCreationView(View):
@@ -460,7 +453,6 @@ class OSCreationView(View):
       name = request.POST.get('name')
       newDB = OperatingSystem(slug = slugify(name))
       newDB.save()
-      # TODO: handle the no name case by imposing form restrictions
       return HttpResponseRedirect("/createdb")
 
 class FetchAllSystems(APIView):
