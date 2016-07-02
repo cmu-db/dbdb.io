@@ -469,8 +469,8 @@ def get_current_version_dbs():
   sms = System.objects.all()
   dbs = []
   for sm in sms:
-    dbs.append(System.objects.get(slug = slugify(sm.name),
-    current_version=sm.current_version))
+    dbs.append(SystemVersion.objects.get(name = sm.name,
+        version_number=sm.current_version))
   return dbs
 
 class AdvancedSearchView(View):

@@ -55,9 +55,9 @@ class SystemAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
     list_display = ('name', 'created', 'current_version',)
     list_filter = ['created' ]
-    fieldsets = [
-        (None,          {'fields': ['name']}),
-    ]
+    # fieldsets = [
+    #     (None,          {'fields': ['name']}),
+    # ]
 
 class FeatureOptionInline(admin.TabularInline):
     model = SystemVersionFeatureOption
