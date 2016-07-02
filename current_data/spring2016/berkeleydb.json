@@ -76,7 +76,7 @@
 
     "Concurrency Control Options": [
         "Two-Phase Locking (Deadlock Prevention)",
-        "Multi-version Concurrency Control"
+        "Multi-version Concurrency Control (MVCC)"
     ],
     "Concurrency Control Description": "BerkleyDB uses two-phase locking to permit multiple reader cursors or a single writer cursor to access the database. Initial versions of BerkeleyDB only supported monolithic, table-level locking. To prevent deadlocks, BerkeleyDB uses creates a conflict matrix by default and grants and denies lock requests by inspecting this table first. The conflict matrix supports hierarchical lock requests. Recent releases now support MVCC as well.",
     "Concurrency Control Citations": [
@@ -193,7 +193,7 @@
 
 
     "Programming Language": [
-        ".NET",
+        ".Net",
         "C",
         "C#",
         "C++",
@@ -210,7 +210,7 @@
         "Lua",
         "Matlab",
         "Ocaml",
-        "PHP",
+        "Php",
         "Pl/Sql",
         "Perl",
         "Prolog",
@@ -228,7 +228,7 @@
 
     "Operating Systems": [
         "AIX",
-        "All OS with Java VM",
+        "All OS with a Java VM",
         "Android",
         "BSD",
         "DOS",

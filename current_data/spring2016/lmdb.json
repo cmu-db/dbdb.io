@@ -83,7 +83,7 @@
 
 
     "Indexes Options": [
-        "B+ Tree"
+        "B+Tree"
     ],
     "Indexes Description": "LMDB uses a modified design of Append-only B+ Tree and it uses 2 B+ trees : one for maintaining the regular user data pages and one for maintaining the free pages obtained after deletes. LMDB is optimized for short read transactions, long lived read transactions will keep older pages longer in the table and hence blocks write operations. If the workload has too many writes along with long lived read transactions, the performance would be very low." ,
     "Indexes Citations": [
