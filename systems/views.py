@@ -62,7 +62,6 @@ class LoadContext(object):
     db = db_version.__dict__
     db["slug"] = db_version.system.slug
     link = db["website"]
-    print link
     if not link.startswith("http://") and not link.startswith("https://"):
       link = "http://" + link
     db["website"] = link
@@ -342,7 +341,8 @@ class DatabaseEditingPage(View):
         new_options = new_options - set(removed_options)
 
       for new_option in new_options:
-        feature_option = FeatureOption.objects.get(value=new_option)
+        feature = Feature.objects.get(label=old_feature['label'])
+        feature_option = FeatureOption.objects.get(value=new_option, feature=feature)
         option = SystemVersionFeatureOption(system_version=db_version,
                                             feature_option = feature_option)
         option.save()
