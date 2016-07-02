@@ -1,3 +1,8 @@
+import hashlib
+import time
+import string
+import json
+
 from datetime import date, timedelta
 from django.contrib.auth.decorators import login_required
 from django.contrib.syndication.views import Feed
@@ -13,8 +18,6 @@ from rest_framework.response import Response
 from systems import util
 from systems.models import *
 from systems.serializers import *
-
-import hashlib, time, string, json
 
 SYSTEM_FIELDS = {
   'support_checkpoints':         'Checkpoints',
@@ -59,7 +62,8 @@ class LoadContext(object):
     db = db_version.__dict__
     db["slug"] = db_version.system.slug
     link = db["website"]
-    if not link.startswith("http://") or link.startswith("https://"):
+    print link
+    if not link.startswith("http://") and not link.startswith("https://"):
       link = "http://" + link
     db["website"] = link
 

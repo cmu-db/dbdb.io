@@ -177,7 +177,7 @@ class SystemVersion(models.Model):
     history = MarkupField(default="", default_markup_type='markdown')
     website = models.URLField(default="", null=True)
     tech_docs = models.URLField(default="", null=True)
-    developer = models.CharField(max_length=64, default="", null=True)
+    developer = models.CharField(max_length=200, default="", null=True)
     written_in = models.ManyToManyField('ProgrammingLanguage', related_name='systems_written')
     oses = models.ManyToManyField('OperatingSystem', related_name='systems', blank=True)
     publications = models.ManyToManyField('Publication', related_name='systems', blank=True)
