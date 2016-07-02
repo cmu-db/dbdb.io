@@ -52,6 +52,10 @@ class LoadContext(object):
 
   @staticmethod
   def load_db_data(db_version):
+    # This is called to ensure the rendered_descriptions for features exist
+    # which is an issue for system_versions loaded through fixtures
+    db_version.save()
+
     db = db_version.__dict__
     db["slug"] = db_version.system.slug
     link = db["website"]
