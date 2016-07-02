@@ -26,7 +26,7 @@
 <div class="row page-row search-result-row">
   <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-12">
     {% for system in systems %}
-      <div class="row search-result" data-url="/db/{{system.name}}">
+      <div class="row search-result" data-url="/db/{{ system.slug }}">
         <div class="col-md-4 col-sm-12 search-result-metadata-area">
           <div class="search-result-title">
             {{ system.name }}
