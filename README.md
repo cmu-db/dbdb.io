@@ -6,3 +6,7 @@ Carnegie Mellon Encyclopedia of Database Systems
 * python-django-south
 * python-djangorestframework
 * bibtexparser
+* everything else in requirements.txt
+
+## Instructions
+* details in instructions.txt
