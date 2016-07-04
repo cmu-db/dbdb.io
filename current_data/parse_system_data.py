@@ -13,8 +13,6 @@ sys.path.append("..")
 os.environ['DJANGO_SETTINGS_MODULE'] = 'website.settings'
 django.setup()
 
-from systems import util
-
 sys_file = '../systems/fixtures/systems.json'
 sys_ver_file = '../systems/fixtures/system_versions.json'
 svfo_file = '../systems/fixtures/system_version_feature_options.json'
@@ -127,7 +125,6 @@ for filename in files:
             'fields': {
                 'name': data['Name'],
                 'slug': slugify(data['Name']),
-                'secret_key': util.generateSecretKey(),
                 'created': timezone.now().strftime('%Y-%m-%d %H:%M:%S')
             }
         }

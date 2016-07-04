@@ -140,7 +140,7 @@ class System(models.Model):
     slug = models.SlugField(max_length=64)
 
     # authentication key for editing
-    secret_key = models.CharField(max_length=100, default=None)
+    secret_key = models.CharField(max_length=100, blank=True, default=None)
 
     def save(self, *args, **kwargs):
         if not self.slug and self.name:

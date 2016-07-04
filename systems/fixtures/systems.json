@@ -3,8 +3,7 @@
         "pk": 1, 
         "model": "systems.System", 
         "fields": {
-            "secret_key": "f57f19287f5", 
-            "created": "2016-07-02 23:26:44", 
+            "created": "2016-07-04 19:37:30", 
             "name": "LMDB (Lightning Memory-mapped Database)", 
             "slug": "lmdb-lightning-memory-mapped-database"
         }
@@ -13,8 +12,7 @@
         "pk": 2, 
         "model": "systems.System", 
         "fields": {
-            "secret_key": "1561d8e8f88", 
-            "created": "2016-07-02 23:26:44", 
+            "created": "2016-07-04 19:37:30", 
             "name": "Cassandra", 
             "slug": "cassandra"
         }
@@ -23,8 +21,7 @@
         "pk": 3, 
         "model": "systems.System", 
         "fields": {
-            "secret_key": "8aabeeea93b", 
-            "created": "2016-07-02 23:26:44", 
+            "created": "2016-07-04 19:37:30", 
             "name": "HBase", 
             "slug": "hbase"
         }
@@ -33,8 +30,7 @@
         "pk": 4, 
         "model": "systems.System", 
         "fields": {
-            "secret_key": "49927f67fdb", 
-            "created": "2016-07-02 23:26:44", 
+            "created": "2016-07-04 19:37:30", 
             "name": "MemSQL", 
             "slug": "memsql"
         }
@@ -43,8 +39,7 @@
         "pk": 5, 
         "model": "systems.System", 
         "fields": {
-            "secret_key": "cd54e2e0916", 
-            "created": "2016-07-02 23:26:44", 
+            "created": "2016-07-04 19:37:30", 
             "name": "BigTable", 
             "slug": "bigtable"
         }
@@ -53,8 +48,7 @@
         "pk": 6, 
         "model": "systems.System", 
         "fields": {
-            "secret_key": "54de3dc04ab", 
-            "created": "2016-07-02 23:26:44", 
+            "created": "2016-07-04 19:37:30", 
             "name": "CockroachDB", 
             "slug": "cockroachdb"
         }
@@ -63,8 +57,7 @@
         "pk": 7, 
         "model": "systems.System", 
         "fields": {
-            "secret_key": "f77d753d09b", 
-            "created": "2016-07-02 23:26:44", 
+            "created": "2016-07-04 19:37:30", 
             "name": "BerkeleyDB", 
             "slug": "berkeleydb"
         }
