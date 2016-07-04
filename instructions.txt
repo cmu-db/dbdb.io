@@ -25,6 +25,9 @@ python manage.py migrate
 # SystemVersion table has large rows, this is the fix
 mysql -u <user> -p -e 'use dbdb_io; alter table systems_systemversion ROW_FORMAT=DYNAMIC;'
 
+# Load system data from current_data/spring2016 folder
+python current_data/parse_system_data.py
+
 # Load all fixtures - Should say 'Installed 291 object(s) from 8 fixture(s)'
 python manage.py loaddata systems/fixtures/*
 
