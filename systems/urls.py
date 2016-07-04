@@ -5,9 +5,9 @@ from systems import views
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browseable API.
 urlpatterns = patterns('',
-
-    # routing urls
+    # Homepage
     url(r'^$', views.HomePage.as_view()),
+
     # Database related urls
     url(r'^db/version/(?P<db_name>[A-Za-z0-9-_]+)/(?P<version>[0-9]+)', views.DatabaseVersionPage.as_view()),
     url(r'^db/(?P<db_name>[A-Za-z0-9-_]+)/revisions', views.DatabaseRevisionsPage.as_view()),
@@ -22,7 +22,11 @@ urlpatterns = patterns('',
     url(r'^alphabetized/', views.AlphabetizedData.as_view()),
 
     # Suggest a new system
-    url(r'^suggestsystem/', views.MissingSystemView.as_view()),
+    url(r'^suggest/', views.MissingSystemView.as_view()),
+    
+    # About
+    url(r'^about/$', views.AboutView.as_view(), name='about'),
+
 
     # Add publications
     url(r'^addpublication/', views.AddPublication.as_view()),

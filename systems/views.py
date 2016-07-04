@@ -521,11 +521,13 @@ class AdvancedSearchView(View):
     dbs = get_current_version_dbs()
     context["ordered_dbs_list"] = self.make_ordered_list(dbs, params)
     return render(request, 'advanced_search.html', context)
+## CLASS
 
 class AlphabetizedData(APIView):
 
   def get(self, request):
     return Response(AdvancedSearchView.alphabetize_dbs_data());
+## CLASS
 
 class MissingSystemView(View):
 
@@ -541,6 +543,13 @@ class MissingSystemView(View):
   def get(self, request):
     context = LoadContext.load_base_context(request)
     return render(request, 'missing_system.html', context)
+## CLASS
+
+class AboutView(View):
+    
+    def get(self, request):
+        return render(request, 'about.html')
+## CLASS
 
 class AddPublication(View):
 
