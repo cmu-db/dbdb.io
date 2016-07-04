@@ -3,60 +3,48 @@
 {% load staticfiles %}
 
 {% block body %}
-  <div class="row">
-    <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1">
-      <div class="row">
-        <div class="missing-title green-text">
-          About
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="row" style="margin-top:40px;">
-    <div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">
+    <h2>About</h2>
     
-        <!-- PROJECT OVERVIEW -->
-        <section id="info">
-            <p>To be written...
-        </section>
-        <!-- END PROJECT OVERVIEW -->
-    
-        <!-- PEOPLE -->
-        <section id="people">
-            <h3>People</h3>
-            
-            <!-- ACTIVE PEOPLE -->
-            <div class="row text-center people">
-                <div class="col-xs-4">
-                    <a href=""><img src="{{STATIC_URL}}img/people/.jpg" alt="Oluwafemi Olukoya"/><BR/>Oluwafemi Olukoya</a>
-                    <br /><em>Carnegie Mellon University</em>
-                </div>
-                <div class="col-xs-4">
-                    <a href="http://www.cs.cmu.edu/~jarulraj/"><img src="{{STATIC_URL}}img/people/danavanaken.jpg" alt="Joy Arulraj"/><br />Joy Arulraj</a>
-                    <br /><em>Carnegie Mellon University</em>
-                </div>
-                <div class="col-xs-4">
-                    <a href="http://www.cs.cmu.edu/~pavlo/"><img src="{{STATIC_URL}}img/people/andypavlo.jpg" alt="Andy Pavlo" /><br />Andy Pavlo</a>
-                    <br /><em>Carnegie Mellon University</em>
-                </div>
-            </div>
-            
-            <!-- ALUMNI -->
-            <h4>Alumni</h4>
-            <ul>
-                <li><a href="https://www.linkedin.com/in/scout4talent">Rohan Varma</a> <em>(Carnegie Mellon University)</em></li>
-            </ul>
-        </section>
-        <!-- END PEOPLE -->
+    <!-- PROJECT OVERVIEW -->
+    <section id="info">
+        <p>To be written...
+    </section>
+    <!-- END PROJECT OVERVIEW -->
+
+    <!-- PEOPLE -->
+    <section id="people">
+        <h3>People</h3>
         
-        <!-- ACKNOWLEDGEMENTS -->
-        <section id="ack">
-            <h3>Acknowledgements</h3>
-            This research was funded (in part) by 
-            <BR/>
-        </section>
-        <!-- END ACKNOWLEDGEMENTS -->
+        <!-- ACTIVE PEOPLE -->
+        <div class="row text-center people">
+            <div class="col-xs-4">
+                <a href=""><img src="{{STATIC_URL}}img/people/.jpg" alt="Oluwafemi Olukoya"/><BR/>Oluwafemi Olukoya</a>
+                <br /><em>Carnegie Mellon University</em>
+            </div>
+            <div class="col-xs-4">
+                <a href="http://www.cs.cmu.edu/~jarulraj/"><img src="{{STATIC_URL}}img/people/danavanaken.jpg" alt="Joy Arulraj"/><br />Joy Arulraj</a>
+                <br /><em>Carnegie Mellon University</em>
+            </div>
+            <div class="col-xs-4">
+                <a href="http://www.cs.cmu.edu/~pavlo/"><img src="{{STATIC_URL}}img/people/andypavlo.jpg" alt="Andy Pavlo" /><br />Andy Pavlo</a>
+                <br /><em>Carnegie Mellon University</em>
+            </div>
+        </div>
+        
+        <!-- ALUMNI -->
+        <h4>Alumni</h4>
+        <ul>
+            <li><a href="https://www.linkedin.com/in/scout4talent">Rohan Varma</a> <em>(Carnegie Mellon University)</em></li>
+        </ul>
+    </section>
+    <!-- END PEOPLE -->
+    
+    <!-- ACKNOWLEDGEMENTS -->
+    <section id="ack">
+        <h3>Acknowledgements</h3>
+        This research was funded (in part) by 
+        <BR/>
+    </section>
+    <!-- END ACKNOWLEDGEMENTS -->
  
-    </div>
-  </div>
 {% endblock %}
