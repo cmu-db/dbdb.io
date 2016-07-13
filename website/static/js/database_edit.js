@@ -1,14 +1,27 @@
+// This js file is the script for the database_edit.html template.
 
 var CHECK_BUTTONS = '<div class="metadata-complete-btn-check"><i class="fa fa-check"></i></div><div class="metadata-complete-btn-cross"><i class="fa fa-times"></i></div>'
 var TA_CHECKS = '<div class="yesno-complete-btn-check"><i class="fa fa-check"></i></div><div class="yesno-complete-btn-cross"><i class="fa fa-times"></i></div>'
 var last_saved_input_property;
 var last_saved_textarea_property;
+
+// Current state of these options.
 var option_states = {"written_in": [], "oses": [], "support_languages": []};
+
+// Options being added upon editing.
 var option_adds = {"written_in": [], "oses": [], "support_languages": []};
+
+// Options being removed upon editing.
 var option_removes = {"written_in": [], "oses": [], "support_languages": []};
 
+/**
+ * Get cookie
+ * @param {string} name - Name to get cookie for.
+ * @return {string} the cookieValue
+ */
 function getCookie(name) {
-    var cookieValue = null;
+  console.log('getCookie')
+  var cookieValue = null;
     if (document.cookie && document.cookie != '') {
         var cookies = document.cookie.split(';');
         for (var i = 0; i < cookies.length; i++) {
@@ -23,7 +36,11 @@ function getCookie(name) {
     return cookieValue;
 }
 
+/**
+ * Close the text_area for an element
+ */
 function close_text_area($elem, text) {
+  console.log('close_text_area')
   $(".save-button").show(500);
   $elem.removeClass("editing");
   $elem.addClass("edited");
@@ -35,7 +52,12 @@ function close_text_area($elem, text) {
   $elem.next().text(text);
 }
 
+/**
+ * Open the text_area for an element.
+ */
 function open_text_area($elem) {
+  console.log('open_text_area')
+  // Close other descriptions being edited.
   $(".yesno-description.editing").each(function() {
     close_text_area($(this));
   })
@@ -54,7 +76,12 @@ function open_text_area($elem) {
   $elem.append(jQuery.parseHTML(TA_CHECKS));
 }
 
+/**
+ * Close the input area for text that's being edited.
+ */
 function close_input_area($elem, text) {
+  console.log('close_input_area')
+  // Stop editing this element
   $elem.removeClass("editing");
   if (!text) {
     text = $elem.find(".edited-text").val();
@@ -63,7 +90,11 @@ function close_input_area($elem, text) {
   $elem.text(text);
 }
 
+/**
+ * Open input area for an element
+ */
 function open_input_area($elem) {
+  console.log('open_input_area')
   $(".metadata-data.editing.selection").each(function() {
     close_selection_area($(this));
   });
@@ -83,12 +114,20 @@ function open_input_area($elem) {
   $elem.append(jQuery.parseHTML(CHECK_BUTTONS));
 }
 
+/**
+ * Close the selection area for a select.
+ */
 function close_selection_area($elem) {
+  console.log('close_selection_area')
   $elem.removeClass("editing");
   $elem.next().hide();
 }
 
+/**
+ * Open the selection area for a select.
+ */
 function open_selection_area($elem) {
+  console.log('open_selection_area')
   $(".metadata-data.editing.selection").each(function() {
     close_selection_area($(this));
   });
@@ -100,7 +139,11 @@ function open_selection_area($elem) {
   $elem.next().show();
 }
 
+/**
+ * Select an option from the list.
+ */
 function make_selection_option_item(name) {
+  console.log('make_selection_option_item')
   var elem = document.createElement("span");
   elem.className = "selection-item"
   var cross = document.createElement("span");
@@ -111,7 +154,11 @@ function make_selection_option_item(name) {
   return elem;
 }
 
+/**
+ * Put an option back into the list.
+ */
 function make_selection_option_menu_item(name) {
+  console.log('make_selection_option_menu_item')
   var elem = document.createElement("option");
   elem.className = "selection-option";
   var elem_name = document.createTextNode(name);
@@ -119,13 +166,23 @@ function make_selection_option_menu_item(name) {
   return elem;
 }
 
+/**
+ * Helper function for removing an element from a list
+ */
 function remove_from_list(list, elem) {
+  console.log('remove_from_list')
+  console.log(list)
+  console.log(elem)
   var i = list.indexOf(elem);
   if (i < 0) return;
   list.splice(i, 1)
 }
 
+/**
+ * Select and deselect options. Close a list of options.
+ */
 function load_selection_clicks() {
+  console.log('load_selection_clicks')
   $(".selection-option").click(function() {
     var option_name = $(this).text();
     var newOption = make_selection_option_item(option_name);
@@ -169,7 +226,12 @@ function load_selection_clicks() {
   })
 }
 
+/**
+ * Load handlers for revision button, feature check image, yes-no descriptions,
+ * descriptions, metadata and the save button.
+ */
 function load_click_handlers() {
+  console.log('load_click_handlers')
 
   $(".revision-button").click(function() {
     window.location.href = $(this).attr("data-url");
@@ -336,7 +398,11 @@ function load_click_handlers() {
   })
 }
 
+/**
+ * Load frontend page data for the written_in, oses, and support_languages.
+ */
 function load_page_data() {
+  console.log('load_page_data')
   $(".written_in-section").each(function() {
     option_states["written_in"].push($.trim($(this).text()));
   });
@@ -348,6 +414,9 @@ function load_page_data() {
   });
 }
 
+/**
+ * Load up the page.
+ */
 $(document).ready(function() {
   load_page_data();
   load_click_handlers();
