@@ -140,7 +140,7 @@ function open_selection_area($elem) {
 }
 
 /**
- * Select an option from the list.
+ * Called when one selects an option from the list.
  */
 function make_selection_option_item(name) {
   console.log('make_selection_option_item')
@@ -183,9 +183,10 @@ function remove_from_list(list, elem) {
  */
 function load_selection_clicks() {
   console.log('load_selection_clicks')
-  $(".selection-option").click(function() {
+
+  $(".selection-option").on("click", function() {
     var option_name = $(this).text();
-    var newOption = make_selection_option_item(option_name);
+    var newSelection = make_selection_option_item(option_name);
     var type = $(this).parent().prev().attr("data-type");
     var mult = $(this).parent().prev().attr("mult");
     var existing = $(this).parent().prev().children();
@@ -195,11 +196,11 @@ function load_selection_clicks() {
     }
     if (existing.length == 0) {
       option_adds[type].push($.trim(option_name));
-      $(this).parent().prev().append(newOption);
+      $(this).parent().prev().append(newSelection);
       $(this).remove();
     } else if (mult == "True" || mult == undefined) {
       option_adds[type].push($.trim(option_name));
-      $(this).parent().prev().append(newOption);
+      $(this).parent().prev().append(newSelection);
       $(this).remove();
     }
     if (!(type in option_removes)) {
@@ -208,22 +209,34 @@ function load_selection_clicks() {
     remove_from_list(option_removes[type], option_name);
   });
 
-  $(".selection-close").click(function(event) {
-    event.stopPropagation();
+  // Selection close 'x' clicked on. Make a new option out of it and put it
+  // in the option list.
+  $(".selection-close").on("click", function(event) {
+
+    // event.stopPropagation(); is causing issues with newOptions that are
+    // created. The newOptions did not have the jQuery callback and couldn't
+    // be reselected anymore.
+    // event.stopPropagation();
+
     var option_name = $.trim($(this).parent().text());
     var newOption = make_selection_option_menu_item(option_name);
     var type = $(this).parent().parent().attr("data-type");
+    $(".save-button").show(500);
+
     if (!(type in option_removes)) {
       option_removes[type] = [];
     }
-    option_removes[type].push($.trim(option_name));
+    if (option_name != "") {
+      option_removes[type].push($.trim(option_name));
+    }
     if (option_adds[type] != undefined && option_name in option_adds[type]) {
       remove_from_list(option_adds[type], option_name);
     }
     $(this).parent().parent().next().append(newOption);
     $(this).parent().remove();
     $(this).remove();
-  })
+  });
+
 }
 
 /**
@@ -233,11 +246,11 @@ function load_selection_clicks() {
 function load_click_handlers() {
   console.log('load_click_handlers')
 
-  $(".revision-button").click(function() {
+  $(".revision-button").on("click", function() {
     window.location.href = $(this).attr("data-url");
   });
 
-  $(".check-img").click(function() {
+  $(".check-img").on("click", function() {
     if ($(this).hasClass("question-check")) {
       $(this).removeClass("question-check").addClass("green-check")
     } else {
@@ -252,7 +265,7 @@ function load_click_handlers() {
     }
   });
 
-  $(".yesno-description").click(function() {
+  $(".yesno-description").on("click", function() {
     if ($(this).hasClass("editing")) {
       if (event.target.className == "yesno-complete-btn-check" ||
           event.target.className == "fa fa-check") {
@@ -270,7 +283,7 @@ function load_click_handlers() {
     }
   });
 
-  $(".description-description").click(function() {
+  $(".description-description").on("click", function() {
     if ($(this).hasClass("editing")) {
       if (event.target.className == "yesno-complete-btn-check" ||
           event.target.className == "fa fa-check") {
@@ -288,7 +301,7 @@ function load_click_handlers() {
     }
   });
 
-  $(".metadata-data").click(function(event) {
+  $(".metadata-data").on("click", function(event) {
     if ($(this).hasClass("selection")) {
       open_selection_area($(this));
     }
@@ -308,12 +321,11 @@ function load_click_handlers() {
     }
   });
 
-  $(".header-text").click(function(event) {
+  $(".header-text").on("click", function(event) {
     $(this).next().click();
-  })
-  load_selection_clicks();
+  });
 
-  $(".save-button").click(function() {
+  $(".save-button").on("click", function() {
     var changed_data = {},
         description_key,
         exists_key;
@@ -350,9 +362,9 @@ function load_click_handlers() {
         console.log(e);
       }
     });
-  })
+  });
 
-  $(".add-citation-done-btn").click(function() {
+  $(".add-citation-done-btn").on("click", function() {
     var data = {}
     var cite_num = parseInt($(".num-citations").attr("data-num"))
     var db_name = $(".db-name").attr("data-name");
@@ -394,8 +406,8 @@ function load_click_handlers() {
         console.log("failed: " + z);
       },
       dataType: "json"
-    })
-  })
+    });
+  });
 }
 
 /**
@@ -403,12 +415,15 @@ function load_click_handlers() {
  */
 function load_page_data() {
   console.log('load_page_data')
+
   $(".written_in-section").each(function() {
     option_states["written_in"].push($.trim($(this).text()));
   });
+
   $(".oses-section").each(function() {
     option_states["oses"].push($.trim($(this).text()));
   });
+
   $(".support_languages-section").each(function() {
     option_states["support_languages"].push($.trim($(this).text()));
   });
@@ -420,4 +435,5 @@ function load_page_data() {
 $(document).ready(function() {
   load_page_data();
   load_click_handlers();
+  load_selection_clicks();
 })
