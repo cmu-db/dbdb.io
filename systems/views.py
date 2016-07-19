@@ -175,22 +175,28 @@ class OSPage(View):
     context = LoadContext.load_base_context(request)
     if page_type == "os":
       os = OperatingSystem.objects.get(slug = slugify(name))
-      systems = os.systems.all()
+      system_versions = os.systems.all()
       obj_data = OperatingSystemSerializer(os).data
       page_info = {"page_type": "Operating System",
                    "name": obj_data["name"]}
     elif page_type == "written_lang":
       lang = ProgrammingLanguage.objects.get(slug = slugify(name))
-      systems = lang.systems_written.all()
+      system_versions = lang.systems_written.all()
       obj_data = ProgrammingLanguageSerializer(lang).data
       page_info = {"page_type": "Programming Language",
                  "name": "Written in " + obj_data["name"]}
     elif page_type == "support_lang":
       lang = ProgrammingLanguage.objects.get(slug = slugify(name))
-      systems = lang.systems_supported.all()
+      system_versions = lang.systems_supported.all()
       obj_data = ProgrammingLanguageSerializer(lang).data
       page_info = {"page_type": "Programming Language",
                  "name": "Supports " + obj_data["name"]}
+    systems = set()
+    for sys_ver in system_versions:
+      # For each system version, get the system that is actually the current version
+      systems.add(SystemVersion.objects.get(system=sys_ver.system,
+        version_number=sys_ver.system.current_version))
+
     systems_data = []
     for system in systems:
       data = LoadContext.load_db_data(system)
@@ -546,7 +552,7 @@ class MissingSystemView(View):
 ## CLASS
 
 class AboutView(View):
-    
+
     def get(self, request):
         return render(request, 'about.html')
 ## CLASS
