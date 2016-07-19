@@ -279,6 +279,15 @@ class DatabaseEditingPage(View):
     db_version.creator = str(ip)
     db_version.save()
 
+    # Copy over oses, written_in and support_languages from old_version
+    old_version = SystemVersion.objects.get(system=db, version_number=db_version.version_number-1)
+    for written_in in old_version.written_in.all():
+      db_version.written_in.add(written_in)
+    for support_language in old_version.support_languages.all():
+      db_version.support_languages.add(support_language)
+    for os in old_version.oses.all():
+      db_version.oses.add(os)
+
     options = eval(data["model_stuff"][0])
     adds = dict(map(lambda x: (x, map(lambda y: "add_" + y, options["adds"][x])), options["adds"]))
     removes = dict(map(lambda x: (x, map(lambda y: "rem_" + y, options["removes"][x])), options["removes"]))
