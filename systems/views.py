@@ -411,16 +411,17 @@ class DatabaseRevisionsPage(View):
 
 
 class DatabaseCreationPage(View):
+
     @csrf_exempt
     def dispatch(self, *args, **kwargs):
         return super(DatabaseCreationPage, self).dispatch(*args, **kwargs)
 
-    # @login_required(login_url)
+    # @login_required
     def get(self, request):
         return render(request, 'database_create.html',
                       LoadContext.load_base_context(request))
 
-    # @login_required(login_url)
+    # @login_required
     def post(self, request):
         if request.POST.get('name', False):
             name = request.POST.get('name')
@@ -466,7 +467,7 @@ class OSCreationView(View):
 
 
 class FetchAllSystems(APIView):
-    def get(self):
+    def get(self, request):
         systems = SystemVersionSerializer(SystemVersion.objects.all(), many=True)
         return Response(systems.data)
 
@@ -529,7 +530,7 @@ class AdvancedSearchView(View):
 ## CLASS
 
 class AlphabetizedData(APIView):
-    def get(self):
+    def get(self, request):
         return Response(AdvancedSearchView.alphabetize_dbs_data())
 
 
