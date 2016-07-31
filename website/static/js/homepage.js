@@ -12,4 +12,4 @@ $(document).ready(function() {
   $(".top-db-row").click(function() {
     window.location.href = $(this).attr("data-url");
   })
-})
+});

@@ -2,7 +2,7 @@
 $(document).ready(function() {
   $(".revision-row").click(function() {
     window.location.href = $(this).attr("data-url");
-  })
+  });
 
   $(".db-title").hover(function() {
     $(".back-arrow").css("color", "black");
@@ -14,4 +14,4 @@ $(document).ready(function() {
     console.log($(this).attr("data-url"));
     window.location.href = $(this).attr("data-url");
   })
-})
+});

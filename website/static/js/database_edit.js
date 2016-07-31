@@ -1,7 +1,7 @@
 // This js file is the script for the database_edit.html template.
 
-var CHECK_BUTTONS = '<div class="metadata-complete-btn-check"><i class="fa fa-check"></i></div><div class="metadata-complete-btn-cross"><i class="fa fa-times"></i></div>'
-var TA_CHECKS = '<div class="yesno-complete-btn-check"><i class="fa fa-check"></i></div><div class="yesno-complete-btn-cross"><i class="fa fa-times"></i></div>'
+var CHECK_BUTTONS = '<div class="metadata-complete-btn-check"><i class="fa fa-check"></i></div><div class="metadata-complete-btn-cross"><i class="fa fa-times"></i></div>';
+var TA_CHECKS = '<div class="yesno-complete-btn-check"><i class="fa fa-check"></i></div><div class="yesno-complete-btn-cross"><i class="fa fa-times"></i></div>';
 var last_saved_input_property;
 var last_saved_textarea_property;
 
@@ -20,7 +20,7 @@ var option_removes = {"written_in": [], "oses": [], "support_languages": []};
  * @return {string} the cookieValue
  */
 function getCookie(name) {
-  console.log('getCookie')
+  console.log('getCookie');
   var cookieValue = null;
     if (document.cookie && document.cookie != '') {
         var cookies = document.cookie.split(';');
@@ -40,7 +40,7 @@ function getCookie(name) {
  * Close the text_area for an element
  */
 function close_text_area($elem, text) {
-  console.log('close_text_area')
+  console.log('close_text_area');
   $(".save-button").show(500);
   $elem.removeClass("editing");
   $elem.addClass("edited");
@@ -56,11 +56,11 @@ function close_text_area($elem, text) {
  * Open the text_area for an element.
  */
 function open_text_area($elem) {
-  console.log('open_text_area')
+  console.log('open_text_area');
   // Close other descriptions being edited.
   $(".yesno-description.editing").each(function() {
     close_text_area($(this));
-  })
+  });
   $(".save-button").show(500);
   $(".version-message-input").show(500);
   $elem.addClass("edited");
@@ -80,13 +80,13 @@ function open_text_area($elem) {
  * Close the input area for text that's being edited.
  */
 function close_input_area($elem, text) {
-  console.log('close_input_area')
+  console.log('close_input_area');
   // Stop editing this element
   $elem.removeClass("editing");
   if (!text) {
     text = $elem.find(".edited-text").val();
   }
-  $elem.empty()
+  $elem.empty();
   $elem.text(text);
 }
 
@@ -94,13 +94,13 @@ function close_input_area($elem, text) {
  * Open input area for an element
  */
 function open_input_area($elem) {
-  console.log('open_input_area')
+  console.log('open_input_area');
   $(".metadata-data.editing.selection").each(function() {
     close_selection_area($(this));
   });
   $(".metadata-data.editing").each(function() {
     close_input_area($(this));
-  })
+  });
   $(".save-button").show(500);
   // $elem.addClass("edited");
   $elem.addClass("editing");
@@ -118,7 +118,7 @@ function open_input_area($elem) {
  * Close the selection area for a select.
  */
 function close_selection_area($elem) {
-  console.log('close_selection_area')
+  console.log('close_selection_area');
   $elem.removeClass("editing");
   $elem.next().hide();
 }
@@ -127,13 +127,13 @@ function close_selection_area($elem) {
  * Open the selection area for a select.
  */
 function open_selection_area($elem) {
-  console.log('open_selection_area')
+  console.log('open_selection_area');
   $(".metadata-data.editing.selection").each(function() {
     close_selection_area($(this));
   });
   $(".metadata-data.editing").each(function() {
     close_input_area($(this));
-  })
+  });
   // $elem.addClass("edited");
   $elem.addClass("editing");
   $elem.next().show();
@@ -143,14 +143,14 @@ function open_selection_area($elem) {
  * Called when one selects an option from the list.
  */
 function make_selection_option_item(name) {
-  console.log('make_selection_option_item')
+  console.log('make_selection_option_item');
   var elem = document.createElement("span");
-  elem.className = "selection-item"
+  elem.className = "selection-item";
   var cross = document.createElement("span");
   cross.className = "fa fa-times selection-close";
   var nameNode = document.createTextNode(name);
   elem.appendChild(nameNode);
-  elem.appendChild(cross)
+  elem.appendChild(cross);
   return elem;
 }
 
@@ -158,7 +158,7 @@ function make_selection_option_item(name) {
  * Put an option back into the list.
  */
 function make_selection_option_menu_item(name) {
-  console.log('make_selection_option_menu_item')
+  console.log('make_selection_option_menu_item');
   var elem = document.createElement("option");
   elem.className = "selection-option";
   var elem_name = document.createTextNode(name);
@@ -170,9 +170,9 @@ function make_selection_option_menu_item(name) {
  * Helper function for removing an element from a list
  */
 function remove_from_list(list, elem) {
-  console.log('remove_from_list')
-  console.log(list)
-  console.log(elem)
+  console.log('remove_from_list');
+  console.log(list);
+  console.log(elem);
   var i = list.indexOf(elem);
   if (i < 0) return;
   list.splice(i, 1)
@@ -182,7 +182,7 @@ function remove_from_list(list, elem) {
  * Select and deselect options. Close a list of options.
  */
 function load_selection_clicks() {
-  console.log('load_selection_clicks')
+  console.log('load_selection_clicks');
 
   $(".selection-option").on("click", function() {
     var option_name = $(this).text();
@@ -211,7 +211,7 @@ function load_selection_clicks() {
 
   // Selection close 'x' clicked on. Make a new option out of it and put it
   // in the option list.
-  $(".selection-close").on("click", function(event) {
+  $(".selection-close").on("click", function() {
 
     // event.stopPropagation(); is causing issues with newOptions that are
     // created. The newOptions did not have the jQuery callback and couldn't
@@ -244,7 +244,7 @@ function load_selection_clicks() {
  * descriptions, metadata and the save button.
  */
 function load_click_handlers() {
-  console.log('load_click_handlers')
+  console.log('load_click_handlers');
 
   $(".revision-button").on("click", function() {
     window.location.href = $(this).attr("data-url");
@@ -321,7 +321,7 @@ function load_click_handlers() {
     }
   });
 
-  $(".header-text").on("click", function(event) {
+  $(".header-text").on("click", function() {
     $(this).next().click();
   });
 
@@ -337,7 +337,7 @@ function load_click_handlers() {
 
     $edited_elems.each(function() {
       if ($(this).hasClass("yesno-description")) {
-        description_key = "description_" + $(this).attr("data-type")
+        description_key = "description_" + $(this).attr("data-type");
         exists_key = "support_" + $(this).attr("data-type");
         changed_data[exists_key] = $(this).attr("data-exists");
         changed_data[description_key] = $(this).text();
@@ -346,9 +346,9 @@ function load_click_handlers() {
       }
     });
 
-    options = {"adds": option_adds, "removes": option_removes}
+    options = {"adds": option_adds, "removes": option_removes};
     changed_data["model_stuff"] = JSON.stringify(options);
-    var url = document
+    var url = document;
     $.ajax({
       type: "POST",
       url: window.location.pathname,
@@ -365,8 +365,8 @@ function load_click_handlers() {
   });
 
   $(".add-citation-done-btn").on("click", function() {
-    var data = {}
-    var cite_num = parseInt($(".num-citations").attr("data-num"))
+    var data = {};
+    var cite_num = parseInt($(".num-citations").attr("data-num"));
     var db_name = $(".db-name").attr("data-name");
     data["number"] = cite_num + 1;
     data["db_name"] = db_name;
@@ -379,7 +379,7 @@ function load_click_handlers() {
     data["volume"] = $("#volume").val();
     $("#volume").val("");
     data["year"] = $("#year").val();
-    $("#year").val("")
+    $("#year").val("");
     data["pages"] = $("#pages").val();
     $("#pages").val("");
     data["download"] = $("#download-url").val();
@@ -414,7 +414,7 @@ function load_click_handlers() {
  * Load frontend page data for the written_in, oses, and support_languages.
  */
 function load_page_data() {
-  console.log('load_page_data')
+  console.log('load_page_data');
 
   $(".written_in-section").each(function() {
     option_states["written_in"].push($.trim($(this).text()));
@@ -436,4 +436,4 @@ $(document).ready(function() {
   load_page_data();
   load_click_handlers();
   load_selection_clicks();
-})
+});

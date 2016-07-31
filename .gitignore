@@ -46,6 +46,9 @@ coverage.xml
 .project
 .pydevproject
 
+# IntelliJ
+.idea
+
 # Rope
 .ropeproject
 

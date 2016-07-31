@@ -1,10 +1,11 @@
-from django.conf.urls import patterns, url, include
-from rest_framework import routers
+from django.conf.urls import patterns, url
 from systems import views
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browseable API.
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
+    
     # Homepage
     url(r'^$', views.HomePage.as_view()),
 
@@ -23,7 +24,7 @@ urlpatterns = patterns('',
 
     # Suggest a new system
     url(r'^suggest/', views.MissingSystemView.as_view()),
-    
+
     # About
     url(r'^about/$', views.AboutView.as_view(), name='about'),
 
