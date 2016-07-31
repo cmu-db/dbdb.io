@@ -17,8 +17,6 @@ SECRET_KEY = '***CHANGE ME***'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-TEMPLATE_DEBUG = True
-
 ALLOWED_HOSTS = []
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -62,8 +60,8 @@ TEMPLATES = [
         ],
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'APP_DIRS': True,
-        #'TEMPLATE_DEBUG': True,
         'OPTIONS': {
+            'debug': True,
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.debug',

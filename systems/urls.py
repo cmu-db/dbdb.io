@@ -1,11 +1,10 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from systems import views
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browseable API.
-urlpatterns = patterns(
-    '',
-    
+urlpatterns = [
+
     # Homepage
     url(r'^$', views.HomePage.as_view()),
 
@@ -40,4 +39,4 @@ urlpatterns = patterns(
     # api urls
     url(r'^1/all_systems', views.FetchAllSystems.as_view()),
     url(r'^editsrss/', views.LatestEdits())
-)
+]
