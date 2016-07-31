@@ -161,7 +161,7 @@ class DatabasePage(View):
                       context)
 
 
-class OSPage(View):
+class SearchPage(View):
     def get(self, request, page_type, name):
         context = LoadContext.load_base_context(request)
         if page_type == "os":
@@ -198,20 +198,6 @@ class OSPage(View):
         context["page_data"] = page_info
         context["systems"] = systems_data
         return render(request, 'search_page.html', context)
-
-
-class LangPage(View):
-    def get(self, request, lang_name):
-        lang = ProgrammingLanguage.objects.get(slug=slugify(lang_name))
-        systems = lang.systems_supported.all()
-        systems_data = []
-        for system in systems:
-            systems_data.append(LoadContext.load_db_data(system))
-        context = LoadContext.load_base_context(request)
-        context["lang"] = ProgrammingLanguageSerializer(lang).data
-        context["systems"] = systems_data
-        # No lang.html
-        return render(request, 'lang.html', context)
 
 
 class DatabaseEditingPage(View):
