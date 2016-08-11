@@ -46,6 +46,9 @@ coverage.xml
 .project
 .pydevproject
 
+# IntelliJ
+.idea
+
 # Rope
 .ropeproject
 
@@ -59,4 +62,7 @@ docs/_build/
 settingManager.py
 dbms_library/settings.py
 
+# Systems Folder
 systems/migrations/*
+systems/fixtures/system_versions.json
+systems/fixtures/systems.json

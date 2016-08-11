@@ -1,17 +1,15 @@
 from django.db import models
 from markupfield.fields import MarkupField
 from django.utils.text import slugify
-from django.forms.models import model_to_dict
 
 import util
-import hashlib, json, time
 
 PROJECT_TYPES = (
     ('C', 'Commercial'),
     ('A', 'Academic'),
     ('M', 'Mixed'),
 )
-for x,y in PROJECT_TYPES:
+for x, y in PROJECT_TYPES:
     globals()['PROJECT_TYPE_' + y.upper()] = x
 
 ISOLATION_LEVELS = (
@@ -23,13 +21,15 @@ ISOLATION_LEVELS = (
     ('S', 'Serializability'),
 )
 
-for x,y in ISOLATION_LEVELS:
+for x, y in ISOLATION_LEVELS:
     globals()['ISOLATION_LEVEL_' + y.upper()] = x
+
 
 # ----------------------------------------------------------------------------
 
 def upload_logo_path(self, fn):
     return "logo/%d/%s" % (self.id, fn)
+
 
 class OperatingSystem(models.Model):
     name = models.CharField(max_length=64)
@@ -44,6 +44,7 @@ class OperatingSystem(models.Model):
     def __unicode__(self):
         return self.name
 
+
 class ProgrammingLanguage(models.Model):
     name = models.CharField(max_length=64)
     website = models.URLField(default="", null=True)
@@ -57,12 +58,14 @@ class ProgrammingLanguage(models.Model):
     def __unicode__(self):
         return self.name
 
+
 class License(models.Model):
     name = models.CharField(max_length=32)
     website = models.URLField(default=None, null=True)
 
     def __unicode__(self):
         return self.name
+
 
 class DBModel(models.Model):
     name = models.CharField(max_length=32)
@@ -71,12 +74,14 @@ class DBModel(models.Model):
     def __unicode__(self):
         return self.name
 
+
 class APIAccessMethods(models.Model):
     name = models.CharField(max_length=32)
     website = models.URLField(default=None, null=True)
 
     def __unicode__(self):
         return self.name
+
 
 class Publication(models.Model):
     title = models.CharField(max_length=255, blank=True)
@@ -90,6 +95,7 @@ class Publication(models.Model):
     def __unicode__(self):
         return self.title
 
+
 class Feature(models.Model):
     """Feature that describes a certain aspect of the system"""
 
@@ -101,6 +107,7 @@ class Feature(models.Model):
 
     def __unicode__(self):
         return self.label
+
 
 class FeatureOption(models.Model):
     """Option for a feature"""
@@ -114,13 +121,14 @@ class FeatureOption(models.Model):
     def __unicode__(self):
         return self.value
 
+
 class SuggestedSystem(models.Model):
     name = models.CharField(max_length=64)
     description = models.TextField(default=None, null=True, blank=True)
     email = models.CharField(max_length=100)
     website = models.URLField(default="", null=True)
     approved = models.NullBooleanField()
-    secret_key = models.CharField(max_length = 100, default = None)
+    secret_key = models.CharField(max_length=100, default=None)
 
     def save(self, *args, **kwargs):
         if not self.secret_key:
@@ -129,6 +137,7 @@ class SuggestedSystem(models.Model):
 
     def __unicode__(self):
         return self.name
+
 
 class System(models.Model):
     """Base article for a system that revisions point to"""
@@ -140,7 +149,7 @@ class System(models.Model):
     slug = models.SlugField(max_length=64)
 
     # authentication key for editing
-    secret_key = models.CharField(max_length=100, blank=True, default=None)
+    secret_key = models.CharField(max_length=100, null=True, default=None)
 
     def save(self, *args, **kwargs):
         if not self.slug and self.name:
@@ -148,10 +157,12 @@ class System(models.Model):
         if not self.secret_key:
             self.secret_key = util.generateSecretKey()
         super(System, self).save(*args, **kwargs)
+
     ## DEF
 
     def __unicode__(self):
         return self.name
+
 
 class SystemVersion(models.Model):
     """SystemVersion are revisions of the system identified by system"""
@@ -193,82 +204,85 @@ class SystemVersion(models.Model):
 
     # Feature support and descriptions
     support_systemarchitecture = models.NullBooleanField()
-    description_systemarchitecture = MarkupField(default='Is it a shared-memory'
-    ', shared-disk, or shared-nothing DBMS? Does it rely on special hardware '
-    '(e.g., GPU, FPGA)?', default_markup_type='markdown')
+    description_systemarchitecture = MarkupField(default='Is it a shared-memory, shared-disk, or shared-nothing DBMS? '
+                                                         'Does it rely on special hardware (e.g., GPU, FPGA)?',
+                                                 default_markup_type='markdown')
 
     support_datamodel = models.NullBooleanField()
-    description_datamodel = MarkupField(default='What is the primary data model'
-    ' of the DBMS?', default_markup_type='markdown')
+    description_datamodel = MarkupField(default='What is the primary data model of the DBMS?',
+                                        default_markup_type='markdown')
 
     support_storagemodel = models.NullBooleanField()
-    description_storagemodel = MarkupField(default='What kind of storage models'
-    ' does the DBMS support (e.g., NSM, DSM)?', default_markup_type='markdown')
+    description_storagemodel = MarkupField(default='What kind of storage models does the DBMS support '
+                                                   '(e.g., NSM, DSM)?',
+                                           default_markup_type='markdown')
 
     support_queryinterface = models.NullBooleanField()
-    description_queryinterface = MarkupField(default='What language or API does'
-    ' the DBMS support for the application to load data and execute queries.',
-    default_markup_type='markdown')
+    description_queryinterface = MarkupField(default='What language or API does the DBMS support for the application '
+                                                     'to load data and execute queries.',
+                                             default_markup_type='markdown')
 
     support_storagearchitecture = models.NullBooleanField()
-    description_storagearchitecture = MarkupField(default='Is the system a '
-    'disk-oriented or in-memory DBMS? If the latter, does it support '
-    'larger-than-memory databases?', default_markup_type='markdown')
+    description_storagearchitecture = MarkupField(default='Is the system a disk-oriented or in-memory DBMS? '
+                                                          'If the latter, does it support larger-than-memory '
+                                                          'databases?',
+                                                  default_markup_type='markdown')
 
     support_concurrencycontrol = models.NullBooleanField()
-    description_concurrencycontrol = MarkupField(default='Does the DBMS support'
-    ' transactions and if so what concurrency control scheme does it use?',
-    default_markup_type='markdown')
+    description_concurrencycontrol = MarkupField(default='Does the DBMS support transactions and if so what '
+                                                         'concurrency control scheme does it use?',
+                                                 default_markup_type='markdown')
 
     support_isolationlevels = models.NullBooleanField()
-    description_isolationlevels = MarkupField(default='What isolation levels '
-    'does it support? Which one is the default? How does it implement each one?',
-    default_markup_type='markdown')
+    description_isolationlevels = MarkupField(default='What isolation levels does it support? Which one is the default?'
+                                                      ' How does it implement each one?',
+                                              default_markup_type='markdown')
 
     support_indexes = models.NullBooleanField()
-    description_indexes = MarkupField(default='What kind of indexes does the '
-    'DBMS support (e.g., primary key, secondary, derived, partial)? What data '
-    'structures does the DBMS support? What is the default?',
-    default_markup_type='markdown')
+    description_indexes = MarkupField(default='What kind of indexes does the DBMS support (e.g., primary key, '
+                                              'secondary, derived, partial)? What data structures does the DBMS '
+                                              'support? What is the default?',
+                                      default_markup_type='markdown')
 
     support_foreignkeys = models.NullBooleanField()
-    description_foreignkeys = MarkupField(default='Does the system support '
-    'foreign key constraints?', default_markup_type='markdown')
+    description_foreignkeys = MarkupField(default='Does the system support foreign key constraints?',
+                                          default_markup_type='markdown')
 
     support_logging = models.NullBooleanField()
-    description_logging = MarkupField(default='How does the system support data '
-    'durability? What kind of logging scheme does it use (e.g., physical, '
-    'logical, physiological)?', default_markup_type='markdown')
+    description_logging = MarkupField(default='How does the system support data durability? What kind of logging '
+                                              'scheme does it use (e.g., physical, logical, physiological)?',
+                                      default_markup_type='markdown')
 
     support_checkpoints = models.NullBooleanField()
-    description_checkpoints = MarkupField(default='How does the DBMS take '
-    'checkpoints? What kind of checkpoints are they (e.g., fuzzy vs. non-fuzzy)?',
-    default_markup_type='markdown')
+    description_checkpoints = MarkupField(default='How does the DBMS take checkpoints? What kind of checkpoints are '
+                                                  'they (e.g., fuzzy vs. non-fuzzy)?',
+                                          default_markup_type='markdown')
 
     support_views = models.NullBooleanField()
-    description_views = MarkupField(default='Does the DBMS support views or '
-    'materialized views? How complex of a query does it support?',
-    default_markup_type='markdown')
+    description_views = MarkupField(default='Does the DBMS support views or materialized views? How complex of a query'
+                                            ' does it support?',
+                                    default_markup_type='markdown')
 
     support_queryexecution = models.NullBooleanField()
-    description_queryexecution = MarkupField(default='What query processing '
-    'model does the DBMS support (e.g., iterator vs. vectorized)? What kind of'
-    ' intra-query parallelism does it support?', default_markup_type='markdown')
+    description_queryexecution = MarkupField(default='What query processing model does the DBMS support (e.g., iterator'
+                                                     ' vs. vectorized)? What kind of intra-query parallelism does it '
+                                                     'support?',
+                                             default_markup_type='markdown')
 
     support_storedprocedures = models.NullBooleanField()
-    description_storedprocedures = MarkupField(default='Does the DBMS support '
-    'stored procedures? If so, what language(s) can they be written in?',
-    default_markup_type='markdown')
+    description_storedprocedures = MarkupField(default='Does the DBMS support stored procedures? If so, what '
+                                                       'language(s) can they be written in?',
+                                               default_markup_type='markdown')
 
     support_joins = models.NullBooleanField()
-    description_joins = MarkupField(default='What join algorithms does the '
-    'DBMS support? What is notable or special about them (e.g., low-memory, '
-    'parallelism)?', default_markup_type='markdown')
+    description_joins = MarkupField(default='What join algorithms does the DBMS support? What is notable or special'
+                                            ' about them (e.g., low-memory, parallelism)?',
+                                    default_markup_type='markdown')
 
     support_querycompilation = models.NullBooleanField()
-    description_querycompilation = MarkupField(default='Does the DBMS support '
-    'code generation or JIT optimizations? How does it do this (e.g., LLVM, '
-    'templates, code gen)?', default_markup_type='markdown')
+    description_querycompilation = MarkupField(default='Does the DBMS support code generation or JIT optimizations? '
+                                                       'How does it do this (e.g., LLVM, templates, code gen)?',
+                                               default_markup_type='markdown')
 
     # feature options
     feature_options = models.ManyToManyField('FeatureOption', related_name='feature_options',
@@ -291,7 +305,7 @@ class SystemVersion(models.Model):
             description = self.__getattribute__('description_' + field)
             description_raw = description.raw
             rendered_description = self.__dict__.get('x_description_' + field + '_rendered', None)
-            if rendered_description == None:
+            if rendered_description is None:
                 rendered_description = self.__dict__.get('_description_' + field + '_rendered', None)
             description = self.__dict__['description_' + field]
 
@@ -316,7 +330,7 @@ class SystemVersion(models.Model):
             }
             features.append(feature)
 
-        features.sort(cmp = lambda x,y: cmp(x['label'], y['label']))
+        features.sort(cmp=lambda x, y: cmp(x['label'], y['label']))
         return features
 
     def __unicode__(self):
@@ -333,6 +347,7 @@ class SystemVersion(models.Model):
             self.system.current_version = self.version_number
             self.system.save()
         super(SystemVersion, self).save(*args, **kwargs)
+
 
 class SystemVersionFeatureOption(models.Model):
     """Cross references a system version with a feature option"""

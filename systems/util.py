@@ -1,6 +1,7 @@
 import hashlib
 import random
 
+
 def generateSecretKey():
     """Internal code to generate a unique secret key"""
     key = hashlib.sha1()

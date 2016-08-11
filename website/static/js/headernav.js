@@ -11,4 +11,4 @@ function loadSearchBar() {
 
 $(document).ready(function() {
 	loadSearchBar()
-})
+});
