@@ -16,11 +16,8 @@ var option_removes = {"written_in": [], "oses": [], "support_languages": []};
 
 /**
  * Get cookie
- * @param {string} name - Name to get cookie for.
- * @return {string} the cookieValue
  */
 function getCookie(name) {
-  console.log('getCookie');
   var cookieValue = null;
     if (document.cookie && document.cookie != '') {
         var cookies = document.cookie.split(';');
@@ -40,7 +37,6 @@ function getCookie(name) {
  * Close the text_area for an element
  */
 function close_text_area($elem, text) {
-  console.log('close_text_area');
   $(".save-button").show(500);
   $elem.removeClass("editing");
   $elem.addClass("edited");
@@ -56,7 +52,6 @@ function close_text_area($elem, text) {
  * Open the text_area for an element.
  */
 function open_text_area($elem) {
-  console.log('open_text_area');
   // Close other descriptions being edited.
   $(".yesno-description.editing").each(function() {
     close_text_area($(this));
@@ -80,7 +75,6 @@ function open_text_area($elem) {
  * Close the input area for text that's being edited.
  */
 function close_input_area($elem, text) {
-  console.log('close_input_area');
   // Stop editing this element
   $elem.removeClass("editing");
   if (!text) {
@@ -94,7 +88,6 @@ function close_input_area($elem, text) {
  * Open input area for an element
  */
 function open_input_area($elem) {
-  console.log('open_input_area');
   $(".metadata-data.editing.selection").each(function() {
     close_selection_area($(this));
   });
@@ -118,7 +111,6 @@ function open_input_area($elem) {
  * Close the selection area for a select.
  */
 function close_selection_area($elem) {
-  console.log('close_selection_area');
   $elem.removeClass("editing");
   $elem.next().hide();
 }
@@ -127,7 +119,6 @@ function close_selection_area($elem) {
  * Open the selection area for a select.
  */
 function open_selection_area($elem) {
-  console.log('open_selection_area');
   $(".metadata-data.editing.selection").each(function() {
     close_selection_area($(this));
   });
@@ -143,7 +134,6 @@ function open_selection_area($elem) {
  * Called when one selects an option from the list.
  */
 function make_selection_option_item(name) {
-  console.log('make_selection_option_item');
   var elem = document.createElement("span");
   elem.className = "selection-item";
   var cross = document.createElement("span");
@@ -158,7 +148,6 @@ function make_selection_option_item(name) {
  * Put an option back into the list.
  */
 function make_selection_option_menu_item(name) {
-  console.log('make_selection_option_menu_item');
   var elem = document.createElement("option");
   elem.className = "selection-option";
   var elem_name = document.createTextNode(name);
@@ -170,9 +159,6 @@ function make_selection_option_menu_item(name) {
  * Helper function for removing an element from a list
  */
 function remove_from_list(list, elem) {
-  console.log('remove_from_list');
-  console.log(list);
-  console.log(elem);
   var i = list.indexOf(elem);
   if (i < 0) return;
   list.splice(i, 1)
@@ -182,7 +168,6 @@ function remove_from_list(list, elem) {
  * Select and deselect options. Close a list of options.
  */
 function load_selection_clicks() {
-  console.log('load_selection_clicks');
 
   $(".selection-option").on("click", function() {
     var option_name = $(this).text();
@@ -244,7 +229,6 @@ function load_selection_clicks() {
  * descriptions, metadata and the save button.
  */
 function load_click_handlers() {
-  console.log('load_click_handlers');
 
   $(".revision-button").on("click", function() {
     window.location.href = $(this).attr("data-url");
@@ -414,7 +398,6 @@ function load_click_handlers() {
  * Load frontend page data for the written_in, oses, and support_languages.
  */
 function load_page_data() {
-  console.log('load_page_data');
 
   $(".written_in-section").each(function() {
     option_states["written_in"].push($.trim($(this).text()));
