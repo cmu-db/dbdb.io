@@ -158,8 +158,6 @@ class System(models.Model):
             self.secret_key = util.generateSecretKey()
         super(System, self).save(*args, **kwargs)
 
-    ## DEF
-
     def __unicode__(self):
         return self.name
 
@@ -167,40 +165,47 @@ class System(models.Model):
 class SystemVersion(models.Model):
     """SystemVersion are revisions of the system identified by system"""
 
-    # system that this revision points back to
+    # System that this revision points back to
     system = models.ForeignKey(System)
 
-    # version of this revision
+    # Version of this revision
     version_number = models.PositiveIntegerField(default=0)
 
-    # when this revision was created
+    # When this revision was created
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
-    # who created this revision
+    # Who created this revision
     creator = models.CharField(max_length=100, default="unknown")
 
-    # a message that goes along with this revision
+    # A message that goes along with this revision
     version_message = models.TextField(max_length=500, default="")
 
-    # basic information about the system, subject to change between revisions
+    # Basic information about the system
     name = models.CharField(max_length=64)
     description = MarkupField(default="", default_markup_type='markdown')
     history = MarkupField(default="", default_markup_type='markdown')
     website = models.URLField(default="", null=True)
     tech_docs = models.URLField(default="", null=True)
     developer = models.CharField(max_length=200, default="", null=True)
-    written_in = models.ManyToManyField('ProgrammingLanguage', related_name='systems_written')
-    oses = models.ManyToManyField('OperatingSystem', related_name='systems', blank=True)
-    publications = models.ManyToManyField('Publication', related_name='systems', blank=True)
     project_type = models.CharField(max_length=1, choices=PROJECT_TYPES, default="", null=True)
     start_year = models.IntegerField(default=0, null=True)
     end_year = models.IntegerField(default=0, null=True)
-    derived_from = models.ManyToManyField('self', related_name='derivatives', blank=True)
     logo_img = models.CharField(max_length=200, default=None, null=True)
-    dbmodel = models.ManyToManyField('DBModel', related_name="systems", blank=True)
-    license = models.ManyToManyField('License', related_name="systems")
-    access_methods = models.ManyToManyField('APIAccessMethods', related_name="systems", blank=True)
     logo = models.FileField(upload_to=upload_logo_path, blank=True)
+
+    # Many related fields
+    written_in = models.ManyToManyField('ProgrammingLanguage', related_name='written_in')
+    oses = models.ManyToManyField('OperatingSystem', related_name='oses', blank=True)
+    publications = models.ManyToManyField('Publication', related_name='publications', blank=True)
+    derived_from = models.ManyToManyField('System', related_name='derived_from', blank=True)
+    dbmodels = models.ManyToManyField('DBModel', related_name="dbmodels", blank=True)
+    licenses = models.ManyToManyField('License', related_name="licenses")
+    access_methods = models.ManyToManyField('APIAccessMethods', related_name="access_methods", blank=True)
+    support_languages = models.ManyToManyField('ProgrammingLanguage', related_name='support_languages')
+
+    # Isolation levels
+    default_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
+    max_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
 
     # Feature support and descriptions
     support_systemarchitecture = models.NullBooleanField()
@@ -287,11 +292,6 @@ class SystemVersion(models.Model):
     # feature options
     feature_options = models.ManyToManyField('FeatureOption', related_name='feature_options',
                                              through='SystemVersionFeatureOption')
-
-    # Support languages and isolation levels
-    support_languages = models.ManyToManyField('ProgrammingLanguage', related_name='systems_supported')
-    default_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
-    max_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
 
     def get_features(self):
         features = []

@@ -349,10 +349,13 @@ function load_click_handlers() {
   });
 
   $(".add-citation-done-btn").on("click", function() {
+    $(".save-button").show(500);
     var data = {};
     var cite_num = parseInt($(".num-citations").attr("data-num"));
     var db_name = $(".db-name").attr("data-name");
     data["number"] = cite_num + 1;
+    console.log("number: ");
+    console.log(data["number"]);
     data["db_name"] = db_name;
     data["authors"] = $("#authors").val();
     $("#authors").val("");

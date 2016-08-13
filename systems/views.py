@@ -73,17 +73,17 @@ class LoadContext(object):
             name = ProgrammingLanguageSerializer(lang).data['name']
             slug = ProgrammingLanguageSerializer(lang).data['slug']
             written_langs.append({'name': name, 'slug': slug})
-        # for pub in db_version.publications.all():
-        #   pubs.append((pub.number, {"cite": pub.cite, "number": pub.number,
-        #                             "link": pub.download}))
-        # pubs.sort()
+        for pub in db_version.publications.all():
+            pubs.append((pub.number, {"cite": pub.cite, "number": pub.number,
+                                      "link": pub.download}))
+        pubs.sort()
 
         db["oses"] = oses
         db["written_in"] = written_langs
         db["support_languages"] = support_langs
         db['features'] = db_version.get_features()
-        # db["pubs"] = map(lambda x: x[1], pubs)
-        # db["num_pubs"] = len(db["pubs"])
+        db["pubs"] = map(lambda x: x[1], pubs)
+        db["num_pubs"] = len(db["pubs"])
 
         for field in db:
             if field.startswith("_"):
@@ -566,14 +566,14 @@ class AddPublication(View):
         data = dict(request.POST)
         data = {k: v[0] for k, v in data.items()}
         link = data["download"]
-        if not link.startswith("http://") or link.startswith("https://"):
+        if not link.startswith("http://") and not link.startswith("https://"):
             link = "http://" + link
         pub = Publication(title=data["title"], authors=data["authors"],
                           download=link, year=data["year"], number=data["number"],
                           cite=self.create_cite(data))
         pub.save()
         db_article = System.objects.get(slug=slugify(data["db_name"]))
-        db_version = db_article.current_version.get(version=db_article.current_version)
+        db_version = SystemVersion.objects.get(system=db_article, version_number=db_article.current_version)
         db_version.publications.add(pub)
         return HttpResponse(json.dumps({"cite": pub.cite}), content_type="application/json")
 
