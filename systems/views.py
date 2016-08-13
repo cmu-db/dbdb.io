@@ -238,7 +238,7 @@ class DatabaseEditingPage(View):
         for field in data:
             db_field = field
             # skip model_stuff key
-            if field == "model_stuff":
+            if field == "model_stuff" or field == "citations":
                 continue
 
             # convert to db_field for support and features
@@ -251,14 +251,17 @@ class DatabaseEditingPage(View):
                 db_field = str(field.lower().replace(' ', ''))
             elif "year" in field:
                 data[field][0] = int(data[field][0])
+            # getattribute and setattr could raise an AttributeError if the field isn't in the db_version model
             if db_version.__getattribute__(db_field) != data[field][0]:
                 db_version.__setattr__(db_field, data[field][0])
 
         db_version.creator = str(ip)
         db_version.save()
 
-        # Copy over oses, written_in and support_languages from old_version
+        # Copy over publications, oses, written_in and support_languages from old_version
         old_version = SystemVersion.objects.get(system=db, version_number=db_version.version_number - 1)
+        for publication in old_version.publications.all():
+            db_version.publications.add(publication)
         for written_in in old_version.written_in.all():
             db_version.written_in.add(written_in)
         for support_language in old_version.support_languages.all():
@@ -266,6 +269,22 @@ class DatabaseEditingPage(View):
         for os in old_version.oses.all():
             db_version.oses.add(os)
 
+        # Index 0 is peculiar. On the javascript side it isn't an array but on the python side it is
+        citations = eval(data["citations"][0])
+        print citations
+        for citation in citations["adds"].itervalues():
+            link = citation["download"]
+            if not link.startswith("http://") and not link.startswith("https://"):
+                link = "http://" + link
+            pub = Publication(title=citation["title"], authors=citation["authors"],
+                              download=link, year=citation["year"], number=citation["number"],
+                              cite=AddPublication.create_cite(citation))
+            pub.save()
+            db_article = System.objects.get(slug=slugify(citation["db_name"]))
+            db_version = SystemVersion.objects.get(system=db_article, version_number=db_article.current_version)
+            db_version.publications.add(pub)
+
+        # Index 0 for same reasons above
         options = eval(data["model_stuff"][0])
         adds = dict(map(lambda x: (x, map(lambda y: "add_" + y, options["adds"][x])), options["adds"]))
         removes = dict(map(lambda x: (x, map(lambda y: "rem_" + y, options["removes"][x])), options["removes"]))
@@ -547,7 +566,9 @@ class AboutView(View):
 ## CLASS
 
 class AddPublication(View):
-    def create_cite(self, data):
+
+    @staticmethod
+    def create_cite(data):
         cite = ""
         cite += data["authors"] + ". "
         if data["title"][0] == '"':
@@ -565,17 +586,18 @@ class AddPublication(View):
     def post(self, request):
         data = dict(request.POST)
         data = {k: v[0] for k, v in data.items()}
-        link = data["download"]
-        if not link.startswith("http://") and not link.startswith("https://"):
-            link = "http://" + link
-        pub = Publication(title=data["title"], authors=data["authors"],
-                          download=link, year=data["year"], number=data["number"],
-                          cite=self.create_cite(data))
-        pub.save()
-        db_article = System.objects.get(slug=slugify(data["db_name"]))
-        db_version = SystemVersion.objects.get(system=db_article, version_number=db_article.current_version)
-        db_version.publications.add(pub)
-        return HttpResponse(json.dumps({"cite": pub.cite}), content_type="application/json")
+        cite = AddPublication.create_cite(data)
+        # link = data["download"]
+        # if not link.startswith("http://") and not link.startswith("https://"):
+        #     link = "http://" + link
+        # pub = Publication(title=data["title"], authors=data["authors"],
+        #                   download=link, year=data["year"], number=data["number"],
+        #                   cite=self.create_cite(data))
+        # pub.save()
+        # db_article = System.objects.get(slug=slugify(data["db_name"]))
+        # db_version = SystemVersion.objects.get(system=db_article, version_number=db_article.current_version)
+        # db_version.publications.add(pub)
+        return HttpResponse(json.dumps({"cite": cite}), content_type="application/json")
 
 
 class LatestEdits(Feed):

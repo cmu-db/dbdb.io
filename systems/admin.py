@@ -77,7 +77,7 @@ class SystemVersionAdmin(admin.ModelAdmin):
     on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('name', 'version_number', 'created')
-    list_filter = ['created']
+    list_filter = ['name', 'created']
     inlines = (FeatureOptionInline,)
     fieldsets = [
         (None, {'fields': ['system', 'creator', 'version_message']}),

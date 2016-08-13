@@ -14,6 +14,12 @@ var option_adds = {"written_in": [], "oses": [], "support_languages": []};
 // Options being removed upon editing.
 var option_removes = {"written_in": [], "oses": [], "support_languages": []};
 
+// Citations being added
+var citation_adds = {};
+
+// Citations being removed
+var citation_removes = {};
+
 /**
  * Get cookie
  */
@@ -310,9 +316,9 @@ function load_click_handlers() {
   });
 
   $(".save-button").on("click", function() {
-    var changed_data = {},
-        description_key,
-        exists_key;
+    var changed_data = {};
+    var description_key;
+    var exists_key;
 
     $edited_elems = $(".edited");
     if ($edited_elems.length < 1) {
@@ -332,6 +338,8 @@ function load_click_handlers() {
 
     options = {"adds": option_adds, "removes": option_removes};
     changed_data["model_stuff"] = JSON.stringify(options);
+    citations = {"adds": citation_adds, "removes": citation_removes}
+    changed_data["citations"] = JSON.stringify(citations)
     var url = document;
     $.ajax({
       type: "POST",
@@ -370,6 +378,8 @@ function load_click_handlers() {
     data["pages"] = $("#pages").val();
     $("#pages").val("");
     data["download"] = $("#download-url").val();
+    citation_adds[data["number"]] = data
+    console.log(citation_adds)
     $("#download-url").val("");
     var csrftoken = getCookie('csrftoken');
     $.ajax({
