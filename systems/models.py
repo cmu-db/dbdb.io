@@ -87,7 +87,7 @@ class Publication(models.Model):
     title = models.CharField(max_length=255, blank=True)
     authors = models.CharField(max_length=255, blank=True)
     bibtex = models.TextField(default=None, null=True, blank=True)
-    download = models.URLField(default=None, null=True, blank=True)
+    link = models.URLField(default=None, null=True, blank=True)
     year = models.IntegerField(default=0, null=True)
     number = models.IntegerField(default=1, null=True)
     cite = models.TextField(default=None, null=True, blank=True)

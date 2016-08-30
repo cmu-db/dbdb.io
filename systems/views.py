@@ -75,7 +75,7 @@ class LoadContext(object):
             written_langs.append({'name': name, 'slug': slug})
         for pub in db_version.publications.all():
             pubs.append((pub.number, {"cite": pub.cite, "number": pub.number,
-                                      "link": pub.download}))
+                                      "link": pub.link}))
         pubs.sort()
 
         db["oses"] = oses
@@ -83,7 +83,10 @@ class LoadContext(object):
         db["support_languages"] = support_langs
         db['features'] = db_version.get_features()
         db["pubs"] = map(lambda x: x[1], pubs)
-        db["num_pubs"] = len(db["pubs"])
+        # db["num_pubs"] = len(db["pubs"])
+        max_pub = pubs[-1]
+        max_pub_num = max_pub[0]
+        db["num_pubs"] = max_pub_num
 
         for field in db:
             if field.startswith("_"):
@@ -272,12 +275,12 @@ class DatabaseEditingPage(View):
         # Index 0 is peculiar. On the javascript side it isn't an array but on the python side it is
         citations = eval(data["citations"][0])
         print citations
-        for citation in citations["adds"].itervalues():
-            link = citation["download"]
+        for citation in citations["adds"]:
+            link = citation["link"]
             if not link.startswith("http://") and not link.startswith("https://"):
                 link = "http://" + link
             pub = Publication(title=citation["title"], authors=citation["authors"],
-                              download=link, year=citation["year"], number=citation["number"],
+                              link=link, year=citation["year"], number=citation["number"],
                               cite=AddPublication.create_cite(citation))
             pub.save()
             db_article = System.objects.get(slug=slugify(citation["db_name"]))

@@ -192,18 +192,18 @@
         </div>
         <div class="citations-area">
           {% for pub in db.pubs %}
-            <div class="citation">
-              {% if pub.link %}
-                [{{ pub.number }}] <a href="{{pub.link}}">{{ pub.cite }}</a>
-              {% else %}
-                [{{ pub.number }}] {{ pub.cite }}
-              {% endif %}
+            <div class="citation" data-num="{{ pub.number }}">
+              <!--{% if pub.link %}-->
+                [{{ pub.number }}] <a href="{{ pub.link }}">{{ pub.cite }}</a>
+              <!--{% else %}-->
+                <!--[{{ pub.number }}] {{ pub.cite }}-->
+              <!--{% endif %}-->
             </div>
           {% endfor %}
         </div>
         <div class="add-citations-area">
-          <div class="num-citations" style="display:none;" data-num="{{db.num_pubs}}"></div>
-          <div class="db-name" style="display:none;" data-name="{{db.name}}"></div>
+          <div class="num-citations" style="display:none;" data-num="{{ db.num_pubs }}"></div>
+          <div class="db-name" style="display:none;" data-name="{{ db.name }}"></div>
           <button type="button" class="btn btn-primary btn-lg add-citation-btn" data-toggle="modal" data-target="#addCitation">
             <i class="fa fa-plus" style="margin-right:15px;"></i> Add a citation
           </button>
@@ -216,32 +216,32 @@
                 </div>
                 <div class="modal-body">
                   <div class="form-group">
-                    <label for="exampleInputEmail1">Authors</label>
-                    <input type="text" name ="authors" class="form-control" id="authors" placeholder="Last, First M...">
+                    <label>Authors</label>
+                    <input type="text" class="form-control" id="authors" placeholder="Last, First M...">
                   </div>
                   <div class="form-group">
-                    <label for="exampleInputEmail1">Title of Publication</label>
-                    <input type="text" name="title" class="form-control" id="title" placeholder="Title">
+                    <label>Title of Publication</label>
+                    <input type="text" class="form-control" id="title" placeholder="Title">
                   </div>
                   <div class="form-group">
-                    <label for="exampleInputEmail1">Journal</label>
-                    <input type="text" name="journal" class="form-control" id="journal" placeholder="Journal published in">
+                    <label>Journal</label>
+                    <input type="text" class="form-control" id="journal" placeholder="Journal published in">
                   </div>
                   <div class="form-group">
-                    <label for="exampleInputEmail1">Volume</label>
+                    <label>Volume</label>
                     <input type="text" class="form-control" id="volume" placeholder="Journal Volume">
                   </div>
                   <div class="form-group">
-                    <label for="exampleInputEmail1">Year</label>
+                    <label>Year</label>
                     <input type="text" class="form-control" id="year" placeholder="Year of publication">
                   </div>
                   <div class="form-group">
-                    <label for="exampleInputEmail1">Pages</label>
+                    <label>Pages</label>
                     <input type="text" class="form-control" id="pages" placeholder="xx-yy">
                   </div>
                   <div class="form-group">
-                    <label for="exampleInputEmail1">Download URL</label>
-                    <input type="text" class="form-control" id="download-url" placeholder="http://download.this.paper.com">
+                    <label>Download URL</label>
+                    <input type="text" class="form-control" id="link" placeholder="http://download.this.paper.com">
                   </div>
                 </div>
                 <div class="modal-footer">

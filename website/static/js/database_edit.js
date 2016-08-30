@@ -5,7 +5,7 @@ var TA_CHECKS = '<div class="yesno-complete-btn-check"><i class="fa fa-check"></
 var last_saved_input_property;
 var last_saved_textarea_property;
 
-// Current state of these options.
+// Current state of these options when page is loaded
 var option_states = {"written_in": [], "oses": [], "support_languages": []};
 
 // Options being added upon editing.
@@ -14,11 +14,11 @@ var option_adds = {"written_in": [], "oses": [], "support_languages": []};
 // Options being removed upon editing.
 var option_removes = {"written_in": [], "oses": [], "support_languages": []};
 
-// Citations being added
-var citation_adds = {};
+// Citations being added upon editing
+var citation_adds = [];
 
-// Citations being removed
-var citation_removes = {};
+// Citations being removed upon editing
+var citation_removes = [];
 
 /**
  * Get cookie
@@ -315,6 +315,15 @@ function load_click_handlers() {
     $(this).next().click();
   });
 
+  $(".citations-area").on("click", "span.citation-cross", function() {
+    $(".save-button").show(500);
+    var cite_num = $(this).parent().attr("data-num");
+    citation_removes.push(cite_num);
+    console.log(citation_removes);
+    $(this).parent().remove();
+    $(this).remove();
+  });
+
   $(".save-button").on("click", function() {
     var changed_data = {};
     var description_key;
@@ -337,9 +346,9 @@ function load_click_handlers() {
     });
 
     options = {"adds": option_adds, "removes": option_removes};
+    citations = {"adds": citation_adds, "removes": citation_removes};
     changed_data["model_stuff"] = JSON.stringify(options);
-    citations = {"adds": citation_adds, "removes": citation_removes}
-    changed_data["citations"] = JSON.stringify(citations)
+    changed_data["citations"] = JSON.stringify(citations);
     var url = document;
     $.ajax({
       type: "POST",
@@ -362,8 +371,6 @@ function load_click_handlers() {
     var cite_num = parseInt($(".num-citations").attr("data-num"));
     var db_name = $(".db-name").attr("data-name");
     data["number"] = cite_num + 1;
-    console.log("number: ");
-    console.log(data["number"]);
     data["db_name"] = db_name;
     data["authors"] = $("#authors").val();
     $("#authors").val("");
@@ -377,10 +384,10 @@ function load_click_handlers() {
     $("#year").val("");
     data["pages"] = $("#pages").val();
     $("#pages").val("");
-    data["download"] = $("#download-url").val();
-    citation_adds[data["number"]] = data
-    console.log(citation_adds)
-    $("#download-url").val("");
+    data["link"] = $("#link").val();
+    citation_adds.push(data);
+    console.log(citation_adds);
+    $("#link").val("");
     var csrftoken = getCookie('csrftoken');
     $.ajax({
       type: "POST",
@@ -394,10 +401,18 @@ function load_click_handlers() {
         $(".num-citations").attr("data-num", cite_num + 1);
         var cite_div = document.createElement("div");
         cite_div.className = "citation";
+        cite_div.setAttribute("data-num", cite_num + 1)
         var cite_text = document.createTextNode("[" + (cite_num + 1) + "] " + data.cite);
         cite_div.appendChild(cite_text);
+        var cross_background = document.createElement("span");
+        cross_background.className = "citation-cross";
+        var cross = document.createElement("i");
+        cross.className = "fa fa-times";
+        cross_background.appendChild(cross);
+        cite_div.appendChild(cross_background);
         var cite_area = document.getElementsByClassName("citations-area")[0];
         cite_area.appendChild(cite_div);
+        console.log(cite_div)
       },
       error: function(x, y, z) {
         console.log("failed: " + z);
@@ -423,6 +438,7 @@ function load_page_data() {
   $(".support_languages-section").each(function() {
     option_states["support_languages"].push($.trim($(this).text()));
   });
+
 }
 
 /**

@@ -86,6 +86,23 @@
   background-color: #d9534f;
 }
 
+.citation-cross {
+  padding: 2px;
+  /*position: absolute;*/
+  /*bottom: 16px;*/
+  /*right: 3px;*/
+  border-radius: 5px;
+}
+
+.citation-cross:hover {
+  background-color: #FFB2B2;
+  cursor: pointer;
+}
+
+.citation-cross:active {
+  background-color: #d9534f;
+}
+
 .choices-selection {
   display: none;
 }
