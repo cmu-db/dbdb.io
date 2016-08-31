@@ -173,7 +173,7 @@ class SearchPage(View):
         context = LoadContext.load_base_context(request)
         if page_type == "os":
             os = OperatingSystem.objects.get(slug=slugify(name))
-            system_versions = os.systems.all()
+            system_versions = os.systems_oses.all()
             obj_data = OperatingSystemSerializer(os).data
             page_info = {"page_type": "Operating System",
                          "name": obj_data["name"]}
@@ -493,16 +493,17 @@ class FetchAllSystems(APIView):
         return Response(systems.data)
 
 
-def get_current_version_dbs():
-    sms = System.objects.all()
-    dbs = []
-    for sm in sms:
-        dbs.append(SystemVersion.objects.get(name=sm.name,
-                                             version_number=sm.current_version))
-    return dbs
-
-
 class AdvancedSearchView(View):
+
+    @staticmethod
+    def get_current_version_dbs():
+        sms = System.objects.all()
+        dbs = []
+        for sm in sms:
+            dbs.append(SystemVersion.objects.get(name=sm.name,
+                                                 version_number=sm.current_version))
+        return dbs
+
     def create_query_dict(self, raw_dict):
         new_dict = {}
         questioncheck = []
@@ -543,7 +544,7 @@ class AdvancedSearchView(View):
         context["questionchecks"] = question
         context["greenchecks"] = green
         context["greychecks"] = grey
-        dbs = get_current_version_dbs()
+        dbs = AdvancedSearchView.get_current_version_dbs()
         context["ordered_dbs_list"] = self.make_ordered_list(dbs, params)
         return render(request, 'advanced_search.html', context)
 
@@ -595,17 +596,10 @@ class AddPublication(View):
         data = dict(request.POST)
         data = {k: v[0] for k, v in data.items()}
         cite = AddPublication.create_cite(data)
-        # link = data["download"]
-        # if not link.startswith("http://") and not link.startswith("https://"):
-        #     link = "http://" + link
-        # pub = Publication(title=data["title"], authors=data["authors"],
-        #                   download=link, year=data["year"], number=data["number"],
-        #                   cite=self.create_cite(data))
-        # pub.save()
-        # db_article = System.objects.get(slug=slugify(data["db_name"]))
-        # db_version = SystemVersion.objects.get(system=db_article, version_number=db_article.current_version)
-        # db_version.publications.add(pub)
-        return HttpResponse(json.dumps({"cite": cite}), content_type="application/json")
+        link = data["link"]
+        if not link.startswith("http://") and not link.startswith("https://"):
+            link = "http://" + link
+        return HttpResponse(json.dumps({"cite": cite, "link": link}), content_type="application/json")
 
 
 class LatestEdits(Feed):

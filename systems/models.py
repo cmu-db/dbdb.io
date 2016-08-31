@@ -194,14 +194,14 @@ class SystemVersion(models.Model):
     logo = models.FileField(upload_to=upload_logo_path, blank=True)
 
     # Many related fields - model_stuff
-    written_in = models.ManyToManyField('ProgrammingLanguage', related_name='written_in', blank=True)
-    oses = models.ManyToManyField('OperatingSystem', related_name='oses', blank=True)
-    support_languages = models.ManyToManyField('ProgrammingLanguage', related_name='support_languages', blank=True)
-    publications = models.ManyToManyField('Publication', related_name='publications', blank=True)
-    derived_from = models.ManyToManyField('System', related_name='derived_from', blank=True)
-    dbmodels = models.ManyToManyField('DBModel', related_name="dbmodels", blank=True)
-    licenses = models.ManyToManyField('License', related_name="licenses", blank=True)
-    access_methods = models.ManyToManyField('APIAccessMethod', related_name="access_methods", blank=True)
+    written_in = models.ManyToManyField('ProgrammingLanguage', related_name='systems_written', blank=True)
+    oses = models.ManyToManyField('OperatingSystem', related_name='systems_oses', blank=True)
+    support_languages = models.ManyToManyField('ProgrammingLanguage', related_name='systems_supported', blank=True)
+    publications = models.ManyToManyField('Publication', related_name='systems_publications', blank=True)
+    derived_from = models.ManyToManyField('System', related_name='systems_derived', blank=True)
+    dbmodels = models.ManyToManyField('DBModel', related_name="systems_dbmodels", blank=True)
+    licenses = models.ManyToManyField('License', related_name="systems_licenses", blank=True)
+    access_methods = models.ManyToManyField('APIAccessMethod', related_name="systems_access", blank=True)
 
     # Isolation levels
     default_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
