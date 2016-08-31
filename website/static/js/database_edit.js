@@ -5,9 +5,6 @@ var TA_CHECKS = '<div class="yesno-complete-btn-check"><i class="fa fa-check"></
 var last_saved_input_property;
 var last_saved_textarea_property;
 
-// Current state of these options when page is loaded
-var option_states = {"written_in": [], "oses": [], "support_languages": []};
-
 // Options being added upon editing.
 var option_adds = {"written_in": [], "oses": [], "support_languages": []};
 
@@ -15,7 +12,7 @@ var option_adds = {"written_in": [], "oses": [], "support_languages": []};
 var option_removes = {"written_in": [], "oses": [], "support_languages": []};
 
 // Citations being added upon editing
-var citation_adds = [];
+var citation_adds = {};
 
 // Citations being removed upon editing
 var citation_removes = [];
@@ -200,8 +197,7 @@ function load_selection_clicks() {
     remove_from_list(option_removes[type], option_name);
   });
 
-  // Selection close 'x' clicked on. Make a new option out of it and put it
-  // in the option list.
+  // Selection close 'x' clicked on. Put it in the list.
   $(".selection-close").on("click", function() {
 
     // event.stopPropagation(); is causing issues with newOptions that are
@@ -319,7 +315,6 @@ function load_click_handlers() {
     $(".save-button").show(500);
     var cite_num = $(this).parent().attr("data-num");
     citation_removes.push(cite_num);
-    console.log(citation_removes);
     $(this).parent().remove();
     $(this).remove();
   });
@@ -385,8 +380,7 @@ function load_click_handlers() {
     data["pages"] = $("#pages").val();
     $("#pages").val("");
     data["link"] = $("#link").val();
-    citation_adds.push(data);
-    console.log(citation_adds);
+    citation_adds[cite_num + 1] = data;
     $("#link").val("");
     var csrftoken = getCookie('csrftoken');
     $.ajax({
@@ -412,7 +406,6 @@ function load_click_handlers() {
         cite_div.appendChild(cross_background);
         var cite_area = document.getElementsByClassName("citations-area")[0];
         cite_area.appendChild(cite_div);
-        console.log(cite_div)
       },
       error: function(x, y, z) {
         console.log("failed: " + z);
@@ -423,29 +416,9 @@ function load_click_handlers() {
 }
 
 /**
- * Load frontend page data for the written_in, oses, and support_languages.
- */
-function load_page_data() {
-
-  $(".written_in-section").each(function() {
-    option_states["written_in"].push($.trim($(this).text()));
-  });
-
-  $(".oses-section").each(function() {
-    option_states["oses"].push($.trim($(this).text()));
-  });
-
-  $(".support_languages-section").each(function() {
-    option_states["support_languages"].push($.trim($(this).text()));
-  });
-
-}
-
-/**
  * Load up the page.
  */
 $(document).ready(function() {
-  load_page_data();
   load_click_handlers();
   load_selection_clicks();
 });

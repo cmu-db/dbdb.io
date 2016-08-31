@@ -170,15 +170,15 @@ def addOses(models, m2m_model, system):
 
 def addAccessMethods(models, m2m_model, system):
   for a_name in m2m_model["access_methods"]:
-    if not APIAccessMethods.objects.filter(name = a_name).count():
-      am = APIAccessMethods(name = a_name)
+    if not APIAccessMethod.objects.filter(name = a_name).count():
+      am = APIAccessMethod(name = a_name)
       am.save()
       models["access_methods"][a_name] = am
     else:
       if a_name in models["access_methods"]:
         am = models["access_methods"][a_name]
       else:
-        am = APIAccessMethods.objects.get(name = a_name)
+        am = APIAccessMethod.objects.get(name = a_name)
         am.save()
         models["access_methods"][a_name] = am
     system.access_methods.add(am)

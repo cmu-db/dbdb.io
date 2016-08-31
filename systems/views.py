@@ -2,6 +2,7 @@ import json
 import string
 
 from datetime import date, timedelta
+from django.db.models import ObjectDoesNotExist
 from django.contrib.syndication.views import Feed
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
@@ -83,10 +84,13 @@ class LoadContext(object):
         db["support_languages"] = support_langs
         db['features'] = db_version.get_features()
         db["pubs"] = map(lambda x: x[1], pubs)
-        # db["num_pubs"] = len(db["pubs"])
-        max_pub = pubs[-1]
-        max_pub_num = max_pub[0]
-        db["num_pubs"] = max_pub_num
+        # Start publication numbers from last citation or 0 if there are none.
+        if len(db["pubs"]) > 0:
+            max_pub = pubs[-1]
+            max_pub_num = max_pub[0]
+            db["num_pubs"] = max_pub_num
+        else:
+            db["num_pubs"] = 0
 
         for field in db:
             if field.startswith("_"):
@@ -204,49 +208,21 @@ class SearchPage(View):
 
 
 class DatabaseEditingPage(View):
-    savedModels = {}
 
     @csrf_exempt
     def dispatch(self, *args, **kwargs):
         return super(DatabaseEditingPage, self).dispatch(*args, **kwargs)
 
-    def post(self, request, db_name, key):
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
-        else:
-            ip = request.META.get('REMOTE_ADDR')
-        savedModels = DatabaseEditingPage.savedModels
-        db = System.objects.get(slug=slugify(db_name))
-        if db.secret_key != key:
-            return HttpResponseBadRequest()
-
-        # get the latest revision of the article
-        db_version = SystemVersion.objects.get(name=db.name,
-                                               version_number=db.current_version)
-
-        # copy the model instance into a new one
-        db_version.pk = None
-        db_version.id = None
-        db_version.save()
-
-        # update the current version number of the article
-        db.current_version += 1
-        db.save()
-        db_version.version_number = db.current_version
-        db_version.save()
-
-        data = dict(request.POST)
-
+    def save_fields(self, data, new_version):
         for field in data:
             db_field = field
-            # skip model_stuff key
+            # Skip model_stuff and citations key
             if field == "model_stuff" or field == "citations":
                 continue
 
-            # convert to db_field for support and features
-            # set support and feature description if db_field is set
-            # otherwise just set field directly in db model
+            # Convert to db_field for support and features
+            # Set support and feature description if db_field is set
+            # Otherwise just set field directly in db model
             if "support_" in field:
                 db_field = str(field.lower().replace(' ', ''))
                 data[field][0] = True if data[field][0] == "1" else False
@@ -255,91 +231,85 @@ class DatabaseEditingPage(View):
             elif "year" in field:
                 data[field][0] = int(data[field][0])
             # getattribute and setattr could raise an AttributeError if the field isn't in the db_version model
-            if db_version.__getattribute__(db_field) != data[field][0]:
-                db_version.__setattr__(db_field, data[field][0])
+            if new_version.__getattribute__(db_field) != data[field][0]:
+                new_version.__setattr__(db_field, data[field][0])
 
-        db_version.creator = str(ip)
-        db_version.save()
+    def save_citations(self, citations, old_version, new_version):
+        # Get existing/added/removed citations which are identified by number
+        existing_citations = old_version.publications.all()  # Citation models
+        existing_citations = set(map(lambda c: int(c.number), existing_citations))
 
-        # Copy over publications, oses, written_in and support_languages from old_version
-        old_version = SystemVersion.objects.get(system=db, version_number=db_version.version_number - 1)
-        for publication in old_version.publications.all():
-            db_version.publications.add(publication)
-        for written_in in old_version.written_in.all():
-            db_version.written_in.add(written_in)
-        for support_language in old_version.support_languages.all():
-            db_version.support_languages.add(support_language)
-        for os in old_version.oses.all():
-            db_version.oses.add(os)
+        add_citations = citations["adds"]  # add_citations is a list of cite dictionaries
+        add_citations = set(map(lambda c: c["number"], add_citations.itervalues()))
 
-        # Index 0 is peculiar. On the javascript side it isn't an array but on the python side it is
-        citations = eval(data["citations"][0])
-        print citations
-        for citation in citations["adds"]:
-            link = citation["link"]
-            if not link.startswith("http://") and not link.startswith("https://"):
-                link = "http://" + link
-            pub = Publication(title=citation["title"], authors=citation["authors"],
-                              link=link, year=citation["year"], number=citation["number"],
-                              cite=AddPublication.create_cite(citation))
-            pub.save()
-            db_article = System.objects.get(slug=slugify(citation["db_name"]))
-            db_version = SystemVersion.objects.get(system=db_article, version_number=db_article.current_version)
-            db_version.publications.add(pub)
+        remove_citations = set(map(lambda c: int(c), citations["removes"]))  # revome_citations is a list of cite numbers
 
-        # Index 0 for same reasons above
-        options = eval(data["model_stuff"][0])
-        adds = dict(map(lambda x: (x, map(lambda y: "add_" + y, options["adds"][x])), options["adds"]))
-        removes = dict(map(lambda x: (x, map(lambda y: "rem_" + y, options["removes"][x])), options["removes"]))
-        map(lambda x: adds[x].extend(removes[x]), adds)
-        for lang_name in adds["written_in"]:
-            task, lang_name = lang_name[:3], lang_name[4:]
-            if lang_name in savedModels and savedModels[lang_name]:
-                lang = savedModels[lang_name]
-            else:
-                lang = ProgrammingLanguage.objects.get(name=lang_name)
-                savedModels[lang_name] = lang
-            if task == "add":
-                db_version.written_in.add(lang)
-            else:
-                db_version.written_in.remove(lang)
-        for lang_name in adds["support_languages"]:
-            task, lang_name = lang_name[:3], lang_name[4:]
-            if lang_name in savedModels and savedModels[lang_name]:
-                lang = savedModels[lang_name]
-            else:
-                lang = ProgrammingLanguage.objects.get(name=lang_name)
-                savedModels[lang_name] = lang
-            if task == "add":
-                db_version.support_languages.add(lang)
-            else:
-                db_version.support_languages.remove(lang)
-        for os_name in adds["oses"]:
-            task, os_name = os_name[:3], os_name[4:]
-            if os_name in savedModels and savedModels[os_name]:
-                os = savedModels[os_name]
-            else:
-                os = OperatingSystem.objects.get(name=os_name)
-                savedModels[os_name] = os
-            if task == "add":
-                db_version.oses.add(os)
-            else:
-                db_version.oses.remove(os)
+        # Accumulate added citations, get rid of removed citations
+        new_citations = existing_citations | add_citations
+        new_citations = new_citations - remove_citations
 
+        # For each new citation check if citation number exists for old version
+        # create new citation if not
+        for new_citation in new_citations:
+            try:
+                existing = old_version.publications.get(number=new_citation)
+                new_version.publications.add(existing)
+            except ObjectDoesNotExist:
+                # str because citations was converted from a javascript array which can't use
+                # integers as keys
+                citation = citations["adds"][str(new_citation)]
+                link = citation["link"]
+                if not link.startswith("http://") and not link.startswith("https://"):
+                    link = "http://" + link
+                cite = Publication(title=citation["title"], authors=citation["authors"],
+                                   link=link, year=citation["year"], number=citation["number"],
+                                   cite=AddPublication.create_cite(citation))
+                cite.save()
+                new_version.publications.add(cite)
+
+    def save_model_stuff(self, model, options, old_version, new_version):
+        # Get existing/added/removed options for the field, whether the field is written_in, support_langs, oses, etc,
+        # which are identified by the name field in the model
+        existing_options = old_version.__getattribute__(model).all()  # List of models
+        existing_options = set(map(lambda o: o.name, existing_options))
+
+        add_options = set(options["adds"][model])  # List of added options names
+        remove_options = set(options["removes"][model])  # List of removed options names
+
+        new_options = existing_options | add_options
+        new_options = new_options - remove_options
+
+        for new_option in new_options:
+            try:
+                existing = old_version.__getattribute__(model).get(name=new_option)
+                new_version.__getattribute__(model).add(existing)
+            except ObjectDoesNotExist:
+                if model == "written_in":
+                    lang = ProgrammingLanguage.objects.get(name=new_option)
+                    new_version.written_in.add(lang)
+                elif model == "support_languages":
+                    lang = ProgrammingLanguage.objects.get(name=new_option)
+                    new_version.support_languages.add(lang)
+                elif model == "oses":
+                    os = OperatingSystem.objects.get(name=new_option)
+                    new_version.oses.add(os)
+
+    def save_feature_options(self, options, old_version, new_version):
+        # Get existing/added/removed feature options which are identified by label
+        old_features = old_version.get_features()
+
+        # data-type name is featurename_feature, ex.
         add_feature_options = {}
-        for addition in adds:
-            if addition.endswith("_options"):
+        for addition in options["adds"]:
+            if addition.endswith("_feature"):
                 feature_name = addition[:addition.index('_')]
-                add_feature_options[feature_name] = adds[addition]
+                add_feature_options[feature_name] = options["adds"][addition]
 
         rem_feature_options = {}
-        for removal in removes:
-            if removal.endswith("_options"):
+        for removal in options["removes"]:
+            if removal.endswith("_feature"):
                 feature_name = removal[:removal.index('_')]
-                rem_feature_options[feature_name] = removes[removal]
-
-        old_version = SystemVersion.objects.get(system=db, version_number=db_version.version_number - 1)
-        old_features = old_version.get_features()
+                rem_feature_options[feature_name] = options["removes"][removal]
 
         for old_feature in old_features:
             existing_options = old_feature.get('feature_options', None)
@@ -349,18 +319,61 @@ class DatabaseEditingPage(View):
 
             # new options that are existing or added and not removed
             if added_options:
-                added_options = [x[4:] for x in added_options]
+                added_options = [x for x in added_options]
                 new_options = new_options | set(added_options)
             if removed_options:
-                removed_options = [x[4:] for x in removed_options]
+                removed_options = [x for x in removed_options]
                 new_options = new_options - set(removed_options)
 
             for new_option in new_options:
                 feature = Feature.objects.get(label=old_feature['label'])
                 feature_option = FeatureOption.objects.get(value=new_option, feature=feature)
-                option = SystemVersionFeatureOption(system_version=db_version,
+                option = SystemVersionFeatureOption(system_version=new_version,
                                                     feature_option=feature_option)
                 option.save()
+
+    def post(self, request, db_name, key):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+
+        db = System.objects.get(slug=slugify(db_name))
+        if db.secret_key != key:
+            return HttpResponseBadRequest()
+
+        # Get the latest revision of the article
+        db_version = SystemVersion.objects.get(name=db.name,
+                                               version_number=db.current_version)
+
+        # Copy the model instance into a new one
+        db_version.pk = None
+        db_version.id = None
+        db_version.save()
+
+        # From now on db_version points to a new SystemVersion object
+
+        # Update the current version number of the article
+        db.current_version += 1
+        db.save()
+        db_version.version_number = db.current_version
+        db_version.creator = str(ip)
+        db_version.save()
+
+        # Get previous version
+        old_version = SystemVersion.objects.get(system=db, version_number=db_version.version_number - 1)
+
+        data = dict(request.POST)
+        # Index 0 is peculiar. On the javascript side it isn't an array but on the python side it is
+        citations = eval(data["citations"][0])
+        options = eval(data["model_stuff"][0])
+        self.save_fields(data, db_version)
+        self.save_citations(citations, old_version, db_version)
+        self.save_model_stuff("written_in", options, old_version, db_version)
+        self.save_model_stuff("support_languages", options, old_version, db_version)
+        self.save_model_stuff("oses", options, old_version, db_version)
+        self.save_feature_options(options, old_version, db_version)
 
         db_version.save()
         url = '/db/%s' % slugify(db_name)
@@ -535,14 +548,10 @@ class AdvancedSearchView(View):
         return render(request, 'advanced_search.html', context)
 
 
-## CLASS
-
 class AlphabetizedData(APIView):
     def get(self, request):
         return Response(AdvancedSearchView.alphabetize_dbs_data())
 
-
-## CLASS
 
 class MissingSystemView(View):
     def post(self, request):
@@ -559,14 +568,10 @@ class MissingSystemView(View):
         return render(request, 'missing_system.html', context)
 
 
-## CLASS
-
 class AboutView(View):
     def get(self, request):
         return render(request, 'about.html')
 
-
-## CLASS
 
 class AddPublication(View):
 

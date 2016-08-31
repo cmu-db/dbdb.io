@@ -48,7 +48,7 @@
             {{ db.description_raw }}
         </div>
         <div class="subsection-heading">HISTORY</div>
-        <div class="description-description db-description" id="db-description" data-type="history">
+        <div class="description-description db-description" id="db-history" data-type="history">
           {{ db.history }}
         </div>
         <div class="description-raw" style="display:none;">
@@ -83,7 +83,7 @@
 
             <div class="metadata-row">
               <span class="header-text">Options: </span>
-              <span class="metadata-data selection" data-type="{{ feature.label }}_options" mult="{{ feature.multivalued }}">
+              <span class="metadata-data selection" data-type="{{ feature.label }}_feature" mult="{{ feature.multivalued }}">
                 {% for feature_option in feature.feature_options %}
                   <span class="selection-item {{ feature.label }}_options-section">
                     {{ feature_option }}
@@ -195,6 +195,7 @@
             <div class="citation" data-num="{{ pub.number }}">
               <!--{% if pub.link %}-->
                 [{{ pub.number }}] <a href="{{ pub.link }}">{{ pub.cite }}</a>
+                <span class="citation-cross"><i class="fa fa-times"></i></span>
               <!--{% else %}-->
                 <!--[{{ pub.number }}] {{ pub.cite }}-->
               <!--{% endif %}-->
