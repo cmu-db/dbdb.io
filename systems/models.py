@@ -75,7 +75,7 @@ class DBModel(models.Model):
         return self.name
 
 
-class APIAccessMethods(models.Model):
+class APIAccessMethod(models.Model):
     name = models.CharField(max_length=32)
     website = models.URLField(default=None, null=True)
 
@@ -119,7 +119,7 @@ class FeatureOption(models.Model):
     value = models.CharField(max_length=64, default='')
 
     def __unicode__(self):
-        return self.value
+        return self.feature.label + ' - ' + self.value
 
 
 class SuggestedSystem(models.Model):
@@ -193,15 +193,15 @@ class SystemVersion(models.Model):
     logo_img = models.CharField(max_length=200, default=None, null=True)
     logo = models.FileField(upload_to=upload_logo_path, blank=True)
 
-    # Many related fields
-    written_in = models.ManyToManyField('ProgrammingLanguage', related_name='written_in')
+    # Many related fields - model_stuff
+    written_in = models.ManyToManyField('ProgrammingLanguage', related_name='written_in', blank=True)
     oses = models.ManyToManyField('OperatingSystem', related_name='oses', blank=True)
+    support_languages = models.ManyToManyField('ProgrammingLanguage', related_name='support_languages', blank=True)
     publications = models.ManyToManyField('Publication', related_name='publications', blank=True)
     derived_from = models.ManyToManyField('System', related_name='derived_from', blank=True)
     dbmodels = models.ManyToManyField('DBModel', related_name="dbmodels", blank=True)
-    licenses = models.ManyToManyField('License', related_name="licenses")
-    access_methods = models.ManyToManyField('APIAccessMethods', related_name="access_methods", blank=True)
-    support_languages = models.ManyToManyField('ProgrammingLanguage', related_name='support_languages')
+    licenses = models.ManyToManyField('License', related_name="licenses", blank=True)
+    access_methods = models.ManyToManyField('APIAccessMethod', related_name="access_methods", blank=True)
 
     # Isolation levels
     default_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
@@ -289,7 +289,7 @@ class SystemVersion(models.Model):
                                                        'How does it do this (e.g., LLVM, templates, code gen)?',
                                                default_markup_type='markdown')
 
-    # feature options
+    # Feature options
     feature_options = models.ManyToManyField('FeatureOption', related_name='feature_options',
                                              through='SystemVersionFeatureOption')
 
@@ -300,21 +300,21 @@ class SystemVersion(models.Model):
             label = feature.label
             field = label.lower().replace(' ', '')
 
-            # get support and description field based on field
+            # Get if this version supports featue and the description
             is_supported = self.__dict__['support_' + field]
-            description = self.__getattribute__('description_' + field)
-            description_raw = description.raw
+            description = self.__dict__['description_' + field]
+            description_raw = self.__getattribute__('description_' + field).raw
+            # The name for the rendered markdown description field can vary
             rendered_description = self.__dict__.get('x_description_' + field + '_rendered', None)
             if rendered_description is None:
                 rendered_description = self.__dict__.get('_description_' + field + '_rendered', None)
-            description = self.__dict__['description_' + field]
 
-            # all feature options for this feature belonging to this version
+            # All feature options for this feature belonging to this version
             feature_options = SystemVersionFeatureOption.objects.filter(system_version=self)
             feature_options = [x.feature_option for x in feature_options]
             feature_options = [x.value for x in feature_options if x.feature == feature]
 
-            # all options for this feature
+            # All possible options for this feature
             all_feature_options = FeatureOption.objects.filter(feature=feature)
             all_feature_options = [x.value for x in all_feature_options]
 
@@ -334,7 +334,7 @@ class SystemVersion(models.Model):
         return features
 
     def __unicode__(self):
-        return self.name + '-' + str(self.version_number)
+        return self.name + ' - ' + str(self.version_number)
 
     def save(self, *args, **kwargs):
         if not self.name and self.system:
