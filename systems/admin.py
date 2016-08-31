@@ -4,6 +4,8 @@ from bibtexparser.bparser import BibTexParser
 
 
 class OperatingSystemAdmin(admin.ModelAdmin):
+    """Manages how operating systems are displayed
+    on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('name', 'website', 'slug',)
     fieldsets = [
@@ -12,6 +14,8 @@ class OperatingSystemAdmin(admin.ModelAdmin):
 
 
 class ProgrammingLanguageAdmin(admin.ModelAdmin):
+    """Manages how programming languages are displayed
+    on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('name', 'website', 'slug',)
     fieldsets = [
@@ -20,24 +24,32 @@ class ProgrammingLanguageAdmin(admin.ModelAdmin):
 
 
 class LicenseAdmin(admin.ModelAdmin):
+    """Manages how licenses are displayed
+    on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('name', 'website',)
 
 
 class DBModelAdmin(admin.ModelAdmin):
+    """Manages how db models are displayed
+    on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('name', 'website',)
 
 
-class APIAccessMethodsAdmin(admin.ModelAdmin):
+class APIAccessMethodAdmin(admin.ModelAdmin):
+    """Manages how API access methods are displayed
+    on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('name', 'website',)
 
 
 class PublicationAdmin(admin.ModelAdmin):
+    """Manages how publications are displayed
+    on the django administration page"""
     list_display = ('title', 'authors', 'year',)
     fieldsets = [
-        (None, {'fields': ['bibtex', 'download']}),
+        (None, {'fields': ['bibtex', 'link']}),
         ("Parsed Info", {'fields': ['title', 'authors', ]}),
     ]
     readonly_fields = ('title', 'authors')
@@ -52,28 +64,30 @@ class PublicationAdmin(admin.ModelAdmin):
 
 
 class SuggestedSystemAdmin(admin.ModelAdmin):
+    """Manages how suggested systems are displayed
+    on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('name', 'email', 'approved',)
 
 
 class SystemAdmin(admin.ModelAdmin):
-    """This class manages how system articles are displayed
+    """Manages how system articles are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('name', 'created', 'current_version',)
     list_filter = ['created']
-    # fieldsets = [
-    #     (None,          {'fields': ['name']}),
-    # ]
 
 
 class FeatureOptionInline(admin.TabularInline):
+    """Manages how many feature options can be selected for a system version
+    on the django administration page"""
     model = SystemVersionFeatureOption
-    extra = 18
+    can_delete = False
+    extra = 15  # 15 slots for choosing feature options
 
 
 class SystemVersionAdmin(admin.ModelAdmin):
-    """This class manages how system versions are displayed
+    """Manages how system versions are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('name', 'version_number', 'created')
@@ -84,7 +98,7 @@ class SystemVersionAdmin(admin.ModelAdmin):
         ('Metadata', {'fields': ['description', 'history', 'website', 'tech_docs',
                                  'developer', 'written_in', 'oses', 'publications',
                                  'project_type', 'start_year', 'end_year',
-                                 'derived_from', 'logo_img', 'dbmodel', 'license',
+                                 'derived_from', 'logo_img', 'dbmodels', 'licenses',
                                  'access_methods', 'logo']}),
         ('Features', {'fields': ['support_systemarchitecture', 'description_systemarchitecture',
                                  'support_datamodel', 'description_datamodel',
@@ -108,7 +122,7 @@ class SystemVersionAdmin(admin.ModelAdmin):
 
 
 class FeatureAdmin(admin.ModelAdmin):
-    """This class manages how features are displayed
+    """Manages how features are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('label', 'multivalued')
@@ -116,7 +130,7 @@ class FeatureAdmin(admin.ModelAdmin):
 
 
 class FeatureOptionAdmin(admin.ModelAdmin):
-    """This class manages how feature options are displayed
+    """Manages how feature options are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('feature', 'value',)
@@ -124,7 +138,7 @@ class FeatureOptionAdmin(admin.ModelAdmin):
 
 
 class SystemVersionFeatureOptionAdmin(admin.ModelAdmin):
-    """This class manages how feature options are displayed
+    """Manages how feature options are displayed
     on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('system_version', 'feature_option',)
@@ -137,7 +151,7 @@ admin.site.register(OperatingSystem, OperatingSystemAdmin)
 admin.site.register(ProgrammingLanguage, ProgrammingLanguageAdmin)
 admin.site.register(License, LicenseAdmin)
 admin.site.register(DBModel, DBModelAdmin)
-admin.site.register(APIAccessMethods, APIAccessMethodsAdmin)
+admin.site.register(APIAccessMethod, APIAccessMethodAdmin)
 admin.site.register(Publication, PublicationAdmin)
 admin.site.register(SuggestedSystem, SuggestedSystemAdmin)
 admin.site.register(System, SystemAdmin)
