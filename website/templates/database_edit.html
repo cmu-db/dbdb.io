@@ -193,12 +193,8 @@
         <div class="citations-area">
           {% for pub in db.pubs %}
             <div class="citation" data-num="{{ pub.number }}">
-              <!--{% if pub.link %}-->
                 [{{ pub.number }}] <a href="{{ pub.link }}">{{ pub.cite }}</a>
                 <span class="citation-cross"><i class="fa fa-times"></i></span>
-              <!--{% else %}-->
-                <!--[{{ pub.number }}] {{ pub.cite }}-->
-              <!--{% endif %}-->
             </div>
           {% endfor %}
         </div>

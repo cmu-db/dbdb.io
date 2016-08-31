@@ -395,8 +395,12 @@ function load_click_handlers() {
         $(".num-citations").attr("data-num", cite_num + 1);
         var cite_div = document.createElement("div");
         cite_div.className = "citation";
-        cite_div.setAttribute("data-num", cite_num + 1)
-        var cite_text = document.createTextNode("[" + (cite_num + 1) + "] " + data.cite);
+        cite_div.setAttribute("data-num", cite_num + 1);
+        var cite_num_text = document.createTextNode("[" + (cite_num + 1) + "] ");
+        cite_div.appendChild(cite_num_text);
+        var cite_text = document.createElement("a");
+        cite_text.text = data.cite;
+        cite_text.href = data.link;
         cite_div.appendChild(cite_text);
         var cross_background = document.createElement("span");
         cross_background.className = "citation-cross";
