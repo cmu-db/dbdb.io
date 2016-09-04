@@ -3,6 +3,10 @@
 # First, make sure to update MySQL-python
 pip install -r requirements.txt
 
+# Create a symlink for the static admin files
+ln -s /usr0/local/lib/python2.7/dist-packages/django/contrib/admin/static/admin static/admin
+
+
 ####### Only need to do this once per mysql (Ubuntu) installation #######
 # Configure the mysql service (as root user) to use Barracuda for InnoDB, so ROW_FORMAT=DYNAMIC can be used
 sudo su
