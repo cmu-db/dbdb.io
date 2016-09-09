@@ -24,6 +24,8 @@ fixtures_dir = '../systems/fixtures/'
 fixtures = os.listdir(fixtures_dir)
 fixtures = [fixtures_dir + x for x in fixtures]
 
+# Remove systems.json, system_versions.json, and system_version_feature_options.json from the list. Will write to them
+# later.
 for filename in [sys_file, sys_ver_file, svfo_file]:
     try:
         fixtures.remove(filename)
@@ -66,9 +68,10 @@ for fixture in fixtures:
             else:
                 print 'Skipping ' + model + ' with pk:', datum['pk']
 
-print '\n\npk_map\n\n'
+print '\npk_map\n'
 print json.dumps(pk_map, indent=4)
-print '\n\n'
+print '\n'
+
 
 def map_to_pk(fields, field, values, key, filename):
     """
@@ -77,12 +80,11 @@ def map_to_pk(fields, field, values, key, filename):
     result = [1, 2, 8]
     """
     result = fields.get(field, [])
-    value = list(values)
     for value in values:
         try:
             result.append(pk_map[field][value])
         except KeyError:
-            print 'No model under ' + field + ' exactly matches "' + value + '" from "' + key +  '" in ' + filename
+            print 'No model under ' + field + ' exactly matches "' + value + '" from "' + key + '" in ' + filename
     return result
 
 # Maps names of fields in json files to system_version fields
@@ -92,7 +94,8 @@ system_map = {
     'Email': 'creator',
     'Developer': 'developer',
     'History': 'history',
-    'License': 'license',
+    'License': 'licenses',
+    'Licenses': 'licenses',
     'Website': 'website',
     'Programming Language': 'written_in',
     'Operating Systems': 'oses',
@@ -105,9 +108,9 @@ system_map = {
 
 files = os.listdir('spring2016')
 
-systems = [] # models.System
-system_versions = [] # models.SystemVersion
-svfo = [] # models.SystemVersionFeatureOptions
+systems = []  # models.System
+system_versions = []  # models.SystemVersion
+svfo = []  # models.SystemVersionFeatureOptions
 
 # Read json files and make fixtures out of them
 pk = 1
@@ -169,11 +172,11 @@ for filename in files:
             elif isinstance(value, list):
                 # Some type of list, use the pk_map
                 field = system_map.get(key, None)
-                if field != None:
+                if field is not None:
                     fields[field] = map_to_pk(fields, field, value, key, filename)
             elif system_map.get(key, None) is None or fields.get(system_map[key], None) is None:
                 # Not a list and not in system_map
-                print 'Could not map ' +  key + ' in ' + filename + ' to any models'
+                print 'Could not map ' + key + ' in ' + filename + ' to any models'
 
         fields['system'] = pk
         fields['created'] = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -185,7 +188,7 @@ for filename in files:
         systems.append(sys_fixture)
         system_versions.append(sys_ver_fixture)
 
-    pk = pk + 1
+    pk += 1
 
 # Write the fixtures to a file
 with open(sys_file, 'w') as outfile1, open(sys_ver_file, 'w') as outfile2, open(svfo_file, 'w') as outfile3:

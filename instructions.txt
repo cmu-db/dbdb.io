@@ -4,10 +4,10 @@
 pip install -r requirements.txt
 
 # Create a symlink for the static admin files
-ln -s /usr0/local/lib/python2.7/dist-packages/django/contrib/admin/static/admin static/admin
+ln -s /usr0/local/lib/python2.7/dist-packages/django/contrib/admin/static/admin website/static/admin
 
 
-####### Only need to do this once per mysql (Ubuntu) installation #######
+####### Only need to do this once per mysql installation (Ubuntu instructions) #######
 # Configure the mysql service (as root user) to use Barracuda for InnoDB, so ROW_FORMAT=DYNAMIC can be used
 sudo su
 printf '\n[mysqld]\ninnodb_file_format=Barracuda\n' >> /etc/mysql/my.cnf
@@ -26,13 +26,15 @@ mysqladmin create -u <user> -p dbdb_io
 python manage.py makemigrations
 python manage.py migrate
 
-# SystemVersion table has large rows, this is the fix
+# To be able to fit the large rows in SystemVersion, apply this fix
 mysql -u <user> -p -e 'use dbdb_io; alter table systems_systemversion ROW_FORMAT=DYNAMIC;'
 
-# Load system data from current_data/spring2016 folder (do this from within the current_data directory)
+# From the current_data folder run
 python parse_system_data.py
 
-# Load all fixtures - Should say 'Installed 291 object(s) from 8 fixture(s)'
+# Load all fixtures - including new ones added by the parse_system_data script
+# There will be some output saying which fields don't match if they aren't formatted 
+# or written correctly.
 python manage.py loaddata systems/fixtures/*
 
 # Create the super user

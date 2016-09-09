@@ -203,7 +203,7 @@
 
     "Derived From": "{Berkeley DB}",
 
-    "License": [
+    "Licenses": [
         "OpenLDAP Public License"
     ]
 }
