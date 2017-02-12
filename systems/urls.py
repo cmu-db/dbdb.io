@@ -17,7 +17,7 @@ urlpatterns = [
 
     # Search Related urls
     url(r'^advancedsearch/', views.AdvancedSearchView.as_view()),
-    url(r'^search/(?P<page_type>[A-Za-z0-9-_]+)/(?P<name>[A-Za-z0-9-_]+)', views.SearchPage.as_view()),
+    url(r'^search/(?P<page_type>[A-Za-z0-9-_]+)/(?P<slug>[A-Za-z0-9-_]+)', views.SearchPage.as_view()),
     url(r'^alphabetized/', views.AlphabetizedData.as_view()),
 
     # Suggest a new system

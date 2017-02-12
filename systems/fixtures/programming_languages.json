@@ -50,7 +50,7 @@
         "fields": {
             "website": null,
             "name": "C#",
-            "slug": "c"
+            "slug": "c1"
         }
     },
     {
@@ -59,7 +59,7 @@
         "fields": {
             "website": null,
             "name": "C++",
-            "slug": "c"
+            "slug": "c2"
         }
     },
     {
@@ -274,8 +274,8 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Objective-C",
-            "slug": "objective-c"
+            "name": "Php",
+            "slug": "php"
         }
     },
     {
@@ -283,20 +283,11 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Php",
-            "slug": "php"
-        }
-    },
-    {
-        "pk": 33,
-        "model": "systems.ProgrammingLanguage",
-        "fields": {
-            "website": null,
             "name": "Pl/1"
         }
     },
     {
-        "pk": 34,
+        "pk": 33,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -305,7 +296,7 @@
         }
     },
     {
-        "pk": 35,
+        "pk": 34,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -314,7 +305,7 @@
         }
     },
     {
-        "pk": 36,
+        "pk": 35,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -323,7 +314,7 @@
         }
     },
     {
-        "pk": 37,
+        "pk": 36,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -332,7 +323,7 @@
         }
     },
     {
-        "pk": 38,
+        "pk": 37,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -341,7 +332,7 @@
         }
     },
     {
-        "pk": 39,
+        "pk": 38,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -350,7 +341,7 @@
         }
     },
     {
-        "pk": 40,
+        "pk": 39,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -359,7 +350,7 @@
         }
     },
     {
-        "pk": 41,
+        "pk": 40,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -368,7 +359,7 @@
         }
     },
     {
-        "pk": 42,
+        "pk": 41,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -377,7 +368,7 @@
         }
     },
     {
-        "pk": 43,
+        "pk": 42,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -386,7 +377,7 @@
         }
     },
     {
-        "pk": 44,
+        "pk": 43,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -395,7 +386,7 @@
         }
     },
     {
-        "pk": 45,
+        "pk": 44,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -404,7 +395,7 @@
         }
     },
     {
-        "pk": 46,
+        "pk": 45,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -413,7 +404,7 @@
         }
     },
     {
-        "pk": 47,
+        "pk": 46,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -422,7 +413,7 @@
         }
     },
     {
-        "pk": 48,
+        "pk": 47,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -431,7 +422,7 @@
         }
     },
     {
-        "pk": 49,
+        "pk": 48,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -440,7 +431,7 @@
         }
     },
     {
-        "pk": 50,
+        "pk": 49,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -449,7 +440,7 @@
         }
     },
     {
-        "pk": 51,
+        "pk": 50,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -458,7 +449,7 @@
         }
     },
     {
-        "pk": 52,
+        "pk": 51,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
@@ -467,7 +458,7 @@
         }
     },
     {
-        "pk": 53,
+        "pk": 52,
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,

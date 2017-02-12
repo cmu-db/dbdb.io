@@ -169,23 +169,23 @@ class DatabasePage(View):
 
 
 class SearchPage(View):
-    def get(self, request, page_type, name):
+    def get(self, request, page_type, slug):
         context = LoadContext.load_base_context(request)
         if page_type == "os":
-            os = OperatingSystem.objects.get(slug=slugify(name))
+            os = OperatingSystem.objects.get(slug=slug)
             system_versions = os.systems_oses.all()
             obj_data = OperatingSystemSerializer(os).data
             page_info = {"page_type": "Operating System",
                          "name": obj_data["name"]}
         elif page_type == "written_lang":
-            lang = ProgrammingLanguage.objects.get(slug=slugify(name))
+            lang = ProgrammingLanguage.objects.get(slug=slug)
             system_versions = lang.systems_written.all()
             obj_data = ProgrammingLanguageSerializer(lang).data
             page_info = {"page_type": "Programming Language",
                          "name": "Written in " + obj_data["name"]}
         else:
             # page_type == "support_lang":
-            lang = ProgrammingLanguage.objects.get(slug=slugify(name))
+            lang = ProgrammingLanguage.objects.get(slug=slug)
             system_versions = lang.systems_supported.all()
             obj_data = ProgrammingLanguageSerializer(lang).data
             page_info = {"page_type": "Programming Language",
