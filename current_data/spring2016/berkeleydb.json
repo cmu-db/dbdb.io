@@ -246,9 +246,7 @@
     ],
 
 
-    "Project Type": [
-        "Mixed"
-    ],
+    "Project Type": "Mixed",
 
 
     "Developer": "Sleepycat Software and Oracle",

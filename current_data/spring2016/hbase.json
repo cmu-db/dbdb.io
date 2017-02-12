@@ -178,9 +178,7 @@
     ],
 
 
-    "Project Type": [
-        "Other"
-    ],
+    "Project Type": "Other",
 
 
     "Developer": "http://hbase.apache.org/team-list.html",

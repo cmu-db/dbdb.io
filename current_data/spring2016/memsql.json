@@ -189,9 +189,7 @@
     ],
 
 
-    "Project Type": [
-        "Commercial"
-    ],
+    "Project Type": "Commercial",
 
 
     "Developer": "MemSQL Inc",

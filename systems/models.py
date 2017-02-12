@@ -5,9 +5,11 @@ from django.utils.text import slugify
 import util
 
 PROJECT_TYPES = (
-    ('C', 'Commercial'),
-    ('A', 'Academic'),
-    ('M', 'Mixed'),
+    ('C',  'Commercial'),
+    ('A',  'Academic'),
+    ('M',  'Mixed'),
+    ('OS', 'Open Source'),
+    ('O',  'Other'),
 )
 for x, y in PROJECT_TYPES:
     globals()['PROJECT_TYPE_' + y.upper()] = x
@@ -18,7 +20,7 @@ ISOLATION_LEVELS = (
     ('CS', 'Cursor Stability'),
     ('SI', 'Snapshot Isolation'),
     ('CR', 'Consistent Read'),
-    ('S', 'Serializability'),
+    ('S',  'Serializability'),
 )
 
 for x, y in ISOLATION_LEVELS:
@@ -187,7 +189,7 @@ class SystemVersion(models.Model):
     website = models.URLField(default="", null=True)
     tech_docs = models.URLField(default="", null=True)
     developer = models.CharField(max_length=200, default="", null=True)
-    project_type = models.CharField(max_length=1, choices=PROJECT_TYPES, default="", null=True)
+    project_type = models.CharField(max_length=64, choices=PROJECT_TYPES, default="", null=True)
     start_year = models.IntegerField(default=0, null=True)
     end_year = models.IntegerField(default=0, null=True)
     logo_img = models.CharField(max_length=200, default=None, null=True)

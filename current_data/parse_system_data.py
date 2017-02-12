@@ -118,6 +118,7 @@ def map_to_pk(fields, field, values, key, filename):
             print 'No model under ' + field + ' exactly matches "' + value + '" from "' + key + '" in ' + filename
     return result
 
+
 # Maps names of fields in json files to system_version fields
 system_map = {
     'Name': 'name',
@@ -130,8 +131,8 @@ system_map = {
     'Website': 'website',
     'Programming Language': 'written_in',
     'Operating Systems': 'oses',
+    'Project Type': 'project_type',
     # TODO Not formatted correctly in the json files
-    # 'Project Type': 'project_type',
     # 'Start Date': 'start_year',
     # 'End Date': 'end_year',
     # 'Derived From': 'derived_from'
@@ -174,6 +175,7 @@ for filename in files:
 
         fields = {}
 
+        # Copy each compatible field (that's not a list) from the json object to the model
         for key, value in system_map.iteritems():
             try:
                 if not isinstance(data[key], list):
@@ -181,14 +183,17 @@ for filename in files:
             except KeyError as error:
                 print 'Could not find ' + str(error) + ' key in ' + filename
 
+        # Copy over remaining values to model
         for key, value in data.iteritems():
             if 'Citation' in key:
                 # Citations not yet handled
                 continue
             elif ' Description' in key:
+                # Descriptions of feature options
                 field = 'description_' + key[:-12].replace(' ', '').lower()
                 fields[field] = value
             elif ' Options' in key:
+                # Copy over options to model
                 field = 'support_' + key[:-8].replace(' ', '').lower()
                 if len(value) > 0 and value[0] != 'Not Supported' and value[0] != 'N/A':
                     # Is supported
@@ -232,7 +237,7 @@ for filename in files:
 
 # Write the fixtures to a file
 with open(sys_file, 'w') as outfile1, open(sys_ver_file, 'w') as outfile2, open(svfo_file, 'w') as outfile3:
-    mycmp = lambda x,y: cmp(x['pk'], y['pk'])
+    mycmp = lambda x, y: cmp(x['pk'], y['pk'])
 
     systems.sort(cmp=mycmp)
     outfile1.write(json.dumps(systems, indent=4))
