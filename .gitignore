@@ -64,5 +64,6 @@ dbms_library/settings.py
 
 # Systems Folder
 systems/migrations/*
+systems/fixtures/system_version_feature_options.json
 systems/fixtures/system_versions.json
 systems/fixtures/systems.json
