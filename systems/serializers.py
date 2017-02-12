@@ -17,7 +17,7 @@ class ProgrammingLanguageSerializer(serializers.ModelSerializer):
 class LicenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProgrammingLanguage
-        fields = ('name', 'website')
+        fields = ('name', 'website', 'slug')
 
 
 class SystemVersionSerializer(serializers.ModelSerializer):

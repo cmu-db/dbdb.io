@@ -45,6 +45,8 @@ class LoadContext(object):
                                    ProgrammingLanguage.objects.all())
         context["oses"] = map(lambda x: {'name': x.name, 'slug': x.slug},
                               OperatingSystem.objects.all())
+        context["licenses"] = map(lambda x: {'name': x.name, 'slug': x.slug},
+                                  License.objects.all())
         context["system_fields"] = sorted(SYSTEM_FIELDS.values())
         return context
 
@@ -61,7 +63,7 @@ class LoadContext(object):
             link = "http://" + link
         db["website"] = link
 
-        written_langs, oses, support_langs, pubs = [], [], [], []
+        written_langs, oses, support_langs, pubs, licenses = [], [], [], [], []
         for os in db_version.oses.all():
             name = OperatingSystemSerializer(os).data['name']
             slug = OperatingSystemSerializer(os).data['slug']
@@ -74,6 +76,10 @@ class LoadContext(object):
             name = ProgrammingLanguageSerializer(lang).data['name']
             slug = ProgrammingLanguageSerializer(lang).data['slug']
             written_langs.append({'name': name, 'slug': slug})
+        for license in db_version.licenses.all():
+            name = LicenseSerializer(license).data['name']
+            slug = LicenseSerializer(license).data['slug']
+            licenses.append({'name': name, 'slug': slug})
         for pub in db_version.publications.all():
             pubs.append((pub.number, {"cite": pub.cite, "number": pub.number,
                                       "link": pub.link}))
@@ -82,6 +88,8 @@ class LoadContext(object):
         db["oses"] = oses
         db["written_in"] = written_langs
         db["support_languages"] = support_langs
+        db["licenses"] = licenses
+        print db["licenses"]
         db['features'] = db_version.get_features()
         db["pubs"] = map(lambda x: x[1], pubs)
         # Start publication numbers from last citation or 0 if there are none.
@@ -176,20 +184,26 @@ class SearchPage(View):
             system_versions = os.systems_oses.all()
             obj_data = OperatingSystemSerializer(os).data
             page_info = {"page_type": "Operating System",
-                         "name": obj_data["name"]}
+                         "name": "OS: " + obj_data["name"]}
         elif page_type == "written_lang":
             lang = ProgrammingLanguage.objects.get(slug=slug)
             system_versions = lang.systems_written.all()
             obj_data = ProgrammingLanguageSerializer(lang).data
             page_info = {"page_type": "Programming Language",
-                         "name": "Written in " + obj_data["name"]}
-        else:
-            # page_type == "support_lang":
+                         "name": "Written in: " + obj_data["name"]}
+        elif page_type == "support_lang":
             lang = ProgrammingLanguage.objects.get(slug=slug)
             system_versions = lang.systems_supported.all()
             obj_data = ProgrammingLanguageSerializer(lang).data
             page_info = {"page_type": "Programming Language",
-                         "name": "Supports " + obj_data["name"]}
+                         "name": "Supports: " + obj_data["name"]}
+        else:
+            # page_type == "license":
+            license = License.objects.get(slug=slug)
+            system_versions = license.systems_licenses.all()
+            obj_data = LicenseSerializer(license).data
+            page_info = {"page_type": "License",
+                         "name": "License: " + obj_data["name"]}
         systems = set()
         for sys_ver in system_versions:
             # For each system version, get the system that is actually the current version

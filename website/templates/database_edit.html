@@ -142,6 +142,23 @@
             {% endfor %}
           </select>
         </div>
+       <div class="metadata-row">
+          <span class="header-text">Support Languages: </span><span class="metadata-data selection" data-type="support_languages">
+            {% for lang in db.support_languages %}
+              <span class="selection-item support_languages-section">
+                {{ lang.name }}
+                <span class="fa fa-times selection-close"></span>
+              </span>
+            {% endfor %}
+          </span>
+          <select multiple class="form-control choices-selection">
+            {% for lang in languages %}
+              {% if lang not in db.support_languages %}
+                <option class="selection-option">{{ lang.name }}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
         <div class="metadata-row">
           <span class="header-text">OSes: </span><span class="metadata-data selection" data-type="oses">
             {% for os in db.oses %}
@@ -160,27 +177,27 @@
           </select>
         </div>
         <div class="metadata-row">
-          <span class="header-text">Project Type: </span><span class="metadata-data" data-type="project_type">{{ db.project_type }}</span>
-        </div>
-        <div class="metadata-row">
-          <span class="header-text">Derived From: </span><span class="metadata-data" data-type="derived_from">{{ db.derived_from }}</span>
-        </div>
-        <div class="metadata-row">
-          <span class="header-text">Support Language: </span><span class="metadata-data selection" data-type="support_languages">
-            {% for lang in db.support_languages %}
-              <span class="selection-item support_languages-section">
-                {{ lang.name }}
+          <span class="header-text">Licenses: </span><span class="metadata-data selection" data-type="licenses">
+            {% for license in db.licenses %}
+              <span class="selection-item licenses-section">
+                {{ license.name }}
                 <span class="fa fa-times selection-close"></span>
               </span>
             {% endfor %}
           </span>
           <select multiple class="form-control choices-selection">
-            {% for lang in languages %}
-              {% if lang not in db.support_languages %}
-                <option class="selection-option">{{ lang.name }}</option>
+            {% for license in licenses %}
+              {% if license not in db.license %}
+                <option class="selection-option">{{ license.name }}</option>
               {% endif %}
             {% endfor %}
           </select>
+        </div>
+        <div class="metadata-row">
+          <span class="header-text">Project Type: </span><span class="metadata-data" data-type="project_type">{{ db.project_type }}</span>
+        </div>
+        <div class="metadata-row">
+          <span class="header-text">Derived From: </span><span class="metadata-data" data-type="derived_from">{{ db.derived_from }}</span>
         </div>
       </div>
     </div>

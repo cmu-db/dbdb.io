@@ -64,6 +64,12 @@ class ProgrammingLanguage(models.Model):
 class License(models.Model):
     name = models.CharField(max_length=32)
     website = models.URLField(default=None, null=True)
+    slug = models.SlugField(max_length=64)
+
+    def save(self, *args, **kwargs):
+        if not self.slug and self.name:
+            self.slug = slugify(self.name)
+        super(License, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.name
@@ -197,12 +203,12 @@ class SystemVersion(models.Model):
 
     # Many related fields - model_stuff
     written_in = models.ManyToManyField('ProgrammingLanguage', related_name='systems_written', blank=True)
-    oses = models.ManyToManyField('OperatingSystem', related_name='systems_oses', blank=True)
     support_languages = models.ManyToManyField('ProgrammingLanguage', related_name='systems_supported', blank=True)
-    publications = models.ManyToManyField('Publication', related_name='systems_publications', blank=True)
-    derived_from = models.ManyToManyField('System', related_name='systems_derived', blank=True)
-    dbmodels = models.ManyToManyField('DBModel', related_name="systems_dbmodels", blank=True)
+    oses = models.ManyToManyField('OperatingSystem', related_name='systems_oses', blank=True)
     licenses = models.ManyToManyField('License', related_name="systems_licenses", blank=True)
+    derived_from = models.ManyToManyField('System', related_name='systems_derived', blank=True)
+    publications = models.ManyToManyField('Publication', related_name='systems_publications', blank=True)
+    dbmodels = models.ManyToManyField('DBModel', related_name="systems_dbmodels", blank=True)
     access_methods = models.ManyToManyField('APIAccessMethod', related_name="systems_access", blank=True)
 
     # Isolation levels

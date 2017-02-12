@@ -1,106 +1,128 @@
 [
     {
-        "pk": 1,
-        "model": "systems.License",
+        "pk": 1, 
+        "model": "systems.License", 
         "fields": {
-            "website": null,
-            "name": "AGPL v3"
+            "website": null, 
+            "name": "AGPL v3", 
+            "slug": "agpl-v3"
         }
-    },
+    }, 
     {
-        "pk": 2,
-        "model": "systems.License",
+        "pk": 2, 
+        "model": "systems.License", 
         "fields": {
-            "website": null,
-            "name": "Apache v2"
+            "website": null, 
+            "name": "Apache v2", 
+            "slug": "apache-v2"
         }
-    },
+    }, 
     {
-        "pk": 3,
-        "model": "systems.License",
+        "pk": 3, 
+        "model": "systems.License", 
         "fields": {
-            "website": null,
-            "name": "BSD"
+            "website": null, 
+            "name": "BSD", 
+            "slug": "bsd"
         }
-    },
+    }, 
     {
-        "pk": 4,
-        "model": "systems.License",
+        "pk": 4, 
+        "model": "systems.License", 
         "fields": {
-            "website": null,
-            "name": "Eclipse Public License"
+            "website": null, 
+            "name": "Eclipse Public License", 
+            "slug": "eclipse-public-license"
         }
-    },
+    }, 
     {
-        "pk": 5,
-        "model": "systems.License",
+        "pk": 5, 
+        "model": "systems.License", 
         "fields": {
-            "website": null,
-            "name": "GPL v2"
+            "website": null, 
+            "name": "GPL v2", 
+            "slug": "gpl-v2"
         }
-    },
+    }, 
     {
-        "pk": 6,
-        "model": "systems.License",
+        "pk": 6, 
+        "model": "systems.License", 
         "fields": {
-            "website": null,
-            "name": "GPL v3"
+            "website": null, 
+            "name": "GPL v3", 
+            "slug": "gpl-v3"
         }
-    },
+    }, 
     {
-        "pk": 7,
-        "model": "systems.License",
+        "pk": 7, 
+        "model": "systems.License", 
         "fields": {
-            "website": null,
-            "name": "LGPL"
+            "website": null, 
+            "name": "LGPL", 
+            "slug": "lgpl"
         }
-    },
+    }, 
     {
-        "pk": 8,
-        "model": "systems.License",
+        "pk": 8, 
+        "model": "systems.License", 
         "fields": {
-            "website": null,
-            "name": "MIT"
+            "website": null, 
+            "name": "MIT", 
+            "slug": "mit"
         }
-    },
+    }, 
     {
-        "pk": 9,
-        "model": "systems.License",
+        "pk": 9, 
+        "model": "systems.License", 
         "fields": {
-            "website": null,
-            "name": "Mozilla Public License"
+            "website": null, 
+            "name": "Mozilla Public License", 
+            "slug": "mozilla-public-license"
         }
-    },
+    }, 
     {
-        "pk": 10,
-        "model": "systems.License",
+        "pk": 10, 
+        "model": "systems.License", 
         "fields": {
-            "website": null,
-            "name": "MySQL FOSS"
+            "website": null, 
+            "name": "MySQL FOSS", 
+            "slug": "mysql-foss"
         }
-    },
+    }, 
     {
-        "pk": 11,
-        "model": "systems.License",
+        "pk": 11, 
+        "model": "systems.License", 
         "fields": {
-            "website": null,
-            "name": "Open Source"
+            "website": null, 
+            "name": "Open Source", 
+            "slug": "open-source"
         }
-    },
+    }, 
     {
-        "pk": 12,
-        "model": "systems.License",
+        "pk": 12, 
+        "model": "systems.License", 
         "fields": {
-            "website": null,
-            "name": "Proprietary"
+            "website": null, 
+            "name": "Proprietary", 
+            "slug": "proprietary"
         }
-    },
+    }, 
     {
-        "pk": 13,
-        "model": "systems.License",
+        "pk": 13, 
+        "model": "systems.License", 
         "fields": {
-            "website": null,
-            "name": "Public Domain"
+            "website": null, 
+            "name": "Public Domain", 
+            "slug": "public-domain"
+        }
+    }, 
+    {
+        "pk": 14, 
+        "model": "systems.License", 
+        "fields": {
+            "website": null, 
+            "name": "OpenLDAP Public License", 
+            "slug": "openldap-public-license"
         }
     }
 ]

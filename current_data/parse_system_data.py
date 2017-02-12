@@ -82,7 +82,7 @@ for fixture in fixtures:
                 entries[datum['fields']['label']] = datum['pk']
                 pk_map[field] = entries
             elif model == 'systems.License':
-                field = 'license'
+                field = 'licenses'
                 entries = pk_map.get(field, {})
                 entries[datum['fields']['name']] = datum['pk']
                 pk_map[field] = entries
@@ -99,7 +99,7 @@ for fixture in fixtures:
             else:
                 print 'Skipping ' + model + ' with pk:', datum['pk']
 
-print '\npk_map\n'
+print '\npk_map:\n'
 print json.dumps(pk_map, indent=4)
 print '\n'
 
