@@ -190,8 +190,8 @@ class SystemVersion(models.Model):
     tech_docs = models.URLField(default="", null=True)
     developer = models.CharField(max_length=200, default="", null=True)
     project_type = models.CharField(max_length=64, choices=PROJECT_TYPES, default="", null=True)
-    start_year = models.IntegerField(default=0, null=True)
-    end_year = models.IntegerField(default=0, null=True)
+    start_year = models.CharField(max_length=128, default="", null=True)
+    end_year = models.CharField(max_length=128, default="", null=True)
     logo_img = models.CharField(max_length=200, default=None, null=True)
     logo = models.FileField(upload_to=upload_logo_path, blank=True)
 

@@ -184,7 +184,7 @@
     "Developer": "http://hbase.apache.org/team-list.html",
 
 
-    "Start Date": "{2007-04}",
+    "Start Date": "2007-04",
     "Start Date Citations": [
         "https://git-wip-us.apache.org/repos/asf?p=hbase.git;a=shortlog;h=refs/heads/trunk_on_hadoop-0.19.1-dev_with_hadoop-4379;pg=10"
     ],

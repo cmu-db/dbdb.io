@@ -14,8 +14,6 @@
 
     "History": "*BerkeleyDB originally started off to replace the existing decoupled in-memory and on-disk hashing systems with a single unified system that caches an on-disk table into memory and uses in-memory buffer pooling to provide an illusion of infinite memory availability. This library used linear hashing to efficiently mp keys to values for constant time lookups and store a large volume of data backed by the disk. This was extended to include the BTree access method and then followed up by a simple CRUD API that provides call agnostic to the access method deployed. The initial releases developed by Keith Bostic and Margo Seltzer (who were graduate students at the time) were upgraded to provide complete transactional processing, through the sponsorship of Netscape for developing a LDAP server. The developers then began to create releases as Sleepycat Software which finally got acquired by Oracle in 2006. Presently Oracle presently develops and maintains releases and permits free and open source usage bounded by the GNU AGPL license terms. ",
     "History Citations": [
-        "{URL1}",
-        "{URL2}"
     ],
 
 

@@ -132,9 +132,9 @@ system_map = {
     'Programming Language': 'written_in',
     'Operating Systems': 'oses',
     'Project Type': 'project_type',
+    'Start Date': 'start_year',
+    'End Date': 'end_year',
     # TODO Not formatted correctly in the json files
-    # 'Start Date': 'start_year',
-    # 'End Date': 'end_year',
     # 'Derived From': 'derived_from'
 }
 

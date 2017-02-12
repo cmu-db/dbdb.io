@@ -26,8 +26,6 @@
     ],
     "System Architecture Description": "LMDB uses shared-memory model i.e. it handles the memory as a single address space and all the threads access this in parallel. It uses copy-on-write semantics.",
     "System Architecture Citations": [
-        "{URL1}",
-        "{URL2}"
     ],
 
 
@@ -157,7 +155,7 @@
     ],
 
 
-    "Website": "{www.symas.com/mdb/}",
+    "Website": "www.symas.com/mdb/",
 
 
     "Programming Language": [
@@ -183,23 +181,21 @@
     "Project Type": "Open Source",
 
 
-    "Developer": "{Howard Chu}",
+    "Developer": "Howard Chu",
 
 
-    "Start Date": "{2011-11}",
+    "Start Date": "2011-11",
     "Start Date Citations": [
         "https://en.wikipedia.org/wiki/Lightning_Memory-Mapped_Database"
     ],
 
 
-    "End Date": "{YYYY-MM}",
+    "End Date": "",
     "End Date Citations": [
-        "{URL1}",
-        "{URL2}"
     ],
 
 
-    "Derived From": "{Berkeley DB}",
+    "Derived From": "Berkeley DB",
 
     "Licenses": [
         "OpenLDAP Public License"

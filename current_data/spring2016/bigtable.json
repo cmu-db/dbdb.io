@@ -152,9 +152,9 @@
     "Developer": "Fay Chang, Jeffrey Dean, Sanjay Ghemawat, Wilson C. Hsieh, Deborah A. Wallach, Mike Burrows, Tushar Chandra, Andrew Fikes, Robert E. Gruber",
     
     
-    "Start Date": "{2005-04}",
+    "Start Date": "2005-04",
     "Start Date Citations": [
-        "{http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf section 11}"
+        "http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf section 11"
     ],
     
     
