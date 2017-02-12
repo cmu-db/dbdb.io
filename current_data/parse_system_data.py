@@ -34,7 +34,38 @@ for filename in [sys_file, sys_ver_file, svfo_file]:
         pass
 
 pk_map = {}
+"""
+Get primary keys and names from fixtures and put in pk_map.
 
+pk_map: {
+    "oses": {
+        "server-less": 19,
+        "HP-UX": 8,
+        ...
+    },
+    "written_in": {
+        "Javascript": 24,
+        "Java": 22,
+        ...
+    },
+    "license": {
+        Public Domain": 13,
+        "LGPL": 7,
+        ...
+    }
+    "feature": {
+        "Query Execution": 13,
+        "Logging": 10,
+        ...
+    },
+    "feature_options-13": {
+        "Vectorized Model": 2,
+        "Tuple-at-a-Time Model": 1,
+        ...
+    },
+    ...
+}
+"""
 for fixture in fixtures:
     with open(fixture, 'r') as fd:
         data = json.loads(fd.read())
@@ -75,7 +106,7 @@ print '\n'
 
 def map_to_pk(fields, field, values, key, filename):
     """
-    Map names in values under a field to pk's. Append to existing fields in the fixture.
+    Map names in values under a field to primary keys. Append to existing fields in the fixture.
     ex. fields = { ... license: [1, 2] ... } field = 'license', values = ['MIT'], filename = foo.json
     result = [1, 2, 8]
     """
@@ -122,12 +153,21 @@ for filename in files:
             print 'Could not read ', filename, error
             continue
 
+        slug = slugify(data['Name'])
+        repeat_slugs = 0
+        for sys in systems:
+            if sys['fields']['slug'] == slug:
+                repeat_slugs += 1
+
+        if repeat_slugs != 0:
+            slug += str(repeat_slugs)
+
         sys_fixture = {
             'pk': pk,
             'model': 'systems.System',
             'fields': {
                 'name': data['Name'],
-                'slug': slugify(data['Name']),
+                'slug': slug,
                 'created': timezone.now().strftime('%Y-%m-%d %H:%M:%S')
             }
         }
