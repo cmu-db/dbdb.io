@@ -29,9 +29,6 @@ for x, y in ISOLATION_LEVELS:
 
 # ----------------------------------------------------------------------------
 
-def upload_logo_path(self, fn):
-    return "logo/%d/%s" % (self.id, fn)
-
 
 class OperatingSystem(models.Model):
     name = models.CharField(max_length=64)
@@ -198,8 +195,15 @@ class SystemVersion(models.Model):
     project_type = models.CharField(max_length=64, choices=PROJECT_TYPES, default="", null=True)
     start_year = models.CharField(max_length=128, default="", null=True)
     end_year = models.CharField(max_length=128, default="", null=True)
-    logo_img = models.CharField(max_length=200, default=None, null=True)
-    logo = models.FileField(upload_to=upload_logo_path, blank=True)
+
+    def upload_logo_orig(self):
+        return 'website/static/images/originals/' + self.system.slug + '/'
+
+    def upload_logo_thumb(self):
+        return 'website/static/images/thumbnails/' + self.system.slug + '/'
+
+    logo_orig = models.ImageField(upload_to=upload_logo_orig, blank=True)
+    logo_thumb = models.ImageField(upload_to=upload_logo_thumb, blank=True)
 
     # Many related fields - model_stuff
     written_in = models.ManyToManyField('ProgrammingLanguage', related_name='systems_written', blank=True)
@@ -345,6 +349,8 @@ class SystemVersion(models.Model):
         return self.name + ' - ' + str(self.version_number)
 
     def save(self, *args, **kwargs):
+        if self.logo_orig and not self.logo_thumb:
+            print "No thumbnail"
         if not self.name and self.system:
             self.name = self.system.name
         if not self.version_number and self.system:

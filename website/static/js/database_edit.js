@@ -23,15 +23,15 @@ var citation_removes = [];
 function getCookie(name) {
   var cookieValue = null;
     if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
+      var cookies = document.cookie.split(';');
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = jQuery.trim(cookies[i]);
+        // Does this cookie string begin with the name we want?
+        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
         }
+      }
     }
     return cookieValue;
 }
@@ -134,7 +134,7 @@ function open_selection_area($elem) {
 }
 
 /**
- * Called when one selects an option from the list.
+ * Selects an option from the list.
  */
 function make_selection_option_item(name) {
   var elem = document.createElement("span");
@@ -168,7 +168,7 @@ function remove_from_list(list, elem) {
 }
 
 /**
- * Select and deselect options. Close a list of options.
+ * Handlers for selecting and deselect options. Close a list of options.
  */
 function load_selection_clicks() {
 
@@ -227,10 +227,76 @@ function load_selection_clicks() {
 }
 
 /**
- * Load handlers for revision button, feature check image, yes-no descriptions,
- * descriptions, metadata and the save button.
+ * Convert image to base64 to be sent in json.
+ * @param imgElem
+ * @returns {string} base64 of the image
+ */
+function getBase64Image(imgElem) {
+  // imgElem must be on the same server otherwise a cross-origin error will be thrown "SECURITY_ERR: DOM Exception 18"
+    var canvas = document.createElement("canvas");
+    canvas.width = imgElem.width;
+    canvas.height = imgElem.height;
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(imgElem, 0, 0);
+    var dataURL = canvas.toDataURL("image/png");
+    return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+}
+
+/**
+ * Load handlers for the logo, revision button, feature check image, yes-no descriptions,
+ * descriptions, metadata, the save button, and citation area.
  */
 function load_click_handlers() {
+
+    var opts = {
+    lines: 15 // The number of lines to draw
+  , length: 13 // The length of each line
+  , width: 14 // The line thickness
+  , radius: 30 // The radius of the inner circle
+  , scale: 1.5 // Scales overall size of the spinner
+  , corners: 1 // Corner roundness (0..1)
+  , color: '#000' // #rgb or #rrggbb or array of colors
+  , opacity: 0 // Opacity of the lines
+  , rotate: 0 // The rotation offset
+  , direction: 1 // 1: clockwise, -1: counterclockwise
+  , speed: 0.7 // Rounds per second
+  , trail: 56 // Afterglow percentage
+  , fps: 20 // Frames per second when using setTimeout() as a fallback for CSS
+  , zIndex: 2e9 // The z-index (defaults to 2000000000)
+  , className: 'spinner' // The CSS class to assign to the spinner
+  , top: '50%' // Top position relative to parent
+  , left: '50%' // Left position relative to parent
+  , shadow: false // Whether to render a shadow
+  , hwaccel: false // Whether to use hardware acceleration
+  , position: 'absolute' // Element positioning
+  };
+  var target = document.getElementById('spinner');
+  var spinner = new Spinner(opts).stop();
+
+  var image;
+  var imageJSON;
+
+  $("#logoUpload").on("change", function () {
+      $(".save-button").show(500);
+      var readerByte = new FileReader();
+      var readerPreview = new FileReader();
+      readerByte.onload = function (event) {
+          var arrayBuffer = this.result,
+          array = new Uint8Array(arrayBuffer);
+          // imageJSON = array.join('');
+          imageJSON = String.fromCharCode.apply(null, array);
+          console.log(imageJSON);
+      };
+
+      readerPreview.onload = function (event) {
+          $("#logo").attr('src', readerPreview.result);
+      };
+
+      image = $(this).get(0).files[0];
+      readerByte.readAsArrayBuffer(image);
+      readerPreview.readAsDataURL(image);
+      // imageJSON = getBase64Image(document.getElementById('logo'));
+  });
 
   $(".revision-button").on("click", function() {
     window.location.href = $(this).attr("data-url");
@@ -344,7 +410,13 @@ function load_click_handlers() {
     citations = {"adds": citation_adds, "removes": citation_removes};
     changed_data["model_stuff"] = JSON.stringify(options);
     changed_data["citations"] = JSON.stringify(citations);
+    changed_data["image"] = JSON.stringify(imageJSON);
+
     var url = document;
+
+    $('body').css('opacity', .5);
+    spinner.spin(target);
+
     $.ajax({
       type: "POST",
       url: window.location.pathname,
@@ -352,10 +424,13 @@ function load_click_handlers() {
       dataType: "json",
       success: function(data) {
         window.location.replace(data.redirect);
+        // $('body').css('opacity', .5);
       },
       error: function(e, xhr)
       {
         console.log(e);
+        $('body').css('opacity', 1);
+        spinner.stop();
       }
     });
   });
@@ -416,6 +491,7 @@ function load_click_handlers() {
       },
       dataType: "json"
     });
+
   });
 }
 

@@ -89,7 +89,6 @@ class LoadContext(object):
         db["written_in"] = written_langs
         db["support_languages"] = support_langs
         db["licenses"] = licenses
-        print db["licenses"]
         db['features'] = db_version.get_features()
         db["pubs"] = map(lambda x: x[1], pubs)
         # Start publication numbers from last citation or 0 if there are none.
@@ -230,8 +229,8 @@ class DatabaseEditingPage(View):
     def save_fields(self, data, new_version):
         for field in data:
             db_field = field
-            # Skip model_stuff and citations key
-            if field == "model_stuff" or field == "citations":
+            # Skip model_stuff, citations, and image
+            if field == "model_stuff" or field == "citations" or field == "image":
                 continue
 
             # Convert to db_field for support and features
@@ -247,6 +246,24 @@ class DatabaseEditingPage(View):
             # getattribute and setattr could raise an AttributeError if the field isn't in the db_version model
             if new_version.__getattribute__(db_field) != data[field][0]:
                 new_version.__setattr__(db_field, data[field][0])
+
+    def save_image(self, data, new_version):
+        # file_like = cStringIO.StringIO(data["image"][0].encode('utf8'))
+        # img = PIL.Image.open(file_like)
+        file_name = new_version.system.slug + '-' + str(new_version.version_number) + '.png'
+        # with open(file_name, "wb") as fh:
+        #     fh.write(data["image"][0].encode('utf8'))
+
+        # img = Image.open(fh)
+        # img.show()
+        # if data["image"] and len(data["image"]) == 1:
+        #     print data["image"][0].encode('utf8')
+        #     file_name = new_version.system.slug + '-' + str(new_version.version_number) + '.png'
+        #     with open(file_name, "wb") as fh:
+        #         fh.write(data["image"][0].encode('utf8'))
+        #
+        #     new_version.logo_orig = fh
+        #     new_version.save()
 
     def save_citations(self, citations, old_version, new_version):
         # Get existing/added/removed citations which are identified by number
@@ -379,10 +396,12 @@ class DatabaseEditingPage(View):
         old_version = SystemVersion.objects.get(system=db, version_number=db_version.version_number - 1)
 
         data = dict(request.POST)
-        # Index 0 is peculiar. On the javascript side it isn't an array but on the python side it is
+
         citations = eval(data["citations"][0])
         options = eval(data["model_stuff"][0])
+
         self.save_fields(data, db_version)
+        self.save_image(data, db_version)
         self.save_citations(citations, old_version, db_version)
         self.save_model_stuff("written_in", options, old_version, db_version)
         self.save_model_stuff("support_languages", options, old_version, db_version)
@@ -617,7 +636,7 @@ class AddPublication(View):
 
 
 class LatestEdits(Feed):
-    title = "Latest edits to databas pages."
+    title = "Latest edits to database pages."
     link = '/editrss/'
     description = "A live feed of all changes made to any database recently"
 

@@ -20,6 +20,10 @@
           <div id = "db-title" class = "col-md-10 col-xs-12">
             {{ db.name }}
           </div>
+          <div>
+            {% static "" as base_url %}
+            <img src="{{ base_url }}images/thumbnails/{{ db.slug }}/{{ db.slug }}-{{ db.version_number }}.png">
+          </div>
           <div class="revision-button-area col-md-2 col-xs-12">
             <button class="btn btn-default revision-button" data-url="/db/{{db.slug}}/revisions">
               View Revision History
@@ -100,7 +104,7 @@
           <span class="header-text">Written in: </span>
           <span class="metadata-data" data-type="written_in">
             {% for lang in db.written_in %}
-              <a href="/search/written_lang/{{ lang.slug }}">{{ lang.name }}</a>,
+              <a href="/search/written_lang/{{ lang.slug }}">{{ lang.name }}&nbsp;&nbsp;</a>
             {% endfor %}
           </span>
         </div>
@@ -108,7 +112,7 @@
           <span class="header-text">Support Languages: </span>
           <span class="metadata-data" data-type="support_languages">
             {% for lang in db.support_languages %}
-              <a href="/search/support_lang/{{ lang.slug }}">{{ lang.name }}</a>,
+              <a href="/search/support_lang/{{ lang.slug }}">{{ lang.name }}&nbsp;&nbsp;</a>
             {% endfor %}
           </span>
         </div>
@@ -116,7 +120,7 @@
           <span class="header-text">OSes: </span>
           <span class="metadata-data" data-type="oses">
             {% for os in db.oses %}
-              <a href="/search/os/{{ os.slug }}">{{ os.name }}</a>,
+              <a href="/search/os/{{ os.slug }}">{{ os.name }}&nbsp;&nbsp;</a>
             {% endfor %}
           </span>
         </div>
@@ -124,7 +128,7 @@
           <span class="header-text">Licenses: </span>
           <span class="metadata-data" data-type="licenses">
             {% for license in db.licenses %}
-              <a href="/search/license/{{ license.slug }}">{{ license.name }}</a>,
+              <a href="/search/license/{{ license.slug }}">{{ license.name }}&nbsp;&nbsp;</a>
             {% endfor %}
           </span>
         </div>
