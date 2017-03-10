@@ -161,9 +161,9 @@
         "Windows"
     ],
 
-    "Project Type": "Open Source",
+    "Project Type": "OS",
 
-    "Developer": "[Contributors](https://github.com/cockroachdb/cockroach/graphs/contributors)",
+    "Developer": "https://github.com/cockroachdb/cockroach/graphs/contributors",
 
     "Start Date": "2014-07",
     "Start Date Citations": [

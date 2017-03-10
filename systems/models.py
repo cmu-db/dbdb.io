@@ -11,8 +11,6 @@ PROJECT_TYPES = (
     ('OS', 'Open Source'),
     ('O',  'Other'),
 )
-for x, y in PROJECT_TYPES:
-    globals()['PROJECT_TYPE_' + y.upper()] = x
 
 ISOLATION_LEVELS = (
     ('RC', 'Read Committed'),
@@ -23,11 +21,15 @@ ISOLATION_LEVELS = (
     ('S',  'Serializability'),
 )
 
-for x, y in ISOLATION_LEVELS:
-    globals()['ISOLATION_LEVEL_' + y.upper()] = x
-
-
 # ----------------------------------------------------------------------------
+
+
+def upload_logo_orig(self):
+    return 'website/static/images/originals/' + self.system.slug + '/'
+
+
+def upload_logo_thumb(self):
+    return 'website/static/images/thumbnails/' + self.system.slug + '/'
 
 
 class OperatingSystem(models.Model):
@@ -196,12 +198,6 @@ class SystemVersion(models.Model):
     start_year = models.CharField(max_length=128, default="", null=True)
     end_year = models.CharField(max_length=128, default="", null=True)
 
-    def upload_logo_orig(self):
-        return 'website/static/images/originals/' + self.system.slug + '/'
-
-    def upload_logo_thumb(self):
-        return 'website/static/images/thumbnails/' + self.system.slug + '/'
-
     logo_orig = models.ImageField(upload_to=upload_logo_orig, blank=True)
     logo_thumb = models.ImageField(upload_to=upload_logo_thumb, blank=True)
 
@@ -211,9 +207,9 @@ class SystemVersion(models.Model):
     oses = models.ManyToManyField('OperatingSystem', related_name='systems_oses', blank=True)
     licenses = models.ManyToManyField('License', related_name="systems_licenses", blank=True)
     derived_from = models.ManyToManyField('System', related_name='systems_derived', blank=True)
-    publications = models.ManyToManyField('Publication', related_name='systems_publications', blank=True)
     dbmodels = models.ManyToManyField('DBModel', related_name="systems_dbmodels", blank=True)
     access_methods = models.ManyToManyField('APIAccessMethod', related_name="systems_access", blank=True)
+    publications = models.ManyToManyField('Publication', related_name='systems_publications', blank=True)
 
     # Isolation levels
     default_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)

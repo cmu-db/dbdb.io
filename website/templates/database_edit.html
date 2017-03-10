@@ -137,7 +137,11 @@
             <span class="header-text">End Date: </span><span class="metadata-data" data-type="end_year">{{ db.end_year }}</span>
           </div>
           <div class="metadata-row">
-            <span class="header-text">Written in: </span><span class="metadata-data selection" data-type="written_in">
+            <span class="header-text">Project Type: </span><span class="metadata-data" data-type="project_type">{{ db.project_type }}</span>
+          </div>
+          <div class="metadata-row">
+            <span class="header-text">Written in: </span>
+            <span class="metadata-data selection" data-type="written_in">
               {% for lang in db.written_in %}
                 <span class="selection-item written_in-section">
                   {{ lang.name }}
@@ -154,7 +158,8 @@
             </select>
           </div>
           <div class="metadata-row">
-            <span class="header-text">Support Languages: </span><span class="metadata-data selection" data-type="support_languages">
+            <span class="header-text">Support Languages: </span>
+            <span class="metadata-data selection" data-type="support_languages">
               {% for lang in db.support_languages %}
                 <span class="selection-item support_languages-section">
                   {{ lang.name }}
@@ -171,7 +176,8 @@
             </select>
           </div>
           <div class="metadata-row">
-            <span class="header-text">OSes: </span><span class="metadata-data selection" data-type="oses">
+            <span class="header-text">OSes: </span>
+            <span class="metadata-data selection" data-type="oses">
               {% for os in db.oses %}
                 <span class="selection-item oses-section">
                   {{ os.name }}
@@ -188,7 +194,8 @@
             </select>
           </div>
           <div class="metadata-row">
-            <span class="header-text">Licenses: </span><span class="metadata-data selection" data-type="licenses">
+            <span class="header-text">Licenses: </span>
+            <span class="metadata-data selection" data-type="licenses">
               {% for license in db.licenses %}
                 <span class="selection-item licenses-section">
                   {{ license.name }}
@@ -205,10 +212,22 @@
             </select>
           </div>
           <div class="metadata-row">
-            <span class="header-text">Project Type: </span><span class="metadata-data" data-type="project_type">{{ db.project_type }}</span>
-          </div>
-          <div class="metadata-row">
-            <span class="header-text">Derived From: </span><span class="metadata-data" data-type="derived_from">{{ db.derived_from }}</span>
+            <span class="header-text">Derived From: </span>
+            <span class="metadata-data selection" data-type="derived_from">
+              {% for system in db.derived_from %}
+                <span class="selection-item derived_from-section">
+                  {{ system.name }}
+                  <span class="fa fa-times selection-close"></span>
+                </span>
+              {% endfor %}
+            </span>
+            <select multiple class="form-control choices-selection">
+              {% for system in databases %}
+                {% if system not in db.derived_from and system.name != db.name %}
+                  <option class="selection-option">{{ system.name }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
           </div>
         </div>
       </div>
@@ -227,7 +246,7 @@
             {% endfor %}
           </div>
           <div class="add-citations-area">
-            <div class="num-citations" style="display:none;" data-num="{{ db.num_pubs }}"></div>
+            <div class="num-citations" style="display:none;" data-num="{{ db.last_pub }}"></div>
             <div class="db-name" style="display:none;" data-name="{{ db.name }}"></div>
             <button type="button" class="btn btn-primary btn-lg add-citation-btn" data-toggle="modal" data-target="#addCitation">
               <i class="fa fa-plus" style="margin-right:15px;"></i> Add a citation

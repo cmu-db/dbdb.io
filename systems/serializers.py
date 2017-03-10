@@ -1,5 +1,11 @@
 from rest_framework import serializers
-from systems.models import SystemVersion, OperatingSystem, ProgrammingLanguage
+from systems.models import License, OperatingSystem, ProgrammingLanguage, SystemVersion
+
+
+class LicenseSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = License
+    fields = ('name', 'website', 'slug')
 
 
 class OperatingSystemSerializer(serializers.ModelSerializer):
@@ -9,12 +15,6 @@ class OperatingSystemSerializer(serializers.ModelSerializer):
 
 
 class ProgrammingLanguageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProgrammingLanguage
-        fields = ('name', 'website', 'slug')
-
-
-class LicenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProgrammingLanguage
         fields = ('name', 'website', 'slug')
