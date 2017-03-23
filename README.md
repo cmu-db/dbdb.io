@@ -54,13 +54,14 @@ To be able to fit the large rows in SystemVersion, apply this fix in MySQL on th
 ALTER TABLE systems_systemversion ROW_FORMAT=DYNAMIC
 ```
 
-Load in the initial data from the `current_data` directory:
+Load in the initial data from the `current_data` directory There will be some output saying which fields don't match if they aren't formatted or written correctly.:
 ```bash
 cd current_data
 python ./parse_system_data.py
+cd ..
 ```
 
-Load all fixtures - including new ones added by the `parse_system_data` script. There will be some output saying which fields don't match if they aren't formatted or written correctly.
+Load all fixtures - including new ones added by the `parse_system_data` script.
 ```bash
 python manage.py loaddata systems/fixtures/*
 ```
