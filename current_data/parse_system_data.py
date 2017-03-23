@@ -3,13 +3,13 @@
 import os
 import sys
 import json
-# from datetime import datetime
 
 import django
 from django.utils import timezone
 from django.utils.text import slugify
 
 sys.path.append("..")
+from systems import util
 os.environ['DJANGO_SETTINGS_MODULE'] = 'website.settings'
 django.setup()
 
@@ -169,7 +169,8 @@ for filename in files:
             'fields': {
                 'name': data['Name'],
                 'slug': slug,
-                'created': timezone.now().strftime('%Y-%m-%d %H:%M:%S')
+                'created': timezone.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'secret_key': util.generateSecretKey()
             }
         }
 
