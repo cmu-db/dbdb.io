@@ -319,8 +319,8 @@ class DatabaseEditingPage(View):
         existing_options = old_version.__getattribute__(model).all()
         existing_options = set(map(lambda o: o.name, existing_options))
 
-        add_options = set(options["adds"][model])  # Options being added.
-        remove_options = set(options["removes"][model])  # Options being removed.
+        add_options = set(options["adds"].get(model, []))  # Options being added.
+        remove_options = set(options["removes"].get(model, []))  # Options being removed.
 
         new_options = existing_options | add_options
         new_options -= remove_options
