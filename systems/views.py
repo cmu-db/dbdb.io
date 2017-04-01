@@ -6,13 +6,16 @@ from django.db.models import ObjectDoesNotExist
 from django.contrib.syndication.views import Feed
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
+from django.utils.text import slugify
 from django.views.generic.base import View
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from systems.models import *
-from systems.serializers import *
+from systems.models import Feature, FeatureOption, License, OperatingSystem, ProgrammingLanguage, PROJECT_TYPES, \
+    Publication, SuggestedSystem, System, SystemVersion, SystemVersionFeatureOption
+from systems.serializers import LicenseSerializer, SystemVersionSerializer
+import util
 
 SYSTEM_FIELDS = {
     'support_checkpoints':         'Checkpoints',
