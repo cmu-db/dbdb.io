@@ -12,15 +12,6 @@ PROJECT_TYPES = (
     ('O',  'Other'),
 )
 
-ISOLATION_LEVELS = (
-    ('RC', 'Read Committed'),
-    ('RR', 'Repeatable Read'),
-    ('CS', 'Cursor Stability'),
-    ('SI', 'Snapshot Isolation'),
-    ('CR', 'Consistent Read'),
-    ('S',  'Serializability'),
-)
-
 # ----------------------------------------------------------------------------
 
 
@@ -210,10 +201,6 @@ class SystemVersion(models.Model):
     dbmodels = models.ManyToManyField('DBModel', related_name="systems_dbmodels", blank=True)
     access_methods = models.ManyToManyField('APIAccessMethod', related_name="systems_access", blank=True)
     publications = models.ManyToManyField('Publication', related_name='systems_publications', blank=True)
-
-    # Isolation levels
-    default_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
-    max_isolation = models.CharField(max_length=2, choices=ISOLATION_LEVELS, default=None, null=True)
 
     # Feature support and descriptions
     support_systemarchitecture = models.NullBooleanField()
