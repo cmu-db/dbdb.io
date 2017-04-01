@@ -15,22 +15,22 @@ from systems.models import *
 from systems.serializers import *
 
 SYSTEM_FIELDS = {
-    'support_checkpoints': 'Checkpoints',
-    'support_concurrencycontrol': 'Concurrency Control',
-    'support_datamodel': 'Data Model',
-    'support_foreignkeys': 'Foreign Keys',
-    'support_indexes': 'Indexes',
-    'support_isolationlevels': 'Isolation Levels',
-    'support_joins': 'Joins',
-    'support_logging': 'Logging',
-    'support_querycompilation': 'Query Compilation',
-    'support_queryexecution': 'Query Execution',
-    'support_queryinterface': 'Query Interface',
+    'support_checkpoints':         'Checkpoints',
+    'support_concurrencycontrol':  'Concurrency Control',
+    'support_datamodel':           'Data Model',
+    'support_foreignkeys':         'Foreign Keys',
+    'support_indexes':             'Indexes',
+    'support_isolationlevels':     'Isolation Levels',
+    'support_joins':               'Joins',
+    'support_logging':             'Logging',
+    'support_querycompilation':    'Query Compilation',
+    'support_queryexecution':      'Query Execution',
+    'support_queryinterface':      'Query Interface',
     'support_storagearchitecture': 'Storage Architecture',
-    'support_storagemodel': 'Storage Model',
-    'support_storedprocedures': 'Stored Procedures',
-    'support_systemarchitecture': 'System Architecture',
-    'support_views': 'Views'
+    'support_storagemodel':        'Storage Model',
+    'support_storedprocedures':    'Stored Procedures',
+    'support_systemarchitecture':  'System Architecture',
+    'support_views':               'Views'
 }
 
 

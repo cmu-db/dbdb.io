@@ -189,6 +189,7 @@ class SystemVersion(models.Model):
     start_year = models.CharField(max_length=128, default="", null=True)
     end_year = models.CharField(max_length=128, default="", null=True)
 
+    # Logos
     logo_orig = models.ImageField(upload_to=upload_logo_orig, blank=True)
     logo_thumb = models.ImageField(upload_to=upload_logo_thumb, blank=True)
 
