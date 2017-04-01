@@ -43,6 +43,7 @@
         "Cursor Stability",
         "Repeatable Read",
         "Snapshot Isolation",
+        "Consistent Read",
         "Serializable"
     ],
     "Indexes": [
