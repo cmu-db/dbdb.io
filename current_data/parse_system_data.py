@@ -96,6 +96,11 @@ for fixture in fixtures:
                 entries = pk_map.get(field, {})
                 entries[datum['fields']['name']] = datum['pk']
                 pk_map[field] = entries
+            elif model == 'systems.ProjectType':
+                field = 'project_type'
+                entries = pk_map.get(field, {})
+                entries[datum['fields']['name']] = datum['pk']
+                pk_map[field] = entries
             else:
                 print 'Skipping ' + model + ' with pk:', datum['pk']
 
@@ -176,10 +181,18 @@ for filename in files:
 
         fields = {}
 
-        # Copy each compatible field (that's not a list) from the json object to the model
+        # Copy each compatible field from the json object to the model
         for key, value in system_map.iteritems():
             try:
-                if not isinstance(data[key], list):
+                field_value = data[key]
+                if isinstance(field_value, list):
+                    # Skip many to many values
+                    continue
+                if value in pk_map:
+                    # Assign primary key values
+                    fields[value] = pk_map[value][field_value]
+                else:
+                    # Assign other types of value.
                     fields[value] = data[key]
             except KeyError as error:
                 print 'Could not find ' + str(error) + ' key in ' + filename

@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from systems.models import Feature, FeatureOption, License, OperatingSystem, ProgrammingLanguage, PROJECT_TYPES, \
+from systems.models import Feature, FeatureOption, License, OperatingSystem, ProgrammingLanguage, ProjectType, \
     Publication, SuggestedSystem, System, SystemVersion, SystemVersionFeatureOption
 from systems.serializers import LicenseSerializer, SystemVersionSerializer
 import util
@@ -42,11 +42,13 @@ class LoadContext(object):
     def load_base_context(request):
         return {
             "user":          request.user,
+            # TODO: don't load all databases when only looking at one. Pass template as argument to load specific context
             "databases":     map(lambda db: {'name': db.name, 'slug': db.slug}, System.objects.all()),
             "languages":     map(lambda lang: {'name': lang.name, 'slug': lang.slug},
                                  ProgrammingLanguage.objects.all()),
             "oses":          map(lambda os: {'name': os.name, 'slug': os.slug}, OperatingSystem.objects.all()),
             "licenses":      map(lambda license: {'name': license.name, 'slug': license.slug}, License.objects.all()),
+            "project_types": map(lambda type: {'name': type.name, 'slug': type.slug}, ProjectType.objects.all()),
             "system_fields": sorted(SYSTEM_FIELDS.values())
         }
 
@@ -87,8 +89,10 @@ class LoadContext(object):
                                'slug': system.slug}
                               for system in db_version.derived_from.all()]
 
-        db["project_type_slug"] = db_version.project_type
-        db["project_type"] = db_version.get_project_type_display()
+        db["project_type"] = {
+            'name': db_version.project_type.name,
+            'slug': db_version.project_type.slug
+        }
 
         # Load database features.
         db['features'] = db_version.get_features()
@@ -215,10 +219,10 @@ class SearchPage(View):
                          "name": "Derived From: " + system.name}
         else:
             # page_type == "project":
-            system_versions = SystemVersion.objects.filter(project_type=slug)
-            name = dict(PROJECT_TYPES)[slug]
+            project_type = ProjectType.objects.get(slug=slug)
+            system_versions = SystemVersion.objects.filter(project_type=project_type)
             page_info = {"page_type": "Project Type",
-                         "name": "Operates as: " + name}
+                         "name": "Operates as: " + project_type.name}
 
         systems = set()
         for sys_ver in system_versions:

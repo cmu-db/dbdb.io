@@ -4,14 +4,6 @@ from django.utils.text import slugify
 
 import util
 
-PROJECT_TYPES = (
-    ('C',  'Commercial'),
-    ('A',  'Academic'),
-    ('M',  'Mixed'),
-    ('OS', 'Open Source'),
-    ('O',  'Other'),
-)
-
 # ----------------------------------------------------------------------------
 
 
@@ -60,6 +52,19 @@ class License(models.Model):
         if not self.slug and self.name:
             self.slug = slugify(self.name)
         super(License, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return self.name
+
+
+class ProjectType(models.Model):
+    name = models.CharField(max_length=32)
+    slug = models.URLField(default=None, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug and self.name:
+            self.slug = slugify(self.name)
+        super(ProjectType, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.name
@@ -185,9 +190,9 @@ class SystemVersion(models.Model):
     website = models.URLField(default="", null=True)
     tech_docs = models.URLField(default="", null=True)
     developer = models.CharField(max_length=200, default="", null=True)
-    project_type = models.CharField(max_length=64, choices=PROJECT_TYPES, default="", null=True)
     start_year = models.CharField(max_length=128, default="", null=True)
     end_year = models.CharField(max_length=128, default="", null=True)
+    project_type = models.ForeignKey(ProjectType)
 
     # Logos
     logo_orig = models.ImageField(upload_to=upload_logo_orig, blank=True)

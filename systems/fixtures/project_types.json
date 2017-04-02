@@ -1,0 +1,42 @@
+[
+  {
+    "pk": 1,
+    "model": "systems.ProjectType",
+    "fields": {
+      "name": "Commercial",
+      "slug": "commercial"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "systems.ProjectType",
+    "fields": {
+      "name": "Academic",
+      "slug": "academic"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "systems.ProjectType",
+    "fields": {
+      "name": "Mixed",
+      "slug": "mixed"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "systems.ProjectType",
+    "fields": {
+      "name": "Open Source",
+      "slug": "open-source"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "systems.ProjectType",
+    "fields": {
+      "name": "Other",
+      "slug": "other"
+    }
+  }
+]
