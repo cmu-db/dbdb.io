@@ -116,8 +116,7 @@ class SystemVersionAdmin(admin.ModelAdmin):
                                  'support_storedprocedures', 'description_storedprocedures',
                                  'support_joins', 'description_joins',
                                  'support_querycompilation', 'description_querycompilation']}),
-        ('Support', {'fields': ['support_languages']}),
-        ('Isolation', {'fields': ['default_isolation', 'max_isolation']})
+        ('Support', {'fields': ['support_languages']})
     ]
 
 
