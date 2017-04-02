@@ -70,14 +70,6 @@ class ProjectType(models.Model):
         return self.name
 
 
-class DBModel(models.Model):
-    name = models.CharField(max_length=32)
-    website = models.URLField(default=None, null=True)
-
-    def __unicode__(self):
-        return self.name
-
-
 class APIAccessMethod(models.Model):
     name = models.CharField(max_length=32)
     website = models.URLField(default=None, null=True)
