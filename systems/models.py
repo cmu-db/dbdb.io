@@ -196,7 +196,6 @@ class SystemVersion(models.Model):
     oses = models.ManyToManyField('OperatingSystem', related_name='systems_oses', blank=True)
     licenses = models.ManyToManyField('License', related_name="systems_licenses", blank=True)
     derived_from = models.ManyToManyField('System', related_name='systems_derived', blank=True)
-    dbmodels = models.ManyToManyField('DBModel', related_name="systems_dbmodels", blank=True)
     access_methods = models.ManyToManyField('APIAccessMethod', related_name="systems_access", blank=True)
     publications = models.ManyToManyField('Publication', related_name='systems_publications', blank=True)
 
