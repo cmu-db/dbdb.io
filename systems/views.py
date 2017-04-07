@@ -326,17 +326,19 @@ class DatabaseEditingPage(View):
         existing_options = old_version.__getattribute__(model).all()
         existing_options = set(map(lambda o: o.name, existing_options))
 
-        add_options = set(options["adds"].get(model, []))  # Options being added.
-        remove_options = set(options["removes"].get(model, []))  # Options being removed.
+        added_options = set(options["adds"].get(model, []))
+        removed_options = set(options["removes"].get(model, []))
 
-        new_options = existing_options | add_options
-        new_options -= remove_options
+        # Existing options + added options - removed options
+        new_options = (existing_options | added_options) - removed_options
 
         for new_option in new_options:
             try:
+                # Get old version of option and add to new version
                 existing = old_version.__getattribute__(model).get(name=new_option)
                 new_version.__getattribute__(model).add(existing)
             except ObjectDoesNotExist:
+                # Add to new version if option did not exist on older version
                 if model == "written_in":
                     lang = ProgrammingLanguage.objects.get(name=new_option)
                     new_version.written_in.add(lang)

@@ -1,5 +1,6 @@
 from django.contrib import admin
-from systems.models import *
+from systems.models import OperatingSystem, ProgrammingLanguage, License, Publication, APIAccessMethod, \
+  SuggestedSystem, System, SystemVersion, Feature, FeatureOption, SystemVersionFeatureOption
 from bibtexparser.bparser import BibTexParser
 
 
