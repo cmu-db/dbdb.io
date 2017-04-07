@@ -25,17 +25,14 @@ html, body {
 
 .check-img.green-check {
   width: 30px;
-  content: url(/static/images/green-check.png);
 }
 
 .check-img.grey-check {
   width: 30px;
-  content: url(/static/images/black-cross.png);
 }
 
 .check-img.question-check {
   width: 30px;
-  content: url(/static/images/question-check.png);
 }
 
 .footer {

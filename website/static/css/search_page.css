@@ -51,17 +51,14 @@
 
 .check-img.green-check {
   width: 15px;
-  content: url(/static/images/green-check.png);
 }
 
 .check-img.grey-check {
   width: 15px;
-  content: url(/static/images/grey-check.png);
 }
 
 .check-img.question-check {
   width: 15px;
-  content: url(/static/images/question-check.png);
 }
 
 .property-div {
