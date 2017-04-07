@@ -35,8 +35,7 @@
             <tr class="revision-row" data-url="/db/version/{{db.slug}}/{{revision.version_number}}">
               <td>
                 {% if revision.isCurrent %}
-                  <div class="current-version check-img green-check">
-                  <div>
+                  <img src="{% static 'images/green-check.png' %}" class="current-version check-img green-check">
                 {% endif %}
               </td>
               <td class="center-column">{{ revision.version_number }}</td>

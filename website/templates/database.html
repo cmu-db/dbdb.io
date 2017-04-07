@@ -58,11 +58,11 @@
 
             <div class="yesno-title-area">
               {% if feature.is_supported == None %}
-                <img class = "check-img question-check">
+                <img src="{% static 'images/question-check.png' %}" class="check-img question-check">
               {% elif feature.is_supported %}
-                <img class = "check-img green-check">
+                <img src="{% static 'images/green-check.png' %}" class="check-img green-check">
               {% else %}
-                <img class = "check-img grey-check">
+                <img src="{% static 'images/black-cross.png' %}" class="check-img grey-check">
               {% endif %}
               <span class="yesno-title">{{ feature.label }}</span>
             </div>

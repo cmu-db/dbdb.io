@@ -11,7 +11,6 @@
 }
 
 .check-img.green-check {
-  content: url(/static/images/green-check.png);
 }
 
 .current-version {
