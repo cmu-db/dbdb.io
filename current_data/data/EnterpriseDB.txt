@@ -1,4 +1,4 @@
-{'Database model': ['Relational DBMS'],
- 'License': [('commercial', 'BSD for PostgreSQL-components')],
- 'Name': ['EnterpriseDB'],
- 'Website': ['http://www.enterprisedb.com/']}
+{"Database model": ["Relational DBMS"],
+ "License": ["commercial", "BSD for PostgreSQL-components"],
+ "Name": ["EnterpriseDB"],
+ "Website": ["http://www.enterprisedb.com/"]}

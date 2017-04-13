@@ -1,5 +1,5 @@
-{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
- 'Database model': ['Search engine'],
- 'License': ['commercial'],
- 'Name': ['Exorbyte'],
- 'Website': ['http://www.exorbyte.com']}
+{"<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>": ["<table class=dbi_mini>"],
+ "Database model": ["Search engine"],
+ "License": ["commercial"],
+ "Name": ["Exorbyte"],
+ "Website": ["http://www.exorbyte.com"]}

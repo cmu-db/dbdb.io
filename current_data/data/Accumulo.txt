@@ -1,4 +1,4 @@
-{'Database model': ['Wide column store'],
- 'License': ['Open Source'],
- 'Name': ['Accumulo'],
- 'Website': ['http://accumulo.apache.org/']}
+{"Database model": ["Wide column store"],
+ "License": ["Open Source"],
+ "Name": ["Accumulo"],
+ "Website": ["http://accumulo.apache.org/"]}

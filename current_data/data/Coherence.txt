@@ -1,4 +1,4 @@
-{'Database model': ['Key-value store'],
- 'License': ['commercial'],
- 'Name': ['Coherence'],
- 'Website': ['http://www.oracle.com/technetwork/middleware/coherence/overview/index.html']}
+{"Database model": ["Key-value store"],
+ "License": ["commercial"],
+ "Name": ["Coherence"],
+ "Website": ["http://www.oracle.com/technetwork/middleware/coherence/overview/index.html"]}

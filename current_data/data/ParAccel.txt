@@ -1,4 +1,4 @@
-{'Database model': ['Relational DBMS'],
- 'License': ['commercial'],
- 'Name': ['ParAccel'],
- 'Website': ['http://www.paraccel.com/']}
+{"Database model": ["Relational DBMS"],
+ "License": ["commercial"],
+ "Name": ["ParAccel"],
+ "Website": ["http://www.paraccel.com/"]}

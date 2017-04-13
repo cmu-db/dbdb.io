@@ -1,4 +1,4 @@
-{'Database model': ['Key-value store'],
- 'License': [('commercial', 'Apache Version 2')],
- 'Name': ['GridGain'],
- 'Website': ['http://www.gridgain.com/']}
+{"Database model": ["Key-value store"],
+ "License": ["commercial", "Apache Version 2"],
+ "Name": ["GridGain"],
+ "Website": ["http://www.gridgain.com/"]}

@@ -1,5 +1,5 @@
-{'Database model': ['Content store'],
- 'Developer': ['Apache Software Foundation'],
- 'License': ['Open Source'],
- 'Name': ['Jackrabbit'],
- 'Website': ['http://jackrabbit.apache.org/']}
+{"Database model": ["Content store"],
+ "Developer": ["Apache Software Foundation"],
+ "License": ["Open Source"],
+ "Name": ["Jackrabbit"],
+ "Website": ["http://jackrabbit.apache.org/"]}

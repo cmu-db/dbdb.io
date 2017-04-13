@@ -1,4 +1,4 @@
-{'Database model': ['Key-value store'],
- 'License': ['commercial'],
- 'Name': ['GT.M'],
- 'Website': ['http://www.fisglobal.com/products-technologyplatforms-gtm']}
+{"Database model": ["Key-value store"],
+ "License": ["commercial"],
+ "Name": ["GT.M"],
+ "Website": ["http://www.fisglobal.com/products-technologyplatforms-gtm"]}

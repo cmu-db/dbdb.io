@@ -1,5 +1,5 @@
-{'Database model': ['Relational DBMS'],
- 'Developer': ['SAP'],
- 'License': [('commercial', 'Limited community edition free')],
- 'Name': ['MaxDB'],
- 'Website': ['http://maxdb.sap.com/']}
+{"Database model": ["Relational DBMS"],
+ "Developer": ["SAP"],
+ "License": ["commercial", "Limited community edition free"],
+ "Name": ["MaxDB"],
+ "Website": ["http://maxdb.sap.com/"]}

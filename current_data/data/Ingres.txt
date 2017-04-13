@@ -1,4 +1,4 @@
-{'Database model': ['Relational DBMS'],
- 'License': ['commercial'],
- 'Name': ['Ingres'],
- 'Website': ['http://www.actian.com/products/ingres']}
+{"Database model": ["Relational DBMS"],
+ "License": ["commercial"],
+ "Name": ["Ingres"],
+ "Website": ["http://www.actian.com/products/ingres"]}

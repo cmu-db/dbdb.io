@@ -1,4 +1,4 @@
-{'Database model': ['Relational DBMS'],
- 'License': ['commercial'],
- 'Name': ['eXtremeDB'],
- 'Website': ['http://www.mcobject.com/extremedbfamily.shtml']}
+{"Database model": ["Relational DBMS"],
+ "License": ["commercial"],
+ "Name": ["eXtremeDB"],
+ "Website": ["http://www.mcobject.com/extremedbfamily.shtml"]}

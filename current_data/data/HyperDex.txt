@@ -1,4 +1,4 @@
-{'Database model': ['Key-value store'],
- 'License': ['Open Source'],
- 'Name': ['HyperDex'],
- 'Website': ['http://hyperdex.org/']}
+{"Database model": ["Key-value store"],
+ "License": ["Open Source"],
+ "Name": ["HyperDex"],
+ "Website": ["http://hyperdex.org/"]}

@@ -1,5 +1,5 @@
-{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
- 'Database model': ['Key-value store'],
- 'License': [('Open Source', 'Apache Version 2')],
- 'Name': ['Nanolat'],
- 'Website': ['http://nanolat.com/index/0-2']}
+{"<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>": ["<table class=dbi_mini>"],
+ "Database model": ["Key-value store"],
+ "License": ["Open Source", "Apache Version 2"],
+ "Name": ["Nanolat"],
+ "Website": ["http://nanolat.com/index/0-2"]}

@@ -1,2 +1,2 @@
-{'Name': ['Google BigTable'],
- 'Website': ['http://dl.acm.org/citation.cfm?id=1267323']}
+{"Name": ["Google BigTable"],
+ "Website": ["http://dl.acm.org/citation.cfm?id=1267323"]}

@@ -1,4 +1,4 @@
-{'Database model': ['Key-value store'],
- 'License': ['commercial'],
- 'Name': ['ScaleOut StateServer'],
- 'Website': ['http://www.scaleoutsoftware.com/products/scaleout-stateserver/']}
+{"Database model": ["Key-value store"],
+ "License": ["commercial"],
+ "Name": ["ScaleOut StateServer"],
+ "Website": ["http://www.scaleoutsoftware.com/products/scaleout-stateserver/"]}

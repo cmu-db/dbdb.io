@@ -1,4 +1,4 @@
-{'Database model': ['Relational DBMS'],
- 'License': [('Open Source', 'GPLv2, extended commercial license available')],
- 'Name': ['Infobright'],
- 'Website': ['http://www.infobright.com/']}
+{"Database model": ["Relational DBMS"],
+ "License": ["Open Source", "GPLv2, extended commercial license available"],
+ "Name": ["Infobright"],
+ "Website": ["http://www.infobright.com/"]}

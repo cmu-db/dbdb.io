@@ -1,2 +1,2 @@
-{'Name': ['Google Spanner'],
- 'Website': ['http://dl.acm.org/citation.cfm?id=2387905']}
+{"Name": ["Google Spanner"],
+ "Website": ["http://dl.acm.org/citation.cfm?id=2387905"]}

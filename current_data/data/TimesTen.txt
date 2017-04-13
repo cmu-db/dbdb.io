@@ -1,4 +1,4 @@
-{'Database model': ['Relational DBMS'],
- 'License': ['commercial'],
- 'Name': ['TimesTen'],
- 'Website': ['http://www.oracle.com/us/products/database/timesten/index.html']}
+{"Database model": ["Relational DBMS"],
+ "License": ["commercial"],
+ "Name": ["TimesTen"],
+ "Website": ["http://www.oracle.com/us/products/database/timesten/index.html"]}

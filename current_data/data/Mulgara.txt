@@ -1,6 +1,6 @@
-{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
- 'Database model': ['RDF store'],
- 'Implementation language': ['Java'],
- 'License': [('Open Source', 'Apache Version 2')],
- 'Name': ['Mulgara'],
- 'Website': ['http://www.mulgara.org/']}
+{"<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>": ["<table class=dbi_mini>"],
+ "Database model": ["RDF store"],
+ "Implementation language": ["Java"],
+ "License": ["Open Source", "Apache Version 2"],
+ "Name": ["Mulgara"],
+ "Website": ["http://www.mulgara.org/"]}

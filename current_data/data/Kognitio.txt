@@ -1,4 +1,4 @@
-{'Database model': ['Relational DBMS'],
- 'License': ['commercial'],
- 'Name': ['Kognitio'],
- 'Website': ['http://www.kognitio.com/']}
+{"Database model": ["Relational DBMS"],
+ "License": ["commercial"],
+ "Name": ["Kognitio"],
+ "Website": ["http://www.kognitio.com/"]}

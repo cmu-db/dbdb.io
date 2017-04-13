@@ -1,4 +1,4 @@
-{'Database model': ['Native XML DBMS'],
- 'License': [('Open Source', 'L-GPL')],
- 'Name': ['eXist-db'],
- 'Website': ['http://exist-db.org/']}
+{"Database model": ["Native XML DBMS"],
+ "License": ["Open Source", "L-GPL"],
+ "Name": ["eXist-db"],
+ "Website": ["http://exist-db.org/"]}

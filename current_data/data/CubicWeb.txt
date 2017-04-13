@@ -1,5 +1,5 @@
-{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
- 'Database model': ['RDF store'],
- 'License': [('Open Source', 'L-GPL')],
- 'Name': ['CubicWeb'],
- 'Website': ['http://www.cubicweb.org/']}
+{"<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>": ["<table class=dbi_mini>"],
+ "Database model": ["RDF store"],
+ "License": ["Open Source", "L-GPL"],
+ "Name": ["CubicWeb"],
+ "Website": ["http://www.cubicweb.org/"]}

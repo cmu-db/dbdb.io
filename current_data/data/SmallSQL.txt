@@ -1,5 +1,5 @@
-{'Database model': ['Relational DBMS'],
- 'Implementation language': ['Java'],
- 'License': [('Open Source', 'L-GPL')],
- 'Name': ['SmallSQL'],
- 'Website': ['http://www.smallsql.de/']}
+{"Database model": ["Relational DBMS"],
+ "Implementation language": ["Java"],
+ "License": ["Open Source", "L-GPL"],
+ "Name": ["SmallSQL"],
+ "Website": ["http://www.smallsql.de/"]}

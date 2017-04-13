@@ -1,4 +1,4 @@
-{'Database model': ['Relational DBMS'],
- 'License': ['commercial'],
- 'Name': [('Windows Azure SQL Database', 'formerly SQL Azure')],
- 'Website': ['http://www.windowsazure.com/en-us/services/sql-database/']}
+{"Database model": ["Relational DBMS"],
+ "License": ["commercial"],
+ "Name": ["Windows Azure SQL Database", "formerly SQL Azure"],
+ "Website": ["http://www.windowsazure.com/en-us/services/sql-database/"]}

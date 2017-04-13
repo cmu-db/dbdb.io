@@ -1,4 +1,4 @@
-{'Database model': ['Graph DBMS'],
- 'License': [('Open Source', 'AGPL version 3')],
- 'Name': ['InfoGrid'],
- 'Website': ['http://infogrid.org/']}
+{"Database model": ["Graph DBMS"],
+ "License": ["Open Source", "AGPL version 3"],
+ "Name": ["InfoGrid"],
+ "Website": ["http://infogrid.org/"]}

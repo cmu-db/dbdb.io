@@ -1,4 +1,4 @@
-{'Database model': ['Key-value store'],
- 'License': [('commercial', 'limited edition free')],
- 'Name': ['XAP'],
- 'Website': ['http://www.gigaspaces.com/xap-in-memory-computing-event-processing/Meet-XAP']}
+{"Database model": ["Key-value store"],
+ "License": ["commercial", "limited edition free"],
+ "Name": ["XAP"],
+ "Website": ["http://www.gigaspaces.com/xap-in-memory-computing-event-processing/Meet-XAP"]}

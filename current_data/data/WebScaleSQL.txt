@@ -1,9 +1,9 @@
-{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
- 'Database model': ['Relational DBMS'],
- 'Description': ['Performance oriented extension to MySQL'],
- 'Developer': [('WebScaleSQL',
-                'WebScaleSQL is a collaboration among engineers from several companies that face the same challenges in deploying MySQL at scale, and seek greater performance from a database technology tailored for their needs.')],
- 'Initial release': ['2014'],
- 'License': [('Open Source', 'GPLv2, MySQL FOSS')],
- 'Name': ['WebScaleSQL'],
- 'Website': ['http://webscalesql.org']}
+{"<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>": ["<table class=dbi_mini>"],
+ "Database model": ["Relational DBMS"],
+ "Description": ["Performance oriented extension to MySQL"],
+ "Developer": ["WebScaleSQL",
+                "WebScaleSQL is a collaboration among engineers from several companies that face the same challenges in deploying MySQL at scale, and seek greater performance from a database technology tailored for their needs."],
+ "Initial release": ["2014"],
+ "License": ["Open Source", "GPLv2, MySQL FOSS"],
+ "Name": ["WebScaleSQL"],
+ "Website": ["http://webscalesql.org"]}

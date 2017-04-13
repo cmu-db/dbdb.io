@@ -1,6 +1,6 @@
-{'Database model': ['Relational DBMS'],
- 'Implementation language': ['Java'],
- 'License': [('Open Source',
-              'Mozilla public license, Eclipse public license')],
- 'Name': ['H2'],
- 'Website': ['http://www.h2database.com/']}
+{"Database model": ["Relational DBMS"],
+ "Implementation language": ["Java"],
+ "License": ["Open Source",
+              "Mozilla public license, Eclipse public license"],
+ "Name": ["H2"],
+ "Website": ["http://www.h2database.com/"]}

@@ -1,4 +1,4 @@
-{'Database model': ['Object oriented DBMS'],
- 'License': ['commercial'],
- 'Name': ['Cach\xc3\xa9'],
- 'Website': ['http://www.intersystems.com/cache/index.html']}
+{"Database model": ["Object oriented DBMS"],
+ "License": ["commercial"],
+ "Name": ["Cach\xc3\xa9"],
+ "Website": ["http://www.intersystems.com/cache/index.html"]}

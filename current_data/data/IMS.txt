@@ -1,5 +1,5 @@
-{'Database model': ['Navigational DBMS'],
- 'Developer': ['IBM'],
- 'License': ['commercial'],
- 'Name': ['IMS'],
- 'Website': ['http://www.ibm.com/software/data/ims/ims/']}
+{"Database model": ["Navigational DBMS"],
+ "Developer": ["IBM"],
+ "License": ["commercial"],
+ "Name": ["IMS"],
+ "Website": ["http://www.ibm.com/software/data/ims/ims/"]}

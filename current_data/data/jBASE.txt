@@ -1,4 +1,4 @@
-{'Database model': ['Multivalue DBMS'],
- 'License': ['commercial'],
- 'Name': ['jBASE'],
- 'Website': ['http://www.jbase.com/']}
+{"Database model": ["Multivalue DBMS"],
+ "License": ["commercial"],
+ "Name": ["jBASE"],
+ "Website": ["http://www.jbase.com/"]}
