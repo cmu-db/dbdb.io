@@ -200,6 +200,7 @@ class SystemVersion(models.Model):
     access_methods = models.ManyToManyField('APIAccessMethod', related_name="systems_access", blank=True)
     publications = models.ManyToManyField('Publication', related_name='systems_publications', blank=True)
 
+    # TODO move defaults to front end as placeholders.
     # Feature support and descriptions
     support_systemarchitecture = models.NullBooleanField()
     description_systemarchitecture = MarkupField(default='Is it a shared-memory, shared-disk, or shared-nothing DBMS? '
