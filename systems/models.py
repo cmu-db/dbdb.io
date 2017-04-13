@@ -315,6 +315,7 @@ class SystemVersion(models.Model):
             feature = {
                 'is_supported': is_supported,
                 'label': label,
+                'field': field,
                 'description': description,
                 'description_raw': description_raw,
                 'rendered_description': rendered_description,

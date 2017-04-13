@@ -7,14 +7,20 @@
 {% block css %}
   <link href="{% static 'css/db_page.css' %}" rel="stylesheet">
   <link href="{% static 'css/db_page_edit.css' %}" rel="stylesheet">
+  <link href="{% static 'css/libs/font-awesome.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/libs/bootstrap-markdown.min.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
 
   <i id="spinner"></i>
 
+  <button type="submit" class="btn btn-default" form="editForm">
+    Save!
+  </button>
+
   <div class="row">
-    <!-- outer page wrapper -->
+    <!-- Outer page wrapper -->
     <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-12 main-content">
 
       <!-- title and description row -->
@@ -37,6 +43,7 @@
         </div>
       </div>
 
+      <!-- Logo upload row -->
       <div class="row">
         <div class="col-md-12 form-group">
           <label for="logoUpload">Logo</label>
@@ -46,27 +53,24 @@
         <img id="logo" src=""/>
       </div>
 
-      <!-- features row -->
+      <!-- Features/Metatada row -->
       <div class="row">
-        <!-- yes/no feature area -->
+
+        <!-- Yes/No feature area -->
         <div class="col-md-6 col-xs-12">
 
           <div class="subsection-heading">DESCRIPTION</div>
-          <div class="description-description db-description" id="db-description" data-type="description">
-            {{ db.description }}
-          </div>
-          <div class="description-raw" style="display:none;">
-              {{ db.description_raw }}
-          </div>
+          <form id="editForm" action="/db/{{ db.slug }}/{{ key }}" method="post">
+            {% csrf_token %}
+            <textarea form="editForm" name="description-markup" data-provide="markdown">{{ db.description }}</textarea>
+          </form>
           <div class="subsection-heading">HISTORY</div>
-          <div class="description-description db-description" id="db-history" data-type="history">
-            {{ db.history }}
-          </div>
-          <div class="description-raw" style="display:none;">
-              {{ db.history_raw }}
-          </div>
+          <form id="editForm" action="/db/{{ db.slug }}/{{ key }}" method="post">
+            {% csrf_token %}
+            <textarea form="editForm" name="history-markup" data-provide="markdown">{{ db.history }}</textarea>
+          </form>
 
-  <!-- Begin features section -->
+          <!-- Begin features section -->
           {% for feature in db.features %}
             <div class="yesno-row">
 
@@ -83,14 +87,18 @@
 
               {% if feature.is_supported %}
                 <div class="yesno-description" data-type="{{ feature.label }}" data-exists="1">
-                  {{ feature.description }}
+{#                  {{ feature.description }}#}
                 </div>
               {% else %}
                 <div class="yesno-description" data-type="{{ feature.label }}" data-exists="0"></div>
               {% endif %}
-              <div class="yesno-description-raw" style="display:none;">
-                {{ feature.description_raw }}
-              </div>
+{#              <div class="yesno-description-raw" style="display:none;">#}
+{#                {{ feature.description_raw }}#}
+{#              </div>#}
+              <form id="editForm" action="/db/{{ db.slug }}/{{ key }}" method="post">
+                {% csrf_token %}
+                <textarea form="editForm" name="description_{{ feature.field }}" data-provide="markdown">{{ feature.description }}</textarea>
+              </form>
 
               <div class="metadata-row">
                 <span class="header-text">Options: </span>
@@ -119,10 +127,13 @@
             </div>
 
           {% endfor %}
-  <!-- End features section -->
-        </div>
 
-        <!-- metadata area -->
+        </div>
+        <!-- End features section -->
+
+        <!-- Metadata area -->
+
+        <!-- TODO: Is it possible to condense this section by turning it into loop? Do it in a way that reflects the structure in models.py-->
         <div class="col-md-6 col-xs-12" id="metadata-area">
           <div class="metadata-row">
             <span class="header-text">Website: </span><span class="metadata-data" data-type="website">{{ db.website }}</span>
@@ -142,6 +153,7 @@
           <div class="metadata-row">
             <span class="header-text">Project Type: </span><span class="metadata-data" data-type="project_type">{{ db.project_type }}</span>
           </div>
+
           <div class="metadata-row">
             <span class="header-text">Written in: </span>
             <span class="metadata-data selection" data-type="written_in">
@@ -232,8 +244,12 @@
               {% endfor %}
             </select>
           </div>
+
         </div>
+        <!-- End metadata area -->
+
       </div>
+      <!-- End Features/Metatada row -->
 
       <div class="row citation-row">
         <div class="col-md-12">
@@ -309,6 +325,9 @@
 {% block js %}
 
   <script src="{% static 'js/libs/spin.js' %}"></script>
+  <script src="{% static 'js/libs/markdown.min.js' %}"></script>
+  <script src="{% static 'js/libs/to-markdown.js' %}"></script>
+  <script src="{% static 'js/libs/bootstrap-markdown.js' %}"></script>
   <script src="{% static 'js/database_edit.js' %}"></script>
 
 {% endblock %}
