@@ -156,15 +156,15 @@ system_map = {
 }
 
 
-systems = []  # models.System
+systems = {}  # models.System
 system_versions = []  # models.SystemVersion
 svfo = []  # models.SystemVersionFeatureOptions
 pk = 1
 
 
-# Read json files and make fixtures out of them
+# Read json files and convert to fixtures
 def create_fixtures(directory, files):
-    global pk
+    global pk, systems, system_versions, svfo
     for filename in files:
         with open(directory + '/' + filename, 'r') as infile:
             try:
@@ -173,15 +173,18 @@ def create_fixtures(directory, files):
                 add_print_output(filename, "Other", 'Could not read ' + filename + ' ' + str(error))
                 continue
 
-            # TODO Hotfix for files with Name or Website as list
+            # TODO This is a temporary hotfix for files with Name or Website as list
             if isinstance(data.get('Name'), list) and len(data['Name']) >= 1:
                 data['Name'] = data['Name'][0]
             if isinstance(data.get('Website'), list) and len(data['Website']) >= 1:
                 data['Website'] = data['Website'][0]
 
+            if systems.get(data['Name']):
+                continue
+
             slug = slugify(data['Name'])
             repeat_slugs = 0
-            for sys in systems:
+            for sys in systems.itervalues():
                 if sys['fields']['slug'] == slug:
                     repeat_slugs += 1
 
@@ -265,30 +268,31 @@ def create_fixtures(directory, files):
                 'model': 'systems.SystemVersion',
                 'fields': fields
             }
-            systems.append(sys_fixture)
+            systems[data['Name']] = sys_fixture
             system_versions.append(sys_ver_fixture)
         pk += 1
 
-create_fixtures('spring2016', os.listdir('spring2016'))
-create_fixtures('data', os.listdir('data'))
-
-# TODO Go through csv files
 
 # Write the fixtures to a file
-with open(sys_file, 'w') as outfile1, open(sys_ver_file, 'w') as outfile2, open(svfo_file, 'w') as outfile3:
-    mycmp = lambda x, y: cmp(x['pk'], y['pk'])
+def write_fixtures():
+    with open(sys_file, 'w') as outfile1, open(sys_ver_file, 'w') as outfile2, open(svfo_file, 'w') as outfile3:
+        mycmp = lambda x, y: cmp(x['pk'], y['pk'])
 
-    systems.sort(cmp=mycmp)
-    outfile1.write(json.dumps(systems, indent=4))
+        systems_list = list(systems.itervalues())
+        systems_list.sort(cmp=mycmp)
+        outfile1.write(json.dumps(systems_list, indent=4))
 
-    system_versions.sort(cmp=mycmp)
-    outfile2.write(json.dumps(system_versions, indent=4))
+        system_versions.sort(cmp=mycmp)
+        outfile2.write(json.dumps(system_versions, indent=4))
 
-    svfo.sort(cmp=mycmp)
-    outfile3.write(json.dumps(svfo, indent=4))
+        svfo.sort(cmp=mycmp)
+        outfile3.write(json.dumps(svfo, indent=4))
 
+create_fixtures('spring2016', os.listdir('spring2016'))
+create_fixtures('data', os.listdir('data'))
+create_fixtures('data_json', os.listdir('data_json'))
+write_fixtures()
 
 with open('output.txt', 'w') as output_file:
     output_file.write(json.dumps(print_output, indent=4))
-
-print 'Output can be found in output.txt'
+    print 'Output can be found in output.txt'

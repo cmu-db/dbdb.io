@@ -1,0 +1,1574 @@
+[
+    {
+        "Website": "http://stardog.com/", 
+        "Name": "Stardog"
+    }, 
+    {
+        "Website": "http://hadapt.com/", 
+        "Name": "Hadapt"
+    }, 
+    {
+        "Website": "http://www.aelius.com/njh/redstore/", 
+        "Name": "RedStore"
+    }, 
+    {
+        "Website": "https://github.com/antonmks/Alenka", 
+        "Name": "Alenka"
+    }, 
+    {
+        "Website": "http://labs.codernity.com/codernitydb/", 
+        "Name": "CodernityDB"
+    }, 
+    {
+        "Website": "https://terark.com/en/index", 
+        "Name": "Terak"
+    }, 
+    {
+        "Website": "https://github.com/iondbproject/iondb", 
+        "Name": "IonDB"
+    }, 
+    {
+        "Website": "http://virtuoso.openlinksw.com/", 
+        "Name": "Virtuoso"
+    }, 
+    {
+        "Website": "http://www.stormdb.com", 
+        "Name": "StormDB"
+    }, 
+    {
+        "Website": "http://www.vistadb.net/", 
+        "Name": "VistaDB"
+    }, 
+    {
+        "Website": "http://basex.org/", 
+        "Name": "BaseX"
+    }, 
+    {
+        "Website": "http://librdf.org/", 
+        "Name": "Redland"
+    }, 
+    {
+        "Website": "http://dgraph.io/", 
+        "Name": "DGraph"
+    }, 
+    {
+        "Website": "http://influxdb.org/", 
+        "Name": "InfluxDB"
+    }, 
+    {
+        "Website": "http://research.cs.wisc.edu/coral/", 
+        "Name": "CORAL"
+    }, 
+    {
+        "Website": "http://www.ibm.com/software/data/soliddb/", 
+        "Name": "solidDB"
+    }, 
+    {
+        "Website": "http://cs.yale.edu/homes/thomson/", 
+        "Name": "Calvin"
+    }, 
+    {
+        "Website": "http://www.oracle.com/us/products/database/timesten/index.html", 
+        "Name": "TimesTen"
+    }, 
+    {
+        "Website": "https://fauna.org/", 
+        "Name": "Fauna"
+    }, 
+    {
+        "Website": "http://www.google.com/enterprise/search/campaigns/gsa7.html", 
+        "Name": "Google Search Appliance"
+    }, 
+    {
+        "Website": "http://www.saphana.com/", 
+        "Name": "SAP HANA"
+    }, 
+    {
+        "Website": "http://www.indicasearch.com/", 
+        "Name": "Indica"
+    }, 
+    {
+        "Website": "http://www.nuodb.com/", 
+        "Name": "NuoDB"
+    }, 
+    {
+        "Website": "http://www.infobright.com/", 
+        "Name": "Infobright"
+    }, 
+    {
+        "Website": "http://www.cortex-ag.com", 
+        "Name": "CortexDB"
+    }, 
+    {
+        "Website": "http://www.faircom.com/ace/products_t.php", 
+        "Name": "c-treeACE"
+    }, 
+    {
+        "Website": "http://www.finedb.org/", 
+        "Name": "FineDB"
+    }, 
+    {
+        "Website": "http://www.progress.com/en/openedge/developer-productivity/database/index.html", 
+        "Name": "OpenEdge"
+    }, 
+    {
+        "Website": "http://www.mysql.com/", 
+        "Name": "MySQL"
+    }, 
+    {
+        "Website": "http://gun.js.org/", 
+        "Name": "GUN"
+    }, 
+    {
+        "Website": "http://raptordb.codeplex.com/", 
+        "Name": "RaptorDB"
+    }, 
+    {
+        "Website": "http://www.vertica.com/", 
+        "Name": "Vertica"
+    }, 
+    {
+        "Website": "http://fallabs.com/tokyocabinet/", 
+        "Name": "Tokyo Cabinet"
+    }, 
+    {
+        "Website": "http://www.memcached.org/", 
+        "Name": "Memcached"
+    }, 
+    {
+        "Website": "", 
+        "Name": "GAMMA"
+    }, 
+    {
+        "Website": "http://www.amisalabs.com/", 
+        "Name": "Amisa Server"
+    }, 
+    {
+        "Website": "http://www.gridgain.com/", 
+        "Name": "GridGain"
+    }, 
+    {
+        "Website": "http://blinkdb.org/", 
+        "Name": "BlinkDB"
+    }, 
+    {
+        "Website": "http://www.oracle.com/technetwork/products/berkeleydb/", 
+        "Name": "Berkeley DB"
+    }, 
+    {
+        "Website": "http://mimer.com/", 
+        "Name": "Mimer SQL"
+    }, 
+    {
+        "Website": "http://fallabs.com/kyototycoon/", 
+        "Name": "Kyoto Tycoon"
+    }, 
+    {
+        "Website": "http://publications.csail.mit.edu/lcs/pubs/pdf/MIT-LCS-TR-070.pdf", 
+        "Name": "Goldstar"
+    }, 
+    {
+        "Website": "http://www.sybase.com/products/databasemanagement/adaptiveserverenterprise", 
+        "Name": "Sybase ASE"
+    }, 
+    {
+        "Website": "http://couchdb.apache.org/", 
+        "Name": "CouchDB"
+    }, 
+    {
+        "Website": "http://research.cs.wisc.edu/shore/", 
+        "Name": "Shore"
+    }, 
+    {
+        "Website": "https://github.com/Intel-HLS/GenomicsDB", 
+        "Name": "GenomicsDB"
+    }, 
+    {
+        "Website": "http://www.mcobject.com/extremedbfamily.shtml", 
+        "Name": "eXtremeDB"
+    }, 
+    {
+        "Website": "http://hamsterdb.com/", 
+        "Name": "HamsterDB"
+    }, 
+    {
+        "Website": "http://axibase.com/", 
+        "Name": "Axibase"
+    }, 
+    {
+        "Website": "http://www.rubatodb.com/", 
+        "Name": "RubatoDB"
+    }, 
+    {
+        "Website": "http://www.oracle.com/us/products/applications/commerce/endeca/overview/index.html", 
+        "Name": "Endeca"
+    }, 
+    {
+        "Website": "http://www.ontotext.com/owlim", 
+        "Name": "OWLIM"
+    }, 
+    {
+        "Website": "", 
+        "Name": "PRISMA/DB"
+    }, 
+    {
+        "Website": "http://www.oberasoftware.com/jasdb/", 
+        "Name": "JasDB"
+    }, 
+    {
+        "Website": "http://h17007.www1.hp.com/us/en/enterprise/servers/integrity/nonstop/nonstop-sql.aspx", 
+        "Name": "NonStop SQL"
+    }, 
+    {
+        "Website": "http://stsdb.com/", 
+        "Name": "STSdb"
+    }, 
+    {
+        "Website": "http://www.atomicdb.net/", 
+        "Name": "AtomicDB"
+    }, 
+    {
+        "Website": "https://github.com/tidwall/buntdb", 
+        "Name": "BuntDB"
+    }, 
+    {
+        "Website": "http://www.snappydata.io/", 
+        "Name": "SnappyData"
+    }, 
+    {
+        "Website": "http://ibm.com/software/products/us/en/websphere-extreme-scale/", 
+        "Name": "WebSphere eXtreme Scale"
+    }, 
+    {
+        "Website": "http://www.jboss.org/infinispan/", 
+        "Name": "Infinispan"
+    }, 
+    {
+        "Website": "http://www.sybase.com/products/databasemanagement/sqlanywhere", 
+        "Name": "SQL Anywhere"
+    }, 
+    {
+        "Website": "http://lucene.apache.org/solr/", 
+        "Name": "Solr"
+    }, 
+    {
+        "Website": "http://deepdive.stanford.edu/", 
+        "Name": "DeepDive"
+    }, 
+    {
+        "Website": "http://www.asterdata.com", 
+        "Name": "Teradata Aster"
+    }, 
+    {
+        "Website": "https://www.piladb.org/", 
+        "Name": "piladb"
+    }, 
+    {
+        "Website": "http://www.nexusdb.com/", 
+        "Name": "NexusDB"
+    }, 
+    {
+        "Website": "http://siridb.net/", 
+        "Name": "SiriDB"
+    }, 
+    {
+        "Website": "http://www.acedb.org/", 
+        "Name": "AceDB"
+    }, 
+    {
+        "Website": "http://www.ca.com/us/products/detail/CA-IDMS.aspx", 
+        "Name": "IDMS"
+    }, 
+    {
+        "Website": "http://www.vmware.com/products/application-platform/vfabric-gemfire/overview.html", 
+        "Name": "GemFire"
+    }, 
+    {
+        "Website": "http://jena.apache.org/", 
+        "Name": "Jena"
+    }, 
+    {
+        "Website": "http://neo4j.org/", 
+        "Name": "Neo4j"
+    }, 
+    {
+        "Website": "https://github.com/tidwall/summitdb", 
+        "Name": "SummitDB"
+    }, 
+    {
+        "Website": "https://www.blazegraph.com/", 
+        "Name": "Blazegraph"
+    }, 
+    {
+        "Website": "http://luciddb.sourceforge.net/", 
+        "Name": "LucidDB"
+    }, 
+    {
+        "Website": "http://www.versant.com/products/versant-object-database", 
+        "Name": "Versant Object Database"
+    }, 
+    {
+        "Website": "http://code.google.com/p/scalaris/", 
+        "Name": "Scalaris"
+    }, 
+    {
+        "Website": "http://accumulo.apache.org/", 
+        "Name": "Accumulo"
+    }, 
+    {
+        "Website": "http://dl.acm.org/citation.cfm?id=597051", 
+        "Name": "Dal\u00ed"
+    }, 
+    {
+        "Website": "http://www.kognitio.com/", 
+        "Name": "Kognitio"
+    }, 
+    {
+        "Website": "http://www.cubrid.org/", 
+        "Name": "Cubrid"
+    }, 
+    {
+        "Website": "http://fallabs.com/tokyotyrant/", 
+        "Name": "Tokyo Tyrant"
+    }, 
+    {
+        "Website": "https://github.com/madgik/madis", 
+        "Name": "madIS"
+    }, 
+    {
+        "Website": "http://hive.apache.org/", 
+        "Name": "Hive"
+    }, 
+    {
+        "Website": "http://sqrrl.com/", 
+        "Name": "Sqrrl"
+    }, 
+    {
+        "Website": "http://www.justonedb.com/", 
+        "Name": "JustOneDB"
+    }, 
+    {
+        "Website": "http://www.caucho.com", 
+        "Name": "Resin Cache"
+    }, 
+    {
+        "Website": "http://www.exasol.com/", 
+        "Name": "Exasol"
+    }, 
+    {
+        "Website": "http://www.rbase.com/", 
+        "Name": "R:BASE"
+    }, 
+    {
+        "Website": "http://sphia.org", 
+        "Name": "Sophia"
+    }, 
+    {
+        "Website": "http://www.clusterpoint.com/", 
+        "Name": "Clusterpoint"
+    }, 
+    {
+        "Website": "http://opensource.plurk.com/LightCloud/", 
+        "Name": "LightCloud"
+    }, 
+    {
+        "Website": "http://jackrabbit.apache.org/", 
+        "Name": "Jackrabbit"
+    }, 
+    {
+        "Website": "http://code.google.com/p/terrastore/", 
+        "Name": "Terrastore"
+    }, 
+    {
+        "Website": "http://www.jboss.org/modeshape", 
+        "Name": "ModeShape"
+    }, 
+    {
+        "Website": "http://www.translattice.com/", 
+        "Name": "TransLattice"
+    }, 
+    {
+        "Website": "", 
+        "Name": "SharedDB"
+    }, 
+    {
+        "Website": "http://hyper-db.de/", 
+        "Name": "HyPer"
+    }, 
+    {
+        "Website": "https://github.com/vinniefalco/NuDB", 
+        "Name": "NuDB"
+    }, 
+    {
+        "Website": "http://objectivity.com/", 
+        "Name": "InfiniteGraph"
+    }, 
+    {
+        "Website": "http://www.rexdb.org/", 
+        "Name": "RexDB"
+    }, 
+    {
+        "Website": "http://ibm.com/software/data/db2/", 
+        "Name": "DB2"
+    }, 
+    {
+        "Website": "http://hbase.apache.org/", 
+        "Name": "HBase"
+    }, 
+    {
+        "Website": "http://ravendb.net/", 
+        "Name": "RavenDB"
+    }, 
+    {
+        "Website": "http://www.nec.com/en/global/prod/infoframe/relationalstore/", 
+        "Name": "InfoFrame"
+    }, 
+    {
+        "Website": "http://hamsterdb.com/", 
+        "Name": "Hamsterdb"
+    }, 
+    {
+        "Website": "https://wiki.trafodion.org/wiki/index.php/Main_Page", 
+        "Name": "Trafodion"
+    }, 
+    {
+        "Website": "http://www.terraindb.com/", 
+        "Name": "TerrainDB"
+    }, 
+    {
+        "Website": "http://www.eloquera.com/", 
+        "Name": "Eloquera"
+    }, 
+    {
+        "Website": "http://altibase.com/", 
+        "Name": "Altibase"
+    }, 
+    {
+        "Website": "http://www.exorbyte.com", 
+        "Name": "Exorbyte"
+    }, 
+    {
+        "Website": "http://www.franz.com/agraph/allegrograph/", 
+        "Name": "AllegroGraph"
+    }, 
+    {
+        "Website": "https://github.com/cockroachdb/cockroach", 
+        "Name": "CockroachDB"
+    }, 
+    {
+        "Website": "http://vulcandb.com/", 
+        "Name": "VulcanDB"
+    }, 
+    {
+        "Website": "http://www.kylin.io/", 
+        "Name": "Kylin"
+    }, 
+    {
+        "Website": "http://maxdb.sap.com/", 
+        "Name": "MaxDB"
+    }, 
+    {
+        "Website": "http://www.ibm.com/software/data/informix/", 
+        "Name": "Informix"
+    }, 
+    {
+        "Website": "http://www.vldb.org/pvldb/vol7/p947-chairunnanda.pdf", 
+        "Name": "ConfluxDB"
+    }, 
+    {
+        "Website": "https://www.osisoft.com/software-support/what-is-pi/What_Is_PI.aspx", 
+        "Name": "OSIsoft PI"
+    }, 
+    {
+        "Website": "http://symas.com/mdb/", 
+        "Name": "LMDB"
+    }, 
+    {
+        "Website": "http://gemtalksystems.com/", 
+        "Name": "GemStone/S"
+    }, 
+    {
+        "Website": "http://globalsdb.org/", 
+        "Name": "GlobalsDB"
+    }, 
+    {
+        "Website": "http://www.searchblox.com/", 
+        "Name": "SearchBlox"
+    }, 
+    {
+        "Website": "http://edgedb.com/", 
+        "Name": "EdgeDB"
+    }, 
+    {
+        "Website": "https://github.com/linkedin/PalDB", 
+        "Name": "PalDB"
+    }, 
+    {
+        "Website": "https://dalmatiner.io/", 
+        "Name": "DalmatinerDB"
+    }, 
+    {
+        "Website": "http://scidb.org/", 
+        "Name": "SciDB"
+    }, 
+    {
+        "Website": "http://giraph.apache.org/", 
+        "Name": "Giraph"
+    }, 
+    {
+        "Website": "http://www.openqm.com/", 
+        "Name": "OpenQM"
+    }, 
+    {
+        "Website": "http://www.datameer.com/", 
+        "Name": "Datameer"
+    }, 
+    {
+        "Website": "http://exist-db.org/", 
+        "Name": "eXist-db"
+    }, 
+    {
+        "Website": "http://www.actian.com/products/ingres", 
+        "Name": "Ingres"
+    }, 
+    {
+        "Website": "http://www.marklogic.com/", 
+        "Name": "MarkLogic"
+    }, 
+    {
+        "Website": "http://office.microsoft.com/en-us/access", 
+        "Name": "Microsoft Access"
+    }, 
+    {
+        "Website": "http://www.memsql.com/", 
+        "Name": "MemSQL"
+    }, 
+    {
+        "Website": "http://u2.rocketsoftware.com/", 
+        "Name": "UniData,UniVerse"
+    }, 
+    {
+        "Website": "http://www.tesora.com/", 
+        "Name": "Tesora"
+    }, 
+    {
+        "Website": "http://www.windowsazure.com/en-us/services/sql-database/", 
+        "Name": "Windows Azure SQL Database"
+    }, 
+    {
+        "Website": "http://tajo.apache.org/", 
+        "Name": "Tajo"
+    }, 
+    {
+        "Website": "http://www.pervasivedb.com/", 
+        "Name": "Pervasive PSQL"
+    }, 
+    {
+        "Website": "https://github.com/siddontang/ledisdb", 
+        "Name": "Ledis"
+    }, 
+    {
+        "Website": "http://www.dekorte.com/projects/opensource/vertexdb/", 
+        "Name": "VertexDB"
+    }, 
+    {
+        "Website": "http://publications.csail.mit.edu/lcs/pubs/pdf/MIT-LCS-TR-070.pdf", 
+        "Name": "Goldstart"
+    }, 
+    {
+        "Website": "http://dl.acm.org/citation.cfm?id=320129", 
+        "Name": "SDD-1"
+    }, 
+    {
+        "Website": "http://www.scimore.com/", 
+        "Name": "ScimoreDB"
+    }, 
+    {
+        "Website": "https://upscaledb.com", 
+        "Name": "upscaledb"
+    }, 
+    {
+        "Website": "http://www.rqlite.com/", 
+        "Name": "rqlite"
+    }, 
+    {
+        "Website": "http://www.starcounter.com/", 
+        "Name": "Starcounter"
+    }, 
+    {
+        "Website": "http://aws.amazon.com/cloudsearch/", 
+        "Name": "CloudSearch"
+    }, 
+    {
+        "Website": "http://www.softwareag.com/corporate/products/wm/tamino/default.asp", 
+        "Name": "Tamino"
+    }, 
+    {
+        "Website": "https://github.com/akumuli/AkumuliDB", 
+        "Name": "AkumuliDB"
+    }, 
+    {
+        "Website": "http://www.rethinkdb.com/", 
+        "Name": "RethinkDB"
+    }, 
+    {
+        "Website": "https://github.com/stripe/sequins", 
+        "Name": "Sequins"
+    }, 
+    {
+        "Website": "http://www.ideawu.com/ssdb/", 
+        "Name": "SSDB"
+    }, 
+    {
+        "Website": "", 
+        "Name": "GRACE"
+    }, 
+    {
+        "Website": "http://dl.acm.org/citation.cfm?id=1316778", 
+        "Name": "P*TIME"
+    }, 
+    {
+        "Website": "http://www.ibm.com/software/data/ims/ims/", 
+        "Name": "IMS"
+    }, 
+    {
+        "Website": "http://www.dbase.com/", 
+        "Name": "dBASE"
+    }, 
+    {
+        "Website": "", 
+        "Name": "SmallBase"
+    }, 
+    {
+        "Website": "http://www.oracle.com/us/products/database/", 
+        "Name": "Oracle"
+    }, 
+    {
+        "Website": "http://aws.amazon.com/simpledb/", 
+        "Name": "SimpleDB"
+    }, 
+    {
+        "Website": "http://www.percona.com/software/percona-server", 
+        "Name": "Percona Server"
+    }, 
+    {
+        "Website": "http://www.jbase.com/", 
+        "Name": "jBASE"
+    }, 
+    {
+        "Website": "http://www.fathomdb.com/", 
+        "Name": "FathomDB"
+    }, 
+    {
+        "Website": "http://www.rasdaman.org/", 
+        "Name": "Rasdaman"
+    }, 
+    {
+        "Website": "http://www.mongodb.org/", 
+        "Name": "MongoDB"
+    }, 
+    {
+        "Website": "http://www.objectstore.com/", 
+        "Name": "ObjectStore"
+    }, 
+    {
+        "Website": "http://pumpkindb.org/", 
+        "Name": "PumpkinDB"
+    }, 
+    {
+        "Website": "http://concoursedb.com/", 
+        "Name": "ConcourseDB"
+    }, 
+    {
+        "Website": "http://www.frontbase.com/", 
+        "Name": "FrontBase"
+    }, 
+    {
+        "Website": "http://cassandra.apache.org/", 
+        "Name": "Cassandra"
+    }, 
+    {
+        "Website": "http://www.oracle.com/technetwork/products/nosqldb/", 
+        "Name": "Oracle NoSQL"
+    }, 
+    {
+        "Website": "http://www.amazon.com/real-time-database-management-application-development/dp/7512360703", 
+        "Name": "Haixun"
+    }, 
+    {
+        "Website": "http://tarantool.org/", 
+        "Name": "Tarantool"
+    }, 
+    {
+        "Website": "http://dl.acm.org/citation.cfm?id=1247607", 
+        "Name": "EaseDB"
+    }, 
+    {
+        "Website": "http://sphinxsearch.com/", 
+        "Name": "Sphinx"
+    }, 
+    {
+        "Website": "http://druid.io/", 
+        "Name": "Druid"
+    }, 
+    {
+        "Website": "http://nanolat.com/index/0-2", 
+        "Name": "Nanolat"
+    }, 
+    {
+        "Website": "http://infinidb.org/", 
+        "Name": "InfiniDB"
+    }, 
+    {
+        "Website": "https://bitbucket.org/lambdazen/bitsy/wiki/Home", 
+        "Name": "Bitsy"
+    }, 
+    {
+        "Website": "http://www.iqlect.com/product.php", 
+        "Name": "Bangdb"
+    }, 
+    {
+        "Website": "http://sourceforge.net/projects/blackray/", 
+        "Name": "BlackRay"
+    }, 
+    {
+        "Website": "http://www.clustrix.com/", 
+        "Name": "Clustrix"
+    }, 
+    {
+        "Website": "http://castledb.org/", 
+        "Name": "CastleDB"
+    }, 
+    {
+        "Website": "http://www.scylladb.com/", 
+        "Name": "Scylla DB"
+    }, 
+    {
+        "Website": "http://www.garret.ru/fastdb.html", 
+        "Name": "FastDB"
+    }, 
+    {
+        "Website": "http://www.openrdf.org/", 
+        "Name": "Sesame"
+    }, 
+    {
+        "Website": "http://www.db4o.com/", 
+        "Name": "Db4o"
+    }, 
+    {
+        "Website": "https://github.com/kevinlawler/kerf", 
+        "Name": "Kerf"
+    }, 
+    {
+        "Website": "", 
+        "Name": "XPRS"
+    }, 
+    {
+        "Website": "http://densodb.codeplex.com", 
+        "Name": "DensoDB"
+    }, 
+    {
+        "Website": "http://www.dataease.com/", 
+        "Name": "DataEase"
+    }, 
+    {
+        "Website": "http://www.northgate-reality.com/", 
+        "Name": "Northgate Reality"
+    }, 
+    {
+        "Website": "http://developers.google.com/bigquery/", 
+        "Name": "Google BigQuery"
+    }, 
+    {
+        "Website": "http://www.tigerlogic.com/tigerlogic/pick/database/index.jsp", 
+        "Name": "D3"
+    }, 
+    {
+        "Website": "https://github.com/typicode/lowdb", 
+        "Name": "LowDB"
+    }, 
+    {
+        "Website": "http://relationalcloud.com", 
+        "Name": "RelationalCloud"
+    }, 
+    {
+        "Website": "http://cr.yp.to/cdb.html", 
+        "Name": "cdb"
+    }, 
+    {
+        "Website": "https://github.com/yahoo/mdbm", 
+        "Name": "MDBM"
+    }, 
+    {
+        "Website": "", 
+        "Name": "System R*"
+    }, 
+    {
+        "Website": "http://www.smallsql.de/", 
+        "Name": "SmallSQL"
+    }, 
+    {
+        "Website": "", 
+        "Name": "Paradise"
+    }, 
+    {
+        "Website": "http://basho.com/products/riak-overview/", 
+        "Name": "Riak"
+    }, 
+    {
+        "Website": "http://dl.acm.org/citation.cfm?id=2387905", 
+        "Name": "Google Spanner"
+    }, 
+    {
+        "Website": "", 
+        "Name": "NeoView"
+    }, 
+    {
+        "Website": "http://hstore.cs.brown.edu/", 
+        "Name": "H-Store"
+    }, 
+    {
+        "Website": "http://graphbase.net/", 
+        "Name": "GraphBase"
+    }, 
+    {
+        "Website": "http://dl.acm.org/citation.cfm?id=2213954", 
+        "Name": "Google F1"
+    }, 
+    {
+        "Website": "http://prestodb.io/", 
+        "Name": "Presto"
+    }, 
+    {
+        "Website": "http://www.brightstardb.com/", 
+        "Name": "BrightstarDB"
+    }, 
+    {
+        "Website": "https://github.com/baidu/tera/", 
+        "Name": "Baidu Tera"
+    }, 
+    {
+        "Website": "http://www.intersystems.com/our-products/cache/cache-overview/", 
+        "Name": "Cach\u00e9"
+    }, 
+    {
+        "Website": "http://sqream.com/", 
+        "Name": "SQream"
+    }, 
+    {
+        "Website": "http://www.tokutek.com/products/tokudb-for-mysql/", 
+        "Name": "TokuDB"
+    }, 
+    {
+        "Website": "http://ejdb.org/", 
+        "Name": "EJDB"
+    }, 
+    {
+        "Website": "http://webscalesql.org", 
+        "Name": "WebScaleSQL"
+    }, 
+    {
+        "Website": "http://tiledb.org/", 
+        "Name": "TileDB"
+    }, 
+    {
+        "Website": "http://www.iqlect.com/bangdb_embedded.php", 
+        "Name": "BangDB"
+    }, 
+    {
+        "Website": "http://mariadb.org/", 
+        "Name": "MariaDB"
+    }, 
+    {
+        "Website": "http://voltdb.com/", 
+        "Name": "VoltDB"
+    }, 
+    {
+        "Website": "http://thinkaurelius.github.com/titan/", 
+        "Name": "Titan"
+    }, 
+    {
+        "Website": "", 
+        "Name": "DIRECT"
+    }, 
+    {
+        "Website": "https://github.com/attic-labs/noms", 
+        "Name": "Noms"
+    }, 
+    {
+        "Website": "https://blazingdb.com/", 
+        "Name": "BlazingDB"
+    }, 
+    {
+        "Website": "http://www.hypergraphdb.org/", 
+        "Name": "HyperGraphDB"
+    }, 
+    {
+        "Website": "http://wakandadb.org/", 
+        "Name": "WakandaDB"
+    }, 
+    {
+        "Website": "http://www.microsoft.com/sqlserver/", 
+        "Name": "Microsoft SQL Server"
+    }, 
+    {
+        "Website": "http://tile38.com/", 
+        "Name": "Tile38"
+    }, 
+    {
+        "Website": "http://djondb.com/", 
+        "Name": "Djondb"
+    }, 
+    {
+        "Website": "http://traildb.io/", 
+        "Name": "TrailDB"
+    }, 
+    {
+        "Website": "http://www.mcobject.com/perst", 
+        "Name": "Perst"
+    }, 
+    {
+        "Website": "https://github.com/graemedouglas/LittleD", 
+        "Name": "LittleD"
+    }, 
+    {
+        "Website": "http://db.apache.org/derby/", 
+        "Name": "Apache Derby"
+    }, 
+    {
+        "Website": "http://www.dynomitedb.com/", 
+        "Name": "DynomiteDB"
+    }, 
+    {
+        "Website": "http://www.dataupia.com/", 
+        "Name": "Dataupia"
+    }, 
+    {
+        "Website": "http://www.crowddb.org/", 
+        "Name": "CrowdDB"
+    }, 
+    {
+        "Website": "http://infinitumdb.com/", 
+        "Name": "Infinitum"
+    }, 
+    {
+        "Website": "http://www.logicblox.com/technology.html", 
+        "Name": "LogicBlox"
+    }, 
+    {
+        "Website": "http://whitedb.org/", 
+        "Name": "WhiteDB"
+    }, 
+    {
+        "Website": "http://www.infinisql.org/", 
+        "Name": "InfiniSQL"
+    }, 
+    {
+        "Website": "http://senseidb.com/", 
+        "Name": "SenseiDB"
+    }, 
+    {
+        "Website": "https://www.bigchaindb.com/", 
+        "Name": "BigchainDB"
+    }, 
+    {
+        "Website": "http://www.geniedb.com/", 
+        "Name": "GenieDB"
+    }, 
+    {
+        "Website": "https://github.com/google/cayley", 
+        "Name": "Cayley"
+    }, 
+    {
+        "Website": "http://www.couchbase.com/", 
+        "Name": "Couchbase"
+    }, 
+    {
+        "Website": "http://www.arangodb.org/", 
+        "Name": "ArangoDB"
+    }, 
+    {
+        "Website": "http://systemg.research.ibm.com/", 
+        "Name": "IBM System G"
+    }, 
+    {
+        "Website": "http://infogrid.org/", 
+        "Name": "InfoGrid"
+    }, 
+    {
+        "Website": "http://origodb.com/", 
+        "Name": "OrigoDB"
+    }, 
+    {
+        "Website": "http://www.ittia.com/", 
+        "Name": "ITTIA"
+    }, 
+    {
+        "Website": "http://www.velocitydb.com/", 
+        "Name": "VelocityDB"
+    }, 
+    {
+        "Website": "http://www.erlang.org/doc/man/mnesia.html", 
+        "Name": "Mnesia"
+    }, 
+    {
+        "Website": "http://skydb.io/", 
+        "Name": "SkyDB"
+    }, 
+    {
+        "Website": "http://www.drizzle.org/", 
+        "Name": "Drizzle"
+    }, 
+    {
+        "Website": "https://clickhouse.yandex/", 
+        "Name": "Clickhouse"
+    }, 
+    {
+        "Website": "http://www.xtremedata.com/", 
+        "Name": "XtremeData"
+    }, 
+    {
+        "Website": "http://www.compass-project.org/", 
+        "Name": "Compass"
+    }, 
+    {
+        "Website": "http://dl.acm.org/citation.cfm?id=1267323", 
+        "Name": "Google BigTable"
+    }, 
+    {
+        "Website": "", 
+        "Name": "MUFFIN"
+    }, 
+    {
+        "Website": "http://www.hazelcast.com/", 
+        "Name": "Hazelcast"
+    }, 
+    {
+        "Website": "http://redis.io/", 
+        "Name": "Redis"
+    }, 
+    {
+        "Website": "http://vitessedata.com/", 
+        "Name": "Vitesse DB"
+    }, 
+    {
+        "Website": "http://www.1010data.com/", 
+        "Name": "1010data"
+    }, 
+    {
+        "Website": "http://opentsdb.net/", 
+        "Name": "OpenTSDB"
+    }, 
+    {
+        "Website": "http://www.akiban.com/", 
+        "Name": "Akiban"
+    }, 
+    {
+        "Website": "www.mapdb.org", 
+        "Name": "MapDB"
+    }, 
+    {
+        "Website": "https://cloudant.com/", 
+        "Name": "Cloudant"
+    }, 
+    {
+        "Website": "http://kx.com/products.php", 
+        "Name": "Kdb+"
+    }, 
+    {
+        "Website": "http://dashdb.com/", 
+        "Name": "dashDB"
+    }, 
+    {
+        "Website": "http://dl.acm.org/citation.cfm?id=1454167", 
+        "Name": "PNUTS"
+    }, 
+    {
+        "Website": "http://fallabs.com/kyotocabinet/", 
+        "Name": "Kyoto Cabinet"
+    }, 
+    {
+        "Website": "https://github.com/mmcgrana/fleetdb", 
+        "Name": "FleetDB"
+    }, 
+    {
+        "Website": "https://github.com/pingcap/tidb", 
+        "Name": "TiDB"
+    }, 
+    {
+        "Website": "http://vedis.symisc.net/", 
+        "Name": "Vedis"
+    }, 
+    {
+        "Website": "http://probcomp.csail.mit.edu/bayesdb/", 
+        "Name": "BayesDB"
+    }, 
+    {
+        "Website": "http://www.bityota.com/", 
+        "Name": "BitYota"
+    }, 
+    {
+        "Website": "http://dl.acm.org/citation.cfm?id=2522713", 
+        "Name": "Silo"
+    }, 
+    {
+        "Website": "http://hibari.github.com/hibari-doc/", 
+        "Name": "Hibari"
+    }, 
+    {
+        "Website": "http://www.softwareag.com/de/products/adabas_2010/default.asp", 
+        "Name": "Adabas"
+    }, 
+    {
+        "Website": "http://www.scaledb.com/", 
+        "Name": "ScaleDB"
+    }, 
+    {
+        "Website": "http://www.netezza.com/", 
+        "Name": "Netezza"
+    }, 
+    {
+        "Website": "http://www-03.ibm.com/software/products/us/en/redbrick", 
+        "Name": "Red Brick"
+    }, 
+    {
+        "Website": "http://www.scalebase.com/", 
+        "Name": "ScaleBase"
+    }, 
+    {
+        "Website": "http://hsqldb.org/", 
+        "Name": "HyperSQL"
+    }, 
+    {
+        "Website": "https://github.com/twitter/flockdb", 
+        "Name": "FlockDB"
+    }, 
+    {
+        "Website": "http://alyssackwan.name/projects/extenium.html", 
+        "Name": "Extenium"
+    }, 
+    {
+        "Website": "http://hypertable.org/", 
+        "Name": "Hypertable"
+    }, 
+    {
+        "Website": "http://www.algebraixdata.com/", 
+        "Name": "Algebraix"
+    }, 
+    {
+        "Website": "http://foundationdb.com/", 
+        "Name": "FoundationDB"
+    }, 
+    {
+        "Website": "http://www.cs.cmu.edu/~stageddb/", 
+        "Name": "StagedDB"
+    }, 
+    {
+        "Website": "http://dl.acm.org/citation.cfm?doid=800296.811518", 
+        "Name": "RDBMS"
+    }, 
+    {
+        "Website": "http://www.csqlcache.com/", 
+        "Name": "CSQL"
+    }, 
+    {
+        "Website": "http://www.splunk.com/", 
+        "Name": "Splunk"
+    }, 
+    {
+        "Website": "http://www.strabon.di.uoa.gr/", 
+        "Name": "Strabon"
+    }, 
+    {
+        "Website": "https://github.com/couchbaselabs/forestdb", 
+        "Name": "ForestDB"
+    }, 
+    {
+        "Website": "http://www.cleardb.com/", 
+        "Name": "ClearDB"
+    }, 
+    {
+        "Website": "https://github.com/tuplejump/FiloDB", 
+        "Name": "FiloDB"
+    }, 
+    {
+        "Website": "https://github.com/gfredericks/quinedb", 
+        "Name": "QuineDB"
+    }, 
+    {
+        "Website": "http://xapian.org/", 
+        "Name": "Xapian"
+    }, 
+    {
+        "Website": "http://www.filemaker.com/", 
+        "Name": "FileMaker"
+    }, 
+    {
+        "Website": "http://www.gigaspaces.com/xap-in-memory-computing-event-processing/Meet-XAP", 
+        "Name": "XAP"
+    }, 
+    {
+        "Website": "http://data.linkedin.com/projects/espresso", 
+        "Name": "Espresso"
+    }, 
+    {
+        "Website": "http://www.enterprisedb.com/", 
+        "Name": "EnterpriseDB"
+    }, 
+    {
+        "Website": "https://github.com/pingcap/tikv", 
+        "Name": "TiKV"
+    }, 
+    {
+        "Website": "https://goshawkdb.io", 
+        "Name": "GoshawkDB"
+    }, 
+    {
+        "Website": "http://www.zodb.org/", 
+        "Name": "ZODB"
+    }, 
+    {
+        "Website": "http://www.orientdb.org/", 
+        "Name": "OrientDB"
+    }, 
+    {
+        "Website": "http://rainstor.com/", 
+        "Name": "RainStor"
+    }, 
+    {
+        "Website": "http://www.gpudb.com/", 
+        "Name": "GPUdb"
+    }, 
+    {
+        "Website": "http://www.sedna.org/", 
+        "Name": "Sedna"
+    }, 
+    {
+        "Website": "https://github.com/danielcota/ganesha", 
+        "Name": "Ganesha"
+    }, 
+    {
+        "Website": "http://sylvadb.com/", 
+        "Name": "SylvaDB"
+    }, 
+    {
+        "Website": "http://aws.amazon.com/redshift/", 
+        "Name": "Redshift"
+    }, 
+    {
+        "Website": "http://www.sybase.com/products/datawarehousing/sybaseiq", 
+        "Name": "Sybase IQ"
+    }, 
+    {
+        "Website": "http://www.paraccel.com/", 
+        "Name": "ParAccel"
+    }, 
+    {
+        "Website": "http://www.mulgara.org/", 
+        "Name": "Mulgara"
+    }, 
+    {
+        "Website": "http://en.wikipedia.org/wiki/Integrated_Data_Store", 
+        "Name": "Integrated Data Store"
+    }, 
+    {
+        "Website": "http://www.citusdata.com/", 
+        "Name": "CitusDB"
+    }, 
+    {
+        "Website": "http://consus.io/", 
+        "Name": "Consus"
+    }, 
+    {
+        "Website": "http://www.scaleoutsoftware.com/products/scaleout-stateserver/", 
+        "Name": "ScaleOut StateServer"
+    }, 
+    {
+        "Website": "http://www.pipelinedb.com", 
+        "Name": "PipelineDB"
+    }, 
+    {
+        "Website": "http://rocksdb.org/", 
+        "Name": "RocksDB"
+    }, 
+    {
+        "Website": "https://github.com/torodb/torodb", 
+        "Name": "ToroDB"
+    }, 
+    {
+        "Website": "http://www.actian.com/products/vectorwise", 
+        "Name": "Vectorwise"
+    }, 
+    {
+        "Website": "https://sites.google.com/site/shoremt/", 
+        "Name": "Shore-MT"
+    }, 
+    {
+        "Website": "http://ledisdb.com/", 
+        "Name": "LedisDB"
+    }, 
+    {
+        "Website": "http://dl.acm.org/citation.cfm?id=627396", 
+        "Name": "Bubba"
+    }, 
+    {
+        "Website": "http://getcloudkit.com/", 
+        "Name": "CloudKit"
+    }, 
+    {
+        "Website": "https://github.com/DanielWaterworth/AODBM", 
+        "Name": "AODBM"
+    }, 
+    {
+        "Website": "https://quasardb.net/", 
+        "Name": "quasardb"
+    }, 
+    {
+        "Website": "http://tomp2p.net/", 
+        "Name": "TomP2P"
+    }, 
+    {
+        "Website": "http://www.infoq.com/news/2014/06/facebook-apollo", 
+        "Name": "Apollo"
+    }, 
+    {
+        "Website": "http://ehcache.org/", 
+        "Name": "Ehcache"
+    }, 
+    {
+        "Website": "https://github.com/HouzuoGuo/tiedot", 
+        "Name": "tiedot"
+    }, 
+    {
+        "Website": "https://mldb.ai/", 
+        "Name": "MLDB"
+    }, 
+    {
+        "Website": "", 
+        "Name": "Cincom TOTAL"
+    }, 
+    {
+        "Website": "https://github.com/badgerman/ennodb", 
+        "Name": "EnnoDB"
+    }, 
+    {
+        "Website": "http://4store.org/", 
+        "Name": "4store"
+    }, 
+    {
+        "Website": "http://www.sequoiadb.com", 
+        "Name": "Sequoiadb"
+    }, 
+    {
+        "Website": "http://www.h2database.com/", 
+        "Name": "H2"
+    }, 
+    {
+        "Website": "http://activemq.apache.org/kahadb.html", 
+        "Name": "KahaDB"
+    }, 
+    {
+        "Website": "http://www.jade.co.nz/jade/", 
+        "Name": "Jade"
+    }, 
+    {
+        "Website": "http://wiredtiger.com/", 
+        "Name": "WiredTiger"
+    }, 
+    {
+        "Website": "http://www.timescaledb.com", 
+        "Name": "TimescaleDB"
+    }, 
+    {
+        "Website": "http://www.alachisoft.com/ncache/", 
+        "Name": "NCache"
+    }, 
+    {
+        "Website": "https://www.questdb.org/", 
+        "Name": "QuestDB"
+    }, 
+    {
+        "Website": "http://project-voldemort.com/", 
+        "Name": "Project Voldemort"
+    }, 
+    {
+        "Website": "http://www.objectdb.com/", 
+        "Name": "ObjectDB"
+    }, 
+    {
+        "Website": "http://www.hughes.com.au/", 
+        "Name": "mSQL"
+    }, 
+    {
+        "Website": "http://www.sparkledb.net/", 
+        "Name": "SparkleDB"
+    }, 
+    {
+        "Website": "http://www.teradata.com/", 
+        "Name": "Teradata"
+    }, 
+    {
+        "Website": "http://hyperdex.org/", 
+        "Name": "HyperDex"
+    }, 
+    {
+        "Website": "http://www.openbase.com/", 
+        "Name": "OpenBase"
+    }, 
+    {
+        "Website": "http://db.csail.mit.edu/projects/cstore/", 
+        "Name": "C-Store"
+    }, 
+    {
+        "Website": "http://www.oracle.com/technetwork/middleware/coherence/overview/index.html", 
+        "Name": "Coherence"
+    }, 
+    {
+        "Website": "http://www.thinksql.co.uk/", 
+        "Name": "ThinkSQL"
+    }, 
+    {
+        "Website": "http://www.firebirdsql.org/", 
+        "Name": "Firebird"
+    }, 
+    {
+        "Website": "http://www.aerospike.com/", 
+        "Name": "Aerospike"
+    }, 
+    {
+        "Website": "https://code.google.com/p/roma-prj/", 
+        "Name": "ROMA"
+    }, 
+    {
+        "Website": "http://www.fisglobal.com/products-technologyplatforms-gtm", 
+        "Name": "GT.M"
+    }, 
+    {
+        "Website": "https://github.com/krestenkrab/hanoidb", 
+        "Name": "HanoiDB"
+    }, 
+    {
+        "Website": "http://srch2.com/", 
+        "Name": "Srch\u00b2"
+    }, 
+    {
+        "Website": "http://siaqodb.com/", 
+        "Name": "Siaqodb"
+    }, 
+    {
+        "Website": "", 
+        "Name": "Encompass"
+    }, 
+    {
+        "Website": "http://www.rocketsoftware.com/m204", 
+        "Name": "Model 204"
+    }, 
+    {
+        "Website": "http://www.objectivity.com/products/objectivitydb/", 
+        "Name": "Objectivity/DB"
+    }, 
+    {
+        "Website": "http://www.ecc.ethz.ch/research/tcrescando", 
+        "Name": "Crescando"
+    }, 
+    {
+        "Website": "http://www.tokutek.com/products/tokumx-for-mongodb/", 
+        "Name": "TokuMX"
+    }, 
+    {
+        "Website": "http://www.embarcadero.com/products/interbase", 
+        "Name": "Interbase"
+    }, 
+    {
+        "Website": "https://blog.twitter.com/2014/manhattan-our-real-time-multi-tenant-distributed-database-for-twitter-scale", 
+        "Name": "Manhattan"
+    }, 
+    {
+        "Website": "http://sqlite.org/", 
+        "Name": "SQLite"
+    }, 
+    {
+        "Website": "http://ls.st/kth", 
+        "Name": "Qserv"
+    }, 
+    {
+        "Website": "http://www.gopivotal.com/big-data/pivotal-greenplum-database", 
+        "Name": "Greenplum"
+    }, 
+    {
+        "Website": "http://dydra.com/", 
+        "Name": "Dydra"
+    }, 
+    {
+        "Website": "http://www.zerodb.io/", 
+        "Name": "ZeroDB"
+    }, 
+    {
+        "Website": "http://www.griddb.org", 
+        "Name": "GridDB"
+    }, 
+    {
+        "Website": "http://sparsity-technologies.com/#sparksee", 
+        "Name": "Sparksee"
+    }, 
+    {
+        "Website": "https://github.com/boltdb/bolt", 
+        "Name": "BoltDB"
+    }, 
+    {
+        "Website": "http://code.google.com/p/leveldb/", 
+        "Name": "LevelDB"
+    }, 
+    {
+        "Website": "http://www.sisodb.com/", 
+        "Name": "SisoDb"
+    }, 
+    {
+        "Website": "http://www.cubicweb.org/", 
+        "Name": "CubicWeb"
+    }, 
+    {
+        "Website": "http://aws.amazon.com/dynamodb/", 
+        "Name": "DynamoDB"
+    }, 
+    {
+        "Website": "https://github.com/nukep/llamadb/", 
+        "Name": "LlamaDB"
+    }, 
+    {
+        "Website": "http://www.elasticsearch.org/", 
+        "Name": "Elasticsearch"
+    }, 
+    {
+        "Website": "http://www.cloudera.com/content/cloudera/en/products-and-services/cdh/impala.html", 
+        "Name": "Impala"
+    }, 
+    {
+        "Website": "http://www.crunchbase.com/organization/xeround", 
+        "Name": "Xeround"
+    }, 
+    {
+        "Website": "http://www.postgresql.org/", 
+        "Name": "PostgreSQL"
+    }, 
+    {
+        "Website": "http://www.actordb.com/", 
+        "Name": "ActorDB"
+    }, 
+    {
+        "Website": "http://deep.is/", 
+        "Name": "DeepDB"
+    }, 
+    {
+        "Website": "", 
+        "Name": "MonetDB"
+    }, 
+    {
+        "Website": "http://www.sybase.com/products/databasemanagement/advantagedatabaseserver", 
+        "Name": "Sybase ADS"
+    }, 
+    {
+        "Website": "https://olegdb.org/", 
+        "Name": "OlegDB"
+    }
+]
