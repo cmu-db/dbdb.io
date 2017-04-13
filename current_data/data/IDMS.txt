@@ -1,4 +1,4 @@
-{'Database model': ['Navigational DBMS'],
- 'License': ['commercial'],
- 'Name': ['IDMS'],
- 'Website': ['http://www.ca.com/us/products/detail/CA-IDMS.aspx']}
+{"Database model": ["Navigational DBMS"],
+ "License": ["commercial"],
+ "Name": ["IDMS"],
+ "Website": ["http://www.ca.com/us/products/detail/CA-IDMS.aspx"]}

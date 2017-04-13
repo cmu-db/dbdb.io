@@ -1,5 +1,5 @@
-{'Database model': ['Relational DBMS'],
- 'Description': ['Column-oriented <a href="http://db-engines.com/en/article/RDBMS">RDBMS</a> with <a href="http://db-engines.com/en/system/MySQL">MySQL</a> front end'],
- 'License': ['Open Source'],
- 'Name': ['InfiniDB'],
- 'Website': ['http://infinidb.org/']}
+{"Database model": ["Relational DBMS"],
+ "Description": ["Column-oriented <a href="http://db-engines.com/en/article/RDBMS">RDBMS</a> with <a href="http://db-engines.com/en/system/MySQL">MySQL</a> front end"],
+ "License": ["Open Source"],
+ "Name": ["InfiniDB"],
+ "Website": ["http://infinidb.org/"]}

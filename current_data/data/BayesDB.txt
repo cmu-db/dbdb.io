@@ -1,1 +1,1 @@
-{'Name': ['BayesDB'], 'Website': ['http://probcomp.csail.mit.edu/bayesdb/']}
+{"Name": ["BayesDB"], "Website": ["http://probcomp.csail.mit.edu/bayesdb/"]}

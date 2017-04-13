@@ -1,2 +1,2 @@
-{'Name': ['RDBMS'],
- 'Website': ['http://dl.acm.org/citation.cfm?doid=800296.811518']}
+{"Name": ["RDBMS"],
+ "Website": ["http://dl.acm.org/citation.cfm?doid=800296.811518"]}

@@ -1,4 +1,4 @@
-{'Database model': ['Object oriented DBMS'],
- 'License': ['commercial'],
- 'Name': ['Versant Object Database'],
- 'Website': ['http://www.versant.com/products/versant-object-database']}
+{"Database model": ["Object oriented DBMS"],
+ "License": ["commercial"],
+ "Name": ["Versant Object Database"],
+ "Website": ["http://www.versant.com/products/versant-object-database"]}

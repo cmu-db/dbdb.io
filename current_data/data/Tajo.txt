@@ -1,7 +1,7 @@
-{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
- 'Database model': ['Relational DBMS'],
- 'Description': ['SQL on Hadoop'],
- 'Developer': ['Apache Software Foundation'],
- 'License': [('Open Source', 'Apache Version 2')],
- 'Name': ['Tajo'],
- 'Website': ['http://tajo.apache.org/']}
+{"<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>": ["<table class=dbi_mini>"],
+ "Database model": ["Relational DBMS"],
+ "Description": ["SQL on Hadoop"],
+ "Developer": ["Apache Software Foundation"],
+ "License": ["Open Source", "Apache Version 2"],
+ "Name": ["Tajo"],
+ "Website": ["http://tajo.apache.org/"]}

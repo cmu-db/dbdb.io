@@ -1,5 +1,5 @@
-{'Database model': ['Search engine'],
- 'Description': ['Enterprise Search Engine'],
- 'License': [('commercial', 'parts of it are open source')],
- 'Name': ['Indica'],
- 'Website': ['http://www.indicasearch.com/']}
+{"Database model": ["Search engine"],
+ "Description": ["Enterprise Search Engine"],
+ "License": ["commercial", "parts of it are open source"],
+ "Name": ["Indica"],
+ "Website": ["http://www.indicasearch.com/"]}

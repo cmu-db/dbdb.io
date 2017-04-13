@@ -1,4 +1,4 @@
-{'Database model': ['Relational DBMS'],
- 'License': ['commercial'],
- 'Name': ['Hadapt'],
- 'Website': ['http://hadapt.com/']}
+{"Database model": ["Relational DBMS"],
+ "License": ["commercial"],
+ "Name": ["Hadapt"],
+ "Website": ["http://hadapt.com/"]}

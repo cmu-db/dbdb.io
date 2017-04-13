@@ -1,4 +1,4 @@
-{'Database model': ['Relational DBMS'],
- 'License': ['commercial'],
- 'Name': ['Exasol'],
- 'Website': ['http://www.exasol.com/']}
+{"Database model": ["Relational DBMS"],
+ "License": ["commercial"],
+ "Name": ["Exasol"],
+ "Website": ["http://www.exasol.com/"]}

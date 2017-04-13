@@ -1,4 +1,4 @@
-{'Database model': ['Key-value store'],
- 'License': [('commercial', 'Limited community edition free')],
- 'Name': [('Aerospike', 'previously called Citrusleaf')],
- 'Website': ['http://www.aerospike.com/']}
+{"Database model": ["Key-value store"],
+ "License": ["commercial", "Limited community edition free"],
+ "Name": ["Aerospike", "previously called Citrusleaf"],
+ "Website": ["http://www.aerospike.com/"]}

@@ -1,1 +1,1 @@
-{'Name': ['WhiteDB'], 'Website': ['http://whitedb.org/']}
+{"Name": ["WhiteDB"], "Website": ["http://whitedb.org/"]}

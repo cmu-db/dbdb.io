@@ -1,4 +1,4 @@
-{'Database model': ['Graph DBMS'],
- 'License': [('Open Source', 'Apache Version 2')],
- 'Name': ['Giraph'],
- 'Website': ['http://giraph.apache.org/']}
+{"Database model": ["Graph DBMS"],
+ "License": ["Open Source", "Apache Version 2"],
+ "Name": ["Giraph"],
+ "Website": ["http://giraph.apache.org/"]}

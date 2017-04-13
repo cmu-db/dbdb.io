@@ -1,4 +1,4 @@
-{'Database model': ['Key-value store'],
- 'License': [('Open Source', 'GPL')],
- 'Name': ['Kyoto Cabinet'],
- 'Website': ['http://fallabs.com/kyotocabinet/']}
+{"Database model": ["Key-value store"],
+ "License": ["Open Source", "GPL"],
+ "Name": ["Kyoto Cabinet"],
+ "Website": ["http://fallabs.com/kyotocabinet/"]}

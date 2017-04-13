@@ -1,5 +1,5 @@
-{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
- 'Database model': ['RDF store'],
- 'License': ['commercial'],
- 'Name': [('SparkleDB', 'formerly Meronymy')],
- 'Website': ['http://www.sparkledb.net/']}
+{"<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>": ["<table class=dbi_mini>"],
+ "Database model": ["RDF store"],
+ "License": ["commercial"],
+ "Name": ["SparkleDB", "formerly Meronymy"],
+ "Website": ["http://www.sparkledb.net/"]}

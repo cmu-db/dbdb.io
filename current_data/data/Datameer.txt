@@ -1,4 +1,4 @@
-{'Database model': ['Document store'],
- 'License': ['commercial'],
- 'Name': ['Datameer'],
- 'Website': ['http://www.datameer.com/']}
+{"Database model": ["Document store"],
+ "License": ["commercial"],
+ "Name": ["Datameer"],
+ "Website": ["http://www.datameer.com/"]}

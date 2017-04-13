@@ -89,10 +89,12 @@ class LoadContext(object):
                                'slug': system.slug}
                               for system in db_version.derived_from.all()]
 
-        db["project_type"] = {
-            'name': db_version.project_type.name,
-            'slug': db_version.project_type.slug
-        }
+        # TODO This is a hotfix for versions without a project_type
+        if db_version.project_type:
+            db["project_type"] = {
+                'name': db_version.project_type.name,
+                'slug': db_version.project_type.slug
+            }
 
         # Load database features.
         db['features'] = db_version.get_features()
@@ -178,6 +180,7 @@ class HomePage(View):
 
 class DatabasePage(View):
     def get(self, request, db_name):
+        # TODO: filter by slug, not get. Or just filter by name?
         db_article = System.objects.get(slug=slugify(db_name))
         db_version = SystemVersion.objects.get(system=db_article,
                                                version_number=db_article.current_version)

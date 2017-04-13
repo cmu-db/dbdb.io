@@ -1,4 +1,4 @@
-{'Database model': ['Object oriented DBMS'],
- 'License': ['commercial'],
- 'Name': ['ObjectStore'],
- 'Website': ['http://www.objectstore.com/']}
+{"Database model": ["Object oriented DBMS"],
+ "License": ["commercial"],
+ "Name": ["ObjectStore"],
+ "Website": ["http://www.objectstore.com/"]}

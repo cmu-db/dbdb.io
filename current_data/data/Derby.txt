@@ -1,6 +1,6 @@
-{'Database model': ['Relational DBMS'],
- 'Developer': ['Apache Software Foundation'],
- 'Implementation language': ['Java'],
- 'License': [('Open Source', 'Apache version 2')],
- 'Name': [('Derby', 'often called Apache Derby, originally Cloudscape')],
- 'Website': ['http://db.apache.org/derby/']}
+{"Database model": ["Relational DBMS"],
+ "Developer": ["Apache Software Foundation"],
+ "Implementation language": ["Java"],
+ "License": ["Open Source", "Apache version 2"],
+ "Name": ["Derby", "often called Apache Derby, originally Cloudscape"],
+ "Website": ["http://db.apache.org/derby/"]}

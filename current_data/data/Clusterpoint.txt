@@ -1,4 +1,4 @@
-{'Database model': ['Document store'],
- 'License': ['commercial'],
- 'Name': ['Clusterpoint'],
- 'Website': ['http://www.clusterpoint.com/']}
+{"Database model": ["Document store"],
+ "License": ["commercial"],
+ "Name": ["Clusterpoint"],
+ "Website": ["http://www.clusterpoint.com/"]}

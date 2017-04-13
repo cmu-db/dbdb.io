@@ -1,5 +1,5 @@
-{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
- 'Database model': ['Document store'],
- 'License': ['Open Source'],
- 'Name': ['JasDB'],
- 'Website': ['http://www.oberasoftware.com/jasdb/']}
+{"<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>": ["<table class=dbi_mini>"],
+ "Database model": ["Document store"],
+ "License": ["Open Source"],
+ "Name": ["JasDB"],
+ "Website": ["http://www.oberasoftware.com/jasdb/"]}

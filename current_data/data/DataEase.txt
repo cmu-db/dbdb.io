@@ -1,4 +1,4 @@
-{'Database model': ['Relational DBMS'],
- 'License': ['commercial'],
- 'Name': ['DataEase'],
- 'Website': ['http://www.dataease.com/']}
+{"Database model": ["Relational DBMS"],
+ "License": ["commercial"],
+ "Name": ["DataEase"],
+ "Website": ["http://www.dataease.com/"]}

@@ -1,1 +1,1 @@
-{'Name': ['GAMMA']}
+{"Name": ["GAMMA"]}

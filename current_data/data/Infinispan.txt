@@ -1,6 +1,6 @@
-{'Database model': ['Key-value store'],
- 'Implementation language': ['Java'],
- 'License': [('Open Source', 'Apache Version 2')],
- 'Name': ['Infinispan'],
- 'Technical documentation': ['<a href="http://www.jboss.org/infinispan/documentation">www.jboss.org/&shy;infinispan/&shy;documentation</a>'],
- 'Website': ['http://www.jboss.org/infinispan/']}
+{"Database model": ["Key-value store"],
+ "Implementation language": ["Java"],
+ "License": ["Open Source", "Apache Version 2"],
+ "Name": ["Infinispan"],
+ "Technical documentation": ["<a href="http://www.jboss.org/infinispan/documentation">www.jboss.org/&shy;infinispan/&shy;documentation</a>"],
+ "Website": ["http://www.jboss.org/infinispan/"]}

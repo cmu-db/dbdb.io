@@ -1,4 +1,4 @@
-{'Database model': ['Key-value store'],
- 'License': [('Open Source', 'GPL')],
- 'Name': ['Tokyo Tyrant'],
- 'Website': ['http://fallabs.com/tokyotyrant/']}
+{"Database model": ["Key-value store"],
+ "License": ["Open Source", "GPL"],
+ "Name": ["Tokyo Tyrant"],
+ "Website": ["http://fallabs.com/tokyotyrant/"]}

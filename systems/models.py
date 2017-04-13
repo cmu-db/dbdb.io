@@ -175,7 +175,7 @@ class SystemVersion(models.Model):
     # A message that goes along with this revision
     version_message = models.TextField(max_length=500, default="")
 
-    # Basic information about the system
+    # Basic data
     name = models.CharField(max_length=64)
     description = MarkupField(default="", default_markup_type='markdown')
     history = MarkupField(default="", default_markup_type='markdown')
@@ -184,13 +184,14 @@ class SystemVersion(models.Model):
     developer = models.CharField(max_length=200, default="", null=True)
     start_year = models.CharField(max_length=128, default="", null=True)
     end_year = models.CharField(max_length=128, default="", null=True)
-    project_type = models.ForeignKey(ProjectType)
+    # TODO: change project_type to Many Related but restrict to one decision in front end?
+    project_type = models.ForeignKey(ProjectType, null=True)
 
     # Logos
     logo_orig = models.ImageField(upload_to=upload_logo_orig, blank=True)
     logo_thumb = models.ImageField(upload_to=upload_logo_thumb, blank=True)
 
-    # Many related fields - model_stuff
+    # Model data
     written_in = models.ManyToManyField('ProgrammingLanguage', related_name='systems_written', blank=True)
     support_languages = models.ManyToManyField('ProgrammingLanguage', related_name='systems_supported', blank=True)
     oses = models.ManyToManyField('OperatingSystem', related_name='systems_oses', blank=True)

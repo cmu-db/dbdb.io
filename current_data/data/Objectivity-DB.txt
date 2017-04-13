@@ -1,4 +1,4 @@
-{'Database model': ['Object oriented DBMS'],
- 'License': ['commercial'],
- 'Name': ['Objectivity/DB'],
- 'Website': ['http://www.objectivity.com/products/objectivitydb/']}
+{"Database model": ["Object oriented DBMS"],
+ "License": ["commercial"],
+ "Name": ["Objectivity/DB"],
+ "Website": ["http://www.objectivity.com/products/objectivitydb/"]}

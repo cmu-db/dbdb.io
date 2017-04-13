@@ -1,4 +1,4 @@
-{'Database model': ['Document store'],
- 'License': [('Open Source', 'proprietary license')],
- 'Name': ['Mnesia'],
- 'Website': ['http://www.erlang.org/doc/man/mnesia.html']}
+{"Database model": ["Document store"],
+ "License": ["Open Source", "proprietary license"],
+ "Name": ["Mnesia"],
+ "Website": ["http://www.erlang.org/doc/man/mnesia.html"]}

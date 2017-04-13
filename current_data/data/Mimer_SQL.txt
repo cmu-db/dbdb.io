@@ -1,5 +1,5 @@
-{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
- 'Database model': ['Relational DBMS'],
- 'License': ['commercial'],
- 'Name': ['Mimer SQL'],
- 'Website': ['http://mimer.com/']}
+{"<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>": ["<table class=dbi_mini>"],
+ "Database model": ["Relational DBMS"],
+ "License": ["commercial"],
+ "Name": ["Mimer SQL"],
+ "Website": ["http://mimer.com/"]}

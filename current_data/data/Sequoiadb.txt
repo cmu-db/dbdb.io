@@ -1,5 +1,5 @@
-{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
- 'Database model': ['Document store'],
- 'License': [('commercial', 'Limited community edition free')],
- 'Name': ['Sequoiadb'],
- 'Website': ['http://www.sequoiadb.com']}
+{"<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>": ["<table class=dbi_mini>"],
+ "Database model": ["Document store"],
+ "License": ["commercial", "Limited community edition free"],
+ "Name": ["Sequoiadb"],
+ "Website": ["http://www.sequoiadb.com"]}

@@ -1,4 +1,4 @@
-{'Database model': ['Relational DBMS'],
- 'License': ['commercial'],
- 'Name': ['Interbase'],
- 'Website': ['http://www.embarcadero.com/products/interbase']}
+{"Database model": ["Relational DBMS"],
+ "License": ["commercial"],
+ "Name": ["Interbase"],
+ "Website": ["http://www.embarcadero.com/products/interbase"]}

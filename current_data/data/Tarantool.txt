@@ -1,4 +1,4 @@
-{'Database model': ['Key-value store'],
- 'License': [('Open Source', 'BSD')],
- 'Name': ['Tarantool'],
- 'Website': ['http://tarantool.org/']}
+{"Database model": ["Key-value store"],
+ "License": ["Open Source", "BSD"],
+ "Name": ["Tarantool"],
+ "Website": ["http://tarantool.org/"]}

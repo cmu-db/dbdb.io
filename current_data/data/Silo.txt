@@ -1,1 +1,1 @@
-{'Name': ['Silo'], 'Website': ['http://dl.acm.org/citation.cfm?id=2522713']}
+{"Name": ["Silo"], "Website": ["http://dl.acm.org/citation.cfm?id=2522713"]}

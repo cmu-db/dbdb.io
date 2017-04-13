@@ -1,4 +1,4 @@
-{'Database model': ['Key-value store'],
- 'License': [('Open Source', 'BSD')],
- 'Name': ['LevelDB'],
- 'Website': ['http://code.google.com/p/leveldb/']}
+{"Database model": ["Key-value store"],
+ "License": ["Open Source", "BSD"],
+ "Name": ["LevelDB"],
+ "Website": ["http://code.google.com/p/leveldb/"]}

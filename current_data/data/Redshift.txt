@@ -1,4 +1,4 @@
-{'Database model': ['Relational DBMS'],
- 'License': ['commercial'],
- 'Name': ['Redshift'],
- 'Website': ['http://aws.amazon.com/redshift/']}
+{"Database model": ["Relational DBMS"],
+ "License": ["commercial"],
+ "Name": ["Redshift"],
+ "Website": ["http://aws.amazon.com/redshift/"]}

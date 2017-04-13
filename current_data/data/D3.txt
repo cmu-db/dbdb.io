@@ -1,4 +1,4 @@
-{'Database model': ['Multivalue DBMS'],
- 'License': ['commercial'],
- 'Name': ['D3'],
- 'Website': ['http://www.tigerlogic.com/tigerlogic/pick/database/index.jsp']}
+{"Database model": ["Multivalue DBMS"],
+ "License": ["commercial"],
+ "Name": ["D3"],
+ "Website": ["http://www.tigerlogic.com/tigerlogic/pick/database/index.jsp"]}

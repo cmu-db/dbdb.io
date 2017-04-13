@@ -1,5 +1,5 @@
-{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
- 'Database model': ['Graph DBMS'],
- 'License': [('Open Source', 'L-GPL')],
- 'Name': ['HyperGraphDB'],
- 'Website': ['http://www.hypergraphdb.org/']}
+{"<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>": ["<table class=dbi_mini>"],
+ "Database model": ["Graph DBMS"],
+ "License": ["Open Source", "L-GPL"],
+ "Name": ["HyperGraphDB"],
+ "Website": ["http://www.hypergraphdb.org/"]}

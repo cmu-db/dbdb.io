@@ -1,4 +1,4 @@
-{'Database model': ['Object oriented DBMS'],
- 'License': ['commercial'],
- 'Name': ['GemStone/S'],
- 'Website': ['http://gemtalksystems.com/']}
+{"Database model": ["Object oriented DBMS"],
+ "License": ["commercial"],
+ "Name": ["GemStone/S"],
+ "Website": ["http://gemtalksystems.com/"]}

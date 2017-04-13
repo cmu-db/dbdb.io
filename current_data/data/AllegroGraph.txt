@@ -1,4 +1,4 @@
-{'Database model': ['RDF store'],
- 'License': [('commercial', 'Limited community edition free')],
- 'Name': ['AllegroGraph'],
- 'Website': ['http://www.franz.com/agraph/allegrograph/']}
+{"Database model": ["RDF store"],
+ "License": ["commercial", "Limited community edition free"],
+ "Name": ["AllegroGraph"],
+ "Website": ["http://www.franz.com/agraph/allegrograph/"]}

@@ -1,2 +1,2 @@
-{'Name': ['Manhattan'],
- 'Website': ['https://blog.twitter.com/2014/manhattan-our-real-time-multi-tenant-distributed-database-for-twitter-scale']}
+{"Name": ["Manhattan"],
+ "Website": ["https://blog.twitter.com/2014/manhattan-our-real-time-multi-tenant-distributed-database-for-twitter-scale"]}

@@ -1,4 +1,4 @@
-{'Database model': ['Search engine'],
- 'License': ['commercial'],
- 'Name': ['SearchBlox'],
- 'Website': ['http://www.searchblox.com/']}
+{"Database model": ["Search engine"],
+ "License": ["commercial"],
+ "Name": ["SearchBlox"],
+ "Website": ["http://www.searchblox.com/"]}

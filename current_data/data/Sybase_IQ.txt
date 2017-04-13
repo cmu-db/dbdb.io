@@ -1,4 +1,4 @@
-{'Database model': ['Relational DBMS'],
- 'License': ['commercial'],
- 'Name': ['Sybase IQ'],
- 'Website': ['http://www.sybase.com/products/datawarehousing/sybaseiq']}
+{"Database model": ["Relational DBMS"],
+ "License": ["commercial"],
+ "Name": ["Sybase IQ"],
+ "Website": ["http://www.sybase.com/products/datawarehousing/sybaseiq"]}

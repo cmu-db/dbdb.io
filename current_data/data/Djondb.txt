@@ -1,5 +1,5 @@
-{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
- 'Database model': ['Document store'],
- 'License': [('Open Source', 'L-GPL')],
- 'Name': ['Djondb'],
- 'Website': ['http://djondb.com/']}
+{"<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>": ["<table class=dbi_mini>"],
+ "Database model": ["Document store"],
+ "License": ["Open Source", "L-GPL"],
+ "Name": ["Djondb"],
+ "Website": ["http://djondb.com/"]}

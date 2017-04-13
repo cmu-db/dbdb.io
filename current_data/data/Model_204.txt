@@ -1,4 +1,4 @@
-{'Database model': ['Multivalue DBMS'],
- 'License': ['commercial'],
- 'Name': ['Model 204'],
- 'Website': ['http://www.rocketsoftware.com/m204']}
+{"Database model": ["Multivalue DBMS"],
+ "License": ["commercial"],
+ "Name": ["Model 204"],
+ "Website": ["http://www.rocketsoftware.com/m204"]}

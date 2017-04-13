@@ -1,4 +1,4 @@
-{'Database model': ['Key-value store'],
- 'License': [('Open Source', 'BSD')],
- 'Name': ['LightCloud'],
- 'Website': ['http://opensource.plurk.com/LightCloud/']}
+{"Database model": ["Key-value store"],
+ "License": ["Open Source", "BSD"],
+ "Name": ["LightCloud"],
+ "Website": ["http://opensource.plurk.com/LightCloud/"]}

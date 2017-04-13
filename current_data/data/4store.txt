@@ -1,4 +1,4 @@
-{'Database model': ['RDF store'],
- 'License': [('Open Source', 'GPLv3')],
- 'Name': ['4store'],
- 'Website': ['http://4store.org/']}
+{"Database model": ["RDF store"],
+ "License": ["Open Source", "GPLv3"],
+ "Name": ["4store"],
+ "Website": ["http://4store.org/"]}

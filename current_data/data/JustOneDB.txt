@@ -1,5 +1,5 @@
-{'<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>': ['<table class=dbi_mini>'],
- 'Database model': ['Relational DBMS'],
- 'License': ['commercial'],
- 'Name': ['JustOneDB'],
- 'Website': ['http://www.justonedb.com/']}
+{"<a href="http://db-engines.com/en/ranking">DB-Engines Ranking</a>": ["<table class=dbi_mini>"],
+ "Database model": ["Relational DBMS"],
+ "License": ["commercial"],
+ "Name": ["JustOneDB"],
+ "Website": ["http://www.justonedb.com/"]}
