@@ -1,0 +1,41 @@
+{
+    "support_languages": [
+        "Actionscript", 
+        "C", 
+        "C#", 
+        "Haskell", 
+        "Java", 
+        "JavaScript", 
+        "Lisp", 
+        "Perl", 
+        "PHP", 
+        "Python", 
+        "Qt", 
+        "Rebol", 
+        "Ruby", 
+        "Scala", 
+        "Visual Basic"
+    ], 
+    "access_methods": [
+        "Java API", 
+        "RESTful HTTP API", 
+        "RESTXQ", 
+        "WebDAV", 
+        "XML:DB", 
+        "XQJ"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "Linux", 
+        "OS X", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Native XML DBMS"
+    ], 
+    "written_in": [
+        "Java"
+    ]
+}

@@ -1,0 +1,24 @@
+{
+    "support_languages": [
+        "C", 
+        "Cobol", 
+        "Java JDBC-ODBC", 
+        "PL/1"
+    ], 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "access_methods": [
+        ".NET Client API", 
+        "JDBC", 
+        "JMS Adapter", 
+        "ODBC", 
+        "OLE DB"
+    ], 
+    "oses": [
+        "Linux"
+    ], 
+    "license": [
+        "commercial"
+    ]
+}

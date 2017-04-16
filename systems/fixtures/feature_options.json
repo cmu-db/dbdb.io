@@ -494,5 +494,69 @@
          "feature": 16,
          "value": "JIT Compilation"
       }
+   },
+   {
+      "pk": 63,
+      "model": "systems.FeatureOption",
+      "fields": {
+         "feature": 17,
+         "value": "JDBC"
+      }
+   },
+   {
+      "pk": 64,
+      "model": "systems.FeatureOption",
+      "fields": {
+         "feature": 17,
+         "value": "ODBC"
+      }
+   },
+   {
+      "pk": 65,
+      "model": "systems.FeatureOption",
+      "fields": {
+         "feature": 17,
+         "value": "Java API"
+      }
+   },
+   {
+      "pk": 66,
+      "model": "systems.FeatureOption",
+      "fields": {
+         "feature": 17,
+         "value": "ADO.NET"
+      }
+   },
+   {
+      "pk": 67,
+      "model": "systems.FeatureOption",
+      "fields": {
+         "feature": 17,
+         "value": "RESTful HTTP API"
+      }
+   },
+   {
+      "pk": 68,
+      "model": "systems.FeatureOption",
+      "fields": {
+         "feature": 17,
+         "value": "OLE DB"
+      }
+   },
+   {
+      "pk": 69,
+      "model": "systems.FeatureOption",
+      "fields": {
+         "feature": 17,
+         "value": "Proprietary"
+      }
+   },
+   {
+      "pk": 70,
+      "model": "systems.FeatureOption",
+      "fields": {
+         "feature": 17,
+         "value": "Other"
+      }
    }
 ]

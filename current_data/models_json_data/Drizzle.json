@@ -1,0 +1,25 @@
+{
+    "support_languages": [
+        "C", 
+        "C++", 
+        "Java", 
+        "PHP"
+    ], 
+    "access_methods": [
+        "JDBC"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "FreeBSD", 
+        "Linux", 
+        "OS X"
+    ], 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "written_in": [
+        "C++"
+    ]
+}

@@ -1,0 +1,41 @@
+{
+    "support_languages": [
+        "C", 
+        "C++", 
+        "Delphi", 
+        "Java", 
+        "JavaScript", 
+        "Lua", 
+        "Perl", 
+        "PHP", 
+        "Python", 
+        "Ruby"
+    ], 
+    "access_methods": [
+        "C/C++ API", 
+        "OLE DB", 
+        "ADO.NET", 
+        "JDBC", 
+        "ODBC"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "AIX", 
+        "FreeBSD", 
+        "HP-UX", 
+        "Linux", 
+        "OS X", 
+        "server-less", 
+        "Solaris", 
+        "Unix", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "written_in": [
+        "C and C++"
+    ]
+}

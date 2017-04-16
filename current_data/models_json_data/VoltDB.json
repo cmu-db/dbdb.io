@@ -1,0 +1,30 @@
+{
+    "support_languages": [
+        "C#", 
+        "C++", 
+        "Erlang", 
+        "Java", 
+        "JavaScript", 
+        "PHP", 
+        "Python", 
+        "Ruby"
+    ], 
+    "access_methods": [
+        "Java API", 
+        "RESTful HTTP/JSON API", 
+        "JDBC"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "Linux", 
+        "OS X"
+    ], 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "written_in": [
+        "Java"
+    ]
+}

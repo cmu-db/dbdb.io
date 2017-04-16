@@ -1,0 +1,39 @@
+{
+    "support_languages": [
+        ".Net", 
+        "C", 
+        "C#", 
+        "C++", 
+        "Java", 
+        "JavaScript", 
+        "Perl", 
+        "PHP", 
+        "Python", 
+        "Ruby", 
+        "Visual Basic"
+    ], 
+    "access_methods": [
+        "OLE DB", 
+        "ADO.NET", 
+        "JDBC", 
+        "ODBC"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "AIX", 
+        "FreeBSD", 
+        "HP-UX", 
+        "Linux", 
+        "OS X", 
+        "Solaris", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Native XML DBMS"
+    ], 
+    "written_in": [
+        "C"
+    ]
+}

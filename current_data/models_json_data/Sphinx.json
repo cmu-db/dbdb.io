@@ -1,0 +1,30 @@
+{
+    "support_languages": [
+        "C++", 
+        "Java", 
+        "Perl", 
+        "PHP", 
+        "Python", 
+        "Ruby"
+    ], 
+    "access_methods": [
+        "Proprietary protocol"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "FreeBSD", 
+        "Linux", 
+        "NetBSD", 
+        "OS X", 
+        "Solaris", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Search engine"
+    ], 
+    "written_in": [
+        "C++"
+    ]
+}

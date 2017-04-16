@@ -1,0 +1,36 @@
+{
+    "support_languages": [
+        ".Net", 
+        "C", 
+        "Clojure", 
+        "ColdFusion", 
+        "Erlang", 
+        "Go", 
+        "Java", 
+        "JavaScript", 
+        "Perl", 
+        "PHP", 
+        "Python", 
+        "Ruby", 
+        "Scala", 
+        "Tcl"
+    ], 
+    "access_methods": [
+        "Memcached protocol", 
+        "RESTful HTTP API"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "Linux", 
+        "OS X", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "written_in": [
+        "C, C++ and Erlang"
+    ]
+}

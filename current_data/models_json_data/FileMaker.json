@@ -1,0 +1,17 @@
+{
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "access_methods": [
+        "JDBC", 
+        "ODBC"
+    ], 
+    "oses": [
+        "iOS", 
+        "OS X", 
+        "Windows"
+    ], 
+    "license": [
+        "commercial"
+    ]
+}

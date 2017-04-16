@@ -1,0 +1,35 @@
+{
+    "support_languages": [
+        "C", 
+        "C++", 
+        "Cobol", 
+        "Java", 
+        "Perl", 
+        "PHP", 
+        "Python"
+    ], 
+    "access_methods": [
+        "OLE DB", 
+        "Tabular Data Stream TDS", 
+        "ADO.NET", 
+        "JDBC", 
+        "ODBC"
+    ], 
+    "license": [
+        "commercial"
+    ], 
+    "oses": [
+        "AIX", 
+        "HP-UX", 
+        "Linux", 
+        "Solaris", 
+        "Unix", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "written_in": [
+        "C and C++"
+    ]
+}

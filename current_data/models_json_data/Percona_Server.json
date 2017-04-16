@@ -1,0 +1,38 @@
+{
+    "support_languages": [
+        "Ada", 
+        "C", 
+        "C#", 
+        "C++", 
+        "D", 
+        "Eiffel", 
+        "Erlang", 
+        "Haskell", 
+        "Java", 
+        "Objective-C", 
+        "OCaml", 
+        "Perl", 
+        "PHP", 
+        "Python", 
+        "Ruby", 
+        "Scheme", 
+        "Tcl"
+    ], 
+    "access_methods": [
+        "ADO.NET", 
+        "JDBC", 
+        "ODBC"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "Linux"
+    ], 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "written_in": [
+        "C and C++"
+    ]
+}

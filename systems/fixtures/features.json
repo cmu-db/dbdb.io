@@ -110,5 +110,12 @@
         "fields": {
             "label": "Query Compilation"
         }
+    },
+    {
+        "pk": 17,
+        "model": "systems.Feature",
+        "fields": {
+            "label": "Access Methods"
+        }
     }
 ]

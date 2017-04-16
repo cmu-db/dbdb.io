@@ -1,0 +1,31 @@
+{
+    "support_languages": [
+        "Actionscript", 
+        "C", 
+        "C#", 
+        "C++", 
+        "Go", 
+        "Java", 
+        "JavaScript Node.js", 
+        "Lua", 
+        "Objective-C", 
+        "Pike", 
+        "Python", 
+        "Ruby"
+    ], 
+    "access_methods": [
+        "in-process shared library"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "server-less"
+    ], 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "written_in": [
+        "C"
+    ]
+}

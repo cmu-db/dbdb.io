@@ -1,0 +1,51 @@
+{
+    "support_languages": [
+        "C", 
+        "C#", 
+        "C++", 
+        "Clojure", 
+        "Cobol", 
+        "Eiffel", 
+        "Erlang", 
+        "Fortran", 
+        "Groovy", 
+        "Haskell", 
+        "Java", 
+        "JavaScript", 
+        "Lisp", 
+        "Objective C", 
+        "OCaml", 
+        "Perl", 
+        "PHP", 
+        "Python", 
+        "R", 
+        "Ruby", 
+        "Scala", 
+        "Tcl", 
+        "Visual Basic"
+    ], 
+    "access_methods": [
+        "ODP.NET", 
+        "Oracle Call Interface OCI", 
+        "JDBC", 
+        "ODBC"
+    ], 
+    "license": [
+        "commercial"
+    ], 
+    "oses": [
+        "AIX", 
+        "HP-UX", 
+        "Linux", 
+        "OS X", 
+        "Solaris", 
+        "Windows", 
+        "z/OS"
+    ], 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "written_in": [
+        "C and C++"
+    ]
+}

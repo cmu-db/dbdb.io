@@ -1,0 +1,31 @@
+{
+    "support_languages": [
+        "C#", 
+        "Clojure", 
+        "Java", 
+        "JavaScript Node.js", 
+        "PHP", 
+        "Python", 
+        "Ruby"
+    ], 
+    "access_methods": [
+        "HTTP API", 
+        "JSON style queries"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "Linux", 
+        "OS X", 
+        "Raspbian", 
+        "Solaris", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "written_in": [
+        "C, C++, JavaScript"
+    ]
+}

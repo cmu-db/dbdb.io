@@ -1,0 +1,14 @@
+{
+    "dbmodel": [
+        "Search engine"
+    ], 
+    "access_methods": [
+        "HTTP API"
+    ], 
+    "oses": [
+        "hosted"
+    ], 
+    "license": [
+        "commercial"
+    ]
+}

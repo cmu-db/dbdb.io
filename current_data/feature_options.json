@@ -94,5 +94,15 @@
     "Query Compilation": [
         "Code Generation",
         "JIT Compilation"
+    ],
+    "Access Methods": [
+        "JDBC",
+        "ODBC",
+        "Java API",
+        "ADO.NET",
+        "RESTful HTTP API",
+        "OLE DB",
+        "Proprietary",
+        "Other"
     ]
 }

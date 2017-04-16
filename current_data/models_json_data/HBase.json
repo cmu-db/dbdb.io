@@ -1,0 +1,31 @@
+{
+    "support_languages": [
+        "C", 
+        "C#", 
+        "C++", 
+        "Groovy", 
+        "Java", 
+        "PHP", 
+        "Python", 
+        "Scala"
+    ], 
+    "access_methods": [
+        "Java API", 
+        "RESTful HTTP API", 
+        "Thrift"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "Linux", 
+        "Unix", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Wide column store"
+    ], 
+    "written_in": [
+        "Java"
+    ]
+}

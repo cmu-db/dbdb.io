@@ -1,0 +1,35 @@
+{
+    "support_languages": [
+        "C#", 
+        "C++", 
+        "Clojure", 
+        "Erlang", 
+        "Go", 
+        "Haskell", 
+        "Java", 
+        "JavaScript", 
+        "Perl", 
+        "PHP", 
+        "Python", 
+        "Ruby", 
+        "Scala"
+    ], 
+    "access_methods": [
+        "Proprietary protocol"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "BSD", 
+        "Linux", 
+        "OS X", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Wide column store"
+    ], 
+    "written_in": [
+        "Java"
+    ]
+}

@@ -1,0 +1,26 @@
+{
+    "support_languages": [
+        "Java"
+    ], 
+    "access_methods": [
+        "Fuseki", 
+        "Jena RDF API", 
+        "RIO", 
+        "SPARQL"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "Linux", 
+        "OS X", 
+        "Unix", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "RDF store"
+    ], 
+    "written_in": [
+        "Java"
+    ]
+}

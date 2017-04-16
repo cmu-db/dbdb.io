@@ -1,0 +1,35 @@
+{
+    "support_languages": [
+        ".Net", 
+        "C", 
+        "C++", 
+        "Java", 
+        "Perl", 
+        "Python", 
+        "Tcl"
+    ], 
+    "access_methods": [
+        "native C  library", 
+        "streaming API for large objects", 
+        "ADO.NET", 
+        "JDBC", 
+        "ODBC"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "HP-UX", 
+        "Linux", 
+        "OS X", 
+        "Solaris", 
+        "Unix", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "written_in": [
+        "C"
+    ]
+}

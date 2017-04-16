@@ -13,16 +13,17 @@ print_output = {}
 for f in files:
     filename = directory_in + f
     with open(filename, 'r') as input_file, open((directory_out + f).replace('txt', 'json'), 'w') as output_file:
-        try:
+
             system = {}
             for line in input_file:
-                system.update(json.loads(line))
+                try:
+                    system.update(json.loads(line))
+                except Exception as e:
+                    if print_output.get(filename):
+                        print_output[filename].append(str(e))
+                    else:
+                        print_output[filename] = [str(e)]
             output_file.write(json.dumps(system, indent=4))
-        except Exception as e:
-            if print_output.get(filename):
-                print_output[filename].append(str(e))
-            else:
-                print_output[filename] = [str(e)]
 
 
 with open('models_data_output.txt', 'w') as error_file:

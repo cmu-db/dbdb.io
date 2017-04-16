@@ -1,0 +1,41 @@
+{
+    "support_languages": [
+        "Actionscript", 
+        "C", 
+        "C#", 
+        "C++", 
+        "Cocoa", 
+        "Delphi", 
+        "Erlang", 
+        "Go", 
+        "Haskell", 
+        "Java", 
+        "JavaScript", 
+        "OCaml", 
+        "Perl", 
+        "PHP", 
+        "Python", 
+        "Ruby", 
+        "Smalltalk"
+    ], 
+    "access_methods": [
+        "Accumulo Shell", 
+        "Java API", 
+        "JDBC", 
+        "ODBC", 
+        "RESTful HTTP API", 
+        "Thrift"
+    ], 
+    "license": [
+        "commercial"
+    ], 
+    "oses": [
+        "Linux"
+    ], 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "written_in": [
+        "Java"
+    ]
+}

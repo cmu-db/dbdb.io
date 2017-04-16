@@ -1,0 +1,30 @@
+{
+    "support_languages": [
+        "Java", 
+        "PHP", 
+        "Python"
+    ], 
+    "access_methods": [
+        "Java API", 
+        "RIO", 
+        "Sail API", 
+        "SeRQL", 
+        "Sesame REST HTTP Protocol", 
+        "SPARQL"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "Linux", 
+        "OS X", 
+        "Unix", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "RDF store"
+    ], 
+    "written_in": [
+        "Java"
+    ]
+}

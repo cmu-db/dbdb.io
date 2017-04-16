@@ -1,0 +1,34 @@
+{
+    "support_languages": [
+        ".Net", 
+        "Clojure", 
+        "Go", 
+        "Groovy", 
+        "Java", 
+        "JavaScript", 
+        "Perl", 
+        "PHP", 
+        "Python", 
+        "Ruby", 
+        "Scala"
+    ], 
+    "access_methods": [
+        "Cypher query language", 
+        "Java API", 
+        "RESTful HTTP API"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "Linux", 
+        "OS X", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Graph DBMS"
+    ], 
+    "written_in": [
+        "Java"
+    ]
+}

@@ -1,0 +1,37 @@
+{
+    "support_languages": [
+        "C", 
+        "C#", 
+        "C++", 
+        "Cobol", 
+        "Fortran", 
+        "Java", 
+        "Perl", 
+        "PHP", 
+        "Python", 
+        "Ruby", 
+        "Visual Basic"
+    ], 
+    "access_methods": [
+        "JSON style queries", 
+        "XQuery", 
+        "ADO.NET", 
+        "JDBC", 
+        "ODBC"
+    ], 
+    "license": [
+        "commercial"
+    ], 
+    "oses": [
+        "Linux", 
+        "Unix", 
+        "Windows", 
+        "z/OS"
+    ], 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "written_in": [
+        "C and C++"
+    ]
+}

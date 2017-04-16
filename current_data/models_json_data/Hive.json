@@ -1,0 +1,25 @@
+{
+    "support_languages": [
+        "C++", 
+        "Java", 
+        "PHP", 
+        "Python"
+    ], 
+    "access_methods": [
+        "JDBC", 
+        "ODBC", 
+        "Thrift"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "All OS with a Java VM"
+    ], 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "written_in": [
+        "Java"
+    ]
+}

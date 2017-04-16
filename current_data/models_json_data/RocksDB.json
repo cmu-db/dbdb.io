@@ -1,0 +1,19 @@
+{
+    "support_languages": [
+        "C++", 
+        "Java"
+    ], 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "access_methods": [
+        "C++ API", 
+        "Java API"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "written_in": [
+        "C++"
+    ]
+}

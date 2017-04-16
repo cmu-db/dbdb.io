@@ -1,0 +1,26 @@
+{
+    "support_languages": [
+        ".Net", 
+        "ColdFusion", 
+        "Erlang", 
+        "Groovy", 
+        "Java", 
+        "JavaScript", 
+        "Perl", 
+        "PHP", 
+        "Python", 
+        "Ruby"
+    ], 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "access_methods": [
+        "RESTful HTTP API"
+    ], 
+    "oses": [
+        "hosted"
+    ], 
+    "license": [
+        "commercial"
+    ]
+}
