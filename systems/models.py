@@ -70,14 +70,6 @@ class ProjectType(models.Model):
         return self.name
 
 
-class APIAccessMethod(models.Model):
-    name = models.CharField(max_length=32)
-    website = models.URLField(default=None, null=True)
-
-    def __unicode__(self):
-        return self.name
-
-
 class Publication(models.Model):
     title = models.CharField(max_length=255, blank=True)
     authors = models.CharField(max_length=255, blank=True)
@@ -197,7 +189,6 @@ class SystemVersion(models.Model):
     oses = models.ManyToManyField('OperatingSystem', related_name='systems_oses', blank=True)
     licenses = models.ManyToManyField('License', related_name="systems_licenses", blank=True)
     derived_from = models.ManyToManyField('System', related_name='systems_derived', blank=True)
-    access_methods = models.ManyToManyField('APIAccessMethod', related_name="systems_access", blank=True)
     publications = models.ManyToManyField('Publication', related_name='systems_publications', blank=True)
 
     # TODO move defaults to front end as placeholders.
@@ -282,6 +273,10 @@ class SystemVersion(models.Model):
     description_querycompilation = MarkupField(default='Does the DBMS support code generation or JIT optimizations? '
                                                        'How does it do this (e.g., LLVM, templates, code gen)?',
                                                default_markup_type='markdown')
+
+    support_accessmethods = models.NullBooleanField()
+    description_accessmethods = MarkupField(default='What API access methods are available for the DBMS?',
+                                            default_markup_type='markdown')
 
     # Feature options
     feature_options = models.ManyToManyField('FeatureOption', related_name='feature_options',
