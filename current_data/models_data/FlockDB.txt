@@ -1,2 +1,2 @@
-{'website': 'https://github.com/twitter/flockdb', 'name': 'FlockDB', 'developer': 'Twitter'}
-{'dbmodel': ['Graph DBMS'], 'license': ['Open Source']}
+{"website": "https://github.com/twitter/flockdb", "name": "FlockDB", "developer": "Twitter"}
+{"dbmodel": ["Graph DBMS"], "license": ["Open Source"]}

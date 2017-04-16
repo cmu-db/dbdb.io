@@ -1,0 +1,10 @@
+{
+    "website": "http://www.tokutek.com/products/tokudb-for-mysql/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "TokuDB", 
+    "license": [
+        "Open Source"
+    ]
+}

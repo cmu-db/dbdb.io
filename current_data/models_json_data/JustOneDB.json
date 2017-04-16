@@ -1,0 +1,10 @@
+{
+    "website": "http://www.justonedb.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "JustOneDB", 
+    "license": [
+        "commercial"
+    ]
+}

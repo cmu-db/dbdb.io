@@ -1,0 +1,10 @@
+{
+    "website": "http://djondb.com/", 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "name": "Djondb", 
+    "license": [
+        "Open Source"
+    ]
+}

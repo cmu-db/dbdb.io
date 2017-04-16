@@ -1,0 +1,10 @@
+{
+    "website": "http://gemtalksystems.com/", 
+    "dbmodel": [
+        "Object oriented DBMS"
+    ], 
+    "name": "GemStone/S", 
+    "license": [
+        "commercial"
+    ]
+}

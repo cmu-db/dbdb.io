@@ -1,2 +1,2 @@
-{'website': 'http://www.google.com/enterprise/search/campaigns/gsa7.html', 'name': 'Google Search Appliance'}
-{'dbmodel': ['Search engine'], 'license': ['commercial']}
+{"website": "http://www.google.com/enterprise/search/campaigns/gsa7.html", "name": "Google Search Appliance"}
+{"dbmodel": ["Search engine"], "license": ["commercial"]}

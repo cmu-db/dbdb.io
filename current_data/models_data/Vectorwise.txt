@@ -1,2 +1,2 @@
-{'website': 'http://www.actian.com/products/vectorwise', 'name': 'Vectorwise'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://www.actian.com/products/vectorwise", "name": "Vectorwise"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

@@ -1,2 +1,2 @@
-{'website': 'http://globalsdb.org/', 'name': 'GlobalsDB'}
-{'dbmodel': ['Document store'], 'license': ['commercial']}
+{"website": "http://globalsdb.org/", "name": "GlobalsDB"}
+{"dbmodel": ["Document store"], "license": ["commercial"]}

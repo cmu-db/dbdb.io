@@ -1,2 +1,2 @@
-{'website': 'https://github.com/typicode/lowdb', 'name': 'LowDB'}
+{"website": "https://github.com/typicode/lowdb", "name": "LowDB"}
 {}

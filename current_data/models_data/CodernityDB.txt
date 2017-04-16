@@ -1,2 +1,2 @@
-{'website': 'http://labs.codernity.com/codernitydb/', 'name': 'CodernityDB'}
+{"website": "http://labs.codernity.com/codernitydb/", "name": "CodernityDB"}
 {}

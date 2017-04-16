@@ -1,2 +1,2 @@
-{'website': 'http://dl.acm.org/citation.cfm?id=597051', 'description': 'Became DataBlitz', 'name': 'Dal\xc3\xad'}
+{"website": "http://dl.acm.org/citation.cfm?id=597051", "description": "Became DataBlitz", "name": "Dal\xc3\xad"}
 {}

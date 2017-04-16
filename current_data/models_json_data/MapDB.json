@@ -1,0 +1,10 @@
+{
+    "website": "www.mapdb.org", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "MapDB", 
+    "license": [
+        "Open Source"
+    ]
+}

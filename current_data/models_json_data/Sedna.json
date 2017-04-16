@@ -1,0 +1,10 @@
+{
+    "website": "http://www.sedna.org/", 
+    "dbmodel": [
+        "Native XML DBMS"
+    ], 
+    "name": "Sedna", 
+    "license": [
+        "Open Source"
+    ]
+}

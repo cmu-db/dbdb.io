@@ -1,0 +1,10 @@
+{
+    "website": "http://hyperdex.org/", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "HyperDex", 
+    "license": [
+        "Open Source"
+    ]
+}

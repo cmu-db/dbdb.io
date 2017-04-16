@@ -1,2 +1,2 @@
-{'website': 'http://www.gopivotal.com/big-data/pivotal-greenplum-database', 'name': 'Greenplum'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://www.gopivotal.com/big-data/pivotal-greenplum-database", "name": "Greenplum"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

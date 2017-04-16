@@ -1,0 +1,10 @@
+{
+    "website": "http://www.alachisoft.com/ncache/", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "NCache", 
+    "license": [
+        "commercial"
+    ]
+}

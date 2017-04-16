@@ -1,2 +1,2 @@
-{'website': 'http://infogrid.org/', 'name': 'InfoGrid'}
-{'dbmodel': ['Graph DBMS'], 'license': ['Open Source']}
+{"website": "http://infogrid.org/", "name": "InfoGrid"}
+{"dbmodel": ["Graph DBMS"], "license": ["Open Source"]}

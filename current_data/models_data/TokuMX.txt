@@ -1,2 +1,2 @@
-{'website': 'http://www.tokutek.com/products/tokumx-for-mongodb/', 'name': 'TokuMX'}
-{'dbmodel': ['Document store'], 'license': ['Open Source']}
+{"website": "http://www.tokutek.com/products/tokumx-for-mongodb/", "name": "TokuMX"}
+{"dbmodel": ["Document store"], "license": ["Open Source"]}

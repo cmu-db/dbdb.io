@@ -1,0 +1,10 @@
+{
+    "website": "http://ehcache.org/", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "Ehcache", 
+    "license": [
+        "Open Source"
+    ]
+}

@@ -1,2 +1,2 @@
-{'website': 'http://www.h2database.com/', 'name': 'H2'}
-{'dbmodel': ['Relational DBMS'], 'license': ['Open Source'], 'written_in': ['Java']}
+{"website": "http://www.h2database.com/", "name": "H2"}
+{"dbmodel": ["Relational DBMS"], "license": ["Open Source"], "written_in": ["Java"]}

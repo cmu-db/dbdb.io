@@ -1,0 +1,10 @@
+{
+    "website": "http://www.sybase.com/products/datawarehousing/sybaseiq", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "Sybase IQ", 
+    "license": [
+        "commercial"
+    ]
+}

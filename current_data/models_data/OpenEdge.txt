@@ -1,2 +1,2 @@
-{'website': 'http://www.progress.com/en/openedge/developer-productivity/database/index.html', 'name': 'OpenEdge'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://www.progress.com/en/openedge/developer-productivity/database/index.html", "name": "OpenEdge"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

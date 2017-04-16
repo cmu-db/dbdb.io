@@ -1,0 +1,10 @@
+{
+    "website": "http://www.geniedb.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "GenieDB", 
+    "license": [
+        "commercial"
+    ]
+}

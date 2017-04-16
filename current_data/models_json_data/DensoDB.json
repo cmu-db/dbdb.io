@@ -1,0 +1,10 @@
+{
+    "website": "http://densodb.codeplex.com", 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "name": "DensoDB", 
+    "license": [
+        "Open Source"
+    ]
+}

@@ -1,2 +1,2 @@
-{'website': 'http://www.sybase.com/products/datawarehousing/sybaseiq', 'name': 'Sybase IQ'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://www.sybase.com/products/datawarehousing/sybaseiq", "name": "Sybase IQ"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

@@ -1,2 +1,2 @@
-{'website': 'http://www.vmware.com/products/application-platform/vfabric-gemfire/overview.html', 'name': 'GemFire'}
-{'dbmodel': ['Document store'], 'license': ['commercial']}
+{"website": "http://www.vmware.com/products/application-platform/vfabric-gemfire/overview.html", "name": "GemFire"}
+{"dbmodel": ["Document store"], "license": ["commercial"]}

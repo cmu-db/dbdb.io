@@ -1,2 +1,2 @@
-{'website': 'http://cs.yale.edu/homes/thomson/', 'name': 'Calvin'}
+{"website": "http://cs.yale.edu/homes/thomson/", "name": "Calvin"}
 {}

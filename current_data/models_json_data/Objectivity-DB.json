@@ -1,0 +1,10 @@
+{
+    "website": "http://www.objectivity.com/products/objectivitydb/", 
+    "dbmodel": [
+        "Object oriented DBMS"
+    ], 
+    "name": "Objectivity/DB", 
+    "license": [
+        "commercial"
+    ]
+}

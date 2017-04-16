@@ -1,2 +1,2 @@
-{'website': 'http://www.searchblox.com/', 'name': 'SearchBlox'}
-{'dbmodel': ['Search engine'], 'license': ['commercial']}
+{"website": "http://www.searchblox.com/", "name": "SearchBlox"}
+{"dbmodel": ["Search engine"], "license": ["commercial"]}

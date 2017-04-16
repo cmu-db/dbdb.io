@@ -1,0 +1,10 @@
+{
+    "website": "http://www.fisglobal.com/products-technologyplatforms-gtm", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "GT.M", 
+    "license": [
+        "commercial"
+    ]
+}

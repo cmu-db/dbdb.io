@@ -1,0 +1,10 @@
+{
+    "website": "http://wakandadb.org/", 
+    "dbmodel": [
+        "Object oriented DBMS"
+    ], 
+    "name": "WakandaDB", 
+    "license": [
+        "Open Source"
+    ]
+}

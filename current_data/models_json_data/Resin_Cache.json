@@ -1,0 +1,11 @@
+{
+    "website": "http://www.caucho.com", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "Resin Cache", 
+    "license": [
+        "Open Source"
+    ], 
+    "description": "Distributed cache as part of an application server"
+}

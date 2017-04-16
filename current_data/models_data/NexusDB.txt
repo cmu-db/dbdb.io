@@ -1,2 +1,2 @@
-{'website': 'http://www.nexusdb.com/', 'name': 'NexusDB'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://www.nexusdb.com/", "name": "NexusDB"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

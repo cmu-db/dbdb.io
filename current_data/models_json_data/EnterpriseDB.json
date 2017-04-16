@@ -1,0 +1,10 @@
+{
+    "website": "http://www.enterprisedb.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "EnterpriseDB", 
+    "license": [
+        "commercial"
+    ]
+}

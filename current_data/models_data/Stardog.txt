@@ -1,2 +1,2 @@
-{'website': 'http://stardog.com/', 'name': 'Stardog', 'tech_docs': '<a href="http://stardog.com/docs/">stardog.com/&shy;docs</a>'}
-{'dbmodel': ['RDF store'], 'license': ['commercial']}
+{"website": "http://stardog.com/", "name": "Stardog", "tech_docs": "<a href="http://stardog.com/docs/">stardog.com/&shy;docs</a>"}
+{"dbmodel": ["RDF store"], "license": ["commercial"]}

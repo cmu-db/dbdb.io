@@ -1,0 +1,10 @@
+{
+    "website": "http://www.frontbase.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "FrontBase", 
+    "license": [
+        "commercial"
+    ]
+}

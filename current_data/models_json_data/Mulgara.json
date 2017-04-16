@@ -1,0 +1,13 @@
+{
+    "website": "http://www.mulgara.org/", 
+    "dbmodel": [
+        "RDF store"
+    ], 
+    "name": "Mulgara", 
+    "license": [
+        "Open Source"
+    ], 
+    "written_in": [
+        "Java"
+    ]
+}

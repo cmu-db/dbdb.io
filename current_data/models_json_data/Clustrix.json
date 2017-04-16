@@ -1,0 +1,10 @@
+{
+    "website": "http://www.clustrix.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "Clustrix", 
+    "license": [
+        "commercial"
+    ]
+}

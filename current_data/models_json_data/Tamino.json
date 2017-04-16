@@ -1,0 +1,10 @@
+{
+    "website": "http://www.softwareag.com/corporate/products/wm/tamino/default.asp", 
+    "dbmodel": [
+        "Native XML DBMS"
+    ], 
+    "name": "Tamino", 
+    "license": [
+        "commercial"
+    ]
+}

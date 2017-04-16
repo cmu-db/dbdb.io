@@ -1,0 +1,10 @@
+{
+    "website": "http://tomp2p.net/", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "TomP2P", 
+    "license": [
+        "Open Source"
+    ]
+}

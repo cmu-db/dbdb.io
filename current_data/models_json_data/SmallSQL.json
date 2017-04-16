@@ -1,0 +1,13 @@
+{
+    "website": "http://www.smallsql.de/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "SmallSQL", 
+    "license": [
+        "Open Source"
+    ], 
+    "written_in": [
+        "Java"
+    ]
+}

@@ -1,0 +1,10 @@
+{
+    "website": "http://www.akiban.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "Akiban", 
+    "license": [
+        "Open Source"
+    ]
+}

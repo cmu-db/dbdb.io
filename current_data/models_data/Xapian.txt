@@ -1,2 +1,2 @@
-{'website': 'http://xapian.org/', 'name': 'Xapian', 'tech_docs': '<a href="http://xapian.org/docs/">xapian.org/&shy;docs</a>'}
-{'dbmodel': ['Search engine'], 'license': ['Open Source']}
+{"website": "http://xapian.org/", "name": "Xapian", "tech_docs": "<a href="http://xapian.org/docs/">xapian.org/&shy;docs</a>"}
+{"dbmodel": ["Search engine"], "license": ["Open Source"]}

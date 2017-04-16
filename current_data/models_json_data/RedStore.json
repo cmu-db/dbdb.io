@@ -1,0 +1,10 @@
+{
+    "website": "http://www.aelius.com/njh/redstore/", 
+    "dbmodel": [
+        "RDF store"
+    ], 
+    "name": "RedStore", 
+    "license": [
+        "Open Source"
+    ]
+}

@@ -1,2 +1,2 @@
-{'website': 'http://hyperdex.org/', 'name': 'HyperDex'}
-{'dbmodel': ['Key-value store'], 'license': ['Open Source']}
+{"website": "http://hyperdex.org/", "name": "HyperDex"}
+{"dbmodel": ["Key-value store"], "license": ["Open Source"]}

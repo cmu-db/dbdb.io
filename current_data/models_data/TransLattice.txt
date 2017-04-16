@@ -1,2 +1,2 @@
-{'website': 'http://www.translattice.com/', 'name': 'TransLattice'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://www.translattice.com/", "name": "TransLattice"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

@@ -1,2 +1,2 @@
-{'website': 'http://www.softwareag.com/corporate/products/wm/tamino/default.asp', 'name': 'Tamino'}
-{'dbmodel': ['Native XML DBMS'], 'license': ['commercial']}
+{"website": "http://www.softwareag.com/corporate/products/wm/tamino/default.asp", "name": "Tamino"}
+{"dbmodel": ["Native XML DBMS"], "license": ["commercial"]}

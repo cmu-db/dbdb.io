@@ -1,0 +1,10 @@
+{
+    "website": "http://www.ittia.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "ITTIA", 
+    "license": [
+        "commercial"
+    ]
+}

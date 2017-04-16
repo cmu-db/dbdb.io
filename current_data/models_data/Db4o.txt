@@ -1,2 +1,2 @@
-{'website': 'http://www.db4o.com/', 'name': 'Db4o'}
-{'dbmodel': ['Object oriented DBMS'], 'license': ['commercial']}
+{"website": "http://www.db4o.com/", "name": "Db4o"}
+{"dbmodel": ["Object oriented DBMS"], "license": ["commercial"]}

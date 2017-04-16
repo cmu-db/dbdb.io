@@ -1,0 +1,10 @@
+{
+    "website": "http://www.vistadb.net/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "VistaDB", 
+    "license": [
+        "commercial"
+    ]
+}

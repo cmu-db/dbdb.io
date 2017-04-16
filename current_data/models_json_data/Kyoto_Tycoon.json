@@ -1,0 +1,10 @@
+{
+    "website": "http://fallabs.com/kyototycoon/", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "Kyoto Tycoon", 
+    "license": [
+        "Open Source"
+    ]
+}

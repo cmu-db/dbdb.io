@@ -1,0 +1,10 @@
+{
+    "website": "http://mimer.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "Mimer SQL", 
+    "license": [
+        "commercial"
+    ]
+}

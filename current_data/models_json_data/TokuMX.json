@@ -1,0 +1,10 @@
+{
+    "website": "http://www.tokutek.com/products/tokumx-for-mongodb/", 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "name": "TokuMX", 
+    "license": [
+        "Open Source"
+    ]
+}

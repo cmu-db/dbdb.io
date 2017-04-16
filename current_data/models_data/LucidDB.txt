@@ -1,2 +1,2 @@
-{'website': 'http://luciddb.sourceforge.net/', 'name': 'LucidDB'}
-{'dbmodel': ['Relational DBMS'], 'license': ['Open Source']}
+{"website": "http://luciddb.sourceforge.net/", "name": "LucidDB"}
+{"dbmodel": ["Relational DBMS"], "license": ["Open Source"]}

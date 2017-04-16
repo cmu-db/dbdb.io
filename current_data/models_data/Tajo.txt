@@ -1,2 +1,2 @@
-{'website': 'http://tajo.apache.org/', 'developer': 'Apache Software Foundation', 'name': 'Tajo', 'description': 'SQL on Hadoop'}
-{'dbmodel': ['Relational DBMS'], 'license': ['Open Source']}
+{"website": "http://tajo.apache.org/", "developer": "Apache Software Foundation", "name": "Tajo", "description": "SQL on Hadoop"}
+{"dbmodel": ["Relational DBMS"], "license": ["Open Source"]}

@@ -1,0 +1,10 @@
+{
+    "website": "http://www.cubrid.org/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "Cubrid", 
+    "license": [
+        "Open Source"
+    ]
+}

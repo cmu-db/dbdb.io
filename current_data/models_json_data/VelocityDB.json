@@ -1,0 +1,10 @@
+{
+    "website": "http://www.velocitydb.com/", 
+    "dbmodel": [
+        "Object oriented DBMS"
+    ], 
+    "name": "VelocityDB", 
+    "license": [
+        "commercial"
+    ]
+}

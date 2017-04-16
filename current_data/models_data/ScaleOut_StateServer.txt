@@ -1,2 +1,2 @@
-{'website': 'http://www.scaleoutsoftware.com/products/scaleout-stateserver/', 'name': 'ScaleOut StateServer'}
-{'dbmodel': ['Key-value store'], 'license': ['commercial']}
+{"website": "http://www.scaleoutsoftware.com/products/scaleout-stateserver/", "name": "ScaleOut StateServer"}
+{"dbmodel": ["Key-value store"], "license": ["commercial"]}

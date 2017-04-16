@@ -1,2 +1,2 @@
-{'website': 'http://www.cloudera.com/content/cloudera/en/products-and-services/cdh/impala.html', 'name': 'Impala'}
+{"website": "http://www.cloudera.com/content/cloudera/en/products-and-services/cdh/impala.html", "name": "Impala"}
 {}

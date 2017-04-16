@@ -1,2 +1,2 @@
-{'website': 'http://www.erlang.org/doc/man/mnesia.html', 'name': 'Mnesia'}
-{'dbmodel': ['Document store'], 'license': ['Open Source']}
+{"website": "http://www.erlang.org/doc/man/mnesia.html", "name": "Mnesia"}
+{"dbmodel": ["Document store"], "license": ["Open Source"]}

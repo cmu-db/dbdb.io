@@ -1,0 +1,10 @@
+{
+    "website": "http://www.scaledb.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "ScaleDB", 
+    "license": [
+        "commercial"
+    ]
+}

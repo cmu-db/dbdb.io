@@ -1,0 +1,10 @@
+{
+    "website": "http://dydra.com/", 
+    "dbmodel": [
+        "RDF store"
+    ], 
+    "name": "Dydra", 
+    "license": [
+        "commercial"
+    ]
+}

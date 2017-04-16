@@ -1,2 +1,2 @@
-{'website': 'http://data.linkedin.com/projects/espresso', 'name': 'Espresso'}
+{"website": "http://data.linkedin.com/projects/espresso", "name": "Espresso"}
 {}

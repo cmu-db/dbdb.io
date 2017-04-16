@@ -1,0 +1,10 @@
+{
+    "website": "http://www.memsql.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "MemSQL", 
+    "license": [
+        "commercial"
+    ]
+}

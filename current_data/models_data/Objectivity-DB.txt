@@ -1,2 +1,2 @@
-{'website': 'http://www.objectivity.com/products/objectivitydb/', 'name': 'Objectivity/DB'}
-{'dbmodel': ['Object oriented DBMS'], 'license': ['commercial']}
+{"website": "http://www.objectivity.com/products/objectivitydb/", "name": "Objectivity/DB"}
+{"dbmodel": ["Object oriented DBMS"], "license": ["commercial"]}

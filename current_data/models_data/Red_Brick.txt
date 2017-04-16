@@ -1,2 +1,2 @@
-{'website': 'http://www-03.ibm.com/software/products/us/en/redbrick', 'name': 'Red Brick'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://www-03.ibm.com/software/products/us/en/redbrick", "name": "Red Brick"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

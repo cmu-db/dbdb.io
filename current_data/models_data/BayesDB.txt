@@ -1,2 +1,2 @@
-{'website': 'http://probcomp.csail.mit.edu/bayesdb/', 'name': 'BayesDB'}
+{"website": "http://probcomp.csail.mit.edu/bayesdb/", "name": "BayesDB"}
 {}

@@ -1,2 +1,2 @@
-{'website': 'http://www.ibm.com/software/data/soliddb/', 'name': 'solidDB'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://www.ibm.com/software/data/soliddb/", "name": "solidDB"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

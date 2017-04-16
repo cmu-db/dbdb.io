@@ -1,0 +1,10 @@
+{
+    "website": "http://www.saphana.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "SAP HANA", 
+    "license": [
+        "commercial"
+    ]
+}

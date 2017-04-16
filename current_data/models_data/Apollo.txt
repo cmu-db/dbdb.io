@@ -1,2 +1,2 @@
-{'website': 'http://www.infoq.com/news/2014/06/facebook-apollo', 'name': 'Apollo'}
+{"website": "http://www.infoq.com/news/2014/06/facebook-apollo", "name": "Apollo"}
 {}

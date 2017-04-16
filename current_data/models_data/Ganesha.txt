@@ -1,2 +1,2 @@
-{'website': 'https://github.com/danielcota/ganesha', 'name': 'Ganesha'}
+{"website": "https://github.com/danielcota/ganesha", "name": "Ganesha"}
 {}

@@ -1,0 +1,10 @@
+{
+    "website": "http://www.gridgain.com/", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "GridGain", 
+    "license": [
+        "commercial"
+    ]
+}

@@ -1,2 +1,2 @@
-{'website': 'http://hadapt.com/', 'name': 'Hadapt'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://hadapt.com/", "name": "Hadapt"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

@@ -1,0 +1,10 @@
+{
+    "website": "http://www.erlang.org/doc/man/mnesia.html", 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "name": "Mnesia", 
+    "license": [
+        "Open Source"
+    ]
+}

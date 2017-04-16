@@ -1,0 +1,10 @@
+{
+    "website": "http://www.openbase.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "OpenBase", 
+    "license": [
+        "commercial"
+    ]
+}

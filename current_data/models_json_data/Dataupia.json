@@ -1,0 +1,11 @@
+{
+    "website": "http://www.dataupia.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "description": "Data warehouse appliance", 
+    "license": [
+        "commercial"
+    ], 
+    "name": "Dataupia"
+}

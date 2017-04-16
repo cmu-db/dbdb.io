@@ -1,0 +1,10 @@
+{
+    "website": "http://tarantool.org/", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "Tarantool", 
+    "license": [
+        "Open Source"
+    ]
+}

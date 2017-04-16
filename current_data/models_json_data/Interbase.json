@@ -1,0 +1,10 @@
+{
+    "website": "http://www.embarcadero.com/products/interbase", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "Interbase", 
+    "license": [
+        "commercial"
+    ]
+}

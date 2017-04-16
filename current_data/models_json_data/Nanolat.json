@@ -1,0 +1,10 @@
+{
+    "website": "http://nanolat.com/index/0-2", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "Nanolat", 
+    "license": [
+        "Open Source"
+    ]
+}

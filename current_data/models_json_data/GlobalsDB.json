@@ -1,0 +1,10 @@
+{
+    "website": "http://globalsdb.org/", 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "name": "GlobalsDB", 
+    "license": [
+        "commercial"
+    ]
+}

@@ -1,0 +1,11 @@
+{
+    "website": "http://jackrabbit.apache.org/", 
+    "dbmodel": [
+        "Content store"
+    ], 
+    "name": "Jackrabbit", 
+    "license": [
+        "Open Source"
+    ], 
+    "developer": "Apache Software Foundation"
+}

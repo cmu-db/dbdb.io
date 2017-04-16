@@ -1,0 +1,10 @@
+{
+    "website": "http://www.translattice.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "TransLattice", 
+    "license": [
+        "commercial"
+    ]
+}

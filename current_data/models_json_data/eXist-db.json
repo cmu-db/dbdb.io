@@ -1,0 +1,10 @@
+{
+    "website": "http://exist-db.org/", 
+    "dbmodel": [
+        "Native XML DBMS"
+    ], 
+    "name": "eXist-db", 
+    "license": [
+        "Open Source"
+    ]
+}

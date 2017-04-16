@@ -1,0 +1,10 @@
+{
+    "website": "http://www.db4o.com/", 
+    "dbmodel": [
+        "Object oriented DBMS"
+    ], 
+    "name": "Db4o", 
+    "license": [
+        "commercial"
+    ]
+}

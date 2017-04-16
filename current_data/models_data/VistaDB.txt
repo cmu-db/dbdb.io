@@ -1,2 +1,2 @@
-{'website': 'http://www.vistadb.net/', 'name': 'VistaDB'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://www.vistadb.net/", "name": "VistaDB"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

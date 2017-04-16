@@ -1,0 +1,10 @@
+{
+    "website": "http://www.ibm.com/software/data/soliddb/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "solidDB", 
+    "license": [
+        "commercial"
+    ]
+}

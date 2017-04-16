@@ -1,0 +1,10 @@
+{
+    "website": "http://librdf.org/", 
+    "dbmodel": [
+        "RDF store"
+    ], 
+    "name": "Redland", 
+    "license": [
+        "Open Source"
+    ]
+}

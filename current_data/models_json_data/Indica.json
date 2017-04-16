@@ -1,0 +1,11 @@
+{
+    "website": "http://www.indicasearch.com/", 
+    "dbmodel": [
+        "Search engine"
+    ], 
+    "description": "Enterprise Search Engine", 
+    "license": [
+        "commercial"
+    ], 
+    "name": "Indica"
+}

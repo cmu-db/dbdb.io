@@ -1,2 +1,2 @@
-{'website': 'http://www.fisglobal.com/products-technologyplatforms-gtm', 'name': 'GT.M'}
-{'dbmodel': ['Key-value store'], 'license': ['commercial']}
+{"website": "http://www.fisglobal.com/products-technologyplatforms-gtm", "name": "GT.M"}
+{"dbmodel": ["Key-value store"], "license": ["commercial"]}

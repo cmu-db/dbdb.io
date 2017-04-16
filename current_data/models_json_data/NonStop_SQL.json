@@ -1,0 +1,12 @@
+{
+    "website": "http://h17007.www1.hp.com/us/en/enterprise/servers/integrity/nonstop/nonstop-sql.aspx", 
+    "name": "NonStop SQL", 
+    "license": [
+        "commercial"
+    ], 
+    "tech_docs": "", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "developer": "HP"
+}

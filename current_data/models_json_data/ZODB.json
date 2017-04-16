@@ -1,0 +1,11 @@
+{
+    "website": "http://www.zodb.org/", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "description": "Native object database for Python", 
+    "license": [
+        "Open Source"
+    ], 
+    "name": "ZODB"
+}

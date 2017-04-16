@@ -1,2 +1,2 @@
-{'website': 'http://www.asterdata.com', 'name': 'Teradata Aster', 'support_sql': True, 'support_mapreduce': True, 'description_sql': '', 'description_mapreduce': ''}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://www.asterdata.com", "name": "Teradata Aster", "support_sql": true, "support_mapreduce": true, "description_sql": "", "description_mapreduce": ""}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

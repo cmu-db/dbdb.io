@@ -1,2 +1,2 @@
-{'website': 'https://github.com/cockroachdb/cockroach', 'description': 'http://www.wired.co.uk/news/archive/2014-07/22/cockroachdb', 'name': 'CockroachDB'}
+{"website": "https://github.com/cockroachdb/cockroach", "description": "http://www.wired.co.uk/news/archive/2014-07/22/cockroachdb", "name": "CockroachDB"}
 {}
