@@ -602,6 +602,8 @@ class AdvancedSearchView(View):
             letter_idx = start_letters.index(name[0].lower())
             ordered_list[letter_idx]["dbs"].append({"screen_name": name,
                                                     "hash_name": slugify(name)})
+        for letter in ordered_list:
+            letter['dbs'].sort(cmp=lambda x, y: cmp(x['screen_name'].lower(), y['screen_name'].lower()))
         return ordered_list
 
     def get(self, request):

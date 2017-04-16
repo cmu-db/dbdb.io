@@ -302,6 +302,7 @@ function load_click_handlers() {
     window.location.href = $(this).attr("data-url");
   });
 
+  // TODO change source when click happens
   $(".check-img").on("click", function() {
     if ($(this).hasClass("question-check")) {
       $(this).removeClass("question-check").addClass("green-check")
