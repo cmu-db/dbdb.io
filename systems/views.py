@@ -17,7 +17,9 @@ from systems.models import Feature, FeatureOption, License, OperatingSystem, Pro
 from systems.serializers import LicenseSerializer, SystemVersionSerializer
 import util
 
+# TODO get rid of this
 SYSTEM_FIELDS = {
+    'support_accessmethods':       'Access Methods',
     'support_checkpoints':         'Checkpoints',
     'support_concurrencycontrol':  'Concurrency Control',
     'support_datamodel':           'Data Model',
