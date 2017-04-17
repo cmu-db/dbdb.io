@@ -1,14 +1,14 @@
 
 NEXT_SELECTOR = {
-  "question-check": "green-check",
-  "green-check": "grey-check",
-  "grey-check": "question-check"
+  "icon-maybe": "icon-yes",
+  "icon-yes": "icon-no",
+  "icon-no": "icon-maybe"
 };
 
 NEXT_IMAGE = {
-  "question-check": "/static/images/green-check.png",
-  "green-check": "/static/images/black-cross.png",
-  "grey-check": "/static/images/question-check.png"
+  "icon-maybe": "/static/images/icon-yes.png",
+  "icon-yes": "/static/images/icon-no.png",
+  "icon-no": "/static/images/icon-maybe.png"
 };
 
 $(document).ready(function() {

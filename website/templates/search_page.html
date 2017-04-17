@@ -41,11 +41,11 @@
               {% for field in system.field_supports %}
                 <div class="property-div col-lg-3 col-md-4 col-sm-4 col-xs-6">
                   {% if field.support == None %}
-                    <img src="{% static 'images/question-check.png' %}" class="property-img check-img question-check">
+                    <img src="{% static 'images/icon-maybe.png' %}" class="check-img icon-maybe">
                   {% elif field.support %}
-                    <img src="{% static 'images/green-check.png' %}" class="property-img check-img green-check">
+                    <img src="{% static 'images/icon-yes.png' %}" class="check-img icon-yes">
                   {% else %}
-                    <img src="{% static 'images/black-cross.png' %}" class="property-img check-img grey-check">
+                    <img src="{% static 'images/icon-no.png' %}" class="check-img icon-no">
                   {% endif %}
                   <span class="property-name">
                     {{ field.field_name }}

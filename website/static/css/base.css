@@ -23,16 +23,8 @@ html, body {
   color: #64BD5A;
 }
 
-.check-img.green-check {
-  width: 30px;
-}
-
-.check-img.grey-check {
-  width: 30px;
-}
-
-.check-img.question-check {
-  width: 30px;
+.check-img {
+  width: 1em;
 }
 
 .footer {

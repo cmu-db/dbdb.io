@@ -143,6 +143,7 @@ class LoadContext(object):
                 data = {"field_name": name,
                         "support": db[field]}
                 field_supports.append(data)
+        field_supports.sort(cmp=lambda x, y: cmp(x['field_name'], y['field_name']))
         db["field_supports"] = field_supports
 
 

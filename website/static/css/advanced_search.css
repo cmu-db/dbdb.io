@@ -93,3 +93,7 @@
 .field-selector:hover {
   cursor: pointer;
 }
+
+.check-img {
+  width: 1.5em;
+}
