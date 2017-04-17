@@ -134,18 +134,6 @@ class LoadContext(object):
                     raw_field = db_version.__getattribute__(field_name).raw
                     db_data[field_name + "_raw"] = raw_field
 
-    @staticmethod
-    def get_fields(db):
-        field_supports = []
-        for field in db:
-            if "support_" in field and field != "support_languages":
-                name = SYSTEM_FIELDS[field]
-                data = {"field_name": name,
-                        "support": db[field]}
-                field_supports.append(data)
-        field_supports.sort(cmp=lambda x, y: cmp(x['field_name'], y['field_name']))
-        db["field_supports"] = field_supports
-
 
 class HomePage(View):
     def get(self, request):
@@ -237,9 +225,8 @@ class SearchPage(View):
                                                   version_number=sys_ver.system.current_version))
 
         systems_data = []
-        for system in systems:
-            data = LoadContext.load_db_data(system)
-            LoadContext.get_fields(data)
+        for db_version in systems:
+            data = LoadContext.load_db_data(db_version)
             data["description"] = data["description"][:100] + "..."
             systems_data.append(data)
         context["page_data"] = page_info

@@ -25,30 +25,30 @@
 
 <div class="row page-row search-result-row">
   <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-12">
-    {% for system in systems %}
-      <div class="row search-result" data-url="/db/{{ system.slug }}">
+    {% for db in systems %}
+      <div class="row search-result" data-url="/db/{{ db.slug }}">
         <div class="col-md-4 col-sm-12 search-result-metadata-area">
           <div class="search-result-title">
-            {{ system.name }}
+            {{ db.name }}
           </div>
           <div class="search-result-description">
-            <b>Description: </b>{{ system.description }}
+            <b>Description: </b>{{ db.description }}
           </div>
         </div>
         <div class="col-md-8 col-sm-12">
           <div class="properties-list">
             <div class="row">
-              {% for field in system.field_supports %}
+              {% for feature in db.features %}
                 <div class="property-div col-lg-3 col-md-4 col-sm-4 col-xs-6">
-                  {% if field.support == None %}
+                  {% if feature.is_supported == None %}
                     <img src="{% static 'images/icon-maybe.png' %}" class="check-img icon-maybe">
-                  {% elif field.support %}
+                  {% elif feature.is_supported %}
                     <img src="{% static 'images/icon-yes.png' %}" class="check-img icon-yes">
                   {% else %}
                     <img src="{% static 'images/icon-no.png' %}" class="check-img icon-no">
                   {% endif %}
                   <span class="property-name">
-                    {{ field.field_name }}
+                    {{ feature.label }}
                   </span>
                 </div>
               {% endfor %}
