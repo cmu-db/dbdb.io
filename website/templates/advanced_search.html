@@ -20,16 +20,21 @@
 
   <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1">
     <div class="row">
-      {% for field in system_fields %}
+      {% for feature, options in all_feature_options.items %}
         <span class="col-md-3 col-sm-4 col-xs-6 search-check">
-          {% if field in greychecks %}
-            <img src="{% static 'images/icon-no.png' %}" class="field-selector check-img icon-no" data-current-check="icon-no" data-field="{{field}}">
-          {% elif field in greenchecks %}
-            <img src="{% static 'images/icon-yes.png' %}" class="field-selector check-img icon-yes" data-current-check="icon-yes" data-field="{{field}}">
-          {% else %}
-            <img src="{% static 'images/icon-maybe.png' %}" class="field-selector check-img icon-maybe" data-current-check="icon-maybe" data-field="{{field}}">
-          {% endif %}
-          <span class="field-text">{{ field }}</span>
+          <span class="field-text">{{ feature }}</span>
+          {% for option in options %}
+            <h6>
+              {% if feature in greychecks %}
+                <img src="{% static 'images/icon-no.png' %}" class="field-selector check-img icon-no" data-current-check="icon-no" data-field="{{feature}}">
+              {% elif feature in greenchecks %}
+                <img src="{% static 'images/icon-yes.png' %}" class="field-selector check-img icon-yes" data-current-check="icon-yes" data-field="{{feature}}">
+              {% else %}
+                <img src="{% static 'images/icon-maybe.png' %}" class="field-selector check-img icon-maybe" data-current-check="icon-maybe" data-field="{{feature}}">
+              {% endif %}
+              {{ option }}
+            </h6>
+          {% endfor %}
         </span>
       {% endfor %}
     </div>

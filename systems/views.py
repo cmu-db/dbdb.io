@@ -6,6 +6,7 @@ from django.db.models import ObjectDoesNotExist
 from django.contrib.syndication.views import Feed
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
+from django.template.defaulttags import register
 from django.utils.text import slugify
 from django.views.generic.base import View
 from django.views.decorators.csrf import csrf_exempt
@@ -17,41 +18,39 @@ from systems.models import Feature, FeatureOption, License, OperatingSystem, Pro
 from systems.serializers import LicenseSerializer, SystemVersionSerializer
 import util
 
-# TODO get rid of this
-SYSTEM_FIELDS = {
-    'support_accessmethods':       'Access Methods',
-    'support_checkpoints':         'Checkpoints',
-    'support_concurrencycontrol':  'Concurrency Control',
-    'support_datamodel':           'Data Model',
-    'support_foreignkeys':         'Foreign Keys',
-    'support_indexes':             'Indexes',
-    'support_isolationlevels':     'Isolation Levels',
-    'support_joins':               'Joins',
-    'support_logging':             'Logging',
-    'support_querycompilation':    'Query Compilation',
-    'support_queryexecution':      'Query Execution',
-    'support_queryinterface':      'Query Interface',
-    'support_storagearchitecture': 'Storage Architecture',
-    'support_storagemodel':        'Storage Model',
-    'support_storedprocedures':    'Stored Procedures',
-    'support_systemarchitecture':  'System Architecture',
-    'support_views':               'Views'
-}
 
 
 class LoadContext(object):
     @staticmethod
+    def get_all_features():
+        return sorted([feature.label for feature in Feature.objects.all()])
+
+    @staticmethod
+    def get_all_feature_options():
+        feature_options = {}
+        for fo in FeatureOption.objects.all():
+            if not feature_options.get(fo.feature.label):
+                feature_options[fo.feature.label] = [fo.value]
+            else:
+                feature_options[fo.feature.label].append(fo.value)
+        for options in feature_options.values():
+            options.sort()
+        return feature_options
+
+
+    @staticmethod
     def load_base_context(request):
         return {
-            "user":          request.user,
+            "user":                 request.user,
             # TODO: don't load all databases when only looking at one. Pass template as argument to load specific context
-            "databases":     map(lambda db: {'name': db.name, 'slug': db.slug}, System.objects.all()),
-            "languages":     map(lambda lang: {'name': lang.name, 'slug': lang.slug},
-                                 ProgrammingLanguage.objects.all()),
-            "oses":          map(lambda os: {'name': os.name, 'slug': os.slug}, OperatingSystem.objects.all()),
-            "licenses":      map(lambda license: {'name': license.name, 'slug': license.slug}, License.objects.all()),
-            "project_types": map(lambda type: {'name': type.name, 'slug': type.slug}, ProjectType.objects.all()),
-            "system_fields": sorted(SYSTEM_FIELDS.values())
+            "databases":            map(lambda db: {'name': db.name, 'slug': db.slug}, System.objects.all()),
+            "languages":            map(lambda lang: {'name': lang.name, 'slug': lang.slug},
+                                        ProgrammingLanguage.objects.all()),
+            "oses":                 map(lambda os: {'name': os.name, 'slug': os.slug}, OperatingSystem.objects.all()),
+            "licenses":             map(lambda license: {'name': license.name, 'slug': license.slug}, License.objects.all()),
+            "project_types":        map(lambda type: {'name': type.name, 'slug': type.slug}, ProjectType.objects.all()),
+            "all_features":         LoadContext.get_all_features(),
+            "all_feature_options":  LoadContext.get_all_feature_options()
         }
 
     @staticmethod
@@ -565,6 +564,7 @@ class AdvancedSearchView(View):
         questioncheck = []
         greencheck = []
         greycheck = []
+        SYSTEM_FIELDS = {}
         inv_fields = {v: k for k, v in SYSTEM_FIELDS.items()}
         for key in raw_dict:
             if raw_dict[key][0] == "question-check":
