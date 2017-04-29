@@ -1,0 +1,49 @@
+{
+    "support_languages": [
+        "Actionscript", 
+        "Ada", 
+        "Basic", 
+        "C", 
+        "C#", 
+        "C++", 
+        "D", 
+        "Delphi", 
+        "Forth", 
+        "Fortran", 
+        "Haskell", 
+        "Java", 
+        "JavaScript", 
+        "Lisp", 
+        "Lua", 
+        "MatLab", 
+        "Objective-C", 
+        "OCaml", 
+        "Perl", 
+        "PHP", 
+        "PL/SQL", 
+        "Python", 
+        "R", 
+        "Ruby", 
+        "Scala", 
+        "Scheme", 
+        "Smalltalk", 
+        "Tcl"
+    ], 
+    "access_methods": [
+        "ADO.NET", 
+        "JDBC", 
+        "ODBC"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "server-less"
+    ], 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "written_in": [
+        "C"
+    ]
+}

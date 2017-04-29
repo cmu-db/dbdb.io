@@ -1,0 +1,10 @@
+{
+    "website": "http://www.dataease.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "DataEase", 
+    "license": [
+        "commercial"
+    ]
+}

@@ -1,0 +1,10 @@
+{
+    "website": "http://www.xtremedata.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "XtremeData", 
+    "license": [
+        "commercial"
+    ]
+}

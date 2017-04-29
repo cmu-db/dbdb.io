@@ -1,0 +1,29 @@
+{
+    "support_languages": [
+        "Clojure", 
+        "Java", 
+        "Python"
+    ], 
+    "access_methods": [
+        "Java API", 
+        "TinkerPop Blueprints", 
+        "TinkerPop Frames", 
+        "TinkerPop Gremlin", 
+        "TinkerPop Rexster"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "Linux", 
+        "OS X", 
+        "Unix", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Graph DBMS"
+    ], 
+    "written_in": [
+        "Java"
+    ]
+}

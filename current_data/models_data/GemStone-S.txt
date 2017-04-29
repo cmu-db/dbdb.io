@@ -1,2 +1,2 @@
-{'website': 'http://gemtalksystems.com/', 'name': 'GemStone/S'}
-{'dbmodel': ['Object oriented DBMS'], 'license': ['commercial']}
+{"website": "http://gemtalksystems.com/", "name": "GemStone/S"}
+{"dbmodel": ["Object oriented DBMS"], "license": ["commercial"]}

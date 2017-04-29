@@ -1,0 +1,11 @@
+{
+    "website": "http://developers.google.com/bigquery/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "Google BigQuery", 
+    "license": [
+        "commercial"
+    ], 
+    "developer": "Google"
+}

@@ -1,0 +1,33 @@
+{
+    "support_languages": [
+        ".Net", 
+        "Basic", 
+        "C", 
+        "Java"
+    ], 
+    "access_methods": [
+        "Java API", 
+        "OLE DB", 
+        "Proprietary protocol", 
+        "RESTful HTTP API", 
+        "SOAP-based API", 
+        "JDBC", 
+        "ODBC"
+    ], 
+    "license": [
+        "commercial"
+    ], 
+    "oses": [
+        "AIX", 
+        "HP-UX", 
+        "Linux", 
+        "Solaris", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Multivalue DBMS"
+    ], 
+    "written_in": [
+        "C"
+    ]
+}

@@ -1,2 +1,2 @@
-{'website': 'http://opensource.plurk.com/LightCloud/', 'name': 'LightCloud'}
-{'dbmodel': ['Key-value store'], 'license': ['Open Source']}
+{"website": "http://opensource.plurk.com/LightCloud/", "name": "LightCloud"}
+{"dbmodel": ["Key-value store"], "license": ["Open Source"]}

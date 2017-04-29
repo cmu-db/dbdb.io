@@ -1,0 +1,10 @@
+{
+    "website": "http://www.rethinkdb.com/", 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "name": "RethinkDB", 
+    "license": [
+        "Open Source"
+    ]
+}

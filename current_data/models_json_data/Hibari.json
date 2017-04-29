@@ -1,0 +1,10 @@
+{
+    "website": "http://hibari.github.com/hibari-doc/", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "Hibari", 
+    "license": [
+        "Open Source"
+    ]
+}

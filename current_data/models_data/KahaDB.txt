@@ -1,2 +1,2 @@
-{'website': 'http://activemq.apache.org/kahadb.html', 'name': 'KahaDB'}
+{"website": "http://activemq.apache.org/kahadb.html", "name": "KahaDB"}
 {}

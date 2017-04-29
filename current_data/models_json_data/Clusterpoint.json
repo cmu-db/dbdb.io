@@ -1,0 +1,10 @@
+{
+    "website": "http://www.clusterpoint.com/", 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "name": "Clusterpoint", 
+    "license": [
+        "commercial"
+    ]
+}

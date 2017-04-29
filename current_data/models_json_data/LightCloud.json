@@ -1,0 +1,10 @@
+{
+    "website": "http://opensource.plurk.com/LightCloud/", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "LightCloud", 
+    "license": [
+        "Open Source"
+    ]
+}

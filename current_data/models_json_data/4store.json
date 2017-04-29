@@ -1,0 +1,10 @@
+{
+    "website": "http://4store.org/", 
+    "dbmodel": [
+        "RDF store"
+    ], 
+    "name": "4store", 
+    "license": [
+        "Open Source"
+    ]
+}

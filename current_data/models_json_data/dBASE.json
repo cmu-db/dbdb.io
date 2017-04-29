@@ -1,0 +1,18 @@
+{
+    "support_languages": [
+        "dBase proprietary IDE"
+    ], 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "access_methods": [
+        "none"
+    ], 
+    "oses": [
+        "DOS", 
+        "Windows"
+    ], 
+    "license": [
+        "commercial"
+    ]
+}

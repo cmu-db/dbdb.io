@@ -1,0 +1,10 @@
+{
+    "website": "http://siaqodb.com/", 
+    "dbmodel": [
+        "Object oriented DBMS"
+    ], 
+    "name": "Siaqodb", 
+    "license": [
+        "commercial"
+    ]
+}

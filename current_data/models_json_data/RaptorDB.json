@@ -1,0 +1,10 @@
+{
+    "website": "http://raptordb.codeplex.com/", 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "name": "RaptorDB", 
+    "license": [
+        "Open Source"
+    ]
+}

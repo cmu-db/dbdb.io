@@ -98,7 +98,7 @@ function open_input_area($elem) {
     close_input_area($(this));
   });
   $(".save-button").show(500);
-  // $elem.addClass("edited");
+  $elem.addClass("edited");
   $elem.addClass("editing");
   var value = $elem.text().trim();
   last_saved_input_property = value;
@@ -303,12 +303,18 @@ function load_click_handlers() {
   });
 
   $(".check-img").on("click", function() {
-    if ($(this).hasClass("question-check")) {
-      $(this).removeClass("question-check").addClass("green-check")
+    if ($(this).hasClass("icon-maybe")) {
+      $(this).removeClass("icon-maybe").addClass("icon-yes");
+      $(this).attr("src", "/static/images/icon-yes.png") ;
     } else {
-      $(this).toggleClass("green-check").toggleClass("grey-check")
+      $(this).toggleClass("icon-yes").toggleClass("icon-no");
+      if ($(this).hasClass("icon-yes")) {
+        $(this).attr("src", "/static/images/icon-yes.png");
+      } else {
+        $(this).attr("src", "/static/images/icon-no.png");
+      }
     }
-    if ($(this).hasClass("green-check")) {
+    if ($(this).hasClass("icon-yes")) {
       $(this).parent().next().attr("data-exists", "1");
       open_text_area($(this).parent().next());
     } else {
@@ -329,7 +335,7 @@ function load_click_handlers() {
     } else {
       if ($(this).hasClass("db-description")) {
         open_text_area($(this));
-      } else if ($(this).prev().find(".check-img").hasClass("green-check")) {
+      } else if ($(this).prev().find(".check-img").hasClass("icon-yes")) {
         open_text_area($(this));
       }
     }
@@ -347,7 +353,7 @@ function load_click_handlers() {
     } else {
       if ($(this).hasClass("db-description")) {
         open_text_area($(this));
-      } else if ($(this).prev().find(".check-img").hasClass("green-check")) {
+      } else if ($(this).prev().find(".check-img").hasClass("icon-yes")) {
         open_text_area($(this));
       }
     }

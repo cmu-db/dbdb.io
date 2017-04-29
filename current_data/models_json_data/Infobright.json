@@ -1,0 +1,10 @@
+{
+    "website": "http://www.infobright.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "Infobright", 
+    "license": [
+        "Open Source"
+    ]
+}

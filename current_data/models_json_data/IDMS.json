@@ -1,0 +1,10 @@
+{
+    "website": "http://www.ca.com/us/products/detail/CA-IDMS.aspx", 
+    "dbmodel": [
+        "Navigational DBMS"
+    ], 
+    "name": "IDMS", 
+    "license": [
+        "commercial"
+    ]
+}

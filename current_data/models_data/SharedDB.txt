@@ -1,2 +1,2 @@
-{'name': 'SharedDB'}
+{"name": "SharedDB"}
 {}

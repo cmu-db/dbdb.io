@@ -1,2 +1,2 @@
-{'website': 'http://graphbase.net/', 'name': 'GraphBase'}
-{'dbmodel': ['Graph DBMS'], 'license': ['commercial']}
+{"website": "http://graphbase.net/", "name": "GraphBase"}
+{"dbmodel": ["Graph DBMS"], "license": ["commercial"]}

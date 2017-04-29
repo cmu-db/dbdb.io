@@ -1,0 +1,10 @@
+{
+    "website": "http://sparsity-technologies.com/#sparksee", 
+    "dbmodel": [
+        "Graph DBMS"
+    ], 
+    "name": "Sparksee", 
+    "license": [
+        "commercial"
+    ]
+}

@@ -1,2 +1,2 @@
-{'website': 'http://www.scimore.com/', 'name': 'ScimoreDB', 'tech_docs': '<a href="http://www.scimore.com/wiki/Main_Page">www.scimore.com/&shy;wiki/&shy;Main_Page</a>'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://www.scimore.com/", "name": "ScimoreDB", "tech_docs": "<a href="http://www.scimore.com/wiki/Main_Page">www.scimore.com/&shy;wiki/&shy;Main_Page</a>"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

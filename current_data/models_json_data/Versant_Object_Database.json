@@ -1,0 +1,10 @@
+{
+    "website": "http://www.versant.com/products/versant-object-database", 
+    "dbmodel": [
+        "Object oriented DBMS"
+    ], 
+    "name": "Versant Object Database", 
+    "license": [
+        "commercial"
+    ]
+}

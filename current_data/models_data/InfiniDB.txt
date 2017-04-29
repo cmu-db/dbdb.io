@@ -1,2 +1,2 @@
-{'website': 'http://infinidb.org/', 'description': 'Column-oriented <a href="http://db-engines.com/en/article/RDBMS">RDBMS</a> with <a href="http://db-engines.com/en/system/MySQL">MySQL</a> front end', 'name': 'InfiniDB'}
-{'dbmodel': ['Relational DBMS'], 'license': ['Open Source']}
+{"website": "http://infinidb.org/", "description": "Column-oriented <a href="http://db-engines.com/en/article/RDBMS">RDBMS</a> with <a href="http://db-engines.com/en/system/MySQL">MySQL</a> front end", "name": "InfiniDB"}
+{"dbmodel": ["Relational DBMS"], "license": ["Open Source"]}

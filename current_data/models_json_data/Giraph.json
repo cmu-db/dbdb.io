@@ -1,0 +1,10 @@
+{
+    "website": "http://giraph.apache.org/", 
+    "dbmodel": [
+        "Graph DBMS"
+    ], 
+    "name": "Giraph", 
+    "license": [
+        "Open Source"
+    ]
+}

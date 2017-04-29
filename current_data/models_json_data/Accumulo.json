@@ -1,0 +1,10 @@
+{
+    "website": "http://accumulo.apache.org/", 
+    "dbmodel": [
+        "Wide column store"
+    ], 
+    "name": "Accumulo", 
+    "license": [
+        "Open Source"
+    ]
+}

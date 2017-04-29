@@ -1,0 +1,10 @@
+{
+    "website": "http://www.strabon.di.uoa.gr/", 
+    "dbmodel": [
+        "RDF store"
+    ], 
+    "name": "Strabon", 
+    "license": [
+        "Open Source"
+    ]
+}

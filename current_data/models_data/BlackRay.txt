@@ -1,2 +1,2 @@
-{'website': 'http://sourceforge.net/projects/blackray/', 'name': 'BlackRay'}
+{"website": "http://sourceforge.net/projects/blackray/", "name": "BlackRay"}
 {}

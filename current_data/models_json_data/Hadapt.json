@@ -1,0 +1,10 @@
+{
+    "website": "http://hadapt.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "Hadapt", 
+    "license": [
+        "commercial"
+    ]
+}

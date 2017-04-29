@@ -1,2 +1,2 @@
-{'website': 'http://www.sparkledb.net/', 'name': ('SparkleDB', 'formerly Meronymy')}
-{'dbmodel': ['RDF store'], 'license': ['commercial']}
+{"website": "http://www.sparkledb.net/", "name": "SparkleDB", "formerly Meronymy"}
+{"dbmodel": ["RDF store"], "license": ["commercial"]}

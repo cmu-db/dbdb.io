@@ -1,0 +1,58 @@
+{
+    "start_year": "2004", 
+    "description_transactionconcepts": "ACID", 
+    "description": "A relational database management system that stores data in columns", 
+    "description_durability": "", 
+    "tech_docs": "http://www.monetdb.org/Documentation", 
+    "description_userconcepts": "fine grained access rights according to SQL-standard", 
+    "description_secondary": "", 
+    "support_secondary": true, 
+    "support_languages": [
+        "C", 
+        "C++", 
+        "Java", 
+        "Perl", 
+        "PHP", 
+        "Python", 
+        "R", 
+        "Ruby"
+    ], 
+    "description_typing": "", 
+    "description_serverside": "", 
+    "support_concurrency": true, 
+    "support_typing": true, 
+    "description_datascheme": "", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "developer": "MonetDB BV", 
+    "name": "MonetDB", 
+    "license": [
+        "Open Source"
+    ], 
+    "support_triggers": true, 
+    "support_userconcepts": true, 
+    "support_sql": true, 
+    "description_concurrency": "", 
+    "access_methods": [
+        "native C  library", 
+        "JDBC", 
+        "ODBC"
+    ], 
+    "support_transactionconcepts": true, 
+    "description_triggers": "", 
+    "support_durability": true, 
+    "written_in": [
+        "C"
+    ], 
+    "support_serverside": true, 
+    "support_datascheme": true, 
+    "description_sql": "", 
+    "oses": [
+        "FreeBSD", 
+        "Linux", 
+        "OS X", 
+        "Solaris", 
+        "Windows"
+    ]
+}

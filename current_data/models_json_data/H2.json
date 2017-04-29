@@ -1,0 +1,13 @@
+{
+    "website": "http://www.h2database.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "H2", 
+    "license": [
+        "Open Source"
+    ], 
+    "written_in": [
+        "Java"
+    ]
+}

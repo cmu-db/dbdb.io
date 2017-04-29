@@ -1,0 +1,10 @@
+{
+    "website": "http://www.rbase.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "R:BASE", 
+    "license": [
+        "commercial"
+    ]
+}

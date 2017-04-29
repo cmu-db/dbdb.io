@@ -1,0 +1,49 @@
+{
+    "support_languages": [
+        "Actionscript", 
+        "C", 
+        "C#", 
+        "C++", 
+        "Clojure", 
+        "ColdFusion", 
+        "D", 
+        "Dart", 
+        "Delphi", 
+        "Erlang", 
+        "Go", 
+        "Groovy", 
+        "Haskell", 
+        "Java", 
+        "JavaScript", 
+        "Lisp", 
+        "Lua", 
+        "MatLab", 
+        "Perl", 
+        "PHP", 
+        "PowerShell", 
+        "Prolog", 
+        "Python", 
+        "R", 
+        "Ruby", 
+        "Scala", 
+        "Smalltalk"
+    ], 
+    "access_methods": [
+        "proprietary protocol using JSON"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "Linux", 
+        "OS X", 
+        "Solaris", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "written_in": [
+        "C++"
+    ]
+}

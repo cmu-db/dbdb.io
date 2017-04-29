@@ -1,0 +1,10 @@
+{
+    "website": "http://www.algebraixdata.com/", 
+    "dbmodel": [
+        "RDF store"
+    ], 
+    "name": "Algebraix", 
+    "license": [
+        "commercial"
+    ]
+}

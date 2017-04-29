@@ -1,2 +1,2 @@
-{'website': 'http://www.smallsql.de/', 'name': 'SmallSQL'}
-{'dbmodel': ['Relational DBMS'], 'license': ['Open Source'], 'written_in': ['Java']}
+{"website": "http://www.smallsql.de/", "name": "SmallSQL"}
+{"dbmodel": ["Relational DBMS"], "license": ["Open Source"], "written_in": ["Java"]}

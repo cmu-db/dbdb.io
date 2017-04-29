@@ -1,0 +1,10 @@
+{
+    "website": "http://www.nuodb.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "NuoDB", 
+    "license": [
+        "commercial"
+    ]
+}

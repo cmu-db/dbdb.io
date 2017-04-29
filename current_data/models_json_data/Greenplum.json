@@ -1,0 +1,10 @@
+{
+    "website": "http://www.gopivotal.com/big-data/pivotal-greenplum-database", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "Greenplum", 
+    "license": [
+        "commercial"
+    ]
+}

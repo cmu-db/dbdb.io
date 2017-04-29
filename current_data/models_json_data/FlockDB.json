@@ -1,0 +1,11 @@
+{
+    "website": "https://github.com/twitter/flockdb", 
+    "dbmodel": [
+        "Graph DBMS"
+    ], 
+    "name": "FlockDB", 
+    "license": [
+        "Open Source"
+    ], 
+    "developer": "Twitter"
+}

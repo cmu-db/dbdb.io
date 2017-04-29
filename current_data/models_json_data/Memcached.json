@@ -1,0 +1,36 @@
+{
+    "support_languages": [
+        ".Net", 
+        "C", 
+        "C++", 
+        "ColdFusion", 
+        "Erlang", 
+        "Java", 
+        "Lisp", 
+        "Lua", 
+        "OCaml", 
+        "Perl", 
+        "PHP", 
+        "Python", 
+        "Ruby"
+    ], 
+    "access_methods": [
+        "Proprietary protocol"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "FreeBSD", 
+        "Linux", 
+        "OS X", 
+        "Unix", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "written_in": [
+        "C"
+    ]
+}

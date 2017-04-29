@@ -1,2 +1,2 @@
-{'website': 'http://www.strabon.di.uoa.gr/', 'name': 'Strabon'}
-{'dbmodel': ['RDF store'], 'license': ['Open Source']}
+{"website": "http://www.strabon.di.uoa.gr/", "name": "Strabon"}
+{"dbmodel": ["RDF store"], "license": ["Open Source"]}

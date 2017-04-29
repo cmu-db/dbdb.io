@@ -1,0 +1,32 @@
+{
+    "support_languages": [
+        ".Net", 
+        "C", 
+        "C#", 
+        "C++", 
+        "Clojure", 
+        "Java", 
+        "JavaScript", 
+        "PHP", 
+        "Python", 
+        "Ruby", 
+        "Scala"
+    ], 
+    "access_methods": [
+        "Java API", 
+        "RESTful HTTP/JSON API", 
+        "Tinkerpop technology stack with Blueprints, Gremlin, Pipes"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "All OS with a Java VM"
+    ], 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "written_in": [
+        "Java"
+    ]
+}

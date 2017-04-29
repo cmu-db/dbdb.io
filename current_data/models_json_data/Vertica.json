@@ -1,0 +1,10 @@
+{
+    "website": "http://www.vertica.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "Vertica", 
+    "license": [
+        "commercial"
+    ]
+}

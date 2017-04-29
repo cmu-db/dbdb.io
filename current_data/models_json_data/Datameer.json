@@ -1,0 +1,10 @@
+{
+    "website": "http://www.datameer.com/", 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "name": "Datameer", 
+    "license": [
+        "commercial"
+    ]
+}

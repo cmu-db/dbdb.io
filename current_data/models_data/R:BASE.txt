@@ -1,2 +1,2 @@
-{'website': 'http://www.rbase.com/', 'name': 'R:BASE'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://www.rbase.com/", "name": "R:BASE"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

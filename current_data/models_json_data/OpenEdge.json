@@ -1,0 +1,10 @@
+{
+    "website": "http://www.progress.com/en/openedge/developer-productivity/database/index.html", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "OpenEdge", 
+    "license": [
+        "commercial"
+    ]
+}

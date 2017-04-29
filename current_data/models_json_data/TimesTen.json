@@ -1,0 +1,10 @@
+{
+    "website": "http://www.oracle.com/us/products/database/timesten/index.html", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "TimesTen", 
+    "license": [
+        "commercial"
+    ]
+}

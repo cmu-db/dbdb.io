@@ -1,0 +1,10 @@
+{
+    "website": "http://code.google.com/p/leveldb/", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "LevelDB", 
+    "license": [
+        "Open Source"
+    ]
+}

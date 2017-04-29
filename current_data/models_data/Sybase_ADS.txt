@@ -1,2 +1,2 @@
-{'website': 'http://www.sybase.com/products/databasemanagement/advantagedatabaseserver', 'name': ('Sybase ADS', 'Advantage Database Server')}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://www.sybase.com/products/databasemanagement/advantagedatabaseserver", "name": "Sybase ADS", "Advantage Database Server"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

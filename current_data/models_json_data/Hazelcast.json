@@ -1,0 +1,10 @@
+{
+    "website": "http://www.hazelcast.com/", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "Hazelcast", 
+    "license": [
+        "Open Source"
+    ]
+}

@@ -1,0 +1,21 @@
+{
+    "support_languages": [
+        ".Net"
+    ], 
+    "access_methods": [
+        ".NET Client API", 
+        "RESTful HTTP API"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "written_in": [
+        ".NET languages"
+    ]
+}

@@ -290,9 +290,9 @@ def write_fixtures():
 
 create_fixtures('spring2016', os.listdir('spring2016'))
 create_fixtures('data', os.listdir('data'))
-create_fixtures('data_json', os.listdir('data_json'))
+create_fixtures('json_data', os.listdir('json_data'))
 write_fixtures()
 
-with open('output.txt', 'w') as output_file:
+with open('system_data_output.txt', 'w') as output_file:
     output_file.write(json.dumps(print_output, indent=4))
-    print 'Output can be found in output.txt'
+    print 'Output can be found in system_data_output.txt'

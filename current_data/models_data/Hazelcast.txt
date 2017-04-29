@@ -1,2 +1,2 @@
-{'website': 'http://www.hazelcast.com/', 'name': 'Hazelcast'}
-{'dbmodel': ['Key-value store'], 'license': ['Open Source']}
+{"website": "http://www.hazelcast.com/", "name": "Hazelcast"}
+{"dbmodel": ["Key-value store"], "license": ["Open Source"]}

@@ -1,0 +1,10 @@
+{
+    "website": "http://www.actian.com/products/ingres", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "Ingres", 
+    "license": [
+        "commercial"
+    ]
+}

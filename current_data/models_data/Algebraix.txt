@@ -1,2 +1,2 @@
-{'website': 'http://www.algebraixdata.com/', 'name': 'Algebraix'}
-{'dbmodel': ['RDF store'], 'license': ['commercial']}
+{"website": "http://www.algebraixdata.com/", "name": "Algebraix"}
+{"dbmodel": ["RDF store"], "license": ["commercial"]}

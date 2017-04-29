@@ -1,2 +1,2 @@
-{'website': 'http://db.csail.mit.edu/projects/cstore/', 'name': 'C-Store'}
+{"website": "http://db.csail.mit.edu/projects/cstore/", "name": "C-Store"}
 {}

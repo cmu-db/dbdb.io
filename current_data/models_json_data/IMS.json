@@ -1,0 +1,11 @@
+{
+    "website": "http://www.ibm.com/software/data/ims/ims/", 
+    "dbmodel": [
+        "Navigational DBMS"
+    ], 
+    "name": "IMS", 
+    "license": [
+        "commercial"
+    ], 
+    "developer": "IBM"
+}

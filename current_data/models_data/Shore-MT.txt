@@ -1,2 +1,2 @@
-{'website': 'https://sites.google.com/site/shoremt/', 'name': 'Shore-MT'}
+{"website": "https://sites.google.com/site/shoremt/", "name": "Shore-MT"}
 {}

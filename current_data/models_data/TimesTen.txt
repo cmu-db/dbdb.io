@@ -1,2 +1,2 @@
-{'website': 'http://www.oracle.com/us/products/database/timesten/index.html', 'name': 'TimesTen'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://www.oracle.com/us/products/database/timesten/index.html", "name": "TimesTen"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

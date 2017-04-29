@@ -1,0 +1,14 @@
+{
+    "website": "http://www.asterdata.com", 
+    "name": "Teradata Aster", 
+    "license": [
+        "commercial"
+    ], 
+    "support_sql": true, 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "description_sql": "", 
+    "support_mapreduce": true, 
+    "description_mapreduce": ""
+}

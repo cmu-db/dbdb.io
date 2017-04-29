@@ -1,0 +1,10 @@
+{
+    "website": "http://www.jboss.org/modeshape", 
+    "dbmodel": [
+        "Content store"
+    ], 
+    "name": "ModeShape", 
+    "license": [
+        "Open Source"
+    ]
+}

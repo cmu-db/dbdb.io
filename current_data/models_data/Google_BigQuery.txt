@@ -1,2 +1,2 @@
-{'website': 'http://developers.google.com/bigquery/', 'name': 'Google BigQuery', 'developer': 'Google'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://developers.google.com/bigquery/", "name": "Google BigQuery", "developer": "Google"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

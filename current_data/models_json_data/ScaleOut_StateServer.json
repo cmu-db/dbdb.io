@@ -1,0 +1,10 @@
+{
+    "website": "http://www.scaleoutsoftware.com/products/scaleout-stateserver/", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "ScaleOut StateServer", 
+    "license": [
+        "commercial"
+    ]
+}

@@ -1,2 +1,2 @@
-{'website': 'http://kx.com/products.php', 'name': 'Kdb+', 'developer': 'Kx Systems'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://kx.com/products.php", "name": "Kdb+", "developer": "Kx Systems"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

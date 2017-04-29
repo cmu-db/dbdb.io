@@ -1,2 +1,2 @@
-{'website': 'http://www.iqlect.com/bangdb_embedded.php', 'name': 'BangDB'}
+{"website": "http://www.iqlect.com/bangdb_embedded.php", "name": "BangDB"}
 {}

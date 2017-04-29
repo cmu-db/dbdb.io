@@ -1,2 +1,2 @@
-{'website': 'http://www.mulgara.org/', 'name': 'Mulgara'}
-{'dbmodel': ['RDF store'], 'license': ['Open Source'], 'written_in': ['Java']}
+{"website": "http://www.mulgara.org/", "name": "Mulgara"}
+{"dbmodel": ["RDF store"], "license": ["Open Source"], "written_in": ["Java"]}

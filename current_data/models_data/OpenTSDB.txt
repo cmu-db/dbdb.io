@@ -1,2 +1,2 @@
-{'website': 'http://opentsdb.net/', 'name': 'OpenTSDB'}
+{"website": "http://opentsdb.net/", "name": "OpenTSDB"}
 {}

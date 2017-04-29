@@ -1,0 +1,38 @@
+{
+    "support_languages": [
+        "C", 
+        "C#", 
+        "C++", 
+        "Clojure", 
+        "Dart", 
+        "Erlang", 
+        "Go", 
+        "Groovy", 
+        "Haskell", 
+        "Java", 
+        "JavaScript", 
+        "Lisp", 
+        "Perl", 
+        "PHP", 
+        "Python", 
+        "Ruby", 
+        "Scala", 
+        "Smalltalk"
+    ], 
+    "access_methods": [
+        "HTTP API and native Erlang interfrace"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "Linux", 
+        "OS X"
+    ], 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "written_in": [
+        "Erlang"
+    ]
+}

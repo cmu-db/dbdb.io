@@ -1,0 +1,10 @@
+{
+    "website": "http://www.searchblox.com/", 
+    "dbmodel": [
+        "Search engine"
+    ], 
+    "name": "SearchBlox", 
+    "license": [
+        "commercial"
+    ]
+}

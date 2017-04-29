@@ -1,0 +1,11 @@
+{
+    "website": "http://maxdb.sap.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "MaxDB", 
+    "license": [
+        "commercial"
+    ], 
+    "developer": "SAP"
+}

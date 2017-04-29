@@ -1,0 +1,10 @@
+{
+    "website": "http://www.cubicweb.org/", 
+    "dbmodel": [
+        "RDF store"
+    ], 
+    "name": "CubicWeb", 
+    "license": [
+        "Open Source"
+    ]
+}

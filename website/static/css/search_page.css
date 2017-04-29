@@ -49,16 +49,8 @@
   margin-top: -20px;
 }
 
-.check-img.green-check {
-  width: 15px;
-}
-
-.check-img.grey-check {
-  width: 15px;
-}
-
-.check-img.question-check {
-  width: 15px;
+.check-img {
+  width: 1em;
 }
 
 .property-div {

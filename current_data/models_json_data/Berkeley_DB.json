@@ -1,0 +1,30 @@
+{
+    "support_languages": [
+        "others", 
+        "C", 
+        "C#", 
+        "C++", 
+        "Java", 
+        "Tcl"
+    ], 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "oses": [
+        "AIX", 
+        "Android", 
+        "FreeBSD", 
+        "iOS", 
+        "Linux", 
+        "OS X", 
+        "Solaris", 
+        "VxWorks", 
+        "Windows"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "written_in": [
+        "C"
+    ]
+}

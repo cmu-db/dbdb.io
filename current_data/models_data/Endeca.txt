@@ -1,2 +1,2 @@
-{'website': 'http://www.oracle.com/us/products/applications/commerce/endeca/overview/index.html', 'name': 'Endeca'}
-{'dbmodel': ['Search engine'], 'license': ['commercial']}
+{"website": "http://www.oracle.com/us/products/applications/commerce/endeca/overview/index.html", "name": "Endeca"}
+{"dbmodel": ["Search engine"], "license": ["commercial"]}

@@ -1,0 +1,25 @@
+{
+    "support_languages": [
+        ".Net", 
+        "C", 
+        "C++", 
+        "Erlang", 
+        "Java", 
+        "PHP", 
+        "Python", 
+        "Ruby", 
+        "Scala"
+    ], 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "access_methods": [
+        "RESTful HTTP API"
+    ], 
+    "oses": [
+        "hosted"
+    ], 
+    "license": [
+        "commercial"
+    ]
+}

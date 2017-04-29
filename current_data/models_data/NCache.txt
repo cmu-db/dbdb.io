@@ -1,2 +1,2 @@
-{'website': 'http://www.alachisoft.com/ncache/', 'name': 'NCache'}
-{'dbmodel': ['Key-value store'], 'license': ['commercial']}
+{"website": "http://www.alachisoft.com/ncache/", "name": "NCache"}
+{"dbmodel": ["Key-value store"], "license": ["commercial"]}

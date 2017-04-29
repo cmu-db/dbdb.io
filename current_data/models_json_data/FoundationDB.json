@@ -1,0 +1,24 @@
+{
+    "support_languages": [
+        "C", 
+        "C++", 
+        "Java", 
+        "JavaScript", 
+        "Python", 
+        "Ruby"
+    ], 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "oses": [
+        "Linux", 
+        "OS X", 
+        "Windows"
+    ], 
+    "license": [
+        "commercial"
+    ], 
+    "written_in": [
+        "C++"
+    ]
+}

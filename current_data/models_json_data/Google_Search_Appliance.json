@@ -1,0 +1,10 @@
+{
+    "website": "http://www.google.com/enterprise/search/campaigns/gsa7.html", 
+    "dbmodel": [
+        "Search engine"
+    ], 
+    "name": "Google Search Appliance", 
+    "license": [
+        "commercial"
+    ]
+}

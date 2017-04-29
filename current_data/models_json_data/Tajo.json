@@ -1,0 +1,12 @@
+{
+    "website": "http://tajo.apache.org/", 
+    "license": [
+        "Open Source"
+    ], 
+    "description": "SQL on Hadoop", 
+    "name": "Tajo", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "developer": "Apache Software Foundation"
+}

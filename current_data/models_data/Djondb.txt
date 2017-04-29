@@ -1,2 +1,2 @@
-{'website': 'http://djondb.com/', 'name': 'Djondb'}
-{'dbmodel': ['Document store'], 'license': ['Open Source']}
+{"website": "http://djondb.com/", "name": "Djondb"}
+{"dbmodel": ["Document store"], "license": ["Open Source"]}

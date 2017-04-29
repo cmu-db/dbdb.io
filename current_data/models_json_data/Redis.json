@@ -1,0 +1,42 @@
+{
+    "support_languages": [
+        "C", 
+        "C#", 
+        "C++", 
+        "Clojure", 
+        "Dart", 
+        "Erlang", 
+        "Go", 
+        "Haskell", 
+        "Java", 
+        "JavaScript", 
+        "Lisp", 
+        "Lua", 
+        "Objective-C", 
+        "Perl", 
+        "PHP", 
+        "Python", 
+        "Ruby", 
+        "Scala", 
+        "Smalltalk", 
+        "Tcl"
+    ], 
+    "access_methods": [
+        "proprietary protocol"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "BSD", 
+        "Linux", 
+        "OS X", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "written_in": [
+        "C"
+    ]
+}

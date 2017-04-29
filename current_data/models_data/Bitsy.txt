@@ -1,2 +1,2 @@
-{'website': 'https://bitbucket.org/lambdazen/bitsy/wiki/Home', 'name': 'Bitsy'}
+{"website": "https://bitbucket.org/lambdazen/bitsy/wiki/Home", "name": "Bitsy"}
 {}

@@ -1,2 +1,2 @@
-{'website': 'http://ibm.com/software/products/us/en/websphere-extreme-scale/', 'name': 'WebSphere eXtreme Scale'}
-{'dbmodel': ['Key-value store'], 'license': ['commercial']}
+{"website": "http://ibm.com/software/products/us/en/websphere-extreme-scale/", "name": "WebSphere eXtreme Scale"}
+{"dbmodel": ["Key-value store"], "license": ["commercial"]}

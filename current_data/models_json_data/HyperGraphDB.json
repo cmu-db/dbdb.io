@@ -1,0 +1,10 @@
+{
+    "website": "http://www.hypergraphdb.org/", 
+    "dbmodel": [
+        "Graph DBMS"
+    ], 
+    "name": "HyperGraphDB", 
+    "license": [
+        "Open Source"
+    ]
+}

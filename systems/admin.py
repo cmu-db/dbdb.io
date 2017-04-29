@@ -31,13 +31,6 @@ class LicenseAdmin(admin.ModelAdmin):
     list_display = ('name', 'website',)
 
 
-class APIAccessMethodAdmin(admin.ModelAdmin):
-    """Manages how API access methods are displayed
-    on the django administration page"""
-    empty_value_display = 'unknown'
-    list_display = ('name', 'website',)
-
-
 class PublicationAdmin(admin.ModelAdmin):
     """Manages how publications are displayed
     on the django administration page"""
@@ -92,8 +85,7 @@ class SystemVersionAdmin(admin.ModelAdmin):
         ('Metadata', {'fields': ['description', 'history', 'website', 'tech_docs',
                                  'developer', 'written_in', 'oses', 'publications',
                                  'project_type', 'start_year', 'end_year',
-                                 'derived_from', 'licenses',
-                                 'access_methods', 'logo_orig', 'logo_thumb']}),
+                                 'derived_from', 'licenses', 'logo_orig', 'logo_thumb']}),
         ('Features', {'fields': ['support_systemarchitecture', 'description_systemarchitecture',
                                  'support_datamodel', 'description_datamodel',
                                  'support_storagemodel', 'description_storagemodel',
@@ -143,7 +135,6 @@ class SystemVersionFeatureOptionAdmin(admin.ModelAdmin):
 admin.site.register(OperatingSystem, OperatingSystemAdmin)
 admin.site.register(ProgrammingLanguage, ProgrammingLanguageAdmin)
 admin.site.register(License, LicenseAdmin)
-admin.site.register(APIAccessMethod, APIAccessMethodAdmin)
 admin.site.register(Publication, PublicationAdmin)
 admin.site.register(SuggestedSystem, SuggestedSystemAdmin)
 admin.site.register(System, SystemAdmin)

@@ -1,2 +1,2 @@
-{'website': 'http://publications.csail.mit.edu/lcs/pubs/pdf/MIT-LCS-TR-070.pdf', 'name': 'Goldstart'}
+{"website": "http://publications.csail.mit.edu/lcs/pubs/pdf/MIT-LCS-TR-070.pdf", "name": "Goldstart"}
 {}

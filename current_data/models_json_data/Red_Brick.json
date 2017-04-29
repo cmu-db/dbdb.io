@@ -1,0 +1,10 @@
+{
+    "website": "http://www-03.ibm.com/software/products/us/en/redbrick", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "Red Brick", 
+    "license": [
+        "commercial"
+    ]
+}

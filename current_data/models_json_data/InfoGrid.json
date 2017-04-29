@@ -1,0 +1,10 @@
+{
+    "website": "http://infogrid.org/", 
+    "dbmodel": [
+        "Graph DBMS"
+    ], 
+    "name": "InfoGrid", 
+    "license": [
+        "Open Source"
+    ]
+}

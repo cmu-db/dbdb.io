@@ -1,0 +1,10 @@
+{
+    "website": "http://www.jbase.com/", 
+    "dbmodel": [
+        "Multivalue DBMS"
+    ], 
+    "name": "jBASE", 
+    "license": [
+        "commercial"
+    ]
+}

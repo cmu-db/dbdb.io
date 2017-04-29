@@ -69,4 +69,6 @@ systems/fixtures/system_versions.json
 systems/fixtures/systems.json
 
 # Script Output
-output.txt
+*_output.txt
+cleaned_data/
+cleaned_models_data/

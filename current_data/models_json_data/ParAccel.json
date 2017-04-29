@@ -1,0 +1,10 @@
+{
+    "website": "http://www.paraccel.com/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "ParAccel", 
+    "license": [
+        "commercial"
+    ]
+}

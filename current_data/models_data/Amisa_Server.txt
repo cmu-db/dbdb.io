@@ -1,2 +1,2 @@
-{'website': 'http://www.amisalabs.com/', 'developer': 'AmisaLabs', 'name': 'Amisa Server', 'tech_docs': '<a href="http://amisalabs.com/Documentation.html">amisalabs.com/&shy;Documentation.html</a>'}
-{'dbmodel': ['Document store'], 'license': ['commercial']}
+{"website": "http://www.amisalabs.com/", "developer": "AmisaLabs", "name": "Amisa Server", "tech_docs": "<a href="http://amisalabs.com/Documentation.html">amisalabs.com/&shy;Documentation.html</a>"}
+{"dbmodel": ["Document store"], "license": ["commercial"]}

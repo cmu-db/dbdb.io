@@ -1,0 +1,13 @@
+{
+    "website": "http://hsqldb.org/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "HyperSQL", 
+    "license": [
+        "Open Source"
+    ], 
+    "written_in": [
+        "Java"
+    ]
+}

@@ -1,0 +1,26 @@
+{
+    "support_languages": [
+        "C", 
+        "C++", 
+        "Fortran", 
+        "Java", 
+        "Lua", 
+        "Perl", 
+        "Python", 
+        "R"
+    ], 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "access_methods": [
+        "JDBC", 
+        "ODBC", 
+        "OLE DB"
+    ], 
+    "oses": [
+        "Linux"
+    ], 
+    "license": [
+        "commercial"
+    ]
+}

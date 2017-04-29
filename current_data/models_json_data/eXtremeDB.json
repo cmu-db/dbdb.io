@@ -1,0 +1,10 @@
+{
+    "website": "http://www.mcobject.com/extremedbfamily.shtml", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "eXtremeDB", 
+    "license": [
+        "commercial"
+    ]
+}

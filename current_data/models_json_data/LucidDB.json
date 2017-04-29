@@ -1,0 +1,10 @@
+{
+    "website": "http://luciddb.sourceforge.net/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "LucidDB", 
+    "license": [
+        "Open Source"
+    ]
+}

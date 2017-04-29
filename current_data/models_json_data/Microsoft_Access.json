@@ -1,0 +1,28 @@
+{
+    "support_languages": [
+        "C", 
+        "C#", 
+        "C++", 
+        "Java JDBC-ODBC", 
+        "VBA", 
+        "Visual Basic.NET"
+    ], 
+    "access_methods": [
+        "DAO", 
+        "OLE DB", 
+        "ADO.NET", 
+        "ODBC"
+    ], 
+    "license": [
+        "commercial"
+    ], 
+    "oses": [
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "written_in": [
+        "C++"
+    ]
+}

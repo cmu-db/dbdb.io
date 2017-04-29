@@ -1,0 +1,29 @@
+{
+    "support_languages": [
+        ".Net", 
+        "Java", 
+        "PHP", 
+        "Python", 
+        "Ruby", 
+        "Visual Basic"
+    ], 
+    "access_methods": [
+        "OLE DB", 
+        "Tabular Data Stream TDS", 
+        "ADO.NET", 
+        "JDBC", 
+        "ODBC"
+    ], 
+    "license": [
+        "commercial"
+    ], 
+    "oses": [
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "written_in": [
+        "C++"
+    ]
+}

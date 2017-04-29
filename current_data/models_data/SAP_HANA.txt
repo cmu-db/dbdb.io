@@ -1,2 +1,2 @@
-{'website': 'http://www.saphana.com/', 'name': 'SAP HANA'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://www.saphana.com/", "name": "SAP HANA"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

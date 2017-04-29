@@ -1,0 +1,10 @@
+{
+    "website": "http://www.ontotext.com/owlim", 
+    "dbmodel": [
+        "RDF store"
+    ], 
+    "name": "OWLIM", 
+    "license": [
+        "commercial"
+    ]
+}

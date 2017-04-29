@@ -48,16 +48,8 @@
   position: relative;
 }
 
-.check-img.green-check {
-  width: 30px;
-}
-
-.check-img.grey-check {
-  width: 30px;
-}
-
-.check-img.question-check {
-  width: 30px;
+.check-img {
+  width: 2.3em;
 }
 
 .yesno-row {

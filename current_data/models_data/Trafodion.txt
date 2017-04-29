@@ -1,2 +1,2 @@
-{'website': 'https://wiki.trafodion.org/wiki/index.php/Main_Page', 'name': 'Trafodion'}
+{"website": "https://wiki.trafodion.org/wiki/index.php/Main_Page", "name": "Trafodion"}
 {}

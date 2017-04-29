@@ -1,0 +1,10 @@
+{
+    "website": "https://github.com/mmcgrana/fleetdb", 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "name": "FleetDB", 
+    "license": [
+        "Open Source"
+    ]
+}

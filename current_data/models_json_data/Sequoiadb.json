@@ -1,0 +1,10 @@
+{
+    "website": "http://www.sequoiadb.com", 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "name": "Sequoiadb", 
+    "license": [
+        "commercial"
+    ]
+}

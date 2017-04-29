@@ -1,2 +1,2 @@
-{'website': 'http://maxdb.sap.com/', 'name': 'MaxDB', 'developer': 'SAP'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://maxdb.sap.com/", "name": "MaxDB", "developer": "SAP"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

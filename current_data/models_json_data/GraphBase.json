@@ -1,0 +1,10 @@
+{
+    "website": "http://graphbase.net/", 
+    "dbmodel": [
+        "Graph DBMS"
+    ], 
+    "name": "GraphBase", 
+    "license": [
+        "commercial"
+    ]
+}

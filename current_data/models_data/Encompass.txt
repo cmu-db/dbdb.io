@@ -1,2 +1,2 @@
-{'description': 'Became NonStop SQL', 'name': 'Encompass'}
+{"description": "Became NonStop SQL", "name": "Encompass"}
 {}

@@ -1,0 +1,10 @@
+{
+    "website": "http://hamsterdb.com/", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "Hamsterdb", 
+    "license": [
+        "Open Source"
+    ]
+}

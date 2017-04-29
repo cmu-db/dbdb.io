@@ -1,0 +1,29 @@
+{
+    "support_languages": [
+        "Java"
+    ], 
+    "access_methods": [
+        "Java API", 
+        "ODBC", 
+        "RESTful HTTP API", 
+        "WebDAV", 
+        "XDBC", 
+        "XQuery", 
+        "XSLT"
+    ], 
+    "license": [
+        "commercial"
+    ], 
+    "oses": [
+        "Linux", 
+        "OS X", 
+        "Solaris", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Native XML DBMS"
+    ], 
+    "written_in": [
+        "C++"
+    ]
+}

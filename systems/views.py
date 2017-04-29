@@ -6,6 +6,7 @@ from django.db.models import ObjectDoesNotExist
 from django.contrib.syndication.views import Feed
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
+from django.template.defaulttags import register
 from django.utils.text import slugify
 from django.views.generic.base import View
 from django.views.decorators.csrf import csrf_exempt
@@ -17,39 +18,44 @@ from systems.models import Feature, FeatureOption, License, OperatingSystem, Pro
 from systems.serializers import LicenseSerializer, SystemVersionSerializer
 import util
 
-SYSTEM_FIELDS = {
-    'support_checkpoints':         'Checkpoints',
-    'support_concurrencycontrol':  'Concurrency Control',
-    'support_datamodel':           'Data Model',
-    'support_foreignkeys':         'Foreign Keys',
-    'support_indexes':             'Indexes',
-    'support_isolationlevels':     'Isolation Levels',
-    'support_joins':               'Joins',
-    'support_logging':             'Logging',
-    'support_querycompilation':    'Query Compilation',
-    'support_queryexecution':      'Query Execution',
-    'support_queryinterface':      'Query Interface',
-    'support_storagearchitecture': 'Storage Architecture',
-    'support_storagemodel':        'Storage Model',
-    'support_storedprocedures':    'Stored Procedures',
-    'support_systemarchitecture':  'System Architecture',
-    'support_views':               'Views'
-}
+
+# Dictionary lookup in template.
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
 
 
 class LoadContext(object):
     @staticmethod
+    def get_all_features():
+        return sorted([feature.label for feature in Feature.objects.all()])
+
+    @staticmethod
+    def get_all_feature_options():
+        feature_options = {}
+        for fo in FeatureOption.objects.all():
+            if not feature_options.get(fo.feature.label):
+                feature_options[fo.feature.label] = [fo.value]
+            else:
+                feature_options[fo.feature.label].append(fo.value)
+        for options in feature_options.values():
+            options.sort()
+        return feature_options
+
+
+    @staticmethod
     def load_base_context(request):
         return {
-            "user":          request.user,
+            "user":                 request.user,
             # TODO: don't load all databases when only looking at one. Pass template as argument to load specific context
-            "databases":     map(lambda db: {'name': db.name, 'slug': db.slug}, System.objects.all()),
-            "languages":     map(lambda lang: {'name': lang.name, 'slug': lang.slug},
-                                 ProgrammingLanguage.objects.all()),
-            "oses":          map(lambda os: {'name': os.name, 'slug': os.slug}, OperatingSystem.objects.all()),
-            "licenses":      map(lambda license: {'name': license.name, 'slug': license.slug}, License.objects.all()),
-            "project_types": map(lambda type: {'name': type.name, 'slug': type.slug}, ProjectType.objects.all()),
-            "system_fields": sorted(SYSTEM_FIELDS.values())
+            "databases":            map(lambda db: {'name': db.name, 'slug': db.slug}, System.objects.all()),
+            "languages":            map(lambda lang: {'name': lang.name, 'slug': lang.slug},
+                                        ProgrammingLanguage.objects.all()),
+            "oses":                 map(lambda os: {'name': os.name, 'slug': os.slug}, OperatingSystem.objects.all()),
+            "licenses":             map(lambda license: {'name': license.name, 'slug': license.slug}, License.objects.all()),
+            "project_types":        map(lambda type: {'name': type.name, 'slug': type.slug}, ProjectType.objects.all()),
+            "all_features":         LoadContext.get_all_features(),
+            "all_feature_options":  LoadContext.get_all_feature_options()
         }
 
     @staticmethod
@@ -131,17 +137,6 @@ class LoadContext(object):
                 if db_version.__getattribute__(field_name):
                     raw_field = db_version.__getattribute__(field_name).raw
                     db_data[field_name + "_raw"] = raw_field
-
-    @staticmethod
-    def get_fields(db):
-        field_supports = []
-        for field in db:
-            if "support_" in field and field != "support_languages":
-                name = SYSTEM_FIELDS[field]
-                data = {"field_name": name,
-                        "support": db[field]}
-                field_supports.append(data)
-        db["field_supports"] = field_supports
 
 
 class HomePage(View):
@@ -234,9 +229,8 @@ class SearchPage(View):
                                                   version_number=sys_ver.system.current_version))
 
         systems_data = []
-        for system in systems:
-            data = LoadContext.load_db_data(system)
-            LoadContext.get_fields(data)
+        for db_version in systems:
+            data = LoadContext.load_db_data(db_version)
             data["description"] = data["description"][:100] + "..."
             systems_data.append(data)
         context["page_data"] = page_info
@@ -563,60 +557,65 @@ class FetchAllSystems(APIView):
 
 class AdvancedSearchView(View):
 
+    @csrf_exempt
+    def dispatch(self, *args, **kwargs):
+        return super(AdvancedSearchView, self).dispatch(*args, **kwargs)
+
     @staticmethod
-    def get_current_version_dbs():
-        sms = System.objects.all()
-        dbs = []
-        for sm in sms:
-            dbs.append(SystemVersion.objects.get(name=sm.name,
-                                                 version_number=sm.current_version))
-        return dbs
-
-    def create_query_dict(self, raw_dict):
-        new_dict = {}
-        questioncheck = []
-        greencheck = []
-        greycheck = []
-        inv_fields = {v: k for k, v in SYSTEM_FIELDS.items()}
-        for key in raw_dict:
-            if raw_dict[key][0] == "question-check":
-                questioncheck.append(key)
-            elif raw_dict[key][0] == "green-check":
-                new_dict[inv_fields[key]] = True
-                greencheck.append(key)
-            else:
-                new_dict[inv_fields[key]] = False
-                greycheck.append(key)
-        return new_dict, questioncheck, greencheck, greycheck
-
-    def make_ordered_list(self, dbs, params=None):
-        start_letters = string.ascii_lowercase + string.digits
+    def make_ordered_list(params):
+        start_letters = string.digits + string.ascii_lowercase
         ordered_list = [{"letter": letter, "dbs": []} for letter in start_letters]
-        for db in dbs:
-            if params:
-                invalid = False
-                for field in params:
-                    if db.__getattribute__(field) != params[field]:
-                        invalid = True
-                if invalid:
-                    continue
-            name = db.name
-            letter_idx = start_letters.index(name[0].lower())
-            ordered_list[letter_idx]["dbs"].append({"screen_name": name,
-                                                    "hash_name": slugify(name)})
+
+        # Organize databases based on first letter.
+        for db in System.objects.all():
+
+            matches = True
+            # Filter databases if there are search parameters.
+            if params is not None:
+                db_version = SystemVersion.objects.get(system=db,
+                                                       version_number=db.current_version)
+                matches = AdvancedSearchView.search(db_version, params)
+
+            # Add database if it matches search parameters.
+            if matches:
+                name = db.name
+                slug = db.slug
+                letter_idx = start_letters.index(name[0].lower())
+                ordered_list[letter_idx]["dbs"].append({"name": name,
+                                                        "slug": slug})
+
+        # Arrange each list of databases alphabetically.
+        for letter in ordered_list:
+            letter['dbs'].sort(cmp=lambda x, y: cmp(x['name'].lower(), y['name'].lower()))
+
         return ordered_list
+
+    @staticmethod
+    def search(db, params):
+        # Search if all values in params are in that db's features.
+        for field in params:
+            feature = Feature.objects.get(label=field)
+            search_options = params[field]
+            feature_options = [fo.value for fo in db.feature_options.filter(feature=feature)]
+            # Set difference of search options with feature options
+            if len(set(search_options) - set(feature_options)) > 0:
+                return False
+        return True
+
+    def post(self, request):
+        context = LoadContext.load_base_context(request)
+        params = dict(request.POST)
+        context["ordered_dbs_list"] = AdvancedSearchView.make_ordered_list(params)
+        context["selected"] = params
+        return render(request, 'advanced_search.html', context)
 
     def get(self, request):
         context = LoadContext.load_base_context(request)
-        params, question, green, grey = self.create_query_dict(dict(request.GET))
-        context["questionchecks"] = question
-        context["greenchecks"] = green
-        context["greychecks"] = grey
-        dbs = AdvancedSearchView.get_current_version_dbs()
-        context["ordered_dbs_list"] = self.make_ordered_list(dbs, params)
+        context["ordered_dbs_list"] = AdvancedSearchView.make_ordered_list(None)
         return render(request, 'advanced_search.html', context)
 
 
+# TODO remove this class and the corresponding url in urls.py
 class AlphabetizedData(APIView):
     def get(self, request):
         return Response(AdvancedSearchView.alphabetize_dbs_data())

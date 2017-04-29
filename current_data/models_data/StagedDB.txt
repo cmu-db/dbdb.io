@@ -1,2 +1,2 @@
-{'website': 'http://www.cs.cmu.edu/~stageddb/', 'name': 'StagedDB'}
+{"website": "http://www.cs.cmu.edu/~stageddb/", "name": "StagedDB"}
 {}

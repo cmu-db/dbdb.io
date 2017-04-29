@@ -1,0 +1,10 @@
+{
+    "website": "http://www.objectstore.com/", 
+    "dbmodel": [
+        "Object oriented DBMS"
+    ], 
+    "name": "ObjectStore", 
+    "license": [
+        "commercial"
+    ]
+}

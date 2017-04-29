@@ -1,2 +1,2 @@
-{'website': 'http://www.faircom.com/ace/products_t.php', 'name': 'c-treeACE', 'tech_docs': '<a href="http://www.faircom.com/ace/support_doc_t.php">www.faircom.com/&shy;ace/&shy;support_doc_t.php</a>'}
-{'dbmodel': ['Relational DBMS'], 'license': ['commercial']}
+{"website": "http://www.faircom.com/ace/products_t.php", "name": "c-treeACE", "tech_docs": "<a href="http://www.faircom.com/ace/support_doc_t.php">www.faircom.com/&shy;ace/&shy;support_doc_t.php</a>"}
+{"dbmodel": ["Relational DBMS"], "license": ["commercial"]}

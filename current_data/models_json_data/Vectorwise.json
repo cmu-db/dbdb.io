@@ -1,0 +1,10 @@
+{
+    "website": "http://www.actian.com/products/vectorwise", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "Vectorwise", 
+    "license": [
+        "commercial"
+    ]
+}

@@ -1,0 +1,10 @@
+{
+    "website": "http://fallabs.com/tokyocabinet/", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "Tokyo Cabinet", 
+    "license": [
+        "Open Source"
+    ]
+}

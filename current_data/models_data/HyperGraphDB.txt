@@ -1,2 +1,2 @@
-{'website': 'http://www.hypergraphdb.org/', 'name': 'HyperGraphDB'}
-{'dbmodel': ['Graph DBMS'], 'license': ['Open Source']}
+{"website": "http://www.hypergraphdb.org/", "name": "HyperGraphDB"}
+{"dbmodel": ["Graph DBMS"], "license": ["Open Source"]}

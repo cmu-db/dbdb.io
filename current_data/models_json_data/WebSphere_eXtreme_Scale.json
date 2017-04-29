@@ -1,0 +1,10 @@
+{
+    "website": "http://ibm.com/software/products/us/en/websphere-extreme-scale/", 
+    "dbmodel": [
+        "Key-value store"
+    ], 
+    "name": "WebSphere eXtreme Scale", 
+    "license": [
+        "commercial"
+    ]
+}

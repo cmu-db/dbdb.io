@@ -1,0 +1,30 @@
+{
+    "support_languages": [
+        ".Net", 
+        "Erlang", 
+        "Java", 
+        "JavaScript", 
+        "any language that supports sockets and either XML or JSON", 
+        "Perl", 
+        "PHP", 
+        "Python", 
+        "Ruby", 
+        "Scala"
+    ], 
+    "access_methods": [
+        "Java API", 
+        "RESTful HTTP API"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "All OS with a Java VM and a servlet container"
+    ], 
+    "dbmodel": [
+        "Search engine"
+    ], 
+    "written_in": [
+        "Java"
+    ]
+}

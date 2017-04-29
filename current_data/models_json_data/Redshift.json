@@ -1,0 +1,10 @@
+{
+    "website": "http://aws.amazon.com/redshift/", 
+    "dbmodel": [
+        "Relational DBMS"
+    ], 
+    "name": "Redshift", 
+    "license": [
+        "commercial"
+    ]
+}

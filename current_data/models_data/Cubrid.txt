@@ -1,2 +1,2 @@
-{'website': 'http://www.cubrid.org/', 'name': 'Cubrid'}
-{'dbmodel': ['Relational DBMS'], 'license': ['Open Source']}
+{"website": "http://www.cubrid.org/", "name": "Cubrid"}
+{"dbmodel": ["Relational DBMS"], "license": ["Open Source"]}

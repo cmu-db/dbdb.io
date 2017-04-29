@@ -1,2 +1,2 @@
-{'website': 'http://www.ecc.ethz.ch/research/tcrescando', 'name': 'Crescando'}
+{"website": "http://www.ecc.ethz.ch/research/tcrescando", "name": "Crescando"}
 {}

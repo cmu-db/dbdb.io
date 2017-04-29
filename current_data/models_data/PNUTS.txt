@@ -1,2 +1,2 @@
-{'website': 'http://dl.acm.org/citation.cfm?id=1454167', 'name': 'PNUTS'}
+{"website": "http://dl.acm.org/citation.cfm?id=1454167", "name": "PNUTS"}
 {}

@@ -1,0 +1,41 @@
+{
+    "support_languages": [
+        "C", 
+        "C#", 
+        "ColdFusion", 
+        "Erlang", 
+        "Haskell", 
+        "Java", 
+        "JavaScript", 
+        "Lisp", 
+        "Lua", 
+        "Objective-C", 
+        "OCaml", 
+        "Perl", 
+        "PHP", 
+        "PL/SQL", 
+        "Python", 
+        "Ruby", 
+        "Smalltalk"
+    ], 
+    "access_methods": [
+        "RESTful HTTP/JSON API"
+    ], 
+    "license": [
+        "Open Source"
+    ], 
+    "oses": [
+        "Android", 
+        "BSD", 
+        "Linux", 
+        "OS X", 
+        "Solaris", 
+        "Windows"
+    ], 
+    "dbmodel": [
+        "Document store"
+    ], 
+    "written_in": [
+        "Erlang"
+    ]
+}
