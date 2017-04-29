@@ -98,7 +98,7 @@ function open_input_area($elem) {
     close_input_area($(this));
   });
   $(".save-button").show(500);
-  // $elem.addClass("edited");
+  $elem.addClass("edited");
   $elem.addClass("editing");
   var value = $elem.text().trim();
   last_saved_input_property = value;
