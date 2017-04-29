@@ -3,6 +3,7 @@
 {% load staticfiles %}
 
 {% block css %}
+  <link href="{% static 'css/libs/bootstrap-select.min.css' %}" rel="stylesheet">
   <link href="{% static 'css/advanced_search.css' %}" rel="stylesheet">
 {% endblock %}
 
@@ -18,30 +19,29 @@
     </div>
   </div>
 
-  <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1">
-    <div class="row">
-      {% for feature, options in all_feature_options.items %}
+  <form id="search-form" name="search" action="/advancedsearch/" method="POST">
+    <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1">
+      <div class="row">
+      {% for feature in all_features %}
         <span class="col-md-3 col-sm-4 col-xs-6 search-check">
           <span class="field-text">{{ feature }}</span>
-          {% for option in options %}
-            <h6>
-              {% if feature in greychecks %}
-                <img src="{% static 'images/icon-no.png' %}" class="field-selector check-img icon-no" data-current-check="icon-no" data-field="{{feature}}">
-              {% elif feature in greenchecks %}
-                <img src="{% static 'images/icon-yes.png' %}" class="field-selector check-img icon-yes" data-current-check="icon-yes" data-field="{{feature}}">
+          <select form="search-form" name="{{ feature }}" multiple data-actions-box="true" class="selectpicker" multiple>
+            {% for option in all_feature_options|get_item:feature %}
+              {% if option in selected|get_item:feature %}
+                <option selected="selected">{{ option }}</option>
               {% else %}
-                <img src="{% static 'images/icon-maybe.png' %}" class="field-selector check-img icon-maybe" data-current-check="icon-maybe" data-field="{{feature}}">
+                <option>{{ option }}</option>
               {% endif %}
-              {{ option }}
-            </h6>
-          {% endfor %}
+            {% endfor %}
+          </select>
         </span>
       {% endfor %}
+      </div>
+      <div class="col-md-4 col-xs-6 col-md-offset-4 col-xs-offset-3">
+        <button form="search-form" class="btn btn-default btn-lg search-button" style="width:100%" type="submit">Search</button>
+      </div>
     </div>
-    <div class="col-md-4 col-xs-6 col-md-offset-4 col-xs-offset-3">
-      <button class="btn btn-default btn-lg search-button" style="width:100%" type="submit">Search</button>
-    </div>
-  </div>
+  </form>
 </div>
 
 <div class="row advanced-results-row">
@@ -57,7 +57,7 @@
               <div class="db-name-area">
                 {% for db in data.dbs %}
                   <div class="db-name">
-                    <a href="/db/{{ db.hash_name }}" style="color:white">{{ db.screen_name }}</a>
+                    <a href="/db/{{ db.slug }}" style="color:white">{{ db.name }}</a>
                   </div>
                 {% endfor %}
               </div>
@@ -80,6 +80,7 @@
 {% endblock %}
 
 {% block js %}
-  <script src="{% static 'js/advanced_search.js' %}"></script>
+  <script src="{% static 'js/libs/bootstrap-select.js' %}"></script>
+{#  <script src="{% static 'js/advanced_search.js' %}"></script>#}
 {% endblock %}
 

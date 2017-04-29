@@ -19,6 +19,11 @@ from systems.serializers import LicenseSerializer, SystemVersionSerializer
 import util
 
 
+# Dictionary lookup in template.
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
+
 
 class LoadContext(object):
     @staticmethod
@@ -550,63 +555,65 @@ class FetchAllSystems(APIView):
 
 class AdvancedSearchView(View):
 
+    @csrf_exempt
+    def dispatch(self, *args, **kwargs):
+        return super(AdvancedSearchView, self).dispatch(*args, **kwargs)
+
     @staticmethod
-    def get_current_version_dbs():
-        sms = System.objects.all()
-        dbs = []
-        for sm in sms:
-            dbs.append(SystemVersion.objects.get(name=sm.name,
-                                                 version_number=sm.current_version))
-        return dbs
-
-    def create_query_dict(self, raw_dict):
-        new_dict = {}
-        questioncheck = []
-        greencheck = []
-        greycheck = []
-        SYSTEM_FIELDS = {}
-        inv_fields = {v: k for k, v in SYSTEM_FIELDS.items()}
-        for key in raw_dict:
-            if raw_dict[key][0] == "question-check":
-                questioncheck.append(key)
-            elif raw_dict[key][0] == "green-check":
-                new_dict[inv_fields[key]] = True
-                greencheck.append(key)
-            else:
-                new_dict[inv_fields[key]] = False
-                greycheck.append(key)
-        return new_dict, questioncheck, greencheck, greycheck
-
-    def make_ordered_list(self, dbs, params=None):
-        start_letters = string.ascii_lowercase + string.digits
+    def make_ordered_list(params):
+        start_letters = string.digits + string.ascii_lowercase
         ordered_list = [{"letter": letter, "dbs": []} for letter in start_letters]
-        for db in dbs:
-            if params:
-                invalid = False
-                for field in params:
-                    if db.__getattribute__(field) != params[field]:
-                        invalid = True
-                if invalid:
-                    continue
-            name = db.name
-            letter_idx = start_letters.index(name[0].lower())
-            ordered_list[letter_idx]["dbs"].append({"screen_name": name,
-                                                    "hash_name": slugify(name)})
+
+        # Organize databases based on first letter.
+        for db in System.objects.all():
+
+            matches = True
+            # Filter databases if there are search parameters.
+            if params is not None:
+                db_version = SystemVersion.objects.get(system=db,
+                                                       version_number=db.current_version)
+                matches = AdvancedSearchView.search(db_version, params)
+
+            # Add database if it matches search parameters.
+            if matches:
+                name = db.name
+                slug = db.slug
+                letter_idx = start_letters.index(name[0].lower())
+                ordered_list[letter_idx]["dbs"].append({"name": name,
+                                                        "slug": slug})
+
+        # Arrange each list of databases alphabetically.
         for letter in ordered_list:
-            letter['dbs'].sort(cmp=lambda x, y: cmp(x['screen_name'].lower(), y['screen_name'].lower()))
+            letter['dbs'].sort(cmp=lambda x, y: cmp(x['name'].lower(), y['name'].lower()))
+
         return ordered_list
+
+    @staticmethod
+    def search(db, params):
+        # Search if all values in params are in that db's features.
+        for field in params:
+            feature = Feature.objects.get(label=field)
+            search_options = params[field]
+            feature_options = [fo.value for fo in db.feature_options.filter(feature=feature)]
+            # Set difference of search options with feature options
+            if len(set(search_options) - set(feature_options)) > 0:
+                return False
+        return True
+
+    def post(self, request):
+        context = LoadContext.load_base_context(request)
+        params = dict(request.POST)
+        context["ordered_dbs_list"] = AdvancedSearchView.make_ordered_list(params)
+        context["selected"] = params
+        return render(request, 'advanced_search.html', context)
 
     def get(self, request):
         context = LoadContext.load_base_context(request)
-        params, question, green, grey = self.create_query_dict(dict(request.GET))
-        context["questionchecks"] = question
-        context["greenchecks"] = green
-        context["greychecks"] = grey
-        dbs = AdvancedSearchView.get_current_version_dbs()
-        context["ordered_dbs_list"] = self.make_ordered_list(dbs, params)
+        context["ordered_dbs_list"] = AdvancedSearchView.make_ordered_list(None)
         return render(request, 'advanced_search.html', context)
 
 
+# TODO remove this class and the corresponding url in urls.py
 class AlphabetizedData(APIView):
     def get(self, request):
         return Response(AdvancedSearchView.alphabetize_dbs_data())
