@@ -61,7 +61,8 @@ class SystemAdmin(admin.ModelAdmin):
     on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('name', 'created', 'current_version',)
-    list_filter = ['created']
+    search_fields = ('name', )
+    list_filter = ['created', 'name']
 
 
 class FeatureOptionInline(admin.TabularInline):
@@ -77,14 +78,16 @@ class SystemVersionAdmin(admin.ModelAdmin):
     on the django administration page"""
     empty_value_display = 'unknown'
     list_display = ('name', 'version_number', 'created')
-    list_filter = ['name', 'created']
+    search_fields = ('name', )
+    list_filter = ['created', 'name']
     inlines = (FeatureOptionInline,)
     fieldsets = [
         (None, {'fields': ['system', 'creator', 'version_message']}),
         ('Metadata', {'fields': ['description', 'history', 'website', 'tech_docs',
-                                 'developer', 'written_in', 'oses', 'publications',
-                                 'project_type', 'start_year', 'end_year',
-                                 'derived_from', 'licenses', 'logo_orig', 'logo_thumb']}),
+                                 'developer', 'written_in', 'support_languages',
+                                 'oses', 'publications', 'project_type', 'start_year',
+                                 'end_year', 'derived_from', 'licenses', 'logo_orig',
+                                 'logo_thumb']}),
         ('Features', {'fields': ['support_systemarchitecture', 'description_systemarchitecture',
                                  'support_datamodel', 'description_datamodel',
                                  'support_storagemodel', 'description_storagemodel',
@@ -100,8 +103,8 @@ class SystemVersionAdmin(admin.ModelAdmin):
                                  'support_queryexecution', 'description_queryexecution',
                                  'support_storedprocedures', 'description_storedprocedures',
                                  'support_joins', 'description_joins',
-                                 'support_querycompilation', 'description_querycompilation']}),
-        ('Support', {'fields': ['support_languages']})
+                                 'support_querycompilation', 'description_querycompilation',
+                                 'support_accessmethods', 'description_accessmethods']})
     ]
 
 
@@ -128,8 +131,7 @@ class SystemVersionFeatureOptionAdmin(admin.ModelAdmin):
     list_display = ('system_version', 'feature_option',)
     list_filter = ['system_version', 'feature_option']
 
-
-## CLASS
+# CLASS
 # Register your models here.
 admin.site.register(OperatingSystem, OperatingSystemAdmin)
 admin.site.register(ProgrammingLanguage, ProgrammingLanguageAdmin)
