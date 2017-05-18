@@ -165,7 +165,7 @@ class SystemVersion(models.Model):
     creator = models.CharField(max_length=100, default="unknown")
 
     # A message that goes along with this revision
-    version_message = models.TextField(max_length=500, default="")
+    version_message = models.CharField(max_length=500, default="")
 
     # Basic data
     name = models.CharField(max_length=64)
@@ -283,11 +283,6 @@ class SystemVersion(models.Model):
             # Get if this version supports featue and the description
             is_supported = self.__dict__['support_' + field]
             description = self.__dict__['description_' + field]
-            description_raw = self.__getattribute__('description_' + field).raw
-            # The name for the rendered markdown description field can vary
-            rendered_description = self.__dict__.get('x_description_' + field + '_rendered', None)
-            if rendered_description is None:
-                rendered_description = self.__dict__.get('_description_' + field + '_rendered', None)
 
             # All feature options for this feature belonging to this version
             feature_options = SystemVersionFeatureOption.objects.filter(system_version=self)
@@ -303,8 +298,6 @@ class SystemVersion(models.Model):
                 'label': label,
                 'field': field,
                 'description': description,
-                'description_raw': description_raw,
-                'rendered_description': rendered_description,
                 'feature_options': feature_options,
                 'all_feature_options': all_feature_options,
                 'multivalued': feature.multivalued
