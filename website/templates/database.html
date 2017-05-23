@@ -44,11 +44,11 @@
       <div class="col-md-8 col-xs-12">
 
         <div class="subsection-heading">DESCRIPTION</div>
-        <div id = "db-description" class="description-description">
+        <div id = "db-description" class="description">
           {{ db.x_description_rendered | safe }}
         </div>
         <div class="subsection-heading">HISTORY</div>
-        <div id = "db-history" class="description-description">
+        <div id = "db-history" class="description">
           {{ db.x_history_rendered | safe }}
         </div>
 
@@ -73,11 +73,11 @@
                   {{ feature_option }}
                 </button>
               {% endfor %}
-              <div class="yesno-description" data-type="{{ feature.label }}" data-exists="1">
-                {{ feature.rendered_description | safe }}
+              <div class="description" data-type="{{ feature.label }}" data-exists="1">
+                {{ feature.description }}
               </div>
             {% else %}
-              <div class="yesno-description" data-type="{{ feature.label }}" data-exists="0"></div>
+              <div class="description" data-type="{{ feature.label }}" data-exists="0"></div>
             {% endif %}
 
           </div>
@@ -178,6 +178,7 @@
 
 {% block js %}
 
+  <script src="{% static 'js/libs/markdown.min.js' %}"></script>
   <script src="{% static 'js/database.js' %}"></script>
 
 {% endblock %}

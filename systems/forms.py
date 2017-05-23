@@ -1,5 +1,19 @@
-from django.forms import ModelForm, Select, SelectMultiple, Textarea
+from django.forms import ModelForm
 from models import SystemVersion
+
+# Define fields in the order they should appear in the front end.
+
+basic_data = [
+    'version_message',
+    'description',
+    'history',
+    'logo_orig',
+    'website',
+    'tech_docs',
+    'developer',
+    'start_year',
+    'end_year'
+]
 
 models = [
     'project_type',
@@ -32,30 +46,7 @@ features = ['support_systemarchitecture', 'options_systemarchitecture', 'descrip
 class SystemVersionForm(ModelForm):
     class Meta:
         model = SystemVersion
-
-        fields = [
-            'version_message',
-            'description',
-            'history',
-            'logo_orig',
-            'website',
-            'tech_docs',
-            'developer',
-            'start_year',
-            'end_year',
-        ]
+        fields = []
+        fields.extend(basic_data)
         fields.extend(models)
         fields.extend(features)
-
-        widgets = {
-            'description': Textarea(attrs={'data-provide': 'markdown', 'rows': '6'}),
-            'history': Textarea(attrs={'data-provide': 'markdown', 'rows': '6'})
-        }
-
-        for m in models:
-            widgets[m] = SelectMultiple(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '10'})
-        widgets['project_type'] = Select(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '10'})
-
-        for feature in features:
-            if 'description_' in feature:
-                widgets[feature] = Textarea(attrs={'data-provide': 'markdown', 'rows': '6'})

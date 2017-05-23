@@ -1,14 +1,16 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% load widget_tweaks %}
 
 {% block title %}Editing {{ db.name }} - Databaseology{% endblock %}
 
 
 {% block css %}
-  <link href="{% static 'css/db_page.css' %}" rel="stylesheet">
-  <link href="{% static 'css/db_page_edit.css' %}" rel="stylesheet">
+  <link href="{% static 'css/libs/bootstrap-select.min.css' %}" rel="stylesheet">
   <link href="{% static 'css/libs/font-awesome.min.css' %}" rel="stylesheet">
   <link href="{% static 'css/libs/bootstrap-markdown.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/db_page.css' %}" rel="stylesheet">
+  <link href="{% static 'css/db_page_edit.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
@@ -19,305 +21,411 @@
     Save!
   </button>
 
-  <div class="row">
-    <!-- Outer page wrapper -->
-    <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-12 main-content">
-
-      <!-- title and description row -->
-      <div class="row" id="title-row">
-        <div class="col-md-12">
-          <div class="row">
-            <div id = "db-title" class="col-md-10 col-xs-12">
-              {{ db.name }}
-              <button class="btn btn-default save-button" style="display:none;">
-                Save!
-              </button>
-              <input class="form-control edited version-message-input" data-type="version_message" style="display:none;" placeholder="Enter your version message!">
+  <div class="container">
+    <form id="editForm" action="/db/{{ db.slug }}/{{ key }}" method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        {% for field in intro_form %}
+          <div>
+            {{ field.label_tag }}
+            {% render_field field data-provide='markdown' rows='6' %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="form-group">
+        {% for field in metadata_form %}
+          <div>
+            {{ field.label_tag }}
+            {% render_field field class='selectpicker' data-live-search='true' data-size='10' %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="form-group">
+        {% for field in features_form %}
+          <div>
+            {% if 'support_' in field.label_tag %}
+              {{ field.label_tag }}
+              {% render_field field class='custom-control-input' %}
+            {% elif 'options_' in field.label_tag %}
+              {{ field.label_tag }}
+              {% render_field field class='selectpicker' data-live-search='true' data-size='10' %}
+            {% else %}
+              {{ field.label_tag }}
+              {% render_field field data-provide='markdown' rows='6' %}
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </form>
+    <div class="row citation-row">
+      <div class="col-md-12">
+        <div class="citations-header subsection-heading">
+          Citations
+        </div>
+        <div class="citations-area">
+          {% for pub in db.pubs %}
+            <div class="citation" data-num="{{ pub.number }}">
+                [{{ pub.number }}] <a href="{{ pub.link }}">{{ pub.cite }}</a>
+                <span class="citation-cross"><i class="fa fa-times"></i></span>
             </div>
-            <div class="revision-button-area col-md-2 col-xs-12">
-              <button class="btn btn-default revision-button" data-url="/db/{{db.slug}}/{{key}}/revisions">
-                View Revision History
-              </button>
+          {% endfor %}
+        </div>
+        <div class="add-citations-area">
+          <div class="num-citations" style="display:none;" data-num="{{ db.last_pub }}"></div>
+          <div class="db-name" style="display:none;" data-name="{{ db.name }}"></div>
+          <button type="button" class="btn btn-primary btn-lg add-citation-btn" data-toggle="modal" data-target="#addCitation">
+            <i class="fa fa-plus" style="margin-right:15px;"></i> Add a citation
+          </button>
+          <div class="modal fade" id="addCitation" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="myModalLabel">Create and Add Citation</h4>
+                </div>
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label>Authors</label>
+                    <input type="text" class="form-control" id="authors" placeholder="Last, First M...">
+                  </div>
+                  <div class="form-group">
+                    <label>Title of Publication</label>
+                    <input type="text" class="form-control" id="title" placeholder="Title">
+                  </div>
+                  <div class="form-group">
+                    <label>Journal</label>
+                    <input type="text" class="form-control" id="journal" placeholder="Journal published in">
+                  </div>
+                  <div class="form-group">
+                    <label>Volume</label>
+                    <input type="text" class="form-control" id="volume" placeholder="Journal Volume">
+                  </div>
+                  <div class="form-group">
+                    <label>Year</label>
+                    <input type="text" class="form-control" id="year" placeholder="Year of publication">
+                  </div>
+                  <div class="form-group">
+                    <label>Pages</label>
+                    <input type="text" class="form-control" id="pages" placeholder="xx-yy">
+                  </div>
+                  <div class="form-group">
+                    <label>Download URL</label>
+                    <input type="text" class="form-control" id="link" placeholder="http://download.this.paper.com">
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default add-citation-done-btn" data-dismiss="modal">Add</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+
+
+  <div class="row">
+    <!-- Outer page wrapper -->
+{#    <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-12 main-content">#}
+
+      <!-- title and description row -->
+{#      <div class="row" id="title-row">#}
+{#        <div class="col-md-12">#}
+{#          <div class="row">#}
+{#            <div id = "db-title" class="col-md-10 col-xs-12">#}
+{#              {{ db.name }}#}
+{#              <button class="btn btn-default save-button" style="display:none;">#}
+{#                Save!#}
+{#              </button>#}
+{#              <input class="form-control edited version-message-input" data-type="version_message" style="display:none;" placeholder="Enter your version message!">#}
+{#            </div>#}
+{#            <div class="revision-button-area col-md-2 col-xs-12">#}
+{#              <button class="btn btn-default revision-button" data-url="/db/{{db.slug}}/{{key}}/revisions">#}
+{#                View Revision History#}
+{#              </button>#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+{#      </div>#}
 
       <!-- Logo upload row -->
-      <div class="row">
-        <div class="col-md-12 form-group">
-          <label for="logoUpload">Logo</label>
-          <input type="file" accept="image/*" class="form-control-file" id="logoUpload" aria-describedby="fileHelp">
-          <small id="fileHelp" class="form-text text-muted">Upload the database's logo (.svg preferred)</small>
-        </div>
-        <img id="logo" src=""/>
-      </div>
+{#      <div class="row">#}
+{#        <div class="col-md-12 form-group">#}
+{#          <label for="logoUpload">Logo</label>#}
+{#          <input type="file" accept="image/*" class="form-control-file" id="logoUpload" aria-describedby="fileHelp">#}
+{#          <small id="fileHelp" class="form-text text-muted">Upload the database's logo (.svg preferred)</small>#}
+{#        </div>#}
+{#        <img id="logo" src=""/>#}
+{#      </div>#}
 
       <!-- Features/Metatada row -->
       <div class="row">
 
         <!-- Yes/No feature area -->
-        <div class="col-md-6 col-xs-12">
-
-          <div class="subsection-heading">DESCRIPTION</div>
-          <form id="editForm" action="/db/{{ db.slug }}/{{ key }}" method="post">
-            {% csrf_token %}
-            <textarea form="editForm" name="description-markup" data-provide="markdown">{{ db.description }}</textarea>
-          </form>
-          <div class="subsection-heading">HISTORY</div>
-          <form id="editForm" action="/db/{{ db.slug }}/{{ key }}" method="post">
-            {% csrf_token %}
-            <textarea form="editForm" name="history-markup" data-provide="markdown">{{ db.history }}</textarea>
-          </form>
-
-          <!-- Begin features section -->
-          {% for feature in db.features %}
-            <div class="yesno-row">
-
-              <div class="yesno-title-area">
-                {% if feature.is_supported == None %}
-                  <img src="{% static 'images/icon-maybe.png' %}" class="check-img icon-maybe">
-                {% elif feature.is_supported %}
-                  <img src="{% static 'images/icon-yes.png' %}" class="check-img icon-yes">
-                {% else %}
-                  <img src="{% static 'images/icon-no.png' %}" class="check-img icon-no">
-                {% endif %}
-                <span class="yesno-title">{{ feature.label }}</span>
-              </div>
-
-              {% if feature.is_supported %}
-                <div class="yesno-description" data-type="{{ feature.label }}" data-exists="1">
+{#        <div class="col-md-6 col-xs-12">#}
+{##}
+{#          <div class="subsection-heading">DESCRIPTION</div>#}
+{#          <form id="editForm" action="/db/{{ db.slug }}/{{ key }}" method="post">#}
+{#            {% csrf_token %}#}
+{#            {{ form }}#}
+{#            <textarea form="editForm" name="description" data-provide="markdown">{{ db.description }}</textarea>#}
+{#          </form>#}
+{#          <div class="subsection-heading">HISTORY</div>#}
+{#          <form id="editForm" action="/db/{{ db.slug }}/{{ key }}" method="post">#}
+{#            {% csrf_token %}#}
+{#            <textarea form="editForm" name="history" data-provide="markdown">{{ db.history }}</textarea>#}
+{#          </form>#}
+{##}
+{#          <!-- Begin features section -->#}
+{#          {% for feature in db.features %}#}
+{#            <div class="yesno-row">#}
+{##}
+{#              <div class="yesno-title-area">#}
+{#                {% if feature.is_supported == None %}#}
+{#                  <img src="{% static 'images/icon-maybe.png' %}" class="check-img icon-maybe">#}
+{#                {% elif feature.is_supported %}#}
+{#                  <img src="{% static 'images/icon-yes.png' %}" class="check-img icon-yes">#}
+{#                {% else %}#}
+{#                  <img src="{% static 'images/icon-no.png' %}" class="check-img icon-no">#}
+{#                {% endif %}#}
+{#                <span class="yesno-title">{{ feature.label }}</span>#}
+{#              </div>#}
+{##}
+{#              {% if feature.is_supported %}#}
+{#                <div class="yesno-description" data-type="{{ feature.label }}" data-exists="1">#}
 {#                  {{ feature.description }}#}
-                </div>
-              {% else %}
-                <div class="yesno-description" data-type="{{ feature.label }}" data-exists="0"></div>
-              {% endif %}
+{#                </div>#}
+{#              {% else %}#}
+{#                <div class="yesno-description" data-type="{{ feature.label }}" data-exists="0"></div>#}
+{#              {% endif %}#}
 {#              <div class="yesno-description-raw" style="display:none;">#}
 {#                {{ feature.description_raw }}#}
 {#              </div>#}
-              <form id="editForm" action="/db/{{ db.slug }}/{{ key }}" method="post">
-                {% csrf_token %}
-                <textarea form="editForm" name="description_{{ feature.field }}" data-provide="markdown">{{ feature.description }}</textarea>
-              </form>
-
-              <div class="metadata-row">
-                <span class="header-text">Options: </span>
-                <span class="metadata-data selection" data-type="{{ feature.label }}_feature" mult="{{ feature.multivalued }}">
-                  {% for feature_option in feature.feature_options %}
-                    <span class="selection-item {{ feature.label }}_options-section">
-                      {{ feature_option }}
-                      <span class="fa fa-times selection-close"></span>
-                    </span>
-                  {% endfor %}
-                </span>
-                {% if feature.multivalued %}
-                  <select multiple class="form-control choices-selection">
-                {% else %}
-                  You may only select one option for this feature.
-                  <select class="form-control choices-selection" multiple="no">
-                {% endif %}
-                  {% for feature_option in feature.all_feature_options %}
-                    {% if feature_option not in feature.feature_options %}
-                      <option class="selection-option">{{ feature_option }}</option>
-                    {% endif %}
-                  {% endfor %}
-                </select>
-              </div>
-
-            </div>
-
-          {% endfor %}
-
-        </div>
+{#              <form id="editForm" action="/db/{{ db.slug }}/{{ key }}" method="post">#}
+{#                {% csrf_token %}#}
+{#                  <textarea form="editForm" name="description_{{ feature.field }}" data-provide="markdown">{{ feature.description }}</textarea>#}
+{#              </form>#}
+{##}
+{#              <div class="metadata-row">#}
+{#                <span class="header-text">Options: </span>#}
+{#                <span class="metadata-data selection" data-type="{{ feature.label }}_feature" mult="{{ feature.multivalued }}">#}
+{#                  {% for feature_option in feature.feature_options %}#}
+{#                    <span class="selection-item {{ feature.label }}_options-section">#}
+{#                      {{ feature_option }}#}
+{#                      <span class="fa fa-times selection-close"></span>#}
+{#                    </span>#}
+{#                  {% endfor %}#}
+{#                </span>#}
+{#                {% if feature.multivalued %}#}
+{#                  <select multiple class="form-control choices-selection">#}
+{#                {% else %}#}
+{#                  You may only select one option for this feature.#}
+{#                  <select class="form-control choices-selection" multiple="no">#}
+{#                {% endif %}#}
+{#                  {% for feature_option in feature.all_feature_options %}#}
+{#                    {% if feature_option not in feature.feature_options %}#}
+{#                      <option class="selection-option">{{ feature_option }}</option>#}
+{#                    {% endif %}#}
+{#                  {% endfor %}#}
+{#                </select>#}
+{#              </div>#}
+{##}
+{#            </div>#}
+{##}
+{#          {% endfor %}#}
+{##}
+{#        </div>#}
         <!-- End features section -->
 
         <!-- Metadata area -->
 
         <!-- TODO: Is it possible to condense this section by turning it into loop? Do it in a way that reflects the structure in models.py-->
-        <div class="col-md-6 col-xs-12" id="metadata-area">
-          <div class="metadata-row">
-            <span class="header-text">Website: </span><span class="metadata-data" data-type="website">{{ db.website }}</span>
-          </div>
-          <div class="metadata-row">
-            <span class="header-text">Developer: </span><span class="metadata-data" data-type="developer">{{ db.developer }}</span>
-          </div>
-          <div class="metadata-row">
-            <span class="header-text">Start Date: </span><span class="metadata-data" data-type="start_year">{{ db.start_year }}</span>
-          </div>
-          <div class="metadata-row">
-            <span class="header-text">End Date: </span><span class="metadata-data" data-type="end_year">{{ db.end_year }}</span>
-          </div>
-          <div class="metadata-row">
-            <span class="header-text">Documentation: </span><span class="metadata-data" data-type="tech_docs">{{ db.tech_docs }}</span>
-          </div>
-          <div class="metadata-row">
-            <span class="header-text">Project Type: </span><span class="metadata-data" data-type="project_type">{{ db.project_type }}</span>
-          </div>
-
-          <div class="metadata-row">
-            <span class="header-text">Written in: </span>
-            <span class="metadata-data selection" data-type="written_in">
-              {% for lang in db.written_in %}
-                <span class="selection-item written_in-section">
-                  {{ lang.name }}
-                  <span class="fa fa-times selection-close"></span>
-                </span>
-              {% endfor %}
-            </span>
-            <select multiple class="form-control choices-selection">
-              {% for lang in languages %}
-                {% if lang not in db.written_in %}
-                  <option class="selection-option">{{ lang.name }}</option>
-                {% endif %}
-              {% endfor %}
-            </select>
-          </div>
-          <div class="metadata-row">
-            <span class="header-text">Support Languages: </span>
-            <span class="metadata-data selection" data-type="support_languages">
-              {% for lang in db.support_languages %}
-                <span class="selection-item support_languages-section">
-                  {{ lang.name }}
-                  <span class="fa fa-times selection-close"></span>
-                </span>
-              {% endfor %}
-            </span>
-            <select multiple class="form-control choices-selection">
-              {% for lang in languages %}
-                {% if lang not in db.support_languages %}
-                  <option class="selection-option">{{ lang.name }}</option>
-                {% endif %}
-              {% endfor %}
-            </select>
-          </div>
-          <div class="metadata-row">
-            <span class="header-text">OSes: </span>
-            <span class="metadata-data selection" data-type="oses">
-              {% for os in db.oses %}
-                <span class="selection-item oses-section">
-                  {{ os.name }}
-                  <span class="fa fa-times selection-close"></span>
-                </span>
-              {% endfor %}
-            </span>
-            <select multiple class="form-control choices-selection">
-              {% for os in oses %}
-                {% if os not in db.oses %}
-                  <option class="selection-option">{{ os.name }}</option>
-                {% endif %}
-              {% endfor %}
-            </select>
-          </div>
-          <div class="metadata-row">
-            <span class="header-text">Licenses: </span>
-            <span class="metadata-data selection" data-type="licenses">
-              {% for license in db.licenses %}
-                <span class="selection-item licenses-section">
-                  {{ license.name }}
-                  <span class="fa fa-times selection-close"></span>
-                </span>
-              {% endfor %}
-            </span>
-            <select multiple class="form-control choices-selection">
-              {% for license in licenses %}
-                {% if license not in db.licenses %}
-                  <option class="selection-option">{{ license.name }}</option>
-                {% endif %}
-              {% endfor %}
-            </select>
-          </div>
-          <div class="metadata-row">
-            <span class="header-text">Derived From: </span>
-            <span class="metadata-data selection" data-type="derived_from">
-              {% for system in db.derived_from %}
-                <span class="selection-item derived_from-section">
-                  {{ system.name }}
-                  <span class="fa fa-times selection-close"></span>
-                </span>
-              {% endfor %}
-            </span>
-            <select multiple class="form-control choices-selection">
-              {% for system in databases %}
-                {% if system not in db.derived_from and system.name != db.name %}
-                  <option class="selection-option">{{ system.name }}</option>
-                {% endif %}
-              {% endfor %}
-            </select>
-          </div>
-
-        </div>
+{#        <div class="col-md-6 col-xs-12" id="metadata-area">#}
+{#          <div class="metadata-row">#}
+{#            <span class="header-text">Website: </span><span class="metadata-data" data-type="website">{{ db.website }}</span>#}
+{#          </div>#}
+{#          <div class="metadata-row">#}
+{#            <span class="header-text">Developer: </span><span class="metadata-data" data-type="developer">{{ db.developer }}</span>#}
+{#          </div>#}
+{#          <div class="metadata-row">#}
+{#            <span class="header-text">Start Date: </span><span class="metadata-data" data-type="start_year">{{ db.start_year }}</span>#}
+{#          </div>#}
+{#          <div class="metadata-row">#}
+{#            <span class="header-text">End Date: </span><span class="metadata-data" data-type="end_year">{{ db.end_year }}</span>#}
+{#          </div>#}
+{#          <div class="metadata-row">#}
+{#            <span class="header-text">Documentation: </span><span class="metadata-data" data-type="tech_docs">{{ db.tech_docs }}</span>#}
+{#          </div>#}
+{#          <div class="metadata-row">#}
+{#            <span class="header-text">Project Type: </span><span class="metadata-data" data-type="project_type">{{ db.project_type }}</span>#}
+{#          </div>#}
+{##}
+{#          <div class="metadata-row">#}
+{#            <span class="header-text">Written in: </span>#}
+{#            <span class="metadata-data selection" data-type="written_in">#}
+{#              {% for lang in db.written_in %}#}
+{#                <span class="selection-item written_in-section">#}
+{#                  {{ lang.name }}#}
+{#                  <span class="fa fa-times selection-close"></span>#}
+{#                </span>#}
+{#              {% endfor %}#}
+{#            </span>#}
+{#            <select multiple class="form-control choices-selection">#}
+{#              {% for lang in languages %}#}
+{#                {% if lang not in db.written_in %}#}
+{#                  <option class="selection-option">{{ lang.name }}</option>#}
+{#                {% endif %}#}
+{#              {% endfor %}#}
+{#            </select>#}
+{#          </div>#}
+{#          <div class="metadata-row">#}
+{#            <span class="header-text">Support Languages: </span>#}
+{#            <span class="metadata-data selection" data-type="support_languages">#}
+{#              {% for lang in db.support_languages %}#}
+{#                <span class="selection-item support_languages-section">#}
+{#                  {{ lang.name }}#}
+{#                  <span class="fa fa-times selection-close"></span>#}
+{#                </span>#}
+{#              {% endfor %}#}
+{#            </span>#}
+{#            <select multiple class="form-control choices-selection">#}
+{#              {% for lang in languages %}#}
+{#                {% if lang not in db.support_languages %}#}
+{#                  <option class="selection-option">{{ lang.name }}</option>#}
+{#                {% endif %}#}
+{#              {% endfor %}#}
+{#            </select>#}
+{#          </div>#}
+{#          <div class="metadata-row">#}
+{#            <span class="header-text">OSes: </span>#}
+{#            <span class="metadata-data selection" data-type="oses">#}
+{#              {% for os in db.oses %}#}
+{#                <span class="selection-item oses-section">#}
+{#                  {{ os.name }}#}
+{#                  <span class="fa fa-times selection-close"></span>#}
+{#                </span>#}
+{#              {% endfor %}#}
+{#            </span>#}
+{#            <select multiple class="form-control choices-selection">#}
+{#              {% for os in oses %}#}
+{#                {% if os not in db.oses %}#}
+{#                  <option class="selection-option">{{ os.name }}</option>#}
+{#                {% endif %}#}
+{#              {% endfor %}#}
+{#            </select>#}
+{#          </div>#}
+{#          <div class="metadata-row">#}
+{#            <span class="header-text">Licenses: </span>#}
+{#            <span class="metadata-data selection" data-type="licenses">#}
+{#              {% for license in db.licenses %}#}
+{#                <span class="selection-item licenses-section">#}
+{#                  {{ license.name }}#}
+{#                  <span class="fa fa-times selection-close"></span>#}
+{#                </span>#}
+{#              {% endfor %}#}
+{#            </span>#}
+{#            <select multiple class="form-control choices-selection">#}
+{#              {% for license in licenses %}#}
+{#                {% if license not in db.licenses %}#}
+{#                  <option class="selection-option">{{ license.name }}</option>#}
+{#                {% endif %}#}
+{#              {% endfor %}#}
+{#            </select>#}
+{#          </div>#}
+{#          <div class="metadata-row">#}
+{#            <span class="header-text">Derived From: </span>#}
+{#            <span class="metadata-data selection" data-type="derived_from">#}
+{#              {% for system in db.derived_from %}#}
+{#                <span class="selection-item derived_from-section">#}
+{#                  {{ system.name }}#}
+{#                  <span class="fa fa-times selection-close"></span>#}
+{#                </span>#}
+{#              {% endfor %}#}
+{#            </span>#}
+{#            <select multiple class="form-control choices-selection">#}
+{#              {% for system in databases %}#}
+{#                {% if system not in db.derived_from and system.name != db.name %}#}
+{#                  <option class="selection-option">{{ system.name }}</option>#}
+{#                {% endif %}#}
+{#              {% endfor %}#}
+{#            </select>#}
+{#          </div>#}
+{##}
+{#        </div>#}
         <!-- End metadata area -->
 
       </div>
       <!-- End Features/Metatada row -->
 
-      <div class="row citation-row">
-        <div class="col-md-12">
-          <div class="citations-header subsection-heading">
-            Citations
-          </div>
-          <div class="citations-area">
-            {% for pub in db.pubs %}
-              <div class="citation" data-num="{{ pub.number }}">
-                  [{{ pub.number }}] <a href="{{ pub.link }}">{{ pub.cite }}</a>
-                  <span class="citation-cross"><i class="fa fa-times"></i></span>
-              </div>
-            {% endfor %}
-          </div>
-          <div class="add-citations-area">
-            <div class="num-citations" style="display:none;" data-num="{{ db.last_pub }}"></div>
-            <div class="db-name" style="display:none;" data-name="{{ db.name }}"></div>
-            <button type="button" class="btn btn-primary btn-lg add-citation-btn" data-toggle="modal" data-target="#addCitation">
-              <i class="fa fa-plus" style="margin-right:15px;"></i> Add a citation
-            </button>
-            <div class="modal fade" id="addCitation" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-              <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Create and Add Citation</h4>
-                  </div>
-                  <div class="modal-body">
-                    <div class="form-group">
-                      <label>Authors</label>
-                      <input type="text" class="form-control" id="authors" placeholder="Last, First M...">
-                    </div>
-                    <div class="form-group">
-                      <label>Title of Publication</label>
-                      <input type="text" class="form-control" id="title" placeholder="Title">
-                    </div>
-                    <div class="form-group">
-                      <label>Journal</label>
-                      <input type="text" class="form-control" id="journal" placeholder="Journal published in">
-                    </div>
-                    <div class="form-group">
-                      <label>Volume</label>
-                      <input type="text" class="form-control" id="volume" placeholder="Journal Volume">
-                    </div>
-                    <div class="form-group">
-                      <label>Year</label>
-                      <input type="text" class="form-control" id="year" placeholder="Year of publication">
-                    </div>
-                    <div class="form-group">
-                      <label>Pages</label>
-                      <input type="text" class="form-control" id="pages" placeholder="xx-yy">
-                    </div>
-                    <div class="form-group">
-                      <label>Download URL</label>
-                      <input type="text" class="form-control" id="link" placeholder="http://download.this.paper.com">
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-default add-citation-done-btn" data-dismiss="modal">Add</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+{#      <div class="row citation-row">#}
+{#        <div class="col-md-12">#}
+{#          <div class="citations-header subsection-heading">#}
+{#            Citations#}
+{#          </div>#}
+{#          <div class="citations-area">#}
+{#            {% for pub in db.pubs %}#}
+{#              <div class="citation" data-num="{{ pub.number }}">#}
+{#                  [{{ pub.number }}] <a href="{{ pub.link }}">{{ pub.cite }}</a>#}
+{#                  <span class="citation-cross"><i class="fa fa-times"></i></span>#}
+{#              </div>#}
+{#            {% endfor %}#}
+{#          </div>#}
+{#          <div class="add-citations-area">#}
+{#            <div class="num-citations" style="display:none;" data-num="{{ db.last_pub }}"></div>#}
+{#            <div class="db-name" style="display:none;" data-name="{{ db.name }}"></div>#}
+{#            <button type="button" class="btn btn-primary btn-lg add-citation-btn" data-toggle="modal" data-target="#addCitation">#}
+{#              <i class="fa fa-plus" style="margin-right:15px;"></i> Add a citation#}
+{#            </button>#}
+{#            <div class="modal fade" id="addCitation" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">#}
+{#              <div class="modal-dialog" role="document">#}
+{#                <div class="modal-content">#}
+{#                  <div class="modal-header">#}
+{#                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>#}
+{#                    <h4 class="modal-title" id="myModalLabel">Create and Add Citation</h4>#}
+{#                  </div>#}
+{#                  <div class="modal-body">#}
+{#                    <div class="form-group">#}
+{#                      <label>Authors</label>#}
+{#                      <input type="text" class="form-control" id="authors" placeholder="Last, First M...">#}
+{#                    </div>#}
+{#                    <div class="form-group">#}
+{#                      <label>Title of Publication</label>#}
+{#                      <input type="text" class="form-control" id="title" placeholder="Title">#}
+{#                    </div>#}
+{#                    <div class="form-group">#}
+{#                      <label>Journal</label>#}
+{#                      <input type="text" class="form-control" id="journal" placeholder="Journal published in">#}
+{#                    </div>#}
+{#                    <div class="form-group">#}
+{#                      <label>Volume</label>#}
+{#                      <input type="text" class="form-control" id="volume" placeholder="Journal Volume">#}
+{#                    </div>#}
+{#                    <div class="form-group">#}
+{#                      <label>Year</label>#}
+{#                      <input type="text" class="form-control" id="year" placeholder="Year of publication">#}
+{#                    </div>#}
+{#                    <div class="form-group">#}
+{#                      <label>Pages</label>#}
+{#                      <input type="text" class="form-control" id="pages" placeholder="xx-yy">#}
+{#                    </div>#}
+{#                    <div class="form-group">#}
+{#                      <label>Download URL</label>#}
+{#                      <input type="text" class="form-control" id="link" placeholder="http://download.this.paper.com">#}
+{#                    </div>#}
+{#                  </div>#}
+{#                  <div class="modal-footer">#}
+{#                    <button type="button" class="btn btn-default add-citation-done-btn" data-dismiss="modal">Add</button>#}
+{#                  </div>#}
+{#                </div>#}
+{#              </div>#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+{#      </div>#}
 
-    </div><!--/col-12-->
+{#    </div><!--/col-12-->#}
   </div>
 
 {% endblock %}
@@ -328,6 +436,7 @@
   <script src="{% static 'js/libs/markdown.min.js' %}"></script>
   <script src="{% static 'js/libs/to-markdown.js' %}"></script>
   <script src="{% static 'js/libs/bootstrap-markdown.js' %}"></script>
+  <script src="{% static 'js/libs/bootstrap-select.js' %}"></script>
   <script src="{% static 'js/database_edit.js' %}"></script>
 
 {% endblock %}

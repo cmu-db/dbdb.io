@@ -51,28 +51,28 @@ function close_text_area($elem, text) {
   $elem.next().text(text);
 }
 
-/**
- * Open the text_area for an element.
- */
-function open_text_area($elem) {
-  // Close other descriptions being edited.
-  $(".yesno-description.editing").each(function() {
-    close_text_area($(this));
-  });
-  $(".save-button").show(500);
-  $(".version-message-input").show(500);
-  $elem.addClass("edited");
-  $elem.addClass("editing");
-  var value = $elem.next().text().trim();
-  last_saved_textarea_property = value;
-  $elem.empty();
-  var textarea = document.createElement("textarea");
-  textarea.className = "form-control edited-text";
-  textarea.value = value;
-  textarea.setAttribute("rows", "6");
-  $elem.append(textarea);
-  $elem.append(jQuery.parseHTML(TA_CHECKS));
-}
+// /**
+//  * Open the text_area for an element.
+//  */
+// function open_text_area($elem) {
+//   // Close other descriptions being edited.
+//   $(".yesno-description.editing").each(function() {
+//     close_text_area($(this));
+//   });
+//   $(".save-button").show(500);
+//   $(".version-message-input").show(500);
+//   $elem.addClass("edited");
+//   $elem.addClass("editing");
+//   var value = $elem.next().text().trim();
+//   last_saved_textarea_property = value;
+//   $elem.empty();
+//   var textarea = document.createElement("textarea");
+//   textarea.className = "form-control edited-text";
+//   textarea.value = value;
+//   textarea.setAttribute("rows", "6");
+//   $elem.append(textarea);
+//   $elem.append(jQuery.parseHTML(TA_CHECKS));
+// }
 
 /**
  * Close the input area for text that's being edited.
@@ -316,10 +316,10 @@ function load_click_handlers() {
     }
     if ($(this).hasClass("icon-yes")) {
       $(this).parent().next().attr("data-exists", "1");
-      open_text_area($(this).parent().next());
+      // open_text_area($(this).parent().next());
     } else {
       $(this).parent().next().attr("data-exists", "0");
-      close_text_area($(this).parent().next());
+      // close_text_area($(this).parent().next());
     }
   });
 
@@ -332,32 +332,33 @@ function load_click_handlers() {
                  event.target.className == "fa fa-times") {
         close_text_area($(this), last_saved_textarea_property);
       }
-    } else {
-      if ($(this).hasClass("db-description")) {
-        open_text_area($(this));
-      } else if ($(this).prev().find(".check-img").hasClass("icon-yes")) {
-        open_text_area($(this));
-      }
     }
+    // else {
+    //   if ($(this).hasClass("db-description")) {
+    //     open_text_area($(this));
+    //   } else if ($(this).prev().find(".check-img").hasClass("icon-yes")) {
+    //     open_text_area($(this));
+    //   }
+    // }
   });
 
-  $(".description-description").on("click", function() {
-    if ($(this).hasClass("editing")) {
-      if (event.target.className == "yesno-complete-btn-check" ||
-          event.target.className == "fa fa-check") {
-        close_text_area($(this));
-      } else if (event.target.className == "yesno-complete-btn-cross" ||
-                 event.target.className == "fa fa-times") {
-        close_text_area($(this), last_saved_textarea_property);
-      }
-    } else {
-      if ($(this).hasClass("db-description")) {
-        open_text_area($(this));
-      } else if ($(this).prev().find(".check-img").hasClass("icon-yes")) {
-        open_text_area($(this));
-      }
-    }
-  });
+  // $(".description-description").on("click", function() {
+  //   if ($(this).hasClass("editing")) {
+  //     if (event.target.className == "yesno-complete-btn-check" ||
+  //         event.target.className == "fa fa-check") {
+  //       close_text_area($(this));
+  //     } else if (event.target.className == "yesno-complete-btn-cross" ||
+  //                event.target.className == "fa fa-times") {
+  //       close_text_area($(this), last_saved_textarea_property);
+  //     }
+  //   } else {
+  //     if ($(this).hasClass("db-description")) {
+  //       open_text_area($(this));
+  //     } else if ($(this).prev().find(".check-img").hasClass("icon-yes")) {
+  //       open_text_area($(this));
+  //     }
+  //   }
+  // });
 
   $(".metadata-data").on("click", function(event) {
     if ($(this).hasClass("selection")) {
