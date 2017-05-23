@@ -88,60 +88,6 @@
     <script src="{% static 'js/headernav.js' %}"></script>
     <script src="{% static 'js/libs/spin.js' %}"></script>
 
-    <script>
-      $(document).ready(function() {
-        // load database names into autcomplete widget for navbar search
-        var db_names = [];
-        var os_names = [];
-        var lang_names = [];
-        var all_names = [];
-        var fields = [];
-        // retreieve names from the dummy html divs
-        $(".database-name").each(function(index) {
-          var name = $(this).attr("data-name");
-          db_names.push(name);
-          all_names.push({
-            label: name,
-            link: "/db/" + $(this).attr("link-name")
-          });
-          $(this).remove(); // remove to lessen size of page being loaded
-        });
-
-        $(".language-name").each(function(index) {
-          var name = $(this).attr("data-name");
-          lang_names.push(name);
-          all_names.push({
-            label: name,
-            link: "/search/support_lang/" + $(this).attr("link-name")
-          });
-          $(this).remove(); // remove to lessen size of page being loaded
-        });
-
-        $(".os-name").each(function(index) {
-          var name = $(this).attr("data-name");
-          os_names.push(name);
-          all_names.push({
-            label: name,
-            link: "/search/os/" + $(this).attr("link-name")
-          });
-          $(this).remove(); // remove to lessen size of page being loaded
-        });
-
-        $(".header-searchbar-input").autocomplete({
-          source: all_names,
-          formatItem: function(item) {
-            return item.label;
-          },
-          select: function(event, ui) {
-            location.href = ui.item.link;
-          }
-        });
-
-        // fields = {{ all_features }}
-        // var ordered_db_data = {{ ordered_dbs_list }};
-      });
-    </script>
-
     {% block js %}{% endblock %}
   </body>
 
