@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from django.db.models import ObjectDoesNotExist
 from django.contrib.syndication.views import Feed
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, HttpResponse, JsonResponse
+from django.forms.models import model_to_dict
 from django.shortcuts import render, redirect
 from django.template.defaulttags import register
 from django.utils.text import slugify
@@ -13,6 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from systems.forms import SystemVersionForm
 from systems.models import Feature, FeatureOption, License, OperatingSystem, ProgrammingLanguage, ProjectType, \
     Publication, SuggestedSystem, System, SystemVersion, SystemVersionFeatureOption
 from systems.serializers import LicenseSerializer, SystemVersionSerializer
@@ -83,9 +85,9 @@ class LoadContext(object):
                        'slug': os.slug}
                       for os in db_version.oses.all()]
 
-        db["support_languages"] = [{'name': lang.name,
-                                    'slug': lang.slug}
-                                   for lang in db_version.support_languages.all()]
+        db["supported_languages"] = [{'name': lang.name,
+                                      'slug': lang.slug}
+                                      for lang in db_version.supported_languages.all()]
 
         db["licenses"] = [{'name': license.name,
                            'slug': license.slug}
@@ -127,16 +129,6 @@ class LoadContext(object):
                 db.pop(field, None)
 
         return db
-
-    @staticmethod
-    def load_db_raw_markdown_fields(db_data, db_version):
-        fields = db_version.__dict__.keys()
-        for field in fields:
-            if "rendered" in field:
-                field_name = field[2:-9]
-                if db_version.__getattribute__(field_name):
-                    raw_field = db_version.__getattribute__(field_name).raw
-                    db_data[field_name + "_raw"] = raw_field
 
 
 class HomePage(View):
@@ -199,7 +191,7 @@ class SearchPage(View):
             system_versions = lang.systems_written.all()
             page_info = {"page_type": "Programming Language",
                          "name": "Written in: " + lang.name}
-        elif page_type == "support_lang":
+        elif page_type == "supported_lang":
             lang = ProgrammingLanguage.objects.get(slug=slug)
             system_versions = lang.systems_supported.all()
             page_info = {"page_type": "Programming Language",
@@ -339,9 +331,9 @@ class DatabaseEditingPage(View):
                 if model == "written_in":
                     lang = ProgrammingLanguage.objects.get(name=new_option)
                     new_version.written_in.add(lang)
-                elif model == "support_languages":
+                elif model == "supported_languages":
                     lang = ProgrammingLanguage.objects.get(name=new_option)
-                    new_version.support_languages.add(lang)
+                    new_version.supported_languages.add(lang)
                 elif model == "oses":
                     os = OperatingSystem.objects.get(name=new_option)
                     new_version.oses.add(os)
@@ -423,6 +415,8 @@ class DatabaseEditingPage(View):
         old_version = SystemVersion.objects.get(system=db, version_number=db_version.version_number - 1)
 
         data = dict(request.POST)
+        with open('foo.txt', 'w') as log:
+            log.write(json.dumps(data, indent=4))
 
         citations = eval(data["citations"][0])
         options = eval(data["model_stuff"][0])
@@ -431,7 +425,7 @@ class DatabaseEditingPage(View):
         self.save_image(data, db_version)
         self.save_citations(citations, old_version, db_version)
         self.save_model_stuff("written_in", options, old_version, db_version)
-        self.save_model_stuff("support_languages", options, old_version, db_version)
+        self.save_model_stuff("supported_languages", options, old_version, db_version)
         self.save_model_stuff("oses", options, old_version, db_version)
         self.save_model_stuff("licenses", options, old_version, db_version)
         self.save_model_stuff("derived_from", options, old_version, db_version)
@@ -445,11 +439,34 @@ class DatabaseEditingPage(View):
         db_article = System.objects.get(slug=slugify(db_name))
         db_version = SystemVersion.objects.get(name=db_article.name,
                                                version_number=db_article.current_version)
+        print model_to_dict(db_version)
+        form = SystemVersionForm(instance=db_version)
+        intro = [
+            'version_message',
+            'description',
+            'history',
+        ]
+        intro_form = []
+        features_form = []
+        metadata_form = []
+        for field in list(form):
+            with open('foo2.txt', 'a') as log:
+                log.write(str(field))
+            if field.html_name.startswith('description_') or field.html_name.startswith('support_') or \
+                    field.html_name.startswith('options_'):
+                features_form.append(field)
+            elif field.html_name in intro:
+                intro_form.append(field)
+            else:
+                metadata_form.append(field)
+
         if db_article.secret_key == key:
             context = LoadContext.load_base_context(request)
             context["db"] = LoadContext.load_db_data(db_version)
             context["key"] = key
-            LoadContext.load_db_raw_markdown_fields(context["db"], db_version)
+            context["intro_form"] = intro_form
+            context["features_form"] = features_form
+            context["metadata_form"] = metadata_form
             return render(request, 'database_edit.html',
                           context)
         else:

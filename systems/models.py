@@ -1,10 +1,15 @@
 from django.db import models
+from django.db.models import Q
 from django.utils.text import slugify
 
 import util
 
 
 # ----------------------------------------------------------------------------
+
+def get_options(label):
+    feature = Feature.objects.filter(label=label)
+    return Q(feature=feature)
 
 
 def upload_logo_orig(self):
@@ -106,7 +111,7 @@ class FeatureOption(models.Model):
     value = models.CharField(max_length=64, default='')
 
     def __unicode__(self):
-        return self.feature.label + ' - ' + self.value
+        return self.value
 
 
 class SuggestedSystem(models.Model):
@@ -185,7 +190,7 @@ class SystemVersion(models.Model):
 
     # Model data
     written_in = models.ManyToManyField('ProgrammingLanguage', related_name='systems_written', blank=True)
-    support_languages = models.ManyToManyField('ProgrammingLanguage', related_name='systems_supported', blank=True)
+    supported_languages = models.ManyToManyField('ProgrammingLanguage', related_name='systems_supported', blank=True)
     oses = models.ManyToManyField('OperatingSystem', related_name='systems_oses', blank=True)
     licenses = models.ManyToManyField('License', related_name="systems_licenses", blank=True)
     derived_from = models.ManyToManyField('System', related_name='systems_derived', blank=True)
@@ -194,79 +199,130 @@ class SystemVersion(models.Model):
     # TODO have defaults be placeholders in front end.
     # Feature support and descriptions
     support_systemarchitecture = models.NullBooleanField()
+    options_systemarchitecture = models.ManyToManyField('FeatureOption',
+                                                        related_name='options_systemarchitecture',
+                                                        limit_choices_to=get_options('System Architecture'))
     description_systemarchitecture = models.TextField(
         default='Is it a shared-memory, shared-disk, or shared-nothing DBMS? '
                 'Does it rely on special hardware (e.g., GPU, FPGA)?')
 
     support_datamodel = models.NullBooleanField()
+    options_datamodel = models.ManyToManyField('FeatureOption',
+                                               related_name='options_datamodel',
+                                               limit_choices_to=get_options('Data Model'))
     description_datamodel = models.TextField(default='What is the primary data model of the DBMS?')
 
     support_storagemodel = models.NullBooleanField()
+    options_storagemodel = models.ManyToManyField('FeatureOption',
+                                                  related_name='options_storagemodel',
+                                                  limit_choices_to=get_options('Storage Model'))
     description_storagemodel = models.TextField(default='What kind of storage models does the DBMS support '
                                                         '(e.g., NSM, DSM)?')
 
     support_queryinterface = models.NullBooleanField()
+    options_queryinterface = models.ManyToManyField('FeatureOption',
+                                                    related_name='options_queryinterface',
+                                                    limit_choices_to=get_options('Query Interface'))
     description_queryinterface = models.TextField(
         default='What language or API does the DBMS support for the application '
                 'to load data and execute queries.')
 
     support_storagearchitecture = models.NullBooleanField()
+    options_storagearchitecture = models.ManyToManyField('FeatureOption',
+                                                         related_name='options_storagearchitecture',
+                                                         limit_choices_to=get_options('Storage Architecture'))
     description_storagearchitecture = models.TextField(default='Is the system a disk-oriented or in-memory DBMS? '
                                                                'If the latter, does it support larger-than-memory '
                                                                'databases?')
 
     support_concurrencycontrol = models.NullBooleanField()
+    options_concurrencycontrol = models.ManyToManyField('FeatureOption',
+                                                        related_name='options_concurrencycontrol',
+                                                        limit_choices_to=get_options('Concurrency Control'))
     description_concurrencycontrol = models.TextField(default='Does the DBMS support transactions and if so what '
                                                               'concurrency control scheme does it use?')
 
     support_isolationlevels = models.NullBooleanField()
+    options_isolationlevels = models.ManyToManyField('FeatureOption',
+                                                     related_name='options_isolationlevels',
+                                                     limit_choices_to=get_options('Isolation Levels'))
     description_isolationlevels = models.TextField(
         default='What isolation levels does it support? Which one is the default?'
                 ' How does it implement each one?')
 
     support_indexes = models.NullBooleanField()
+    options_indexes = models.ManyToManyField('FeatureOption',
+                                             related_name='options_indexes',
+                                             limit_choices_to=get_options('Indexes'))
     description_indexes = models.TextField(default='What kind of indexes does the DBMS support (e.g., primary key, '
                                                    'secondary, derived, partial)? What data structures does the DBMS '
                                                    'support? What is the default?')
 
     support_foreignkeys = models.NullBooleanField()
+    options_foreignkeys = models.ManyToManyField('FeatureOption',
+                                                 related_name='options_foreignkeys',
+                                                 limit_choices_to=get_options('Foreign Keys'))
     description_foreignkeys = models.TextField(default='Does the system support foreign key constraints?')
 
     support_logging = models.NullBooleanField()
+    options_logging = models.ManyToManyField('FeatureOption',
+                                             related_name='options_logging',
+                                             limit_choices_to=get_options('Logging'))
     description_logging = models.TextField(default='How does the system support data durability? What kind of logging '
                                                    'scheme does it use (e.g., physical, logical, physiological)?')
 
     support_checkpoints = models.NullBooleanField()
+    options_checkpoints = models.ManyToManyField('FeatureOption',
+                                                 related_name='options_checkpoints',
+                                                 limit_choices_to=get_options('Checkpoints'))
     description_checkpoints = models.TextField(
         default='How does the DBMS take checkpoints? What kind of checkpoints are '
                 'they (e.g., fuzzy vs. non-fuzzy)?')
 
     support_views = models.NullBooleanField()
+    options_views = models.ManyToManyField('FeatureOption',
+                                           related_name='options_views',
+                                           limit_choices_to=get_options('Views'))
     description_views = models.TextField(
         default='Does the DBMS support views or materialized views? How complex of a query'
-                ' does it support?', )
+                ' does it support?')
 
     support_queryexecution = models.NullBooleanField()
+    options_queryexecution = models.ManyToManyField('FeatureOption',
+                                                    related_name='options_queryexecution',
+                                                    limit_choices_to=get_options('Query Execution'))
     description_queryexecution = models.TextField(
         default='What query processing model does the DBMS support (e.g., iterator'
                 ' vs. vectorized)? What kind of intra-query parallelism does it '
                 'support?')
 
     support_storedprocedures = models.NullBooleanField()
+    options_storedprocedures = models.ManyToManyField('FeatureOption',
+                                                      related_name='options_storedprocedures',
+                                                      limit_choices_to=get_options('Stored Procedures'))
     description_storedprocedures = models.TextField(default='Does the DBMS support stored procedures? If so, what '
                                                             'language(s) can they be written in?')
 
     support_joins = models.NullBooleanField()
+    options_joins = models.ManyToManyField('FeatureOption',
+                                           related_name='options_joins',
+                                           limit_choices_to=get_options('Joins'))
     description_joins = models.TextField(
         default='What join algorithms does the DBMS support? What is notable or special'
                 ' about them (e.g., low-memory, parallelism)?')
 
     support_querycompilation = models.NullBooleanField()
+    options_querycompilation = models.ManyToManyField('FeatureOption',
+                                                      related_name='options_querycompilation',
+                                                      limit_choices_to=get_options('Query Compilation'))
     description_querycompilation = models.TextField(
         default='Does the DBMS support code generation or JIT optimizations? '
                 'How does it do this (e.g., LLVM, templates, code gen)?')
 
     support_accessmethods = models.NullBooleanField()
+    options_accessmethods = models.ManyToManyField('FeatureOption',
+                                                   related_name='options_accessmethods',
+                                                   limit_choices_to=get_options('Access Methods'))
     description_accessmethods = models.TextField(default='What API access methods are available for the DBMS?')
 
     # Feature options
