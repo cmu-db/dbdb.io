@@ -32,6 +32,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'systems',
     'rest_framework',
+    'widget_tweaks',
 )
 
 MIDDLEWARE_CLASSES = (
