@@ -4,7 +4,7 @@ import string
 from datetime import date, timedelta
 from django.db.models import ObjectDoesNotExist
 from django.contrib.syndication.views import Feed
-from django.http import HttpResponseBadRequest, HttpResponseRedirect, HttpResponse, JsonResponse
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.template.defaulttags import register
 from django.utils.text import slugify
@@ -13,8 +13,9 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from systems.forms import SystemVersionForm
 from systems.models import Feature, FeatureOption, License, OperatingSystem, ProgrammingLanguage, ProjectType, \
-    Publication, SuggestedSystem, System, SystemVersion, SystemVersionFeatureOption
+    Publication, SuggestedSystem, System, SystemVersion
 from systems.serializers import LicenseSerializer, SystemVersionSerializer
 import util
 
@@ -42,20 +43,19 @@ class LoadContext(object):
             options.sort()
         return feature_options
 
-
     @staticmethod
     def load_base_context(request):
         return {
-            "user":                 request.user,
+            "user": request.user,
             # TODO: don't load all databases when only looking at one. Pass template as argument to load specific context
-            "databases":            map(lambda db: {'name': db.name, 'slug': db.slug}, System.objects.all()),
-            "languages":            map(lambda lang: {'name': lang.name, 'slug': lang.slug},
-                                        ProgrammingLanguage.objects.all()),
-            "oses":                 map(lambda os: {'name': os.name, 'slug': os.slug}, OperatingSystem.objects.all()),
-            "licenses":             map(lambda license: {'name': license.name, 'slug': license.slug}, License.objects.all()),
-            "project_types":        map(lambda type: {'name': type.name, 'slug': type.slug}, ProjectType.objects.all()),
-            "all_features":         LoadContext.get_all_features(),
-            "all_feature_options":  LoadContext.get_all_feature_options()
+            "databases": map(lambda db: {'name': db.name, 'slug': db.slug}, System.objects.all()),
+            "languages": map(lambda lang: {'name': lang.name, 'slug': lang.slug},
+                             ProgrammingLanguage.objects.all()),
+            "oses": map(lambda os: {'name': os.name, 'slug': os.slug}, OperatingSystem.objects.all()),
+            "licenses": map(lambda license: {'name': license.name, 'slug': license.slug}, License.objects.all()),
+            "project_types": map(lambda type: {'name': type.name, 'slug': type.slug}, ProjectType.objects.all()),
+            "all_features": LoadContext.get_all_features(),
+            "all_feature_options": LoadContext.get_all_feature_options()
         }
 
     @staticmethod
@@ -83,9 +83,9 @@ class LoadContext(object):
                        'slug': os.slug}
                       for os in db_version.oses.all()]
 
-        db["support_languages"] = [{'name': lang.name,
-                                    'slug': lang.slug}
-                                   for lang in db_version.support_languages.all()]
+        db["supported_languages"] = [{'name': lang.name,
+                                      'slug': lang.slug}
+                                     for lang in db_version.supported_languages.all()]
 
         db["licenses"] = [{'name': license.name,
                            'slug': license.slug}
@@ -102,7 +102,7 @@ class LoadContext(object):
                 'slug': db_version.project_type.slug
             }
 
-        # Load database features.
+        # # Load database features.
         db['features'] = db_version.get_features()
 
         # Load publications.
@@ -120,23 +120,7 @@ class LoadContext(object):
         else:
             db["last_pub"] = 0
 
-        # Load remaining database fields.
-        for field in db:
-            if field.startswith("_"):
-                db["x" + field] = db[field]
-                db.pop(field, None)
-
         return db
-
-    @staticmethod
-    def load_db_raw_markdown_fields(db_data, db_version):
-        fields = db_version.__dict__.keys()
-        for field in fields:
-            if "rendered" in field:
-                field_name = field[2:-9]
-                if db_version.__getattribute__(field_name):
-                    raw_field = db_version.__getattribute__(field_name).raw
-                    db_data[field_name + "_raw"] = raw_field
 
 
 class HomePage(View):
@@ -150,11 +134,11 @@ class HomePage(View):
         for edit in edits[::-1][:10]:
             context["edits"].append(
                 {
-                    "name":            edit.name,
-                    "date":            edit.created,
+                    "name": edit.name,
+                    "date": edit.created,
                     "version_message": edit.version_message,
-                    "creator":         edit.creator,
-                    "slug":            edit.system.slug
+                    "creator": edit.creator,
+                    "slug": edit.system.slug
                 }
             )
 
@@ -175,13 +159,11 @@ class HomePage(View):
 
 class DatabasePage(View):
     def get(self, request, db_name):
-        # TODO: filter by slug, not get. Or just filter by name?
-        db_article = System.objects.get(slug=slugify(db_name))
+        db_article = System.objects.get(name=db_name)
         db_version = SystemVersion.objects.get(system=db_article,
                                                version_number=db_article.current_version)
         context = LoadContext.load_base_context(request)
         context["db"] = LoadContext.load_db_data(db_version)
-        context["isVersionPage"] = False
         return render(request, 'database.html',
                       context)
 
@@ -199,7 +181,7 @@ class SearchPage(View):
             system_versions = lang.systems_written.all()
             page_info = {"page_type": "Programming Language",
                          "name": "Written in: " + lang.name}
-        elif page_type == "support_lang":
+        elif page_type == "supported_lang":
             lang = ProgrammingLanguage.objects.get(slug=slug)
             system_versions = lang.systems_supported.all()
             page_info = {"page_type": "Programming Language",
@@ -239,49 +221,9 @@ class SearchPage(View):
 
 
 class DatabaseEditingPage(View):
-
     @csrf_exempt
     def dispatch(self, *args, **kwargs):
         return super(DatabaseEditingPage, self).dispatch(*args, **kwargs)
-
-    def save_fields(self, data, new_version):
-        for field in data:
-            db_field = field
-            # Skip model_stuff, citations, and image
-            if field == "model_stuff" or field == "citations" or field == "image":
-                continue
-
-            # Convert to db_field for support and features
-            # Set support and feature description if db_field is set
-            # Otherwise just set field directly in db model
-            if "support_" in field:
-                db_field = str(field.lower().replace(' ', ''))
-                data[field][0] = True if data[field][0] == "1" else False
-            elif 'description_' in field:
-                db_field = str(field.lower().replace(' ', ''))
-            elif "year" in field:
-                data[field][0] = int(data[field][0])
-            # getattribute and setattr could raise an AttributeError if the field isn't in the db_version model
-            if new_version.__getattribute__(db_field) != data[field][0]:
-                new_version.__setattr__(db_field, data[field][0])
-
-    def save_image(self, data, new_version):
-        # file_like = cStringIO.StringIO(data["image"][0].encode('utf8'))
-        # img = PIL.Image.open(file_like)
-        file_name = new_version.system.slug + '-' + str(new_version.version_number) + '.png'
-        # with open(file_name, "wb") as fh:
-        #     fh.write(data["image"][0].encode('utf8'))
-
-        # img = Image.open(fh)
-        # img.show()
-        # if data["image"] and len(data["image"]) == 1:
-        #     print data["image"][0].encode('utf8')
-        #     file_name = new_version.system.slug + '-' + str(new_version.version_number) + '.png'
-        #     with open(file_name, "wb") as fh:
-        #         fh.write(data["image"][0].encode('utf8'))
-        #
-        #     new_version.logo_orig = fh
-        #     new_version.save()
 
     def save_citations(self, citations, old_version, new_version):
         # Get existing/added/removed citations which are identified by number
@@ -317,76 +259,41 @@ class DatabaseEditingPage(View):
                 cite.save()
                 new_version.publications.add(cite)
 
-    def save_model_stuff(self, model, options, old_version, new_version):
-
-        # List of models
-        existing_options = old_version.__getattribute__(model).all()
-        existing_options = set(map(lambda o: o.name, existing_options))
-
-        add_options = set(options["adds"].get(model, []))  # Options being added.
-        remove_options = set(options["removes"].get(model, []))  # Options being removed.
-
-        new_options = existing_options | add_options
-        new_options -= remove_options
-
-        for new_option in new_options:
-            try:
-                existing = old_version.__getattribute__(model).get(name=new_option)
-                new_version.__getattribute__(model).add(existing)
-            except ObjectDoesNotExist:
-                if model == "written_in":
-                    lang = ProgrammingLanguage.objects.get(name=new_option)
-                    new_version.written_in.add(lang)
-                elif model == "support_languages":
-                    lang = ProgrammingLanguage.objects.get(name=new_option)
-                    new_version.support_languages.add(lang)
-                elif model == "oses":
-                    os = OperatingSystem.objects.get(name=new_option)
-                    new_version.oses.add(os)
-                elif model == "licenses":
-                    license = License.objects.get(name=new_option)
-                    new_version.licenses.add(license)
-                elif model == "derived_from":
-                    system = System.objects.get(name=new_option)
-                    new_version.derived_from.add(system)
-
-    def save_feature_options(self, options, old_version, new_version):
-        # Get existing/added/removed feature options which are identified by label.
-        old_features = old_version.get_features()
-
-        # data-type name is featurename_feature, ex.
-        add_feature_options = {}
-        for addition in options["adds"]:
-            if addition.endswith("_feature"):
-                feature_name = addition[:addition.index('_')]
-                add_feature_options[feature_name] = options["adds"][addition]
-
-        rem_feature_options = {}
-        for removal in options["removes"]:
-            if removal.endswith("_feature"):
-                feature_name = removal[:removal.index('_')]
-                rem_feature_options[feature_name] = options["removes"][removal]
-
-        for old_feature in old_features:
-            existing_options = old_feature.get('feature_options', None)
-            added_options = add_feature_options.get(old_feature['label'], None)
-            removed_options = rem_feature_options.get(old_feature['label'], None)
-            new_options = set(existing_options)
-
-            # new options that are existing or added and not removed
-            if added_options:
-                added_options = [opt for opt in added_options]
-                new_options |= set(added_options)
-            if removed_options:
-                removed_options = [opt for opt in removed_options]
-                new_options -= set(removed_options)
-
-            for new_option in new_options:
-                feature = Feature.objects.get(label=old_feature['label'])
-                feature_option = FeatureOption.objects.get(value=new_option, feature=feature)
-                option = SystemVersionFeatureOption(system_version=new_version,
-                                                    feature_option=feature_option)
-                option.save()
+    def create_form(self, db_version, ip):
+        form = SystemVersionForm(instance=db_version, initial={
+            'version_message': "",
+            'version_number': db_version.version_number + 1,
+            'creator': str(ip)})
+        hidden = [
+            'system',
+            'version_number',
+            'creator'
+        ]
+        intro = [
+            'version_message',
+            'description',
+            'history',
+        ]
+        features_form = []
+        metadata_form = []
+        intro_form = []
+        hidden_form = []
+        for field in list(form):
+            if field.html_name.startswith('description_') or field.html_name.startswith('support_') or \
+                    field.html_name.startswith('options_'):
+                features_form.append(field)
+            elif field.html_name in intro:
+                intro_form.append(field)
+            elif field.html_name in hidden:
+                hidden_form.append(field)
+            else:
+                metadata_form.append(field)
+        return {
+            'intro_form': intro_form,
+            'hidden_form': hidden_form,
+            'features_form': features_form,
+            'metadata_form': metadata_form
+        }
 
     def post(self, request, db_name, key):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -395,59 +302,53 @@ class DatabaseEditingPage(View):
         else:
             ip = request.META.get('REMOTE_ADDR')
 
-        db = System.objects.get(slug=slugify(db_name))
-        if db.secret_key != key:
+        db_article = System.objects.get(slug=slugify(db_name))
+        if db_article.secret_key != key:
             return HttpResponseBadRequest()
 
-        # Get the latest revision of the article
-        db_version = SystemVersion.objects.get(name=db.name,
-                                               version_number=db.current_version)
-
-        # Copy the model instance into a new one
-        db_version.pk = None
-        db_version.id = None
-        db_version.save()
-
-        # From now on db_version points to a new SystemVersion object
-
-        # Update the current version number of the article
-        db.current_version += 1
-        db.save()
-        db_version.version_number = db.current_version
-        db_version.creator = str(ip)
-        db_version.save()
-
-        # Get previous version
-        old_version = SystemVersion.objects.get(system=db, version_number=db_version.version_number - 1)
-
-        data = dict(request.POST)
-
-        citations = eval(data["citations"][0])
-        options = eval(data["model_stuff"][0])
-
-        self.save_fields(data, db_version)
-        self.save_image(data, db_version)
-        self.save_citations(citations, old_version, db_version)
-        self.save_model_stuff("written_in", options, old_version, db_version)
-        self.save_model_stuff("support_languages", options, old_version, db_version)
-        self.save_model_stuff("oses", options, old_version, db_version)
-        self.save_model_stuff("licenses", options, old_version, db_version)
-        self.save_model_stuff("derived_from", options, old_version, db_version)
-        self.save_feature_options(options, old_version, db_version)
-
-        db_version.save()
-        url = '/db/%s' % slugify(db_name)
-        return JsonResponse({'redirect': url})
+        form_data = SystemVersionForm(data=request.POST)
+        if form_data.is_valid():
+            instance = form_data.save(commit=True)
+            # Update the current version number of the article
+            db_article.current_version += 1
+            db_article.save()
+            context = LoadContext.load_base_context(request)
+            context["db"] = LoadContext.load_db_data(instance)
+            return HttpResponseRedirect('/db/%s' % db_article.slug)
+        else:
+            print "Invalid form"
+            print form_data.errors
+            db_version = SystemVersion.objects.get(name=db_article.name,
+                                                   version_number=db_article.current_version)
+            form = self.create_form(db_version, ip)
+            context = LoadContext.load_base_context(request)
+            context["key"] = key
+            context["intro_form"] = form["intro_form"]
+            context["hidden_form"] = form["hidden_form"]
+            context["features_form"] = form["features_form"]
+            context["metadata_form"] = form["metadata_form"]
+            return render(request, 'database_edit.html',
+                          context)
 
     def get(self, request, db_name, key):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
         db_article = System.objects.get(slug=slugify(db_name))
         db_version = SystemVersion.objects.get(name=db_article.name,
                                                version_number=db_article.current_version)
+
         if db_article.secret_key == key:
+            form = self.create_form(db_version, ip)
             context = LoadContext.load_base_context(request)
             context["db"] = LoadContext.load_db_data(db_version)
             context["key"] = key
-            LoadContext.load_db_raw_markdown_fields(context["db"], db_version)
+            context["intro_form"] = form["intro_form"]
+            context["hidden_form"] = form["hidden_form"]
+            context["features_form"] = form["features_form"]
+            context["metadata_form"] = form["metadata_form"]
             return render(request, 'database_edit.html',
                           context)
         else:
@@ -464,7 +365,6 @@ class DatabaseVersionPage(View):
         db_version = SystemVersion.objects.get(system=db_article, version_number=version)
         context = LoadContext.load_base_context(request)
         context["db"] = LoadContext.load_db_data(db_version)
-        context["isVersionPage"] = True
         return render(request, 'database.html',
                       context)
 
@@ -492,7 +392,6 @@ class DatabaseRevisionsPage(View):
 
 
 class DatabaseCreationPage(View):
-
     @csrf_exempt
     def dispatch(self, *args, **kwargs):
         return super(DatabaseCreationPage, self).dispatch(*args, **kwargs)
@@ -509,6 +408,7 @@ class DatabaseCreationPage(View):
             existing = System.objects.filter(slug=slugify(name))
             if len(existing) == 0:
                 key = util.generateSecretKey()
+                # TODO slug= should call a helper function that can avoid collisions
                 db = System(name=name, secret_key=key, current_version=0,
                             slug=slugify(name))
                 db.save()
@@ -554,7 +454,6 @@ class FetchAllSystems(APIView):
 
 
 class AdvancedSearchView(View):
-
     @csrf_exempt
     def dispatch(self, *args, **kwargs):
         return super(AdvancedSearchView, self).dispatch(*args, **kwargs)
@@ -640,7 +539,6 @@ class AboutView(View):
 
 
 class AddPublication(View):
-
     @staticmethod
     def create_cite(data):
         cite = ""

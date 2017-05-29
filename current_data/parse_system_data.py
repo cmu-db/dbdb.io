@@ -173,7 +173,7 @@ def create_fixtures(directory, files):
                 add_print_output(filename, "Other", 'Could not read ' + filename + ' ' + str(error))
                 continue
 
-            # TODO This is a temporary hotfix for files with Name or Website as list
+            # TODO This is a temporary hotfix for files with Name or Website as a list
             if isinstance(data.get('Name'), list) and len(data['Name']) >= 1:
                 data['Name'] = data['Name'][0]
             if isinstance(data.get('Website'), list) and len(data['Website']) >= 1:
@@ -235,18 +235,9 @@ def create_fixtures(directory, files):
                     if len(value) > 0 and value[0] != 'Not Supported' and value[0] != 'N/A':
                         # Is supported
                         fields[field] = True
-                        field = 'feature_options-' + str(pk_map['feature'][key[:-8]])
-
-                        for feature_option in map_to_pk(fields, field, value, key, filename):
-                            svfo.append({
-                                'pk': len(svfo) + 1,
-                                'model': 'systems.SystemVersionFeatureOption',
-                                'fields': {
-                                    'system_version': pk,
-                                    'feature_option': feature_option,
-                                }
-                            })
-
+                        field = 'options_' + key[:-8].replace(' ', '').lower()
+                        pk_field = 'feature_options-' + str(pk_map['feature'][key[:-8]])
+                        fields[field] = map_to_pk(fields, pk_field, value, key, filename)
                     elif value[0] == 'Not Supported':
                         fields[field] = False
                     else:

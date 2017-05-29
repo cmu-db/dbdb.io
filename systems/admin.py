@@ -1,5 +1,6 @@
 from django.contrib import admin
-from systems.models import *
+from systems.models import OperatingSystem, ProgrammingLanguage, License, Publication, SuggestedSystem, \
+    System, SystemVersion, Feature, FeatureOption
 from bibtexparser.bparser import BibTexParser
 
 
@@ -65,14 +66,6 @@ class SystemAdmin(admin.ModelAdmin):
     list_filter = ['created', 'name']
 
 
-class FeatureOptionInline(admin.TabularInline):
-    """Manages how many feature options can be selected for a system version
-    on the django administration page"""
-    model = SystemVersionFeatureOption
-    can_delete = False
-    extra = 15  # 15 slots for choosing feature options
-
-
 class SystemVersionAdmin(admin.ModelAdmin):
     """Manages how system versions are displayed
     on the django administration page"""
@@ -80,31 +73,30 @@ class SystemVersionAdmin(admin.ModelAdmin):
     list_display = ('name', 'version_number', 'created')
     search_fields = ('name', )
     list_filter = ['created', 'name']
-    inlines = (FeatureOptionInline,)
     fieldsets = [
         (None, {'fields': ['system', 'creator', 'version_message']}),
         ('Metadata', {'fields': ['description', 'history', 'website', 'tech_docs',
-                                 'developer', 'written_in', 'support_languages',
+                                 'developer', 'written_in', 'supported_languages',
                                  'oses', 'publications', 'project_type', 'start_year',
                                  'end_year', 'derived_from', 'licenses', 'logo_orig',
                                  'logo_thumb']}),
-        ('Features', {'fields': ['support_systemarchitecture', 'description_systemarchitecture',
-                                 'support_datamodel', 'description_datamodel',
-                                 'support_storagemodel', 'description_storagemodel',
-                                 'support_queryinterface', 'description_queryinterface',
-                                 'support_storagearchitecture', 'description_storagearchitecture',
-                                 'support_concurrencycontrol', 'description_concurrencycontrol',
-                                 'support_isolationlevels', 'description_isolationlevels',
-                                 'support_indexes', 'description_indexes',
-                                 'support_foreignkeys', 'description_foreignkeys',
-                                 'support_logging', 'description_logging',
-                                 'support_checkpoints', 'description_checkpoints',
-                                 'support_views', 'description_views',
-                                 'support_queryexecution', 'description_queryexecution',
-                                 'support_storedprocedures', 'description_storedprocedures',
-                                 'support_joins', 'description_joins',
-                                 'support_querycompilation', 'description_querycompilation',
-                                 'support_accessmethods', 'description_accessmethods']})
+        ('Features', {'fields': ['support_systemarchitecture', 'options_systemarchitecture', 'description_systemarchitecture',
+                                 'support_datamodel', 'options_datamodel', 'description_datamodel',
+                                 'support_storagemodel', 'options_storagemodel', 'description_storagemodel',
+                                 'support_queryinterface', 'options_queryinterface', 'description_queryinterface',
+                                 'support_storagearchitecture', 'options_storagearchitecture', 'description_storagearchitecture',
+                                 'support_concurrencycontrol', 'options_concurrencycontrol', 'description_concurrencycontrol',
+                                 'support_isolationlevels', 'options_isolationlevels', 'description_isolationlevels',
+                                 'support_indexes', 'options_indexes', 'description_indexes',
+                                 'support_foreignkeys', 'options_foreignkeys', 'description_foreignkeys',
+                                 'support_logging', 'options_logging', 'description_logging',
+                                 'support_checkpoints', 'options_checkpoints', 'description_checkpoints',
+                                 'support_views', 'options_views', 'description_views',
+                                 'support_queryexecution', 'options_queryexecution', 'description_queryexecution',
+                                 'support_storedprocedures', 'options_storedprocedures', 'description_storedprocedures',
+                                 'support_joins', 'options_joins', 'description_joins',
+                                 'support_querycompilation', 'options_querycompilation', 'description_querycompilation',
+                                 'support_accessmethods', 'options_accessmethods', 'description_accessmethods']})
     ]
 
 
@@ -123,15 +115,8 @@ class FeatureOptionAdmin(admin.ModelAdmin):
     list_display = ('feature', 'value',)
     list_filter = ['feature']
 
+## CLASS
 
-class SystemVersionFeatureOptionAdmin(admin.ModelAdmin):
-    """Manages how feature options are displayed
-    on the django administration page"""
-    empty_value_display = 'unknown'
-    list_display = ('system_version', 'feature_option',)
-    list_filter = ['system_version', 'feature_option']
-
-# CLASS
 # Register your models here.
 admin.site.register(OperatingSystem, OperatingSystemAdmin)
 admin.site.register(ProgrammingLanguage, ProgrammingLanguageAdmin)
@@ -142,4 +127,3 @@ admin.site.register(System, SystemAdmin)
 admin.site.register(SystemVersion, SystemVersionAdmin)
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(FeatureOption, FeatureOptionAdmin)
-admin.site.register(SystemVersionFeatureOption, SystemVersionFeatureOptionAdmin)

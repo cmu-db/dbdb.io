@@ -1,4 +1,8 @@
 
+.container {
+  width: 70%;
+}
+
 .metadata-complete-btn-check {
   padding: 8px;
   position: absolute;
