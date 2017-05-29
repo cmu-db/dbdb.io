@@ -302,7 +302,7 @@ class DatabaseEditingPage(View):
         else:
             ip = request.META.get('REMOTE_ADDR')
 
-        db_article = System.objects.get(slug=slugify(db_name))
+        db_article = System.objects.get(name=db_name)
         if db_article.secret_key != key:
             return HttpResponseBadRequest()
 
@@ -311,6 +311,7 @@ class DatabaseEditingPage(View):
             instance = form_data.save(commit=True)
             # Update the current version number of the article
             db_article.current_version += 1
+            print 'hello'
             db_article.save()
             context = LoadContext.load_base_context(request)
             context["db"] = LoadContext.load_db_data(instance)
@@ -336,7 +337,7 @@ class DatabaseEditingPage(View):
             ip = x_forwarded_for.split(',')[0]
         else:
             ip = request.META.get('REMOTE_ADDR')
-        db_article = System.objects.get(slug=slugify(db_name))
+        db_article = System.objects.get(name=db_name)
         db_version = SystemVersion.objects.get(name=db_article.name,
                                                version_number=db_article.current_version)
 
@@ -358,7 +359,7 @@ class DatabaseEditingPage(View):
 class DatabaseVersionPage(View):
     def get(self, request, db_name, version):
         version = int(version)
-        db_article = System.objects.get(slug=slugify(db_name))
+        db_article = System.objects.get(name=db_name)
         if version > db_article.current_version:
             return HttpResponseRedirect("/")
 
@@ -371,7 +372,7 @@ class DatabaseVersionPage(View):
 
 class DatabaseRevisionsPage(View):
     def get(self, request, db_name, key=""):
-        db_article = System.objects.get(slug=slugify(db_name))
+        db_article = System.objects.get(name=db_name)
         db_version = SystemVersion.objects.get(name=db_article.name,
                                                version_number=db_article.current_version)
         context = LoadContext.load_base_context(request)
@@ -405,7 +406,7 @@ class DatabaseCreationPage(View):
     def post(self, request):
         if request.POST.get('name', False):
             name = request.POST.get('name')
-            existing = System.objects.filter(slug=slugify(name))
+            existing = System.objects.filter(name=name)
             if len(existing) == 0:
                 key = util.generateSecretKey()
                 # TODO slug= should call a helper function that can avoid collisions
@@ -429,7 +430,7 @@ class PLCreationView(View):
     def post(self, request):
         if request.POST.get('name', False):
             name = request.POST.get('name')
-            lang = ProgrammingLanguage(slug=slugify(name))
+            lang = ProgrammingLanguage(name=name)
             lang.save()
             return HttpResponseRedirect("/createdb")
 
@@ -442,7 +443,7 @@ class OSCreationView(View):
     def post(self, request):
         if request.POST.get('name', False):
             name = request.POST.get('name')
-            os = OperatingSystem(slug=slugify(name))
+            os = OperatingSystem(name=name)
             os.save()
             return HttpResponseRedirect("/createdb")
 
