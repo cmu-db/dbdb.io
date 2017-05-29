@@ -33,6 +33,13 @@
         {% endfor %}
       </div>
       <div class="form-group">
+        {% for field in hidden_form %}
+          <div>
+            {% render_field field data-provide='markdown' rows='6' %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="form-group">
         {% for field in metadata_form %}
           <div>
             {{ field.label_tag }}

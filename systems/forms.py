@@ -1,14 +1,16 @@
 from django.forms import HiddenInput, ModelForm
 from models import SystemVersion
 
-# Define fields in the order they should appear in the front end.
+# DEFINE FIELDS IN THE ORDER THEY SHOULD APPEAR IN THE FRONT END.
 
+# Hidden fields
 hidden = [
     'system',
     'version_number',
     'creator'
 ]
 
+# Basic data on database
 basic_data = [
     'version_message',
     'description',
@@ -21,6 +23,7 @@ basic_data = [
     'end_year'
 ]
 
+# Additional data related to models
 models = [
     'project_type',
     'written_in',
@@ -30,6 +33,7 @@ models = [
     'derived_from'
 ]
 
+# Database features
 features = ['support_systemarchitecture', 'options_systemarchitecture', 'description_systemarchitecture',
             'support_datamodel', 'options_datamodel', 'description_datamodel',
             'support_storagemodel', 'options_storagemodel', 'description_storagemodel',
