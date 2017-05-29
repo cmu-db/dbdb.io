@@ -20,10 +20,6 @@
           <div id = "db-title" class = "col-md-10 col-xs-12">
             {{ db.name }}
           </div>
-{#          <div>#}
-{#            {% static "" as base_url %}#}
-{#            <img src="{{ base_url }}images/thumbnails/{{ db.slug }}/{{ db.slug }}-{{ db.version_number }}.png">#}
-{#          </div>#}
           <div class="revision-button-area col-md-2 col-xs-12">
             <button class="btn btn-default revision-button" data-url="/db/{{db.slug}}/revisions">
               View Revision History
@@ -119,9 +115,9 @@
         </div>
         <div class="metadata-row">
           <span class="header-text">Support Languages: </span>
-          <span class="metadata-data" data-type="support_languages">
-            {% for lang in db.support_languages %}
-              <a href="/search/support_lang/{{ lang.slug }}">{{ lang.name }}</a>
+          <span class="metadata-data" data-type="supported_languages">
+            {% for lang in db.supported_languages %}
+              <a href="/search/supported_lang/{{ lang.slug }}">{{ lang.name }}</a>
             {% endfor %}
           </span>
         </div>
