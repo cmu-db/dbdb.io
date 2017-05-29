@@ -36,6 +36,6 @@ urlpatterns = [
     url(r'^createos', views.OSCreationView.as_view()),
 
     # Api urls
-    url(r'^1/all_systems', views.FetchAllSystems.as_view()),
+    url(r'^all_systems', views.FetchAllSystems.as_view()),
     url(r'^editsrss/', views.LatestEdits())
 ]
