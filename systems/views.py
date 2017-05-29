@@ -211,6 +211,8 @@ class SearchPage(View):
                                                   version_number=sys_ver.system.current_version))
 
         systems_data = []
+        # TODO: it's unecessary to load_db_data for each system. All that's needed for the search page is just
+        # TODO: the name, slug, description, and features
         for db_version in systems:
             data = LoadContext.load_db_data(db_version)
             data["description"] = data["description"][:100] + "..."
