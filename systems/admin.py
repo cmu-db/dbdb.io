@@ -116,6 +116,7 @@ class FeatureOptionAdmin(admin.ModelAdmin):
     list_filter = ['feature']
 
 ## CLASS
+
 # Register your models here.
 admin.site.register(OperatingSystem, OperatingSystemAdmin)
 admin.site.register(ProgrammingLanguage, ProgrammingLanguageAdmin)
