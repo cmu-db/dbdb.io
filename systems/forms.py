@@ -1,7 +1,13 @@
-from django.forms import ModelForm
+from django.forms import HiddenInput, ModelForm
 from models import SystemVersion
 
 # Define fields in the order they should appear in the front end.
+
+hidden = [
+    'system',
+    'version_number',
+    'creator'
+]
 
 basic_data = [
     'version_message',
@@ -47,6 +53,11 @@ class SystemVersionForm(ModelForm):
     class Meta:
         model = SystemVersion
         fields = []
+        fields.extend(hidden)
         fields.extend(basic_data)
         fields.extend(models)
         fields.extend(features)
+
+        widgets = {}
+        for field in hidden:
+            widgets[field] = HiddenInput()
