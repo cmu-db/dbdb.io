@@ -1,6 +1,6 @@
 from django.contrib import admin
 from systems.models import OperatingSystem, ProgrammingLanguage, License, Publication, SuggestedSystem, \
-    System, SystemVersion, Feature, FeatureOption, SystemVersionFeatureOption
+    System, SystemVersion, Feature, FeatureOption
 from bibtexparser.bparser import BibTexParser
 
 
@@ -66,14 +66,6 @@ class SystemAdmin(admin.ModelAdmin):
     list_filter = ['created', 'name']
 
 
-class FeatureOptionInline(admin.TabularInline):
-    """Manages how many feature options can be selected for a system version
-    on the django administration page"""
-    model = SystemVersionFeatureOption
-    can_delete = False
-    extra = 15  # 15 slots for choosing feature options
-
-
 class SystemVersionAdmin(admin.ModelAdmin):
     """Manages how system versions are displayed
     on the django administration page"""
@@ -81,7 +73,6 @@ class SystemVersionAdmin(admin.ModelAdmin):
     list_display = ('name', 'version_number', 'created')
     search_fields = ('name', )
     list_filter = ['created', 'name']
-    inlines = (FeatureOptionInline,)
     fieldsets = [
         (None, {'fields': ['system', 'creator', 'version_message']}),
         ('Metadata', {'fields': ['description', 'history', 'website', 'tech_docs',
@@ -124,15 +115,6 @@ class FeatureOptionAdmin(admin.ModelAdmin):
     list_display = ('feature', 'value',)
     list_filter = ['feature']
 
-
-class SystemVersionFeatureOptionAdmin(admin.ModelAdmin):
-    """Manages how feature options are displayed
-    on the django administration page"""
-    empty_value_display = 'unknown'
-    list_display = ('system_version', 'feature_option',)
-    list_filter = ['system_version', 'feature_option']
-
-
 ## CLASS
 # Register your models here.
 admin.site.register(OperatingSystem, OperatingSystemAdmin)
@@ -144,4 +126,3 @@ admin.site.register(System, SystemAdmin)
 admin.site.register(SystemVersion, SystemVersionAdmin)
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(FeatureOption, FeatureOptionAdmin)
-admin.site.register(SystemVersionFeatureOption, SystemVersionFeatureOptionAdmin)
