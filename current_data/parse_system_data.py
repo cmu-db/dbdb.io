@@ -15,14 +15,13 @@ django.setup()
 
 sys_file = '../systems/fixtures/systems.json'
 sys_ver_file = '../systems/fixtures/system_versions.json'
-svfo_file = '../systems/fixtures/system_version_feature_options.json'
 
 fixtures_dir = '../systems/fixtures/'
 fixtures = os.listdir(fixtures_dir)
 fixtures = [fixtures_dir + x for x in fixtures]
 
-# Exclude systems.json, system_versions.json, and system_version_feature_options.json.
-for filename in [sys_file, sys_ver_file, svfo_file]:
+# Exclude systems.json and system_versions.json.
+for filename in [sys_file, sys_ver_file]:
     try:
         fixtures.remove(filename)
     except:
@@ -30,7 +29,6 @@ for filename in [sys_file, sys_ver_file, svfo_file]:
         pass
 
 # Printed out after script is finished
-# TODO change this to a file output
 print_output = {}
 
 
@@ -158,13 +156,12 @@ system_map = {
 
 systems = {}  # models.System
 system_versions = []  # models.SystemVersion
-svfo = []  # models.SystemVersionFeatureOptions
 pk = 1
 
 
 # Read json files and convert to fixtures
 def create_fixtures(directory, files):
-    global pk, systems, system_versions, svfo
+    global pk, systems, system_versions
     for filename in files:
         with open(directory + '/' + filename, 'r') as infile:
             try:
@@ -266,7 +263,7 @@ def create_fixtures(directory, files):
 
 # Write the fixtures to a file
 def write_fixtures():
-    with open(sys_file, 'w') as outfile1, open(sys_ver_file, 'w') as outfile2, open(svfo_file, 'w') as outfile3:
+    with open(sys_file, 'w') as outfile1, open(sys_ver_file, 'w') as outfile2:
         mycmp = lambda x, y: cmp(x['pk'], y['pk'])
 
         systems_list = list(systems.itervalues())
@@ -276,8 +273,6 @@ def write_fixtures():
         system_versions.sort(cmp=mycmp)
         outfile2.write(json.dumps(system_versions, indent=4))
 
-        svfo.sort(cmp=mycmp)
-        outfile3.write(json.dumps(svfo, indent=4))
 
 create_fixtures('spring2016', os.listdir('spring2016'))
 create_fixtures('data', os.listdir('data'))
