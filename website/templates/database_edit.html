@@ -43,14 +43,12 @@
       <div class="form-group">
         {% for field in features_form %}
           <div>
+            {{ field.label_tag }}
             {% if 'support_' in field.label_tag %}
-              {{ field.label_tag }}
               {% render_field field class='custom-control-input' %}
             {% elif 'options_' in field.label_tag %}
-              {{ field.label_tag }}
               {% render_field field class='selectpicker' data-live-search='true' data-size='10' %}
             {% else %}
-              {{ field.label_tag }}
               {% render_field field data-provide='markdown' rows='6' %}
             {% endif %}
           </div>

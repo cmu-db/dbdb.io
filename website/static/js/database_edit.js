@@ -1,9 +1,3 @@
-// This js file is the script for the database_edit.html template.
-
-
-/**
- * Load up the page.
- */
 $(document).ready(function() {
 
   // Citations being added upon editing
@@ -12,7 +6,7 @@ $(document).ready(function() {
   // Citations being removed upon editing
   var citation_removes = [];
 
-   var opts = {
+  var opts = {
     lines: 15 // The number of lines to draw
   , length: 13 // The length of each line
   , width: 14 // The line thickness
@@ -37,8 +31,10 @@ $(document).ready(function() {
   var target = document.getElementById('spinner');
   var spinner = new Spinner(opts).stop();
 
-  var image;
-  var imageJSON;
+  $(".save-button").on("click", function() {
+    $('body').css('opacity', .5);
+    spinner.spin(target);
+  });
 
   $(".revision-button").on("click", function() {
     window.location.href = $(this).attr("data-url");
@@ -50,56 +46,6 @@ $(document).ready(function() {
     citation_removes.push(cite_num);
     $(this).parent().remove();
     $(this).remove();
-  });
-
-  $(".save-button").on("click", function() {
-    var changed_data = {};
-    var description_key;
-    var exists_key;
-
-    $edited_elems = $(".edited");
-    if ($edited_elems.length < 1) {
-      return;
-    }
-
-    $edited_elems.each(function() {
-      if ($(this).hasClass("yesno-description")) {
-        description_key = "description_" + $(this).attr("data-type");
-        exists_key = "support_" + $(this).attr("data-type");
-        changed_data[exists_key] = $(this).attr("data-exists");
-        changed_data[description_key] = $(this).text();
-      } else {
-        changed_data[$(this).attr("data-type")] = $(this).text() || $(this).val();
-      }
-    });
-
-    options = {"adds": option_adds, "removes": option_removes};
-    citations = {"adds": citation_adds, "removes": citation_removes};
-    changed_data["model_stuff"] = JSON.stringify(options);
-    changed_data["citations"] = JSON.stringify(citations);
-    changed_data["image"] = JSON.stringify(imageJSON);
-
-    var url = document;
-
-    // $('body').css('opacity', .5);
-    // spinner.spin(target);
-    //
-    // $.ajax({
-    //   type: "POST",
-    //   url: window.location.pathname,
-    //   data: changed_data,
-    //   dataType: "json",
-    //   success: function(data) {
-    //     window.location.replace(data.redirect);
-    //     // $('body').css('opacity', .5);
-    //   },
-    //   error: function(e, xhr)
-    //   {
-    //     console.log(e);
-    //     $('body').css('opacity', 1);
-    //     spinner.stop();
-    //   }
-    // });
   });
 
   $(".add-citation-done-btn").on("click", function() {

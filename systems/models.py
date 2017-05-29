@@ -170,19 +170,18 @@ class SystemVersion(models.Model):
     creator = models.CharField(max_length=100, default="unknown")
 
     # A message that goes along with this revision
-    version_message = models.CharField(max_length=500, default="")
+    version_message = models.CharField(max_length=500, default="", null=True, blank=True)
 
     # Basic data
     name = models.CharField(max_length=64)
-    description = models.TextField(default="", )
-    history = models.TextField(default="", )
-    website = models.URLField(default="", null=True)
-    tech_docs = models.URLField(default="", null=True)
-    developer = models.CharField(max_length=200, default="", null=True)
-    start_year = models.CharField(max_length=128, default="", null=True)
-    end_year = models.CharField(max_length=128, default="", null=True)
-    # TODO: change project_type to Many Related but restrict to one decision in front end?
-    project_type = models.ForeignKey(ProjectType, null=True)
+    description = models.TextField(default="", blank=True)
+    history = models.TextField(default="", blank=True)
+    website = models.URLField(default="", null=True, blank=True)
+    tech_docs = models.URLField(default="", null=True, blank=True)
+    developer = models.CharField(max_length=200, default="", blank=True)
+    start_year = models.CharField(max_length=128, default="", blank=True)
+    end_year = models.CharField(max_length=128, default="", blank=True)
+    project_type = models.ForeignKey(ProjectType, null=True, blank=True)
 
     # Logos
     logo_orig = models.ImageField(upload_to=upload_logo_orig, blank=True)
@@ -201,6 +200,7 @@ class SystemVersion(models.Model):
     support_systemarchitecture = models.NullBooleanField()
     options_systemarchitecture = models.ManyToManyField('FeatureOption',
                                                         related_name='options_systemarchitecture',
+                                                        blank=True,
                                                         limit_choices_to=get_options('System Architecture'))
     description_systemarchitecture = models.TextField(
         default='Is it a shared-memory, shared-disk, or shared-nothing DBMS? '
@@ -209,12 +209,14 @@ class SystemVersion(models.Model):
     support_datamodel = models.NullBooleanField()
     options_datamodel = models.ManyToManyField('FeatureOption',
                                                related_name='options_datamodel',
+                                               blank=True,
                                                limit_choices_to=get_options('Data Model'))
     description_datamodel = models.TextField(default='What is the primary data model of the DBMS?')
 
     support_storagemodel = models.NullBooleanField()
     options_storagemodel = models.ManyToManyField('FeatureOption',
                                                   related_name='options_storagemodel',
+                                                  blank=True,
                                                   limit_choices_to=get_options('Storage Model'))
     description_storagemodel = models.TextField(default='What kind of storage models does the DBMS support '
                                                         '(e.g., NSM, DSM)?')
@@ -222,6 +224,7 @@ class SystemVersion(models.Model):
     support_queryinterface = models.NullBooleanField()
     options_queryinterface = models.ManyToManyField('FeatureOption',
                                                     related_name='options_queryinterface',
+                                                    blank=True,
                                                     limit_choices_to=get_options('Query Interface'))
     description_queryinterface = models.TextField(
         default='What language or API does the DBMS support for the application '
@@ -230,6 +233,7 @@ class SystemVersion(models.Model):
     support_storagearchitecture = models.NullBooleanField()
     options_storagearchitecture = models.ManyToManyField('FeatureOption',
                                                          related_name='options_storagearchitecture',
+                                                         blank=True,
                                                          limit_choices_to=get_options('Storage Architecture'))
     description_storagearchitecture = models.TextField(default='Is the system a disk-oriented or in-memory DBMS? '
                                                                'If the latter, does it support larger-than-memory '
@@ -238,6 +242,7 @@ class SystemVersion(models.Model):
     support_concurrencycontrol = models.NullBooleanField()
     options_concurrencycontrol = models.ManyToManyField('FeatureOption',
                                                         related_name='options_concurrencycontrol',
+                                                        blank=True,
                                                         limit_choices_to=get_options('Concurrency Control'))
     description_concurrencycontrol = models.TextField(default='Does the DBMS support transactions and if so what '
                                                               'concurrency control scheme does it use?')
@@ -245,6 +250,7 @@ class SystemVersion(models.Model):
     support_isolationlevels = models.NullBooleanField()
     options_isolationlevels = models.ManyToManyField('FeatureOption',
                                                      related_name='options_isolationlevels',
+                                                     blank=True,
                                                      limit_choices_to=get_options('Isolation Levels'))
     description_isolationlevels = models.TextField(
         default='What isolation levels does it support? Which one is the default?'
@@ -253,6 +259,7 @@ class SystemVersion(models.Model):
     support_indexes = models.NullBooleanField()
     options_indexes = models.ManyToManyField('FeatureOption',
                                              related_name='options_indexes',
+                                             blank=True,
                                              limit_choices_to=get_options('Indexes'))
     description_indexes = models.TextField(default='What kind of indexes does the DBMS support (e.g., primary key, '
                                                    'secondary, derived, partial)? What data structures does the DBMS '
@@ -261,12 +268,14 @@ class SystemVersion(models.Model):
     support_foreignkeys = models.NullBooleanField()
     options_foreignkeys = models.ManyToManyField('FeatureOption',
                                                  related_name='options_foreignkeys',
+                                                 blank=True,
                                                  limit_choices_to=get_options('Foreign Keys'))
     description_foreignkeys = models.TextField(default='Does the system support foreign key constraints?')
 
     support_logging = models.NullBooleanField()
     options_logging = models.ManyToManyField('FeatureOption',
                                              related_name='options_logging',
+                                             blank=True,
                                              limit_choices_to=get_options('Logging'))
     description_logging = models.TextField(default='How does the system support data durability? What kind of logging '
                                                    'scheme does it use (e.g., physical, logical, physiological)?')
@@ -274,6 +283,7 @@ class SystemVersion(models.Model):
     support_checkpoints = models.NullBooleanField()
     options_checkpoints = models.ManyToManyField('FeatureOption',
                                                  related_name='options_checkpoints',
+                                                 blank=True,
                                                  limit_choices_to=get_options('Checkpoints'))
     description_checkpoints = models.TextField(
         default='How does the DBMS take checkpoints? What kind of checkpoints are '
@@ -282,6 +292,7 @@ class SystemVersion(models.Model):
     support_views = models.NullBooleanField()
     options_views = models.ManyToManyField('FeatureOption',
                                            related_name='options_views',
+                                           blank=True,
                                            limit_choices_to=get_options('Views'))
     description_views = models.TextField(
         default='Does the DBMS support views or materialized views? How complex of a query'
@@ -290,6 +301,7 @@ class SystemVersion(models.Model):
     support_queryexecution = models.NullBooleanField()
     options_queryexecution = models.ManyToManyField('FeatureOption',
                                                     related_name='options_queryexecution',
+                                                    blank=True,
                                                     limit_choices_to=get_options('Query Execution'))
     description_queryexecution = models.TextField(
         default='What query processing model does the DBMS support (e.g., iterator'
@@ -299,6 +311,7 @@ class SystemVersion(models.Model):
     support_storedprocedures = models.NullBooleanField()
     options_storedprocedures = models.ManyToManyField('FeatureOption',
                                                       related_name='options_storedprocedures',
+                                                      blank=True,
                                                       limit_choices_to=get_options('Stored Procedures'))
     description_storedprocedures = models.TextField(default='Does the DBMS support stored procedures? If so, what '
                                                             'language(s) can they be written in?')
@@ -306,6 +319,7 @@ class SystemVersion(models.Model):
     support_joins = models.NullBooleanField()
     options_joins = models.ManyToManyField('FeatureOption',
                                            related_name='options_joins',
+                                           blank=True,
                                            limit_choices_to=get_options('Joins'))
     description_joins = models.TextField(
         default='What join algorithms does the DBMS support? What is notable or special'
@@ -314,6 +328,7 @@ class SystemVersion(models.Model):
     support_querycompilation = models.NullBooleanField()
     options_querycompilation = models.ManyToManyField('FeatureOption',
                                                       related_name='options_querycompilation',
+                                                      blank=True,
                                                       limit_choices_to=get_options('Query Compilation'))
     description_querycompilation = models.TextField(
         default='Does the DBMS support code generation or JIT optimizations? '
@@ -322,12 +337,9 @@ class SystemVersion(models.Model):
     support_accessmethods = models.NullBooleanField()
     options_accessmethods = models.ManyToManyField('FeatureOption',
                                                    related_name='options_accessmethods',
+                                                   blank=True,
                                                    limit_choices_to=get_options('Access Methods'))
     description_accessmethods = models.TextField(default='What API access methods are available for the DBMS?')
-
-    # Feature options
-    feature_options = models.ManyToManyField('FeatureOption', related_name='feature_options',
-                                             through='SystemVersionFeatureOption')
 
     def get_features(self):
         features = []
@@ -336,26 +348,17 @@ class SystemVersion(models.Model):
             label = feature.label
             field = label.lower().replace(' ', '')
 
-            # Get if this version supports featue and the description
+            # Get if this version supports featue, options, and description
             is_supported = self.__dict__['support_' + field]
+            options = self.__getattribute__('options_' + field)
+            options = [o.value for o in options.all()]
             description = self.__dict__['description_' + field]
-
-            # All feature options for this feature belonging to this version
-            feature_options = SystemVersionFeatureOption.objects.filter(system_version=self)
-            feature_options = [x.feature_option for x in feature_options]
-            feature_options = [x.value for x in feature_options if x.feature == feature]
-
-            # All possible options for this feature
-            all_feature_options = FeatureOption.objects.filter(feature=feature)
-            all_feature_options = [x.value for x in all_feature_options]
 
             feature = {
                 'is_supported': is_supported,
                 'label': label,
-                'field': field,
                 'description': description,
-                'feature_options': feature_options,
-                'all_feature_options': all_feature_options,
+                'feature_options': options,
                 'multivalued': feature.multivalued
             }
             features.append(feature)
@@ -380,10 +383,5 @@ class SystemVersion(models.Model):
             self.system.save()
         super(SystemVersion, self).save(*args, **kwargs)
 
-
-class SystemVersionFeatureOption(models.Model):
-    """Cross references a system version with a feature option"""
-    system_version = models.ForeignKey(SystemVersion)
-    feature_option = models.ForeignKey(FeatureOption)
 
 # CLASS
