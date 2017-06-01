@@ -520,12 +520,6 @@ class AdvancedSearchView(View):
         return render(request, 'advanced_search.html', context)
 
 
-# TODO remove this class and the corresponding url in urls.py
-class AlphabetizedData(APIView):
-    def get(self, request):
-        return Response(AdvancedSearchView.alphabetize_dbs_data())
-
-
 class MissingSystemView(View):
     def post(self, request):
         data = dict(request.POST)
