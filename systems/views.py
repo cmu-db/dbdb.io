@@ -159,7 +159,7 @@ class HomePage(View):
 
 class DatabasePage(View):
     def get(self, request, db_name):
-        db_article = System.objects.get(name=db_name)
+        db_article = System.objects.get(slug=slugify(db_name))
         db_version = SystemVersion.objects.get(system=db_article,
                                                version_number=db_article.current_version)
         context = LoadContext.load_base_context(request)
@@ -310,7 +310,7 @@ class DatabaseEditingPage(View):
         else:
             ip = request.META.get('REMOTE_ADDR')
 
-        db_article = System.objects.get(name=db_name)
+        db_article = System.objects.get(slug=slugify(db_name))
         if db_article.secret_key != key:
             return HttpResponseBadRequest()
 
@@ -344,7 +344,7 @@ class DatabaseEditingPage(View):
             ip = x_forwarded_for.split(',')[0]
         else:
             ip = request.META.get('REMOTE_ADDR')
-        db_article = System.objects.get(name=db_name)
+        db_article = System.objects.get(slug=slugify(db_name))
         db_version = SystemVersion.objects.get(name=db_article.name,
                                                version_number=db_article.current_version)
 
@@ -366,7 +366,7 @@ class DatabaseEditingPage(View):
 class DatabaseVersionPage(View):
     def get(self, request, db_name, version):
         version = int(version)
-        db_article = System.objects.get(name=db_name)
+        db_article = System.objects.get(slug=slugify(db_name))
         if version > db_article.current_version:
             return HttpResponseRedirect("/")
 
@@ -379,7 +379,7 @@ class DatabaseVersionPage(View):
 
 class DatabaseRevisionsPage(View):
     def get(self, request, db_name, key=""):
-        db_article = System.objects.get(name=db_name)
+        db_article = System.objects.get(slug=slugify(db_name))
         db_version = SystemVersion.objects.get(name=db_article.name,
                                                version_number=db_article.current_version)
         context = LoadContext.load_base_context(request)
