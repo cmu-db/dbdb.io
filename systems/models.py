@@ -1,3 +1,5 @@
+import os
+
 from django.db import models
 from django.db.models import Q
 from django.utils.text import slugify
@@ -12,12 +14,17 @@ def get_options(label):
     return Q(feature=feature)
 
 
-def upload_logo_orig(self):
-    return 'website/static/images/originals/' + self.system.slug + '/'
+def upload_logo_orig(instance, filename):
+    extension = filename[filename.index('.'):]
+    filename = instance.system.slug + '-' + str(instance.version_number) + extension
+    print filename
+    return 'website/static/images/originals/' + instance.system.slug + '/' + filename
 
 
-def upload_logo_thumb(self):
-    return 'website/static/images/thumbnails/' + self.system.slug + '/'
+def upload_logo_thumb(instance, filename):
+    filename = instance.system.slug + '-' + instance.system.current_version
+    print filename
+    return 'website/static/images/thumbnails/' + instance.system.slug + '/' + filename
 
 
 class OperatingSystem(models.Model):
@@ -155,6 +162,7 @@ class System(models.Model):
 
 
 class SystemVersion(models.Model):
+
     """SystemVersion are revisions of the system identified by system"""
 
     # System that this revision points back to
@@ -371,7 +379,7 @@ class SystemVersion(models.Model):
 
     def save(self, *args, **kwargs):
         if self.logo_orig and not self.logo_thumb:
-            print "No thumbnail"
+            self.logo_thumb = util.create_logo(self.logo_orig.name)
         if not self.name and self.system:
             self.name = self.system.name
         if not self.version_number and self.system:

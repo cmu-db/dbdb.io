@@ -85,6 +85,10 @@
       <!-- metadata area -->
       <div class="col-md-4 col-xs-12" id="metadata-area">
         <div class="metadata-row">
+            {% static "" as base_url %}
+            <img src="{{ base_url }}images/thumbnails/{{ db.slug }}/{{ db.slug }}-{{ db.version_number }}.png">
+        </div>
+        <div class="metadata-row">
           <span class="header-text">Website: </span><span class="metadata-data" data-type="website"><a href="{{ db.website }}">{{db.website}}</a></span>
         </div>
         <div class="metadata-row">

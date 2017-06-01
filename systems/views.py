@@ -262,24 +262,30 @@ class DatabaseEditingPage(View):
                 new_version.publications.add(cite)
 
     def create_form(self, db_version, ip):
+        # Create the form with blank version message, next version number, and ip address.
         form = SystemVersionForm(instance=db_version, initial={
             'version_message': "",
             'version_number': db_version.version_number + 1,
             'creator': str(ip)})
+
+        # Hide these fields. See forms.py.
         hidden = [
             'system',
             'version_number',
             'creator'
         ]
+
         intro = [
             'version_message',
             'description',
             'history',
         ]
+
         features_form = []
         metadata_form = []
         intro_form = []
         hidden_form = []
+
         for field in list(form):
             if field.html_name.startswith('description_') or field.html_name.startswith('support_') or \
                     field.html_name.startswith('options_'):
@@ -308,12 +314,11 @@ class DatabaseEditingPage(View):
         if db_article.secret_key != key:
             return HttpResponseBadRequest()
 
-        form_data = SystemVersionForm(data=request.POST)
+        form_data = SystemVersionForm(request.POST, request.FILES)
         if form_data.is_valid():
             instance = form_data.save(commit=True)
             # Update the current version number of the article
             db_article.current_version += 1
-            print 'hello'
             db_article.save()
             context = LoadContext.load_base_context(request)
             context["db"] = LoadContext.load_db_data(instance)

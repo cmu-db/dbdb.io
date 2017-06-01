@@ -22,7 +22,7 @@
   </button>
 
   <div class="container">
-    <form id="editForm" action="/db/{{ db.slug }}/{{ key }}" method="post">
+    <form id="editForm" action="/db/{{ db.slug }}/{{ key }}" method="post" enctype="multipart/form-data">
       {% csrf_token %}
       <div class="form-group">
         {% for field in intro_form %}

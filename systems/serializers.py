@@ -30,7 +30,7 @@ class SystemVersionSerializer(serializers.ModelSerializer):
         fields = ('system', 'version_number', 'created', 'creator', 'version_message',
                   'name', 'description', 'history', 'website', 'tech_docs', 'developer',
                   'written_in', 'supported_languages', 'oses', 'publications', 'project_type', 'start_year',
-                  'end_year', 'derived_from', 'logo_thumb', 'licenses',
+                  'end_year', 'derived_from', 'logo_orig', 'logo_thumb', 'licenses',
                   'support_systemarchitecture', 'options_systemarchitecture', 'description_systemarchitecture',
                   'support_datamodel', 'options_datamodel', 'description_datamodel',
                   'support_storagemodel', 'options_storagemodel', 'description_storagemodel',
