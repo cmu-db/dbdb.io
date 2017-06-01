@@ -15,7 +15,7 @@ def create_logo(filename):
         im = Image.open(filename)
         im.thumbnail(size, Image.ANTIALIAS)
         im.save(new_filename, "PNG")
-        return im
+        return new_filename
     except IOError as e:
         print "cannot create thumbnail for '%s'" % new_filename
         print e

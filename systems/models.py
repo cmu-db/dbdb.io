@@ -17,13 +17,11 @@ def get_options(label):
 def upload_logo_orig(instance, filename):
     extension = filename[filename.index('.'):]
     filename = instance.system.slug + '-' + str(instance.version_number) + extension
-    print filename
     return 'website/static/images/originals/' + instance.system.slug + '/' + filename
 
 
 def upload_logo_thumb(instance, filename):
     filename = instance.system.slug + '-' + instance.system.current_version
-    print filename
     return 'website/static/images/thumbnails/' + instance.system.slug + '/' + filename
 
 
