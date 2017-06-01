@@ -36,7 +36,7 @@ mysqladmin drop -u <user> -p dbdb_io
 mysqladmin create -u <user> -p dbdb_io
 ```
 
-To avoid issues with migrations if you already have migrations for this app. you should first delete all files from `systems/migrations` EXCEPT for the `__init__.py` and `__init__.pyc` files
+To avoid issues with migrations, if you already have migrations for this app, you should first delete all files from `systems/migrations` EXCEPT for the `__init__.py` and `__init__.pyc` files
 
 * Apply migrations:
 ```bash
@@ -44,7 +44,8 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-Load in the initial data from the `current_data` directory There will be some output saying which fields don't match if they aren't formatted or written correctly.:
+Load in the initial data from the `current_data` directory.
+There will be some text output saved to files which indicate  which fields don't match or any other issues in formatting:
 ```bash
 cd current_data
 python ./parse_system_data.py
