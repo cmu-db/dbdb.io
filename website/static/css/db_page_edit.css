@@ -1,54 +1,5 @@
-
 .container {
   width: 70%;
-}
-
-.metadata-complete-btn-check {
-  padding: 8px;
-  position: absolute;
-  top: 22px;
-  right: 30px;
-  border-radius: 5px;
-}
-
-.metadata-complete-btn-check:hover {
-  background-color: #DFF0D8;
-  cursor: pointer;
-}
-
-.metadata-complete-btn-check:active {
-  background-color: #63BC59;
-}
-
-.metadata-complete-btn-cross {
-  padding: 8px;
-  position: absolute;
-  top: 22px;
-  right: 3px;
-  border-radius: 5px;
-}
-
-.metadata-complete-btn-cross:hover {
-  background-color: #FFB2B2;
-  cursor: pointer;
-}
-
-.metadata-complete-btn-cross:active {
-  background-color: #d9534f;
-}
-
-.check-img {
-  cursor: pointer;
-}
-
-.yesno-description:hover {
-  background-color: #f9f9f9;
-  cursor: pointer;
-}
-
-.description-description:hover {
-  background-color: #f9f9f9;
-  cursor: pointer;
 }
 
 .metadata-row:hover {
@@ -56,45 +7,8 @@
   cursor: pointer;
 }
 
-.yesno-complete-btn-check {
-  padding: 8px;
-  position: absolute;
-  bottom: 16px;
-  right: 30px;
-  border-radius: 5px;
-}
-
-.yesno-complete-btn-check:hover {
-  background-color: #DFF0D8;
-  cursor: pointer;
-}
-
-.yesno-complete-btn-check:active {
-  background-color: #63BC59;
-}
-
-.yesno-complete-btn-cross {
-  padding: 8px;
-  position: absolute;
-  bottom: 16px;
-  right: 3px;
-  border-radius: 5px;
-}
-
-.yesno-complete-btn-cross:hover {
-  background-color: #FFB2B2;
-  cursor: pointer;
-}
-
-.yesno-complete-btn-cross:active {
-  background-color: #d9534f;
-}
-
 .citation-cross {
   padding: 2px;
-  /*position: absolute;*/
-  /*bottom: 16px;*/
-  /*right: 3px;*/
   border-radius: 5px;
 }
 
@@ -105,27 +19,6 @@
 
 .citation-cross:active {
   background-color: #d9534f;
-}
-
-.choices-selection {
-  display: none;
-}
-
-.selection-option:hover {
-  cursor: pointer;
-  background-color: #f0f0f0;
-}
-
-.selection-close {
-  margin-left: 3px;
-  background-color: white;
-  border-radius: 15px;
-  padding-left: 2px;
-  padding-right: 2px;
-}
-
-.version-message-input {
-  margin-top: 10px;
 }
 
 .add-citation-btn {
