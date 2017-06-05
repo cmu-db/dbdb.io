@@ -16,7 +16,7 @@ from rest_framework.response import Response
 from systems.forms import SystemVersionForm
 from systems.models import Feature, FeatureOption, License, OperatingSystem, ProgrammingLanguage, ProjectType, \
     Publication, SuggestedSystem, System, SystemVersion
-from systems.serializers import LicenseSerializer, SystemVersionSerializer
+from systems.serializers import SystemVersionSerializer
 import util
 
 
