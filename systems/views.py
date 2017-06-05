@@ -173,50 +173,44 @@ class SearchPage(View):
         context = LoadContext.load_base_context(request)
         if page_type == "os":
             os = OperatingSystem.objects.get(slug=slug)
-            system_versions = os.systems_oses.all()
+            system_versions = os.systems_oses.filter(current=True)
             page_info = {"page_type": "Operating System",
                          "name": "Runs on: " + os.name}
         elif page_type == "written_in":
             lang = ProgrammingLanguage.objects.get(slug=slug)
-            system_versions = lang.systems_written.all()
+            system_versions = lang.systems_written.filter(current=True)
             page_info = {"page_type": "Programming Language",
                          "name": "Written in: " + lang.name}
         elif page_type == "supported_lang":
             lang = ProgrammingLanguage.objects.get(slug=slug)
-            system_versions = lang.systems_supported.all()
+            system_versions = lang.systems_supported.filter(current=True)
             page_info = {"page_type": "Programming Language",
                          "name": "Supports: " + lang.name}
         elif page_type == "license":
             license = License.objects.get(slug=slug)
-            system_versions = license.systems_licenses.all()
-            obj_data = LicenseSerializer(license).data
+            system_versions = license.systems_licenses.filter(current=True)
             page_info = {"page_type": "License",
-                         "name": "Uses: " + obj_data["name"]}
+                         "name": "Uses: " + license.name}
         elif page_type == "derived_from":
             system = System.objects.get(slug=slug)
-            system_versions = system.systems_derived.all()
+            system_versions = system.systems_derived.filter(current=True)
             page_info = {"page_type": "License",
                          "name": "Derived From: " + system.name}
         else:
             # page_type == "project":
             project_type = ProjectType.objects.get(slug=slug)
-            system_versions = SystemVersion.objects.filter(project_type=project_type)
+            system_versions = project_type.systemversion_set.filter(current=True)
             page_info = {"page_type": "Project Type",
                          "name": "Operates as: " + project_type.name}
-
-        systems = set()
-        for sys_ver in system_versions:
-            # For each system version, get the system that is actually the current version
-            systems.add(SystemVersion.objects.get(system=sys_ver.system,
-                                                  version_number=sys_ver.system.current_version))
 
         systems_data = []
         # TODO: it's unecessary to load_db_data for each system. All that's needed for the search page is just
         # TODO: the name, slug, description, and features
-        for db_version in systems:
+        for db_version in system_versions:
             data = LoadContext.load_db_data(db_version)
             data["description"] = data["description"][:100] + "..."
             systems_data.append(data)
+        systems_data.sort(cmp=lambda x,y: cmp(x['name'], y['name']))
         context["page_data"] = page_info
         context["systems"] = systems_data
         return render(request, 'search_page.html', context)
