@@ -15,7 +15,7 @@ def get_options(label):
 
 
 def upload_logo_orig(instance, filename):
-    extension = filename[filename.index('.'):]
+    extension = filename[filename.rfind('.'):]
     filename = instance.system.slug + '-' + str(instance.version_number) + extension
     return 'website/static/images/originals/' + instance.system.slug + '/' + filename
 

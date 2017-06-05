@@ -9,7 +9,7 @@ def create_logo(filename):
     size = 256, 256
     new_filename = filename.replace('originals', 'thumbnails')
     directory = new_filename[0:new_filename.rfind('/')]
-    if 'thumbnails' in directory and  not os.path.exists(directory):
+    if 'thumbnails' in directory and not os.path.exists(directory):
         os.makedirs(directory)
     try:
         im = Image.open(filename)

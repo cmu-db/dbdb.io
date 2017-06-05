@@ -72,3 +72,7 @@ systems/fixtures/systems.json
 *_output.txt
 cleaned_data/
 cleaned_models_data/
+
+# Logos
+website/static/images/originals/*
+website/static/images/thumbnails/*
