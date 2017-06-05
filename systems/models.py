@@ -142,7 +142,7 @@ class System(models.Model):
     # basic, persistent information about the system
     name = models.CharField(max_length=64, null=False, blank=False)
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    current_version = models.PositiveIntegerField(default=0)
+    current_version = models.PositiveIntegerField(default=1)
     slug = models.SlugField(max_length=64)
 
     # authentication key for editing
@@ -167,7 +167,7 @@ class SystemVersion(models.Model):
     system = models.ForeignKey(System)
 
     # Version of this revision
-    version_number = models.PositiveIntegerField(default=0)
+    version_number = models.PositiveIntegerField(default=1)
 
     # If this version is the current version
     current = models.BooleanField(default=True)
