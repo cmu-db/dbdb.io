@@ -149,7 +149,8 @@ system_map = {
     'Project Type': 'project_type',
     'Start Date': 'start_year',
     'End Date': 'end_year',
-    'Derived From': 'derived_from'
+     # TODO Not formatted correctly in the json files
+     # 'Derived From': 'derived_from'
 }
 
 
