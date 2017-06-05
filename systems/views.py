@@ -476,20 +476,36 @@ class AdvancedSearchView(View):
         start_letters = string.digits + string.ascii_lowercase
         ordered_list = [{"letter": letter, "dbs": []} for letter in start_letters]
 
-        # Organize databases based on first letter.
-        for db in System.objects.all():
-
-            matches = True
-            # Filter databases if there are search parameters.
-            if params is not None:
-                db_version = SystemVersion.objects.get(system=db,
-                                                       version_number=db.current_version)
-                matches = AdvancedSearchView.search(db_version, params)
-
-            # Add database if it matches search parameters.
-            if matches:
+        if not params:
+            # Return all systems if no search parameters given.
+            for db in System.objects.all():
                 name = db.name
                 slug = db.slug
+                letter_idx = start_letters.index(name[0].lower())
+                ordered_list[letter_idx]["dbs"].append({"name": name,
+                                                        "slug": slug})
+        else:
+            # Create a set of versions that match ALL search fields.
+            matches = set()
+            for field in params:
+                # Parse the feature name to the actual model field.
+                model_field = field.lower().replace(' ', '')
+                search_options = params[field]
+                for option in search_options:
+                    # Get CURRENT db_versions pointing to each feature option using M2M reverse relationship.
+                    feature_option = FeatureOption.objects.get(value=option)
+                    options = 'options_' + model_field
+                    supports = 'support_' + model_field
+                    db_versions = feature_option.__getattribute__(options)\
+                        .filter(current=True, **{supports: True})
+                    # Return intersection which are versions that match ALL search fields.
+                    if len(matches) == 0:
+                        matches |= set(db_versions)
+                    else:
+                        matches &= set(db_versions)
+            for db in matches:
+                name = db.system.name
+                slug = db.system.slug
                 letter_idx = start_letters.index(name[0].lower())
                 ordered_list[letter_idx]["dbs"].append({"name": name,
                                                         "slug": slug})
@@ -499,18 +515,6 @@ class AdvancedSearchView(View):
             letter['dbs'].sort(cmp=lambda x, y: cmp(x['name'].lower(), y['name'].lower()))
 
         return ordered_list
-
-    @staticmethod
-    def search(db, params):
-        # Search if all values in params are in that db's features.
-        for field in params:
-            feature = Feature.objects.get(label=field)
-            search_options = params[field]
-            feature_options = [fo.value for fo in db.feature_options.filter(feature=feature)]
-            # Set difference of search options with feature options
-            if len(set(search_options) - set(feature_options)) > 0:
-                return False
-        return True
 
     def post(self, request):
         context = LoadContext.load_base_context(request)
