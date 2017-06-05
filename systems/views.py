@@ -95,14 +95,13 @@ class LoadContext(object):
                                'slug': system.slug}
                               for system in db_version.derived_from.all()]
 
-        # TODO This is a hotfix for versions without a project_type
         if db_version.project_type:
             db["project_type"] = {
                 'name': db_version.project_type.name,
                 'slug': db_version.project_type.slug
             }
 
-        # # Load database features.
+        # Load database features.
         db['features'] = db_version.get_features()
 
         # Load publications.
@@ -204,8 +203,6 @@ class SearchPage(View):
                          "name": "Operates as: " + project_type.name}
 
         systems_data = []
-        # TODO: it's unecessary to load_db_data for each system. All that's needed for the search page is just
-        # TODO: the name, slug, description, and features
         for db_version in system_versions:
             data = LoadContext.load_db_data(db_version)
             data["description"] = data["description"][:100] + "..."
