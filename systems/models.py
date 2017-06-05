@@ -169,6 +169,9 @@ class SystemVersion(models.Model):
     # Version of this revision
     version_number = models.PositiveIntegerField(default=0)
 
+    # If this version is the current version
+    current = models.BooleanField(default=True)
+
     # When this revision was created
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 

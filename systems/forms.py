@@ -7,6 +7,7 @@ from models import SystemVersion
 hidden = [
     'system',
     'version_number',
+    'current',
     'creator'
 ]
 

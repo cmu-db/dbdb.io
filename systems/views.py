@@ -266,12 +266,14 @@ class DatabaseEditingPage(View):
         form = SystemVersionForm(instance=db_version, initial={
             'version_message': "",
             'version_number': db_version.version_number + 1,
+            'current': True,
             'creator': str(ip)})
 
         # Hide these fields. See forms.py.
         hidden = [
             'system',
             'version_number',
+            'current',
             'creator'
         ]
 
@@ -318,6 +320,9 @@ class DatabaseEditingPage(View):
         if form_data.is_valid():
             instance = form_data.save(commit=True)
             # Update the current version number of the article
+            old_version = SystemVersion.objects.get(system=db_article, version_number=db_article.current_version)
+            old_version.current = False
+            old_version.save()
             db_article.current_version += 1
             db_article.save()
             context = LoadContext.load_base_context(request)
