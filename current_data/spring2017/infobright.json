@@ -1,0 +1,148 @@
+{
+  "Email": "{xzhang3@cs.cmu.edu}",
+  "Name": "{Infobright}",
+  "Description": "Infobright is a column-oriented, high performance analytic engine which is suitable for fast query of large amount of data. Not only is infobright is fast at query, the data compression is much higher than database engine. Infobright utilizes MySQL database environment, which means infobright is fully compatible with business intelligence tools of MySQL and reduce the learning curve for customer. Infobright use columnar approach to manage database. The architecture of Infobright contains three parts: Data Pack(DP), DPN (Data Pack Node), KN (Knowledge Node) and those three parts generates the knowledge grid of Infobirght. When data is loaded into a table, the data is broken into different groups with fixed number rows and then decompose these data into separate data packs for each of the columns. As a result, each column has the same number of rows and this column structure is better at data compression compared with row-oriented database. The average data pack compression ratio is approximate 20:1 and the infobright can handle up to 50TB data for data analytics applications. One interesting about infobright is that it is more suitable for data analyze because it does not support INSERT, DELETE, UPDATE operations",
+  "Description Citations": [],
+  "History": ": In 2005, infobright was founded and issued the first free release of its software in September 2008 and launched its community [1] at the same time and become an open source company at that time. In 2009, infobright publish patent on data compression[2], query optimization[3] and data organization[4].  At the same year, Sun Unified Storage produce certified to use infobright and report huge improve for query speed [5]. In February 2016, infobright is recognized by Gartner as a challenger in Data Warehouse and Data Management Solutions for Analytics space with HPE, Amazon Web Services, 1010 data and MarkLogic [6]. In July 2016, Infobright transited away from its open source community edition to direct customer markets and original equipment manufacturer (OME) ",
+  "History Citations": [
+    "{\"[1] Open Source Data Warehouse, Column Database Software, Improve SQL Performance\". Community website. Retrieved October 17, 2011.}",
+    "{[2] Method and system for data compression in a relational database. Patent Application US 2008/0071818 A1}",
+    "{[3] Method and system for storing, organizing and processing data in a relational database. Patent Application US 2008/0071748 A1}",
+    "{[4] Methods and systems for database organization. Patent Application US 2009/0106210 A1}",
+    "{[5] Infobright Editions Secure Sun Certification. TMCNet.com, April 23, 2009}",
+    "{[6] https://en.wikipedia.org/wiki/Infobright}"
+  ],
+  "System Architecture Options": [
+    "Shared-Nothing"
+  ],
+  "System Architecture Description": "Infobright is shared-nothing DBMS and it does not rely on special hardware (such as GPU and FPGA). The system architecture of infobright is as follows. In detail, the architecture of infobright combines a columnar database and knowledge grid for optimizing analytics (such as compressing, storing and retrieving data) and provide a scalable, flexible analytical DBMS without index. Infobright make use of MySQL’s pluggable storage engine architecture to support full functions of database. The advantages of infobright are as follows: 1) high query speed because column-oriented database focus on required data and Knowledge Grid further improves the query speed by special way of organized data information. 2) less load time because infobright do not need to build index.  3) Market-leading compression ratio because infobright optimize compression algorithm for different type of data.",
+  "System Architecture Citations": [
+    "{http://www.vldb.org/pvldb/1/1454174.pdf}",
+    "{https://www.infobright.com/customers/pdf/Log_Mgt_Final.pdf}"
+  ],
+  "Query Interface Options": [
+    "Custom API"
+  ],
+  "Query Interface Description": "The API infobright supports are ODBC, JDBC, C API, C++, Delphi, Eiffel, Java, SmallTalk, Lisp,  REALbasic, PHP, Visual Basic, Ruby, Perl and Python.",
+  "Query Interface Citations": [
+    "https://infobright.com/resource_library/migrating-mysql-to-infobright-enterprise-edition/"
+  ],
+  "Data Model Options": [
+    "Column Family"
+  ],
+  "Data Model Description": "Data are stored in a column based way. The column based can get a great compress ratio and helps to improve the speed of analytic job.",
+  "Data Model Citations": [
+    "{https://www.infobright.com/wp-content/uploads/2014/03/White-paper-Infobright-Internet-of-Things-Architecture.pdf}"
+  ],
+  "Storage Model Options": [
+    "Decomposition Storage Model"
+  ],
+  "Storage Model Description": "The storage Model for Infobright is DSM. Since infobright is more focused on store huge amount of data and increase the query speed, column orientation is more suitable. For the first reason, different from row based storage database where each metadata contains different data types, the column orientation database contains one data type and this property can help to optimize the compression algorithm for different types of data. In this way, infobright can get a market-leading data compression ratio (from 10:1 to 40:1) and greatly reduce the disk I/O. For the second reason, since most analytic queries only involve part of columns, so column orientation based DBMS can only focus on retrieving the needed data, which helps to improve the query speed of infobright.",
+  "Storage Model Citations": [
+    "{https://www.infobright.com/wp-content/uploads/2014/03/White-paper-Infobright-Internet-of-Things-Architecture.pdf}"
+  ],
+  "Storage Architecture Options": [
+    "Disk-oriented"
+  ],
+  "Storage Architecture Description": "The infobright is Disk-oriented DBMS. But it indeed stores the knowledge grid in memory. The knowledge grid structure is automatically created and store the information of data when the data is uploaded or user execute some query. This knowledge grid is key structure for query and help to improve the query speed of infobright. If there is still space for RAM, this space can be used to store the uncompressed Data Packs. But most data packs and tuples are stored in disk. However, infobright is still disk-oriented DBMS and do not store all the data in memory.  ",
+  "Storage Architecture Citations": [
+    "{https://www.infobright.com/wp-content/uploads/2014/03/White-paper-Infobright-Internet-of-Things-Architecture.pdf}",
+    "{https://support.infobright.com/forums/archive/index.php/t-6091.html?s=49c0fe351218ab2cb6bc0126a6812a30}"
+  ],
+  "Concurrency Control Options": [
+    "Two-Phase Locking (Deadlock Detection)"
+  ],
+  "Concurrency Control Description": "It supports ACID transaction. It is immediate consistency. Since infobright do not support UPDATE, DELETE, INSERT, ALTER, FOREIGN KEY, the concurrency control is relative easy for infobright. When they need to do some modifications, infobright will use table lock for the whole table. ",
+  "Concurrency Control Citations": [
+    "{https://www.infobright.com/forums/showthread.php?6075-any-updates-to-the-limitations-of-infobright-referring-to-the-blog-by-Robin-Schumacher}"
+  ],
+  "Isolation Levels Options": [
+    "Read Committed"
+  ],
+  "Isolation Levels Description": "Infobright support read committed model and read only.  Since infobright does not support modified table and table content, all the query will read the table and when there is command like drop table, this query will lock the whole table. So infobright supports read committed model.",
+  "Isolation Levels Citations": [
+    "{https://www.infobright.com/forums/showthread.php?7380-Which-level-of-transaction-isolation-does-ICE-support}"
+  ],
+  "Indexes Options": [
+    "Not Supported"
+  ],
+  "Indexes Description": "The infobright do not have index explicitly. The knowledge grid in infobright serves as substitute for indexes as well as Data Pack Nodes (DPN). Data Pack Nodes contain some necessary statistic information (such as max, min, sum) of the stored and compressed data which belong to this Data Pack Nodes. The knowledge grid store more advanced information (such as interdependence between multiple tables, multiple columns) and helps to locate the needed DPN with little decompress data as much as possible.  For example, suppose a query wants to find such data which the value of certain column is within a specific range. The Infobright Optimizer can generate three type of Packs: Relevant Packs, Irrelevant Packs, Suspect Packs. The query do not need to decompress and relevant and irrelevant packs and only need to find other data in suspect packs. In this way, the DPN serves like the index. Also knowledge grid can also serve like index because knowledge grid records the relationship between multiple tables. So for join search, we can first use information of DPN in both tables to find related data blocks, and use knowledge node to build the relationship between those data blocks and return result.  Both DPN and the knowledge grid avoids the trouble of maintain the index and the maintains will increase the update and insert time when the database becomes bigger and bigger. And compared with index method, Infobright have a better performance for unexpected queries because for unexpected queries, it is hard to build efficient index but Infobright build the knowledge grid dynamically and change its content in responding to the query. ",
+  "Indexes Citations": [
+    "{http://download.nust.na/pub6/mysql/tech-resources/articles/datawarehousing_mysql_infobright.html}"
+  ],
+  "Foreign Keys Options": [
+    "Not Supported"
+  ],
+  "Foreign Keys Description": "Infobright does not support foreign key constrains. Infobright do not support foreign keys so they do not support foreign key constraints.",
+  "Foreign Keys Citations": [],
+  "Logging Options": [
+    "Other"
+  ],
+  "Logging Description": "Since infobright do not support modification of table and content, the logging model must be simple in infobright. After I find a lot of resources, it is hard to find what is logging model of infobright and some urls are not available because infobright closed their community. The logger file in Infobright is simple, it only records some query sql because infobright only support query. Also since they use files as backup, maybe they do not do any logging for data and relay on files. So when the data is broken, only way to solve this problem is drop the table and reload the data by files.",
+  "Logging Citations": [],
+  "Checkpoints Options": [
+    "Not Supported"
+  ],
+  "Checkpoints Description": "Since infobright do not support INSERT, UPDATE, DELETE, ALTER operator, the data in the table is stable and if there exists one data is not correct, the whole table needs to be dropped and re-insert the whole data. After I find a lot of resources, it is hard to find what is checkpoints model of infobright and some urls are not available because infobright closed their community.  Most of them mentioned files backup. So I guest may be there is no checkpoint model in infobright, it is customer responsibility to maintain the checkpoint for data file. The data files are the checkpoints. For recovery, customer can use rsync method to backup files to other machine. When the infobright database needs recovery, just drop that table and re-load data from back up files.",
+  "Checkpoints Citations": [
+    "{https://www.infobright.com/forums/archive/index.php/t-6105.html?s=465718530840966f9752c1294b49d7f0}"
+  ],
+  "Views Options": [
+    "Virtual Views"
+  ],
+  "Views Description": "Infobright only support views but not materialized views. Infobright is good at supporting complex query. Infobright use knowledge grid to narrow down the complex query over large dataset. In addition to that, infobright support approximate query which can greatly reduce the query time for massive amount of data.",
+  "Views Citations": [
+    "{https://www.infobright.com/forums/showthread.php?6772-Using-views-in-Infobright}",
+    "{https://infobright.com/blog/calling-all-use-cases-for-infobright-approximate-query/}"
+  ],
+  "Query Execution Options": [
+    "Vectorized Model"
+  ],
+  "Query Execution": "It supports vectorized DBMS support query. Infobright use the both the DPN and knowledge node information to speed up the query. For example, suppose the query is SELECT MAX(B) FROM T WHERE A > 6;  The DPN table can be seen from \"https://drive.google.com/open?id=0B1fwCLZ9xWQtUF9JcU9PX3RsSUE\", The Infobright optimizer marked A1, A3, A4 as irrelevant, A3 as relevant, A5 as suspect. For A3, the max value is 500, and for A5, the max value is 10, which is less than 500. So Infobright does not need to decompress the A5 pack and return 500 directly. So in this way, instead of querying one data at a time, infobright do query on a bunch of data (usually 65536). There is limited document for infobright right now since they close their community last year. From their previous blog, \"https://forums.mysql.com/read.php?20,409684,410371\", it seems that infobright do not support intra-query parallelism.",
+  "Query Execution Citations": [
+    "{https://forums.mysql.com/read.php?20,409684,410371,}"
+  ],
+  "Stored Procedures Options": [
+    "Supported"
+  ],
+  "Stored Procedures Description": "Infobright support stored procedures.  The language is their own store procedures, follow the MySQL Ansi-92 Standard. When using this language to define a stored procedure, use delimiter key word to define the procedure and change it back when the definition is finished. Below is sample code for stored Procedures for Infobright: \"https://drive.google.com/open?id=0B1fwCLZ9xWQtYzh2ZVVDekV5NDg\" .This function of this stored procedure is convert a date format string (“YYYYMMDD”) to a string (‘YYYY-MM-DD’).",
+  "Stored Procedures Citations": [
+    "{https://www.infobright.com/forums/showthread.php?5551-Stored-procedures}"
+  ],
+  "Joins Options": [
+    "Nested Loop"
+  ],
+  "Joins Description": "Infobright use knowledge grid to do join. This knowledge grid tries to minimize the number of decompress data as much as possible. Take the following query as an examples: The query is: SELECT MAX(X.D) FROM T JOIN X ON T.B = X.C WHERE T.A > 6 Suppose the Data Pack is as follows: \"https://drive.google.com/open?id=0B1fwCLZ9xWQtbGJiRkRzaERDSmM\", The knowledge grid keeps the inter relationship between different tables, the knowledge grid is as follows: (0 means one DPN in one table has no common data with other DPN in other table, 1 means DPN in one table has common data with other DPN in other table). Please see \"https://drive.google.com/open?id=0B1fwCLZ9xWQtQUM0bFVXWTNxRUU\" for reference. Infobright handle the query like this: First, use DPNs info to find Packs meet the where requirement, here the requirement is T.A > 6, so Infobright optimizer marked A1, A2 A4 as irrelevant, A3 is relevant, A5 is suspect.  So for table T, only A3,A5,B3,B5 are left. From knowledge grid table, it is easy to see that B3 has no relation with X, so B3 is removed. The final remained column set is A3,A4,B5. Since B5 only match with C2 so Infobright only need to analyze values of D of those package. In this way, the decompressed part is greatly reduced and infobright can achieve a fast join query without using index.",
+  "Joins Citations": [
+  ],
+  "Query Compilation Options": [
+    "Not Supported"
+  ],
+  "Query Compilation Description": "",
+  "Query Compilation Citations": [
+  ],
+  "Website": "{https://infobright.com}",
+  "Programming Language": [
+    "C++"
+  ],
+  "Operating Systems": [
+    "Linux",
+    "Solaris",
+    "CentOS 5",
+    "Debian Lenny"
+  ],
+  "Project Type": [
+    "Commercial"
+  ],
+  "Developer": "{Infobright}",
+  "Start Date": "{2005}",
+  "Start Date Citations": [
+  ],
+  "End Date": "{2016}",
+  "End Date Citations": [
+  ],
+  "Derived From": "{Brighthouse}",
+  "License": [
+    "NOT OPEN SOURCE"
+  ]
+}

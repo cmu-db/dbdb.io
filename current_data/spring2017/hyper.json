@@ -1,0 +1,216 @@
+{
+    "Email": "huangminzh@gmail.com",
+
+    
+    "Name": "HyPer",
+    
+    
+    "Description": "The HyPer DBMS is an in-memory database which aims to achieve high performance for both OLTP and OLAP workload; it creates a consistent snapshot of the transactional data by forking the OLTP process, so that the OLAP queries could operate on the consistent virtual memroy snapshot. Besides, the HyPer DB group proposed a serializable Multi-Version Concurrency Control (MVCC) model which could provide full serializability isolation. Furthermore, they designed the Adaptive Radix Tree (ART) which is a high speed index for main-memory-based database systems. Last but not least, HyPer uses Just-In-Time (JIT) compilation to generate LLVM codes for the incoming queries, which boosts the performance of the database and minimizes the memory traffic.",
+    "Description Citations": [
+        "{http://hyper-db.de}",
+        "{http://hyper-db.de/nedb2014_abstract.pdf}"
+    ],
+    
+    
+    "History": "HyPer is a DBMS project from the Technical University of Munich (TUM) database group. In the beginning, their objective was to build a hybrid in-memory database; during the process of developing HyPer, they published lots of paper about different parts of the system. HyPer is not open source, but it provides a WebInterface (http://hyper-db.de/interface.html) where we could execute queries on the HyPer system. HyPer is still in active development and the next big step of the HyPer group is to extend the functionality of HyPer to \"exploratory workflows that are deeply integrated into the database kernel\".",
+    "History Citations": [
+        "{http://databasearchitects.blogspot.de}",
+        "{http://hyper-db.de}"
+    ],
+    
+    
+    "System Architecture Options": [
+        "Shared-Nothing"
+    ],
+    "System Architecture Description": "ScyPer (Scaled-out HyPer) is a version of HyPer, which horizontally scales out on shared-nothing commodity hardware",
+    "System Architecture Citations": [
+        "{http://db.in.tum.de/people/sites/roediger/papers/muehlbauer2012scyper.pdf}"
+    ],
+    
+    
+    "Query Interface Options": [
+        "SQL",
+        "PL/SQL"
+    ],
+    "Query Interface Description": "HyPer uses SQL or a PL/SQL-like scripting language to execute queries",
+    "Query Interface Citations": [
+        "{http://hyper-db.de/index.html#highlights}",
+        "{http://hyper-db.de/interface.html#}"
+    ],
+    
+    
+    "Data Model Options": [
+        "Relational"
+    ],
+    "Data Model Description": "HyPer is not a non-relational database (a.k.a NoSQL database) like MongoDB which is document-oriented database or HBase which uses column family; instead, HyPer is a relational database; however, the relations are not always maintained as arrays of entire records; the table layout in HyPer would change according to the workload, so HyPer is also the so-called New-SOL database.",
+    "Data Model Citations": [
+        "{http://static.cs.brown.edu/courses/cs227/archives/2012/papers/olap/hyper.pdf}",
+        "{http://hyper-db.de/index.html#}"
+    ],
+    
+    
+    "Storage Model Options": [
+        "Hybrid"
+    ],
+    "Storage Model Description": "In HyPer, the storage layout would change according to the access patterns; for OLTP workload, it uses row store approach by organizing relations as arrays of entire records; as for the OLAP workload, it uses column store approach by partitioning relations into vactors of attribute values.",
+    "Storage Model Citations": [
+        "{{http://static.cs.brown.edu/courses/cs227/archives/2012/papers/olap/hyper.pdf}}"
+    ],
+    
+        
+    "Storage Architecture Options": [
+        "In-Memory"
+    ],
+    "Storage Architecture Description": "As described in the HyPer homepage, \"HyPer is a main-memory-based relational DBMS for mixed OLTP and OLAP workloads.\"",
+    "Storage Architecture Citations": [
+        "{http://hyper-db.de/index.html#}"
+    ],
+    
+    
+    "Concurrency Control Options": [
+        "Multi-version Concurrency Control (MVCC)"
+    ],
+    "Concurrency Control Description": "HyPer used MVCC scheme to handle both OLTP and OLAP queries.",
+    "Concurrency Control Citations": [
+        "{http://db.in.tum.de/~muehlbau/papers/mvcc.pdf}",
+        "{http://hyper-db.de/index.html#}"
+    ],
+    
+    
+    "Isolation Levels Options": [
+        "Serializable"
+    ],
+    "Isolation Levels Description": "HyPer supports a novel serializability validation mechanism which is adapted from precision locking. Instead of tracking dependencies like the Serializable Snapshot Isolation (SSI) implemented in PostgreSQL, HyPer would \"read predicates and validate the predicates against the undo log entries\".",
+    "Isolation Levels Citations": [
+        "{http://db.in.tum.de/~muehlbau/papers/mvcc.pdf}",
+        "{https://mediatum.ub.tum.de/doc/1209942/1209942.pdf}"
+    ],
+    
+    
+    "Indexes Options": [
+        "Other"
+    ],
+    "Indexes Description": "The adaptive radix tree (ART) index is the default indexing structure in HyPer. Two important features of ART are adaptive node structure and path compression.",
+    "Indexes Citations": [
+        "{http://db.in.tum.de/~leis/papers/artsync.pdf}",
+        "{http://wwwbayer.informatik.tu-muenchen.de/people/sites/roediger/papers/kemper2013hyper.pdf}"
+    ],
+    
+    
+    "Foreign Keys Options": [
+        "Supported"
+    ],
+    "Foreign Keys Description": "No documentations from HyPer specifically state that HyPer supports foreign key constrains, but in their fast serializable MVCC paper, they mentioned a senario where an transacion deletes a primary key and another concurrent transacion inserts a foreign key which refers to that primary key.",
+    "Foreign Keys Citations": [
+        "{http://db.in.tum.de/~muehlbau/papers/mvcc.pdf}"
+    ],
+    
+    
+    "Logging Options": [
+        "Physical Logging"
+    ],
+    "Logging Description": "HyPer uses physical logging to support data durability.",
+    "Logging Citations": [
+        "{https://mediatum.ub.tum.de/doc/1209942/1209942.pdf}"
+    ],
+    
+    
+    "Checkpoints Options": [
+        "Consistent"
+    ],
+    "Checkpoints Description": "HyPer creates consistent backups and checkpoints by taking efficient snapshots.",
+    "Checkpoints Citations": [
+        "{https://mediatum.ub.tum.de/doc/1209942/1209942.pdf}"
+    ],
+    
+    
+    "Views Options": [
+        "Virtual Views"
+    ],
+    "Views Description": "HyPer supports normal views where a query would define a virtual table.",
+    "Views Citations": [
+        "{https://mediatum.ub.tum.de/doc/1209942/1209942.pdf}"
+    ],
+    
+    
+    "Query Execution Options": [
+        "Vectorized Model"
+    ],
+    "Query Execution": "HyPer supports a morsel-driven parallelism model for query execution, which is Non-Uniform Memory Access (NUMA) aware and a kind of intra-query parallelism; HyPer uses the intra-operator approach; the table would be broken into multiple morsels and multiple instances of the same operator would process different segments of the table.",
+    "Query Execution Citations": [
+        "{http://15721.courses.cs.cmu.edu/spring2017/papers/17-execution/p743-leis.pdf}"
+    ],
+    
+    
+    "Stored Procedures Options": [
+        "Supported"
+    ],
+    "Stored Procedures Description": "The stored procedures in HyPer are written in a custom, iterator-free language called HyPerScript.",
+    "Stored Procedures Citations": [
+        "{https://mediatum.ub.tum.de/doc/1209942/1209942.pdf}"
+    ],
+
+    
+    "Joins Options": [
+        "Hash",
+        "Sort-Merge"
+    ],
+    "Joins Description": "It's positive that HyPer supports sort-merge joins; as for the hash join, they implemented a NUMA-aware hash join algorithm, but they didn't mentioned whether they have integrated hash join into HyPer or not.",
+    "Joins Citations": [
+        "{http://15721.courses.cs.cmu.edu/spring2017/papers/19-sortmergejoins/p1064-albutiu.pdf}",
+        "{http://imdm.ws/2013/papers/Lang.pdf}"
+    ],
+    
+    
+    "Query Compilation Options": [
+        "JIT Compilation"
+    ],
+    "Query Compilation Description": "HyPer uses Just-In-Time (JIT) code compilation to compile transacions and queries into efficient LLVM assembly code.",
+    "Query Compilation Citations": [
+        "{http://15721.courses.cs.cmu.edu/spring2017/papers/17-execution/p743-leis.pdf}",
+        "{http://hyper-db.de/index.html#summary}"
+    ],
+    
+    
+    "Website": "{http://hyper-db.de}",
+    
+    
+    "Programming Language": [
+        "C++"
+    ],
+    
+    
+    "Operating Systems": [
+        "Linux"
+    ],
+    
+    
+    "Project Type": [
+        "Academic"
+    ],
+    
+    
+    "Developer": "{Technical University of Munich; Head: Prof. Alfons Kemper, Prof. Thomas Neumann}",
+    
+    
+    "Start Date": "{2010-05}",
+    "Start Date Citations": [
+        "{http://hyper-db.de/HyperTechReport.pdf}",
+        "{http://hyper-db.de/index.html#publications}"
+    ],
+    
+    
+    "End Date": "{0000-00}",
+    "End Date Citations": [
+        "{URL1}",
+        "{URL2}"
+    ],
+    
+    
+    "Derived From": "{}",
+    
+    
+    "License": [
+        "Not Open Source"
+    ]
+}

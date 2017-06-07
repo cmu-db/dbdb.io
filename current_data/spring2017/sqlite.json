@@ -1,0 +1,257 @@
+{
+    "Email": "shuxinl@andrew.cmu.edu",
+
+    
+    "Name": "SQLite",
+    
+    
+    "Description": "SQLite is a self-contained, high-reliability, embedded, full-featured, public-domain SQL database engine. First released in August 2000, SQLite has several notable features which make it the most widely deployed database engine in the world.  (1) Portability. SQLite compiles and runs on mostly every mainstream operating systems on the market no matter whether it is commercial or free, desktop-level or embedded. SQL library has a small footprint of about 324 KB when all features are enabled. (2) Application interface. SQLite provides an SQL environment for a large number of applications to manipulate databases. It provides a set of call-level API for 30+ programming languages including mostly of popular languages. (3) Single database file. Each database is stored entirely in a single native file. The file format is cross-platform. (4) Transactional. SQLite implements serializable transactions that are ACID.",
+    "Description Citations": [
+        "https://sqlite.org/about.html",
+        "https://sqlite.org/whentouse.html"
+    ],
+    
+    
+    "History": "D. Richard Hipp, the founder of SQLite, started SQLite in the spring of 2000 when he was working for General Dynamics on contract with the United States Navy for developing a software of missile destroyers.  Informix database he used at that time needed a day of installation or upgrade so he decided to develop a new database which uses the GNU DBM hash library as a back end for completely no installation. In August 2000 SQLite 1.0 was released. In the following years, open source community continued writing extensions for SQLite. In Sept 2004, SQLite3, a major upgrade, was released, which added internationalization, binary large object (BLOB) support, revamped C API, and other major improvements and code cleanup. After that, many more advanced database features have been added and being added to SQLite, such as asynchronous I/O support, recursive triggers, etc.",
+    "History Citations": [
+        "https://sqlite.org/crew.html",
+        "Michael. Owens. The definitive guide to SQLite. Page 3. Apress."
+    ],
+    
+    
+    "System Architecture Options": [
+        "Shared-Disk",
+        "Shared-Nothing"
+    ],
+    "System Architecture Description": "By default, a thread establishes one connection to a database only. SQLite packages the entire database into a single file. That single file contains the database layout as well as the actual data held in all the different tables and indexes. Additionally, SQLite includes a special `shared-cache` mode intended for use in embedded servers. If shared-cache mode is enabled and the entire process establishes multiple connections to the same database, the connections share a single data and schema cache. This mode can be used on in-memory databases. For the inner system architecture, SQLite consists of eight separate modules grouped within three major subsystems. The top of the stack compiles the query, the middle executes it, and the bottom handles storage and interfacing with the operating system.",
+    "System Architecture Citations": [
+        "https://www.sqlite.org/arch.html",
+        "https://sqlite.org/sharedcache.html"
+    ],
+    
+    
+    "Query Interface Options": [
+        "SQL",
+        "Custom API"
+    ],
+    "Query Interface Description": "The standard SQLite commands are similar as SQL. It omits some features (RIGHT and FULL OUTER JOIN, GRANT and REVOKE, etc) while at the same time adding a few features of its own (PRAGMA, etc). SQLite command communicates with backend relational databases mainly by CREATE, SELECT, INSERT, UPDATE, DELETE and DROP. Other than the standard SQL language, the SQLite API provides a large number of host language bindings (C, C++, Perl, Python, etc).  SQLite API can be separated into two general parts: the core API which executes SQL commands, and the extension API which extends/customizes SQLite, through the creation of user-defined functions.",
+    "Query Interface Citations": [
+        "https://www.sqlite.org/lang.html",
+        "https://www.sqlite.org/cintro.html",
+        "Kreibich, Jay. Using SQLite. Page 125. O'Reilly Media, Inc., 2010."
+    ],
+    
+    
+    "Data Model Options": [
+        "Relational"
+    ],
+    "Data Model Description": "SQLite supports relational data model. SQLite is a complete relational database engine, which means that the application can access content using high-level queries. Relational databases have only one type of data container: the table. Other than relational data model, key/value data model was once supported by SQLite but removed later.",
+    "Data Model Citations": [
+        "https://sqlite.org/appfileformat.html",
+        "https://www.sqlite.org/cvstrac/wiki?p=KeyValueDatabase"
+    ],
+    
+    
+    "Storage Model Options": [
+        "N-ary Storage Model"
+    ],
+    "Storage Model Description": " A SQLite database stores data in tuple (row) oriented file abstraction on the top of a page oriented-file. For one entry in the page, it stores all of the attributes for a single tuple contiguously. SQLite uses a single B+ tree to organize all tuples of a table. All of these trees are spread across database pages, and they can be interspersed.",
+    "Storage Model Citations": [
+        "Haldar, Sibsankar. Inside sqlite. Page 51. O'Reilly Media, Inc., 2007."
+    ],
+    
+        
+    "Storage Architecture Options": [
+        "Disk-oriented"
+    ],
+    "Storage Architecture Description": "SQLite is a disk-oriented database engine. Most SQLite databases stored in a single ordinary disk file. However, SQL also supports in-memory databases. The special filename `:memory:` indicates a in-meory database. If the database name `:memory:` is given, an in-memory database will be created. In-memory databases live in the cache which makes operations extremely fast and have no backing store. Also, an in-memory database can be copied to disk (or disk to memory) using the database core API. However, in-memory storage is not a major feature of SQLite so some drawbacks of this technique are not fully avoided, for example, data backup and recovery.",
+    "Storage Architecture Citations": [
+        "https://sqlite.org/inmemorydb.html",
+        "Haldar, Sibsankar. SQLite Database System Design and Implementation. Page 240. Sibsankar Haldar (2015)."
+    ],
+    
+    
+    "Concurrency Control Options": [
+        "Two-Phase Locking (Deadlock Detection)",
+        "Two-Phase Locking (Deadlock Prevention)"
+    ],
+    "Concurrency Control Description": "SQLite is serverless. This means there is no separate server process to schedule read/write on database files. This results in relative poor concurrency performance compared to other client/server database systems, such as PostgreSQL, MySQL. For the concurrency control model, SQLite follows strict two phase locking, and implements a very simple database-level locking protocol which allows multiple readers but only one writer in one database at a time. As for the implementation details, locking and concurrency control are handled by the pager module. A pager's job is to fetch a particular page in the database from disk to the memory buffer, and prevent writes from any other transactions using five locking state scheme when a page is written. ",
+    "Concurrency Control Citations": [
+        "https://sqlite.org/lockingv3.html",
+        "https://sqlite.org/whentouse.html",
+        "https://www.sqlite.org/serverless.html"
+    ],
+    
+    
+    "Isolation Levels Options": [
+        "Read Uncommitted",
+        "Snapshot Isolation",
+        "Serializable"
+    ],
+    "Isolation Levels Description": "The default isolation level in SQLite is SERIALIZABLE. SQLite implements serializable transactions by actually serializing the writes. Changes made in one database connection are invisible to all other database connections prior to commit no matter whether they have a shared cache or not. Besides SERIALIZABLE, SQLite also supports other isolation levels by setting the parameters. If WAL mode is enabled by running `PRAGMA journal_mode=WAL`, SQLite exhibits SNAPSHOT ISOLATION (SI) which guarantees that all reads made in a transaction see a consistent snapshot of the database that existed at the time the transaction started. However if shared cache database connections with PRAGMA read_uncommitted is turned on (`PRAGMA read_uncommitted = True`), then the isolation level becomes READ UNCOMMITTED when the process of one database can see uncommitted changes on a different database connection.",
+    "Isolation Levels Citations": [
+        "https://www.sqlite.org/isolation.html",
+        "https://www.sqlite.org/sharedcache.html#read_uncommitted_isolation_mode"
+    ],
+    
+    
+    "Indexes Options": [
+        "B+Tree",
+        "R-Tree"
+    ],
+    "Indexes Description": "SQLite uses B-tree for the default indexing data structure. The users can create indexes using SQL syntax `CREATE INDEX` followed by the name of the new index. Besides, SQLite supports R*Tree for doing range queries if `DSQLITE_ENABLE_RTREE=1` flag is set before compilation. The SQLite R*Tree module is implemented as a virtual table. After creating virtual tables by `CREATE VIRTUAL TABLE demo_index USING rtree()`, then the users can efficiently do inequality queries against the coordinate ranges. SQLite supports primary key indexing, secondary key indexing, derived key indexing, and partial indexing. Any index that includes the WHERE clause at the end is considered to be a partial index. Indexes that omit the WHERE clause are ordinary full indexes. ",
+    "Indexes Citations": [
+        "https://www.sqlite.org/fileformat.html#b_tree_pages",
+        "https://www.sqlite.org/rtree.html",
+        "https://www.sqlite.org/partialindex.html",
+        "https://www.sqlite.org/expridx.html"
+    ],
+    
+    
+    "Foreign Keys Options": [
+        "Supported"
+    ],
+    "Foreign Keys Description": "Like most databases, SQLite supports relational integrity through the mechanism of foreign key constraints. To enable foreign key support, the library must be compiled with neither `SQLITE_OMIT_FOREIGN_KEY` or `SQLITE_OMIT_TRIGGER` defined and also `PRAGMA foreign_keys = ON` must be set at runtime. Besides one foreign key support, SQLite also has advanced features, such as composite foreign key constraint, deferred foreign key constraints, `ON DELETE` and `ON UPDATE` actions. Those features are enabled and defined during foreign key creation in the create table statement. ",
+    "Foreign Keys Citations": [
+        "https://www.sqlite.org/foreignkeys.html"
+    ],
+    
+    
+    "Logging Options": [
+        "Physical Logging"
+    ],
+    "Logging Description": "SQLite uses page-level physical logging for undo purposes. SQLite logging is inefficient in memory usage: the modification on even a single byte on a page results in an image of an entire database page in the log record. On the other hand, recovery becomes very simple. In the SQLite 3.7.0 release, Write-Ahead Logging (WAL) was introduced which brings more concurrency and performance speedup. Unlike rollback journal, WAL scheme preserves the original content in the database file and appends the changes into a separate WAL file. A COMMIT action changes to being a special record written to the WAL to indicate the preceding changes are in fact complete and to be honored from an ACID perspective. To activate WAL, set `PRAGMA journal_mode=WAL`.",
+    "Logging Citations": [
+        "https://www.sqlite.org/wal.html",
+        "Haldar, Sibsankar. SQLite Database System Design and Implementation. Page 61. Sibsankar Haldar (2015)."
+    ],
+    
+    
+    "Checkpoints Options": [
+        "Blocking",
+        "Non-Blocking"
+    ],
+    "Checkpoints Description": "In SQLite, the database system does a checkpoint automatically when the WAL file reaches a threshold size of 1000 pages. The WAL uses a checkpoint function to write changes back to the database. SQLite C interface provides some checkpoint customizations on the size of WAL log in frames, total number of frames checkpointed, and checkpoint mode.  SQLite has four checkpoint modes for different checkpoint options. The non-blocking mode `SQLITE_CHECKPOINT_PASSIVE` checkpoints as many frames as possible without waiting for any database readers or writers to finish. The other three blocking mode `SQLITE_CHECKPOINT_FULL`, `SQLITE_CHECKPOINT_RESTART` and `SQLITE_CHECKPOINT_TRUNCATE` obtain the exclusive 'writer' lock on the database file until there is no database writer and all readers are reading from the most recent database snapshot.",
+    "Checkpoints Citations": [
+        "https://www.sqlite.org/wal.html",
+        "https://www.sqlite.org/c3ref/wal_checkpoint_v2.html"
+    ],
+    
+    
+    "Views Options": [
+        "Virtual Views"
+    ],
+    "Views Description": "SQLite support virtual views by which populate the logical table-like structures by using `CREATE VIEW` statement on the fly by a given query. Whether SQLite supports materialized views is a bit controversial. According to the SQLite official document, SQLite supports 'Materializations Of Views And Subqueries' by storing the subquery results in a temporary table. However, the temporary tables are automatically deleted at the conclusion of the query. Thus, what other DBMSes call 'materialized views' are not supported in SQLite because the results of a query are not physically stored in disk. ",
+    "Views Citations": [
+        "https://www.sqlite.org/tempfiles.html#materializations_of_views_and_subqueries",
+        "http://stackoverflow.com/questions/1374363/how-can-a-materialized-view-be-created-in-sqlite"
+    ],
+    
+    
+    "Query Execution Options": [
+        "Tuple-at-a-Time Model"
+    ],
+    "Query Execution": "SQLite supports Volcano-style (tuple-at-a-time) query processing. More specifically, each `next()` in a physical operator recursively invokes `next()` of child operators, and then it finally produces a single tuple. There is no materials available for intra-query parallelism of SQLite online. It is assumed that SQLite does not support intra-query parallelism. All in all, the schemes of query execution of SQLite is not that CPU friendly compared to some modern database systems.",
+    "Query Execution Citations": [
+        "https://chatwithengineers.com/2016/08/29/a-survey-of-query-execution-engines-from-volcano-to-vectorized-processing/"
+    ],
+    
+    
+    "Stored Procedures Options": [
+        "Not Supported"
+    ],
+    "Stored Procedures Description": "According to the SQLite official document,  'SQLite has had to sacrifice other characteristics that some people find useful, such as high concurrency, fine-grained access control, a rich set of built-in functions, **stored procedures**, esoteric SQL language features, XML and/or Java extensions, tera- or peta-byte scalability, and so forth.' Therefore, SQLite does not support stored procedures. However SQLite is extendable with user defined functions (UDF) in many mainstream language (PHP, Python, Perl, C#, Javascript, Ruby etc). ",
+    "Stored Procedures Citations": [
+        "http://www.sqlite.org/whentouse.html"
+    ],
+
+    
+    "Joins Options": [
+        "Nested Loop"
+    ],
+    "Joins Description": "SQLite computes joins using nested loops. One loop for each table in the join. The left-most table in the `FROM` clause forms the outer loop; The right-most table forms the inner loop. One of the criticisms of SQLite is that it is slow to do joins.",
+    "Joins Citations": [
+        "https://sqlite.org/queryplanner-ng.html#_query_planning_in_sqlite",
+        "Haldar, Sibsankar. SQLite Database System Design and Implementation. Page 180. Sibsankar Haldar (2015)."
+    ],
+    
+    
+    "Query Compilation Options": [
+        "Code Generation"
+    ],
+    "Query Compilation Description": "The SQL complier of SQLite consists of Tokenizer, Parser, and Code Generator. After tokenizing and parsing SQL statements, the code generator translates the parse tree into a kind of assembly language (bytecode) specific to SQLite. This assembly language consists of instructions that are executable by its virtual machine. The code generator’s sole job is to convert the parse tree into a complete mini-program written in this assembly language and to hand it off to the virtual machine for processing. Recently, A JIT for SQLite was raised and developed for reducing execution time of standalone SQL queries.",
+    "Query Compilation Citations": [
+        "https://www.sqlite.org/arch.html",
+        "http://soft-dev.org/talks/2015/jit-sqlite-truffle.pdf",
+        "Michael. Owens. The definitive guide to SQLite. Page 6. Apress."
+    ],
+    
+    
+    "Website": "https://sqlite.org",
+    
+    
+    "Programming Language": [
+        "C",
+        "C#",
+        "C++",
+        "D",
+        "Delphi",
+        "Go",
+        "Haskell",
+        "Java",
+        "Javascript",
+        "Lisp",
+        "Lua",
+        "Ocaml",
+        "Objective C",
+        "PHP",
+        "Perl",
+        "Python",
+        "R",
+        "Ruby",
+        "Scheme",
+        "Smalltalk",
+        "Tcl"
+    ],
+    
+    
+    "Operating Systems": [
+        "Android",
+        "BSD",
+        "FreeBSD",
+        "Linux",
+        "OS X",
+        "Solaris",
+        "Unix",
+        "VxWorks",
+        "Windows",
+        "iOS"
+    ],
+    
+    
+    "Project Type": [
+    	"Other"
+    ],
+    
+    
+    "Developer": "D. Richard Hipp, Dan Kennedy, Joe Mistachkin",
+    
+    
+    "Start Date": "05/29/2000",
+    "Start Date Citations": [
+        "https://www.sqlite.org/crew.html"
+    ],
+    
+    
+    "End Date": "N/A",
+    "End Date Citations": [
+    ],
+    
+    
+    "Derived From": "N/A",
+    
+    
+    "License": [
+    	"Public Domain"
+    ]
+}

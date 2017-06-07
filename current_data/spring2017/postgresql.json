@@ -1,0 +1,235 @@
+{
+    "Email": "{haoranw2@andrew.cmu.edu}",
+
+    
+    "Name": "{PostgreSQL}",
+    
+    
+    "Description": "**PostgreSQL is an object-relational database based on POSTGRES, developed from University of California at Berkeley. It's ACID-compilant and supports materialized view, stored functions, triggers as well as foreign keys. PostgreSQL is a free and open-source software under the PostgreSQL Liscense. It's currently maintained by a group of companies as well as individual contributors.**",
+    "Description Citations": [
+        "{https://www.postgresql.org/}",
+        "{https://en.wikipedia.org/wiki/PostgreSQL}"
+    ],
+    
+    
+    "History": "**PostgreSQL is derived from POSTGRES, developed by University of California at Berkeley. Postgres was created by Michael Stonebraker as a follow up project to Ingres and released in 1994. Two phd students, Andrew Yu and Jolly Chen, later brought a subset of SQL to Postgres and renamed the system to Postgres95. The system was then maintained and developed in the open source world outside of Berkeley, and finally renamed as PostgreSQL. **",
+    "History Citations": [
+        "{https://www.postgresql.org/about/history/}",
+        "{https://en.wikipedia.org/wiki/PostgreSQL}"
+    ],
+    
+    
+    "System Architecture Options": [
+        "Shared-Disk"
+    ],
+    "System Architecture Description": "**PostgreSQL doesn't support multi-master shared-storage but cold standby failure for shared-storage. Which means a secondary server would be the backup of another identical primary system and it's installed and configured once the primary server breaks down. Using PostgreSQL in multi-master shared storage could result in data corruption. Thus, when a primary server is running, the standby server should never access the shared storage.**",
+    "System Architecture Citations": [
+        "{https://wiki.postgresql.org/wiki/Shared_Storage}",
+        "https://www.postgresql.org/docs/9.5/static/different-replication-solutions.html{}"
+    ],
+    
+    
+    "Query Interface Options": [
+        "PL/SQL"
+    ],
+    "Query Interface Description": "**PostgreSQL covers a wide range of SQL standards, including operations in trasaction-level such as `ABORT`, `BEGIN` and `END`, the Data Definition Languge to create/modify/drop tables, like `CREATE`, `DROP` and `ALTER` as well as Data Manipulation Language, i.e. `SELECT`, `INSERT` and `DELETE`. It also supports procedural languages to create user-defined functions through multiple languages, such as Tcl, Perl and Python.**",
+    "Query Interface Citations": [
+        "{https://www.postgresql.org/docs/9.6/static/sql.html}",
+        "{https://www.postgresql.org/docs/9.6/static/xplang.html}"
+    ],
+    
+    
+    "Data Model Options": [
+        "Relational"
+    ],
+    "Data Model Description": "**PostgreSQL is an object-relational database, i.e. similar to relational database with an object-oriented database model, which means objects are supported in database schemas and query languages. The object-relational database inherits the relational mathematical base with the flexibility to define complex datatypes. Particularly, new types of all objects inside PostgreSQL can be created, including: conversion, cast, functions, data types, domains, procedure languages and indexes.**",
+    "Data Model Citations": [
+        "{https://www.postgresql.org/docs/9.6/static/intro-whatis.html}",
+        "{https://en.wikipedia.org/wiki/PostgreSQL}"
+    ],
+    
+    
+    "Storage Model Options": [
+        "N-ary Storage Model"
+    ],
+    "Storage Model Description": "** PostgreSQL is a row-oriented database server. Every table and its index is stored into a file separately. The file is named by its table or index's filenode number defined in the catalog. Along with the main file, a free space map is also kept to store informations about free space available in the relation. The file is divided to seperate segments once its size is larger than 1 GB.**",
+    "Storage Model Citations": [
+        "{https://www.postgresql.org/docs/9.3/static/storage-file-layout.html}"
+    ],
+    
+        
+    "Storage Architecture Options": [
+        "Disk-oriented"
+    ],
+    "Storage Architecture Description": "**PostgreSQL stores the table and its index in disk. Memory is used as shared-buffer to accelerate queries. The default size of size of memory is 128 megabytes, which can be changed in runtime config. The user could also changes the memory dedicated for internal operations such as sort, in case the default 4 megabytes are insufficient.**",
+    "Storage Architecture Citations": [
+        "{https://www.postgresql.org/docs/9.4/static/storage-file-layout.html}",
+        "{https://www.postgresql.org/docs/9.5/static/runtime-config-resource.html}"
+    ],
+    
+    
+    "Concurrency Control Options": [
+        "Multi-version Concurrency Control (MVCC)"
+    ],
+    "Concurrency Control Description": "**PostgreSQL applies Multi-version Concurrency Control for data consistency. For MVCC, not only the current status but also previous values of data are visible to the transaction, which provides transaction isolations. The primary advantage of MVCC over locking is that the writing operation won't conflict with the reading operation on the same block of data. Thus, MVCC reduces the lock contention to achieve high throughput.**",
+    "Concurrency Control Citations": [
+        "{https://www.postgresql.org/docs/9.5/static/mvcc-intro.html}"
+    ],
+    
+    
+    "Isolation Levels Options": [
+        "Read Uncommitted",
+        "Read Committed",
+        "Repeatable Read",
+        "Serializable"
+    ],
+    "Isolation Levels Description": "**User could requst Read Uncommitted, Read Committed, Repeatable Read and Serializable transaction isolation levels in PostgreSQL. However, PostgreSQL only implements three of them. When requesting Read Uncommitted, postgres actually does Read Committed and Dirty Read won't happen. The reason of PostgreSQL to support only three isolation levels is to facilitate the multiversion concurrency control architecture**",
+    "Isolation Levels Citations": [
+        "{https://www.postgresql.org/docs/9.1/static/transaction-iso.html}",
+        "{http://bajis-postgres.blogspot.com/2013/12/types-of-read-and-levels-of-transaction.html}"
+    ],
+    
+    
+    "Indexes Options": [
+        "Hash Table",
+        "Other"
+    ],
+    "Indexes Description": "**PostgreSQL provides the index methods including B-tree, hash, GiST and Gin. User can specify the method through an argument when creating the table. An extra parameter is required for those four methods. User needs to decide how full the index method packs the index page for B-tree, hash and GiST. For heavily updated workload, the parameter should be lower than the read-only workload to reduce the frequency of page split while sacrificing more space. For Gin index, users need to specify whether its fast update option is enabled.**",
+    "Indexes Citations": [
+        "{https://www.postgresql.org/docs/9.1/static/sql-createindex.html}",
+        "{https://devcenter.heroku.com/articles/postgresql-indexes}"
+    ],
+    
+    
+    "Foreign Keys Options": [
+        "Supported"
+    ],
+    "Foreign Keys Description": "**PostgreSQL allows user to define a foreign key constraint, which means the values in that column match the keys in other tables. PostgreSQL also supports a foreign key to contain multiple columns. Besides, a tabel is allowed to define multiple foreign key constraints in PostgreSQL, which is usually used in many-to-many relations among the tables. When the table contains the primary key, which is referenced as foreign key in another table, is deleted, PostgreSQL provides several options, including a) Disallow deleting the referenced table b) Delete the forieng key table as well c) something else.",
+    "Foreign Keys Citations": [
+        "{https://www.postgresql.org/docs/9.2/static/ddl-constraints.html}",
+        "{http://www.postgresqltutorial.com/postgresql-foreign-key/}"
+    ],
+    
+    
+    "Logging Options": [
+        "Physical Logging"
+    ],
+    "Logging Description": "**PostgreSQL allows users to control what SQL transcations are logged. The options are `none`, `ddl`, `mod` and `all`. For example, `ddl` option would only log the transactions that modify the database, such as `CREATE`, `ALTER` and `Drop` statements. While `mod` option record all `ddl` transactions with data-modifying statements such as `INSERT`, `UPDATE` and `DELETE`. The logging takes place when the execute message of a transaction is received.**",
+    "Logging Citations": [
+        "{https://www.postgresql.org/docs/9.5/static/runtime-config-logging.html}"
+    ],
+    
+    
+    "Checkpoints Options": [
+        "Consistent"
+    ],
+    "Checkpoints Description": "**PostgreSQL supports `pg_dump` to extract a consistent database into a file while concurrent transactions are running. While `pg_dump` only outputs a single database, `pg_dumpall` is used to dump all databases. For checkpoints, PostgreSQL supports periodic checkpointing as well as immediate checkpointing, which both guarantee that previous changes would be written to disk.**",
+    "Checkpoints Citations": [
+        "{https://www.postgresql.org/docs/current/static/app-pgdump.html}",
+        "{https://www.postgresql.org/docs/9.5/static/wal-configuration.html}"
+    ],
+    
+    
+    "Views Options": [
+        "Virtual Views",
+        "Materialized Views"
+    ],
+    "Views Description": "**PostgreSQL supports both virtual view as well as materialized view. For the virtual one, the create query is run everytime the view is referenced in a trasaction. For materialized view, the query is executed once the command is issued. The materialized view table may be refreshed later by `REFRESHING MATERIALIZED VIEW` command. PostgreSQL also replaces the view if the same name already existed.**",
+    "Views Citations": [
+        "{https://www.postgresql.org/docs/9.2/static/sql-createview.html}",
+        "{https://www.postgresql.org/docs/9.3/static/sql-creatematerializedview.html}"
+    ],
+    
+    
+    "Query Execution Options": [
+        "Tuple-at-a-Time Model"
+    ],
+    "Query Execution": "**PostgreSQL applies tuple-at-a-time model for query execution. When the plan is executed, it fetches one tuple at a time from the top operator, which acquires a single tuple to generate the requested one from its children operators. This fetching processs happens all the way down to the bottom operators.**",
+    "Query Execution Citations": [
+        "{http://etutorials.org/SQL/Postgresql/Part+I+General+PostgreSQL+Use/Chapter+4.+Performance/Understanding+How+PostgreSQL+Executes+a+Query/}",
+        "{http://www.neilconway.org/talks/executor.pdf}"
+    ],
+    
+    
+    "Stored Procedures Options": [
+        "Supported"
+    ],
+    "Stored Procedures Description": "**A stored procedure is defined throught `CREATE FUNCTION` in PostgreSQL, which allows users to write multiple queries without round trips in a single function. A stored procedure usually returns no value, which means the return value should be specified as NULL. In other cases, which the procedure returns a result set, user should specify the return type as refcursor.**",
+    "Stored Procedures Citations": [
+        "{http://www.postgresqltutorial.com/introduction-to-postgresql-stored-procedures}",
+        "{https://www.tutorialspoint.com/postgresql/postgresql_functions.htm}"
+    ],
+
+    
+    "Joins Options": [
+        "Nested Loop",
+        "Hash",
+        "Sort-Merge"
+    ],
+    "Joins Description": "**PostgreSQL supports three join implementations: Nested-Loop, Hash and Sort-Merge. When number of join operations is less than a threshold, the default value is 12, PostgreSQL would conduct a near-exaustive to find the cheapest strategy, i.e. all possible plans are genearated to select the best one. When the threshold is exceeded, which suggests searching would be too time-consuming, PostgreSQL would apply heurisitc algorithms to decide join plan.**",
+    "Joins Citations": [
+        "{https://www.postgresql.org/docs/9.5/static/planner-optimizer.html}"
+    ],
+    
+    
+    "Query Compilation Options": [
+        "Not Supported"
+    ],
+    "Query Compilation Description": "**PostgreSQL doesn't mention any query compilation in its official documentation. It only describes some generic algorithms for query optimizer. While some researchers do implement LLVM JIT Compilation for PostgreSQL that the expressions in every query are compiled. Their JIT implementation might be included into the master in the future.**",
+    "Query Compilation Citations": [
+        "{https://www.postgresql.org/docs/9.3/static/index.html}",
+        "{https://www.postgresql.org/message-id/CADviLuNjQTh99o6E0LTi0Ygks%3DnaW8SXHmgn%3D8P%2BaaBXKXa0pA%40mail.gmail.com}"
+    ],
+    
+    
+    "Website": "{https://www.postgresql.org/}",
+    
+    
+    "Programming Language": [
+        "C"
+    ],
+    
+    
+    "Operating Systems": [
+        "Linux",
+        "Windows",
+        "FreeBSD",
+        "OpenBSD",
+        "NetBSD",
+        "OS X",
+        "AIX",
+        "HP-UX",
+        "Solaris",
+        "UnixWare"
+    ],
+    
+    
+    "Project Type": [
+        "Mixed"
+    ],
+    
+    
+    "Developer": "{Micheal Stonebraker}",
+    
+    
+    "Start Date": "{1986-MM}",
+    "Start Date Citations": [
+        "{https://www.postgresql.org/about/history/}",
+        "{https://en.wikipedia.org/wiki/PostgreSQL}"
+    ],
+    
+    
+    "End Date": "{2017-05}",
+    "End Date Citations": [
+        "{https://www.postgresql.org/about/history/}",
+        "{https://en.wikipedia.org/wiki/PostgreSQL}"
+    ],
+    
+    
+    "Derived From": "{University of California at Berkeley}",
+    
+    
+    "License": [
+        "PostgreSQL License"
+    ]
+}

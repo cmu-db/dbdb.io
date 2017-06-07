@@ -1,0 +1,195 @@
+{
+    "Email": "zhuoyinw@andrew.cmu.edu",
+
+
+    "Name": "Allison Wang",
+
+
+    "Description":
+    "Druid is an open-source distributed real-time data store designed for business intelligence (OLAP) queries.  It is optimized for time series scans and aggregations. It supports loading data from both deep storage system like HDFS and streaming sources like Kafka. Internally, Druid uses Zookeeper for cluster node coordinations,  a relational database like MySQL or Postgres to keep track of metadata, and a deep storage system such as HDFS for storing data. Druid also has low latency between the event creation and when it can be queried, which makes Druid desirable for real-time analytics. Druid stores incoming data in a unique format called segment to allow fast aggregations for arbitrary dimensionalities of data. It is used by various companies including Netflix,  eBay,  Airbnb, PayPal and Alibaba. ",
+    "Description Citations": [
+        "http://druid.io/druid.html",
+        "http://druid.io/druid-powered.html"
+    ],
+
+
+    "History": "Druid was originally developed by engineers at Metamarkets to solve the problem of analyzing high dimensional data set in real-time. Scan and aggregation of billions of records in traditional relational databases are not fast enough, and pre-computing aggregations with NoSQL architecture requires unacceptably long processing time which creates high latency between event occurrence and its availability for querying. Druid was released in April, 2011 to address the need for fast, real-time analytics for high dimensional time series data. It was open sourced in Oct, 2012 and is under active developments.",
+    "History Citations": [
+        "http://druid.io/blog/2011/04/30/introducing-druid.html"
+    ],
+
+
+    "System Architecture Options": [
+        "Shared-Nothing"
+    ],
+    "System Architecture Description": "",
+    "System Architecture Citations": [
+        "http://static.druid.io/docs/druid.pdf"
+    ],
+
+
+    "Query Interface Options": [
+        "Custom API"
+    ],
+    "Query Interface Description": "Druid uses customized query interface expressed in JSON for metadata, aggregation and search.",
+    "Query Interface Citations": [
+        "http://druid.io/docs/latest/querying/querying.html"
+    ],
+
+
+    "Data Model Options": [
+        "Column Family"
+    ],
+    "Data Model Description": "",
+    "Data Model Citations": [
+    ],
+
+
+    "Storage Model Options": [
+        "Decomposition Storage Model"
+    ],
+    "Storage Model Description": "Druid uses segments files to stores its index. A segment file is a basically a columnar storage model consists of three basic column types: timestamp columns, dimension columns and metric columns. This structure allows fast aggregation across different fields.",
+    "Storage Model Citations": [
+        "http://druid.io/docs/latest/design/segments.html"
+    ],
+
+
+    "Storage Architecture Options": [
+        "Hybrid"
+    ],
+    "Storage Architecture Description":
+      "Druid was built with all in-memory. However such choice is costly given large amount of data. It then switches to use a combination of memory and disk pages and allow users to customize the behavior. ",
+    "Storage Architecture Citations": [
+        "http://druid.io/faq.html",
+        "http://druid.io/docs/latest/design/design.html"
+    ],
+
+
+    "Concurrency Control Options": [
+        "Multi-version Concurrency Control (MVCC)"
+    ],
+    "Concurrency Control Description": "",
+    "Concurrency Control Citations": [
+        "http://druid.io/blog/2012/10/24/introducing-druid.html"
+    ],
+
+
+    "Isolation Levels Options": [
+        "Not Supported"
+    ],
+    "Isolation Levels Description": "",
+    "Isolation Levels Citations": [],
+
+
+    "Indexes Options": [
+        "Other"
+    ],
+    "Indexes Description": "Druid index documents into data segment when data are first ingested.",
+    "Indexes Citations": [],
+
+
+    "Foreign Keys Options": [
+        "Not Supported"
+    ],
+    "Foreign Keys Description": "",
+    "Foreign Keys Citations": [],
+
+
+    "Logging Options": [
+        "Other"
+    ],
+    "Logging Description": "Druid emits logs about internal states periodically for debugging purposes.",
+    "Logging Citations": [
+        "http://druid.io/docs/latest/dependencies/deep-storage.html"
+    ],
+
+
+    "Checkpoints Options": [
+        "Not Supported"
+    ],
+    "Checkpoints Description": "",
+    "Checkpoints Citations": [],
+
+
+    "Views Options": [
+        "Not Supported"
+    ],
+    "Views Description": "",
+    "Views Citations": [],
+
+
+    "Query Execution Options": [
+        "Tuple-at-a-Time Model"
+    ],
+    "Query Execution": "",
+    "Query Execution Citations": [],
+
+
+    "Stored Procedures Options": [
+        "Not Supported"
+    ],
+    "Stored Procedures Description": "",
+    "Stored Procedures Citations": [],
+
+
+    "Joins Options": [
+        "Not Supported"
+    ],
+    "Joins Description": "",
+    "Joins Citations": [
+        "http://druid.io/docs/latest/querying/joins.html"
+    ],
+
+
+    "Query Compilation Options": [
+        "Not Supported"
+    ],
+    "Query Compilation Description": "",
+    "Query Compilation Citations": [],
+
+
+    "Website": "http://druid.io/",
+
+
+    "Programming Language": [
+        "Java"
+    ],
+
+
+    "Operating Systems": [
+        "AIX",
+        "BSD",
+        "FreeBSD",
+        "HP-UX",
+        "Linux",
+        "NetBSD",
+        "OS X",
+        "Solaris",
+        "Unix"
+    ],
+
+
+    "Project Type": [
+        "Other"
+    ],
+
+
+    "Developer": "Eric Tschetter, Fangjin Yang",
+
+
+    "Start Date": "{2011-04}",
+    "Start Date Citations": [
+        "http://druid.io/blog/2011/04/30/introducing-druid.html"
+    ],
+
+    "End Date": "{YYYY-MM}",
+    "End Date Citations": [],
+
+
+    "Derived From": "Google’s Dremel and PowerDrill",
+
+
+    "License": [
+        "Apache v2"
+    ]
+}

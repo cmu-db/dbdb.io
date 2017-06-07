@@ -1,0 +1,226 @@
+{
+    "Email": "{boweic@anrew.cmu.edu}",
+
+    
+    "Name": "{Bowei Chen}",
+    
+    
+    "Description": "**Greenplum database is an open source data warehouse. It uses massive parallel processing technique to provide large-scale analytics on pentabyte scale data volumns. It is powered by an advanced cost-based cascade framework query optimizer to achieve fast analytical query execution.**",
+    "Description Citations": [
+        "{http://greenplum.org}",
+        "{https://en.wikipedia.org/wiki/Greenplum#Technology}"
+    ],
+    
+    
+    "History": "**Greenplum is found in September 2003 by Luke Lonergan and Scott Yara. The company releases the database management system software based on PostgreSQL in 2005. The company is aquired by EMC in 2010, and its database management system is known as Pivitol Greenplum Database. The company became part of the Pivitol Software in 2012.**",
+    "History Citations": [
+        "{https://en.wikipedia.org/wiki/Greenplum#Technology}"
+    ],
+    
+    
+    "System Architecture Options": [
+        "Shared-Nothing"
+    ],
+    "System Architecture Description": "**Greenplum uses massive parallel processing architecture to execute large-scale analytical queries, the workload is distributed among nodes to parallelize query execution. Each machine runs an PostgreSQL database instance, which is modified to support parallel query execution. All the nodes are connected via Greenplum interconnect(the netwrok layer) to perform the behaviour as a single database instance. Greenplum differs from Postgres in 3 ways, first it leverages Orca as a query planner, second it supports column store, third it has declarative partitioning and sub-partitioning. **",
+    "System Architecture Citations": [
+        "{http://greenplum.org/docs/admin_guide/intro/arch_overview.html}"
+    ],
+    
+    
+    "Query Interface Options": [
+        "SQL",
+        "PL/SQL"
+    ],
+    "Query Interface Description": "**Greenplum supports all features in SQL 1992 standard, most of the features in SQL 1999 standard and some features in SQL 2003 standard. Users interact with Greenplum in the same way as they interact with PostgreSQL. They can directly enter query statements in SQL clients such as psql to perform view, change and analyze in the database. The system also support PL/pgSQL, but features such as triggers, scrollable cursors and updatable cursors are not supported.**",
+    "Query Interface Citations": [
+        "{http://greenplum.org/docs/ref_guide/extensions/pl_sql.html#topic6}",
+        "{https://gpdb.docs.pivotal.io/4330/admin_guide/query.html}",
+        "{http://greenplum.org/docs/admin_guide/intro/arch_overview.html}",
+        "{https://gpdb.docs.pivotal.io/4320/ref_guide/feature_summary.html}"
+    ],
+    
+    
+    "Data Model Options": [
+        "Relational"
+    ],
+    "Data Model Description": "**Greenplum is a relational database. It is implemented based on PostgreSQL**",
+    "Data Model Citations": [
+        "{http://greenplum.org/docs/admin_guide/intro/arch_overview.html}"
+    ],
+    
+    
+    "Storage Model Options": [
+        "N-ary Storage Model",
+        "Decomposition Storage Model",
+        "Custom"
+    ],
+    "Storage Model Description": "**Greenplum supports both the N-ary storage model and Decomposition storage model. Clients can specify the storage model options using WITH clause of the CREATE TABLE command. The default is row-oriented(N-ary) storage model.**",
+    "Storage Model Citations": [
+        "{http://greenplum.org/docs/admin_guide/ddl/ddl-storage.html}"
+    ],
+    
+        
+    "Storage Architecture Options": [
+        "Disk-oriented"
+    ],
+    "Storage Architecture Description": "**Greenplum takes the disk-oriented storage architecture from Postgres.**",
+    "Storage Architecture Citations": [
+    ],
+    
+    
+    "Concurrency Control Options": [
+        "Multi-version Concurrency Control (MVCC)"
+    ],
+    "Concurrency Control Description": "**Greenplum uses PostgreSQL MVCC as the concurrency control scheme for each database instances. Each transaction reads from a consistent snapshot that's not modified by any concurrent transactions. MVCC generally performs better than lock-based concurrency control in Greenplum because transactions performing read will not block transactions updating the table.**",
+    "Concurrency Control Citations": [
+        "{http://greenplum.org/docs/admin_guide/dml.html}",
+        "{http://greenplum.org/docs/admin_guide/intro/about_mvcc.html}"
+    ],
+    
+    
+    "Isolation Levels Options": [
+        "Read Uncommitted",
+        "Read Committed",
+        "Serializable"
+    ],
+    "Isolation Levels Description": "**Greenplum supports three isolation levels, read uncommitted, read committed and serializable. The default mode is read committed, which allows more concurrency than serializable. Requesting repeatable read in Greenplum will produce an error.**",
+    "Isolation Levels Citations": [
+        "http://greenplum.org/docs/admin_guide/intro/about_mvcc.html"
+    ],
+    
+    
+    "Indexes Options": [
+        "B+Tree",
+        "BitMap"
+    ],
+    "Indexes Description": "**Greenplum supports PostgreSQL index type B-tree and Gist. B-tree index is the default index type as it fit with most common situations. Bitmap index is also supported in Greenplum to accelerate analytics queries in data warehouse applications and desicion support systems.**",
+    "Indexes Citations": [
+        "{http://greenplum.org/docs/admin_guide/ddl/ddl-index.html}"
+    ],
+    
+    
+    "Foreign Keys Options": [
+        "Supported"
+    ],
+    "Foreign Keys Description": "**Greenplum supports all features in SQL1992 standard, users can define foreign keys in Greenplum and it will be stored in the system catalog.**",
+    "Foreign Keys Citations": [
+        "{https://gpdb.docs.pivotal.io/4320/ref_guide/feature_summary.html}"
+    ],
+    
+    
+    "Logging Options": [
+        "Command Logging",
+        "Other"
+    ],
+    "Logging Description": "**Greenplum achieves fault tolerance for data tables via segment mirroring. Each table is divided into several segments, and each segment has two copies, primary and mirror, stored in different nodes. The primary and mirror perform the same operation and keeps the same data. For master nodes, they also do mirroring by storing transaction level logging in a stand-by node. DBAs are able to view the status of the database by checking the command logging.**",
+    "Logging Citations": [
+        "{https://gpdb.docs.pivotal.io/4370/admin_guide/highavail/topics/g-overview-of-high-availability-in-greenplum-database.html}",
+        "{https://gpdb.docs.pivotal.io/4360/gp_toolkit-topic16.html}"
+    ],
+    
+    
+    "Checkpoints Options": [
+        "Non-Blocking",
+        "Consistent"
+    ],
+    "Checkpoints Description": "**Greenplum performs checkpoint in the same way as Postgres.**",
+    "Checkpoints Citations": [
+        "{https://www.postgresql.org/docs/9.2/static/wal-configuration.html}"
+    ],
+    
+    
+    "Views Options": [
+        "Virtual Views"
+    ],
+    "Views Description": "**Views are not materialized, they are generated every time the query executes.**",
+    "Views Citations": [
+        "{https://gpdb.docs.pivotal.io/4370/ref_guide/sql_commands/CREATE_VIEW.html}"
+    ],
+    
+    
+    "Query Execution Options": [
+        "Vectorized Model"
+    ],
+    "Query Execution": "**Greenplum follows the volcano style pull-based execution model and uses vectorized model. The database supports intra-query parallelism. Each operator is executed by a process in each database instance. As a portion of the work is completed, tuples are transfer from one process to the next.**",
+    "Query Execution Citations": [
+        "{https://gpdb.docs.pivotal.io/4330/admin_guide/parallel_proc.html}"
+    ],
+    
+    
+    "Stored Procedures Options": [
+        "Not Supported"
+    ],
+    "Stored Procedures Description": "**Greenplum does not support stored procedure**",
+    "Stored Procedures Citations": [
+        "{https://gpdb.docs.pivotal.io/4370/ref_guide/extensions/pl_java.html}"
+    ],
+
+    
+    "Joins Options": [
+        "Nested Loop",
+        "Hash",
+        "Sort-Merge",
+        "Semi"
+    ],
+    "Joins Description": "**Three types of join algorithms, nested loop join, hash join and sort-merge join are supported in Greenplum. According to the blog article for their optimizer, semi join type is also supported.**",
+    "Joins Citations": [
+        "{https://content.pivotal.io/blog/greenplum-database-adds-the-pivotal-query-optimizer}",
+        "{https://gpdb.docs.pivotal.io/4370/ref_guide/sql_commands/SELECT.html}",
+        "{https://gpcc.docs.pivotal.io/210/gpcc/topics/db-iterator-metrics.html}"
+    ],
+    
+    
+    "Query Compilation Options": [
+        "JIT Compilation"
+    ],
+    "Query Compilation Description": "**Greenplum utilizes query compilation for predicate evaluation, tuple deform and primitive type functions, etc. It doesn't compile the execution engine into a push-based model. As it is mentioned in the Query Execution section, the execution model is volcano pull style.**",
+    "Query Compilation Citations": [
+        "{http://15721.courses.cs.cmu.edu/spring2017/slides/20-compilation.pdf}"
+    ],
+    
+    
+    "Website": "{http://greenplum.org}",
+    
+    
+    "Programming Language": [
+        "C",
+        "C++",
+        "Pl/Sql",
+        "Perl",
+        "Python",
+        "Other"
+    ],
+    
+    
+    "Operating Systems": [
+        "Linux"
+    ],
+    
+    
+    "Project Type": [
+        "Commercial"
+    ],
+    
+    
+    "Developer": "{Scott Yara and Luke Lonergan}",
+    
+    
+    "Start Date": "{2003-09}",
+    "Start Date Citations": [
+        "{https://en.wikipedia.org/wiki/Greenplum}"
+    ],
+    
+    
+    "End Date": "{2017-01}",
+    "End Date Citations": [
+        "{http://gpdb.docs.pivotal.io/43130/common/welcome.html#topic1__section_gpdb_rn}"
+    ],
+    
+    
+    "Derived From": "{PostgreSQL}",
+    
+    
+    "License": [
+        "Apache v2"
+    ]
+}

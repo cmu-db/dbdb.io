@@ -1,0 +1,203 @@
+{
+    "Email": "yl5@andrew.cmu.edu",
+
+    
+    "Name": "C-Store",
+    
+    
+    "Description": "C-Store is a column-oriented DBMS designed for read-optimized OLAP workloads. It adopts a column store architecture, explores various DSM compression schemes and corresponding query optimization strategies, stores data in overlapping collections of projections for both performance and availability, and employs other optimizations specific to column store. (Please delete anything in parenthesis as it is used to point out ambiguity)",
+    "Description Citations": [
+        "http://db.csail.mit.edu/projects/cstore/vldb.pdf"
+    ],
+    
+    
+    "History": "C-Store is an academic project led by Michael Stonebraker and Daniel Abadi, involving people from Brown University, Brandeis University, MIT and the University of Massachusetts Boston. It was later commercialized into Vertica.",
+    "History Citations": [
+        "https://en.wikipedia.org/wiki/C-Store"
+    ],
+    
+    
+    "System Architecture Options": [
+        "Shared-Nothing"
+    ],
+    "System Architecture Description": "The architecture was designed anticipating an environment of grid computers, containing large number of nodes each with private disk and memory. The data is horizontally partitioned across the disks of the nodes.",
+    "System Architecture Citations": [
+        "http://db.csail.mit.edu/projects/cstore/vldb.pdf"
+    ],
+    
+    
+    "Query Interface Options": [
+        "SQL"
+    ],
+    "Query Interface Description": "Logically, users interact with C-Store in SQL, with standard SQL semantics.",
+    "Query Interface Citations": [
+        "http://db.csail.mit.edu/projects/cstore/vldb.pdf",
+        "http://db.csail.mit.edu/projects/cstore/abadisigmod06.pdf"
+    ],
+    
+    
+    "Data Model Options": [
+        "Relational"
+    ],
+    "Data Model Description": "Logically, C-Store supports the standard relational data model, where a database contains a collection of tables and a table contains a collection of attributes.",
+    "Data Model Citations": [
+        "http://db.csail.mit.edu/projects/cstore/vldb.pdf"
+    ],
+    
+    
+    "Storage Model Options": [
+        "Decomposition Storage Model"
+    ],
+    "Storage Model Description": "As the name suggests, C-Store is all about column store ... Interestingly, both the read-optimized store component and the update/insert-oriented writable store component adopt the column store architecture.",
+    "Storage Model Citations": [
+        "http://db.csail.mit.edu/projects/cstore/vldb.pdf"
+    ],
+    
+        
+    "Storage Architecture Options": [
+        "Disk-oriented"
+    ],
+    "Storage Architecture Description": "Each column is stored as a separate file containing a list of 64K blocks, each packing as many values as possible.",
+    "Storage Architecture Citations": [
+        "http://db.csail.mit.edu/projects/cstore/vldb.pdf",
+        "http://db.csail.mit.edu/projects/cstore/abadirdf.pdf"
+    ],
+
+    
+    "Concurrency Control Options": [
+        "Two-Phase Locking (Deadlock Detection)"
+    ],
+    "Concurrency Control Description": "The system maintains a distributed lock table. Deadlock is resolved via timeouts by aborting one of the deadlocked transactions. (I think this means deadlock detection?)",
+    "Concurrency Control Citations": [
+        "http://db.csail.mit.edu/projects/cstore/vldb.pdf"
+    ],
+    
+    
+    "Isolation Levels Options": [
+        "Snapshot Isolation"
+    ],
+    "Isolation Levels Description": "(The paper talks in detail about their support for snapshot isolation, but does not mention if they support other isolation level ...)",
+    "Isolation Levels Citations": [
+        "http://db.csail.mit.edu/projects/cstore/vldb.pdf"
+    ],
+    
+    
+    "Indexes Options": [
+        "B+Tree",
+        "BitMap"
+    ],
+    "Indexes Description": "Despite the different possible encoding schemes of a column (e.g. RLE, bit-map encoding, or block-oriented delta encoding), they all use B-tree indexes. The system also stores join indices to stitch together all records in a table from its different columns (projections). Since a column which is ordered by another column in the same projection and contains few distinct values is encoded using bit-map encoding plus RLE, the paper also mentioned their extensive use of bitmap indexes.",
+    "Indexes Citations": [
+        "http://db.csail.mit.edu/projects/cstore/vldb.pdf"
+    ],
+
+
+    "Foreign Keys Options": [
+        "Supported"
+    ],
+    "Foreign Keys Description": "",
+    "Foreign Keys Citations": [
+        "http://db.csail.mit.edu/projects/cstore/vldb.pdf"
+    ],
+    
+    
+    "Logging Options": [
+        "Logical Logging"
+    ],
+    "Logging Description": "\"We use logical logging (as in ARIES), since physical logging would result in many log records, due to the nature of the data structures in WS.\" (But I believe ARIES log is physical logging? So confused ...)",
+    "Logging Citations": [
+        "http://db.csail.mit.edu/projects/cstore/vldb.pdf"
+    ],
+    
+    
+    "Checkpoints Options": [
+    ],
+    "Checkpoints Description": "",
+    "Checkpoints Citations": [
+    ],
+    
+    
+    "Views Options": [
+        "Materialized Views"
+    ],
+    "Views Description": "(found in their source code 'write store materialized view')",
+    "Views Citations": [
+    ],
+    
+    
+    "Query Execution Options": [
+        "Tuple-at-a-Time Model"
+    ],
+    "Query Execution": "Each operator consumes the data via a modified version of get_next call, where function call returns a 64K block of data instead of a single tuple. Basically, the system is using the iterator interface at a larger granularity.",
+    "Query Execution Citations": [
+        "http://db.csail.mit.edu/projects/cstore/vldb.pdf"
+    ],
+    
+    
+    "Stored Procedures Options": [
+        "Not Supported"
+    ],
+    "Stored Procedures Description": "(I don't think they mention it, so I guess it's a no?)",
+    "Stored Procedures Citations": [
+    ],
+
+    
+    "Joins Options": [
+        "Nested Loop",
+        "Hash",
+        "Sort-Merge"
+    ],
+    "Joins Description": "(found in their source code)",
+    "Joins Citations": [
+    ],
+    
+    
+    "Query Compilation Options": [
+        "Not Supported"
+    ],
+    "Query Compilation Description": "",
+    "Query Compilation Citations": [
+    ],
+    
+    
+    "Website": "http://db.csail.mit.edu/projects/cstore/",
+    
+    
+    "Programming Language": [
+        "C++"
+    ],
+    
+    
+    "Operating Systems": [
+        "Linux"
+    ],
+    
+    
+    "Project Type": [
+        "Academic"
+    ],
+    
+    
+    "Developer": "Samuel Madden, Michael Stonebraker, Daniel Abadi, Stan Zdonik, Mitch Cherniack, David DeWitt, Pat O'Neil, Betty O'Neil, Nga Tran, Tien Hoang, Alexander Rasin, Tingjian Ge, Xuedong Chen, Stavros Harizopoulos, Miguel Ferreira, Amersin Lin, Adam Batkin, Edmond Lau",
+    
+    
+    "Start Date": "{YYYY-MM}",
+    "Start Date Citations": [
+        "{URL1}",
+        "{URL2}"
+    ],
+    
+    
+    "End Date": "{2006-10}",
+    "End Date Citations": [
+        "http://db.csail.mit.edu/projects/cstore/#download"
+    ],
+    
+    
+    "Derived From": "{NAME}",
+    
+    
+    "License": [
+        "BSD"
+    ]
+}

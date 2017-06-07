@@ -1,0 +1,237 @@
+{
+    "Email": "angl2@andrew.cmu.edu",
+
+
+    "Name": "TimescaleDB",
+
+
+    "Description": "TimescaleDB is an open-source SQL database designed for scalable time-series data. It enables both high ingest rates and real-time analysis queries. It scales by automatically partitioning Hypertable (a single continuous table) into two-dimensional (time and space) proper-sized chunks. Inserts to recent time intervals can be parallelized by placing chunks across cluster or disks based on a specified partition key. Complex queries can be optimized by leveraging metadata of each chunk.",
+    "Description Citations": [
+        "https://www.timescale.com/papers/timescaledb.pdf",
+        "http://docs.timescale.com/introduction"
+    ],
+
+
+    "History": "TimescaleDB is in active development by a team of PhDs. It is implemented as a Postgres extension. A single-node version is open-sourced in April, 2017 and a clustered version is currently in private beta release.",
+    "History Citations": [
+        "https://www.timescale.com/papers/timescaledb.pdf",
+        "http://www.timescale.com/about.html"
+    ],
+
+
+    "System Architecture Options": [
+        "Shared-Nothing"
+    ],
+    "System Architecture Description": "Each table is partitioned accross all space and time intervals",
+    "System Architecture Citations": [
+        "https://www.timescale.com/papers/timescaledb.pdf"
+    ],
+
+
+    "Query Interface Options": [
+        "SQL",
+        "PL/SQL"
+    ],
+    "Query Interface Description": "It follows PostgreSQL",
+    "Query Interface Citations": [
+        "https://www.postgresql.org/docs/9.6/static/index.html"
+    ],
+
+
+    "Data Model Options": [
+        "Relational"
+    ],
+    "Data Model Description": "It follows PostgreSQL",
+    "Data Model Citations": [
+        "https://www.postgresql.org/docs/9.6/static/index.html"
+    ],
+
+
+    "Storage Model Options": [
+        "N-ary Storage Model"
+    ],
+    "Storage Model Description": "It follows PostgreSQL",
+    "Storage Model Citations": [
+        "https://www.postgresql.org/docs/9.6/static/index.html"
+    ],
+
+
+    "Storage Architecture Options": [
+        "Disk-oriented"
+    ],
+    "Storage Architecture Description": "It follows PostgreSQL",
+    "Storage Architecture Citations": [
+        "https://www.postgresql.org/docs/9.6/static/index.html"
+    ],
+
+
+    "Concurrency Control Options": [
+        "Two-Phase Locking (Deadlock Detection)",
+        "Multi-version Concurrency Control (MVCC)"
+    ],
+    "Concurrency Control Description": "It supports transactions on a per-server basis. Like PostgreSQL, it uses MVCC and Serializable Snapshot Isolation (SSI). It also supports explicit locking with deadlock detection.",
+    "Concurrency Control Citations": [
+        "https://www.timescale.com/papers/timescaledb.pdf",
+        "https://www.postgresql.org/docs/9.6/static/mvcc.html"
+    ],
+
+
+    "Isolation Levels Options": [
+        "Read Uncommitted",
+        "Read Committed",
+        "Repeatable Read",
+        "Serializable"
+    ],
+    "Isolation Levels Description": "It follows PostgreSQL, which supports Read uncommitted, Read committed, Repeatable read, Serializable. Read Committed is the default. They are implemented with MVCC. Note that PostgreSQL's Read Uncommitted is in fact Read Committed.",
+    "Isolation Levels Citations": [
+        "https://www.postgresql.org/docs/9.6/static/transaction-iso.html"
+    ],
+
+
+    "Indexes Options": [
+        "B+Tree",
+        "BitMap",
+        "Hash Table"
+    ],
+    "Indexes Description": "It follows PostgreSQL, which has primary, secondary, derived, partial indexes. PostgreSQL supports B-tree, hash, GiST, SP-GiST, GIN, and BRIN indexes, and default is B-tree.",
+    "Indexes Citations": [
+        "https://www.postgresql.org/docs/current/static/sql-createindex.html",
+        "https://www.postgresql.org/docs/current/static/indexes-partial.html",
+        "https://www.postgresql.org/docs/current/static/indexes-expressional.html"
+    ],
+
+
+    "Foreign Keys Options": [
+        "Supported"
+    ],
+    "Foreign Keys Description": "It follows PostgreSQL.",
+    "Foreign Keys Citations": [
+        "https://www.postgresql.org/docs/9.6/static/index.html"
+    ],
+
+
+    "Logging Options": [
+        "Physical Logging",
+        "Logical Logging"
+    ],
+    "Logging Description": "It follows PostgreSQL.",
+    "Logging Citations": [
+        "https://www.compose.com/articles/postgresql-backups-and-everything-you-need-to-know/"
+    ],
+
+
+    "Checkpoints Options": [
+        "Non-Blocking",
+        "Fuzzy"
+    ],
+    "Checkpoints Description": "It follows PostgreSQL.",
+    "Checkpoints Citations": [
+        "https://www.timescale.com/papers/timescaledb.pdf",
+        "https://www.postgresql.org/docs/current/static/wal-configuration.html"
+    ],
+
+
+    "Views Options": [
+        "Virtual Views",
+        "Materialized Views"
+    ],
+    "Views Description": "It follows PostgreSQL.",
+    "Views Citations": [
+        "https://www.postgresql.org/docs/9.6/static/index.html"
+    ],
+
+
+    "Query Execution Options": [
+        "Tuple-at-a-Time Model"
+    ],
+    "Query Execution": "It follows PostgreSQL.",
+    "Query Execution Citations": [
+        "https://www.postgresql.org/docs/9.6/static/index.html"
+    ],
+
+
+    "Stored Procedures Options": [
+        "Supported"
+    ],
+    "Stored Procedures Description": "It follows PostgreSQL.",
+    "Stored Procedures Citations": [
+        "https://www.postgresql.org/docs/9.6/static/index.html"
+    ],
+
+
+    "Joins Options": [
+        "Nested Loop",
+        "Hash",
+        "Sort-Merge",
+        "Semi"
+    ],
+    "Joins Description": "It follows PostgreSQL.",
+    "Joins Citations": [
+        "https://www.postgresql.org/docs/9.6/static/index.html"
+    ],
+
+
+    "Query Compilation Options": [
+        "Not Supported"
+    ],
+    "Query Compilation Description": "Not Supported",
+    "Query Compilation Citations": [
+      "https://www.postgresql.org/docs/9.6/static/index.html"
+    ],
+
+
+    "Website": "http://www.timescale.com/",
+
+
+    "Programming Language": [
+        ".NET",
+        "C",
+        "C++",
+        "Delphi",
+        "Java",
+        "Pl/Sql",
+        "Perl",
+        "Python",
+        "Tcl"
+    ],
+
+
+    "Operating Systems": [
+        "FreeBSD",
+        "HP-UX",
+        "Linux",
+        "NetBSD",
+        "OS X",
+        "Solaris",
+        "Unix",
+        "Windows"
+    ],
+
+
+    "Project Type": [
+        "Commercial"
+    ],
+
+
+    "Developer": "Timescale",
+
+
+    "Start Date": "2017-04",
+    "Start Date Citations": [
+        "https://blog.timescale.com/when-boring-is-awesome-building-a-scalable-time-series-database-on-postgresql-2900ea453ee2"
+    ],
+
+
+    "End Date": "N/A",
+    "End Date Citations": [
+      "N/A"
+    ],
+
+
+    "Derived From": "PostgreSQL",
+
+
+    "License": [
+        "Apache v2"
+    ]
+}
