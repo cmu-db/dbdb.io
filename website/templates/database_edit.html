@@ -17,11 +17,10 @@
 
   <i id="spinner"></i>
 
-  <button type="submit" class="btn btn-default" form="editForm">
-    Save!
-  </button>
-
   <div class="container">
+    <button type="submit" class="btn btn-default" form="editForm">
+      Save!
+    </button>
     <form id="editForm" action="/db/{{ db.slug }}/{{ key }}" method="post" enctype="multipart/form-data">
       {% csrf_token %}
       <div class="form-group">

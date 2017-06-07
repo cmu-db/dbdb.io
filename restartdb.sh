@@ -23,10 +23,10 @@ printf '\nCreating migrations..\n'
 python manage.py makemigrations
 python manage.py migrate
 
-printf '\nCreating the initial data from the current_data directory\n'
+printf '\nCreating the initial data from the current_data directory...\n'
 cd current_data
 python ./parse_system_data.py
-printf '\Finished creating intial data! Please check current_data directory for saved output. \n'
+printf '\nFinished creating intial data! Please check current_data directory for saved output. \n'
 cd ..
 
 printf '\nLoading fixtures...\n'

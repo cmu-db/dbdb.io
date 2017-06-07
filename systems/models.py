@@ -1,5 +1,3 @@
-import os
-
 from django.db import models
 from django.db.models import Q
 from django.utils.text import slugify
@@ -204,7 +202,6 @@ class SystemVersion(models.Model):
     derived_from = models.ManyToManyField('System', related_name='systems_derived', blank=True)
     publications = models.ManyToManyField('Publication', related_name='systems_publications', blank=True)
 
-    # TODO have defaults be placeholders in front end.
     # Feature support and descriptions
     support_systemarchitecture = models.NullBooleanField()
     options_systemarchitecture = models.ManyToManyField('FeatureOption',
@@ -349,7 +346,8 @@ class SystemVersion(models.Model):
                                                    related_name='options_accessmethods',
                                                    blank=True,
                                                    limit_choices_to=get_options('Access Methods'))
-    description_accessmethods = models.TextField(default='What API access methods are available for the DBMS?', blank=True)
+    description_accessmethods = models.TextField(default='What API access methods are available for the DBMS?',
+                                                 blank=True)
 
     def get_features(self):
         features = []
