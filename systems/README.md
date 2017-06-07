@@ -4,17 +4,19 @@ This directory holds most of the control code for the dbdb website.
 
 ## Directories:
 * fixtures/ - Fixtures for models that can be loaded up for the website using `python manage.py loaddata`
-* migrations/ - Django migrations. If they do not exists, run `python manage.py makemigrations systems` *See root directory README*
+* migrations/ - Django migrations. If there are no migrations, run `python manage.py makemigrations systems`
+
+*See root directory README for more instructions*
 
 ## Files:
 * admin.py - Lays out structure of admin pages for viewing, editing, filtering, etc
 * forms.py - Defines forms for website, specifically the database editing form
 * models.py - Defines all models
-* serializers.py - Used for serializing models
+* serializers.py - Used for serializing models, not used much right now
 * tests.py - Currently unused
 * urls.py - Maps urls to view classes in views.py
 * util.py - Provide utility function such as creating secret keys (for editing), and possibly in the future for resolving slug collision?
-* vies.py - Main control code for the website. Defines all the views
+* views.py - Main control code for the website. Defines all the views
 
 ### To add a feature to databases:
 1. Add the feature and its options to feature_options.json in the current_data/
