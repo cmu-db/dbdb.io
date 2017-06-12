@@ -167,7 +167,7 @@ def create_fixtures(directory, files):
             try:
                 data = json.loads(infile.read())
             except Exception as error:
-                add_print_output(filename, "Other", 'Could not read ' + filename + ' ' + str(error))
+                add_print_output(directory + '/' + filename, "Other", 'Could not read ' + directory + '/' + filename + ' ' + str(error))
                 continue
 
             # TODO This is a temporary hotfix for files with Name or Website as a list
@@ -176,6 +176,7 @@ def create_fixtures(directory, files):
             if isinstance(data.get('Website'), list) and len(data['Website']) >= 1:
                 data['Website'] = data['Website'][0]
 
+            # Skip systems with existing name.
             if systems.get(data['Name']):
                 continue
 
@@ -215,7 +216,7 @@ def create_fixtures(directory, files):
                         # Assign other types of value.
                         fields[value] = data[key]
                 except KeyError as error:
-                    add_print_output(filename, "Missing Key", 'Could not find ' + str(error) + ' key in ' + filename)
+                    add_print_output(directory + '/' + filename, "Missing Key", 'Could not find ' + str(error) + ' key in ' + directory + '/' + filename)
 
             # Copy over remaining values to model
             for key, value in data.iteritems():
@@ -227,6 +228,7 @@ def create_fixtures(directory, files):
                     field = 'description_' + key[:-12].replace(' ', '').lower()
                     fields[field] = value
                 elif ' Options' in key:
+                    # try:
                     # Copy over options to model
                     field = 'support_' + key[:-8].replace(' ', '').lower()
                     if len(value) > 0 and value[0] != 'Not Supported' and value[0] != 'N/A':
@@ -234,20 +236,23 @@ def create_fixtures(directory, files):
                         fields[field] = True
                         field = 'options_' + key[:-8].replace(' ', '').lower()
                         pk_field = 'feature_options-' + str(pk_map['feature'][key[:-8]])
-                        fields[field] = map_to_pk(fields, pk_field, value, key, filename)
-                    elif value[0] == 'Not Supported':
+                        fields[field] = map_to_pk(fields, pk_field, value, key, directory + '/' + filename)
+                    elif len(value) > 0 and value[0] == 'Not Supported':
                         fields[field] = False
                     else:
                         fields[field] = None
+                    # except Exception as error:
+                    #     print value
+                    #     add_print_output(filename, "Incorrect Value", str(error))
                 elif isinstance(value, list):
                     # Some type of list, use the pk_map
                     field = system_map.get(key, None)
                     if field is not None:
-                        fields[field] = map_to_pk(fields, field, value, key, filename)
+                        fields[field] = map_to_pk(fields, field, value, key, directory + '/' + filename)
                 elif system_map.get(key, None) is None or fields.get(system_map[key], None) is None:
                     # Not a list and not in system_map
-                    add_print_output(filename, "Missing Key",
-                                     'Could not map \'' + key + '\' in ' + filename + ' to any models')
+                    add_print_output(directory + '/' + filename, "Missing Key",
+                                     'Could not map \'' + key + '\' in ' + directory + '/' + filename + ' to any models')
 
             fields['system'] = pk
             fields['created'] = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
