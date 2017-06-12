@@ -274,7 +274,7 @@
         "model": "systems.ProgrammingLanguage",
         "fields": {
             "website": null,
-            "name": "Php",
+            "name": "PHP",
             "slug": "php"
         }
     },
