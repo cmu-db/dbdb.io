@@ -95,12 +95,10 @@ class LoadContext(object):
                                'slug': system.slug}
                               for system in db_version.derived_from.all()]
 
-        if db_version.project_type:
-            db["project_type"] = {
-                'name': db_version.project_type.name,
-                'slug': db_version.project_type.slug
-            }
-
+        db["project_type"] = [{'name': system.name,
+                               'slug': system.slug}
+                              for system in db_version.project_type.all()]
+        
         # Load database features.
         db['features'] = db_version.get_features()
 
