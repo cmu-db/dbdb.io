@@ -188,7 +188,7 @@ class SystemVersion(models.Model):
     developer = models.CharField(max_length=200, default="", blank=True)
     start_year = models.CharField(max_length=128, default="", blank=True)
     end_year = models.CharField(max_length=128, default="", blank=True)
-    project_type = models.ForeignKey(ProjectType, null=True, blank=True)
+    project_type = models.ManyToManyField(ProjectType, blank=True)
 
     # Logos
     logo_orig = models.ImageField(upload_to=upload_logo_orig, blank=True)

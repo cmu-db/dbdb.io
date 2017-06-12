@@ -188,7 +188,9 @@
 	],
 
 
-	"Project Type": "Other",
+	"Project Type": [
+		"Other"
+	],
 
 
 	"Developer": "Apache Software Foundation",
