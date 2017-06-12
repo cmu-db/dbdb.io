@@ -185,7 +185,7 @@ class SystemVersion(models.Model):
     history = models.TextField(default="", blank=True)
     website = models.URLField(default="", null=True, blank=True)
     tech_docs = models.URLField(default="", null=True, blank=True)
-    developer = models.CharField(max_length=200, default="", blank=True)
+    developer = models.CharField(max_length=512, default="", blank=True)
     start_year = models.CharField(max_length=128, default="", blank=True)
     end_year = models.CharField(max_length=128, default="", blank=True)
     project_type = models.ManyToManyField(ProjectType, blank=True)
