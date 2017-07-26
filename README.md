@@ -28,7 +28,12 @@ Create a symlink for the static admin files
 ln -s /usr/local/lib/python2.7/dist-packages/django/contrib/admin/static/admin website/static/admin
 ```
 
-Removed ROW_FORMAT step because no longer necessary.
+Configure the mysql service (as root user) to use Barracuda for InnoDB, so `ROW_FORMAT=DYNAMIC` can be used. **You only have to do this once per installation** and it might not necesary on some versions of MySQL.
+```bash
+sudo su
+printf '\n[mysqld]\ninnodb_file_format=Barracuda\n' >> /etc/mysql/my.cnf
+service mysql restart
+```
 
 To start from scratch, drop the database and recreate it:
 ```bash
@@ -42,6 +47,11 @@ To avoid issues with migrations, if you already have migrations for this app, yo
 ```bash
 python manage.py makemigrations
 python manage.py migrate
+```
+
+To be able to fit the large rows in SystemVersion, apply this fix in MySQL on the table **You  must do this each time**:
+```sql
+ALTER TABLE systems_systemversion ROW_FORMAT=DYNAMIC
 ```
 
 Load in the initial data from the `current_data` directory.
