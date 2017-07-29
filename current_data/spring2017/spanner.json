@@ -1,22 +1,22 @@
 {
-    "Email": "{nasrinj@andrew.cmu.edu}",
+    "Email": "nasrinj@andrew.cmu.edu",
 
     
-    "Name": "{Google Spanner}",
+    "Name": "Google Spanner",
     
     
     "Description": "Spanner is Google's globally distributed NewSQL database management system. It follows multi-versioning concurrency control, along with synchronous data replication. Traditional database systems lack horizontal scalability, and NoSQL systems don't provide strong consistency, and cannot be used where high level of data consistency is required. NewSQL provide the best of both worlds - excellect scalability, and ACID guarantees like a RDBMS which is performed on a single node. Spanner is the first system to distribute data at global scale and support externally-consistent distributed transactions. This combination of availability and consistency over the wide area is generally considered impossible due to the CAP Theorem. Google's globally synchronized clock - TrueTime, is essential for consistency in reads and especially for snapshots that enable consistent and repeatable analytics.  Spanner connects you to the data center that is geographically closest to you for reads, and when you write data, it distributes and stores it to multiple data centers. If there is a failure at the data center you try to read from, read of the data is completed from another data center that has a replica of the data. Spanner assigns globally consistent real-time timestamps to every datum written to it, and clients can do globally consistent reads across the entire database without locking",
 
     "Description Citations": [
-        "{https://www.usenix.org/node/170855}",
-        "{https://research.google.com/pubs/pub45855.html}"
+        "https://www.usenix.org/node/170855",
+        "https://research.google.com/pubs/pub45855.html"
     ],
     
     
     "History": "Spanner originated from the numerous concerns users of Bigtable as it can be difficult to use for some kinds of applications:
     those that have complex, evolving schemas, or those that want strong consistency in the presence of wide-area replication. Many applications at Google had chosen to use Megastore because of its semi-relational data model and support for synchronous replication, despite its relatively poor write throughput. As a consequence, Spanner evolved from a Bigtable-like versioned key-value store into a temporal multi-versioned database",
     "History Citations": [
-        "{http://www.cubrid.org/blog/dev-platform/spanner-globally-distributed-database-by-google/}"
+        "http://www.cubrid.org/blog/dev-platform/spanner-globally-distributed-database-by-google/"
         
     ],
     
@@ -26,8 +26,8 @@
     ],
     "System Architecture Description": "Spanner has a shared-nothing architecture that provides high scalability. Data is automatically sharded replicated across multiple data centers. The application developer can choose the number of replicas and their placement. Spanner relies on GPS and atomic clocks to represent the uncertainity in time.",
     "System Architecture Citations": [
-        "{https://cloud.google.com/spanner/docs/whitepapers/life-of-reads-and-writes}",
-        "{http://www.benstopford.com/2009/11/24/understanding-the-shared-nothing-architecture/}"
+        "https://cloud.google.com/spanner/docs/whitepapers/life-of-reads-and-writes",
+        "http://www.benstopford.com/2009/11/24/understanding-the-shared-nothing-architecture/"
     ],
     
     
@@ -36,7 +36,7 @@
     ],
     "Query Interface Description": "SQL-based query language was chosen because of its familiarity within Google",
     "Query Interface Citations": [
-        "{https://cloud.google.com/spanner/docs/query-syntax}"
+        "https://cloud.google.com/spanner/docs/query-syntax"
     ],
     
     
@@ -45,7 +45,7 @@
     ],
     "Data Model Description": "Spanner has a semi-relational data model.  It is called semi-relational because it has some features that differentiate it from normal relational databases. One major difference is that in Spanner, all tables should have at least one primary key. Data in Spanner is stored in a semi-relational table that has a schema. Each row is required to have a name, and a row has existence only if some value (even	NULL) is defined for the row’s keys. Unlike an RDBMS table, each data also has version information.",
     "Data Model Citations": [
-        "{https://www.usenix.org/system/files/conference/osdi12/osdi12-final-16.pdf}"
+        "https://www.usenix.org/system/files/conference/osdi12/osdi12-final-16.pdf"
     ],
     
     
@@ -55,7 +55,7 @@
     "Storage Model Description": "Spanner stores rows in sorted order by primary key values, with child rows inserted between parent rows that share the same primary key prefix. This insertion of child rows between parent rows along the primary key dimension is called interleaving, and child tables are also called interleaved tables. Client applications declare the hierarchies in database schemas via the INTERLEAVE IN declarations.
     The table at the top of a hierarchy is a directory table. Each row in a directory table with key "test", together with all of the rows in descendant tables that start with "test" in lexicographic order, forms a directory. Primary keys in Spanner allow you to physically co-locate rows of related tables",
     "Storage Model Citations": [
-        "{https://www.usenix.org/system/files/conference/osdi12/osdi12-final-16.pdf}"
+        "https://www.usenix.org/system/files/conference/osdi12/osdi12-final-16.pdf"
     ],
     
         
@@ -64,7 +64,7 @@
     ],
     "Storage Architecture Description": "The universal set of Spanner is called universe. A universe consists of multiple zones. A zone means a unit that can be run with physical independence. A data center may have one or more zones. Data can be stored separately in different server groups by making two or more zones in a single data center",
     "Storage Architecture Citations": [
-        "{ttp://db.cs.cmu.edu/papers/2016/pavlo-newsql-sigmodrec2016.pdf}"
+        "ttp://db.cs.cmu.edu/papers/2016/pavlo-newsql-sigmodrec2016.pdf"
     ],
     
     
@@ -75,8 +75,8 @@
     ],
     "Concurrency Control Description": "Spanner uses multi-versioned concurrency control with 2-phase locking. Spanner's MVCC and 2PL implementation is unique in that it uses hardware devices (e.g., GPS, atomic clocks) for high-precision clock synchronization. The DBMS uses these clocks to assign timestamps to transactions to enforce consistent views of its multi-version database over wide-area networks. The Paxos state machines are used to implement a consistently replicated bag of mappings. The key-value mapping state of each replica is stored in its corresponding tablet. Writes must initiate the Paxos protocol at the leader; reads access state directly from the underlying tablet at any replica that is sufficiently up-to-date. At every replica that is a leader, each spanserver implements a lock table to implement concurrency control. The lock table contains the state for two-phase locking: it maps ranges of keys to lock states. Spanner provides three types of operations: read/write transaction, read transaction and snapshot read operation. A single write operation is performed through a read/write transaction, while a single read operation, not a snapshot read, is performed through a read transaction. Operations that require synchronization, such as transactional reads, acquire locks in the lock table; other operations bypass the lock table. In summary, lock-free read-only transactions, and non-blocking reads in the past are supported",
     "Concurrency Control Citations": [
-        "{http://db.cs.cmu.edu/papers/2016/pavlo-newsql-sigmodrec2016.pdf}",
-        "{https://www.usenix.org/system/files/conference/osdi12/osdi12-final-16.pdf}"
+        "http://db.cs.cmu.edu/papers/2016/pavlo-newsql-sigmodrec2016.pdf",
+        "https://www.usenix.org/system/files/conference/osdi12/osdi12-final-16.pdf"
     ],
     
     
@@ -85,7 +85,7 @@
     ],
     "Isolation Levels Description": "Spanner provides globally-consistent reads at a time-stamp due to TrueTime and externally-consistent distributed distributed transactions",
     "Isolation Levels Citations": [
-        "{https://www.usenix.org/system/files/conference/osdi12/osdi12-final-16.pdf}"
+        "https://www.usenix.org/system/files/conference/osdi12/osdi12-final-16.pdf"
     ],
     
     
@@ -94,7 +94,7 @@
     ],
     "Indexes Description": "Could not find enough information to corroborate this",
     "Indexes Citations": [
-        "{https://www.usenix.org/system/files/conference/osdi12/osdi12-final-16.pdf}"
+        "https://www.usenix.org/system/files/conference/osdi12/osdi12-final-16.pdf"
       
     ],
     
@@ -104,7 +104,7 @@
     ],
     "Foreign Keys Description": "Spanner uses the concept of interleaved tables to support a similar purpose",
     "Foreign Keys Citations": [
-        "{https://opencredo.com/google-spanner-first-look/}"
+        "https://opencredo.com/google-spanner-first-look/"
     ],
     
     
@@ -113,7 +113,7 @@
     ],
     "Logging Description": "Every write to a log involves a cross-region Paxos agreement, so the latency of two-phase commit in Spanner is at least equal to three times the latency of cross-region Paxos. This is similar to a write ahead log in a non distributed setting.",
     "Logging Citations": [
-        "{https://fauna.com/blog/distributed-consistency-at-scale-spanner-vs-calvin}"
+        "https://fauna.com/blog/distributed-consistency-at-scale-spanner-vs-calvin"
     ],
     
     
@@ -122,7 +122,7 @@
     ],
     "Checkpoints Description": "Could not find enough information to corroborate this",
     "Checkpoints Citations": [
-        "{https://www.usenix.org/system/files/conference/osdi12/osdi12-final-16.pdf}"
+        "https://www.usenix.org/system/files/conference/osdi12/osdi12-final-16.pdf"
     ],
     
     
@@ -131,7 +131,7 @@
     ],
     "Views Description": "They do support it, but could not find more information about it",
     "Views Citations": [
-        "{https://cloud.google.com/spanner/docs/whitepapers/optimizing-schema-design}"
+        "https://cloud.google.com/spanner/docs/whitepapers/optimizing-schema-design"
     ],
     
     
@@ -141,7 +141,7 @@
     "Query Execution": "Vectors in Spanner are called splits.Spanner uses declarative SQL statements to query its databases. SQL statements define what the user wants without specifying how to obtain the results. The Spanner query compiler evaluates the different ways to produce a query execution plan that is considered the most efficient. Spanner then uses the execution plan to retrieve the results. Spanner divides data into splits, and splits can move independently from each other and get assigned to different servers, which could be in different physical locations. Since Spanner is a distributed database, Spanner sends the execution plan to a root server that coordinates the query execution and performs the remote distribution of subplans.",
 
     "Query Execution Citations": [
-        "{https://www.usenix.org/system/files/conference/osdi12/osdi12-final-16.pdf}"
+        "https://www.usenix.org/system/files/conference/osdi12/osdi12-final-16.pdf"
     ],
     
     
@@ -150,7 +150,7 @@
     ],
     "Stored Procedures Description": "Could not find more information on this",
     "Stored Procedures Citations": [
-        "{https://db-engines.com/en/system/Google+Cloud+Bigtable%3BGoogle+Cloud+Spanner%3BVoltDB}"
+        "https://db-engines.com/en/system/Google+Cloud+Bigtable%3BGoogle+Cloud+Spanner%3BVoltDB"
     ],
 
     
@@ -159,7 +159,7 @@
     ],
     "Joins Description": "Could not find exact information",
     "Joins Citations": [
-        "{URL1}"
+        "URL1"
     ],
     
     
@@ -169,11 +169,11 @@
     ],
     "Query Compilation Description": "None of the whitepapers/Spanner paper talk about this",
     "Query Compilation Citations": [
-        "{https://cloud.google.com/spanner/docs/whitepapers/life-of-query}"
+        "https://cloud.google.com/spanner/docs/whitepapers/life-of-query"
     ],
     
     
-    "Website": "{https://cloud.google.com/spanner/}",
+    "Website": "https://cloud.google.com/spanner/",
     
     
     "Programming Language": [
@@ -210,23 +210,23 @@
     ],
     
     
-    "Developer": "{Google}",
+    "Developer": "Google",
     
     
-    "Start Date": "{2007-01}",
+    "Start Date": "2007-01",
     "Start Date Citations": [
-        "{"https://static.googleusercontent.com/media/research.google.com/en//archive/spanner-osdi2012.pdf"}"
+        ""https://static.googleusercontent.com/media/research.google.com/en//archive/spanner-osdi2012.pdf""
     ],
     
     
-    "End Date": "{Present}",
+    "End Date": "Present",
     "End Date Citations": [
-        "{URL1}",
-        "{URL2}"
+        "URL1",
+        "URL2"
     ],
     
     
-    "Derived From": "{A parallel universe joke - Spanner deployment is called a universe (Found online)}",
+    "Derived From": "A parallel universe joke - Spanner deployment is called a universe (Found online)",
     
     
     "License": [ "Proprietary"]

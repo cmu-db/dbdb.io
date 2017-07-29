@@ -1,28 +1,28 @@
 {
-    "Email": "{xianz@andrew.cmu.edu}",
+    "Email": "xianz@andrew.cmu.edu",
 
     
-    "Name": "{Baidu Tera}",
+    "Name": "Baidu Tera",
     
     
     "Description": "Tera is a 100 PBs level, real-time high performance distributed NoSQL database. The storage architecture of Tera is based on Google's BigTable and targeted for real-time applications, mainly for Baidu's own services such as its very own web crawling engine, Spider. Design choices are made based on the challenging contexts of Baidu's webpage indexing services, leading to requirements of scalability and very high real-time performance (over hundreds of billions QPS). Besides the web crawling engine, Tera is widely used in other services of Baidu with various requirements, ranging from throughput-oriented applications to latency-sensitive service, including web indexing, WebPage DB, LinkBase DB, etc. <br/> Tera is able to support hundreds of millions QPS in terms of random reads and writes, 100,000 billions level of records and hundreds of PB volumns of data. It replaced the former Hadoop based storage system in Baidu, which lacked scalability and timeliness due to its nature of heavy MapReduce programs usage. Tera supports a global ordering of all records, which facilitates the statistical analysis of intervals, as well as automatic loading balancing and MVCC.",
     "Description Citations": [
-        "{https://github.com/baidu/tera}",
-        "{http://www.cnblogs.com/bonelee/p/6211789.html}",
-        "{http://pstatic.geekbang.org/pdf/58413497bd743.pdf?e=1494829205&token=eHNJKRTldoRsUX0uCP9M3icEhpbyh3VF9Nrk5UPM:6LB1c535falO-GPTfd3OKkycn6U=}",
-        "{http://www.php230.com/baidu-tera-0-5-3.html}",
-        "{https://my.oschina.net/u/2982571/blog/775452}"
+        "https://github.com/baidu/tera",
+        "http://www.cnblogs.com/bonelee/p/6211789.html",
+        "http://pstatic.geekbang.org/pdf/58413497bd743.pdf?e=1494829205&token=eHNJKRTldoRsUX0uCP9M3icEhpbyh3VF9Nrk5UPM:6LB1c535falO-GPTfd3OKkycn6U=",
+        "http://www.php230.com/baidu-tera-0-5-3.html",
+        "https://my.oschina.net/u/2982571/blog/775452"
     ],
     
     "History": "Baidu, as it is known for, is a company focusing on providing web searching and indexing services mainly to Chinese internet. In 2014, the number of web pages indexed by Baidu is roughly 100,000 billion pages and only a tenth of it are considered valuable in the criteria used by Baidu. Every day there were 10 billion web pages generated around that time and in average 120 links was included in each web page. These numbers led to the fact that the web crawling engine of Baidu will have to process 1,200 billion links everyday, which is a very tough problem to deal with in terms of either scalability or the speed of new records taking effect. <br/> Before Tera came into existence, the links data are processed by a series of MapReduce batched programs based on Hadoop. The issues with the former system are mainly linear scalability and timeliness. In 2014, the processing of 100 billion links in Baidu will usually use 500 servers, which means 1,000 billion links will require 50,000 servers, and typically 10 passes of MapReduce programs took 2 days at the time, thus incremental and streaming processing is necessary in terms of performance. The new design of Baidu is based on these judgements. The whole processing process will have to be real-time (from being discoverd to stored in the database and to picked out by the scheduler). There are a lot of updates happening in this process, so the new storage system will have to support hundreds of millions QPS in terms of random reads and writes. <br/> Tera is designed to support services of 100,000 billions of records, hundreds of PB volumns of data and hundreds of millions QPS and it has become a core module for Baidu spider and WebPage database ever since it came out. Baidu spider, as the name indicates, is the web crawling spider of Baidu, which collects web pages and submits the updates to the Baidu index. Baidu spider 3.0 is an important upgrade in 2014 for Baidu spider, which made an effor to refactor the former offline, whole quantity calculation to a real-time, incremental calculation system, meanwhile improving the diversity and uniqueness of the results, as well as the real-time performance of Baidu index. Tera is tested and found to be performing reasonably well in terms of scalability, single machine performance, as well as real-time response speed, etc.",
 
     "History Citations": [
-        "{https://github.com/baidu/tera}",
-        "{https://my.oschina.net/u/2982433/blog/776173}",
-        "{https://developer.baidu.com/announcement/443}",
-        "{http://pstatic.geekbang.org/pdf/58413497bd743.pdf?e=1494829205&token=eHNJKRTldoRsUX0uCP9M3icEhpbyh3VF9Nrk5UPM:6LB1c535falO-GPTfd3OKkycn6U=}",
-        "{https://chineseseoshifu.com/blog/what-is-baiduspider.html}",
-        "{http://www.jianshu.com/p/3536b057998e}"
+        "https://github.com/baidu/tera",
+        "https://my.oschina.net/u/2982433/blog/776173",
+        "https://developer.baidu.com/announcement/443",
+        "http://pstatic.geekbang.org/pdf/58413497bd743.pdf?e=1494829205&token=eHNJKRTldoRsUX0uCP9M3icEhpbyh3VF9Nrk5UPM:6LB1c535falO-GPTfd3OKkycn6U=",
+        "https://chineseseoshifu.com/blog/what-is-baiduspider.html",
+        "http://www.jianshu.com/p/3536b057998e"
     ],
     
     
@@ -31,10 +31,10 @@
     ],
     "System Architecture Description": "Baidu Tera is developed upon Baidu File System (BFS), which is a distributed file system designed to support real-time applications based on shared SSD + SATA disks. Basically Baidu Tera does not manage the shared data space itself and BFS is in charge.",
     "System Architecture Citations": [
-        "{https://github.com/baidu/tera}",
-        "{https://libraries.io/github/baidu/tera}",
-        "{https://my.oschina.net/u/2982571/blog/775452}",
-        "{https://github.com/baidu/bfs}"
+        "https://github.com/baidu/tera",
+        "https://libraries.io/github/baidu/tera",
+        "https://my.oschina.net/u/2982571/blog/775452",
+        "https://github.com/baidu/bfs"
     ],
     
     
@@ -43,8 +43,8 @@
     ],
     "Query Interface Description": "Tera accepts general SQL queries. It also provides other APIs, for example, C++/Java/Python/REST-ful APIs.",
     "Query Interface Citations": [
-        "{https://github.com/baidu/tera/blob/master/sql/src/ha_tera_format.h}",
-        "{https://github.com/baidu/tera}"
+        "https://github.com/baidu/tera/blob/master/sql/src/ha_tera_format.h",
+        "https://github.com/baidu/tera"
     ],
     
     
@@ -54,8 +54,8 @@
     "Data Model Description": 
 "The data model of Tera is based upon Google BigTable. It is essentially a collection of sparse, distributed, multidimensional tables (sorted maps). It is indexed by a row key, a column key and a timestamp and each value in the table is an uninterpreted array of bytes in the form of:<br/> `(row:string, (column family+qualifier):string, time:int64) string`. Or a table in tera can be interpreted as a data structure like `map<RowKey, map<ColummnFamily:Qualifier, map<Timestamp, Value>>>`. <br/> In the original paper of Google BigTable, it is said that one factor that drove their design decisions was to store a large collection of web pages or related information, which is very similar to what is desired for the usecases of Baidu Tera, such as Baidu Spider.<br/> The row keys in a table are arbitrary strings. Every read or write of data under a single row key is atomic (regardless of the number of different columns being read or written in the row), a design decision that makes it easier for clients to reason about the system's behavior in the presence of concurrent updates to the same row.<br/> Column keys are grouped into sets called column families, which form the basic unit of access control. All data stored in a column family is usually of the same type. A column family must be created before data can be stored under any column key in that family; after a family has been created, any column key within the family can be used.<br/> Timestamps are 64-bit integers. They can be assigned by Tera, in which case they represent 'real time' in microseconds, or be explicitly assigned by client applications.",
     "Data Model Citations": [
-        "{http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf}",
-        "{https://github.com/baidu/tera}"
+        "http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf",
+        "https://github.com/baidu/tera"
     ],
     
     "Storage Model Options": [
@@ -63,10 +63,10 @@
     ],
     "Storage Model Description": "One feature of Tera is that it supports row key as well as column key, but essentially it is a hybrid database. For durable storage, Baidu developed based on leveldb, extending it with several components to suit their own needs. For example, one is DBTable, which provides the capability of column major storage optimization, through forming localitygroups of records. Localitygroups and tablets are two kinds of ways to split tables in Tera. DBTable provides a facade on top of several `DBImpl` and uses WAL and MVCC to guarantee atomic reads and writes. DFSENv component provides a distributed file system (on top of BFS), which can work with HDFS and NFS, etc. MemTableOnLevelDB is LSM-tree memory table instead of skiplist, which is designed to provide good performance when the table is expanded as key value pairs.",
     "Storage Model Citations": [
-        "{http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf}",
-        "{https://github.com/baidu/tera}",
-        "{https://github.com/baidu/tera/tree/af82f3cc09d8866264751f71a3694dcab9c214f1/src/leveldb}",
-        "{https://github.com/baidu/tera/blob/master/doc/to_be_a_contributor.md}"
+        "http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf",
+        "https://github.com/baidu/tera",
+        "https://github.com/baidu/tera/tree/af82f3cc09d8866264751f71a3694dcab9c214f1/src/leveldb",
+        "https://github.com/baidu/tera/blob/master/doc/to_be_a_contributor.md"
     ],
     
         
@@ -75,8 +75,8 @@
     ],
     "Storage Architecture Description": "Tera uses a RAM + SSD + SATA disk hybrid storage architecture. The typical single machine performance of Tera is 30000QPS for random reads of 1KB and 30000QPS of random writes of 1KB. Data is always written to memory first, and will be made durable to disks later on.",
     "Storage Architecture Citations": [
-        "{http://www.cnblogs.com/bonelee/p/6211789.html}",
-        "{http://pstatic.geekbang.org/pdf/58413497bd743.pdf?e=1494829205&token=eHNJKRTldoRsUX0uCP9M3icEhpbyh3VF9Nrk5UPM:6LB1c535falO-GPTfd3OKkycn6U=}"
+        "http://www.cnblogs.com/bonelee/p/6211789.html",
+        "http://pstatic.geekbang.org/pdf/58413497bd743.pdf?e=1494829205&token=eHNJKRTldoRsUX0uCP9M3icEhpbyh3VF9Nrk5UPM:6LB1c535falO-GPTfd3OKkycn6U="
     ],
     
     
@@ -85,8 +85,8 @@
     ],
     "Concurrency Control Description": "Tera uses a MVCC concurrency control strategy.<br/> Multiple versions are kept for the history of crawling status regarding links. For some scenarios, timestamps are critical for judgement to prevent tera from overwritting new data with old data. This is to support analysis of the historical data and rollback of transactions.",
     "Concurrency Control Citations": [
-        "{https://github.com/baidu/tera}",
-        "{http://www.cnblogs.com/bonelee/p/6211789.html}"
+        "https://github.com/baidu/tera",
+        "http://www.cnblogs.com/bonelee/p/6211789.html"
     ],
     
     
@@ -95,7 +95,7 @@
     ],
     "Isolation Levels Description": "Tera supports snapshot isolation for its tables.",
     "Isolation Levels Citations": [
-    	"{https://github.com/baidu/tera}"
+    	"https://github.com/baidu/tera"
     ],
     
     
@@ -104,9 +104,9 @@
     ],
     "Indexes Description": "Tera uses a LSM-tree index instead of a skip list, in that it has a large volume of inserts and skip lists do not perform as well when the tables are reduced as key value pairs.",
     "Indexes Citations": [
-    	"{https://github.com/baidu/tera/blob/af82f3cc09d8866264751f71a3694dcab9c214f1/src/leveldb/db/skiplist.h}",
-    	"{https://github.com/baidu/tera/tree/af82f3cc09d8866264751f71a3694dcab9c214f1/src/leveldb}",
-    	"{https://en.wikipedia.org/wiki/Log-structured_merge-tree}"
+    	"https://github.com/baidu/tera/blob/af82f3cc09d8866264751f71a3694dcab9c214f1/src/leveldb/db/skiplist.h",
+    	"https://github.com/baidu/tera/tree/af82f3cc09d8866264751f71a3694dcab9c214f1/src/leveldb",
+    	"https://en.wikipedia.org/wiki/Log-structured_merge-tree"
     ],
     
     
@@ -123,8 +123,8 @@
     ],
     "Logging Description": "All the data of Tera is stored in Baidu File System and use this distributed file system to guarantee the durability of data by a strategy of returning success of a write only after over 3 copies are made in BFS.<br/> Logs are always written after data is written to the memory. The write-ahead log is usually only written and barely read, for fault tolerance considerations.<br/> Tera have these SST files as an auxiliary logging method, which is read-only static files produced by memory dump or compaction.",
     "Logging Citations": [
-        "{https://github.com/baidu/tera}",
-        "{http://pstatic.geekbang.org/pdf/58413497bd743.pdf?e=1494829205&token=eHNJKRTldoRsUX0uCP9M3icEhpbyh3VF9Nrk5UPM:6LB1c535falO-GPTfd3OKkycn6U=2}"
+        "https://github.com/baidu/tera",
+        "http://pstatic.geekbang.org/pdf/58413497bd743.pdf?e=1494829205&token=eHNJKRTldoRsUX0uCP9M3icEhpbyh3VF9Nrk5UPM:6LB1c535falO-GPTfd3OKkycn6U=2"
     ],
     
     
@@ -133,9 +133,9 @@
     ],
     "Checkpoints Description": "Baidu Tera supports table snapshots with records in unfinished transactions. Data are stored in the DFS in varied sections by key and the dissection is managed by the master server and every section is served by one data node at one time, and consistency is guaranteed this way.",
     "Checkpoints Citations": [
-        "{https://my.oschina.net/u/2982571/blog/775452}",
-        "{https://github.com/basho/leveldb/wiki/mv-iterator-refresh}",
-        "{http://pstatic.geekbang.org/pdf/58413497bd743.pdf?e=1494829205&token=eHNJKRTldoRsUX0uCP9M3icEhpbyh3VF9Nrk5UPM:6LB1c535falO-GPTfd3OKkycn6U=}"
+        "https://my.oschina.net/u/2982571/blog/775452",
+        "https://github.com/basho/leveldb/wiki/mv-iterator-refresh",
+        "http://pstatic.geekbang.org/pdf/58413497bd743.pdf?e=1494829205&token=eHNJKRTldoRsUX0uCP9M3icEhpbyh3VF9Nrk5UPM:6LB1c535falO-GPTfd3OKkycn6U="
     ],
     
     
@@ -151,7 +151,7 @@
     ],
     "Query Execution": "The queries inTera are executed by tuples at a time. To solidify a write, three valid copies must be obtained. To avoid hurting performance, writes solidification are batched as to trade a little bit response time for higher QPS, so that if 10ms a tuple write happens, around 5ms is added to average response time as a write will not return before it is solid.",
     "Query Execution Citations": [
-        "{https://my.oschina.net/u/2982571/blog/775452}"
+        "https://my.oschina.net/u/2982571/blog/775452"
     ],
     
     
@@ -179,7 +179,7 @@
     ],
     
     
-    "Website": "{https://github.com/baidu/tera}",
+    "Website": "https://github.com/baidu/tera",
     
     
     "Programming Language": [
@@ -199,22 +199,22 @@
     ],
     
     
-    "Developer": "{Baidu, Inc.}",
+    "Developer": "Baidu, Inc.",
     
     
-    "Start Date": "{2014-03}",
+    "Start Date": "2014-03",
     "Start Date Citations": [
-        "{https://github.com/baidu/tera}"
+        "https://github.com/baidu/tera"
     ],
     
     
-    "End Date": "{}",
+    "End Date": "",
     "End Date Citations": [
-        "{https://github.com/baidu/tera}"
+        "https://github.com/baidu/tera"
     ],
     
     
-    "Derived From": "{}",
+    "Derived From": "",
     
     
     "License": [

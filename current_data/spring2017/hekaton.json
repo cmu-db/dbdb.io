@@ -203,14 +203,14 @@
     "Developer": "Microsoft",
 
 
-    "Start Date": "{2012-11}",
+    "Start Date": "2012-11",
     "Start Date Citations": [
         "https://www.microsoft.com/en-us/research/blog/hekaton-breaks-through/?from=http:%2F%2Fresearch.microsoft.com%2Fen-us%2Fnews%2Ffeatures%2Fhekaton-122012.aspx"
 
     ],
 
 
-    "End Date": "{2016-6}",
+    "End Date": "2016-6",
     "End Date Citations": [
         "https://docs.microsoft.com/en-us/sql/whitepapers/sql-server-in-memory-oltp-internals-for-sql-server-2016"
     ],

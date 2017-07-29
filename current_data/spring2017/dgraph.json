@@ -1,21 +1,21 @@
 {
-    "Email": "{ychu1@andrew.cmu.edu}",
+    "Email": "ychu1@andrew.cmu.edu",
 
     
-    "Name": "{Dgraph}",
+    "Name": "Dgraph",
     
     
     "Description": "Dgraph is a high-scalable, low-latency and high-throughput distributed graph database. It emphasizes concurrency in distributed environment by minimizing network calls. It achieves good performance against Cayley and Neo4J by at least 10x factor faster in benchmark tests.",
     "Description Citations": [
-        "{https://wiki.dgraph.io/Frequently_asked_questions#Why_build_Dgraph.3F}",
-        "{https://wiki.dgraph.io/Frequently_asked_questions#Is_Dgraph_fast.3F}"
+        "https://wiki.dgraph.io/Frequently_asked_questions#Why_build_Dgraph.3F",
+        "https://wiki.dgraph.io/Frequently_asked_questions#Is_Dgraph_fast.3F"
     ],
     
     
     "History": "In July 2015, Manish Rai Jain (founder of Dgraph Labs), came up with the idea of Dgraph from his previous experience at Google -- there he led a project to unite all data structures for serving web search with a backend graph system. The first version v0.1 was released in December 2015, with the goal **offering an open source, native and distributed graph database** never changes since then. VC investors like Blackbird Ventures and Bain Capital Ventures led a $1.45 million funding round in Dgraph in May 2016, which brings a good funding round for this amazing start-up.",
     "History Citations": [
-        "{https://wiki.dgraph.io/Dgraph#History}",
-        "{http://www.smartcompany.com.au/startupsmart/advice/startupsmart-funding/two-failed-startups-later-ex-google-employee-secures-1-45-million-in-funding-and-backing-of-atlassians-co-founder/}"
+        "https://wiki.dgraph.io/Dgraph#History",
+        "http://www.smartcompany.com.au/startupsmart/advice/startupsmart-funding/two-failed-startups-later-ex-google-employee-secures-1-45-million-in-funding-and-backing-of-atlassians-co-founder/"
     ],
     
     
@@ -24,7 +24,7 @@
     ],
     "System Architecture Description": "Dgraph uses RAFT consensus algorithm for communication between servers. During each **term** (election cycle), voting is conducted to decide a single leader. Then there is unidirectional RPC communication from leader to followers, but they don't share disk naturally. Each server exposes a GRPC interface, which can then be called by the query processor to retrieve data. Clients must locate the cluster to interact with it. A client can randomly pick up any server in the cluster. If not picking a leader, the request should be rejected, and the leader information is passed along. The client can then re-route it's query to the leader.",
     "System Architecture Citations": [
-        "{https://wiki.dgraph.io/Design_concepts#RAFT}"
+        "https://wiki.dgraph.io/Design_concepts#RAFT"
     ],
     
     
@@ -33,8 +33,8 @@
     ],
     "Query Interface Description": "Dgraph uses a variation of [GraphQL](https://facebook.github.io/graphql/) (created by Facebook) called **GraphQL+-** as its query language because of GraphQL's graph-like query syntax, schema validation and subgraph shaped response. The difference is that **GraphQL+-** supports graph operations and has removed some inappropriate features considering graph database's special structure.",
     "Query Interface Citations": [
-        "{https://docs.dgraph.io/v0.7.6/query-language/}",
-        "{https://facebook.github.io/graphql/}"
+        "https://docs.dgraph.io/v0.7.6/query-language/",
+        "https://facebook.github.io/graphql/"
     ],
     
     
@@ -43,7 +43,7 @@
     ],
     "Data Model Description": "In Dgraph, a `PostingList` contains all `DirectedEdge` corresponding to an `Attribute`, where each `DirectedEdge` consists of entity, attribute, value, etc. Note that posting lists are all served via RocksDB in a key-value format `(Predicate, Subject) --> PostingList`.",
     "Data Model Citations": [
-        "{https://wiki.dgraph.io/Design_concepts#RocksDB}"
+        "https://wiki.dgraph.io/Design_concepts#RocksDB"
     ],
     
     
@@ -52,7 +52,7 @@
     ],
     "Storage Model Description": "Dgraph utilizes RocksDB (an application library rather than a database) to help with key-value storage of posting lists on disk. However, all data handling still happens at Dgraph level rather than RocksDB. RocksDB functions as an interface of disk for Dgraph.",
     "Storage Model Citations": [
-        "{https://wiki.dgraph.io/Frequently_asked_questions}"
+        "https://wiki.dgraph.io/Frequently_asked_questions"
     ],
     
         
@@ -61,7 +61,7 @@
     ],
     "Storage Architecture Description": "RocksDB library would decide how data are served out of memory, SSD or disk. In order to proceed processing, updates to posting lists can be stored in memory as an overlay over immutable `Posting list`. Two separate update layers are provided for replacing and addition/deletion respectively, which allows iteration over `Posting`s in memory without fetching things from disk.",
     "Storage Architecture Citations": [
-        "{https://wiki.dgraph.io/Design_concepts}"
+        "https://wiki.dgraph.io/Design_concepts"
     ],
     
     
@@ -70,8 +70,8 @@
     ],
     "Concurrency Control Description": "Dgraph's main focus is low latency and high throughput. It references the design of Google's Bigtable and Facebook's Tao, and achieves high scalability at the cost of lack of full ACID compliant transactional support. Also, value data versioning is under consideration, and not yet implemented",
     "Concurrency Control Citations": [
-        "{https://wiki.dgraph.io/Dgraph_compared_to_other_databases}",
-        "{https://wiki.dgraph.io/Design_concepts#Versioning}"
+        "https://wiki.dgraph.io/Dgraph_compared_to_other_databases",
+        "https://wiki.dgraph.io/Design_concepts#Versioning"
     ],
     
     
@@ -80,7 +80,7 @@
     ],
     "Isolation Levels Description": "Dgraph does not support transactions at this point. A mutation can be composed of multiple edges where each edge might belong to a different `PostingList`. Dgraph acquires `RWMutex` locks at a posting list level. It does not acquire locks across multiple posting lists. For writes, some edges would get written before others, and so any reads which happen while a mutation is going on would read partially committed data. However, there's a guarantee of durability. When a mutation succeeds, any successive reads will read the updated data in its entirety.",
     "Isolation Levels Citations": [
-        "{https://wiki.dgraph.io/Dgraph#Note_on_Transactions}"
+        "https://wiki.dgraph.io/Dgraph#Note_on_Transactions"
     ],
     
     
@@ -89,9 +89,9 @@
     ],
     "Indexes Description": "Dgraph relies on RocksDB to serve PostingLists and provide indexing. Here RocksDB uses key-value format to make radom lookups efficient, and supports faster hash-based index in plain table compared with block-based table.",
     "Indexes Citations": [
-        "{https://wiki.dgraph.io/Design_concepts#RocksDB}",
-        "{https://github.com/dgraph-io/dgraph/blob/3269e3df2582ad06901230c50b38d8745d1d4f73/vendor/github.com/cockroachdb/c-rocksdb/internal/table/plain_table_index.cc}",
-        "{https://github.com/facebook/rocksdb/wiki/A-Tutorial-of-RocksDB-SST-formats}"
+        "https://wiki.dgraph.io/Design_concepts#RocksDB",
+        "https://github.com/dgraph-io/dgraph/blob/3269e3df2582ad06901230c50b38d8745d1d4f73/vendor/github.com/cockroachdb/c-rocksdb/internal/table/plain_table_index.cc",
+        "https://github.com/facebook/rocksdb/wiki/A-Tutorial-of-RocksDB-SST-formats"
     ],
     
     
@@ -100,7 +100,7 @@
     ],
     "Foreign Keys Description": "In contrast to foreign key in relational database, nodes in graph database don't possess properties. Foreign relationships are represented by *edges* and should not exist implicitly. In Dgraph, creating relationships on top of data is the only way to model the data.",
     "Foreign Keys Citations": [
-        "{https://github.com/dgraph-io/dgraph/blob/a85a5b9494863af28daf73f8ccb3fd848907811e/wiki/content/guides/intro-to-graphs.md}"
+        "https://github.com/dgraph-io/dgraph/blob/a85a5b9494863af28daf73f8ccb3fd848907811e/wiki/content/guides/intro-to-graphs.md"
     ],
     
     
@@ -109,7 +109,7 @@
     ],
     "Logging Description": "Dgraph's logging scheme is **close to logical logging**. Every **mutation** is logged and then synced to disk via append-only log. Additionally, 2 layers of mutation responsible for replacing and addition/deletion respectively can log mutations in memory, allowing periodical garbage colleciton for dirty posting list via RocksDB. This reduces the need for recreating the posting lists.",
     "Logging Citations": [
-        "{https://wiki.dgraph.io/Design_concepts#Commit_Logs}"
+        "https://wiki.dgraph.io/Design_concepts#Commit_Logs"
     ],
     
     
@@ -119,7 +119,7 @@
     ],
     "Checkpoints Description": "The checkpoint scheme is not mentioned in Dgraph documentation. Therefore, questions are raised in Dgraph slack group. The above answer was provided by developers directly, but details were not revealed.",
     "Checkpoints Citations": [
-        "{https://dgraph.slack.com/messages/C13LH03RR/}"
+        "https://dgraph.slack.com/messages/C13LH03RR/"
     ],
     
     
@@ -136,7 +136,7 @@
     ],
     "Query Execution": "Dgraph is a distributed database system, therefore a query may involve different tablets on various server instances. The major cost is network call rather than cache miss. Tricks for in-memory database are not applicable here -- no *row batch fitting in cache* exists here. Also, there is no materialized view. Each follower server uses RPC to communicate its result to the master server in `PostingList` format.",
     "Query Execution Citations": [
-        "{https://wiki.dgraph.io/Design_concepts#Queries}"
+        "https://wiki.dgraph.io/Design_concepts#Queries"
     ],
     
     
@@ -145,7 +145,7 @@
     ],
     "Stored Procedures Description": "Functions can only be applied to [indexed attributes](https://wiki.dgraph.io/Query_Language#Indexing). Some pre-defined functions like term matching, inequality and geolocation are provided. Users only need to fill in the parameters to do customized procedures.",
     "Stored Procedures Citations": [
-        "{https://wiki.dgraph.io/Query_Language#Functions}"
+        "https://wiki.dgraph.io/Query_Language#Functions"
     ],
 
     
@@ -154,8 +154,8 @@
     ],
     "Joins Description": "Dgraph's `PostingList` structure stores all `DirectedEdges` corresponding to an `Attribute` in the format of `Attribute: Entity -> sorted list of ValueId`, which already consists of all data needed for a join. Therefore, each RPC call to the cluster would result in only one join rather than multiple joins. Join operation is reduced to lookup rather than application layer.",
     "Joins Citations": [
-        "{https://docs.dgraph.io/v0.7.4/design-concepts}",
-        "{https://docs.dgraph.io/v0.7.4/faq/}"
+        "https://docs.dgraph.io/v0.7.4/design-concepts",
+        "https://docs.dgraph.io/v0.7.4/faq/"
     ],
     
     
@@ -167,7 +167,7 @@
     ],
     
     
-    "Website": "{https://dgraph.io/}",
+    "Website": "https://dgraph.io/",
     
     
     "Programming Language": [
@@ -186,22 +186,22 @@
     ],
     
     
-    "Developer": "{DGraph Labs, Inc}",
+    "Developer": "DGraph Labs, Inc",
     
     
-    "Start Date": "{2015-07}",
+    "Start Date": "2015-07",
     "Start Date Citations": [
-        "{https://wiki.dgraph.io/Dgraph#History}"
+        "https://wiki.dgraph.io/Dgraph#History"
     ],
     
     
-    "End Date": "{On-going}",
+    "End Date": "On-going",
     "End Date Citations": [
-        "{https://wiki.dgraph.io/Dgraph#History}"
+        "https://wiki.dgraph.io/Dgraph#History"
     ],
     
     
-    "Derived From": "{N/A, designed from ground-up}",
+    "Derived From": "N/A, designed from ground-up",
     
     
     "License": [

@@ -151,7 +151,7 @@
     "Query Execution Options": [
         "Tuple-at-a-Time Model"
     ],
-    "Query Execution": "SQLite supports Volcano-style (tuple-at-a-time) query processing. More specifically, each `next()` in a physical operator recursively invokes `next()` of child operators, and then it finally produces a single tuple. There is no materials available for intra-query parallelism of SQLite online. It is assumed that SQLite does not support intra-query parallelism. All in all, the schemes of query execution of SQLite is not that CPU friendly compared to some modern database systems.",
+    "Query Execution Description": "SQLite supports Volcano-style (tuple-at-a-time) query processing. More specifically, each `next()` in a physical operator recursively invokes `next()` of child operators, and then it finally produces a single tuple. There is no materials available for intra-query parallelism of SQLite online. It is assumed that SQLite does not support intra-query parallelism. All in all, the schemes of query execution of SQLite is not that CPU friendly compared to some modern database systems.",
     "Query Execution Citations": [
         "https://chatwithengineers.com/2016/08/29/a-survey-of-query-execution-engines-from-volcano-to-vectorized-processing/"
     ],

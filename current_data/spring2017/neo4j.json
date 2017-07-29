@@ -1,19 +1,19 @@
 {
-    "Email": "{ragrawa1@andrew.cmu.edu}",
+    "Email": "ragrawa1@andrew.cmu.edu",
 
     
-    "Name": "{Neo4J}",
+    "Name": "Neo4J",
     
     
     "Description": "Neo4j is a highly scalable native graph database that leverages data relationships as first-class entities, helping enterprises build intelligent applications to meet today’s evolving data challenges. It provides ACID Transactions with online backups and high availability. DB Engines ranks Neo4j as the best graph processing database system.",
     "Description Citations": [
-        "{https://neo4j.com/}"
+        "https://neo4j.com/"
     ],
     
     
     "History": "Neo4j's first version was released in February, 2010 by Neo Technology in San Francisco. It is an ongoing project with the latest stable release 3.0 in April 2016. The idea behind developing Neo4j as a graph processing software was to store your relationships as first-class entities unlike NoSQL aggregate databases.",
     "History Citations": [
-        "{https://neo4j.com/blog/history-and-future-of-graph-data/"
+        "https://neo4j.com/blog/history-and-future-of-graph-data/"
     ],
     
     
@@ -22,8 +22,8 @@
     ],
     "System Architecture Description": "Neo4j offers a shared-nothing architecture with a single write master and multiple read replicas thus consumes significant instance based storage. ",
     "System Architecture Citations": [
-        "{https://d0.awsstatic.com/whitepapers/Database/neo4j-graph-databases-aws.pdf}",
-        "{https://aws.amazon.com/nosql/graph/}"
+        "https://d0.awsstatic.com/whitepapers/Database/neo4j-graph-databases-aws.pdf",
+        "https://aws.amazon.com/nosql/graph/"
     ],
     
     
@@ -32,7 +32,7 @@
     ],
     "Query Interface Description": "Cypher is a declarative, SQL-inspired language for describing patterns in graphs visually using an ascii-art syntax. One of the most powerful ability of Cypher is the notion to use -> operator to define relationships which are important in Graph Databases.",
     "Query Interface Citations": [
-        "{https://neo4j.com/developer/cypher-query-language/"
+        "https://neo4j.com/developer/cypher-query-language/"
     ],
     
     
@@ -41,8 +41,8 @@
     ],
     "Data Model Description": "Neo4j uses a Graph data model. The fundamental units which form a graph are nodes and relationships. This is stored with key-value style properties on both. Relationships connect two different nodes to each other, and are both typed and directed although we still have the flexibility to traverse the relationships in both the directions.",
     "Data Model Citations": [
-        "{https://neo4j.com/developer/guide-data-modeling/}",
-        "{https://neo4j.com/blog/modeling-categories-in-a-graph-database/}"
+        "https://neo4j.com/developer/guide-data-modeling/",
+        "https://neo4j.com/blog/modeling-categories-in-a-graph-database/"
     ],
     
     
@@ -51,8 +51,8 @@
     ],
     "Storage Model Description": "Each node and its properties are stored on the disk using a doubly linked list. Layout : byte  0 : 4 high bits of previous, 4 high bits of next pointers, bytes 1-4 : previous property record, bytes 5-8 : next property record, bytes 9-40 : payload ",
     "Storage Model Citations": [
-        "{http://digitalstain.blogspot.com/2011/11/rooting-out-redundancy-new-neo4j.html}",
-        "{https://neo4j.com/blog/neo4j-cassandra-transfer-data/}"
+        "http://digitalstain.blogspot.com/2011/11/rooting-out-redundancy-new-neo4j.html",
+        "https://neo4j.com/blog/neo4j-cassandra-transfer-data/"
     ],
     
         
@@ -61,7 +61,7 @@
     ],
     "Storage Architecture Description": "Neo4j has a disk-based, native storage manager optimised (optimisations typically revolve around using the cache effectively to avoid trips to the disk) for storing graph structures with maximum performance and scalability.",
     "Storage Architecture Citations": [
-        "{https://neo4j.com/docs/ogm-manual/current/introduction/}"
+        "https://neo4j.com/docs/ogm-manual/current/introduction/"
     ],
     
     
@@ -70,7 +70,7 @@
     ],
     "Concurrency Control Description": "Neo4j uses locks for transactions which may lead to deadlock. Deadlocks are detected and the transaction is marked for rollback. The transaction may be retried if needed by the user. The retry logic is left to the user.",
     "Concurrency Control Citations": [
-        "{http://neo4j.com/docs/java-reference/current/#transactions-deadlocks}"
+        "http://neo4j.com/docs/java-reference/current/#transactions-deadlocks"
     ],
     
     
@@ -80,7 +80,7 @@
     ],
     "Isolation Levels Description": "Neo4j supports ACID Transactions and the default isolation provided is READ_COMMITTED. The user can however acquire locks on nodes and relationships to achieve the SERIALIZABLE isolation. Deadlock Detection is inbuilt in the system.",
     "Isolation Levels Citations": [
-        "{http://neo4j.com/docs/java-reference/current/#transactions}"
+        "http://neo4j.com/docs/java-reference/current/#transactions"
     ],
     
     
@@ -89,8 +89,8 @@
     ],
     "Indexes Description": "Initially Neo4j did not support indexes however schema indexes were added in Neo4j 2.0, and now with Neo4j 2.3. Schema indexes allow to automatically index labelled nodes by one or more of their properties. Those indexes are then implicitly used by Cypher as secondary indexes and to infer the starting point(s) of a query",
     "Indexes Citations": [
-        "{https://neo4j.com/news/labels-and-schema-indexes-in-neo4j/}",
-        "{https://neo4j.com/blog/dark-side-neo4j-worst-practices/}"
+        "https://neo4j.com/news/labels-and-schema-indexes-in-neo4j/",
+        "https://neo4j.com/blog/dark-side-neo4j-worst-practices/"
     ],
     
     
@@ -99,8 +99,8 @@
     ],
     "Foreign Keys Description": "The traditional notion of foreign keys in RDBMS is used in Neo4j as relationships.The simple abstraction of nodes and relationships in connected structures helps enable the concept of foreign keys in Neo4j. ",
     "Foreign Keys Citations": [
-        "{https://neo4j.com/developer/graph-db-vs-rdbms/}",
-        "{https://db-engines.com/en/system/Neo4j}"
+        "https://neo4j.com/developer/graph-db-vs-rdbms/",
+        "https://db-engines.com/en/system/Neo4j"
     ],
     
     
@@ -109,7 +109,7 @@
     ],
     "Logging Description": "Logical transaction logs in Neo4j are used in scenarios when the database needs to be recovered after a unclean shutdown. They are also used for online backup operations, especially for incremental backups. These transaction log files are rotated after surpassing a certain size (25 Mb in size). The amount of log files or the used space can be configured.",
     "Logging Citations": [
-        "{https://neo4j.com/developer/guide-performance-tuning/#_logical_logs}"
+        "https://neo4j.com/developer/guide-performance-tuning/#_logical_logs"
     ],
     
     
@@ -118,7 +118,7 @@
     ],
     "Checkpoints Description": "Neo4j can be backed up while it continues to serve user traffic (called “online” backup). Neo4j offers two backup options: full or incremental. These strategies can be combined to provide the best mix of safety and efficiency. Depending on the risk profile of the system, a typical strategy might be to have daily full backups and hourly incremental backups, or weekly full backups with daily incremental backups.",
     "Checkpoints Citations": [
-        "{https://d0.awsstatic.com/whitepapers/Database/neo4j-graph-databases-aws.pdf}"
+        "https://d0.awsstatic.com/whitepapers/Database/neo4j-graph-databases-aws.pdf"
     ],
     
     
@@ -127,7 +127,7 @@
     ],
     "Views Description": "Neo4j does not support the concept of views like traditional RDMS. However, one can create a special VIEW Node. Querying a view now implies querying the created view node, traversing the edges to find the results.",
     "Views Citations": [
-        "{https://books.google.com/books?id=SohgCgAAQBAJ&pg=PA102&lpg=PA102&dq=materialized+views+neo4j&source=bl&ots=sxD8olubei&sig=NVeDfEHtdgPZ8pJGjQTbVTAw30Q&hl=en&sa=X&ved=0ahUKEwiGz_yig-zTAhWEgCYKHSUwDSsQ6AEIWzAL#v=onepage&q=materialized%20views%20neo4j&f=false}"
+        "https://books.google.com/books?id=SohgCgAAQBAJ&pg=PA102&lpg=PA102&dq=materialized+views+neo4j&source=bl&ots=sxD8olubei&sig=NVeDfEHtdgPZ8pJGjQTbVTAw30Q&hl=en&sa=X&ved=0ahUKEwiGz_yig-zTAhWEgCYKHSUwDSsQ6AEIWzAL#v=onepage&q=materialized%20views%20neo4j&f=false"
     ],
     
     
@@ -136,7 +136,7 @@
     ],
     "Query Execution": "Query Execution is done on a stream of tuples but compiled record types with the proper types and width. Vectorized / Morsels based approaches are planned for future releases.",
     "Query Execution Citations": [
-        "{https://twitter.com/mesirii/status/863670543156957184}"
+        "https://twitter.com/mesirii/status/863670543156957184"
     ],
     
     
@@ -145,7 +145,7 @@
     ],
     "Stored Procedures Description": "Stored procedures in Neo4j are called using Cypher calls. Arguments can be supplied directly within the query or taken from the associated parameter set. Procedures can be written in Java, compiled as jar files and put into the database as plugins.",
     "Stored Procedures Citations": [
-        "{https://neo4j.com/docs/developer-manual/current/extending-neo4j/procedures/}"
+        "https://neo4j.com/docs/developer-manual/current/extending-neo4j/procedures/"
     ],
 
     
@@ -154,8 +154,8 @@
     ],
     "Joins Description": "NodeHashJoin API provided in the documentation joins the input coming from the left with the input coming from the right. The support for ValueHashJoins was also merged with the github Neo4j 3.0 repository.",
     "Joins Citations": [
-        "{https://neo4j.com/docs/developer-manual/current/cypher/execution-plans/combining-operators/#query-plan-node-hash-join}",
-        "{https://github.com/neo4j/neo4j/wiki/Neo4j-3.0-changelog}"
+        "https://neo4j.com/docs/developer-manual/current/cypher/execution-plans/combining-operators/#query-plan-node-hash-join",
+        "https://github.com/neo4j/neo4j/wiki/Neo4j-3.0-changelog"
     ],
     
     
@@ -165,11 +165,11 @@
     ],
     "Query Compilation Description": "Neo4j uses (byte) code generation in addition to JIT compilation. The JIT compilation is provided by the JVM.",
     "Query Compilation Citations": [
-        "{https://twitter.com/mesirii/status/863670543156957184}"
+        "https://twitter.com/mesirii/status/863670543156957184"
     ],
     
     
-    "Website": "{https://neo4j.com/}",
+    "Website": "https://neo4j.com/",
     
     
     "Programming Language": [
@@ -190,23 +190,23 @@
     ],
     
     
-    "Developer": "{Neo Technology, Inc.}",
+    "Developer": "Neo Technology, Inc.",
     
     
-    "Start Date": "{2007}",
+    "Start Date": "2007",
     "Start Date Citations": [
-        "{https://en.wikipedia.org/wiki/Neo4j}",
-        "{https://twitter.com/peterneubauer/status/9248821667}"
+        "https://en.wikipedia.org/wiki/Neo4j",
+        "https://twitter.com/peterneubauer/status/9248821667"
     ],
     
     
-    "End Date": "{N/A}",
+    "End Date": "N/A",
     "End Date Citations": [
-        "{https://en.wikipedia.org/wiki/Neo4j}"
+        "https://en.wikipedia.org/wiki/Neo4j"
     ],
     
     
-    "Derived From": "{None}",
+    "Derived From": "None",
     
     
     "License": [

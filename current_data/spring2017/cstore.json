@@ -181,20 +181,20 @@
     "Developer": "Samuel Madden, Michael Stonebraker, Daniel Abadi, Stan Zdonik, Mitch Cherniack, David DeWitt, Pat O'Neil, Betty O'Neil, Nga Tran, Tien Hoang, Alexander Rasin, Tingjian Ge, Xuedong Chen, Stavros Harizopoulos, Miguel Ferreira, Amersin Lin, Adam Batkin, Edmond Lau",
     
     
-    "Start Date": "{YYYY-MM}",
+    "Start Date": "YYYY-MM",
     "Start Date Citations": [
-        "{URL1}",
-        "{URL2}"
+        "URL1",
+        "URL2"
     ],
     
     
-    "End Date": "{2006-10}",
+    "End Date": "2006-10",
     "End Date Citations": [
         "http://db.csail.mit.edu/projects/cstore/#download"
     ],
     
     
-    "Derived From": "{NAME}",
+    "Derived From": "NAME",
     
     
     "License": [

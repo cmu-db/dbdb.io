@@ -177,12 +177,12 @@
     "Developer": "Eric Tschetter, Fangjin Yang",
 
 
-    "Start Date": "{2011-04}",
+    "Start Date": "2011-04",
     "Start Date Citations": [
         "http://druid.io/blog/2011/04/30/introducing-druid.html"
     ],
 
-    "End Date": "{YYYY-MM}",
+    "End Date": "YYYY-MM",
     "End Date Citations": [],
 
 
