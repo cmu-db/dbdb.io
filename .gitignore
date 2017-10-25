@@ -41,6 +41,8 @@ coverage.xml
 .mr.developer.cfg
 .project
 .pydevproject
+# IntelliJ
+.idea/
 
 # Rope
 .ropeproject
@@ -52,3 +54,5 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+db.sqlite3
+dbdb_io/local_settings.py
