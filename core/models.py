@@ -109,3 +109,17 @@ class SystemVersionMetadata(CoreModel):
     derived_from = models.ManyToManyField(System, related_name='systems_derived', blank=True)
     publications = models.ManyToManyField(Publication, related_name='systems_publications', blank=True)
 
+
+__all__ = (
+    'OperatingSystem',
+    'ProgrammingLanguage',
+    'License',
+    'ProjectType',
+    'Publication',
+    'Feature',
+    'FeatureOption',
+    'SuggestedSystem',
+    'System',
+    'SystemVersion',
+    'SystemVersionMetadata'
+)
