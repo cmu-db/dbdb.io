@@ -55,6 +55,9 @@ class Feature(CoreModel):
     label = models.CharField(max_length=64)
     multivalued = models.NullBooleanField(default=True)
 
+    def __unicode__(self):
+        return self.label
+
 
 class FeatureOption(CoreModel):
     feature = models.ForeignKey('Feature', null=True, blank=True)
@@ -89,7 +92,6 @@ class SystemVersion(CoreModel):
     creator = models.ForeignKey(get_user_model())
     version_message = models.CharField(max_length=500, default="", null=True, blank=True)
 
-    name = models.CharField(max_length=64)
     description = models.TextField(default="", blank=True)
     history = models.TextField(default="", blank=True)
     website = models.URLField(default="", null=True, blank=True)
@@ -98,16 +100,23 @@ class SystemVersion(CoreModel):
     start_year = models.CharField(max_length=128, default="", blank=True)
     end_year = models.CharField(max_length=128, default="", blank=True)
     project_type = models.ManyToManyField(ProjectType, blank=True)
-    logo_orig = ThumbnailerImageField(upload_to='logos', blank=True)
+    logo = ThumbnailerImageField(upload_to='logos', blank=True)
 
 
 class SystemVersionMetadata(CoreModel):
+    system = models.OneToOneField(SystemVersion, null=True)
     written_in = models.ManyToManyField(ProgrammingLanguage, related_name='systems_written', blank=True)
     supported_languages = models.ManyToManyField(ProgrammingLanguage, related_name='systems_supported', blank=True)
     oses = models.ManyToManyField(OperatingSystem, related_name='systems_oses', blank=True)
     licenses = models.ManyToManyField(License, related_name="systems_licenses", blank=True)
     derived_from = models.ManyToManyField(System, related_name='systems_derived', blank=True)
     publications = models.ManyToManyField(Publication, related_name='systems_publications', blank=True)
+
+
+class SystemFeatures(CoreModel):
+    system = models.ForeignKey(SystemVersion, null=True)
+    feature = models.ForeignKey(Feature, null=True)
+    value = models.ManyToManyField(FeatureOption, null=True)
 
 
 __all__ = (
@@ -121,5 +130,6 @@ __all__ = (
     'SuggestedSystem',
     'System',
     'SystemVersion',
-    'SystemVersionMetadata'
+    'SystemVersionMetadata',
+    'SystemFeatures'
 )

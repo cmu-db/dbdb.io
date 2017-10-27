@@ -4,6 +4,9 @@ from django.forms import fields
 from django.forms import widgets
 from django.contrib.auth import get_user_model
 
+from core.models import SystemVersion, SystemVersionMetadata
+from .models import System
+
 
 class CreateUserForm(ModelForm):
     email = fields.EmailField(max_length=254, required=True)
@@ -18,3 +21,21 @@ class CreateUserForm(ModelForm):
     class Meta:
         model = get_user_model()
         fields = ['username', 'email', 'password', 'password2']
+
+
+class SystemForm(ModelForm):
+    class Meta:
+        model = System
+        exclude = ['secret_key', 'current_version']
+
+
+class SystemVersionForm(ModelForm):
+    class Meta:
+        model = SystemVersion
+        exclude = ['system', 'version_number', 'creator']
+
+
+class SystemVersionMetadataForm(ModelForm):
+    class Meta:
+        model = SystemVersionMetadata
+        exclude = ['system']
