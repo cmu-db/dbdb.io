@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'easy_thumbnails',
     'autoslug',
+    'bootstrap4',
     'core'
 ]
 
@@ -132,7 +133,10 @@ THUMBNAIL_ALIASES = {
     },
 }
 
+LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/'
+
 try:
-    from local_settings import *
+    from .local_settings import *
 except:
     pass
