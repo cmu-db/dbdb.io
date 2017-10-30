@@ -24,7 +24,7 @@ class OperatingSystem(CoreModel):
     slug = AutoSlugField(populate_from='name')
 
 
-class ProgrammingLanguage(models.Model):
+class ProgrammingLanguage(CoreModel):
     name = models.CharField(max_length=64)
     website = models.URLField(default="", null=True)
     slug = AutoSlugField(populate_from='name')
@@ -49,6 +49,9 @@ class Publication(CoreModel):
     year = models.IntegerField(default=0, null=True)
     number = models.IntegerField(default=1, null=True)
     cite = models.TextField(default=None, null=True, blank=True)
+
+    def __unicode__(self):
+        return self.title
 
 
 class Feature(CoreModel):
@@ -79,7 +82,7 @@ class SuggestedSystem(CoreModel):
 class System(CoreModel):
     name = models.CharField(max_length=64, null=False, blank=False)
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    current_version = models.PositiveIntegerField(default=1)
+    current_version = models.PositiveIntegerField(default=0)
     slug = AutoSlugField(populate_from='name')
     secret_key = models.UUIDField(max_length=36, default=uuid.uuid4)
 
@@ -101,10 +104,13 @@ class SystemVersion(CoreModel):
     end_year = models.CharField(max_length=128, default="", blank=True)
     project_type = models.ManyToManyField(ProjectType, blank=True)
     logo = ThumbnailerImageField(upload_to='logos', blank=True)
+    meta = models.ForeignKey('SystemVersionMetadata', null=True, blank=True)
+
+    def __unicode__(self):
+        return '{} - {}'.format(self.system.name, self.version_number)
 
 
 class SystemVersionMetadata(CoreModel):
-    system = models.OneToOneField(SystemVersion, null=True)
     written_in = models.ManyToManyField(ProgrammingLanguage, related_name='systems_written', blank=True)
     supported_languages = models.ManyToManyField(ProgrammingLanguage, related_name='systems_supported', blank=True)
     oses = models.ManyToManyField(OperatingSystem, related_name='systems_oses', blank=True)
@@ -112,11 +118,18 @@ class SystemVersionMetadata(CoreModel):
     derived_from = models.ManyToManyField(System, related_name='systems_derived', blank=True)
     publications = models.ManyToManyField(Publication, related_name='systems_publications', blank=True)
 
+    def __unicode__(self):
+        system = self.systemversion_set.first()
+        return '{} - {} Meta'.format(system.system.name, system.version_number)
+
 
 class SystemFeatures(CoreModel):
     system = models.ForeignKey(SystemVersion, null=True)
     feature = models.ForeignKey(Feature, null=True)
     value = models.ManyToManyField(FeatureOption, null=True)
+
+    def __unicode__(self):
+        return self.system.name
 
 
 __all__ = (

@@ -8,8 +8,7 @@
             <div class="col-md-6">
                 <form action="." method="POST">
                     {% csrf_token %}
-                    {% bootstrap_form system_form %}
-                    {% bootstrap_form system_version_form %}
+                    {% bootstrap_form system_version_metadata_form %}
                     {% buttons %}
                         <button type="submit" class="btn btn-primary">
                             Next
