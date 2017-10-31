@@ -1,11 +1,11 @@
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm
+from django.forms import ModelForm, Form
 from django.forms import fields
 from django.forms import widgets
 from django.contrib.auth import get_user_model
 
-from core.models import SystemVersion, SystemVersionMetadata
-from .models import System
+from core.models import SystemVersion, SystemVersionMetadata, FeatureOption
+from .models import System, Feature
 
 
 class CreateUserForm(ModelForm):
@@ -39,3 +39,23 @@ class SystemVersionMetadataForm(ModelForm):
     class Meta:
         model = SystemVersionMetadata
         exclude = ['system']
+
+
+class SystemFeaturesForm(Form):
+    def __init__(self, *args, **kwargs):
+        super(SystemFeaturesForm, self).__init__(*args, **kwargs)
+        features = Feature.objects.all()
+        for feature in features:
+            if feature.multivalued:
+                self.fields[feature.label] = fields.MultipleChoiceField(
+                    choices=(
+                        (x, x) for x in FeatureOption.objects.filter(feature=feature)
+                    )
+                )
+            else:
+                self.fields[feature.label] = fields.ChoiceField(
+                    choices=(
+                        (x, x) for x in FeatureOption.objects.filter(feature=feature)
+                    )
+                )
+
