@@ -1,0 +1,124 @@
+[
+{
+  "model": "core.operatingsystem",
+  "pk": 1,
+  "fields": {
+    "name": "Linux",
+    "website": "https://www.linuxfoundation.org",
+    "slug": "linux"
+  }
+},
+{
+  "model": "core.operatingsystem",
+  "pk": 2,
+  "fields": {
+    "name": "Windows",
+    "website": "https://www.microsoft.com/en-us/windows/",
+    "slug": "windows"
+  }
+},
+{
+  "model": "core.programminglanguage",
+  "pk": 1,
+  "fields": {
+    "name": "Python",
+    "website": "http://python.org",
+    "slug": "python"
+  }
+},
+{
+  "model": "core.programminglanguage",
+  "pk": 2,
+  "fields": {
+    "name": "Java",
+    "website": "http://oracle.com",
+    "slug": "java"
+  }
+},
+{
+  "model": "core.license",
+  "pk": 1,
+  "fields": {
+    "name": "MIT",
+    "website": "https://opensource.org/licenses/MIT",
+    "slug": "mit"
+  }
+},
+{
+  "model": "core.projecttype",
+  "pk": 1,
+  "fields": {
+    "name": "General",
+    "slug": "general"
+  }
+},
+{
+  "model": "core.publication",
+  "pk": 1,
+  "fields": {
+    "title": "CCB",
+    "authors": "No Author",
+    "bibtex": "",
+    "link": null,
+    "year": 2008,
+    "number": 2,
+    "cite": ""
+  }
+},
+{
+  "model": "core.feature",
+  "pk": 1,
+  "fields": {
+    "label": "Feature One",
+    "multivalued": false
+  }
+},
+{
+  "model": "core.feature",
+  "pk": 2,
+  "fields": {
+    "label": "Feature Two",
+    "multivalued": true
+  }
+},
+{
+  "model": "core.featureoption",
+  "pk": 1,
+  "fields": {
+    "feature": 1,
+    "value": "1"
+  }
+},
+{
+  "model": "core.featureoption",
+  "pk": 2,
+  "fields": {
+    "feature": 1,
+    "value": "2"
+  }
+},
+{
+  "model": "core.featureoption",
+  "pk": 3,
+  "fields": {
+    "feature": 1,
+    "value": "3"
+  }
+},
+{
+  "model": "core.featureoption",
+  "pk": 4,
+  "fields": {
+    "feature": 2,
+    "value": "high"
+  }
+},
+{
+  "model": "core.featureoption",
+  "pk": 5,
+  "fields": {
+    "feature": 2,
+    "value": "low"
+  }
+}
+]

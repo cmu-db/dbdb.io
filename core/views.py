@@ -1,3 +1,5 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http.response import Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
@@ -32,6 +34,9 @@ class CreateDatabase(View):
     template_name = 'core/create-database.html'
 
     def get(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            raise Http404()
+
         if 'id' not in kwargs:
             self.template_name = 'core/create-database.html'
             context = {
@@ -52,63 +57,52 @@ class CreateDatabase(View):
         return render(request, template_name=self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
-        if 'id' not in kwargs:
-            system_form = SystemForm(request.POST)
-            system_version_form = SystemVersionForm(request.POST)
+        if not request.user.is_superuser:
+            raise Http404()
 
-            if system_form.is_valid() and system_version_form.is_valid():
-                db = system_form.save()
-                db_version = system_version_form.save(commit=False)
-                db_version .creator = request.user
-                db_version .system = db
-                db_version .save()
-                return redirect(reverse('create_db_meta', args=[db.id, 'meta']))
-            context = {
-                'system_form': system_form,
-                'system_version_form': system_version_form,
-            }
-        elif kwargs['kind'] == 'meta':
-            system_version_metadata_form = SystemVersionMetadataForm(
-                request.POST, request.FILES)
-            if system_version_metadata_form.is_valid():
-                db = SystemVersion.objects.get(system_id=kwargs['id'], is_current=True)
+        system_form = SystemForm(request.POST)
+        system_version_form = SystemVersionForm(request.POST)
+        system_version_metadata_form = SystemVersionMetadataForm(
+            request.POST, request.FILES)
+        form = SystemFeaturesForm(request.POST)
 
-                db_meta = system_version_metadata_form.save()
-                db.meta = db_meta
-                db.save()
+        if system_form.is_valid() and system_version_form.is_valid() and \
+                system_version_metadata_form.is_valid() and form.is_valid():
 
-                return redirect(reverse('create_db_features', args=[kwargs['id'], 'features']))
-            context = {
-                'system_version_metadata_form': system_version_metadata_form
-            }
-        elif kwargs['kind'] == 'features':
-            form = SystemFeaturesForm(request.POST)
-            if form.is_valid():
-                for feature, value in form.cleaned_data.items():
-                    feature_obj = Feature.objects.get(label=feature)
-                    system = SystemVersion.objects.get(system__id=kwargs['id'], is_current=True)
-                    saved = SystemFeatures.objects.create(
-                        system=system,
-                        feature=feature_obj
+            db = system_form.save()
+            db_version = system_version_form.save(commit=False)
+            db_version .creator = request.user
+            db_version .system = db
+            db_version .save()
+
+            db_meta = system_version_metadata_form.save()
+            db_version.meta = db_meta
+            db_version.save()
+
+            for feature, value in form.cleaned_data.items():
+                feature_obj = Feature.objects.get(label=feature)
+                saved = SystemFeatures.objects.create(
+                    system=db_version,
+                    feature=feature_obj
+                )
+                if isinstance(value, str):
+                    saved.value.add(
+                        FeatureOption.objects.get(
+                            feature=feature_obj,
+                            value=value)
                     )
-                    if isinstance(value, str):
+                else:
+                    for v in value:
                         saved.value.add(
                             FeatureOption.objects.get(
                                 feature=feature_obj,
-                                value=value)
+                                value=v)
                         )
-                    else:
-                        for v in value:
-                            saved.value.add(
-                                FeatureOption.objects.get(
-                                    feature=feature_obj,
-                                    value=v)
-                            )
 
-                return redirect(system.get_absolute_url())
-            context = {
-                'feature_form': form
-            }
+            return redirect(db.get_absolute_url())
+        context = {
+            'feature_form': form
+        }
 
         return render(request, template_name=self.template_name, context=context)
 
