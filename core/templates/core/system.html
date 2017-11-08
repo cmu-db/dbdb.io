@@ -1,11 +1,23 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 {% load bootstrap4 %}
+{% load thumbnail %}
 
+{% block navbuttons %}
+    <li class="nav-item active ml-2">
+        <a class="nav-link btn btn-outline-secondary" href="{% url "system_edit" system.id %}">Edit</a>
+    </li>
+{% endblock %}
+{% block title %}
+    {{ system.name }}
+{% endblock %}
 {% block content %}
     <div class="jumbotron">
         <div class="row justify-content-md-center">
-            <div class="col-md-6">
+            <div class="col-md-10">
+                {% if system_version.logo %}
+                <h2><img src="{{ system_version.logo|thumbnail_url:'thumb' }}">{{ system.name }}</h2>
+                {% else %}
                 <h2>{{ system.name }}</h2>
                 <p>{{ system.created }}</p>
                 <p>{{ system_version.description }}</p>

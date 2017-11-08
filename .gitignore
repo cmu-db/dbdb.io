@@ -56,5 +56,4 @@ docs/_build/
 
 db.sqlite3
 dbdb_io/local_settings.py
-
-media/
+media/logos/*.jpg

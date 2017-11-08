@@ -15,7 +15,7 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="/">Databaseology</a>
+    <a class="navbar-brand" href="{%  url "home" %}">Database of Databases</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -24,7 +24,7 @@
         <ul class="navbar-nav mr-auto">
             {% if user.is_authenticated %}
             <li class="nav-item active">
-                <a class="nav-link btn btn-outline-secondary" href="/create-db/">Create Database</a>
+                <a class="nav-link btn btn-outline-secondary" href="{% url "create_database" %}">Create Database</a>
             </li>
             {% endif %}
         </ul>
@@ -45,16 +45,16 @@
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="#">Profile</a>
                         {% if user.is_staff %}
-                        <a class="dropdown-item" href="/admin/">Admin</a>
+                        <a class="dropdown-item" href="{% url "admin:index" %}">Admin</a>
                         {% endif %}
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="/logout/">Logout</a>
+                        <a class="dropdown-item" href="{% url "logout" %}">Logout</a>
                     </div>
                 {% else %}
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/login/">Login</a>
+                        <a class="dropdown-item" href="{% url "login" %}">Login</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="/create_user/">Create Account</a>
+                        <a class="dropdown-item" href="{% url "create_user" %}">Create Account</a>
                     </div>
                 {% endif %}
             </li>

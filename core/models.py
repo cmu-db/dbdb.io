@@ -106,7 +106,7 @@ class SystemVersion(CoreModel):
     start_year = models.CharField(max_length=128, default="", blank=True)
     end_year = models.CharField(max_length=128, default="", blank=True)
     project_type = models.ManyToManyField(ProjectType, blank=True)
-    logo = ThumbnailerImageField(upload_to='logos', blank=True)
+    logo = ThumbnailerImageField(upload_to='logos/', blank=True)
     meta = models.ForeignKey('SystemVersionMetadata', null=True, blank=True)
 
     def __unicode__(self):
