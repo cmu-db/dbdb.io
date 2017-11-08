@@ -2,7 +2,6 @@ import uuid
 
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.conf import settings
 from autoslug import AutoSlugField
 from easy_thumbnails.fields import ThumbnailerImageField
 
@@ -21,24 +20,24 @@ class CoreModel(models.Model):
 class OperatingSystem(CoreModel):
     name = models.CharField(max_length=64)
     website = models.URLField(default="", null=True)
-    slug = AutoSlugField(populate_from='name')
+    slug = AutoSlugField(populate_from='name', unique=True)
 
 
 class ProgrammingLanguage(CoreModel):
     name = models.CharField(max_length=64)
     website = models.URLField(default="", null=True)
-    slug = AutoSlugField(populate_from='name')
+    slug = AutoSlugField(populate_from='name', unique=True)
 
 
 class License(CoreModel):
     name = models.CharField(max_length=32)
     website = models.URLField(default=None, null=True)
-    slug = AutoSlugField(populate_from='name')
+    slug = AutoSlugField(populate_from='name', unique=True)
 
 
 class ProjectType(CoreModel):
     name = models.CharField(max_length=32)
-    slug = AutoSlugField(populate_from='name')
+    slug = AutoSlugField(populate_from='name', unique=True)
 
 
 class Publication(CoreModel):
@@ -83,7 +82,7 @@ class System(CoreModel):
     name = models.CharField(max_length=64, null=False, blank=False)
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     current_version = models.PositiveIntegerField(default=0)
-    slug = AutoSlugField(populate_from='name')
+    slug = AutoSlugField(populate_from='name', unique=True)
     secret_key = models.UUIDField(max_length=36, default=uuid.uuid4)
 
     def get_absolute_url(self):

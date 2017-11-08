@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.response import Http404
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.views import View
 from django.contrib.auth import get_user_model
@@ -110,8 +110,9 @@ class CreateDatabase(View):
 class SystemView(View):
     template_name = 'core/system.html'
 
-    def get(self, request, id):
-        system = System.objects.get(id=id)
+    def get(self, request, slug):
+        system = get_object_or_404(System, slug=slug)
+        system_version = system.current()
         context = {
             'system': system,
             'system_version': system_version,
@@ -123,8 +124,8 @@ class SystemView(View):
 class EditDatabase(View):
     template_name = 'core/edit-database.html'
 
-    def get(self, request, id):
-        system = System.objects.get(id=id)
+    def get(self, request, slug):
+        system = System.objects.get(slug=slug)
         system_version = SystemVersion.objects.get(system=system, is_current=True)
         system_meta = system_version.meta
         system_features = system_version.systemfeatures_set.all()
@@ -137,8 +138,8 @@ class EditDatabase(View):
         }
         return render(request, template_name=self.template_name, context=context)
 
-    def post(self, request, id):
-        system = System.objects.get(id=id)
+    def post(self, request, slug):
+        system = System.objects.get(slug=slug)
         system_form = SystemForm(request.POST, instance=system)
         system_version_form = SystemVersionForm(request.POST, request.FILES)
         system_version_metadata_form = SystemVersionMetadataForm(request.POST)
