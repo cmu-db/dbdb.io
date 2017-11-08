@@ -3,6 +3,7 @@ import uuid
 from django.db import models
 from django.contrib.auth import get_user_model
 from autoslug import AutoSlugField
+from django.urls import reverse
 from easy_thumbnails.fields import ThumbnailerImageField
 
 
@@ -86,7 +87,7 @@ class System(CoreModel):
     secret_key = models.UUIDField(max_length=36, default=uuid.uuid4)
 
     def get_absolute_url(self):
-        return "/system/{}/".format(self.id)
+        return reverse('system', args=[self.slug])
 
 
 class SystemVersion(CoreModel):
@@ -131,7 +132,7 @@ class SystemFeatures(CoreModel):
     value = models.ManyToManyField(FeatureOption, null=True)
 
     def __unicode__(self):
-        return self.system.name
+        return self.system.system.name
 
 
 __all__ = (
