@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http.request import QueryDict
 from django.http.response import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
@@ -191,3 +192,17 @@ class EditDatabase(View):
 
 class SearchView(View):
     template_name = 'core/search.html'
+
+    def get(self, request):
+        query = request.GET.get('q')
+        if query is None:
+            return redirect('home')
+        if not isinstance(query, str):
+            query = query[0]
+
+        systems = System.objects.prefetch_related('systemversion_set').filter(name__icontains=query)
+        context = {
+            'systems': systems,
+            'query': query
+        }
+        return render(request, template_name=self.template_name, context=context)

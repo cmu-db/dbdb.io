@@ -22,16 +22,18 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            {% if user.is_authenticated %}
-            <li class="nav-item active">
-                <a class="nav-link btn btn-outline-secondary" href="{% url "create_database" %}">Create Database</a>
-            </li>
+            {% if user.is_authenticated and user.is_superuser %}
+                <li class="nav-item active">
+                    <a class="nav-link btn btn-outline-secondary" href="{% url "create_database" %}">Create Database</a>
+                </li>
             {% endif %}
         </ul>
-        <form class="form-inline my-2 my-lg-0 mr-4">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form>
+        {% if request.resolver_match.url_name != "home" %}
+            <form action="{% url 'search' %}" method="GET" class="form-inline my-2 my-lg-0 mr-4">
+                <input name="q" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" value="{{ query }}">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+        {% endif %}
         <ul class="navbar-nav my-2 my-lg-0 mr-4">
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -45,7 +47,7 @@
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="#">Profile</a>
                         {% if user.is_staff %}
-                        <a class="dropdown-item" href="{% url "admin:index" %}">Admin</a>
+                            <a class="dropdown-item" href="{% url "admin:index" %}">Admin</a>
                         {% endif %}
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{% url "logout" %}">Logout</a>

@@ -112,6 +112,9 @@ class SystemVersion(CoreModel):
     def __unicode__(self):
         return '{} - {}'.format(self.system.name, self.version_number)
 
+    def project_type_str(self):
+        return ', '.join([str(l) for l in self.project_type.all()])
+
 
 class SystemVersionMetadata(CoreModel):
     written_in = models.ManyToManyField(ProgrammingLanguage, related_name='systems_written', blank=True)
@@ -124,6 +127,24 @@ class SystemVersionMetadata(CoreModel):
     def __unicode__(self):
         system = self.systemversion_set.first()
         return '{} - {} Meta'.format(system.system.name, system.version_number)
+
+    def written_in_str(self):
+        return ', '.join([str(l) for l in self.written_in.all()])
+
+    def supported_languages_str(self):
+        return ', '.join([str(l) for l in self.supported_languages.all()])
+
+    def oses_str(self):
+        return ', '.join([str(l) for l in self.oses.all()])
+
+    def derived_from_str(self):
+        return ', '.join([str(l) for l in self.derived_from.all()])
+
+    def licenses_str(self):
+        return ', '.join([str(l) for l in self.licenses.all()])
+
+    def publications_str(self):
+        return ', '.join([str(l) for l in self.publications.all()])
 
 
 class SystemFeatures(CoreModel):
