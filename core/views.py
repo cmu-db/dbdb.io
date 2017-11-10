@@ -200,7 +200,7 @@ class SearchView(View):
         if not isinstance(query, str):
             query = query[0]
 
-        systems = System.objects.prefetch_related('systemversion_set').filter(name__icontains=query)
+            systems = System.objects.prefetch_related('systemversion_set').filter(name__icontains=query)
         context = {
             'systems': systems,
             'query': query

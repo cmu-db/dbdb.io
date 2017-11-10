@@ -32,7 +32,7 @@ class SystemForm(ModelForm):
 class SystemVersionForm(ModelForm):
     class Meta:
         model = SystemVersion
-        exclude = ['system', 'is_current', 'version_number', 'creator', 'version_message', 'history', 'meta']
+        exclude = ['system', 'is_current', 'version_number', 'creator', 'version_message', 'meta']
 
 
 class SystemVersionMetadataForm(ModelForm):

@@ -14,101 +14,141 @@
 {% block content %}
     <div class="jumbotron">
         <div class="row justify-content-md-center">
-            <div class="card col-md-10">
-                <div class="card-body">
-                    {% if system_version.logo %}
-                        <img class="img-thumbnail float-right" src="{{ system_version.logo|thumbnail_url:'thumb' }}">
-                    {% endif %}
-                    <h2 class="card-title">{{ system.name }}</h2>
-                    <p class="card-text">{{ system_version.description }}</p>
-                </div>
-            </div>
-            <div class="card col-md-5">
-                <div class="card-body">
-                    <h4 class="card-title">Created</h4>
-                    <p class="card-text">{{ system.created|date:"SHORT_DATE_FORMAT" }}</p>
-                </div>
-            </div>
-            <div class="card col-md-5">
-                <div class="card-body">
-                    <h4 class="card-title">Website</h4>
-                    <p class="card-text"><a href="{{ system_version.website }}">{{ system_version.website }}</a></p>
-                </div>
-            </div>
-            <div class="card col-md-5">
-                <div class="card-body">
-                    <h4 class="card-title">Tech Docs</h4>
-                    <p class="card-text"><a href="{{ system_version.tech_docs }}">{{ system_version.tech_docs }}</a></p>
-                </div>
-            </div>
-            <div class="card col-md-5">
-                <div class="card-body">
-                    <h4 class="card-title">Developer</h4>
-                    <p class="card-text">{{ system_version.developer }}</p>
-                </div>
-            </div>
-            <div class="card col-md-5">
-                <div class="card-body">
-                    <h4 class="card-title">Start Year</h4>
-                    <p class="card-text">{{ system_version.start_year }}</p>
-                </div>
-            </div>
-            <div class="card col-md-5">
-                <div class="card-body">
-                    <h4 class="card-title">End Year</h4>
-                    <p class="card-text">{{ system_version.end_year }}</p>
-                </div>
-            </div>
-            <div class="card col-md-5">
-                <div class="card-body">
-                    <h4 class="card-title">Project Type</h4>
-                    <p class="card-text">{{ system_version.project_type_str }}</p>
-                </div>
-            </div>
-            <div class="card col-md-5">
-                <div class="card-body">
-                    <h4 class="card-title">Written in</h4>
-                    <p class="card-text">{{ system_version.meta.written_in_str }}</p>
-                </div>
-            </div>
-            <div class="card col-md-5">
-                <div class="card-body">
-                    <h4 class="card-title">Supported languages</h4>
-                    <p class="card-text">{{ system_version.meta.supported_languages_str }}</p>
-                </div>
-            </div>
-            <div class="card col-md-5">
-                <div class="card-body">
-                    <h4 class="card-title">Derived From</h4>
-                    <p class="card-text">{{ system_version.meta.derived_from_str }}</p>
-                </div>
-            </div>
-            <div class="card col-md-5">
-                <div class="card-body">
-                    <h4 class="card-title">Operating Systems</h4>
-                    <p class="card-text">{{ system_version.meta.oses_str }}</p>
-                </div>
-            </div>
-            <div class="card col-md-5">
-                <div class="card-body">
-                    <h4 class="card-title">Licenses</h4>
-                    <p class="card-text">{{ system_version.meta.licenses_str }}</p>
-                </div>
-            </div>
-            <div class="card col-md-5">
-                <div class="card-body">
-                    <h4 class="card-title">Publications</h4>
-                    <p class="card-text">{{ system_version.meta.publications_str }}</p>
-                </div>
-            </div>
-            {% for feature in system_features %}
-                <div class="card col-md-5">
+            <div class="col-md-7">
+                <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">{{ feature.feature.label }}</h4>
-                        <p class="card-text">{{ feature.values_str }}</p>
+                        <h2 class="card-title">{{ system.name }}</h2>
+                        <p class="card-text">{{ system_version.description }}</p>
                     </div>
                 </div>
-            {% endfor %}
+                {% if system_version.history %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">History</h4>
+                            <p class="card-text">{{ system_version.website }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if system_version.project_type %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Project Type</h4>
+                            <p class="card-text">{{ system_version.project_type_str }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if system_version.written_in %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Written in</h4>
+                            <p class="card-text">{{ system_version.meta.written_in_str }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if system_version.supported_languages %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Supported languages</h4>
+                            <p class="card-text">{{ system_version.meta.supported_languages_str }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+                {% for feature in system_features %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">{{ feature.feature.label }}</h4>
+                            <p class="card-text">{{ feature.values_str }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        {% if system_version.logo %}
+                            <img class="img-thumbnail" src="{{ system_version.logo|thumbnail_url:'thumb' }}">
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">Created</h6>
+                        <p class="card-text">{{ system.created|date:"SHORT_DATE_FORMAT" }}</p>
+                    </div>
+                </div>
+                {% if system_version.website %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Website</h6>
+                            <p class="card-text"><a href="{{ system_version.website }}">{{ system_version.website }}</a></p>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if system_version.tech_docs %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Tech Docs</h6>
+                            <p class="card-text"><a href="{{ system_version.tech_docs }}">{{ system_version.tech_docs }}</a></p>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if system_version.developer %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Developer</h6>
+                            <p class="card-text">{{ system_version.developer }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if system_version.start_year %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Start Year</h6>
+                            <p class="card-text">{{ system_version.start_year }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if system_version.end_year %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">End Year</h6>
+                            <p class="card-text">{{ system_version.end_year }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if system_version.derived_from %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Derived From</h6>
+                            <p class="card-text">{{ system_version.meta.derived_from_str }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if system_version.oses %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Operating Systems</h6>
+                            <p class="card-text">{{ system_version.meta.oses_str }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if system_version.license %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Licenses</h6>
+                            <p class="card-text">{{ system_version.meta.licenses_str }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if system_version.publications %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Publications</h6>
+                            <p class="card-text">{{ system_version.meta.publications_str }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 {% endblock %}
