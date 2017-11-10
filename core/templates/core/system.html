@@ -4,9 +4,11 @@
 {% load thumbnail %}
 
 {% block navbuttons %}
-    <li class="nav-item active ml-2">
-        <a class="nav-link btn btn-outline-secondary" href="{% url "system_edit" system.slug %}">Edit</a>
-    </li>
+    {% if user.is_authenticated %}
+        <li class="nav-item active ml-2">
+            <a class="nav-link btn btn-outline-secondary" href="{% url "system_edit" system.slug %}">Edit</a>
+        </li>
+    {% endif %}
 {% endblock %}
 {% block title %}
     {{ system.name }}
