@@ -59,3 +59,15 @@ class SystemFeaturesForm(Form):
                     )
                 )
 
+
+class AdvancedSearchForm(Form):
+    def __init__(self, *args, **kwargs):
+        super(AdvancedSearchForm, self).__init__(*args, **kwargs)
+        features = Feature.objects.all()
+
+        for feature in features:
+            self.fields[feature.label] = fields.MultipleChoiceField(
+                choices=(
+                    (x, x) for x in FeatureOption.objects.filter(feature=feature)
+                ), required=False
+            )

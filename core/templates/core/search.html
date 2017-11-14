@@ -23,5 +23,12 @@
                 {% endfor %}
             </div>
         </div>
+        <div class="row">
+            {% for system in systems %}
+                <div class="col-md-3">
+                    <a href="{{ system.get_absolute_url }}">{{ system.name }}</a>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}

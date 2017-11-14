@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import QuerySet
 from django.http.request import QueryDict
 from django.http.response import Http404
 from django.shortcuts import render, redirect, get_object_or_404
@@ -6,8 +7,14 @@ from django.urls import reverse
 from django.views import View
 from django.contrib.auth import get_user_model
 
+<<<<<<< HEAD
 from core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm
 from core.models import System, SystemVersion, Feature, FeatureOption, SystemFeatures
+=======
+from core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm, \
+    AdvancedSearchForm
+from core.models import System, SystemVersionMetadata, SystemVersion, Feature, FeatureOption, SystemFeatures
+>>>>>>> 5e86c89... Implements advanced search
 
 
 class CreateUser(View):
@@ -205,4 +212,30 @@ class SearchView(View):
             'systems': systems,
             'query': query
         }
+        return render(request, template_name=self.template_name, context=context)
+
+
+class AdvancedSearchView(View):
+    template_name = 'core/advanced-search.html'
+
+    def get(self, request):
+        context = {'form': AdvancedSearchForm()}
+        return render(request, template_name=self.template_name, context=context)
+
+    def post(self, request):
+        form = AdvancedSearchForm(request.POST)
+        systems = System.objects.filter(id__in=[])
+        if form.is_valid():
+            for key, value in form.cleaned_data.items():
+                if value:
+                    systems |= System.objects.filter(systemversion__in=SystemVersion.objects.filter(
+                        is_current=True,
+                        systemfeatures=SystemFeatures.objects.filter(
+                            value__in=FeatureOption.objects.filter(value__in=value, feature__label=key))))
+
+        context = {
+            'systems': systems,
+            'form': form
+        }
+
         return render(request, template_name=self.template_name, context=context)

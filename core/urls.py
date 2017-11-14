@@ -3,8 +3,7 @@ from django.views.generic.base import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
 
-from core.views import CreateDatabase, SystemView, EditDatabase, SearchView
-from .views import CreateUser
+from core.views import CreateDatabase, SystemView, EditDatabase, SearchView, CreateUser, AdvancedSearchView
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='core/home.html'), name="home"),
@@ -14,4 +13,5 @@ urlpatterns = [
     url(r'^db/(?P<slug>\w+)/$', SystemView.as_view(), name='system'),
     url(r'^db/(?P<slug>\w+)/edit/$', EditDatabase.as_view(), name='system_edit'),
     url(r'^search/$', SearchView.as_view(), name='search'),
+    url(r'^advanced-search/$', AdvancedSearchView.as_view(), name='advanced_search'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
