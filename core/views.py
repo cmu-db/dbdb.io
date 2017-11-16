@@ -208,7 +208,7 @@ class SearchView(View):
         if not isinstance(query, str):
             query = query[0]
 
-            systems = System.objects.prefetch_related('systemversion_set').filter(name__icontains=query)
+        systems = System.objects.prefetch_related('systemversion_set').filter(name__icontains=query)
         context = {
             'systems': systems,
             'query': query
@@ -225,7 +225,7 @@ class AdvancedSearchView(View):
 
     def post(self, request):
         form = AdvancedSearchForm(request.POST)
-        systems = System.objects.filter(id__in=[])
+        systems = []
         if form.is_valid():
             features = {}
             for key, value in form.cleaned_data.items():
@@ -233,10 +233,11 @@ class AdvancedSearchView(View):
                     options = FeatureOption.objects.filter(value__in=value, feature__label=key)
                     feature = Feature.objects.get(label=key)
                     features[feature] = options
-            systems = []
             system_versions = []
             for k, v in features.items():
-                sv = SystemFeatures.objects.filter(feature=k, value__in=v, system__is_current=True).distinct().values_list('system', flat=True)
+                sv = SystemFeatures.objects.filter(
+                    feature=k, value__in=v, system__is_current=True
+                ).distinct().values_list('system', flat=True)
                 if not sv:
                     break
                 system_versions.append(set(sv))
