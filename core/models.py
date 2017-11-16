@@ -89,6 +89,18 @@ class System(CoreModel):
     def get_absolute_url(self):
         return reverse('system', args=[self.slug])
 
+    def __hash__(self):
+        return hash((
+            self.id,
+            self.name,
+            self.created,
+            self.current_version,
+            self.secret_key
+        ))
+
+    def current(self):
+        return self.systemversion_set.get(is_current=True)
+
 
 class SystemVersion(CoreModel):
     system = models.ForeignKey(System)
@@ -111,6 +123,15 @@ class SystemVersion(CoreModel):
 
     def __unicode__(self):
         return '{} - {}'.format(self.system.name, self.version_number)
+
+    def __hash__(self):
+        return hash((
+            self.id,
+            self.system,
+            self.version_number,
+            self.is_current,
+            self.created
+        ))
 
     def project_type_str(self):
         return ', '.join([str(l) for l in self.project_type.all()])

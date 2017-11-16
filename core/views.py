@@ -1,11 +1,12 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import QuerySet
+from django.db.models import Q
 from django.http.request import QueryDict
 from django.http.response import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.views import View
 from django.contrib.auth import get_user_model
+from functools import reduce
 
 <<<<<<< HEAD
 from core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm
@@ -226,12 +227,24 @@ class AdvancedSearchView(View):
         form = AdvancedSearchForm(request.POST)
         systems = System.objects.filter(id__in=[])
         if form.is_valid():
+            features = {}
             for key, value in form.cleaned_data.items():
                 if value:
-                    systems |= System.objects.filter(systemversion__in=SystemVersion.objects.filter(
-                        is_current=True,
-                        systemfeatures=SystemFeatures.objects.filter(
-                            value__in=FeatureOption.objects.filter(value__in=value, feature__label=key))))
+                    options = FeatureOption.objects.filter(value__in=value, feature__label=key)
+                    feature = Feature.objects.get(label=key)
+                    features[feature] = options
+            systems = []
+            system_versions = []
+            for k, v in features.items():
+                sv = SystemFeatures.objects.filter(feature=k, value__in=v, system__is_current=True).distinct().values_list('system', flat=True)
+                if not sv:
+                    break
+                system_versions.append(set(sv))
+            else:
+                common_systems = reduce(lambda a, b: a.intersection(b), system_versions)
+                systems = System.objects.filter(id__in=SystemVersion.objects.filter(id__in=common_systems).values_list(
+                    'system', flat=True
+                ))
 
         context = {
             'systems': systems,
