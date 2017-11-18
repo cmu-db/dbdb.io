@@ -8,14 +8,9 @@ from django.views import View
 from django.contrib.auth import get_user_model
 from functools import reduce
 
-<<<<<<< HEAD
-from core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm
-from core.models import System, SystemVersion, Feature, FeatureOption, SystemFeatures
-=======
 from core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm, \
     AdvancedSearchForm
 from core.models import System, SystemVersionMetadata, SystemVersion, Feature, FeatureOption, SystemFeatures
->>>>>>> 5e86c89... Implements advanced search
 
 
 class CreateUser(View):
