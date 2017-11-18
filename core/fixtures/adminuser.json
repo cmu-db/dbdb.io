@@ -1,0 +1,20 @@
+[
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$36000$owJTXGmMW7Id$QTsOZeE8ozNE2m/7DkZXOChyWM1fDDkh0b/SbFkvR6I=",
+    "last_login": "2017-11-07T20:45:10.340Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "Admin",
+    "last_name": "User",
+    "email": "admin@dbdb.io",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2017-10-25T20:34:13.799Z",
+    "groups": [],
+    "user_permissions": []
+  }
+}
+]

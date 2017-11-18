@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% load bootstrap4 %}
+
+{% block title %}
+    Home
+{% endblock %}
+{% block content %}
+    <div class="jumbotron">
+        <div class="row justify-content-md-center">
+            <div class="col col-10 text-center">
+                <h1 class="display-3">Advanced Search</h1>
+                <form action="." method="POST" >
+                    {% csrf_token %}
+                    <div class="row">
+                        {% for input in form %}
+                            <div class="form-group col-md-3">
+                                {% bootstrap_field input %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <p class="lead">
+                        <button class="btn btn-primary btn-lg" type="submit" role="button">Search</button>
+                    </p>
+
+                </form>
+                <div class="row">
+                    <div class="col-md-3">
+                        {% if systems %}
+                            {% for system in systems %}
+                                <div class="col-md-3">
+                                    <a href="{{ system.get_absolute_url }}">{{ system.name }}</a>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            No results found
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

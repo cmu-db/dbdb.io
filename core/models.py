@@ -2,8 +2,8 @@ import uuid
 
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.conf import settings
 from autoslug import AutoSlugField
+from django.urls import reverse
 from easy_thumbnails.fields import ThumbnailerImageField
 
 
@@ -21,24 +21,24 @@ class CoreModel(models.Model):
 class OperatingSystem(CoreModel):
     name = models.CharField(max_length=64)
     website = models.URLField(default="", null=True)
-    slug = AutoSlugField(populate_from='name')
+    slug = AutoSlugField(populate_from='name', unique=True)
 
 
 class ProgrammingLanguage(CoreModel):
     name = models.CharField(max_length=64)
     website = models.URLField(default="", null=True)
-    slug = AutoSlugField(populate_from='name')
+    slug = AutoSlugField(populate_from='name', unique=True)
 
 
 class License(CoreModel):
     name = models.CharField(max_length=32)
     website = models.URLField(default=None, null=True)
-    slug = AutoSlugField(populate_from='name')
+    slug = AutoSlugField(populate_from='name', unique=True)
 
 
 class ProjectType(CoreModel):
     name = models.CharField(max_length=32)
-    slug = AutoSlugField(populate_from='name')
+    slug = AutoSlugField(populate_from='name', unique=True)
 
 
 class Publication(CoreModel):
@@ -83,11 +83,23 @@ class System(CoreModel):
     name = models.CharField(max_length=64, null=False, blank=False)
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     current_version = models.PositiveIntegerField(default=0)
-    slug = AutoSlugField(populate_from='name')
+    slug = AutoSlugField(populate_from='name', unique=True)
     secret_key = models.UUIDField(max_length=36, default=uuid.uuid4)
 
     def get_absolute_url(self):
-        return "/system/{}/".format(self.id)
+        return reverse('system', args=[self.slug])
+
+    def __hash__(self):
+        return hash((
+            self.id,
+            self.name,
+            self.created,
+            self.current_version,
+            self.secret_key
+        ))
+
+    def current(self):
+        return self.systemversion_set.get(is_current=True)
 
 
 class SystemVersion(CoreModel):
@@ -106,11 +118,23 @@ class SystemVersion(CoreModel):
     start_year = models.CharField(max_length=128, default="", blank=True)
     end_year = models.CharField(max_length=128, default="", blank=True)
     project_type = models.ManyToManyField(ProjectType, blank=True)
-    logo = ThumbnailerImageField(upload_to='logos', blank=True)
+    logo = ThumbnailerImageField(upload_to='logos/', blank=True)
     meta = models.ForeignKey('SystemVersionMetadata', null=True, blank=True)
 
     def __unicode__(self):
         return '{} - {}'.format(self.system.name, self.version_number)
+
+    def __hash__(self):
+        return hash((
+            self.id,
+            self.system,
+            self.version_number,
+            self.is_current,
+            self.created
+        ))
+
+    def project_type_str(self):
+        return ', '.join([str(l) for l in self.project_type.all()])
 
 
 class SystemVersionMetadata(CoreModel):
@@ -125,6 +149,24 @@ class SystemVersionMetadata(CoreModel):
         system = self.systemversion_set.first()
         return '{} - {} Meta'.format(system.system.name, system.version_number)
 
+    def written_in_str(self):
+        return ', '.join([str(l) for l in self.written_in.all()])
+
+    def supported_languages_str(self):
+        return ', '.join([str(l) for l in self.supported_languages.all()])
+
+    def oses_str(self):
+        return ', '.join([str(l) for l in self.oses.all()])
+
+    def derived_from_str(self):
+        return ', '.join([str(l) for l in self.derived_from.all()])
+
+    def licenses_str(self):
+        return ', '.join([str(l) for l in self.licenses.all()])
+
+    def publications_str(self):
+        return ', '.join([str(l) for l in self.publications.all()])
+
 
 class SystemFeatures(CoreModel):
     system = models.ForeignKey(SystemVersion, null=True)
@@ -132,7 +174,10 @@ class SystemFeatures(CoreModel):
     value = models.ManyToManyField(FeatureOption, null=True)
 
     def __unicode__(self):
-        return self.system.name
+        return self.system.system.name
+
+    def values_str(self):
+        return ', '.join([str(l) for l in self.value.all()])
 
 
 __all__ = (

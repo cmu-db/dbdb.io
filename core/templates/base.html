@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Databaseology - {% block title %}{% endblock %}</title>
+    <title>Database of Databases - {% block title %}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="{% static 'core/images/favicon.ico' %}" rel="shortcut icon" type="image/x-icon" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
@@ -15,23 +15,27 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="/">Databaseology</a>
+    <a class="navbar-brand" href="{%  url "home" %}">Database of Databases</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            {% if user.is_authenticated %}
-            <li class="nav-item active">
-                <a class="nav-link btn btn-outline-secondary" href="/create-db/">Create Database</a>
-            </li>
+            {% if user.is_authenticated and user.is_superuser %}
+                <li class="nav-item active">
+                    <a class="nav-link btn btn-outline-secondary" href="{% url "create_database" %}">Create Database</a>
+                </li>
             {% endif %}
+            {% block navbuttons %}
+            {% endblock %}
         </ul>
-        <form class="form-inline my-2 my-lg-0 mr-4">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form>
+        {% if request.resolver_match.url_name != "home" %}
+            <form action="{% url 'search' %}" method="GET" class="form-inline my-2 my-lg-0 mr-4">
+                <input name="q" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" value="{{ query }}">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+        {% endif %}
         <ul class="navbar-nav my-2 my-lg-0 mr-4">
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -45,16 +49,16 @@
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="#">Profile</a>
                         {% if user.is_staff %}
-                        <a class="dropdown-item" href="/admin/">Admin</a>
+                            <a class="dropdown-item" href="{% url "admin:index" %}">Admin</a>
                         {% endif %}
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="/logout/">Logout</a>
+                        <a class="dropdown-item" href="{% url "logout" %}">Logout</a>
                     </div>
                 {% else %}
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/login/">Login</a>
+                        <a class="dropdown-item" href="{% url "login" %}">Login</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="/create_user/">Create Account</a>
+                        <a class="dropdown-item" href="{% url "create_user" %}">Create Account</a>
                     </div>
                 {% endif %}
             </li>

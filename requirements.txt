@@ -1,3 +1,4 @@
 Django==1.11.6
 django-autoslug==1.9.3
 easy-thumbnails==2.4.2
+django-bootstrap4==0.0.4

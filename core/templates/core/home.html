@@ -1,18 +1,23 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 
+{% block title %}
+    Home
+{% endblock %}
 {% block content %}
     <div class="jumbotron">
         <div class="row justify-content-md-center">
             <div class="col col-8 text-center">
-                <h1 class="display-3">Databaseology</h1>
+                <h1 class="display-3">Database of Databases</h1>
                 <p class="lead">Discover and learn about <b>all</b> the databases</p>
-                <div class="form-group">
-                    <input type="text" class="form-control form-control-lg" id="search" aria-describedby="Search field" placeholder="Begin searching!">
-                </div>
-                <p class="lead">
-                    <a class="btn btn-link btn-lg" href="#" role="button">Advanced Search</a>
-                </p>
+                <form action="{% url 'search' %}" method="GET" >
+                    <div class="form-group">
+                        <input type="text" name="q" class="form-control form-control-lg" id="search" aria-describedby="Search field" placeholder="Begin searching!">
+                    </div>
+                    <p class="lead">
+                        <a class="btn btn-link btn-lg" href="{% url 'advanced_search' %}" role="button">Advanced Search</a>
+                    </p>
+                </form>
             </div>
         </div>
     </div>

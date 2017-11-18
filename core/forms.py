@@ -32,7 +32,7 @@ class SystemForm(ModelForm):
 class SystemVersionForm(ModelForm):
     class Meta:
         model = SystemVersion
-        exclude = ['system', 'is_current', 'version_number', 'creator', 'version_message', 'history', 'meta']
+        exclude = ['system', 'is_current', 'version_number', 'creator', 'version_message', 'meta']
 
 
 class SystemVersionMetadataForm(ModelForm):
@@ -43,19 +43,50 @@ class SystemVersionMetadataForm(ModelForm):
 
 class SystemFeaturesForm(Form):
     def __init__(self, *args, **kwargs):
+        try:
+            instance = kwargs.pop('instance')
+        except KeyError:
+            instance = []
         super(SystemFeaturesForm, self).__init__(*args, **kwargs)
+        initial = {}
+
+        for option in instance:
+            o = option.value.values_list('value', flat=True)
+            if len(o) > 1:
+                o = list(o)
+            elif len(o) == 1:
+                o = o[0]
+            else:
+                o = None
+            initial[option.feature.label] = o
+
         features = Feature.objects.all()
+
         for feature in features:
             if feature.multivalued:
                 self.fields[feature.label] = fields.MultipleChoiceField(
                     choices=(
                         (x, x) for x in FeatureOption.objects.filter(feature=feature)
-                    )
+                    ),
+                    initial=initial.get(feature.label)
                 )
             else:
                 self.fields[feature.label] = fields.ChoiceField(
                     choices=(
                         (x, x) for x in FeatureOption.objects.filter(feature=feature)
-                    )
+                    ),
+                    initial=initial.get(feature.label)
                 )
 
+
+class AdvancedSearchForm(Form):
+    def __init__(self, *args, **kwargs):
+        super(AdvancedSearchForm, self).__init__(*args, **kwargs)
+        features = Feature.objects.all()
+
+        for feature in features:
+            self.fields[feature.label] = fields.MultipleChoiceField(
+                choices=(
+                    (x, x) for x in FeatureOption.objects.filter(feature=feature)
+                ), required=False
+            )
