@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Databaseology - {% block title %}{% endblock %}</title>
+    <title>Database of Databases - {% block title %}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="{% static 'core/images/favicon.ico' %}" rel="shortcut icon" type="image/x-icon" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
@@ -27,6 +27,8 @@
                     <a class="nav-link btn btn-outline-secondary" href="{% url "create_database" %}">Create Database</a>
                 </li>
             {% endif %}
+            {% block navbuttons %}
+            {% endblock %}
         </ul>
         {% if request.resolver_match.url_name != "home" %}
             <form action="{% url 'search' %}" method="GET" class="form-inline my-2 my-lg-0 mr-4">

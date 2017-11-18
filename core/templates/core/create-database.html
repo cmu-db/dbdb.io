@@ -2,6 +2,9 @@
 {% load staticfiles %}
 {% load bootstrap4 %}
 
+{% block title %}
+    Create Database
+{% endblock %}
 {% block content %}
     <div class="jumbotron">
         <div class="row justify-content-md-center">
@@ -10,9 +13,11 @@
                     {% csrf_token %}
                     {% bootstrap_form system_form %}
                     {% bootstrap_form system_version_form %}
+                    {% bootstrap_form system_version_metadata_form %}
+                    {% bootstrap_form feature_form %}
                     {% buttons %}
                         <button type="submit" class="btn btn-primary">
-                            Next
+                            Submit
                         </button>
                     {% endbuttons %}
                 </form>

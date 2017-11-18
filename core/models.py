@@ -176,6 +176,9 @@ class SystemFeatures(CoreModel):
     def __unicode__(self):
         return self.system.system.name
 
+    def values_str(self):
+        return ', '.join([str(l) for l in self.value.all()])
+
 
 __all__ = (
     'OperatingSystem',

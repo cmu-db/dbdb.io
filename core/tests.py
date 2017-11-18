@@ -215,4 +215,3 @@ class AdvancedSearchTestCase(TestCase):
         }
         response = self.client.post(reverse('advanced_search'), data=data)
         self.assertContains(response, 'No results found')
-

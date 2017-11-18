@@ -136,6 +136,8 @@ THUMBNAIL_ALIASES = {
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 
+LOGIN_URL = '/login/'
+
 try:
     from .local_settings import *
 except:

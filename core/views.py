@@ -34,7 +34,7 @@ class CreateUser(View):
         return render(request, context=context, template_name=self.template_name)
 
 
-class CreateDatabase(View):
+class CreateDatabase(LoginRequiredMixin, View):
     template_name = 'core/create-database.html'
 
     def get(self, request, *args, **kwargs):
@@ -45,16 +45,8 @@ class CreateDatabase(View):
             self.template_name = 'core/create-database.html'
             context = {
                 'system_form': SystemForm(),
-                'system_version_form': SystemVersionForm()
-            }
-        elif kwargs['kind'] == 'meta':
-            self.template_name = 'core/create-database-meta.html'
-            context = {
-                'system_version_metadata_form': SystemVersionMetadataForm()
-            }
-        elif kwargs['kind'] == 'features':
-            self.template_name = 'core/create-database-features.html'
-            context = {
+                'system_version_form': SystemVersionForm(),
+                'system_version_metadata_form': SystemVersionMetadataForm(),
                 'feature_form': SystemFeaturesForm()
             }
 
@@ -102,9 +94,11 @@ class CreateDatabase(View):
                                 feature=feature_obj,
                                 value=v)
                         )
-
-            return redirect(db.get_absolute_url())
+            return redirect(db_version.system.get_absolute_url())
         context = {
+            'system_form': system_form,
+            'system_version_form': system_version_form,
+            'system_version_metadata_form': system_version_metadata_form,
             'feature_form': form
         }
 
