@@ -1,0 +1,14 @@
+* {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.footer {
+    padding: 20px;
+    border-top-color: black;
+    border-top-width: 1px;
+    border-top-style: solid;
+}
+
+.footer-text {
+  text-align: center;
+}
