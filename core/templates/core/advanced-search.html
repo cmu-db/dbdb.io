@@ -26,17 +26,15 @@
 
                 </form>
                 <div class="row">
-                    <div class="col-md-3">
-                        {% if systems %}
-                            {% for system in systems %}
-                                <div class="col-md-3">
-                                    <a href="{{ system.get_absolute_url }}">{{ system.name }}</a>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            No results found
-                        {% endif %}
-                    </div>
+                    {% if systems %}
+                        {% for system in systems %}
+                            <div class="col-md-3">
+                                <a href="{{ system.get_absolute_url }}">{{ system.name }}</a>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        No results found
+                    {% endif %}
                 </div>
             </div>
         </div>
