@@ -209,7 +209,11 @@ class AdvancedSearchView(View):
     template_name = 'core/advanced-search.html'
 
     def get(self, request):
-        context = {'form': AdvancedSearchForm()}
+        systems = System.objects.order_by('name')
+        context = {
+            'form': AdvancedSearchForm(),
+            'systems': systems
+        }
         return render(request, template_name=self.template_name, context=context)
 
     def post(self, request):
