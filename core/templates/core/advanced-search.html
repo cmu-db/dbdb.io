@@ -16,7 +16,12 @@
                     <div class="row">
                         {% for input in form %}
                             <div class="form-group col-md-3">
-                                {% bootstrap_field input %}
+                                <label for="{{ input.id_for_label }}">{{ input.label }}</label>
+                                <select class="selectpicker" name="{{ input.name }}" multiple>
+                                    {% for option, value in input.field.choices %}
+                                        <option value={{ option.value }}>{{ value.value }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         {% endfor %}
                     </div>

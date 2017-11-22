@@ -235,10 +235,13 @@ class AdvancedSearchView(View):
                     break
                 system_versions.append(set(sv))
             else:
-                common_systems = reduce(lambda a, b: a.intersection(b), system_versions)
-                systems = System.objects.filter(id__in=SystemVersion.objects.filter(id__in=common_systems).values_list(
-                    'system', flat=True
-                ))
+                if system_versions:
+                    common_systems = reduce(lambda a, b: a.intersection(b), system_versions)
+                    systems = System.objects.filter(id__in=SystemVersion.objects.filter(id__in=common_systems).values_list(
+                        'system', flat=True
+                    ))
+                else:
+                    systems = System.objects.order_by('name')
 
         context = {
             'systems': systems,
