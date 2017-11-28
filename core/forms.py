@@ -3,6 +3,7 @@ from django.forms import ModelForm, Form
 from django.forms import fields
 from django.forms import widgets
 from django.contrib.auth import get_user_model
+from django.forms.widgets import Textarea
 
 from core.models import SystemVersion, SystemVersionMetadata, FeatureOption
 from .models import System, Feature
@@ -58,25 +59,43 @@ class SystemFeaturesForm(Form):
                 o = o[0]
             else:
                 o = None
-            initial[option.feature.label] = o
+            initial[option.feature.label] = {
+                'options': o,
+                'description': option.description
+            }
 
         features = Feature.objects.all()
 
         for feature in features:
+            initial_value = None
             if feature.multivalued:
+                if feature.label in initial:
+                    initial_value = initial[feature.label]['options']
                 self.fields[feature.label] = fields.MultipleChoiceField(
                     choices=(
                         (x, x) for x in FeatureOption.objects.filter(feature=feature)
                     ),
-                    initial=initial.get(feature.label)
+                    initial=initial_value,
+                    required=False
                 )
             else:
+                if feature.label in initial:
+                    initial_value = initial[feature.label]['options']
                 self.fields[feature.label] = fields.ChoiceField(
                     choices=(
                         (x, x) for x in FeatureOption.objects.filter(feature=feature)
                     ),
-                    initial=initial.get(feature.label)
+                    initial=initial_value,
+                    required=False
                 )
+            if feature.label in initial:
+                initial_value = initial[feature.label]['description']
+            self.fields[feature.label+'_description'] = fields.CharField(
+                help_text="This field support Markdown Syntax",
+                widget=Textarea(attrs={'class': 'markdown'}),
+                initial=initial_value,
+                required=False
+            )
 
 
 class AdvancedSearchForm(Form):
