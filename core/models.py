@@ -172,6 +172,7 @@ class SystemFeatures(CoreModel):
     system = models.ForeignKey(SystemVersion, null=True)
     feature = models.ForeignKey(Feature, null=True)
     value = models.ManyToManyField(FeatureOption, null=True)
+    description = models.TextField(help_text='This field support Markdown Syntax')
 
     def __unicode__(self):
         return self.system.system.name

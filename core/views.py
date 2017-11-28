@@ -158,24 +158,33 @@ class EditDatabase(View):
             db_version.save()
 
             for feature, value in form.cleaned_data.items():
-                feature_obj = Feature.objects.get(label=feature)
-                saved = SystemFeatures.objects.create(
-                    system=db_version,
-                    feature=feature_obj
-                )
-                if isinstance(value, str):
-                    saved.value.add(
-                        FeatureOption.objects.get(
-                            feature=feature_obj,
-                            value=value)
+                if '_description' in feature:
+                    feature_obj = Feature.objects.get(label=feature[:-12])
+                    saved, _ = SystemFeatures.objects.get_or_create(
+                        system=db_version,
+                        feature=feature_obj
                     )
+                    saved.description = value
+                    saved.save()
                 else:
-                    for v in value:
+                    feature_obj = Feature.objects.get(label=feature)
+                    saved = SystemFeatures.objects.create(
+                        system=db_version,
+                        feature=feature_obj
+                    )
+                    if isinstance(value, str):
                         saved.value.add(
                             FeatureOption.objects.get(
                                 feature=feature_obj,
-                                value=v)
+                                value=value)
                         )
+                    else:
+                        for v in value:
+                            saved.value.add(
+                                FeatureOption.objects.get(
+                                    feature=feature_obj,
+                                    value=v)
+                            )
             return redirect(db_version.system.get_absolute_url())
         context = {
             'system_form': system_form,

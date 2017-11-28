@@ -30,19 +30,31 @@
                     </p>
 
                 </form>
-                <div class="row">
-                    {% if systems %}
-                        {% for system in systems %}
-                            <div class="col-md-3">
-                                <a href="{{ system.get_absolute_url }}">{{ system.name }}</a>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        No results found
-                    {% endif %}
-                </div>
             </div>
         </div>
-
     </div>
+    <div class="row mb-5 justify-content-md-center">
+        <div class="col col-10 text-center">
+            <div class="row">
+                {% if systems %}
+                    {% for system in systems %}
+                        <div class="col-md-3">
+                            <a href="{{ system.get_absolute_url }}">{{ system.name }}</a>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    No results found
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+
+<script src="{% static 'bootstrap/js/bootstrap-select.js' %}"></script>
+<script>
+$(document).ready(function () {
+    $('.selectpicker').selectpicker();
+});
+</script>
 {% endblock %}
