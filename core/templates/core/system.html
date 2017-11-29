@@ -3,6 +3,9 @@
 {% load bootstrap4 %}
 {% load thumbnail %}
 
+{% block css %}
+    <link href="{% static 'core/css/system.css' %}" rel="stylesheet">
+{% endblock %}
 {% block navbuttons %}
     {% if user.is_authenticated %}
         <li class="nav-item active ml-2">
@@ -20,14 +23,14 @@
                 <div class="card">
                     <div class="card-body">
                         <h2 class="card-title">{{ system.name }}</h2>
-                        <p class="card-text">{{ system_version.description }}</p>
+                        <p class="card-text markdown-area">{{ system_version.description }}</p>
                     </div>
                 </div>
                 {% if system_version.history %}
                     <div class="card">
                         <div class="card-body">
                             <h4 class="card-title">History</h4>
-                            <p class="card-text">{{ system_version.website }}</p>
+                            <p class="card-text markdown-area">{{ system_version.history }}</p>
                         </div>
                     </div>
                 {% endif %}
@@ -59,10 +62,13 @@
                     <div class="card">
                         <div class="card-body">
                             <h4 class="card-title">{{ feature.feature.label }}</h4>
-                            <p class="card-text">{{ feature.values_str }}</p>
-                            <div>
-
-                            </div>
+                            <p class="card-text">
+                                {% for v in feature.value.all %}
+                                    <span class="badge badge-info">{{ v }}</span>
+                                {% endfor %}
+                            <p class="markdown-area">
+                                {{ feature.description }}
+                            </p>
                         </div>
                     </div>
                 {% endfor %}
@@ -156,4 +162,8 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'lib/js/markdown.min.js' %}"></script>
+    <script src="{% static 'core/js/system.js' %}"></script>
 {% endblock %}

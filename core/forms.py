@@ -31,6 +31,18 @@ class SystemForm(ModelForm):
 
 
 class SystemVersionForm(ModelForm):
+    description = fields.CharField(
+        help_text="This field support Markdown Syntax",
+        widget=Textarea(attrs={'class': 'markdown'}),
+        required=False
+    )
+
+    history = fields.CharField(
+        help_text="This field support Markdown Syntax",
+        widget=Textarea(attrs={'class': 'markdown'}),
+        required=False
+    )
+
     class Meta:
         model = SystemVersion
         exclude = ['system', 'is_current', 'version_number', 'creator', 'version_message', 'meta']
