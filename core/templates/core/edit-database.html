@@ -5,6 +5,9 @@
 {% block title %}
     Edit Database
 {% endblock %}
+{% block css %}
+    <link href="{% static 'lib/css/bootstrap-markdown-editor.css' %}" rel="stylesheet">
+{% endblock %}
 {% block content %}
     <div class="jumbotron">
         <div class="row justify-content-md-center">
@@ -24,4 +27,25 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block scripts %}
+<script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js"></script>
+<script src="{% static 'lib/js/bootstrap-markdown-editor.js' %}"></script>
+    <script>
+
+            $(document).ready(function($) {
+
+                $('.markdown').each(function(){
+                    $(this).markdownEditor({
+                        preview: true,
+                        onPreview: function (content, callback) {
+                            callback( marked(content) );
+                        }
+                    });
+                });
+
+            });
+
+        </script>
 {% endblock %}
