@@ -85,6 +85,7 @@ class System(CoreModel):
     current_version = models.PositiveIntegerField(default=0)
     slug = AutoSlugField(populate_from='name', unique=True)
     secret_key = models.UUIDField(max_length=36, default=uuid.uuid4)
+    view_count = models.PositiveIntegerField(default=0)
 
     def get_absolute_url(self):
         return reverse('system', args=[self.slug])

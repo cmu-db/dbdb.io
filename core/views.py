@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http.request import QueryDict
 from django.http.response import Http404
 from django.shortcuts import render, redirect, get_object_or_404
@@ -119,6 +119,8 @@ class SystemView(View):
 
     def get(self, request, slug):
         system = get_object_or_404(System, slug=slug)
+        system.view_count += 1
+        system.save()
         system_version = system.current()
         context = {
             'system': system,
@@ -266,4 +268,20 @@ class AdvancedSearchView(View):
             'form': form
         }
 
+        return render(request, template_name=self.template_name, context=context)
+
+
+class HomeView(View):
+    template_name = 'core/home.html'
+
+    def get(self, request):
+        context = {}
+        most_edited = System.objects.annotate(Count('systemversion')).distinct().order_by('-systemversion__count')[:10]
+        most_recent = System.objects.distinct().order_by('-created')[:10]
+        most_views = System.objects.distinct().order_by('-view_count')[:10]
+        context = {
+            'most_edited': most_edited,
+            'most_recent': most_recent,
+            'most_views': most_views
+        }
         return render(request, template_name=self.template_name, context=context)
