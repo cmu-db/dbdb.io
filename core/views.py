@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, Count
+from django.http import HttpResponse
 from django.http.request import QueryDict
 from django.http.response import Http404
 from django.shortcuts import render, redirect, get_object_or_404
@@ -119,8 +120,6 @@ class SystemView(View):
 
     def get(self, request, slug):
         system = get_object_or_404(System, slug=slug)
-        system.view_count += 1
-        system.save()
         system_version = system.current()
         context = {
             'system': system,
@@ -286,3 +285,13 @@ class HomeView(View):
             'most_views': most_views
         }
         return render(request, template_name=self.template_name, context=context)
+
+
+class UpdateViewCount(View):
+    def get(self, request):
+        slug = request.META['HTTP_REFERER'].split('/')[-2]
+        system = get_object_or_404(System, slug=slug)
+        system.view_count += 1
+        system.save()
+
+        return HttpResponse(b'Ok', status=200)
