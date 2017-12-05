@@ -34,7 +34,7 @@
                         </div>
                     </div>
                 {% endif %}
-                {% if system_version.project_type %}
+                {% if system_version.project_type.count %}
                     <div class="card">
                         <div class="card-body">
                             <h4 class="card-title">Project Type</h4>
@@ -59,6 +59,7 @@
                     </div>
                 {% endif %}
                 {% for feature in system_features %}
+                    {% if feature.value.count %}
                     <div class="card">
                         <div class="card-body">
                             <h4 class="card-title">{{ feature.feature.label }}</h4>
@@ -71,22 +72,25 @@
                             </p>
                         </div>
                     </div>
+                    {% endif %}
                 {% endfor %}
             </div>
             <div class="col-md-3">
+                {% if system_version.logo %}
                 <div class="card">
                     <div class="card-body">
-                        {% if system_version.logo %}
                             <img class="img-thumbnail" src="{{ system_version.logo|thumbnail_url:'thumb' }}">
-                        {% endif %}
                     </div>
                 </div>
+                {% endif %}
+                {% if system.created %}
                 <div class="card">
                     <div class="card-body">
                         <h6 class="card-title">Created</h6>
                         <p class="card-text">{{ system.created|date:"SHORT_DATE_FORMAT" }}</p>
                     </div>
                 </div>
+                {% endif %}
                 {% if system_version.website %}
                     <div class="card">
                         <div class="card-body">

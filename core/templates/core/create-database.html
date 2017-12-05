@@ -3,10 +3,7 @@
 {% load bootstrap4 %}
 
 {% block title %}
-    Create Database
-{% endblock %}
-{% block css %}
-    <link href="{% static 'lib/css/bootstrap-markdown-editor.css' %}" rel="stylesheet">
+    {{ title }}
 {% endblock %}
 {% block content %}
     <div class="jumbotron">
@@ -17,7 +14,13 @@
                     {% bootstrap_form system_form %}
                     {% bootstrap_form system_version_form %}
                     {% bootstrap_form system_version_metadata_form %}
-                    {% bootstrap_form feature_form %}
+                    <hr>
+                    {% for input in feature_form %}
+                        {% bootstrap_field input %}
+                        {% if forloop.counter|divisibleby:2 %}
+                            <hr>
+                        {% endif %}
+                    {% endfor %}
                     {% buttons %}
                         <button type="submit" class="btn btn-primary">
                             Submit
@@ -27,25 +30,4 @@
             </div>
         </div>
     </div>
-{% endblock %}
-{% block scripts %}
-<script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js"></script>
-<script src="{% static 'lib/js/bootstrap-markdown-editor.js' %}"></script>
-    <script>
-
-            $(document).ready(function($) {
-
-                $('.markdown').each(function(){
-                    $(this).markdownEditor({
-                        preview: true,
-                        onPreview: function (content, callback) {
-                            callback( marked(content) );
-                        }
-                    });
-                });
-
-            });
-
-        </script>
 {% endblock %}

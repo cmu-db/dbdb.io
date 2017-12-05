@@ -27,25 +27,23 @@ class CreateUserForm(ModelForm):
 class SystemForm(ModelForm):
     class Meta:
         model = System
-        exclude = ['secret_key', 'current_version']
+        fields = ['name']
 
 
 class SystemVersionForm(ModelForm):
-    description = fields.CharField(
-        help_text="This field support Markdown Syntax",
-        widget=Textarea(attrs={'class': 'markdown'}),
-        required=False
-    )
-
-    history = fields.CharField(
-        help_text="This field support Markdown Syntax",
-        widget=Textarea(attrs={'class': 'markdown'}),
-        required=False
-    )
-
     class Meta:
         model = SystemVersion
-        exclude = ['system', 'is_current', 'version_number', 'creator', 'version_message', 'meta']
+        fields = [
+            'logo',
+            'description',
+            'history',
+            'website',
+            'tech_docs',
+            'developer',
+            'start_year',
+            'end_year',
+            'project_type',
+        ]
 
 
 class SystemVersionMetadataForm(ModelForm):
@@ -103,8 +101,8 @@ class SystemFeaturesForm(Form):
             if feature.label in initial:
                 initial_value = initial[feature.label]['description']
             self.fields[feature.label+'_description'] = fields.CharField(
-                help_text="This field support Markdown Syntax",
-                widget=Textarea(attrs={'class': 'markdown'}),
+                help_text="This field supports Markdown Syntax",
+                widget=Textarea(),
                 initial=initial_value,
                 required=False
             )

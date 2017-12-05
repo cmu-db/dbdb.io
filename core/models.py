@@ -111,8 +111,8 @@ class SystemVersion(CoreModel):
     creator = models.ForeignKey(get_user_model())
     version_message = models.CharField(max_length=500, default="", null=True, blank=True)
 
-    description = models.TextField(default="", blank=True)
-    history = models.TextField(default="", blank=True)
+    description = models.TextField(default="", blank=True, help_text="This field support Markdown Syntax")
+    history = models.TextField(default="", blank=True, help_text="This field support Markdown Syntax")
     website = models.URLField(default="", null=True, blank=True)
     tech_docs = models.URLField(default="", null=True, blank=True)
     developer = models.CharField(max_length=512, default="", blank=True)
@@ -173,7 +173,7 @@ class SystemFeatures(CoreModel):
     system = models.ForeignKey(SystemVersion, null=True)
     feature = models.ForeignKey(Feature, null=True)
     value = models.ManyToManyField(FeatureOption, null=True)
-    description = models.TextField(help_text='This field support Markdown Syntax')
+    description = models.TextField(help_text='This field supports Markdown Syntax')
 
     def __unicode__(self):
         return self.system.system.name
