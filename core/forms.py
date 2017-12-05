@@ -62,6 +62,7 @@ class SystemVersionEditForm(ModelForm):
             'comment'
         ]
 
+
 class SystemVersionMetadataForm(ModelForm):
     class Meta:
         model = SystemVersionMetadata
