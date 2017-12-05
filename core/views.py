@@ -131,7 +131,7 @@ class SystemView(View):
 
 
 class EditDatabase(View):
-    template_name = 'core/edit-database.html'
+    template_name = 'core/create-database.html'
 
     def get(self, request, slug):
         system = System.objects.get(slug=slug)
@@ -140,6 +140,7 @@ class EditDatabase(View):
         system_features = system_version.systemfeatures_set.all()
 
         context = {
+            'title': 'Edit {}'.format(system.name),
             'system_form': SystemForm(instance=system),
             'system_version_form': SystemVersionForm(instance=system_version),
             'system_version_metadata_form': SystemVersionMetadataForm(instance=system_meta),

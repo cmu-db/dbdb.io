@@ -45,7 +45,17 @@ class SystemVersionForm(ModelForm):
 
     class Meta:
         model = SystemVersion
-        exclude = ['system', 'is_current', 'version_number', 'creator', 'version_message', 'meta']
+        fields = [
+            'logo',
+            'description',
+            'history',
+            'website',
+            'tech_docs',
+            'developer',
+            'start_year',
+            'end_year',
+            'project_type',
+        ]
 
 
 class SystemVersionMetadataForm(ModelForm):

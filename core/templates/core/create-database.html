@@ -3,7 +3,7 @@
 {% load bootstrap4 %}
 
 {% block title %}
-    Create Database
+    {{ title }}
 {% endblock %}
 {% block css %}
     <link href="{% static 'lib/css/bootstrap-markdown-editor.css' %}" rel="stylesheet">
@@ -17,7 +17,13 @@
                     {% bootstrap_form system_form %}
                     {% bootstrap_form system_version_form %}
                     {% bootstrap_form system_version_metadata_form %}
-                    {% bootstrap_form feature_form %}
+                    <hr>
+                    {% for input in feature_form %}
+                        {% bootstrap_field input %}
+                        {% if forloop.counter|divisibleby:2 %}
+                            <hr>
+                        {% endif %}
+                    {% endfor %}
                     {% buttons %}
                         <button type="submit" class="btn btn-primary">
                             Submit
