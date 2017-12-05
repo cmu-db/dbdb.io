@@ -122,6 +122,9 @@ class SystemVersion(CoreModel):
     logo = ThumbnailerImageField(upload_to='logos/', blank=True)
     meta = models.ForeignKey('SystemVersionMetadata', null=True, blank=True)
 
+    class Meta:
+        ordering = ['-created']
+
     def __unicode__(self):
         return '{} - {}'.format(self.system.name, self.version_number)
 

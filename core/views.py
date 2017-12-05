@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, Count
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.http.request import QueryDict
 from django.http.response import Http404
 from django.shortcuts import render, redirect, get_object_or_404
@@ -129,7 +129,7 @@ class SystemView(View):
         return render(request, template_name=self.template_name, context=context)
 
 
-class EditDatabase(View):
+class EditDatabase(LoginRequiredMixin, View):
     template_name = 'core/create-database.html'
 
     def get(self, request, slug):
@@ -149,6 +149,7 @@ class EditDatabase(View):
 
     def post(self, request, slug):
         system = System.objects.get(slug=slug)
+        last_version = SystemVersion.objects.last().version_number
         system_form = SystemForm(request.POST, instance=system)
         system_version_form = SystemVersionForm(request.POST, request.FILES)
         system_version_metadata_form = SystemVersionMetadataForm(request.POST)
@@ -162,6 +163,7 @@ class EditDatabase(View):
             db_version = system_version_form.save(commit=False)
             db_version.creator = request.user
             db_version.system = db
+            db_version.version_number = last_version + 1
             db_version.save()
 
             db_meta = system_version_metadata_form.save()
@@ -295,3 +297,43 @@ class UpdateViewCount(View):
         system.save()
 
         return HttpResponse(b'Ok', status=200)
+
+
+class RevisionList(View):
+    template_name = 'core/revision_list.html'
+
+    def get(self, request, slug):
+        system = System.objects.get(slug=slug)
+        versions = system.systemversion_set.all()
+        context = {
+            'system': system,
+            'versions': versions
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, slug):
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
+
+        system = System.objects.get(slug=slug)
+        version = SystemVersion.objects.get(id=request.POST['current_version'])
+        system.systemversion_set.update(is_current=False)
+        version.is_current = True
+        system.current_version = version.version_number
+        version.save()
+        system.save()
+        return redirect('system', slug=slug)
+
+
+class RevisionView(View):
+    template_name = 'core/revision_view.html'
+
+    def get(self, request, slug, id):
+        system = get_object_or_404(System, slug=slug)
+        system_version = get_object_or_404(SystemVersion, id=id)
+        context = {
+            'system': system,
+            'system_version': system_version,
+            'system_features': system_version.systemfeatures_set.all()
+        }
+        return render(request, template_name=self.template_name, context=context)

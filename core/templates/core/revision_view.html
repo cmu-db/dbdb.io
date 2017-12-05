@@ -6,17 +6,12 @@
     <link href="{% static 'core/css/system.css' %}" rel="stylesheet">
 {% endblock %}
 {% block navbuttons %}
-    {% if user.is_authenticated %}
-        <li class="nav-item active ml-2">
-            <a class="nav-link btn btn-outline-secondary" href="{% url "system_edit" system.slug %}">Edit</a>
-        </li>
-    {% endif %}
         <li class="nav-item active ml-2">
             <a class="nav-link btn btn-outline-secondary" href="{% url "system_revision" system.slug %}">Revision List</a>
         </li>
 {% endblock %}
 {% block title %}
-    {{ system.name }}
+    Revision {{ system.name }} - {{ system_version.version_number }}
 {% endblock %}
 {% block content %}
     <div class="jumbotron">
@@ -24,7 +19,7 @@
             <div class="col-md-7">
                 <div class="card">
                     <div class="card-body">
-                        <h2 class="card-title">{{ system.name }}</h2>
+                        <h2 class="card-title">{{ system.name }} revision {{ system_version.version_number }}</h2>
                         <p class="card-text markdown-area">{{ system_version.description }}</p>
                     </div>
                 </div>
@@ -82,6 +77,17 @@
                 <div class="card">
                     <div class="card-body">
                             <img class="img-thumbnail" src="{{ system_version.logo|thumbnail_url:'thumb' }}">
+                    </div>
+                </div>
+                {% endif %}
+                {% if not system_version.is_current and user.is_authenticated %}
+                <div class="card">
+                    <div class="card-body">
+                        <form action="{% url 'system_revision' system.slug %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" value="{{ system_version.id }}" name="current_version">
+                            <button type="submit" class="btn btn-primary">Set current</button>
+                        </form>
                     </div>
                 </div>
                 {% endif %}
@@ -171,5 +177,5 @@
 {% endblock %}
 {% block scripts %}
     <script src="{% static 'lib/js/markdown.min.js' %}"></script>
-    <script src="{% static 'core/js/system.js' %}"></script>
+    <script src="{% static 'core/js/revision.js' %}"></script>
 {% endblock %}
