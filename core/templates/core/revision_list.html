@@ -4,46 +4,52 @@
 {% endblock %}
 {% block content %}
     <div class="jumbotron">
-        <div class="row justify-content-md-center">
-            <h1>{{ system.name }}</h1>
+        <div class="row">
+            <h1 class="offset-md-2">{{ system.name }}</h1>
         </div>
-        <form action="." method="POST">
-            {% csrf_token %}
-            <table class="table">
-                <thead>
-                <tr>
-                    {% if user.is_authenticated %}
-                    <th>Current</th>
-                    {% endif %}
-                    <th>Version Number</th>
-                    <th>Created</th>
-                    <th>Creator</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for version in versions %}
+        <div class="row justify-content-center">
+            <form class=" col-md-8" action="." method="POST">
+                {% csrf_token %}
+                <table class="table">
+                    <thead>
                     <tr>
-                    {% if user.is_authenticated %}
-                    <td>
-                        <input class="form-check-input" type="radio" name="current_version" value="{{ version.id }}"
-                               {% if version.is_current %}checked{% endif %}>
-                    </td>
-                    {% endif %}
-                    <td>
-                        {{ version.version_number }}
-                    </td>
-                    <td>
-                        <a href="{% url 'system_revision_view' system.slug version.id %}">{{ version.created }}</a>
-                    </td>
-                    <td>
-                        {{ version.creator.username }}
-                    </td>
+                        {% if user.is_authenticated %}
+                        <th>Current Version</th>
+                        {% endif %}
+                        <th>Version #</th>
+                        <th>Date Created</th>
+                        <th>Edited by</th>
+                        <th>Revision Comments</th>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            <button class="btn btn-primary" type="submit">Set Current Version</button>
-        </form>
+                    </thead>
+                    <tbody>
+                    {% for version in versions %}
+                        <tr>
+                        {% if user.is_authenticated %}
+                        <td>
+                            <input class="form-check-input" type="radio" name="current_version" value="{{ version.id }}"
+                                   {% if version.is_current %}checked{% endif %}>
+                        </td>
+                        {% endif %}
+                        <td>
+                            {{ version.version_number }}
+                        </td>
+                        <td>
+                            <a href="{% url 'system_revision_view' system.slug version.id %}">{{ version.created }}</a>
+                        </td>
+                        <td>
+                            {{ version.creator.username }}
+                        </td>
+                        <td>
+                            {{ version.comment }}
+                        </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <button class="btn btn-primary" type="submit">Set Current Version</button>
+            </form>
+        </div>
 
     </div>
 {% endblock %}

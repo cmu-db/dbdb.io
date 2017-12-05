@@ -1,0 +1,15 @@
+{% extends 'core/database_form_base.html' %}
+{% load staticfiles %}
+{% load bootstrap4 %}
+
+{% block title %}
+    Edit {{ system_name }}
+{% endblock %}
+{% block extrafield %}
+<div class="form-group">
+    <label for="id_comment">Revision Comment</label>
+    <textarea name="comment" cols="40" rows="10" class="form-control" placeholder="Comment" title="This field support Markdown Syntax" id="id_comment">
+    </textarea>
+    <div class="help-block">This field support Markdown Syntax</div>
+</div>
+{% endblock %}

@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from functools import reduce
 
 from core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm, \
-    AdvancedSearchForm
+    AdvancedSearchForm, SystemVersionEditForm
 from core.models import System, SystemVersionMetadata, SystemVersion, Feature, FeatureOption, SystemFeatures
 
 
@@ -130,17 +130,21 @@ class SystemView(View):
 
 
 class EditDatabase(LoginRequiredMixin, View):
-    template_name = 'core/create-database.html'
+    template_name = 'core/edit-database.html'
 
     def get(self, request, slug):
         system = System.objects.get(slug=slug)
         system_version = SystemVersion.objects.get(system=system, is_current=True)
         system_meta = system_version.meta
         system_features = system_version.systemfeatures_set.all()
+        system_form = SystemForm(instance=system)
+        if not request.user.is_superuser:
+            system_form.fields['name'].disabled = True
+
 
         context = {
-            'title': 'Edit {}'.format(system.name),
-            'system_form': SystemForm(instance=system),
+            'system_name': system.name,
+            'system_form': system_form,
             'system_version_form': SystemVersionForm(instance=system_version),
             'system_version_metadata_form': SystemVersionMetadataForm(instance=system_meta),
             'feature_form': SystemFeaturesForm(instance=system_features)
@@ -151,7 +155,7 @@ class EditDatabase(LoginRequiredMixin, View):
         system = System.objects.get(slug=slug)
         last_version = SystemVersion.objects.last().version_number
         system_form = SystemForm(request.POST, instance=system)
-        system_version_form = SystemVersionForm(request.POST, request.FILES)
+        system_version_form = SystemVersionEditForm(request.POST, request.FILES)
         system_version_metadata_form = SystemVersionMetadataForm(request.POST)
         form = SystemFeaturesForm(request.POST)
 

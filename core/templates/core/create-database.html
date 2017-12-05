@@ -1,33 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'core/database_form_base.html' %}
 {% load staticfiles %}
 {% load bootstrap4 %}
 
 {% block title %}
-    {{ title }}
-{% endblock %}
-{% block content %}
-    <div class="jumbotron">
-        <div class="row justify-content-md-center">
-            <div class="col-md-6">
-                <form action="." method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {% bootstrap_form system_form %}
-                    {% bootstrap_form system_version_form %}
-                    {% bootstrap_form system_version_metadata_form %}
-                    <hr>
-                    {% for input in feature_form %}
-                        {% bootstrap_field input %}
-                        {% if forloop.counter|divisibleby:2 %}
-                            <hr>
-                        {% endif %}
-                    {% endfor %}
-                    {% buttons %}
-                        <button type="submit" class="btn btn-primary">
-                            Submit
-                        </button>
-                    {% endbuttons %}
-                </form>
-            </div>
-        </div>
-    </div>
+    Create Database
 {% endblock %}
