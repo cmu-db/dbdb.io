@@ -46,6 +46,22 @@ class SystemVersionForm(ModelForm):
         ]
 
 
+class SystemVersionEditForm(ModelForm):
+    class Meta:
+        model = SystemVersion
+        fields = [
+            'logo',
+            'description',
+            'history',
+            'website',
+            'tech_docs',
+            'developer',
+            'start_year',
+            'end_year',
+            'project_type',
+            'comment'
+        ]
+
 class SystemVersionMetadataForm(ModelForm):
     class Meta:
         model = SystemVersionMetadata

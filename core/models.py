@@ -121,6 +121,10 @@ class SystemVersion(CoreModel):
     project_type = models.ManyToManyField(ProjectType, blank=True)
     logo = ThumbnailerImageField(upload_to='logos/', blank=True)
     meta = models.ForeignKey('SystemVersionMetadata', null=True, blank=True)
+    comment = models.TextField(default="", blank=True)
+
+    class Meta:
+        ordering = ['-created']
 
     def __unicode__(self):
         return '{} - {}'.format(self.system.name, self.version_number)
