@@ -27,7 +27,7 @@ class CreateUserForm(ModelForm):
 class SystemForm(ModelForm):
     class Meta:
         model = System
-        exclude = ['secret_key', 'current_version']
+        fields = ['name']
 
 
 class SystemVersionForm(ModelForm):
