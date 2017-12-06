@@ -65,6 +65,11 @@
                 {% endfor %}
             </div>
             <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                            Last Updated: {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
+                    </div>
+                </div>
                 {% if system_version.logo %}
                 <div class="card">
                     <div class="card-body">
