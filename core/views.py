@@ -153,7 +153,7 @@ class EditDatabase(LoginRequiredMixin, View):
 
     def post(self, request, slug):
         system = System.objects.get(slug=slug)
-        last_version = SystemVersion.objects.last().version_number
+        last_version = SystemVersion.objects.first().version_number
         system_version_form = SystemVersionEditForm(request.POST, request.FILES)
         system_version_metadata_form = SystemVersionMetadataForm(request.POST)
         form = SystemFeaturesForm(request.POST)
