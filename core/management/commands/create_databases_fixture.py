@@ -30,7 +30,7 @@ class Command(BaseCommand):
             for name, website, tech_docs, description in reader:
                 if not name:
                     continue
-                system = System.objects.create(
+                system, _ = System.objects.get_or_create(
                     name=name,
                     current_version=1
                 )
@@ -58,10 +58,6 @@ class Command(BaseCommand):
             system = System.objects.filter(name=db['Name']).first()
             if not system:
                 system = System.objects.create(name=db['Name'])
-            try:
-                last_version = SystemVersion.objects.filter(system=system).first().version_number
-            except AttributeError:
-                last_version = 0
             username = db['Email'].split('@')[0]
             email = db['Email']
             password = 'dbdbiouser'
@@ -72,7 +68,6 @@ class Command(BaseCommand):
 
             sv = SystemVersion.objects.create(
                 system=system,
-                version_number=last_version + 1,
                 description=db['Description'],
                 history=db['History'],
                 website=db['Website'],

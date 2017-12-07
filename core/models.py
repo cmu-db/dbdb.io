@@ -3,6 +3,8 @@ import uuid
 from django.db import models
 from django.contrib.auth import get_user_model
 from autoslug import AutoSlugField
+from django.db.models.signals import pre_save, post_save
+from django.dispatch import receiver
 from django.urls import reverse
 from easy_thumbnails.fields import ThumbnailerImageField
 
@@ -106,6 +108,9 @@ class System(CoreModel):
 class CitationUrls(CoreModel):
     url = models.URLField()
 
+    def __unicode__(self):
+        return self.url
+
 
 class SystemVersion(CoreModel):
     system = models.ForeignKey(System)
@@ -205,3 +210,15 @@ __all__ = (
     'SystemVersionMetadata',
     'SystemFeatures'
 )
+
+
+@receiver(post_save, sender=SystemVersion)
+def fix_systemversio_data(sender, instance, created, **kwargs):
+    if created:
+        last = SystemVersion.objects.filter(system=instance.system).last()
+        SystemVersion.objects.filter(system=instance.system).update(is_current=False)
+        if last is not None:
+            instance.version_number = last.version_number + 1
+        instance.system.current_version = instance.version_number
+        instance.system.save()
+        instance.save()
