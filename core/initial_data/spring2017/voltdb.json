@@ -1,0 +1,234 @@
+{
+    "Email": "tianhew@andrew.cmu.edu",
+
+    
+    "Name": "VoltDB",
+    
+    
+    "Description": "VoltDB is a commercial in-memory DBMS that is scalable and ACID-compliant. VoltDB is designed to be a NewSQL relational database to work with mainly OLTP queries. It is designed to be a distributed database with sharding and data replication. It has both a commercial version and an open-source community version.",
+    "Description Citations": [
+        "https://www.voltdb.com",
+        "https://en.wikipedia.org/wiki/VoltDB",
+        "https://pdfs.semanticscholar.org/ddf3/13f6fcc0520c716c54873164ded8e31703da.pdf",
+        "http://db.cs.cmu.edu/papers/2016/pavlo-newsql-sigmodrec2016.pdf"
+    ],
+    
+    
+    "History": "VoltDB originated from H-Store, a research project from Brown U and MIT under Michael Stonebraker, Samuel Madden, Andy Pavlo, etc. In 2009, it started as a spinoff in Boston, MA.",
+    "History Citations": [
+        "http://hstore.cs.brown.edu/",
+        "https://en.wikipedia.org/wiki/VoltDB"
+    ],
+    
+    
+    "System Architecture Options": [
+        "Shared-Nothing"
+    ],
+    "System Architecture Description": "VoltDB runs on a sharded DBMS cluster. Data partitioning and replication is done automatically across the cluster",
+    "System Architecture Citations": [
+        "https://www.voltdb.com/wp-content/uploads/2017/03/hv-white-paper-voltdb-technical-overview.pdf",
+        "https://db-engines.com/en/system/VoltDB"
+    ],
+    
+    
+    "Query Interface Options": [
+        "SQL",
+        "SQL/DDL",
+        "SQL/DML",
+        "SQL Stored Procedures"
+    ],
+    "Query Interface Description": "Apart from supporting most of the standard SQL statements, VoltDB also allows the user to define pre-compiled stored procedures.",
+    "Query Interface Citations": [
+        "https://docs.voltdb.com/UsingVoltDB/DesignProcAnatomy.php",
+        "https://docs.voltdb.com/tutorial/Part5.php",
+        "http://downloads.voltdb.com/documentation/UsingVoltDB.pdf"
+    ],
+    
+    
+    "Data Model Options": [
+        "Relational"
+    ],
+    "Data Model Description": "VoltDB is based on the standard relational model.",
+    "Data Model Citations": [
+        "http://downloads.voltdb.com/documentation/UsingVoltDB.pdf"
+    ],
+    
+    
+    "Storage Model Options": [
+        "N-ary Storage Model"
+    ],
+    "Storage Model Description": "VoltDB is only designed for fast OLTP queries.",
+    "Storage Model Citations": [
+        "https://docs.voltdb.com/UsingVoltDB/IntroHowVoltDBWorks.php"
+    ],
+    
+        
+    "Storage Architecture Options": [
+        "In-Memory"
+    ],
+    "Storage Architecture Description": "VoltDB is designed to be an in-memory relational DBMS. Its data persistence is achieved by snapshots stored on disk.",
+    "Storage Architecture Citations": [
+        "https://docs.voltdb.com/UsingVoltDB/ChapSaveRestore.php"
+    ],
+    
+    
+    "Concurrency Control Options": [
+        "Deterministic Concurrency Control",
+        "Multi-version Concurrency Control (MVCC) / Copy-On-Write"
+    ],
+    "Concurrency Control Description": "VoltDB schedules transactions deterministically on each partition of the data in the cluster. For transactions that span across partitions, a global serial order controller is responsible for determining the execution order. MVCC mode is only used when taking snapshots.",
+    "Concurrency Control Citations": [
+        "https://www.voltdb.com/blog/2016/02/25/acid-how-to-screw-it-up/",
+        "http://db.cs.cmu.edu/papers/2016/pavlo-newsql-sigmodrec2016.pdf",
+        "https://pdfs.semanticscholar.org/ddf3/13f6fcc0520c716c54873164ded8e31703da.pdf"
+    ],
+    
+    
+    "Isolation Levels Options": [
+        "Serializable"
+    ],
+    "Isolation Levels Description": "VoltDB supports serializable isolation level with ACID guarantee. The deterministic ordering of transactions is achieved by controllers at each data partition.",
+    "Isolation Levels Citations": [
+        "https://www.voltdb.com/blog/2016/02/25/acid-how-to-screw-it-up/",
+        "https://pdfs.semanticscholar.org/ddf3/13f6fcc0520c716c54873164ded8e31703da.pdf",
+        "http://db.cs.cmu.edu/papers/2016/pavlo-newsql-sigmodrec2016.pdf"
+    ],
+    
+    
+    "Indexes Options": [
+        "Tree",
+        "Hash"
+    ],
+    "Indexes Description": "Apart from the default tree index, VoltDB also supports hash index.",
+    "Indexes Citations": [
+        "https://docs.voltdb.com/UsingVoltDB/ddlref_createindex.php"
+    ],
+    
+    
+    "Foreign Keys Options": [
+        "Not Supported"
+    ],
+    "Foreign Keys Description": "FOREIGN KEY and CHECK are not currently supported.",
+    "Foreign Keys Citations": [
+        "https://forum.voltdb.com/forum/voltdb-discussions/other/805-triggers-and-foreign-key-constraints",
+        "https://docs.voltdb.com/UsingVoltDB/ddlref_createtable.php"
+    ],
+    
+    
+    "Logging Options": [
+        "Command Logging"
+    ],
+    "Logging Description": "VoltDB supports transaction-level logging for all the stored procedures that are invoked. By command logging, the amount of memory overhead is minimized since a single stored procedure invocation could contain arbitrary number of SQL statements. Only logs after the latest snapshot are kept, and the logs are flushed to the disk at a regular interval. This feature is only available in the enterprise edition.",
+    "Logging Citations": [
+        "https://docs.voltdb.com/UsingVoltDB/ChapCmdLog.php"
+    ],
+    
+    
+    "Checkpoints Options": [
+        "Blocking",
+        "Non-Blocking"
+    ],
+    "Checkpoints Description": "The snapshot creation could either block all the other transactions or be done in a non-blocking way (e.g. Copy-On-Write).",
+    "Checkpoints Citations": [
+        "https://docs.voltdb.com/UsingVoltDB/ChapSaveRestore.php"
+    ],
+    
+    
+    "Views Options": [
+        "Materialized Views"
+    ],
+    "Views Description": "Views in VoltDB are materialized to improve read speed, and all updates to the original table will have a performance impact.",
+    "Views Citations": [
+        "https://docs.voltdb.com/UsingVoltDB/ddlref_createview.php"
+    ],
+    
+    
+    "Query Execution Options": [
+        "Tuple-at-a-Time Model"
+    ],
+    "Query Execution": "VoltDB is based on the n-ary storage model.",
+    "Query Execution Citations": [],
+    
+    
+    "Stored Procedures Options": [
+        "Supported"
+    ],
+    "Stored Procedures Description": "The stored procedure in VoltDB allows the user to define a transaction once and to be invoked later with given parameters. Stored procedures are pre-compiled to reduce execution time. Temporary queries are automatically comipled and executed as a stored procedure. VoltDB supports stored procedures written in SQL or Java.",
+    "Stored Procedures Citations": [
+        "https://docs.voltdb.com/tutorial/Part5.php",
+        "https://pdfs.semanticscholar.org/ddf3/13f6fcc0520c716c54873164ded8e31703da.pdf"
+    ],
+
+    
+    "Joins Options": [
+        "Limited Support"
+    ],
+    "Joins Description": "Table joins are only supported if the result is smaller than 50MB. The join ordering must be specified if the query joins more than 6 tables.",
+    "Joins Citations": [
+        "https://downloads.voltdb.com/documentation/PerfGuide.pdf",
+        "https://docs.voltdb.com/UsingVoltDB/sqlref_select.php"
+    ],
+    
+    
+    "Query Compilation Options": [
+        "Stored Procedure Compilation"
+    ],
+    "Query Compilation Description": "",
+    "Query Compilation Citations": [
+        "https://docs.voltdb.com/tutorial/Part5.php",
+        "https://pdfs.semanticscholar.org/ddf3/13f6fcc0520c716c54873164ded8e31703da.pdf"
+    ],
+    
+    
+    "Website": "https://www.voltdb.com/",
+    
+    
+    "Programming Language": [
+        "C#",
+        "C++",
+        "Erlang",
+        "Go",
+        "Java",
+        "JavaScript (Node.js)",
+        "PHP",
+        "Python",
+        "Supported Interfaces: ODBC, JDBC, JSON"
+    ],
+    
+    
+    "Operating Systems": [
+        "CentOS v6.6 or later",
+        "Red Hat v6.6 or later",
+        "Ubuntu 16.04 / 14.04",
+        "OS X 10.9 or later (development builds)"
+    ],
+    
+    
+    "Project Type": [
+        "Commercial",
+        "Open Source"
+    ],
+    
+    
+    "Developer": "",
+    
+    
+    "Start Date": "2009",
+    "Start Date Citations": [
+        "https://www.sgi.com/company_info/newsroom/press_releases/2010/october/voltdb.html",
+        "http://archive.boston.com/business/technology/innoeco/2009/08/on_the_radar_voltdb_just_the_l.html"
+    ],
+    
+    
+    "End Date": "",
+    "End Date Citations": [],
+    
+    
+    "Derived From": "H-Store",
+    
+    
+    "License": [
+        "GPL v3",
+        "VoltDB Proprietary License"
+    ]
+}

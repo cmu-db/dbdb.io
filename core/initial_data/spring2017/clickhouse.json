@@ -1,0 +1,202 @@
+{
+    "Email": "xiaoyouw@andrew.cmu.edu",
+
+    
+    "Name": "ClickHouse",
+    
+    
+    "Description": "CilckHouse is an open-source column-oriented OLAP DBMS, which outperforms existing commercial OLAP DBMSs(Vertica, Hive, MySQL) on similar OLAP worloads. It's famous for its linear scalability, hardware efficiency, fault tolerance, rick features, simplicity and high reliability.",
+    "Description Citations": [
+        "https://en.wikipedia.org/wiki/ClickHouse",
+        "https://clickhouse.yandex/"
+    ],
+    
+    
+    "History": "ClickHouse is developed by a Russian company called Yandex. It is designed for multiple projects within Yandex. Yandex needed a fast DBMS for analyzing large amount of data, which cannot be solved by its original solutions. So it began to develop its own column-oriented DBMS, which can handle analytical data on the internet scale. The prototype of ClickHouse appeared in 2009 and it was released in 2016 and then blazing fast.",
+    "History Citations": [
+        "https://en.wikipedia.org/wiki/ClickHouse"
+    ],
+    
+    
+    "System Architecture Options": [
+        "Shared-Nothing"
+    ],
+    "System Architecture Description": "ClickHouse system is a cluster of shards. It uses asynchronous multimaster replication and there is no single point of contention across the system.",
+    "System Architecture Citations": [
+        "https://en.wikipedia.org/wiki/ClickHouse",
+        "https://github.com/yandex/ClickHouse/blob/master/doc/developers/architecture.md"
+    ],
+    
+    
+    "Query Interface Options": [
+        "SQL",
+        "Custom API"
+    ],
+    "Query Interface Description": "ClickHouses provides two types of parsers: a full SQL parser and a data format parser. It uses SQL parser for all types of queries and the data format parser only for INSERT queries. Beyond the query language, it provides multiple user interfaces, including HTTP interface, JDBC driver, TCP interface, command-line client, etc.",
+    "Query Interface Citations": [
+        "https://clickhouse.yandex/reference_en.html"
+    ],
+    
+    
+    "Data Model Options": [
+        "Column Family"
+    ],
+    "Data Model Description": "ClickHouse not only store data by columns, but also process data by columns.",
+    "Data Model Citations": [
+    ],
+    
+    
+    "Storage Model Options": [
+        "Decomposition Storage Model"
+    ],
+    "Storage Model Description": "ClickHouse is a column-oriented DBMS and it stores data by columns.",
+    "Storage Model Citations": [
+    ],
+    
+        
+    "Storage Architecture Options": [
+        "Disk-oriented",
+        "In-memory"
+    ],
+    "Storage Architecture Description": "ClickHouse has multiple types of table engines. The type of the table engine determines where the data is stored, concurrent level, whether indexes are supported and some other properties. The table engines that store data on disks include TinyLog and Log. The Memory engine stores data in memory and this table engine is mainly used for temporary tables with external query data. The data of Memory engine will disapper after the server is restarted.",
+    "Storage Architecture Citations": [
+    ],
+    
+    
+    "Concurrency Control Options": [
+        "Not Supported"
+    ],
+    "Concurrency Control Description": "ClickHouse doesn't support transactions.",
+    "Concurrency Control Citations": [
+    ],
+    
+    
+    "Isolation Levels Options": [
+        "Not Supported"
+    ],
+    "Isolation Levels Description": "ClickHouse doesn't support transactions and isolation levels.",
+    "Isolation Levels Citations": [
+    ],
+    
+    
+    "Indexes Options": [
+        "Other"
+    ],
+    "Indexes Description": "ClickHouse supports primary key indexes. The index mechanism is called sparse index. In the MergeTree, data are sorted by primary key lexicographically in each part. Then ClickHouse selects some marks every index_granualarity rows. These marks are served as sparse indexes, which allows efficient range queries.",
+    "Indexes Citations": [
+        "https://medium.com/@f1yegor/clickhouse-primary-keys-2cf2a45d7324"
+    ],
+    
+    
+    "Foreign Keys Options": [
+        "Not Supported"
+    ],
+    "Foreign Keys Description": "",
+    "Foreign Keys Citations": [
+    ],
+    
+    
+    "Logging Options": [
+        "Other"
+    ],
+    "Logging Description": "ClickHouse doesn't implement its own logging algorithms in single node. It replicates its data on multiple nodes and monitors data synchronicity on replicas. So it can recover after failures by syncing data from other replica nodes.",
+    "Logging Citations": [
+        "https://clickhouse.yandex/reference_en.html"
+    ],
+    
+    
+    "Checkpoints Options": [
+        "Not Supported"
+    ],
+    "Checkpoints Description": "ClickHouse doesn't support transactions.",
+    "Checkpoints Citations": [
+    ],
+    
+    
+    "Views Options": [
+        "Virtual Views",
+        "Materialized Views"
+    ],
+    "Views Description": "ClickHouse supports both virtual views and materialized views. The materialized views store data transformed by corresponding SELECT query. The SELECT query can contain DISTINCT, GROUP BY, ORDER BY, LIMIT, etc.",
+    "Views Citations": [
+        "https://clickhouse.yandex/reference_en.html"
+    ],
+    
+    
+    "Query Execution Options": [
+        "Vectorized Model"
+    ],
+    "Query Execution": "In ClickHouse, data is processed by vectors(part of columns) to achieve high CPU performance. The intra-query parallelism depends on what table engine is used.",
+    "Query Execution Citations": [
+        "https://clickhouse.yandex/reference_en.html"
+    ],
+    
+    
+    "Stored Procedures Options": [
+        "Not Supported"
+    ],
+    "Stored Procedures Description": "Currently, stored procedures and UDF are listed as open issues in ClickHouse.",
+    "Stored Procedures Citations": [
+        "https://github.com/yandex/ClickHouse/issues/11",
+        "https://github.com/yandex/ClickHouse/issues/32"
+    ],
+
+    
+    "Joins Options": [
+        "Hash"
+    ],
+    "Joins Description": "ClickHouse only supports hash join, which is done by placing right part of data in a hash table in memory. Hash join is faster but require enough memory.",
+    "Joins Citations": [
+        "https://groups.google.com/forum/#!topic/clickhouse/AsVXzqysxRQ"
+    ],
+    
+    
+    "Query Compilation Options": [
+        "Code Generation"
+    ],
+    "Query Compilation Description": "ClickHouse supports runtime code generation. The code is generated for every kind of query on the fly, removing all indirection and dynamic dispatch. Runtime code generation can be better when it fuses many operations together and fully utilizes CPU execution units.",
+    "Query Compilation Citations": [
+        "https://clickhouse.yandex/",
+        "https://github.com/yandex/ClickHouse/blob/master/doc/developers/architecture.md"
+    ],
+    
+    
+    "Website": "https://clickhouse.yandex/",
+    
+    
+    "Programming Language": [
+        "C++"
+    ],
+    
+    
+    "Operating Systems": [
+        "Linux"
+    ],
+    
+    
+    "Project Type": [
+        "Commercial"
+    ],
+    
+    
+    "Developer": "Russian IT company Yandex",
+    
+    
+    "Start Date": "2016-06",
+    "Start Date Citations": [
+        "https://en.wikipedia.org/wiki/ClickHouse"
+    ],
+    
+    
+    "End Date": "N/A",
+    "End Date Citations": [
+    ],
+    
+    
+    "Derived From": "N/A (It's originated from the integration of some internal projects of Yandex in 2011.)",
+    
+    
+    "License": [
+        "Apache v2"
+    ]
+}

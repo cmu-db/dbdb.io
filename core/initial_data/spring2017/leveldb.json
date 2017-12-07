@@ -1,0 +1,237 @@
+{
+    "Email": "mengxic1@andrew.cmu.edu",
+
+
+    "Name": "LEVELDB",
+
+
+    "Description": "LevelDB is one key/value store built by Google. It can support an ordered mapping from string to string. LSM-tree is one type of write-optimized B-tree variants consisting of key-value pairs. It allows large sequential writes as opposed to small random writes. LevelDB is an open source LSM-tree implementation.",
+    "Description Citations": [
+        "https://github.com/google/leveldb",
+        "https://en.wikipedia.org/wiki/LevelDB"
+    ],
+
+
+    "History": "Two googlers Jeff Dean and Sanjay Ghemawat were inspired by the design scheme of bigtable tablet. Tablets in bigtable are defined as segments of the table split along chosen row. They wanted to build one open-source system containing the characteristic of bigtable tablet. Aside from that, they hoped leveldb can support chrome in its IndexedDB implementation. This is the origin of leveldb.",
+    "History Citations": [
+        "https://github.com/google/leveldb/blob/master/doc/table_format.md",
+        "https://opensource.googleblog.com/2011/07/leveldb-fast-persistent-key-value-store.html"
+    ],
+
+
+    "System Architecture Options": [
+        "Shared-Disk"
+    ],
+    "System Architecture Description": "In leveldb immutable are stored on the disk which can be shared by different cluster nodes. There are totally 7 levels plus at most two in-memory tables. The procedure can be described as firstly the system buffers write operations in an in-memory table called MEMTable and flushes data to disk when it becomes full. On the disk, tables are organized into levels. Each level contains multiple tables called SSTable. The down level maintains larger capacity than the upper level. When the upper level is full, the system needs to push data to the down level, which might need to read and write multiple SSTables.",
+    "System Architecture Citations": [
+        "URL1",
+        "URL2"
+    ],
+
+
+    "Query Interface Options": [
+        "Custom API"
+    ],
+    "Query Interface Description": "Keys and values in leveldb are byte arrays with arbitrary length. It supports basic operations like Put(), Get(), Delete(). It also support Batch operations: Batch(). The whole process of operations will run together and return result in a single Batch operation. However, it does not support SQL queries because this is not a SQL type database. Aside from that, it has no support for indexing.",
+    "Query Interface Citations": [
+        "http://dailyjs.com/post/leveldb-and-node-1",
+        "URL2"
+    ],
+
+
+    "Data Model Options": [
+        "Key/Value"
+    ],
+    "Data Model Description": "Key/value store supports the mapping from the key to the corresponding value. In SSTable the layout of key and value is managed as adjacent string sequence.",
+    "Data Model Citations": [
+        "https://en.wikipedia.org/wiki/Key-value_database"
+    ],
+
+
+    "Storage Model Options": [
+        "N-ary Storage Model"
+    ],
+    "Storage Model Description": "SSTable uses NSM to arrange data. It contains a set of arbitrary, sorted key-value pairs. At the end of the block, it provides the start offset and key value for each block. So bloom filter can be used to search for target block.",
+    "Storage Model Citations": [
+        "https://www.igvita.com/2012/02/06/sstable-and-log-structured-storage-leveldb/",
+        "http://www.cnblogs.com/chenny7/p/4026447.html"
+    ],
+
+
+    "Storage Architecture Options": [
+        "Disk-oriented"
+    ],
+    "Storage Architecture Description": "It puts temporarily accessed data into MemTable and periodically move data from MemTable into Immutable MemTable. Aside form that, it adopts compaction to reduce the invalid data in each level and then generates one new block at next level. ",
+    "Storage Architecture Citations": [
+        "http://dailyjs.com/post/leveldb-and-node-1",
+        "https://www.igvita.com/2012/02/06/sstable-and-log-structured-storage-leveldb/"
+    ],
+
+
+    "Concurrency Control Options": [
+        "Two-Phase Locking (Deadlock Prevention)"
+    ],
+    "Concurrency Control Description": "Leveldb only allow one process to open at one time. The operation system will use the locking scheme to prevent concurrent access. Within one process, Leveldb can be accessed by multiple threads. For multi-writers, it will only allow the first writer to write to database and other writers will be blocked. For read-write conflicts, readers can retrieve data from immutable which is seperated from writing process. The updated version will come into effect in compaction process.",
+    "Concurrency Control Citations": [
+        "https://www.npmjs.com/package/levelup-sync"
+    ],
+
+
+    "Isolation Levels Options": [
+        "Snapshot Isolation"
+    ],
+    "Isolation Levels Description": "It saves the state of database at a given point and supports reference to it. Users can retrieve data from specific snapshot at the time the snapshot was created.",
+    "Isolation Levels Citations": [
+        "http://dailyjs.com/post/leveldb-and-node-1"
+    ],
+
+
+    "Indexes Options": [
+        "Skip List",
+        "Other"
+    ],
+    "Indexes Description": "It uses skip list in MemTable. Aside from that, LSM-tree is one type of write-optimized B-tree variants consisting of key-value pairs. The LSM-tree is a persistent key-value store optimized for insertions and deletions. LevelDB is an open source LSM-tree implementation.",
+    "Indexes Citations": [
+        "https://en.wikipedia.org/wiki/Log-structured_merge-tree"
+    ],
+
+
+    "Foreign Keys Options": [
+        "Not Supported"
+    ],
+    "Foreign Keys Description": "This is not a SQL database",
+    "Foreign Keys Citations": [
+        "NULL"
+    ],
+
+
+    "Logging Options": [
+        "Logical Logging"
+    ],
+    "Logging Description": "Before every insertion, update or delete, system need to add the message to log. In case of node's failure, uncommited messages can be retrieved and do operation again for recovery.",
+    "Logging Citations": [
+        "http://brg-liuwei.github.io/tech/2014/10/24/leveldb-5.html"
+    ],
+
+
+    "Checkpoints Options": [
+        "Blocking"
+    ],
+    "Checkpoints Description": "When operation logging file exceeds over the limit, it will do checkpoints. Data will be flushed to the disk. And compaction scheme will be called. So data will go down levels. Aside from that, leveldb will generate new logging file and memtable for new use.",
+    "Checkpoints Citations": [
+        "http://blog.csdn.net/sparkliang/article/details/8567602"
+    ],
+
+
+    "Views Options": [
+        "Not Supported"
+    ],
+    "Views Description": "This is not a SQL database",
+    "Views Citations": [
+        "NULL"
+    ],
+
+
+    "Query Execution Options": [
+        "Not Supported"
+    ],
+    "Query Execution": "This is not a SQL database, not support SQL query",
+    "Query Execution Citations": [
+        "NULL"
+    ],
+
+
+    "Stored Procedures Options": [
+        "Not Supported"
+    ],
+    "Stored Procedures Description": "This is not a SQL database",
+    "Stored Procedures Citations": [
+        "NULL"
+    ],
+
+
+    "Joins Options": [
+        "Not Supported"
+    ],
+    "Joins Description": "This is not a SQL database",
+    "Joins Citations": [
+        "NULL"
+    ],
+
+
+    "Query Compilation Options": [
+        "Not Supported"
+    ],
+    "Query Compilation Description": "Cannot find enough information about query compilation",
+    "Query Compilation Citations": [
+        "NULL"
+    ],
+
+
+    "Website": "https://github.com/google/leveldb",
+
+
+    "Programming Language": [
+        ".NET",
+        "C",
+        "C#",
+        "C++",
+        "Clojure",
+        "Cocoa",
+        "D",
+        "Dart",
+        "Delphi",
+        "Erlang",
+        "Go",
+        "Groovy",
+        "Haskell",
+        "Java",
+        "Javascript",
+        "Lisp",
+        "Lua",
+        "Matlab",
+        "Ocaml",
+        "Objective C",
+        "PHP",
+        "Python",
+        "Qt",
+        "Ruby",
+        "Scala",
+        "Visual Basic"
+    ],
+
+
+    "Operating Systems": [
+        "Linux",
+        "Windows",
+        "iOS",
+        "Illumos"
+    ],
+
+
+    "Project Type": [
+        "Commercial"
+    ],
+
+
+    "Developer": "Sanjay Ghemawat, Jeff Dean",
+
+
+    "Start Date": "2011-03",
+    "Start Date Citations": [
+        "https://github.com/google/leveldb/commit/54f1fd7eef101db1dfb2bb66a59083c45a38aa4a"
+    ],
+
+
+    "End Date": "2017-03",
+    "End Date Citations": [
+        "https://github.com/google/leveldb/commit/a53934a3ae1244679f812d998a4f16f2c7f309a6"
+    ],
+
+
+    "Derived From": "bigtable",
+
+    "License": [
+        "Open Source"
+    ]
+}

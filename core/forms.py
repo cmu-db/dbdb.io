@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm, Form
+from django.forms import ModelForm, Form, TextInput
 from django.forms import fields
 from django.forms import widgets
 from django.contrib.auth import get_user_model
@@ -88,7 +88,8 @@ class SystemFeaturesForm(Form):
                 o = None
             initial[option.feature.label] = {
                 'options': o,
-                'description': option.description
+                'description': option.description,
+                'citations': ','.join(option.citation.values_list('url', flat=True))
             }
 
         features = Feature.objects.all()
@@ -115,12 +116,21 @@ class SystemFeaturesForm(Form):
                     initial=initial_value,
                     required=False
                 )
+            initial_desc = None
+            initial_cit = None
             if feature.label in initial:
-                initial_value = initial[feature.label]['description']
+                initial_desc = initial[feature.label]['description']
+                initial_cit = initial[feature.label]['citations']
             self.fields[feature.label+'_description'] = fields.CharField(
                 help_text="This field supports Markdown Syntax",
                 widget=Textarea(),
-                initial=initial_value,
+                initial=initial_desc,
+                required=False
+            )
+            self.fields[feature.label+'_citation'] = fields.CharField(
+                help_text="Separate the urls with commas",
+                widget=TextInput(attrs={'data-role': 'tagsinput', 'placeholder': ''}),
+                initial=initial_cit,
                 required=False
             )
 

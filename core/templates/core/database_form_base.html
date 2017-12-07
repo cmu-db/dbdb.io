@@ -1,11 +1,14 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 {% load bootstrap4 %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'lib/css/tagsinput.css' %}">
+{% endblock %}
 
 {% block content %}
     <div class="jumbotron">
         <div class="row justify-content-md-center">
-            <div class="col-md-6">
+            <div class="col-md-10">
                 <form action="." method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     {% bootstrap_form system_form %}
@@ -14,7 +17,7 @@
                     <hr>
                     {% for input in feature_form %}
                         {% bootstrap_field input %}
-                        {% if forloop.counter|divisibleby:2 %}
+                        {% if forloop.counter|divisibleby:3 %}
                             <hr>
                         {% endif %}
                     {% endfor %}
@@ -29,4 +32,10 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'lib/js/tagsinput.js' %}"></script>
+    <script>
+    $('textarea[data-role="tagsinput"]').tagsinput();
+    </script>
 {% endblock %}

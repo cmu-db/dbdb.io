@@ -1,0 +1,172 @@
+{
+    "Email": "wendongl@andrew.cmu.edu",
+
+    
+    "Name": "BigTable",
+    
+    
+    "Description": 
+    "BigTable[1] is a distributed storage system used in Google, it can be classified as a non-relational database system. BigTable is designed mainly for scalability. It typically works on petabytes of data spread across thousands of machines. \n\nThere is not much public information about the detail of BigTable, since it is proprietory to Google. The most authoritative information about it is its paper[1]. An open source implementation of it based on its original paper is Apache HBase[2]. \n\nGoogle has now provided BigTable as its cloud NoSQL database service[3]. The documentation of that[4] might be helpful, too.",
+    "Description Citations": [
+        "[1] http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf",
+        "[2] https://hbase.apache.org/", 
+        "[3] https://cloud.google.com/bigtable/", 
+        "[4] https://cloud.google.com/bigtable/docs/"
+    ],
+    
+    
+    "History": 
+    "BigTable was among the early attempts Google made to manage big data. Jeffrey Dean and Sanjay Ghemawat were involved in it. It is one of the three components Google built for managing big data (the other two are Google File System[1] and MapReduce[2]). \n\nThese three components focus on different aspects of big data: Google File System is a reliable distributed file system that the other two build upon; MapReduce is a distributed data processing framework; BigTable is a distributed storage system. \n\nThese three projects are very famous in distributed system. They all have their open source implementation.[3][4][5]",
+    "History Citations": [
+        "[1] http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/gfs-sosp2003.pdf",
+        "[2] http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/mapreduce-osdi04.pdf",
+        "[3] https://hbase.apache.org/",
+        "[4] https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html",
+        "[5] http://hadoop.apache.org/"
+    ],
+    
+    
+    "Query Interface Options": [
+        "Custom API"
+    ],
+    "Query Interface Description": 
+        "BigTable provides clients with the following APIs: \n1. Look Up (Read a Single Row) \n2. Scan (Read a subset of rows) \n3. Write \n4. Delete \n5. Customized Scripts (written in Sawzall language)",
+    "Query Interface Citations": [
+        "http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf section 3"
+    ],
+    
+    
+    "Data Model Options": [
+        "Column Family"
+    ],
+    "Data Model Description": 
+    "BigTable does not support relational data model. Instead, it provides users the ability to create column families in a table. \n\nEach table usually contains a small number of column families, which should be rarely changed (because the change of them involves metadata change). Inside each column family, there can be unlimited number of columns. Users can freely add or delete columns in a column family. Deleting of an entire column family is also supported. \n\nBigTable does not have any type information associated with a given column. It only treats data as strings of bytes.",
+    "Data Model Citations": [
+        "http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf section 2"
+    ],
+    
+    
+    "Storage Model Options": [
+        "Custom"
+    ],
+    "Storage Model Description": 
+    "In BigTable, a table is split into multiple tablets, each of which is a subset of consecutive rows[1]. A tablet is a unit of data distribution and load balancing. Different tablets of a table may be assigned to different tablet servers. A tablet is stored in the form of a log-structured merge tree[2] (which they call memtable and SSTable). \n\nFurthermore, BigTable allows clients to create locality group[3]. A locality group is a subset of columns in a table. BigTable will create a separate SSTable for each locality group, which will improve read performance of this locality group.",
+    "Storage Model Citations": [
+        "[1] http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf section 2",
+        "[2] O’Neil, Patrick, et al. \"The log-structured merge-tree (LSM-tree).\" Acta Informatica 33.4 (1996): 351-385.", 
+        "[3] http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf section 6"
+    ],
+    
+        
+    "Storage Architecture Options": [
+        "Disk-oriented"
+    ],
+    "Storage Architecture Description": 
+    "BigTable assumes an underlying reliable distributed file system (here is Google File System). The tablets are stored in Google File System, which is a disk-oriented file system. \nThe most recently written records are stored in memtable, which is in memory. However, most of the data is stored on disk.",
+    "Storage Architecture Citations": [
+        "http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf section 5.3"
+    ],
+    
+    
+    "Concurrency Control Options": [
+        "Not Supported"
+    ],
+    "Concurrency Control Description": 
+    "BigTable only supports transactions on a single row[1]. It does not support transactions spanning multiple rows",
+    "Concurrency Control Citations": [
+        "http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf section 2"
+    ],
+    
+    
+    "Isolation Levels Options": [
+        "Not Supported"
+    ],
+    
+    
+    "Indexes Options": [
+        "Not Supported"
+    ],
+    
+    
+    "Foreign Keys Options": [
+        "Not Supported"
+    ],
+    
+    
+    "Logging Options": [
+        "Physical Logging"
+    ],
+    "Logging Description": "BigTable uses physical logging. For performance consideration, all tablets on a tablet server write logs to the same log file[1]. ",
+    "Logging Citations": [
+        "[1] http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf section 6"
+    ],
+    
+    
+    "Checkpoints Options": [
+        "Not Supported"
+    ],
+    "Checkpoints Description": 
+    "In BigTable, SSTables are immutable and persistent in GFS. Therefore, only the writes to memtable will generate logs. \nAlthough BigTable does not do checkpointing explicitly, it has something that is in effect doing a checkpoint: When a memtable gets too large, the system will do a compaction on it and transform it into an SSTable[1]. This is effectively a checkpointing on this memtable.",
+    "Checkpoints Citations": [
+        "[1] http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf section 5.4"
+    ],
+    
+    
+    "Views Options": [
+        "Not Supported"
+    ],
+    
+    
+    "Stored Procedures Options": [
+        "Not Supported"
+    ],
+
+    
+    "Joins Options": [
+        "Not Supported"
+    ],
+    
+    
+    "Query Compilation Options": [
+        "Not Supported"
+    ],
+    
+    
+    "Website": "https://cloud.google.com/bigtable/",
+    
+    
+    "Programming Language": [
+        "C",
+        "C++"
+    ],
+    
+    
+    "Operating Systems": [
+        "Linux"
+    ],
+    
+    
+    "Project Type": [
+        "Commercial"
+    ],
+    
+    
+    "Developer": "Fay Chang, Jeffrey Dean, Sanjay Ghemawat, Wilson C. Hsieh, Deborah A. Wallach, Mike Burrows, Tushar Chandra, Andrew Fikes, Robert E. Gruber",
+    
+    
+    "Start Date": "2005-04",
+    "Start Date Citations": [
+        "http://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf section 11"
+    ],
+    
+    
+    "End Date": "N/A",
+    
+    
+    "Derived From": "N/A",
+    
+    
+    "Licenses": [
+        "Proprietary"
+    ]
+}

@@ -1,0 +1,214 @@
+{
+    "Email": "zhixunt@andrew.cmu.edu",
+
+    
+    "Name": "Memcached",
+    
+    
+    "Description": "Memcached (pronunciation: mem-cash-dee) is a distributed in-memory key-value storage system, usually used for caching objects in memory to speed up database applications. Typically, users wrap database queries with Memcached get/set operations to cache recently-used objects.",
+    "Description Citations": [
+        "https://memcached.org/about",
+        "https://en.wikipedia.org/wiki/Memcached"
+    ],
+    
+    
+    "History": "Memcached was originally developed by Brad Fitzpatrick from Danga Interactive for LiveJournal. It was originally written in Perl, but is rewritten in C by Anatoly Vorobey. Now Memcached is used widely in many systems, including YouTube, Twitter, Facebook, and Wikipedia. It is also provided in many cloud platform services, including Google App Engine, Microsoft Azure, and Amazon Web Services.",
+    "History Citations": [
+        "https://en.wikipedia.org/wiki/Memcached"
+    ],
+    
+    
+    "System Architecture Options": [
+        "Shared-Nothing"
+    ],
+    "System Architecture Description": "In Memcached, a client knows all servers. Servers do not communicate with each other. Each key is hashed to determine which server is used to store the key-value pair. If all clients use the same hash function, then a client can read other clients' cached data.",
+    "System Architecture Citations": [
+        "https://en.wikipedia.org/wiki/Memcached"
+    ],
+    
+    
+    "Query Interface Options": [
+        "Custom API"
+    ],
+    "Query Interface Description": "Memcached provides get/set and related operations. It also allows users to specify how long a cache item should last.",
+    "Query Interface Citations": [
+        "https://github.com/memcached/memcached/wiki/Commands"
+    ],
+    
+    
+    "Data Model Options": [
+        "Key/Value"
+    ],
+    "Data Model Description": "Memcached servers maintain a key-value map. Keys are up to 250 bytes long and values are up to 1 MB large. There are no relational schemas.",
+    "Data Model Citations": [
+        "https://en.wikipedia.org/wiki/Memcached"
+    ],
+    
+    
+    "Storage Model Options": [
+        "Custom"
+    ],
+    "Storage Model Description": "Memcached stores a hash table. As of May 2017, it uses MurmurHash 3 as the hash function. Values items are slab-allocated.",
+    "Storage Model Citations": [
+        "https://github.com/memcached/memcached/blob/master/murmur3_hash.c",
+        "https://github.com/memcached/memcached/blob/master/items.c#L187"
+    ],
+    
+    
+    "Storage Architecture Options": [
+        "In-Memory"
+    ],
+    "Storage Architecture Description": "In Memcached, everything is stored in memory, since it is intended for caching objects stored in a disk-oriented database. By storing everything in memory, it achieved the needed latency and speed. The cache is **not** persitent between restarts, which is an intended feature.",
+    "Storage Architecture Citations": [
+        "https://github.com/memcached/memcached/wiki/ProgrammingFAQ"
+    ],
+    
+    
+    "Concurrency Control Options": [
+        "Not Supported"
+    ],
+    "Concurrency Control Description": "Memcached doesn't have the concept of transactions. The get/set operations are atomic, though. For example, multiple sets on the same key can be issued concurrently, but only the last will stay.",
+    "Concurrency Control Citations": [
+        "https://github.com/memcached/memcached/wiki/ProgrammingFAQ"
+    ],
+    
+    
+    "Isolation Levels Options": [
+        "Not Supported"
+    ],
+    "Isolation Levels Description": "Memcached doesn't have the concept of transactions. The get/set operations are atomic, though. For example, multiple sets on the same key can be issued concurrently, but only the last will stay.",
+    "Isolation Levels Citations": [
+        "https://github.com/memcached/memcached/wiki/ProgrammingFAQ"
+    ],
+    
+    
+    "Indexes Options": [
+        "Hash Table"
+    ],
+    "Indexes Description": "Memcached stores a key-value hash table on every server. As of May 2017, it uses **MurmurHash 3** as the hash function.",
+    "Indexes Citations": [
+        "https://en.wikipedia.org/wiki/Memcached",
+        "https://github.com/memcached/memcached/blob/master/murmur3_hash.c"
+    ],
+    
+    
+    "Foreign Keys Options": [
+        "Not Supported"
+    ],
+    "Foreign Keys Description": "Memcached only stores one key-value map. There is no support for relational schemas. Therefore, there is no need to support foreign keys.",
+    "Foreign Keys Citations": [
+        "https://github.com/memcached/memcached/wiki/Overview"
+    ],
+    
+    
+    "Logging Options": [
+        "Other"
+    ],
+    "Logging Description": "There is no logging in Memcached, since it is intended for being a caching system. The cache is not persistant between restarts.",
+    "Logging Citations": [
+        "https://github.com/memcached/memcached/wiki/ProgrammingFAQ"
+    ],
+    
+    
+    "Checkpoints Options": [
+        "Not Supported"
+    ],
+    "Checkpoints Description": "There is no checkpointing in Memcached, since it is intended for being a caching system. The cache is not persistant between restarts.",
+    "Checkpoints Citations": [
+        "https://github.com/memcached/memcached/wiki/ProgrammingFAQ"
+    ],
+    
+    
+    "Views Options": [
+        "Not Supported"
+    ],
+    "Views Description": "Memcached only supports get/set and related operations on a key-value store. There is no support for SQL queries. Therefore, there is no need to support views.",
+    "Views Citations": [
+        "https://github.com/memcached/memcached/wiki/Commands"
+    ],
+    
+    
+    "Query Execution Options": [
+        "Tuple-at-a-Time Model"
+    ],
+    "Query Execution": "Memcached only supports get/set and related operations on single key-value pairs. More complicated operations can be built upon the basic functionality.",
+    "Query Execution Citations": [
+        "https://github.com/memcached/memcached/wiki/ProgrammingFAQ#why-no-complex-operations"
+    ],
+    
+    
+    "Stored Procedures Options": [
+        "Not Supported"
+    ],
+    "Stored Procedures Description": "Memcached only supports get/set and related operations on a key-value store. There is no support for SQL queries. Therefore, there is no need to support stored procedures.",
+    "Stored Procedures Citations": [
+        "https://github.com/memcached/memcached/wiki/Commands"
+    ],
+
+    
+    "Joins Options": [
+        "Not Supported"
+    ],
+    "Joins Description": "Memcached only supports get/set and related operations on a key-value store. There is no support for SQL queries. Therefore, there is no need to support joins.",
+    "Joins Citations": [
+        "https://github.com/memcached/memcached/wiki/Commands"
+    ],
+    
+    
+    "Query Compilation Options": [
+        "Not Supported"
+    ],
+    "Query Compilation Description": "Memcached only supports get/set and related operations on a key-value store. There is no support for SQL queries. Therefore, there is no need for query compilation.",
+    "Query Compilation Citations": [
+        "https://github.com/memcached/memcached/wiki/Commands"
+    ],
+    
+    
+    "Website": "https://memcached.org/",
+    
+    
+    "Programming Language": [
+        "C",
+        "Perl"
+    ],
+    
+    
+    "Operating Systems": [
+        "AIX",
+        "BSD",
+        "FreeBSD",
+        "Linux",
+        "NetBSD",
+        "OS X",
+        "Solaris",
+        "Unix",
+        "Windows"
+    ],
+    
+    
+    "Project Type": [
+        "Commercial"
+    ],
+    
+    
+    "Developer": "Danga Interactive",
+    
+    "Start Date": "2003-05",
+    "Start Date Citations": [
+        "https://en.wikipedia.org/wiki/Memcached"
+    ],
+    
+    
+    "End Date": "",
+    "End Date Citations": [
+        "https://en.wikipedia.org/wiki/Memcached"
+    ],
+    
+    
+    "Derived From": "None",
+
+
+    "License": [
+        "BSD"
+    ]
+}

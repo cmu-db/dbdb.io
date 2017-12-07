@@ -1,0 +1,252 @@
+{
+    "Email": "wcui2@andrew.cmu.edu",
+
+    
+    "Name": "Wei Cui",
+    
+    
+    "Description": "Redis is a *networked, in-memory, key-value store* that can be used as databases, cache or message broker. It supports storage of various types of data structures including strings, lists hashes and sets, as well as different kinds of queries on those data structures. Redis also provides support for on-disk persistent, Timed key expiration, LRU eviction of keys, asynchronous master-slave replication, automatic failover and transactions. Redis is mainly developed by Salvatore Sanfilippo and released under BSD liscence.",
+    "Description Citations": [
+        "https://redis.io/topics/introduction",
+        "https://en.wikipedia.org/wiki/Redis"
+    ],
+    
+    
+    "History": "Italian software engineer Salvatore Sanfilippo, creator and main contributor of Redis, first started redis project in early 2009. The initial purpose of Redis is to improve the performance of LLOOGG, the product of a startup by Salvatore Sanfilippo. By June 2009, Redis is stable and feature-rich enough so that Salvatore Sanfilippo deployed Redis to production environment and retired MySQL from LLOOGG. Community of Redis grew rapidly over the following several months, thanks to Salvatore Sanfilippo's effort of maintaining and improving the software and eventually, in March 2010, VMWare hired Salvatore Sanfilippo to work full-time on Redis. In 2013 and later in 2015, Salvatore Sanfilippo joined Pivotal Software and RedisLabs respectively, and these two companies became the main sponsorship of Redis.",
+    "History Citations": [
+        "https://en.wikipedia.org/wiki/Redis#History",
+        "http://blog.mjrusso.com/2010/10/17/redis-from-the-ground-up.html#history",
+        "http://antirez.com/news/91"
+    ],
+    
+    
+    "System Architecture Options": [
+        "Shared-Nothing"
+    ],
+    "System Architecture Description": "Each Redis server is an autonomous, single threaded program that can process requests. You can also configure Redis clusters to improve the performance, storage capacity and availability. Redis clusters can automatically split dataset among Redis machines in the cluster but again each machine is self-contained and does not share anything with others.",
+    "System Architecture Citations": [
+        "https://redis.io/topics/cluster-tutorial",
+        "https://redis.io/topics/latency"
+    ],
+    
+    
+    "Query Interface Options": [
+        "Custom API"
+    ],
+    "Query Interface Description": "As a fast in-memory key/value store, Redis defines its own concise query interface called Redis commands. For example, to set a key 'mykey' with value 'Hello', you can issue command: SET mykey \"Hello\", optional parameters such as expiration time and set condition can also be provided. Redis also supports transactions where a client issue a group of Redis commands and request Redis server to execute them in an all-or-nothing manner. Such transaction typically started with a 'MULTI' command similar to SQL's 'BEGIN TRANSACTION', and then commands of this transaction are entered one by one, queued on the Redis server. Finally a 'EXEC' is issued and Redis try to run all the queued commands together.",
+    "Query Interface Citations": [
+        "https://redis.io/commands",
+        "https://redis.io/topics/transactions"
+    ],
+    
+    
+    "Data Model Options": [
+        "Key/Value"
+    ],
+    "Data Model Description": "Primarily used as a fast cache, Redis is a key/value store. Unlike a naive dictionary, Redis supports various value data types, including strings, hashes, lists, sets, ordered sets, as well as range queries, bitmaps, hyperloglogs and geospatial indexes with radius queries to operate on those data types. The key is always a binary-safe string",
+    "Data Model Citations": [
+        "https://redis.io"
+    ],
+    
+    
+    "Storage Model Options": [
+        "Custom"
+    ],
+    "Storage Model Description": "Redis implements its own hash map, and key/value pairs are inserted into this hashmap. The hash function is, by default,  MurmurHash 2. And in each hash bucket, new items are placed at the beginning of the chain instead of the end.",
+    "Storage Model Citations": [
+        "http://key-value-stories.blogspot.com/2015/01/redis-core-implementation.html",
+        "https://github.com/antirez/redis/blob/unstable/src/dict.h"
+    ],
+    
+        
+    "Storage Architecture Options": [
+        "Hybrid"
+    ],
+    "Storage Architecture Description": "Redis is usually a in-memory data store but has the option to store data persistantly on stable storage such as disks. Redis supports two types of persistent storage: RDB (checkpoint or snapshot) and AOF (log actions).",
+    "Storage Architecture Citations": [
+        "https://redis.io/topics/persistence"
+    ],
+    
+    
+    "Concurrency Control Options": [
+        "Not Supported"
+    ],
+    "Concurrency Control Description": "There is **no** concurrency control protocol in Redis because *it does not need one*. Redis is *mostly* a single-threaded program, in the sense that at any given point of time, for a Redis server there can be at most one request being processed. In other words, requests are processed sequentially, excluding the needs for concurrency control. Redis is *mostly* single threaded as from version 2.4, there are additional threads to do some background work such as disk I/O, but the fact that requests are processed seretially is not changed.",
+    "Concurrency Control Citations": [
+        "https://redis.io/topics/latency"
+    ],
+    
+    
+    "Isolation Levels Options": [
+        "Not Supported"
+    ],
+    "Isolation Levels Description": "Since there is no concurrency control protocol involved and all requests are processed serially, it does not make much sense to talk about isolation levels. However it is worth mentioning that Redis support the idea of transactions, where a group of Redis commands are either all executed or none of them executed. Therefore subsequent requests can only see the changes made by commands that are successfully and no partial changes can be observed. In this sense you can say that Redis adopt a Serializable isolation level.",
+    "Isolation Levels Citations": [
+    ],
+    
+    
+    "Indexes Options": [
+        "Hash Table"
+    ],
+    "Indexes Description": "Redis implements its own in-memory hashtable as the container for key-value pairs.",
+    "Indexes Citations": [
+        "https://github.com/antirez/redis/blob/unstable/src/dict.h"
+    ],
+    
+    
+    "Foreign Keys Options": [
+        "Not Supported"
+    ],
+    "Foreign Keys Description": "Redis is a simply key-value store and does not support foreign keys.",
+    "Foreign Keys Citations": [
+    ],
+    
+    
+    "Logging Options": [
+        "Command Logging"
+    ],
+    "Logging Description": "The logging mechanism of Redis is called AOF, or append only file. Redis logs every command issued by requests, and as long as the command take effect (makes changes to the data stored), a log entry will be generated and append to the AOF. Note that Redis does not log the effect(consequense) of the command, but the command itself (such as SET myKey 'myValue'). This contrasts the physical logging scheme of many relational database management systems such as MySQL. This is because Redis is single threaded and there is no concurrency control scheme involved, therefore by replying the log topdown we are guaranteed to restore the state of Redis server. AOF are flushed (fsync) to disk on the frequency defined by administrator. AOF files are often larger than the RDB (Redis snapshot) file",
+    "Logging Citations": [
+        "https://redis.io/topics/persistence",
+        "http://oldblog.antirez.com/post/redis-persistence-demystified.html"
+    ],
+    
+    
+    "Checkpoints Options": [
+        "Non-Blocking"
+    ],
+    "Checkpoints Description": "administrators can configure Redis to take a snapshot of all stored key-value pairs at some pre-defined frequency, such as once every 5 minutes. During checkpointing, the main Redis process forks a child and it is the child's responsibility to dump all its data to a .rdb file on disk, while the parent process may continue processing client requests without blocking. Redis checkpointing allows faster recovery and usually does not hurt the performance since all the parent process needs to do is to call fork() and no disk I/O is involved for the parent. However, in the case where the dataset is large and the hardware is slow, the fork() call may take several milliseconds or even seconds and the parent process will freeze.",
+    "Checkpoints Citations": [
+        "https://redis.io/topics/persistence"
+    ],
+    
+    
+    "Views Options": [
+    ],
+    "Views Description": "Redis is a simple key-value store, there is no such thing as a view in relational database.",
+    "Views Citations": [
+    ],
+    
+    
+    "Query Execution Options": [
+        "custom"
+    ],
+    "Query Execution": "Redis process the query serially and it is a in-memory key-value store, so it is neither tuple-at-a-time nor vectorized.",
+    "Query Execution Citations": [
+    ],
+    
+    
+    "Stored Procedures Options": [
+        "Not Supported"
+    ],
+    "Stored Procedures Description": "Redis does not officially support stored procedures, but since it provides a powerful commands 'EVAL', clients can store a Redis commands as string in Redis and EVAL it when needed. Details can be found in this link: [link](https://www.devbattles.com/en/sand/post-1937-quotStored_Proceduresquot_in_Redis)",
+    "Stored Procedures Citations": [
+        "https://www.devbattles.com/en/sand/post-1937-quotStored_Proceduresquot_in_Redis"
+    ],
+
+    
+    "Joins Options": [
+        "Not Supported"
+    ],
+    "Joins Description": "Redis is key/value store, you cannot do SQL joins on Redis.",
+    "Joins Citations": [
+        "http://stackoverflow.com/questions/16454538/can-we-take-join-in-redis"
+    ],
+    
+    
+    "Query Compilation Options": [
+        "Not Supported"
+    ],
+    "Query Compilation Description": "Redis queries are run as they are, there are no code generation or JIT.",
+    "Query Compilation Citations": [
+    ],
+    
+    
+    "Website": "https://redis.io",
+    
+    
+    "Programming Language": [
+        "ActionScript",
+        "Bash",
+        "C",
+        "C#",
+        "C++",
+        "Clojure",
+        "Common Lisp",
+        "Crystal",
+        "D",
+        "Dart",
+        "Delphi",
+        "Elixir",
+        "emacs lisp",
+        "Erlang",
+        "Fancy",
+        "gawk",
+        "GNU Prolog",
+        "Go Haskell",
+        "Haxe",
+        "Io",
+        "Java",
+        "Julia",
+        "Lasso Lua",
+        "Matlab",
+        "mruby",
+        "Nim",
+        "Node.js",
+        "Objective-C",
+        "OCaml",
+        "Pascal",
+        "Perl",
+        "PHP",
+        "PL/SQL",
+        "Pure Data",
+        "Python",
+        "R",
+        "Racket",
+        "Rebol",
+        "Ruby",
+        "Rust Scala",
+        "Scheme",
+        "Smalltalk",
+        "Swift",
+        "Tcl",
+        "VB",
+        "VCL"
+    ],
+    
+    
+    "Operating Systems": [
+        "BSD",
+        "FreeBSD",
+        "Linux",
+        "NetBSD",
+        "OS X",
+        "Unix"
+    ],
+    
+    
+    "Project Type": [
+        "Mixed"
+    ],
+    
+    
+    "Developer": "Salvatore Sanfilippo",
+    
+    
+    "Start Date": "First release in 2009-05",
+    "Start Date Citations": [
+        "https://en.wikipedia.org/wiki/Redis"
+    ],
+    
+    "End Date": "Latest release in 2017-02, project still being maintained",
+    "End Date Citations": [
+        "https://en.wikipedia.org/wiki/Redis"
+    ],
+    
+    "Derived From": "Redis is an original project",
+    
+    
+    "License": [
+        "BSD"
+    ]
+}

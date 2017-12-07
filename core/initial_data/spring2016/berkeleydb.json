@@ -1,0 +1,265 @@
+{
+    "Email": "ssanturk@andrew.cmu.edu",
+
+
+    "Name": "BerkeleyDB",
+
+
+    "Description": "BerkeleyDB is a simple and flexible, embedded open-source, database storage library. The simplicity arises from the fact that it is a basic key-value store and not a full-fledged database system that provides querying and schema constraints. It offers flexibility by being schema-less and by providing convenient mechanisms to include and discard features. BerkeleyDB provides complete ACID compliance through its five subsystems, namely, caching, datastore, locking, logging and recovery. All these five subsystems are implemented using concepts like two-phase locking, undo/redo write-ahead logging, etc. This enables it to offer high performance for a variety of workloads and handle very large-sized key-vale stores (order of Terabytes). Due to these properties, many applications like filesystems, LDAP servers and database systems (like MySQL) use BerkeleyDB for their backend storage requirements.",
+    "Description Citations": [
+        "https://en.wikipedia.org/wiki/Berkeley_DB",
+        "http://www.pdl.cmu.edu/SDI/2015/111215.html"
+    ],
+
+
+    "History": "*BerkeleyDB originally started off to replace the existing decoupled in-memory and on-disk hashing systems with a single unified system that caches an on-disk table into memory and uses in-memory buffer pooling to provide an illusion of infinite memory availability. This library used linear hashing to efficiently mp keys to values for constant time lookups and store a large volume of data backed by the disk. This was extended to include the BTree access method and then followed up by a simple CRUD API that provides call agnostic to the access method deployed. The initial releases developed by Keith Bostic and Margo Seltzer (who were graduate students at the time) were upgraded to provide complete transactional processing, through the sponsorship of Netscape for developing a LDAP server. The developers then began to create releases as Sleepycat Software which finally got acquired by Oracle in 2006. Presently Oracle presently develops and maintains releases and permits free and open source usage bounded by the GNU AGPL license terms. ",
+    "History Citations": [
+    ],
+
+
+    "System Architecture Options": [
+        "Shared-Everything",
+        "Shared-Nothing"
+    ],
+    "System Architecture Description": "BerkeleyDB is an embedded storage library. Hence, it's scope is within the process space of the process that created it. This implies that every possible hardware resource is shared. There are no special hardware requirements for BerkeleyDB. The Replicated, high availability mode uses the shared nothing system architecture.",
+    "System Architecture Citations": [
+        "https://web.stanford.edu/class/cs276a/projects/docs/berkeleydb/ref/intro/dbis.html",
+        "http://www.aosabook.org/en/bdb.html",
+        "http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/index.html"
+    ],
+
+
+    "Query Interface Options": [
+        "SQL",
+        "PL/SQL",
+        "Custom API"
+    ],
+    "Query Interface Description": "The basic Query interface support for BerkeleyDB is the simple CRUD (Create, Read Update and Delete) API, which, are the common primitives provided for key-value stores. This API has been implemented in most common programming languages. Recent releases from Oracle have provided SQL support by providing the SQLite API that parses SQL queries and generates code that can be executed on BerkeleyDB. Third party support for PL/SQL is available.",
+    "Query Interface Citations": [
+        "http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/index-085366.html",
+        "https://en.wikipedia.org/wiki/Berkeley_DB"
+    ],
+
+
+    "Data Model Options": [
+        "Document / XML",
+        "Key/Value"
+    ],
+    "Data Model Description": "BerkeleyDB is primarily a key-value store. The keys follow a uniqueness constraint. It has support for variable-length keys and values for BTree and Hash index access methods. The Queue access method supports only fixed-sized values. The DB can be configured to provide multi-value support for keys. The BerkleyDB XML repository provides an XML document store that is backed by XQuery.",
+    "Data Model Citations": [
+        "http://www.aosabook.org/en/bdb.html",
+        "https://web.stanford.edu/class/cs276a/projects/docs/berkeleydb/ref/simple_tut/keydata.html"
+    ],
+
+
+    "Storage Model Options": [
+        "Custom"
+    ],
+    "Storage Model Description": "BerkeleyDB is a simple KeyValue store. Data is stored as raw-bytes. Key-value pairs are stored in \"DTAG\" that store a pointer to the memory location of the byte string and its size (along with other bookkeeping data). These structures allow the data to be of unbounded length. The individual DTAG storage pattern depends on the access method. However, this model is susceptible to pointer-chasing slow downs in high-performance systems.",
+    "Storage Model Citations": [
+        "https://web.stanford.edu/class/cs276a/projects/docs/berkeleydb/api_c/dbt_class.html",
+        "https://en.wikipedia.org/wiki/Berkeley_DB"
+    ],
+
+
+    "Storage Architecture Options": [
+        "Disk-oriented"
+    ],
+    "Storage Architecture Description": "BerkeleyDB is fully disk-oriented and uses buffer pools called \"Mpool\" in memory. Page format on-disk and in memory remains the same to trade off the format conversion overhead. Mpool management follows and LRU page replacement policy with pinning for dirty pages. The MPool is designed to provide a complete in-memory abstraction over the disk storage. ",
+    "Storage Architecture Citations": [
+        "http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/index-085366.html",
+        "http://www.aosabook.org/en/bdb.html"
+    ],
+
+
+    "Concurrency Control Options": [
+        "Two-Phase Locking (Deadlock Prevention)",
+        "Multi-version Concurrency Control (MVCC)"
+    ],
+    "Concurrency Control Description": "BerkleyDB uses two-phase locking to permit multiple reader cursors or a single writer cursor to access the database. Initial versions of BerkeleyDB only supported monolithic, table-level locking. To prevent deadlocks, BerkeleyDB uses creates a conflict matrix by default and grants and denies lock requests by inspecting this table first. The conflict matrix supports hierarchical lock requests. Recent releases now support MVCC as well.",
+    "Concurrency Control Citations": [
+        "http://www.aosabook.org/en/bdb.html",
+        "https://docs.oracle.com/cd/E17275_01/html/programmer_reference/cam.html"
+
+    ],
+
+
+    "Isolation Levels Options": [
+        "Snapshot Isolation",
+        "Serializable"
+    ],
+    "Isolation Levels Description": "BerkeleyDB provides serializable isolation by default when pessimistic concurrency control is used. This is possible due to the multiple reader-single writer model and two phase locking. When MVCC is used, snapshot-level isolation guarantees are provided. The caveat is, that this isolation guarantee can work well only if the cache sizes are large. MVCC leads to the creation of multiple working sets and tend to grow larger than the cache size.",
+    "Isolation Levels Citations": [
+        "https://en.wikipedia.org/wiki/Isolation_%28database_systems%29#Serializable",
+        "https://docs.oracle.com/cd/E17076_03/html/programmer_reference/transapp_read.html#snapshot_isolation",
+        "https://docs.oracle.com/cd/E17076_03/html/programmer_reference/transapp_read.html"
+    ],
+
+
+    "Indexes Options": [
+        "B+Tree",
+        "Hash Table",
+        "Other"
+    ],
+    "Indexes Description": "Due to the simple key-value format of BerkeleyDB records, bot keys and values are directly stored in the leaves of the B+Tree. The B+Tree index is sorted by keys and offers efficient exact match lookups and range scans. Prefix compressions isn't used in B+Trees. The hash index is used to support exact-match lookups and store data as exact key-value mappings. Hash indexes use linear hashing to balance the keys across buckets. BerkeleyDB also provides recno indexes that are built on top of B+Trees for ordering and storing data sequentially.",
+    "Indexes Citations": [
+        "Olson, Michael A., Keith Bostic, and Margo I. Seltzer. \"Berkeley DB.\" USENIX Annual Technical Conference, FREENIX Track. 1999.",
+        "http://www.aosabook.org/en/bdb.html"
+    ],
+
+
+    "Foreign Keys Options": [
+        "Supported"
+    ],
+    "Foreign Keys Description": "Foreign key constraints are supported that allow foreign key deletions to be either Abort, Cascade or Nullify.",
+    "Foreign Keys Citations": [
+        "http://docs.oracle.com/cd/E17076_04/html/programmer_reference/am_foreign.html"
+    ],
+
+
+    "Logging Options": [
+        "Physical Logging"
+    ],
+    "Logging Description": "BerkeleyDB supports Write Ahead Logging (WAL) and uses this for durability instead of immediately persisting every transaction onto the disk. The logs follow append-only semantics and are indexed using Log Sequence Numbers (LSN). The logging in BerkeleyDB follows the ARIES model by providing undo and redo logs facilitated by LSN indexing. Logs are coupled with additional metadata indicating the expected size of the record to be returned. MPools can be evicted only when the data that they are holding is persisted on stable storage. This is validated by the log manager by using LSNs. The Log manager can read records from the disk using these LSN index to compute the offset of data on the storage layer and seek to that position. Logs are forcibly persisted to the disk as soon as they are generated. ",
+    "Logging Citations": [
+        "http://www.aosabook.org/en/bdb.html",
+        "http://www.oracle.com/technetwork/products/berkeleydb/overview/storage-160885.html"
+    ],
+
+
+    "Checkpoints Options": [
+        "Fuzzy"
+    ],
+    "Checkpoints Description": "Checkpointing involves flushing in memory buffers to disk to reduce recovery time, which might require the transactions to be blocked or aborted. BerkeleyDB selects the active transaction with the lowest Log Sequence Numbers (LSN) and flushes pages corresponding to that LSN to the disk. A checkpoint record is then updated to indicate the highest LSN that has been checkpointed so far. Checkpointing frequencies are tunable to help users amortize these costs.",
+    "Checkpoints Citations": [
+        "https://web.stanford.edu/class/cs276a/projects/docs/berkeleydb/ref/transapp/checkpoint.html",
+        "http://www.aosabook.org/en/bdb.html"
+    ],
+
+
+    "Views Options": [
+        "Not Supported"
+    ],
+    "Views Description": "Since BerkeleyDB is not a relational database, it doesn't have a concept of views.",
+    "Views Citations": [
+        "https://en.wikipedia.org/wiki/View_%28SQL%29"
+    ],
+
+
+    "Query Execution Options": [
+        "Tuple-at-a-Time Model"
+    ],
+    "Query Execution Description": "BerkeleyDB, on its own, does not support query execution. BerkeleyDB uses Sqlite to provide an API to execute SQL queries and Sqlite uses the Tuple-at-a-Time query execution model.",
+    "Query Execution Citations": [
+        "https://www.sqlite.org/c3ref/step.html",
+        "http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/sql-160887.html"
+    ],
+
+
+    "Stored Procedures Options": [
+        "Not Supported"
+    ],
+    "Stored Procedures Description": "BerkeleyDB inherits the relational database processing functionality from Sqlite and Sqlite doesn't support stored procedures.",
+    "Stored Procedures Citations": [
+        "http://www.oracle.com/technetwork/database/berkeleydb/db-faq-095848.html#DoesBerkeleyDBsupportstoredprocedures"
+    ],
+
+
+    "Joins Options": [
+        "Nested Loop",
+        "Sort-Merge"
+    ],
+    "Joins Description": "Joins supported by BerkeleyDB depend on the joins supported by Sqlite. Sqlite has recently introduced support for merge joins, but aren't complete enough to support joins over non-unique keys. That said, BerkeleyDB can only support unique keys which makes the available sort-merge functionality sufficient.",
+    "Joins Citations": [
+        "https://www.mail-archive.com/sqlite-users@sqlite.org/msg84459.html",
+        "https://www.sqlite.org/optoverview.html",
+        "https://www.sqlite.org/queryplanner-ng.html"
+    ],
+
+
+    "Query Compilation Options": [
+        "Code Generation"
+    ],
+    "Query Compilation Description": "Sqlite over BerkeleyDB uses code generation to produce virtual machine code. The virtual machine acts as the bridge between sqlite and the storage layer (in this case, BerkeleyDB) and has the logic to translate virtual machine code to storage level calls.",
+    "Query Compilation Citations": [
+        "https://www.sqlite.org/arch.html",
+        "http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/sql-160887.html"
+    ],
+
+
+    "Website": "http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/index.html",
+
+
+    "Programming Language": [
+        ".Net",
+        "C",
+        "C#",
+        "C++",
+        "Clojure",
+        "D",
+        "Delphi",
+        "Eiffel",
+        "Erlang",
+        "Go",
+        "Haskell",
+        "Java",
+        "Javascript",
+        "Lisp",
+        "Lua",
+        "Matlab",
+        "Ocaml",
+        "Php",
+        "Pl/Sql",
+        "Perl",
+        "Prolog",
+        "Python",
+        "Qt",
+        "R",
+        "Rebol",
+        "Ruby",
+        "Scala",
+        "Smalltalk",
+        "Tcl",
+        "Visual Basic"
+    ],
+
+
+    "Operating Systems": [
+        "AIX",
+        "All OS with a Java VM",
+        "Android",
+        "BSD",
+        "DOS",
+        "FreeBSD",
+        "HP-UX",
+        "Linux",
+        "NetBSD",
+        "OS X",
+        "Solaris",
+        "Unix",
+        "VxWorks",
+        "Windows",
+        "iOS",
+        "z/OS"
+    ],
+
+
+    "Project Type": [
+        "Mixed"
+    ] ,
+
+
+    "Developer": "Sleepycat Software and Oracle",
+
+
+    "Start Date": "1994",
+    "Start Date Citations": [
+        "https://en.wikipedia.org/wiki/Berkeley_DB"
+    ],
+
+
+    "Licenses": [
+        "AGPL v3",
+        "BSD"
+    ]
+}

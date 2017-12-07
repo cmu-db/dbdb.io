@@ -1,0 +1,225 @@
+{
+    "Email": "shuyaob@andrew.cmu.edu",
+
+
+    "Name": "Hekaton",
+
+
+    "Description": "Hekaton is a memory-optimized OLTP engine integrated in SQL Server 2014 and is also known as The In-Memory OLTP. Hekaton allows a table to be stored and resides in main memory and can be queried in the same way as disk-based SQL Server tables. Hekaton mainly improves its performance on many-core CPUs by improving scalability and reducing the number of instructions executed for a single query. Scalability is provided by Hekaton by eliminating latches and locks. Native compilation process which compiles stored procedures and tables into efficient machine code can reduce instructions executed for queries.",
+    "Description Citations": [
+        "https://www.microsoft.com/en-us/research/publication/hekaton-sql-servers-memory-optimized-oltp-engine/",
+        "https://msdn.microsoft.com/en-us/library/dn720242.aspx"
+    ],
+
+
+    "History": "Hekaton is the codename of Microsoft's in-Memory OLTP project, meaning '100' in Greek. It represents the goal of achieving 100x performance speedup. In PASS 2012, The Hekaton technique has been integrated into SQL Server 2014 as In-Memory OLTP.  ",
+    "History Citations": [
+        "http://www.databasejournal.com/news/project-hekaton-microsoft-in-memory-sql-server.html",
+        "https://en.wikipedia.org/wiki/Hekaton_(database)"
+    ],
+
+
+    "System Architecture Options": [
+        "Shared-Everything"
+    ],
+    "System Architecture Description": "Hekaton does not adopt the approach of partitioning the database by cores. Instead, every thread can access any part of the database. ",
+    "System Architecture Citations": [
+        "https://www.microsoft.com/en-us/research/publication/hekaton-sql-servers-memory-optimized-oltp-engine/"
+    ],
+
+
+    "Query Interface Options": [
+        "SQL"
+    ],
+    "Query Interface Description": "Memory-optimized tables can be accessed with Transact-SQL as the same way as regular SQL servers using interops or with compiled stored procedures.",
+    "Query Interface Citations": [
+        "https://msdn.microsoft.com/en-us/library/dn133180(v=sql.120).aspx",
+        "https://en.wikipedia.org/wiki/Transact-SQL",
+        "https://www.microsoft.com/en-us/research/publication/hekaton-sql-servers-memory-optimized-oltp-engine/"
+    ],
+
+
+    "Data Model Options": [
+        "Relational"
+    ],
+    "Data Model Description": "Hekaton has been integreated into the SQL Server relational engine.  ",
+    "Data Model Citations": [
+        "https://www.microsoft.com/en-us/research/publication/hekaton-sql-servers-memory-optimized-oltp-engine/"
+    ],
+
+
+    "Storage Model Options": [
+        "N-ary Storage Model"
+    ],
+    "Storage Model Description": "COLUMNSTORE is not supported with Hekaton tables because it targets OLTP workloads and uses N-ary store model.",
+    "Query Execution Citations": [
+        "https://msdn.microsoft.com/en-us/library/gg492088(v=sql.120).aspx",
+        "https://technet.microsoft.com/en-us/library/dn246937(v=sql.120).aspx"
+    ],
+
+
+    "Storage Architecture Options": [
+        "In-Memory"
+    ],
+    "Storage Architecture Description": "Hekaton is designed to improve performance on a modern architecture where a database can fit in the main memory. Larger-than-memory-database can be supported if using the mixture of disk-based tables and memory-optimized tables.",
+    "Storage Architecture Citations": [
+        "https://www.microsoft.com/en-us/research/publication/hekaton-sql-servers-memory-optimized-oltp-engine/"
+    ],
+
+
+    "Concurrency Control Options": [
+        "Optimistic Concurrency Control (OCC)",
+        "Multi-version Concurrency Control (MVCC)"
+    ],
+    "Concurrency Control Description": "Hekaton uses optimistic concurrency control to provide tranaction isolation which requires no lock tables and thus can enable threads executing without stalls.  The time when each transaction begins is regarded as the logical read time.  Transactions that have modified data can be distinguished in the serializable timeline with their commit/end time. Each version record holds BEGIN and END timestamps which show the valid time. BEGIN timestamp is set as the commit time of the transaction that created this version and END timestamp is set as the commit time of the transaction that deleted this version. Version visibility is resolved by only allowing transactions to read records whose valid time can the logical read time of the transaction.  To ensure serializability, read stability and phantom avoidance checks are needed. Hekaton uses optimistic concurrency control that checks the read visibility at the end of the transaction without acquiring locks.",
+    "Concurrency Control Citations": [
+        "https://msdn.microsoft.com/en-us/library/dn133181(v=sql.120).aspx",
+        "https://www.microsoft.com/en-us/research/publication/hekaton-sql-servers-memory-optimized-oltp-engine/"
+    ],
+
+
+    "Isolation Levels Options": [
+        "Read Committed",
+        "Repeatable Read",
+        "Snapshot Isolation",
+        "Serializable"
+    ],
+    "Isolation Levels Description": "Hekaton uses MVCC method to provide snapshot isolation. To provide serializability, read stability and phantom avoidance needs to be held by involving a validation phase before commit. Repeatable reads requires only read validation. Snapshot isolation and read committed require no validation. The isolation level read committed is supported only for single statement transactions with autocommit.",
+    "Isolation Levels Citations": [
+        "https://msdn.microsoft.com/en-us/library/dn133175(v=sql.120).aspx",
+        "https://www.microsoft.com/en-us/research/publication/hekaton-sql-servers-memory-optimized-oltp-engine/"
+    ],
+
+
+    "Indexes Options": [
+        "Bw-Tree",
+        "Hash Table"
+    ],
+    "Indexes Description": "Hekaton supports two kinds of indexes. The first one is hash table implemented in a lock-free way. The second is for range indexes and implemented as Bw-Tree, a lock-free B-trees.  Indexes are not stored on disk and the index changes will not be recorded in the logs. Once the database breakdowns, indexes will be rebuilt at recovery time. All memory-optimized tables need to have one index structure.",
+    "Indexes Citations": [
+        "https://www.microsoft.com/en-us/research/publication/hekaton-sql-servers-memory-optimized-oltp-engine/",
+        "https://msdn.microsoft.com/en-us/library/dn133190(v=sql.120).aspx",
+        "https://msdn.microsoft.com/en-us/library/dn720242.aspx",
+        "https://docs.microsoft.com/en-us/sql/relational-databases/in-memory-oltp/indexes-for-memory-optimized-tables"
+    ],
+
+
+    "Foreign Keys Options": [
+        "Not Supported"
+    ],
+    "Foreign Keys Description": "Foreign key constraints are not supported by Hekaton and the constraints need to be enforced before migration. ",
+    "Foreign Keys Citations": [
+        "https://msdn.microsoft.com/en-us/library/dn246937(v=sql.120).aspx"
+    ],
+
+
+    "Logging Options": [
+        "Logical Logging"
+    ],
+    "Logging Description": "For the in-memory database, uncommitted data will not be written to disk. Therefore, WAL is not needed and log records are generated at commit phase with only redo logs. Hekaton group log records together to generate a larger I/O. The logging performs in a logical way where the row versions of insertions/deletions are recorded.",
+    "Logging Citations": [
+        "https://msdn.microsoft.com/en-us/library/dn133175(v=sql.120).aspx",
+        "https://www.microsoft.com/en-us/research/publication/hekaton-sql-servers-memory-optimized-oltp-engine/"
+    ],
+
+
+    "Checkpoints Options": [
+        "Non-Blocking",
+        "Consistent"
+    ],
+    "Checkpoints Description": "Checkpointing process of Hekaton is implemented by asking a background thread to scan transaction logs continuously. Checkpoint files include data file, delta file, and checkpoint file inventory. A data file contains versions of insertion while a delta file contains versions deleted contained in a data file and acts as a filter when recovering. The checkpoint file inventory files track all data/delta files. The checkpointing process is non-blocking because it does not prevent the access of any tuples. It is also non-fuzzy because it scans from transaction logs which contain no dirty data.",
+    "Checkpoints Citations": [
+        "https://msdn.microsoft.com/en-us/library/dn133175(v=sql.120).aspx",
+        "https://www.microsoft.com/en-us/research/publication/hekaton-sql-servers-memory-optimized-oltp-engine/"
+    ],
+
+
+    "Views Options": [
+        "Not Supported"
+    ],
+    "Views Description": "Views are not supported with compiled store procedures.",
+    "Views Citations": [
+        "https://technet.microsoft.com/en-us/library/dn246937(v=sql.120).aspx"
+    ],
+
+
+    "Query Execution Options": [
+        "Tuple-at-a-Time Model"
+    ],
+    "Query Execution": "Hekaton uses tuple-at-a-time iterator because it uses N-ary storage model.",
+    "Query Execution Citations": [
+        "https://msdn.microsoft.com/en-us/library/gg492088(v=sql.120).aspx",
+        "https://technet.microsoft.com/en-us/library/dn246937(v=sql.120).aspx"
+    ],
+
+
+    "Stored Procedures Options": [
+        "Supported"
+    ],
+    "Stored Procedures Description": "Hekaton provides performance improvement with compiled stored procedures which are optimized by SQL server optimizer and compiled into machine codes by Hekaton compiler to achieve compile-once-execute-many-times performance gains. Compiled stored procedures are only allowed to access memory-optimized tables. To provide support for stored procedures that need to access both memory-optimized and disk-based tables, query interops are provided to be used in interpreted SQL Server. Stored procedures should be written with T-SQL.",
+    "Stored Procedures Citations": [
+        "https://www.microsoft.com/en-us/research/publication/hekaton-sql-servers-memory-optimized-oltp-engine/",
+        "https://msdn.microsoft.com/en-us/library/dn720242.aspx"
+    ],
+
+
+    "Joins Options": [
+        "Nested Loop"
+    ],
+    "Joins Description": "Only nested-loops joins are supported with natively compiled procedures. Therefore, join hints in stored procedure queries are suggested to be removed. ",
+    "Joins Citations": [
+        "https://technet.microsoft.com/en-us/library/dn246937(v=sql.120).aspx"
+    ],
+
+
+    "Query Compilation Options": [
+        "Code Generation"
+    ],
+    "Query Compilation Description": "Hekaton supports code generation for table creation and compiled stored procedure when users use addition syntax.  The Hekaton engine reuses the output of SQL server compilation stack and forms structures called mixed abstract tree (MAT). MAT is further transformed into another data structure called pure imperative tree (PIT) which can be easier to generate C Code from. This intermedia step is needed for tackling the difference between T-SQL and C-type systems. After the C code generator has generated C code from PIT, Visual C/C++ compiler and linker will produce a DLL.  In the transformation from query plan to C code, instead of implementing interfaces of each operator as functions, Hekaton collapses a query plan with a single function by using labels to show the entries of interface and gotos to connect interfaces. This implementation choice can avoid expensive function argument passing and calls.",
+    "Query Compilation Citations": [
+        "https://www.microsoft.com/en-us/research/publication/hekaton-sql-servers-memory-optimized-oltp-engine/",
+        "https://msdn.microsoft.com/en-us/library/dn133175(v=sql.120).aspx"
+    ],
+
+
+    "Website": "https://msdn.microsoft.com/en-us/library/dn133186(v=sql.120).aspx",
+
+
+    "Programming Language": [
+        "Proprietary"
+    ],
+
+
+    "Operating Systems": [
+        "Windows"
+    ],
+
+
+    "Project Type": [
+        "Commercial"
+    ],
+
+
+    "Developer": "Microsoft",
+
+
+    "Start Date": "2012-11",
+    "Start Date Citations": [
+        "https://www.microsoft.com/en-us/research/blog/hekaton-breaks-through/?from=http:%2F%2Fresearch.microsoft.com%2Fen-us%2Fnews%2Ffeatures%2Fhekaton-122012.aspx"
+
+    ],
+
+
+    "End Date": "2016-6",
+    "End Date Citations": [
+        "https://docs.microsoft.com/en-us/sql/whitepapers/sql-server-in-memory-oltp-internals-for-sql-server-2016"
+    ],
+
+
+    "Derived From": "SQL Server",
+
+
+    "License": [
+        "Proprietary"
+    ]
+}

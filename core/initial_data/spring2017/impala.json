@@ -1,0 +1,226 @@
+{
+    "Email": "poojan@cmu.edu",
+
+    
+    "Name": "Impala",
+    
+    
+    "Description": "Impala is an open source SQL engine that offers interactive query processing on data stored in Apache Hadoop file formats. As opposed to SQL-on-Hadoop databases such as Hive that are used for long batch jobs, Impala enables interactive exploration and fine-tuning analytic queries by using its Massively Parallel Process (MPP) model. Impala avoids data movement and enables the users to interact with the data stored in HDFS via a SQL front-end rather than the traditional HDFS jobs.",
+    "Description Citations": [
+        "https://www.cloudera.com/documentation/enterprise/latest/topics/impala.html",
+        "http://impala.apache.org/docs/build/html/topics/impala_intro.html"
+    ],
+    
+    
+    "History": "The impala project was announced in October 2012 with the objective to provide a SQL interface and Business Intelligence tools for data scientists. Impala supports various HDFS file formats, however it is optimized for Parquet, a column-oriented file format which was announced in early 2013.  Impala was accepted into the Apache incubator on December 2, 2015.",
+    "History Citations": [
+        "https://en.wikipedia.org/wiki/Cloudera_Impala",
+        "https://impala.incubator.apache.org/docs/build/html/topics/impala_intro.html"
+    ],
+    
+
+    
+    "System Architecture Options": [
+        "Shared-Nothing"
+    ],
+    "System Architecture Description": "Impala is a distributed, Massively Parallel Processing (MPP) query engine which uses a Shared-Nothing architecture. Impala consists of the following three major components \n\t1. Impala Daemon - A daemon process runs on each data node to read and write data for the accepted queries and parallelizes the work across the cluster. It transmits the query results to the central coordinator node.\n\t2. Impala Statestore - It is a daemon process which continously monitors the health status of the daemons on the datanodes in the cluster. When a datanode goes down, it ensures that no requests are made to an unreachable datanode. It provides robustness, load balancing and high availability.\n\t3. Impala Catalog Service - It relays the metadata changes from SQL statements to all the Imapala Daemons. The catalog server ensures that if the metadata change occured via SQL queries issued through Impala.",
+    "System Architecture Citations": [
+        "https://impala.incubator.apache.org/docs/build/html/topics/impala_concepts.html",
+        "https://impala.incubator.apache.org/overview.html"
+    ],    
+    
+
+    "Query Interface Options": [
+        "SQL",
+        "Custom API"
+    ],
+    "Query Interface Description": "Impala supports SQL as its query language. It provides a high dgree of compatibility with the Hive Query Language (HiveQL). Additionally it also provides an impala-shell interpreter which processes all the SQL commands supported by Impala along with a few shell-only commands which can be used for performance tuning. ",
+    "Query Interface Citations": [
+        "https://www.cloudera.com/documentation/enterprise/latest/topics/impala_langref.html",
+        "https://www.cloudera.com/documentation/enterprise/latest/topics/impala_impala_shell.html"
+    ],
+    
+    
+
+    "Data Model Options": [
+        "Relational"
+    ],
+    "Data Model Description": "Impala is a massively parallel query engine which is not strongly coupled with the underlying storage layer. Currently, impala only supports a flat relational schema. They plan to add support for nested schemas with complex column types.",
+    "Data Model Citations": [
+        "http://cidrdb.org/cidr2015/Papers/CIDR15_Paper28.pdf"
+    ],
+    
+    
+    "Storage Model Options": [
+        "Custom"
+    ],
+    "Storage Model Description": "Impala does not provide its own storage engine but rather reads data from any of the underlying storage format. Nonetheless, when data is stored in Parquet, a binary columnar storage format, it displays significant performance improvement as it substantially reduces the I/O volume. ",
+    "Storage Model Citations": [
+        "http://cidrdb.org/cidr2015/Papers/CIDR15_Paper28.pdf",
+        "http://blog.cloudera.com/blog/2012/10/cloudera-impala-real-time-queries-in-apache-hadoop-for-real/"
+    ],
+            
+
+    "Storage Architecture Options": [
+        "Disk-oriented"
+    ],
+    "Storage Architecture Description": "Impala can access data stored on HDFS in any of the Apache Hadoop file formats, including, Parquet, Text, Avro, RCFile and SequenceFile. It also supports compressed file formats in order to reduce the disk space and I/O volume, although such formats induce a CPU overhead to decompress the data.",
+    "Storage Architecture Citations": [
+        "https://www.cloudera.com/documentation/enterprise/latest/topics/impala_file_formats.html",
+        "http://cidrdb.org/cidr2015/Papers/CIDR15_Paper28.pdf"
+    ],
+    
+    
+    "Concurrency Control Options": [
+        "Not Supported"
+    ],
+    "Concurrency Control Description": "Impala does not support any Concurrency control mechanism. The transactional nature of the HiveMetaStore (HMS), which receives updates on inserts and updates raises an error incase parallel inserts are made into the same table.",
+    "Concurrency Control Citations": [
+        "http://community.cloudera.com/t5/Interactive-Short-cycle-SQL/java-error-while-paralel-insert/td-p/40621"
+    ],
+    
+    
+    "Isolation Levels Options": [
+        "Read Uncommitted",
+        "Read Committed"
+    ],
+    "Isolation Levels Description": "Impala supports both Read Committed and Read Uncommitted isolation levels. ",
+    "Isolation Levels Citations": [
+        "https://github.com/schubertzhang/impala/blob/master/thirdparty/hbase-0.94.6-cdh4.3.0/src/main/java/org/apache/hadoop/hbase/client/IsolationLevel.java"
+    ],
+    
+
+
+    "Indexes Options": [
+        "Not Supported"
+    ],
+    "Indexes Description": "**Impala does not support indexes. Although HIVE provides limited index capabilities, they are not leveraged by Impala. Since Impala is not a monolithic DBMS, Impala is often unaware of the data the shows up in the HDFS files. Hence it is not possible for the index to stay in sync with the base data.**",
+    "Indexes Citations": [
+        "https://www.cloudera.com/documentation/enterprise/5-6-x/topics/impala_faq.html",
+        "https://groups.google.com/a/cloudera.org/forum/#!topic/impala-user/dWRVwg_kPhU"
+    ],
+
+
+
+    "Foreign Keys Options": [
+        "Not Supported"
+    ],
+    "Foreign Keys Description": "Although Foreign Keys are not supported by Impala currently, they will be added later for cardinality estimation during query planning. However, they will not be enforced by Impala.",
+    "Foreign Keys Citations": [
+        "https://issues.apache.org/jira/browse/IMPALA-2112",
+        "https://www.cloudera.com/documentation/enterprise/latest/topics/impala_reserved_words.html"
+    ],
+    
+
+    "Logging Options": [
+        "Other"
+    ],
+    "Logging Description": "Since Impala does not support transactions and is suited for analytical queries, it does not support logging.",
+    "Logging Citations": [
+        "https://www.tutorialspoint.com/impala/impala_overview.html"
+    ],
+        
+
+    "Checkpoints Options": [
+        "Not Supported"
+    ],
+    "Checkpoints Description": "Checkpoints of a query are not supported in Impala. When a host node on which a query was running fails, Impala cancels the query. Additional support for long running queries will be added in the future so that a query could complete even in the presence of node failures.",
+    "Checkpoints Citations": [
+        "https://www.cloudera.com/documentation/enterprise/5-2-x/topics/impala_faq.html",
+        "https://www.cloudera.com/documentation/enterprise/latest/topics/impala_faq.html"
+    ],
+    
+
+
+    "Views Options": [
+        "Virtual Views"
+    ],
+    "Views Description": "Imapala supports virtual views as lightweight logical constructs to act as query aliases. It does not support materialized views since data updates in the Hadoop Environment make it difficult to keep them up-to date.",
+    "Views Citations": [
+        "https://www.cloudera.com/documentation/enterprise/latest/topics/impala_faq.html"
+    ],
+    
+    
+    "Query Execution Options": [
+        "Tuple-at-a-Time Model"
+    ],
+    "Query Execution": "Impala uses a push-based tuple iteration model. Generally, Impala uses a row-batch approach to generate a batch of rows in order to amortize the cost of virtual function lookups. However, in case of \"stop-and-go\", the execution is fully pipelined to minimize memory consumption.",
+    "Query Execution Citations": [
+        "https://chatwithengineers.com/2016/08/29/a-survey-of-query-execution-engines-from-volcano-to-vectorized-processing/",
+        "http://cidrdb.org/cidr2015/Papers/CIDR15_Paper28.pdf"
+    ],
+    
+    
+    
+    "Stored Procedures Options": [
+        "Supported"
+    ],
+    "Stored Procedures Description": "Support for stored procedures in Impala was added from the 1.2 release. It now enables users to write UDFs in C++ or Java based Hive UDFs. C++ UDFs achieve a significant performance improvement over the Java written UDFs. Currently support for User Defined Table Functions (UDTF) has not been added.",
+    "Stored Procedures Citations": [
+        "https://www.cloudera.com/documentation/enterprise/latest/topics/impala_udf.html"
+    ],
+
+    
+    "Joins Options": [
+        "Nested Loop",
+        "Hash",
+        "Broadcast",
+        "Shuffle"
+    ],
+    "Joins Description": "Impala provides a variety of Join Options. Impala does not provide a command to hint on the type of join to be executed incase of Nested Loop Joins and Hash Joins. Impala internally decied on the most suitable join mechanism for the query. However, it supports query hints for choosing between Broadcast and Shuffle joins.",
+    "Joins Citations": [
+        "https://www.cloudera.com/documentation/enterprise/5-9-x/topics/impala_joins.html"
+    ],
+    
+
+
+    "Query Compilation Options": [
+        "Code Generation",
+        "JIT Compilation"
+    ],
+    "Query Compilation Description": "Impala uses the LLVM engine to perform just in time (JIT) query compilation. It uses runtime code generation for specific versions of the function by which performance improvements of more than 5x are achieved.",
+    "Query Compilation Citations": [
+        "http://cidrdb.org/cidr2015/Papers/CIDR15_Paper28.pdf"
+    ],
+    
+    
+    "Website": "http://impala.apache.org",
+    
+    
+    "Programming Language": [
+        "C++"
+    ],
+    
+    
+    "Operating Systems": [
+        "Linux"
+    ],
+    
+    
+    "Project Type": [
+        "Commercial"
+    ],
+    
+    
+    "Developer": "Cloudera",
+    
+    
+    "Start Date": "2013-06",
+    "Start Date Citations": [
+        "https://www.cloudera.com/documentation/enterprise/release-notes/topics/rg_impala_vd.html#impala_downloads_101"
+    ],
+    
+    
+    "End Date": "NA",
+    "End Date Citations": [
+        "https://en.wikipedia.org/wiki/Cloudera_Impala"
+    ],
+    
+    
+    "Derived From": "Hadoop",
+    
+    
+    "License": [
+        "Apache v2"
+    ]
+}

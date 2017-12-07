@@ -11,7 +11,8 @@ from functools import reduce
 
 from core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm, \
     AdvancedSearchForm, SystemVersionEditForm
-from core.models import System, SystemVersionMetadata, SystemVersion, Feature, FeatureOption, SystemFeatures
+from core.models import System, SystemVersionMetadata, SystemVersion, Feature, FeatureOption, SystemFeatures, \
+    CitationUrls
 
 
 class CreateUser(View):
@@ -153,7 +154,6 @@ class EditDatabase(LoginRequiredMixin, View):
 
     def post(self, request, slug):
         system = System.objects.get(slug=slug)
-        last_version = SystemVersion.objects.first().version_number
         system_version_form = SystemVersionEditForm(request.POST, request.FILES)
         system_version_metadata_form = SystemVersionMetadataForm(request.POST)
         form = SystemFeaturesForm(request.POST)
@@ -165,7 +165,6 @@ class EditDatabase(LoginRequiredMixin, View):
             db_version = system_version_form.save(commit=False)
             db_version.creator = request.user
             db_version.system = system
-            db_version.version_number = last_version + 1
             db_version.save()
 
             db_meta = system_version_metadata_form.save()
@@ -181,6 +180,17 @@ class EditDatabase(LoginRequiredMixin, View):
                     )
                     saved.description = value
                     saved.save()
+                elif '_citation'in feature:
+                    feature_obj = Feature.objects.get(label=feature[:-9])
+                    saved, _ = SystemFeatures.objects.get_or_create(
+                        system=db_version,
+                        feature=feature_obj
+                    )
+                    saved.citation.clear()
+                    for url in value.split(','):
+                        cit_url, _ = CitationUrls.objects.get_or_create(url=url)
+                        saved.citation.add(cit_url)
+
                 else:
                     feature_obj = Feature.objects.get(label=feature)
                     saved = SystemFeatures.objects.create(
@@ -201,6 +211,7 @@ class EditDatabase(LoginRequiredMixin, View):
                                     value=v)
                             )
             return redirect(db_version.system.get_absolute_url())
+        system_form = SystemForm(instance=system)
         context = {
             'system_form': system_form,
             'system_version_form': system_version_form,

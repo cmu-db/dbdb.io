@@ -1,0 +1,218 @@
+{
+    "Email": "haibin@cmu.edu",
+
+
+    "Name": "MemSQL",
+
+
+    "Description": "MemSQL is a distributed in-memory relational database with high performance on both transactional and analytical workload, well-integrated with Spark & Kafka for real-time analysis.",
+    "Description Citations": [
+        "http://www.memsql.com/"
+    ],
+
+
+    "History": "MemSQL was a Y-combinator graduate, founded in 2011.",
+    "History Citations": [
+        "http://y-combinator.silk.co/page/MemSQL"
+    ],
+
+
+    "System Architecture Options": [
+        "Shared-Nothing"
+    ],
+    "System Architecture Description": "MemSQL has a two-tier, clustered architecture. The nodes in upper tier are **aggregators**, which are cluster-aware query routers. One special node called **Master Aggregator** is responsible for clustering monitoring. The nodes in lower tier are **leaves**, which store and process partitioned shards. The aggregator sends extended SQL to leaves to perform distributed query execution. ![](https://www.filepicker.io/api/file/9KGdXi6RQZua6ubrb8qB)",
+    "System Architecture Citations": [
+        "http://docs.memsql.com/docs/leaf",
+        "http://docs.memsql.com/docs/aggregator"
+    ],
+
+
+    "Query Interface Options": [
+        "SQL"
+    ],
+    "Query Interface Description": "MemSQL supports a subset of MySQL syntax, plus extensions for distributed SQL, geospatial and JSON queries. MySQL wire protocol is supported. ",
+    "Query Interface Citations": [
+        "http://docs.memsql.com/docs/mysql-features-unsupported-in-memsql"
+    ],
+
+
+    "Data Model Options": [
+        "Relational",
+        "Key/Value"
+    ],
+    "Data Model Description": "MemSQL is a distributed relational database. It also supports two-column key/value store.",
+    "Data Model Citations": [
+        "http://docs.memsql.com/docs/how-memsql-works"
+    ],
+
+
+    "Storage Model Options": [
+        "N-ary Storage Model",
+        "Decomposition Storage Model"
+    ],
+    "Storage Model Description": "In MemSQL, row segments in rowstore are stored in N-ary storage model in-memory. Column segments in columnstore are stored in decomposition storage model. Clustered columnar indexes are created for columnstore and compression is applied. ",
+    "Storage Model Citations": [
+        "http://docs.memsql.com/docs/columnstore"
+    ],
+
+
+    "Storage Architecture Options": [
+        "Disk-oriented",
+        "In-Memory"
+    ],
+    "Storage Architecture Description": "In MemSQL, rowstore is completely in-memory and columnstore is disk-backed. ",
+    "Storage Architecture Citations": [
+        "http://docs.memsql.com/docs/columnstore"
+    ],
+
+
+    "Concurrency Control Options": [
+        "Multi-version Concurrency Control (MVCC)"
+    ],
+    "Concurrency Control Description": "MemSQL uses multi-version concurrency control. Reads are not blocked, writes acquire row-level locks. ",
+    "Concurrency Control Citations": [
+        "http://docs.memsql.com/docs/how-memsql-works"
+    ],
+
+
+    "Isolation Levels Options": [
+        "Read Committed"
+    ],
+    "Isolation Levels Description": "MemSQL supports read committed isolation level.",
+    "Isolation Levels Citations": [
+        "http://docs.memsql.com/docs/memsql-faq#section-what-isolation-levels-does-memsql-provide-"
+    ],
+
+
+    "Indexes Options": [
+        "Skip List",
+        "Hash Table"
+    ],
+    "Indexes Description": "Skip list is the default index type in MemSQL. Skip list is lock free and thus leads extremely fast insert performance, and O(lg(n)) expected lookup/insert/delete performance. Unlike B+ tree, skip list is singly linked, thus reserve scan leads to twice as costly as forward scan. \n Skip list involves more pointer chasing than B+ tree which could potentially lead to more cache misses. In MemSQL, heuristics are applied to organize nearby nodes on the same physical page to mitigate penalties caused by pointer chasing. \n Lock-free hash table is also supported in MemSQL to perform fast exact-match queries. ",
+    "Indexes Citations": [
+        "http://15721.courses.cs.cmu.edu/spring2016/schedule.html#apr-20-2016",
+        "http://docs.memsql.com/docs/indexes"
+    ],
+
+
+    "Foreign Keys Options": [
+        "Not Supported"
+    ],
+    "Foreign Keys Description": "MemSQL currently supports foreign keys to assist sharding, but referential integrity is not enforced. ",
+    "Foreign Keys Citations": [
+        "http://docs.memsql.com/docs/mysql-features-unsupported-in-memsql"
+    ],
+
+
+    "Logging Options": [
+        "Physical Logging"
+    ],
+    "Logging Description": "MemSQL implements write-ahead-logging which records only committed transactions. It uses a transaction buffer pool as back-pressure mechanism so that a worker thread doesn't generate indefinite amount of logs. Replication is implemented based on log recovery. ",
+    "Logging Citations": [
+        "http://www.google.com/patents/US9223805"
+    ],
+
+
+    "Checkpoints Options": [
+        "Non-Blocking",
+        "Consistent"
+    ],
+    "Checkpoints Description": "MemSQL uses multi-version concurrency control and it's natural to create a consistent(non-fuzzy) snapshot without the need to block ongoing transactions. ",
+    "Checkpoints Citations": [
+        "http://docs.memsql.com/docs/using-durability-and-recovery"
+    ],
+
+
+    "Views Options": [
+        "Virtual Views"
+    ],
+    "Views Description": "Views in MemSQL is not materialzed and cannot be written into.",
+    "Views Citations": [
+        "http://docs.memsql.com/docs/create-view"
+    ],
+
+
+    "Query Execution Options": [
+        "Tuple-at-a-Time Model",
+        "Vectorized Model"
+    ],
+    "Query Execution Description": "MemSQL uses Tuple-at-a-Time Model for rowstore query execution, uses Vectorized Model for columnstore.",
+    "Query Execution Citations": [
+        "http://docs.memsql.com/4.0/concepts/columnstore/"
+    ],
+
+
+    "Stored Procedures Options": [
+        "Not Supported"
+    ],
+    "Stored Procedures Description": "Stored procedure is not supported. ",
+    "Stored Procedures Citations": [
+        "http://docs.memsql.com/docs/mysql-features-unsupported-in-memsql"
+    ],
+
+
+    "Joins Options": [
+        "Nested Loop",
+        "Hash",
+        "Sort-Merge",
+        "Broadcast"
+    ],
+    "Joins Description": "Nested loop join, index-nested loop join, merge join and hash join are supported in MemSQL. Joins between two Columnstore tables are often executed as sort merge join. \n For distributed join queries, if two tables are joined with identical shard key, the join will be performed locally; otherwise dataset is broadcast to other nodes via the network. ",
+    "Joins Citations": [
+        "http://docs.memsql.com/4.0/concepts/columnstore/",
+        "http://docs.memsql.com/docs/explain",
+        "http://docs.memsql.com/docs/query-tuning"
+    ],
+
+
+    "Query Compilation Options": [
+        "Code Generation",
+        "JIT Compilation"
+    ],
+    "Query Compilation Description": "Instead of the traditional interpreter based execution model, MemSQL 5 comes with a new code generation architecture, which compiles a SQL query to LLVM to machine code.\n When the MemSQL server encounters a SQL query, it parses SQL into AST and extracts parameters from the query, which is then transformed into a MemSQL-specific intermediate representation in *MemSQL Plan Language*(MPL). MemSQL then flattens MPL AST into a more compact format as *MemSQL Bytecode*(MBC). Plans in MBC format is then transformed into LLVM Bitcode, which LLVM uses to generate machine code. \n Such code generation architecture enables many low-level optimizations and avoids much less unnecessary work compared to interpreter-based execution. Compiled plans are also cached on disk for future use. ",
+    "Query Compilation Citations": [
+        "http://docs.memsql.com/docs/code-generation",
+        "http://15721.courses.cs.cmu.edu/spring2016/schedule.html#apr-20-2016"
+    ],
+
+
+    "Website": "http://www.memsql.com/",
+
+
+    "Programming Language": [
+        "C++"
+    ],
+
+
+    "Operating Systems": [
+        "Linux"
+    ],
+
+
+    "Project Type": [
+        "Commercial"
+    ],
+
+
+    "Developer": "MemSQL Inc",
+
+
+    "Start Date": "2011-07",
+    "Start Date Citations": [
+        "https://angel.co/memsql",
+        "http://techcrunch.com/2011/07/12/y-combinator-alum-memsql-raises-2-1-million-from-ashton-kutcher-sv-angel-and-more/"
+    ],
+
+
+    "End Date": "N/A",
+    "End Date Citations": [
+    ],
+
+
+    "Derived From": "N/A",
+
+
+    "Licenses": [
+        "Proprietary"
+    ]
+}
