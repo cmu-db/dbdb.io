@@ -103,21 +103,28 @@ class System(CoreModel):
         return self.systemversion_set.get(is_current=True)
 
 
+class CitationUrls(CoreModel):
+    url = models.URLField()
+
+
 class SystemVersion(CoreModel):
     system = models.ForeignKey(System)
     version_number = models.PositiveIntegerField(default=1)
     is_current = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(get_user_model())
-    version_message = models.CharField(max_length=500, default="", null=True, blank=True)
 
     description = models.TextField(default="", blank=True, help_text="This field support Markdown Syntax")
+    description_citations = models.ManyToManyField(CitationUrls, related_name='version_descriptions', null=True)
     history = models.TextField(default="", blank=True, help_text="This field support Markdown Syntax")
+    history_citations = models.ManyToManyField(CitationUrls, related_name='version_histories', null=True)
     website = models.URLField(default="", null=True, blank=True)
     tech_docs = models.URLField(default="", null=True, blank=True)
     developer = models.CharField(max_length=512, default="", blank=True)
     start_year = models.CharField(max_length=128, default="", blank=True)
+    start_year_citations = models.ManyToManyField(CitationUrls, related_name='version_start_years', null=True)
     end_year = models.CharField(max_length=128, default="", blank=True)
+    end_year_citations = models.ManyToManyField(CitationUrls, related_name='version_end_years', null=True)
     project_type = models.ManyToManyField(ProjectType, blank=True)
     logo = ThumbnailerImageField(upload_to='logos/', blank=True)
     meta = models.ForeignKey('SystemVersionMetadata', null=True, blank=True)
@@ -147,7 +154,7 @@ class SystemVersionMetadata(CoreModel):
     supported_languages = models.ManyToManyField(ProgrammingLanguage, related_name='systems_supported', blank=True)
     oses = models.ManyToManyField(OperatingSystem, related_name='systems_oses', blank=True)
     licenses = models.ManyToManyField(License, related_name="systems_licenses", blank=True)
-    derived_from = models.ManyToManyField(System, related_name='systems_derived', blank=True)
+    derived_from = models.TextField(default="", null=True, blank=True)
     publications = models.ManyToManyField(Publication, related_name='systems_publications', blank=True)
 
     def __unicode__(self):
@@ -163,9 +170,6 @@ class SystemVersionMetadata(CoreModel):
     def oses_str(self):
         return ', '.join([str(l) for l in self.oses.all()])
 
-    def derived_from_str(self):
-        return ', '.join([str(l) for l in self.derived_from.all()])
-
     def licenses_str(self):
         return ', '.join([str(l) for l in self.licenses.all()])
 
@@ -178,6 +182,7 @@ class SystemFeatures(CoreModel):
     feature = models.ForeignKey(Feature, null=True)
     value = models.ManyToManyField(FeatureOption, null=True)
     description = models.TextField(help_text='This field supports Markdown Syntax')
+    citation = models.ManyToManyField(CitationUrls, null=True)
 
     def __unicode__(self):
         return self.system.system.name

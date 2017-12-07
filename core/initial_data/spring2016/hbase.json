@@ -1,0 +1,206 @@
+{
+    "Email": "yangz4@andrew.cmu.edu",
+
+
+    "Name": "HBase",
+
+
+    "Description": "**HBase** is an open source, distributed, non-relational, scalable big data store that runs on top of Hadoop Distributed Filesystem. Hbase is suitable for storing large quantities of data, but it lacks many of the features that relational database management systems usually have, such as column types, secondary indexes, advanced query languages, etc. HBase stores the data in rows and columns. A row is referenced by a row key, and columns are grouped into \"column families\". HBase is written in Java, and is supported by Apache Software Foundation.",
+    "Description Citations": [
+        "http://hbase.apache.org/"
+    ],
+
+
+    "History": "HBase was initially a project by the company Powerset, a San Francisco-based search and natural language company. Microsoft acquired Powerset in 2008.",
+    "History Citations": [
+        "https://blogs.technet.microsoft.com/port25/2008/10/14/powerset-team-resumes-hbase-contributions/"
+    ],
+
+
+    "System Architecture Options": [
+        "Shared-Nothing"
+    ],
+    "System Architecture Description": "HBase is organized as a cluster of HBase nodes that complies with the master-slave architecture. There are two types of nodes: a master node, and one or more slave nodes called RegionServers. RegionServers serve data for reads and writes. An HBase Region is a subset of an HBase table that has a continuous range of sorted rowkeys. Region assignment and DDL operations are handled by the HBase Master. HBase is built on top of Hadoop. The Hadoop DataNodes store the data that RegionServers are managing. The HDFS Zookeeper maintains the server status in the cluster. ",
+    "System Architecture Citations": [
+        "https://www.mapr.com/blog/in-depth-look-hbase-architecture",
+        "http://hbase.apache.org/0.94/book/architecture.html"
+    ],
+
+
+    "Query Interface Options": [
+        "Custom API"
+    ],
+    "Query Interface Description": "HBase does not provide native support for SQL. Unlike RDBMS, HBase has four primary operations: Get, Put, Scan and Delete. It also has some DDL operations, e.g., Create. HBase provides a shell which users can fire queries from. Users can specify table name, column names and apply filters in their query. HBase also offers Java Client API and Thrift/REST API. Some third-party drivers are also available for other programming languages. ",
+    "Query Interface Citations": [
+        "http://hbase.apache.org/book.html#arch.overview"
+    ],
+
+
+    "Data Model Options": [
+        "Column Family"
+    ],
+    "Data Model Description": "An HBase table consists of rows and columns. Rows are referenced by row keys which are raw byte arrays and are sorted by row key. The sort is byte-ordered. Each row contains columns. A column's content is also an uninterpreted array of bytes. All columns belong to a column family. ",
+    "Data Model Citations": [
+        "http://hbase.apache.org/0.94/book/datamodel.html"
+    ],
+
+
+    "Storage Model Options": [
+        "Decomposition Storage Model"
+    ],
+    "Storage Model Description": "HBase is schema-less column-oriented datastore. ",
+    "Storage Model Citations": [
+        "http://link.springer.com/chapter/10.1007%2F978-3-642-54341-8_4",
+        "http://www.netwoven.com/2013/10/hbase-overview-of-architecture-and-data-model"
+    ],
+
+
+    "Storage Architecture Options": [
+        "Disk-oriented"
+    ],
+    "Storage Architecture Description": "HBase leverages HDFS as the backend storage. Currently HDFS is disk-oriented. ",
+    "Storage Architecture Citations": [
+        "http://hbase.apache.org/"
+    ],
+
+
+    "Concurrency Control Options": [
+        "Multi-version Concurrency Control (MVCC)"
+    ],
+    "Concurrency Control Description": "HBase guarantees ACID semantics per-row. HBase uses a form of Multiversion Concurrency Control (MVCC) to avoid row locks for read operations. Write operations still need to acquire row locks. ",
+    "Concurrency Control Citations": [
+        "https://blogs.apache.org/hbase/entry/apache_hbase_internals_locking_and"
+    ],
+
+
+    "Isolation Levels Options": [
+        "Read Uncommitted",
+        "Read Committed"
+    ],
+    "Isolation Levels Description": "HBase only provide \"read committed\" isolation level. Users can downgrade the isolation level to \"read uncommitted\" by modifying the source code. ",
+    "Isolation Levels Citations": [
+        "https://hbase.apache.org/acid-semantics.html",
+        "https://hbase.apache.org/xref/org/apache/hadoop/hbase/client/IsolationLevel.html"
+    ],
+
+
+    "Indexes Options": [
+        "B+Tree"
+    ],
+    "Indexes Description": "For each table, HBase only provide an B+Tree like index on row keys. HBase does not natively support secondary indexes. Users can use filters for querying on non-rowkey columns. There are some techniques to create another table which can be used as a secondary index. ",
+    "Indexes Citations": [
+        "https://hbase.apache.org/book.html#secondary.indexes"
+    ],
+
+
+    "Foreign Keys Options": [
+        "Not Supported"
+    ],
+    "Foreign Keys Description": "HBase does not directly support refential integrity. Users can use a coprocessor to enforce foreign keys. ",
+    "Foreign Keys Citations": [
+        "https://hbase.apache.org/book.html#_use_cases_for_observer_coprocessors"
+    ],
+
+
+    "Logging Options": [
+        "Logical Logging"
+    ],
+    "Logging Description": "HBase's write-ahead-log is named HLog. ",
+    "Logging Citations": [
+        "http://www.larsgeorge.com/2010/01/hbase-architecture-101-write-ahead-log.html",
+        "https://hbase.apache.org/0.94/apidocs/org/apache/hadoop/hbase/regionserver/wal/HLog.html"
+    ],
+
+
+    "Checkpoints Options": [
+        "Non-Blocking"
+    ],
+    "Checkpoints Description": "HBase Snapshots allows the users to make checkpoints of a table with little impact on RegionServers. Creating snapshots does not block reads and writes, but for each table only one snapshot can be created at a time. ",
+    "Checkpoints Citations": [
+        "https://hbase.apache.org/book.html#ops.snapshots"
+    ],
+
+
+    "Views Options": [
+        "Not Supported"
+    ],
+    "Views Description": "HBase does not provide views. But users can write MapReduce programs to approximate views. Apache Phoenix, a SQL interface for HBase, provides support for views. ",
+    "Views Citations": [
+        "https://phoenix.apache.org/views.html"
+    ],
+
+
+    "Query Execution Options": [
+        "Tuple-at-a-Time Model"
+    ],
+    "Query Execution Description": "",
+    "Query Execution Citations": [
+        "http://hbase.apache.org/0.94/book/data_model_operations.html"
+    ],
+
+
+    "Stored Procedures Options": [
+        "Not Supported"
+    ],
+    "Stored Procedures Description": "Stored procedures are not directly supported in HBase. But users can use coprocessors to resemble store procedures. ",
+    "Stored Procedures Citations": [
+        "https://blogs.apache.org/hbase/entry/coprocessor_introduction"
+    ],
+
+
+    "Joins Options": [
+        "Not Supported"
+    ],
+    "Joins Description": "HBase does not support join operations. Users can implement joins in their application code. ",
+    "Joins Citations": [
+        "https://hbase.apache.org/book.html#joins"
+    ],
+
+
+    "Query Compilation Options": [
+        "Not Supported"
+    ],
+    "Query Compilation Description": "",
+    "Query Compilation Citations": [
+    ],
+
+
+    "Website": "http://hbase.apache.org/",
+
+
+    "Programming Language": [
+        "Java"
+    ],
+
+
+    "Operating Systems": [
+        "All OS with a Java VM"
+    ],
+
+
+    "Project Type": [
+        "Other"
+    ],
+
+
+    "Developer": "http://hbase.apache.org/team-list.html",
+
+
+    "Start Date": "2007-04",
+    "Start Date Citations": [
+        "https://git-wip-us.apache.org/repos/asf?p=hbase.git;a=shortlog;h=refs/heads/trunk_on_hadoop-0.19.1-dev_with_hadoop-4379;pg=10"
+    ],
+
+
+    "End Date": "",
+    "End Date Citations": [
+    ],
+
+
+    "Derived From": "",
+
+
+    "Licenses": [
+        "Apache v2"
+    ]
+}

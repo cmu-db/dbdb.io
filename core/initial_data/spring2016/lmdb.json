@@ -1,0 +1,205 @@
+{
+    "Email": "nbadam@andrew.cmu.edu",
+
+
+    "Name": "LMDB (Lightning Memory-mapped Database)",
+
+
+    "Description": "LMBD is a light-weight, high-speed embedded database for key-value data and it uses B+ trees to manage data. LMDB is inspired from Berkeley DB, essentially LMDB is made light-weight by removing and rewriting most of the BDB code. Few features in Berkeley DB like the 2-level locking(deadlocks and overhead avoided) and the additional 2-level caching (DB cache and backend cache in addition to file system cache) have been discarded in LMDB. LMDB is fully transactional and it complies with the ACID properties. The key features of LMDB is that it uses a single-level store, i.e, it uses **memory map** to store the database, which means that the OS is responsible for managing the pages (like caching frequently uses pages), this also means that the database can be larger than the memory and can grow upto the size of the virtual memory. Given that this embedded database system relinquishes most of the control of what to keep in memory and what to flush to disk, larger than memory databases may not perform well for certain workloads. MVCC concurrency model is enforced using a single writer(serialized) and the copy-on-write semantics to handle writes to the database. Readers don't block writers and writers don't block readers, and since there is single writer to the database there won't be any deadlocks. LMDB encourages read-only memory map, although write maps are supported in fully in-memory databases. LMDB maintains only two versions of data, i.e. once committed all the previous verions are discarded. A free list (another B+ tree apart from the one for the user pages) is maintained to track and reuse freed pages instead of going for new pages everytime, hence keeping the overall size usage optimized.",
+    "Description Citations": [
+        "https://www.symas.com/mdb/",
+        "https://lmdb.readthedocs.io/en/release/",
+        "http://lmdb.tech/doc/",
+        "http://db.cs.cmu.edu/events/databaseology-2015-howard-chu-lmdb/"
+    ],
+
+
+    "History": "LMDB is currently used in OpenLDAP (Berkeley DB was previously used since 1999). OpenLDAP is an open-source implementation of the Lightweight Directory Access Protocol (LDAP). As mentioned in the description, LMDB was mainly inspired from Berkeley DB, and discards many heavy modules from BDB. The object code size is around 40 KB (which is very light), can comfortably fit into modern CPU caches. The code for LMDB is mainly developed and maintained by the Symas Corporation.",
+    "History Citations": [
+        "http://www.openldap.org/",
+        "http://db.cs.cmu.edu/events/databaseology-2015-howard-chu-lmdb/"
+    ],
+
+
+    "System Architecture Options": [
+        "Shared-Memory"
+    ],
+    "System Architecture Description": "LMDB uses shared-memory model i.e. it handles the memory as a single address space and all the threads access this in parallel. It uses copy-on-write semantics.",
+    "System Architecture Citations": [
+    ],
+
+
+    "Query Interface Options": [
+        "Custom API"
+    ],
+    "Query Interface Description": "LMDB has no SQL layer but applications can directly access the database using API calls provided by LMDB. API support is not just in C but many wrappers for other languages have been developed by open-source contributors. All key-value store operations can be performed using these API calls.",
+    "Query Interface Citations": [
+        "https://symas.com/products/lightning-memory-mapped-database/wrappers/"
+    ],
+
+
+    "Data Model Options": [
+        "Key/Value"
+    ],
+    "Data Model Description": "This embedded database is a key-value in the backend, which is stored in the memory-map. The keys are indexed in a B+ tree. LMDB provides transactional guarantees on top of this key-value store. It is not a relational database.",
+    "Data Model Citations": [
+    ],
+
+
+    "Storage Model Options": [
+        "Custom"
+    ],
+    "Storage Model Description": "They use a memory-map to store the database with copy-on-write semantics, hence no specific storage model but the semantics are left to the operating system. The on-disk representation is similar to the memory representation of the database.",
+    "Storage Model Citations": [
+    ],
+
+
+    "Storage Architecture Options": [
+        "In-Memory"
+    ],
+    "Storage Architecture Description": "LMDB uses mmap, hence it reliquishes most of the caching control to the OS. Memory map allows zero-copies for read/write and no additional buffers for the transaction control. Supports larger-than memory databases, it is bounded by the size of the virtual memory since they use a memory map.",
+    "Storage Architecture Citations": [
+    ],
+
+
+    "Concurrency Control Options": [
+        "Multi-version Concurrency Control (MVCC)"
+    ],
+    "Concurrency Control Description": "Locking overhead avoided by using MVCC, readers don't block at all and writers don't block readers. Deleted versions are reclaimed by the free space management module of LMDB (essentially stored into a B+ tree for later use).",
+    "Concurrency Control Citations": [
+        "http://lmdb.tech/doc/"
+    ],
+
+
+    "Isolation Levels Options": [
+        "Serializable"
+    ],
+    "Isolation Levels Description": "LMDB provides Serializable isolation with MVCC, this is possible because of the single-writer semantics. Only a single write transaction can can be alive at a single point of time, hence no races among multiple writers modifying the database.",
+    "Isolation Levels Citations": [
+        "http://lmdb.tech/doc/"
+    ],
+
+
+    "Indexes Options": [
+        "B+Tree"
+    ],
+    "Indexes Description": "LMDB uses a modified design of Append-only B+ Tree and it uses 2 B+ trees : one for maintaining the regular user data pages and one for maintaining the free pages obtained after deletes. LMDB is optimized for short read transactions, long lived read transactions will keep older pages longer in the table and hence blocks write operations. If the workload has too many writes along with long lived read transactions, the performance would be very low." ,
+    "Indexes Citations": [
+        "http://www.bzero.se/ldapd/btree.html",
+        "http://lmdb.tech/doc/"
+    ],
+
+
+    "Foreign Keys Options": [
+        "Not Supported"
+    ],
+    "Foreign Keys Description": "",
+    "Foreign Keys Citations": [
+    ],
+
+
+    "Logging Options": [
+        "Other"
+    ],
+    "Logging Description": "No logging procedures are implemented here, using copy-on-write semantics (with shadow paging) provides durability without any need for logging. Shadow paging allows new writes to a different location and not directly replace the existing pages, hence avoids data-corruption. Also the shadow page reference update is atomic, hence avoids need for logging.",
+    "Logging Citations": [
+        "https://symas.com/products/lightning-memory-mapped-database/"
+    ],
+
+
+    "Checkpoints Options": [
+        "Not Supported"
+    ],
+    "Checkpoints Description": "In the event of a crash, the database starts of from where it was left, the OS takes care of writing data to disk and the database here doesn't need to take any snapshots. The on-disk representation is similar to the in-memory representation, there is no provision for compressing the data, due the memory map constraints.",
+    "Checkpoints Citations": [
+    ],
+
+
+    "Views Options": [
+        "Not Supported"
+    ],
+    "Views Description": "",
+    "Views Citations": [
+    ],
+
+
+    "Query Execution Options": [
+        "Tuple-at-a-Time Model"
+    ],
+    "Query Execution Description": "There is no query planning or query execution options as this is an embedded database, since we operate at individual key level, the closest we can classify it is under tuple-at-a-time. The user can program custom querying models on top this embeddded database, which can support other query execution options.",
+    "Query Execution Citations": [
+    ],
+
+
+    "Stored Procedures Options": [
+        "Not Supported"
+    ],
+    "Stored Procedures Description": "",
+    "Stored Procedures Citations": [
+    ],
+
+
+    "Joins Options": [
+        "Not Supported"
+    ],
+    "Joins Description": "",
+    "Joins Citations": [
+    ],
+
+
+    "Query Compilation Options": [
+        "Not Supported"
+    ],
+    "Query Compilation Description": "",
+    "Query Compilation Citations": [
+    ],
+
+
+    "Website": "www.symas.com/mdb/",
+
+
+    "Programming Language": [
+        "C"
+    ],
+
+
+    "Operating Systems": [
+        "AIX",
+        "Android",
+        "BSD",
+        "FreeBSD",
+        "Linux",
+        "NetBSD",
+        "OS X",
+        "Solaris",
+        "Unix",
+        "Windows",
+        "iOS"
+    ],
+
+
+    "Project Type": [
+        "Open Source"
+    ],
+
+
+    "Developer": "Howard Chu",
+
+
+    "Start Date": "2011-11",
+    "Start Date Citations": [
+        "https://en.wikipedia.org/wiki/Lightning_Memory-Mapped_Database"
+    ],
+
+
+    "End Date": "",
+    "End Date Citations": [
+    ],
+
+
+    "Derived From": "Berkeley DB",
+
+    "Licenses": [
+        "OpenLDAP Public License"
+    ]
+}

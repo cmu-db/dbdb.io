@@ -1,0 +1,186 @@
+{
+    "Email": "dxiao1@andrew.cmu.edu",
+
+    "Name": "CockroachDB",
+
+    "Description": "CockroachDB is a scalable, fault-tolerant, SQL database built on a transactional and strongly-consistent key-value store. It is backed by RocksDB and uses distributed consensus algorithm to ensure consistency, it is inspired by Spanner wait commit to implement serializable. It is currently in beta. (Because CockroachDB is rapidly changing, so many findings are based on design document, outdated documentation or available code.)",
+    "Description Citations": [
+        "https://github.com/cockroachdb/cockroach",
+        "https://github.com/cockroachdb/cockroach/blob/master/docs/design.md"
+    ],
+
+    "History": "CockroachDB is inspired by Google’s Spanner and F1 to address fault tolerance and distributed consistency.",
+    "History Citations": [
+        "https://www.cockroachlabs.com/docs/frequently-asked-questions.html#when-is-cockroachdb-a-good-choice",
+        "https://www.usenix.org/conference/osdi12/technical-sessions/presentation/corbett",
+        "http://research.google.com/pubs/pub38125.html"
+    ],
+
+    "System Architecture Options": [
+        "Shared-Nothing"
+    ],
+    "System Architecture Description": "CockroachDB has two layers, the SQL layer and the storage layer. The SQL layer sits on top of the transactional and strongly-consistent distributed key-value store. In the key-value store, the key ranges are divided and stored in RocksDB and replicated across cluster. It exports structured data API of relational concepts. It exports standard SQL interface at the SQL layer. The SQL layer translates SQL statements into calls to structured data API.",
+    "System Architecture Citations": [
+        "https://github.com/cockroachdb/cockroach/blob/master/docs/design.md"
+    ],
+
+    "Query Interface Options": [
+        "SQL"
+    ],
+    "Query Interface Description": "CockroachDB aims to provide standard SQL with extensions, but some standard SQL functionality is under development.",
+    "Query Interface Citations": [
+        "https://www.cockroachlabs.com/docs/learn-cockroachdb-sql.html"
+    ],
+
+    "Data Model Options": [
+        "Relational"
+    ],
+    "Data Model Description": "",
+    "Data Model Citations": [
+        "https://github.com/cockroachdb/cockroach/blob/master/docs/design.md"
+    ],
+
+    "Storage Model Options": [
+        "Custom"
+    ],
+    "Storage Model Description": "CockroachDB stores its data in the distributed key-value store.",
+    "Storage Model Citations": [
+        "https://godoc.org/github.com/cockroachdb/cockroach/storage"
+    ],
+
+    "Storage Architecture Options": [
+        "Disk-oriented"
+    ],
+    "Storage Architecture Description": "The backend storage in CockroachDB is RocksDB. It is disk-oriented storage.",
+    "Storage Architecture Citations": [
+        "https://github.com/cockroachdb/cockroach/blob/master/docs/design.md"
+    ],
+
+    "Concurrency Control Options": [
+        "Multi-version Concurrency Control (MVCC)"
+    ],
+    "Concurrency Control Description": "Transactions in CockroachDB is implemented ",
+    "Concurrency Control Citations": [
+        "https://github.com/cockroachdb/cockroach/blob/master/docs/design.md"
+    ],
+
+    "Isolation Levels Options": [
+        "Snapshot Isolation"
+    ],
+    "Isolation Levels Description": "CockroachDB supports snapshot isolation (SI) and serializable snapshot isolation (SSI). It is implemented using RocksDB snapshot capability.",
+    "Isolation Levels Citations": [
+        "https://github.com/cockroachdb/cockroach/blob/master/docs/design.md",
+        "https://github.com/cockroachdb/cockroach/blob/266e50907fbc7b0769ab6afd10892b16cc02c371/storage/replica_raftstorage.go",
+        "https://github.com/cockroachdb/cockroach/blob/5c4631f4b7328764ab150938974766d7e63c746a/storage/engine/rocksdb.go"
+    ],
+
+    "Indexes Options": [
+        "Other"
+    ],
+    "Indexes Description": "CockroachDB supports primary key, secondary index. The indexes are implemented with the distributed key-value store ranges.",
+    "Indexes Citations": [
+        "https://godoc.org/github.com/cockroachdb/cockroach/sql",
+        "https://github.com/cockroachdb/cockroach/blob/master/storage/scanner_test.go",
+        "https://www.cockroachlabs.com/blog/sql-in-cockroachdb-mapping-table-data-to-key-value-storage/"
+    ],
+
+    "Foreign Keys Options": [
+        "Not Supported"
+    ],
+    "Foreign Keys Description": "The design for foreign key is under discussion.",
+    "Foreign Keys Citations": [
+        "https://github.com/cockroachdb/cockroach/pull/6309"
+    ],
+
+    "Logging Options": [
+        "Other"
+    ],
+    "Logging Description": "There's no logging in CockroachDB because it adopts MVCC and uses transaction table to control transactions.",
+    "Logging Citations": [
+        "https://github.com/cockroachdb/cockroach/blob/master/docs/design.md"
+    ],
+
+    "Checkpoints Options": [
+        "Not Supported"
+    ],
+    "Checkpoints Description": "",
+    "Checkpoints Citations": [
+        ""
+    ],
+
+    "Views Options": [
+        "Not Supported"
+    ],
+    "Views Description": "",
+    "Views Citations": [
+        ""
+    ],
+
+    "Query Execution Options": [
+        "Tuple-at-a-Time Model"
+    ],
+    "Query Execution Description": "The query execution is similar to stream processing. When executing a query, the execution plan is transformed into a DAG, a gateway node orchestrates participating nodes begin processing.",
+    "Query Execution Citations": [
+        "https://github.com/cockroachdb/cockroach/blob/master/docs/RFCS/distributed_sql.md#execution-infrastructure"
+    ],
+
+    "Stored Procedures Options": [
+        "Not Supported"
+    ],
+    "Stored Procedures Description": "",
+    "Stored Procedures Citations": [
+        ""
+    ],
+
+    "Joins Options": [
+        "Hash"
+    ],
+    "Joins Description": "Because CockroachDB is backed by key value store. There are two ways of join in CockroachDB, join-by-lookup and stream joins. Join-by-lookup iterate through one table and lookup for it in the other table. Stream joins is an execution plan based on hashing.",
+    "Joins Citations": [
+        "https://github.com/cockroachdb/cockroach/blob/master/docs/RFCS/distributed_sql.md"
+    ],
+
+
+    "Query Compilation Options": [
+        "Not Supported"
+    ],
+    "Query Compilation Description": "",
+    "Query Compilation Citations": [
+        ""
+    ],
+
+    "Website": "https://www.cockroachlabs.com/",
+
+    "Programming Language": [
+        "Go"
+    ],
+
+    "Operating Systems": [
+        "Linux",
+        "OS X",
+        "Windows"
+    ],
+
+    "Project Type": [
+        "Open Source"
+    ],
+
+    "Developer": "https://github.com/cockroachdb/cockroach/graphs/contributors",
+
+    "Start Date": "2014-07",
+    "Start Date Citations": [
+        "https://www.cockroachlabs.com/about/",
+        "https://twitter.com/cockroachdb"
+    ],
+
+    "End Date": "Active",
+    "End Date Citations": [
+        "https://github.com/cockroachdb/cockroach/"
+    ],
+
+    "Derived From": "Spanner",
+
+    "Licenses": [
+        "Apache v2"
+    ]
+}
