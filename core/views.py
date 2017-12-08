@@ -160,11 +160,13 @@ class EditDatabase(LoginRequiredMixin, View):
 
         if system_version_form.is_valid() and \
                 system_version_metadata_form.is_valid() and form.is_valid():
-
+            logo = system.current().logo
             system.systemversion_set.update(is_current=False)
             db_version = system_version_form.save(commit=False)
             db_version.creator = request.user
             db_version.system = system
+            if logo:
+                db_version.logo = logo
             db_version.save()
 
             db_meta = system_version_metadata_form.save()
