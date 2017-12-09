@@ -5,4 +5,5 @@
        $(this).html(md);
     });
     $.get('/update-view-count/');
+    $('[data-toggle="popover"]').popover({'html': true});
 }(jQuery));

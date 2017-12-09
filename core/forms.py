@@ -5,8 +5,28 @@ from django.forms import widgets
 from django.contrib.auth import get_user_model
 from django.forms.widgets import Textarea
 
-from core.models import SystemVersion, SystemVersionMetadata, FeatureOption
+from core.models import SystemVersion, SystemVersionMetadata, FeatureOption, CitationUrls
 from .models import System, Feature
+
+
+class TagFieldM2M(fields.MultipleChoiceField):
+    widget = TextInput(attrs={'data-role': 'tagsinput', 'placeholder': ''})
+
+    def prepare_value(self, value):
+        try:
+            return ','.join([x.url for x in value])
+        except (AttributeError, TypeError):
+            if value is not None:
+                return value.split(',')
+            return ''
+
+    def clean(self, value):
+        urls = value.split(',')
+        url_objs = []
+        for url in urls:
+            cit_url, _ = CitationUrls.objects.get_or_create(url=url)
+            url_objs.append(cit_url)
+        return url_objs
 
 
 class CreateUserForm(ModelForm):
@@ -31,33 +51,75 @@ class SystemForm(ModelForm):
 
 
 class SystemVersionForm(ModelForm):
+    description_citations = TagFieldM2M(
+        help_text="Separate the urls with commas",
+        required=False
+    )
+    history_citations = TagFieldM2M(
+        help_text="Separate the urls with commas",
+        required=False
+    )
+    start_year_citations = TagFieldM2M(
+        help_text="Separate the urls with commas",
+        required=False
+    )
+    end_year_citations = TagFieldM2M(
+        help_text="Separate the urls with commas",
+        required=False
+    )
+
     class Meta:
         model = SystemVersion
         fields = [
             'logo',
             'description',
+            'description_citations',
             'history',
+            'history_citations',
             'website',
             'tech_docs',
             'developer',
             'start_year',
+            'start_year_citations',
             'end_year',
+            'end_year_citations',
             'project_type',
         ]
 
 
 class SystemVersionEditForm(ModelForm):
+    description_citations = TagFieldM2M(
+        help_text="Separate the urls with commas",
+        required=False
+    )
+    history_citations = TagFieldM2M(
+        help_text="Separate the urls with commas",
+        required=False
+    )
+    start_year_citations = TagFieldM2M(
+        help_text="Separate the urls with commas",
+        required=False
+    )
+    end_year_citations = TagFieldM2M(
+        help_text="Separate the urls with commas",
+        required=False
+    )
+
     class Meta:
         model = SystemVersion
         fields = [
             'logo',
             'description',
+            'description_citations',
             'history',
+            'history_citations',
             'website',
             'tech_docs',
             'developer',
             'start_year',
+            'start_year_citations',
             'end_year',
+            'end_year_citations',
             'project_type',
             'comment'
         ]

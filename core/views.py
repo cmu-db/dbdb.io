@@ -77,6 +77,22 @@ class CreateDatabase(LoginRequiredMixin, View):
             db_version.meta = db_meta
             db_version.save()
 
+            db_version.description_citations.clear()
+            for url in system_version_form.cleaned_data['description_citations']:
+                db_version.description_citations.add(url)
+
+            db_version.history_citations.clear()
+            for url in system_version_form.cleaned_data['history_citations']:
+                db_version.history_citations.add(url)
+
+            db_version.start_year_citations.clear()
+            for url in system_version_form.cleaned_data['start_year_citations']:
+                db_version.start_year_citations.add(url)
+
+            db_version.end_year_citations.clear()
+            for url in system_version_form.cleaned_data['end_year_citations']:
+                db_version.end_year_citations.add(url)
+
             for feature, value in form.cleaned_data.items():
                 if '_description' in feature:
                     feature_obj = Feature.objects.get(label=feature[:-12])
@@ -86,6 +102,17 @@ class CreateDatabase(LoginRequiredMixin, View):
                     )
                     saved.description = value
                     saved.save()
+                elif '_citation' in feature:
+                    feature_obj = Feature.objects.get(label=feature[:-9])
+                    saved, _ = SystemFeatures.objects.get_or_create(
+                        system=db_version,
+                        feature=feature_obj
+                    )
+                    saved.citation.clear()
+                    for url in value.split(','):
+                        cit_url, _ = CitationUrls.objects.get_or_create(url=url)
+                        saved.citation.add(cit_url)
+
                 else:
                     feature_obj = Feature.objects.get(label=feature)
                     saved = SystemFeatures.objects.create(
@@ -172,6 +199,22 @@ class EditDatabase(LoginRequiredMixin, View):
             db_meta = system_version_metadata_form.save()
             db_version.meta = db_meta
             db_version.save()
+
+            db_version.description_citations.clear()
+            for url in system_version_form.cleaned_data['description_citations']:
+                db_version.description_citations.add(url)
+
+            db_version.history_citations.clear()
+            for url in system_version_form.cleaned_data['history_citations']:
+                db_version.history_citations.add(url)
+
+            db_version.start_year_citations.clear()
+            for url in system_version_form.cleaned_data['start_year_citations']:
+                db_version.start_year_citations.add(url)
+
+            db_version.end_year_citations.clear()
+            for url in system_version_form.cleaned_data['end_year_citations']:
+                db_version.end_year_citations.add(url)
 
             for feature, value in form.cleaned_data.items():
                 if '_description' in feature:

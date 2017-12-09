@@ -13,6 +13,7 @@
                     <div class="card-body">
                         <h2 class="card-title">{{ system.name }}</h2>
                         <p class="card-text markdown-area">{{ system_version.description }}</p>
+                        <button type="button" class="btn btn-secondary" data-container="body" data-toggle="popover" title="Citations" data-placement="right" data-content="<ul>{% for url in system_version.description_citations.all %}<li>{{ url.url }}</li>{% endfor %}</ul>"><i class="fa fa-info-circle"></i></button>
                     </div>
                 </div>
                 {% if system_version.history %}
@@ -20,6 +21,7 @@
                         <div class="card-body">
                             <h4 class="card-title">History</h4>
                             <p class="card-text markdown-area">{{ system_version.history }}</p>
+                            <button type="button" class="btn btn-secondary" data-container="body" data-toggle="popover" title="Citations" data-placement="right" data-content="<ul>{% for url in system_version.history_citations.all %}<li>{{ url.url }}</li>{% endfor %}</ul>"><i class="fa fa-info-circle"></i></button>
                         </div>
                     </div>
                 {% endif %}
@@ -56,9 +58,11 @@
                                 {% for v in feature.value.all %}
                                     <span class="badge badge-info">{{ v }}</span>
                                 {% endfor %}
+                            </p>
                             <p class="markdown-area">
                                 {{ feature.description }}
                             </p>
+                            <button type="button" class="btn btn-secondary" data-container="body" data-toggle="popover" title="Citations" data-placement="right" data-content="<ul>{% for url in feature.citation.all %}<li>{{ url.url }}</li>{% endfor %}</ul>"><i class="fa fa-info-circle"></i></button>
                         </div>
                     </div>
                     {% endif %}
@@ -111,6 +115,7 @@
                         <div class="card-body">
                             <h6 class="card-title">Start Year</h6>
                             <p class="card-text">{{ system_version.start_year }}</p>
+                            <button type="button" class="btn btn-sm btn-secondary" data-container="body" data-toggle="popover" title="Citations" data-placement="right" data-content="<ul>{% for url in system_version.start_year_citations.all %}<li>{{ url.url }}</li>{% endfor %}</ul>"><i class="fa fa-info-circle"></i></button>
                         </div>
                     </div>
                 {% endif %}
@@ -119,6 +124,7 @@
                         <div class="card-body">
                             <h6 class="card-title">End Year</h6>
                             <p class="card-text">{{ system_version.end_year }}</p>
+                            <button type="button" class="btn btn-secondary" data-container="body" data-toggle="popover" title="Citations" data-placement="right" data-content="<ul>{% for url in system_version.end_year_citations.all %}<li>{{ url.url }}</li>{% endfor %}</ul>"><i class="fa fa-info-circle"></i></button>
                         </div>
                     </div>
                 {% endif %}
@@ -160,6 +166,7 @@
 {% endblock %}
 {% block scripts %}
     <script src="{% static 'lib/js/markdown.min.js' %}"></script>
+    <script src="{% static 'lib/js/bootstrap.bundle.js' %}"></script>
     {% block system_script %}
     {% endblock %}
 {% endblock %}
