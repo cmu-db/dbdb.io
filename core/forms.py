@@ -21,7 +21,10 @@ class TagFieldM2M(fields.MultipleChoiceField):
             return ''
 
     def clean(self, value):
-        urls = value.split(',')
+        if value:
+            urls = value.split(',')
+        else:
+            urls = []
         url_objs = []
         for url in urls:
             cit_url, _ = CitationUrls.objects.get_or_create(url=url)

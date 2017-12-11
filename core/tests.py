@@ -102,16 +102,16 @@ class CreateDatabaseTestCase(TestCase):
         data = {
             'name': 'MySQL',
             'description': 'Oracles simple database',
-            'description_citation': [],
+            'description_citation': "",
             'history': 'The history of oracle MySQL',
-            'history_citation': [],
+            'history_citation': "",
             'website': 'http://oracle.com',
             'tech_docs': 'http://oracle.com',
             'developer': 'A Nice Guy',
             'start_year': 2010,
-            'start_year_citation': [],
+            'start_year_citation': "",
             'end_year': 2020,
-            'end_year_citation': [],
+            'end_year_citation': "",
             'project_type': [1],
             'logo': '',
             'written_in': [1],
@@ -122,10 +122,10 @@ class CreateDatabaseTestCase(TestCase):
             'publications': [1],
             'Feature One': [2],
             'Feature One_description': "",
-            'Feature One_citations': [],
+            'Feature One_citations': "",
             'Feature Two': ['high', 'low'],
             'Feature Two_description': "",
-            'Feature Two_citations': [],
+            'Feature Two_citations': "",
         }
         response = self.client.post(reverse('create_database'), data=data)
         self.assertRedirects(response, reverse('system', kwargs={'slug': 'mysql'}))
