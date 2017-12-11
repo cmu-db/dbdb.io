@@ -78,19 +78,19 @@ class CreateDatabase(LoginRequiredMixin, View):
             db_version.save()
 
             db_version.description_citations.clear()
-            for url in system_version_form.cleaned_data['description_citations']:
+            for url in system_version_form.cleaned_data.get('description_citations', []):
                 db_version.description_citations.add(url)
 
             db_version.history_citations.clear()
-            for url in system_version_form.cleaned_data['history_citations']:
+            for url in system_version_form.cleaned_data.get('history_citations', []):
                 db_version.history_citations.add(url)
 
             db_version.start_year_citations.clear()
-            for url in system_version_form.cleaned_data['start_year_citations']:
+            for url in system_version_form.cleaned_data.get('start_year_citations', []):
                 db_version.start_year_citations.add(url)
 
             db_version.end_year_citations.clear()
-            for url in system_version_form.cleaned_data['end_year_citations']:
+            for url in system_version_form.cleaned_data.get('end_year_citations', []):
                 db_version.end_year_citations.add(url)
 
             for feature, value in form.cleaned_data.items():
@@ -201,19 +201,19 @@ class EditDatabase(LoginRequiredMixin, View):
             db_version.save()
 
             db_version.description_citations.clear()
-            for url in system_version_form.cleaned_data['description_citations']:
+            for url in system_version_form.cleaned_data.get('description_citations', []):
                 db_version.description_citations.add(url)
 
             db_version.history_citations.clear()
-            for url in system_version_form.cleaned_data['history_citations']:
+            for url in system_version_form.cleaned_data.get('history_citations', []):
                 db_version.history_citations.add(url)
 
             db_version.start_year_citations.clear()
-            for url in system_version_form.cleaned_data['start_year_citations']:
+            for url in system_version_form.cleaned_data.get('start_year_citations', []):
                 db_version.start_year_citations.add(url)
 
             db_version.end_year_citations.clear()
-            for url in system_version_form.cleaned_data['end_year_citations']:
+            for url in system_version_form.cleaned_data.get('end_year_citations', []):
                 db_version.end_year_citations.add(url)
 
             for feature, value in form.cleaned_data.items():
