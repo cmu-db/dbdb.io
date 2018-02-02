@@ -22,19 +22,19 @@ class CoreModel(models.Model):
 
 class OperatingSystem(CoreModel):
     name = models.CharField(max_length=64)
-    website = models.URLField(default="", null=True)
+    website = models.URLField(max_length=512, default="", null=True)
     slug = AutoSlugField(populate_from='name', unique=True)
 
 
 class ProgrammingLanguage(CoreModel):
     name = models.CharField(max_length=64)
-    website = models.URLField(default="", null=True)
+    website = models.URLField(max_length=512, default="", null=True)
     slug = AutoSlugField(populate_from='name', unique=True)
 
 
 class License(CoreModel):
     name = models.CharField(max_length=32)
-    website = models.URLField(default=None, null=True)
+    website = models.URLField(max_length=512, default=None, null=True)
     slug = AutoSlugField(populate_from='name', unique=True)
 
 
@@ -47,7 +47,7 @@ class Publication(CoreModel):
     title = models.CharField(max_length=255, blank=True)
     authors = models.CharField(max_length=255, blank=True)
     bibtex = models.TextField(default=None, null=True, blank=True)
-    link = models.URLField(default=None, null=True, blank=True)
+    link = models.URLField(max_length=512, default=None, null=True, blank=True)
     year = models.IntegerField(default=0, null=True)
     number = models.IntegerField(default=1, null=True)
     cite = models.TextField(default=None, null=True, blank=True)
@@ -76,7 +76,7 @@ class SuggestedSystem(CoreModel):
     name = models.CharField(max_length=64)
     description = models.TextField(default=None, null=True, blank=True)
     email = models.EmailField(max_length=100)
-    website = models.URLField(null=True, blank=True)
+    website = models.URLField(max_length=512, null=True, blank=True)
     approved = models.NullBooleanField()
     secret_key = models.UUIDField(max_length=36, default=uuid.uuid4)
 
@@ -106,7 +106,7 @@ class System(CoreModel):
 
 
 class CitationUrls(CoreModel):
-    url = models.URLField()
+    url = models.URLField(max_length=512)
 
     def __unicode__(self):
         return self.url
@@ -123,8 +123,8 @@ class SystemVersion(CoreModel):
     description_citations = models.ManyToManyField(CitationUrls, related_name='version_descriptions', null=True)
     history = models.TextField(default="", blank=True, help_text="This field support Markdown Syntax")
     history_citations = models.ManyToManyField(CitationUrls, related_name='version_histories', null=True)
-    website = models.URLField(default="", null=True, blank=True)
-    tech_docs = models.URLField(default="", null=True, blank=True)
+    website = models.URLField(max_length=512, default="", null=True, blank=True)
+    tech_docs = models.URLField(max_length=512, default="", null=True, blank=True)
     developer = models.CharField(max_length=512, default="", blank=True)
     start_year = models.CharField(max_length=128, default="", blank=True)
     start_year_citations = models.ManyToManyField(CitationUrls, related_name='version_start_years', null=True)
