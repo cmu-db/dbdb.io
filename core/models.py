@@ -103,14 +103,14 @@ class System(CoreModel):
 
     def current(self):
         return self.systemversion_set.get(is_current=True)
-
+## CLASS
 
 class CitationUrls(CoreModel):
     url = models.URLField(max_length=512)
 
     def __unicode__(self):
         return self.url
-
+## CLASS
 
 class SystemVersion(CoreModel):
     system = models.ForeignKey(System)
@@ -152,7 +152,7 @@ class SystemVersion(CoreModel):
 
     def project_type_str(self):
         return ', '.join([str(l) for l in self.project_type.all()])
-
+## CLASS
 
 class SystemVersionMetadata(CoreModel):
     written_in = models.ManyToManyField(ProgrammingLanguage, related_name='systems_written', blank=True)
@@ -180,7 +180,7 @@ class SystemVersionMetadata(CoreModel):
 
     def publications_str(self):
         return ', '.join([str(l) for l in self.publications.all()])
-
+## CLASS
 
 class SystemFeatures(CoreModel):
     system = models.ForeignKey(SystemVersion, null=True)

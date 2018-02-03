@@ -16,4 +16,6 @@ __pycache__/
 
 *.sqlite3
 dbdb_io/local_settings.py
+dbdb_io/settings.py
 media/logos/*.jpg
+media/logos/*.png

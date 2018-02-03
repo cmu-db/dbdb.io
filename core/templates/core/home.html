@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% load thumbnail %}
 
 {% block title %}
     Home
@@ -23,21 +24,20 @@
     </div>
     <div class="row">
         <div class="col-md-4 text-center">
-            <h3>Most Edited</h3>
+            <h3>Most Edited Entry</h3>
             <table class="table table-hover">
-                <thead>
-                <th>Rank</th>
-                <th>Database</th>
-                <th>Versions</th>
-                </thead>
                 <tbody>
-                    {% for item in most_edited %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
-                            <td>{{ item.systemversion__count }}</td>
-                        </tr>
-                    {% endfor %}
+                {% for item in most_edited %}
+                    <tr>
+                        <td>
+                            {% if item.current.logo %}
+                            <img src="{{ item.current.logo|thumbnail_url:'homepage' }}" alt="{{ item.name }}" />
+                            {% endif %}
+                        </td>
+                        <td><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
+                        <!-- <td>{{ item.systemversion__count }}</td> -->
+                    </tr>
+                {% endfor %}
                 </tbody>
             </table>
 
@@ -45,16 +45,14 @@
         <div class="col-md-4 text-center">
             <h3>Most Recent</h3>
             <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Database</th>
-                    </tr>
-                </thead>
                 <tbody>
                 {% for item in most_recent %}
                     <tr>
-<!--                         <td>{{ forloop.counter }}</td> -->
+                        <td>
+                            {% if item.current.logo %}
+                            <img src="{{ item.current.logo|thumbnail_url:'homepage' }}" alt="{{ item.name }}" />
+                            {% endif %}
+                        </td>
                         <td><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
                     </tr>
                 {% endfor %}
@@ -64,19 +62,15 @@
         <div class="col-md-4 text-center">
             <h3>Most Views</h3>
             <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Database</th>
-                        <th>View count</th>
-                    </tr>
-                </thead>
                 <tbody>
                 {% for item in most_views %}
                     <tr>
-                        <td>{{ forloop.counter }}</td>
+                        <td>
+                        {% if item.current.logo %}
+                            <img src="{{ item.current.logo|thumbnail_url:'homepage' }}" alt="{{ item.name }}" />
+                        {% endif %}
+                        </td>
                         <td><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
-                        <td>{{ item.view_count }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
