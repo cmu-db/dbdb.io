@@ -17,10 +17,6 @@
 {% block system_script %}
     <script src="{% static 'core/js/system.js' %}"></script>
 {% endblock %}
+
 {% block extra_sidebar %}
-<div class="card">
-    <div class="card-body">
-            Last Updated: {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
-    </div>
-</div>
 {% endblock %}

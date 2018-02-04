@@ -12,3 +12,14 @@
 .footer-text {
   text-align: center;
 }
+
+h6.card-title {
+    font-weight: bold;
+}
+
+div.revision-footer {
+    margin: auto;
+    text-align: right;
+    padding-top: 10px;
+    color: #4F4F4F;
+}

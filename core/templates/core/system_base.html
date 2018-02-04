@@ -78,14 +78,6 @@
                 {% endif %}
                 {% block extra_sidebar %}
                 {% endblock %}
-                {% if system.created %}
-                <div class="card">
-                    <div class="card-body">
-                        <h6 class="card-title">Created</h6>
-                        <p class="card-text">{{ system.created|date:"SHORT_DATE_FORMAT" }}</p>
-                    </div>
-                </div>
-                {% endif %}
                 {% if system_version.website %}
                     <div class="card">
                         <div class="card-body">
@@ -161,6 +153,10 @@
                     </div>
                 {% endif %}
             </div>
+        </div>
+        <div class="revision-footer">
+            Revision #{{ system_version.version_number }} &bullet;
+            Last Updated: {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
         </div>
     </div>
 {% endblock %}
