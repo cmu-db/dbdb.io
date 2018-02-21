@@ -13,8 +13,8 @@ class FeatureAdmin(admin.ModelAdmin):
     
 class SystemAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
-    list_display = ('name', 'created', 'current_version',)
-    list_filter = ['created' ]
+    list_display = ('name', 'created', 'modified', 'current_version',)
+    list_filter = ['created', 'modified' ]
     search_fields = ('name', )
 
 class SystemVersionAdmin(admin.ModelAdmin):

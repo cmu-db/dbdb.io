@@ -84,6 +84,7 @@ class SuggestedSystem(CoreModel):
 class System(CoreModel):
     name = models.CharField(max_length=64, null=False, blank=False)
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    modified = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     current_version = models.PositiveIntegerField(default=0)
     slug = AutoSlugField(populate_from='name', unique=True)
     secret_key = models.UUIDField(max_length=36, default=uuid.uuid4)

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, Count
 from django.http import HttpResponse, HttpResponseForbidden
@@ -194,11 +196,17 @@ class EditDatabase(LoginRequiredMixin, View):
             db_version.system = system
             if logo:
                 db_version.logo = logo
+                
+            # Why am I saving twice?
             db_version.save()
 
             db_meta = system_version_metadata_form.save()
             db_version.meta = db_meta
             db_version.save()
+            
+            system.modified = datetime.now()
+            system.save()
+            
 
             db_version.description_citations.clear()
             for url in system_version_form.cleaned_data.get('description_citations', []):
@@ -340,7 +348,7 @@ class HomeView(View):
         items_to_show = 5
         
         most_edited = System.objects.annotate(Count('systemversion')).distinct().order_by('-systemversion__count')[:items_to_show]
-        most_recent = System.objects.distinct().order_by('-created')[:items_to_show]
+        most_recent = System.objects.distinct().order_by('-modified')[:items_to_show]
         most_views = System.objects.distinct().order_by('-view_count')[:items_to_show]
         context = {
             'most_edited': most_edited,
@@ -381,6 +389,7 @@ class RevisionList(View):
         system.systemversion_set.update(is_current=False)
         version.is_current = True
         system.current_version = version.version_number
+        system.modified = datetime.now()
         version.save()
         system.save()
         return redirect('system', slug=slug)
