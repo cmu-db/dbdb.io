@@ -34,7 +34,7 @@
                             <img src="{{ item.current.logo|thumbnail_url:'homepage' }}" alt="{{ item.name }}" />
                             {% endif %}
                         </td>
-                        <td><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
+                        <td class="homepage-system"><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
                         <!-- <td>{{ item.systemversion__count }}</td> -->
                     </tr>
                 {% endfor %}
@@ -48,12 +48,12 @@
                 <tbody>
                 {% for item in most_recent %}
                     <tr>
-                        <td>
+                        <td class="homepage-logo">
                             {% if item.current.logo %}
                             <img src="{{ item.current.logo|thumbnail_url:'homepage' }}" alt="{{ item.name }}" />
                             {% endif %}
                         </td>
-                        <td><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
+                        <td class="homepage-system"><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -65,12 +65,12 @@
                 <tbody>
                 {% for item in most_views %}
                     <tr>
-                        <td>
+                        <td class="homepage-logo">
                         {% if item.current.logo %}
                             <img src="{{ item.current.logo|thumbnail_url:'homepage' }}" alt="{{ item.name }}" />
                         {% endif %}
                         </td>
-                        <td><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
+                        <td class="homepage-system"><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
                     </tr>
                 {% endfor %}
                 </tbody>

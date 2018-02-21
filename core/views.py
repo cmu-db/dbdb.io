@@ -336,9 +336,12 @@ class HomeView(View):
 
     def get(self, request):
         context = {}
-        most_edited = System.objects.annotate(Count('systemversion')).distinct().order_by('-systemversion__count')[:10]
-        most_recent = System.objects.distinct().order_by('-created')[:10]
-        most_views = System.objects.distinct().order_by('-view_count')[:10]
+        
+        items_to_show = 5
+        
+        most_edited = System.objects.annotate(Count('systemversion')).distinct().order_by('-systemversion__count')[:items_to_show]
+        most_recent = System.objects.distinct().order_by('-created')[:items_to_show]
+        most_views = System.objects.distinct().order_by('-view_count')[:items_to_show]
         context = {
             'most_edited': most_edited,
             'most_recent': most_recent,

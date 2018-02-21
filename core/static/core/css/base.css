@@ -23,3 +23,12 @@ div.revision-footer {
     padding-top: 10px;
     color: #4F4F4F;
 }
+
+td.homepage-logo {
+    width: 35%;
+}
+td.homepage-system {
+    width: 65%;
+    font-weight: bold;
+    text-align: left;
+}
