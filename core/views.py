@@ -183,6 +183,7 @@ class EditDatabase(LoginRequiredMixin, View):
         }
         return render(request, template_name=self.template_name, context=context)
 
+    @transaction.atomic
     def post(self, request, slug):
         system = System.objects.get(slug=slug)
         system_version_form = SystemVersionEditForm(request.POST, request.FILES)
@@ -380,9 +381,22 @@ class HomeView(View):
         
         items_to_show = 5
         
-        most_edited = System.objects.annotate(Count('systemversion')).distinct().order_by('-systemversion__count')[:items_to_show]
-        most_recent = System.objects.distinct().order_by('-modified')[:items_to_show]
-        most_views = System.objects.distinct().order_by('-view_count')[:items_to_show]
+        # PAVLO: 2018-02-25
+        # This original code was performing a COUNT on all of the versions for
+        # a system. This is unnecessary because we already keep track of the 
+        # 'version_number' field in the System object.
+        # All of these look-ups would also invoke .distinct(), but this is unnecessary
+        # because the objects are already unique so I removed that.
+        # 
+        # Original:
+        #   most_edited = System.objects.annotate(Count('systemversion')) \
+        #                               .distinct().order_by('-systemversion__count')[:items_to_show]
+        #
+        # My Fix:
+        #   most_edited = System.objects.order_by('-current_version', '-name')[:items_to_show]
+        most_edited = System.objects.order_by('-current_version', '-name')[:items_to_show]
+        most_recent = System.objects.order_by('-modified')[:items_to_show]
+        most_views = System.objects.order_by('-view_count')[:items_to_show]
         context = {
             'most_edited': most_edited,
             'most_recent': most_recent,
