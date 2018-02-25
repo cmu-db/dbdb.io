@@ -13,6 +13,7 @@ __pycache__/
 # Django stuff:
 *.log
 *.pot
+core/static/admin
 
 *.sqlite3
 dbdb_io/local_settings.py

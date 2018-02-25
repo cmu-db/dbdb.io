@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, Count
+from django.db import transaction
 from django.http import HttpResponse, HttpResponseForbidden
 from django.http.request import QueryDict
 from django.http.response import Http404
@@ -56,6 +57,7 @@ class CreateDatabase(LoginRequiredMixin, View):
 
         return render(request, template_name=self.template_name, context=context)
 
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             raise Http404()
@@ -188,7 +190,8 @@ class EditDatabase(LoginRequiredMixin, View):
         form = SystemFeaturesForm(request.POST)
 
         if system_version_form.is_valid() and \
-                system_version_metadata_form.is_valid() and form.is_valid():
+                system_version_metadata_form.is_valid() and \
+                form.is_valid():
             logo = system.current().logo
             system.systemversion_set.update(is_current=False)
             db_version = system_version_form.save(commit=False)
@@ -197,16 +200,20 @@ class EditDatabase(LoginRequiredMixin, View):
             if logo:
                 db_version.logo = logo
                 
-            # Why am I saving twice?
+            # PAVLO: 2018-02-25
+            # The original code would save the db_version here.
+            # I am not sure if this is necessary, but I am leaving it in for now.
+            # The only thing that I can think of is if it needs to get the
+            # auto-increment key.
             db_version.save()
 
             db_meta = system_version_metadata_form.save()
             db_version.meta = db_meta
             db_version.save()
             
+            system.current_version = db_version.version_number
             system.modified = datetime.now()
             system.save()
-            
 
             db_version.description_citations.clear()
             for url in system_version_form.cleaned_data.get('description_citations', []):
@@ -224,17 +231,40 @@ class EditDatabase(LoginRequiredMixin, View):
             for url in system_version_form.cleaned_data.get('end_year_citations', []):
                 db_version.end_year_citations.add(url)
 
-            for feature, value in form.cleaned_data.items():
+            # PAVLO: 2018-02-25
+            # There was a bug here where the SystemFeatures.objects.get_or_create() calls
+            # below would throw an exception because it would return back two objects
+            # when Django expects there to be only one. I was messing around with this
+            # trying to understand the problem better and the for-loop to sort
+            # the keys in form.cleaned_data. This somehow made the problem go away
+            # but I don't understand why (which troubles me).
+            # 
+            # Original line:
+            #   for feature, value in form.cleaned_data.items():
+            #   
+            # My fix:
+            #   for feature in sorted(form.cleaned_data.keys()):
+            #       value = form.cleaned_data[feature]
+            for feature in sorted(form.cleaned_data.keys()):
+                value = form.cleaned_data[feature]
+                #print("feature=%s, value=%s" % (str(feature), str(value)))
+                
+                ## DESCRIPTION
                 if '_description' in feature:
-                    feature_obj = Feature.objects.get(label=feature[:-12])
+                    feature_name = feature[:-12] # Strip '_description'
+                    feature_obj = Feature.objects.get(label=feature_name)
+                    
                     saved, _ = SystemFeatures.objects.get_or_create(
                         system=db_version,
                         feature=feature_obj
                     )
                     saved.description = value
                     saved.save()
+                    
+                ## CITATION
                 elif '_citation'in feature:
-                    feature_obj = Feature.objects.get(label=feature[:-9])
+                    feature_name = feature[:-9] # Strip '_citation'
+                    feature_obj = Feature.objects.get(label=feature_name)
                     saved, _ = SystemFeatures.objects.get_or_create(
                         system=db_version,
                         feature=feature_obj
@@ -244,6 +274,7 @@ class EditDatabase(LoginRequiredMixin, View):
                         cit_url, _ = CitationUrls.objects.get_or_create(url=url)
                         saved.citation.add(cit_url)
 
+                ## OTHER
                 else:
                     feature_obj = Feature.objects.get(label=feature)
                     saved = SystemFeatures.objects.create(
@@ -263,7 +294,9 @@ class EditDatabase(LoginRequiredMixin, View):
                                     feature=feature_obj,
                                     value=v)
                             )
+            ## FOR
             return redirect(db_version.system.get_absolute_url())
+        ## IF
         system_form = SystemForm(instance=system)
         context = {
             'system_form': system_form,
