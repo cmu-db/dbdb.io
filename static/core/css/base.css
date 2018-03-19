@@ -1,0 +1,55 @@
+* {
+  font-family: 'Open Sans', sans-serif;
+}
+
+body {
+	font-size: 14px;
+	font-family: "Roboto","Open Sans",sans-serif;
+}
+
+nav {
+	background-color:#417690;
+}
+
+section#content { padding:30px 30px; }
+
+.footer {
+	padding: 20px;
+	border-top-color: black;
+	border-top-width: 1px;
+	border-top-style: solid;
+}
+
+.footer-text {
+  text-align: center;
+}
+
+h6.card-title {
+	font-weight: bold;
+}
+
+div.revision-footer {
+	margin: auto;
+	text-align: right;
+	padding-top: 10px;
+	color: #4F4F4F;
+}
+
+td.homepage-logo {
+	width: 35%;
+}
+td.homepage-system {
+	width: 65%;
+	font-weight: bold;
+	text-align: left;
+}
+.homepage-list {
+	margin-right: 0px !important;
+	margin-left: 0px !important;
+}
+
+div.sidebar { background-color:#F8F8F8; border-radius:4px; padding:20px; }
+div.sidebar .btn-primary { background-color:#417690; border-color:#417690; color:#ffffff; }
+div.sidebar .btn-primary:hover { background-color:#205067; border-color:#205067; }
+div.sidebar .btn-default { background-color:#79aec8; border-color:#79aec8; color:#ffffff;}
+div.sidebar .btn-default:hover { background-color:#609AB6; border-color:#609AB6; }

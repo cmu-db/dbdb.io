@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% load bootstrap4 %}
+
+{% block title %}
+    Home
+{% endblock %}
+{% block content %}
+    <div class="jumbotron">
+        <div class="row justify-content-md-center">
+            <div class="col col-10 text-center">
+                <h1 class="display-3">Advanced Search</h1>
+                <form method="POST" >
+                    {% csrf_token %}
+                    <div class="row">
+                        {% for input in form %}
+                            <div class="form-group col-md-3">
+                                <label for="{{ input.id_for_label }}">{{ input.label }}</label>
+                                <select class="selectpicker" name="{{ input.name }}" multiple>
+                                    {% for option, value in input.field.choices %}
+                                        <option value="{{ option.value }}">{{ value.value }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <p class="lead">
+                        <button class="btn btn-primary btn-lg" type="submit" role="button">Search</button>
+                    </p>
+
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-5 justify-content-md-center">
+        <div class="col col-10 text-center">
+            <div class="row">
+                {% if systems %}
+                    {% for system in systems %}
+                        <div class="col-md-3">
+                            <a href="{{ system.get_absolute_url }}">{{ system.name }}</a>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    No results found
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+
+<script src="{% static 'lib/js/bootstrap-select.js' %}"></script>
+<script>
+$(document).ready(function () {
+    $('.selectpicker').selectpicker();
+});
+</script>
+{% endblock %}

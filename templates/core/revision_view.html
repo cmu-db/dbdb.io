@@ -1,0 +1,30 @@
+{% extends 'core/system_base.html' %}
+{% load staticfiles %}
+
+{% block navbuttons %}
+<li class="nav-item active ml-2">
+	<a class="nav-link btn btn-outline-secondary" href="{% url 'system_revision' system.slug %}">Revision List</a>
+</li>
+{% endblock %}
+
+{% block title %}
+Revision {{ system.name }} - {{ system_version.version_number }}
+{% endblock %}
+
+{% block extra_sidebar %}
+{% if not system_version.is_current and user.is_authenticated %}
+<div class="card">
+	<div class="card-body">
+		<form action="{% url 'system_revision' system.slug %}" method="POST">
+			{% csrf_token %}
+			<input type="hidden" value="{{ system_version.id }}" name="current_version">
+			<button type="submit" class="btn btn-primary">Set current</button>
+		</form>
+	</div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block system_script %}
+<script src="{% static 'core/js/revision.js' %}"></script>
+{% endblock %}

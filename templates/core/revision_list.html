@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Revision {{ system.name }}
+{% endblock %}
+
+{% block content %}
+<div class="jumbotron" style="background-color:#ffffff;">
+
+	<div class="row">
+		<h1 class="offset-md-2">{{ system.name }}</h1>
+	</div>
+
+	<div class="row justify-content-center">
+		<form class="col-md-8" method="POST">
+			<table class="table">
+				<thead>
+					<tr>
+						<th style="text-align:center; width:150px;">Current Version</th>
+						<th style="width:100px;">Version #</th>
+						<th style="width:200px;">Date Created</th>
+						<th>Edited By</th>
+						<th>Comments</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for version in versions %}
+					<tr>
+						<td style="text-align:center;">
+							{% if user.is_authenticated %}
+							<input type="radio" class="form-check-input" name="current_version" value="{{ version.id }}" {% if version.is_current %}checked{% endif %}>
+							{% else %}
+							{% if version.is_current %}
+								<span><i class="fa fa-check"></i></span>
+							{% endif %}
+							{% endif %}
+						</td>
+						<td>{{ version.ver }}</td>
+						<td><a href="{% if version.is_current %}{{ system.get_absolute_url }}{% else %}{{ version.get_absolute_url }}{% endif %}">{{ version.created }}</a></td>
+						<td>{{ version.creator.username }}</td>
+						<td>{{ version.comment }}</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+
+			<button class="btn btn-primary" type="submit">Set Current Version</button>
+			{% csrf_token %}
+		</form>
+	</div>
+
+</div>
+{% endblock %}
