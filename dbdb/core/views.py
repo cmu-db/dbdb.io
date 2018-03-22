@@ -140,8 +140,8 @@ class AdvancedSearchView(View):
             # search for features
             for feature_id,option_ids in search_fg.items():
                 versions = versions.filter(
-                    features__id=feature_id,
-                    features__options__in=option_ids
+                    features__feature_id=feature_id,
+                    features__options__id__in=option_ids
                 )
                 pass
             
