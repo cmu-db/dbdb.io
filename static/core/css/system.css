@@ -7,3 +7,11 @@
 .markdown-area > h3 {
     font-size: 1.3em;
 }
+
+div.card h2 a { font-size: 16px; }
+div.card h4 a { font-size: 16px; }
+
+div.popover { max-width: 600px; }
+div.popover .popover-body ul { font-size: 12px; padding: 0px 20px; margin:10px 0; }
+
+cite.hidden { display:none; }

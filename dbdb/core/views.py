@@ -1,8 +1,10 @@
 # stdlib imports
-from datetime import datetime
 from functools import reduce
 import collections
+import datetime
+import operator
 # django imports
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -10,6 +12,7 @@ from django.db import transaction
 from django.db.models import Q, Count
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
+from django.http import JsonResponse
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -17,10 +20,14 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.text import smart_split
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+# third-party imports
+import jwt
 # project imports
 from dbdb.core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm, \
-    AdvancedSearchForm, SystemVersionEditForm
+    SystemVersionEditForm
 from dbdb.core.models import System, SystemVersionMetadata
 from dbdb.core.models import SystemVersion
 from dbdb.core.models import Feature
@@ -33,6 +40,39 @@ from dbdb.core.models import CitationUrl
 
 FieldSet = collections.namedtuple('FieldSet', ['id','label','choices','description','citation'])
 
+class FilterChoice( collections.namedtuple('FilterChoice', ['id','label','checked']) ):
+
+    is_hidden = False
+    
+    @property
+    def sort_key(self):
+        return (
+            0 if self.checked else 1,
+            self.label,
+        )
+
+    pass
+
+class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) ):
+
+    has_checked = False
+    has_more = False
+    
+    def prepare(self):
+        self.choices.sort(key=lambda fc: fc.sort_key)
+        
+        for i,choice in enumerate(self.choices):
+            self.has_checked = self.has_checked or choice.checked
+
+            if i >=4 and not choice.checked:
+                choice.is_hidden = True
+                self.has_more = True
+                pass
+            pass
+        return
+
+    pass
+
 
 # class based views
 
@@ -40,56 +80,146 @@ class AdvancedSearchView(View):
 
     template_name = 'core/advanced-search.html'
 
+    def build_filter_groups(self, querydict):
+        empty_set = set()
+
+        def reduce_feature_options(mapping, option):
+            mapping[option.feature_id].choices.append(
+                FilterChoice(
+                    option.id,
+                    option.value,
+                    str(option.id) in querydict.getlist( f'fg{option.feature_id}', empty_set )
+                )
+            )
+            return mapping
+
+        filtergroups = collections.OrderedDict(
+            ( f_id, FilterGroup(f'fg{f_id}', f_label, []) )
+            for f_id,f_label in Feature.objects.all().order_by().values_list('id','label')
+        )
+
+        filtergroups = reduce(
+            reduce_feature_options,
+            FeatureOption.objects.all().order_by('value').values_list('feature_id','id','value', named=True),
+            filtergroups
+        )
+        
+        filtergroups = filtergroups.values()
+        
+        for fg in filtergroups:
+            fg.prepare()
+            pass
+        
+        return filtergroups
+        
     def get(self, request):
-        systems = System.objects.order_by('name')
+        has_search = False
+        
+        # pull search criteria
+        search_q = request.GET.get('q', '').strip()
+        search_fg = {
+            int( k[2:] ) : set( map(int, request.GET.getlist(k)) )
+            for k in request.GET.keys()
+            if k.startswith('fg')
+        }
+        
+        if search_q or search_fg:
+            has_search = True
 
+            # only search current versions
+            versions = SystemVersion.objects \
+                .filter(is_current=True)
+            
+            # apply keyword search to name (require all terms)
+            if search_q:
+                terms = smart_split( search_q.lower() )
+                query = [Q(system__name__icontains=t) for t in terms]
+                versions = versions.filter( reduce(operator.and_, query) )
+                pass
+
+            # search for features
+            for feature_id,option_ids in search_fg.items():
+                versions = versions.filter(
+                    features__id=feature_id,
+                    features__options__in=option_ids
+                )
+                pass
+            
+            # use generated list of PKs to get actual versions with systems
+            versions = SystemVersion.objects \
+                .filter(id__in=versions.values_list('id', flat=True)) \
+                .select_related('system') \
+                .order_by('system__name')
+            pass
+        else:
+             versions = SystemVersion.objects.none()
+             pass
+        
+        # convert query list to regular list
+        versions = list(versions)
+        # and add href/url to each
+        for version in versions:
+            version.href = request.build_absolute_uri( version.system.get_absolute_url() )
+            pass
+     
         return render(request, self.template_name, {
-            'form': AdvancedSearchForm(),
-
-            'systems': systems
+            'filtergroups': self.build_filter_groups(request.GET),
+            'versions': versions,
+            
+            'has_search': has_search,
+            'q': search_q,
         })
+
+    pass
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CounterView(View):
+
+    @staticmethod
+    def build_token(origin, **kwargs):
+        payload = dict(kwargs)
+        payload.update( {
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=15), # +15 seconds
+            'iss': 'counter:{}'.format(origin),
+            'nbf': datetime.datetime.utcnow(),
+        })
+
+        s = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+        s = s.decode('utf-8')
+
+        return s
 
     def post(self, request):
-        form = AdvancedSearchForm(request.POST)
-
-        systems = []
-        if form.is_valid():
-            features = {}
-
-            for key, value in form.cleaned_data.items():
-                if not value: continue
+        token = request.POST.get('token')
         
-                options = FeatureOption.objects.filter(value__in=value, feature__label=key)
-                feature = Feature.objects.get(label=key)
-                features[feature.id] = list( options.values_list('id', flat=True) )
-                pass
+        if not token:
+            return JsonResponse({ 'status':'missing token'}, status=400)
+        
+        try:
+            payload = jwt.decode(
+                token.encode('utf-8'), 
+                 settings.SECRET_KEY,
+                 algorithms=['HS256']
+            )
+            
+            iss = payload.get('iss')
+            
+            if iss == 'counter:system':
+                pk = payload['pk']
 
-            system_versions = []
-            for feature_id, v in features.items():
-                sv = SystemFeature.objects \
-                    .filter(feature_id=feature_id, options__id__in=v, system__is_current=True) \
-                    .distinct() \
-                    .values_list('system', flat=True)
-    
-                if not sv: continue
-
-                system_versions.append(set(sv))
+                with transaction.atomic():
+                    system = System.objects.select_for_update().get(pk=pk)
+                    system.view_count += 1
+                    system.save()
+                    pass
                 pass
             else:
-                if system_versions:
-                    common_systems = reduce(lambda a, b: a.intersection(b), system_versions)
-                    systems = System.objects \
-                        .filter(
-                            id__in=SystemVersion.objects.filter(id__in=common_systems).values_list('system', flat=True)
-                        )
-                else:
-                    systems = System.objects.all()
+                return JsonResponse({ 'status':('unrecognized counter: %r' % iss)}, status=400)
             pass
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({ 'status':'expired counter'}, status=400)
 
-        return render(request, self.template_name, {
-            'systems': systems.order_by('name'),
-            'form': form,
-        })
+        return JsonResponse({ 'status':'ok' })
 
     pass
 
@@ -298,17 +428,18 @@ class DatabasesEditView(View, LoginRequiredMixin):
             db_version = system_version_form.save(commit=False)
             db_version.creator = request.user
             db_version.system = system
+
             if logo: db_version.logo = logo
-            print( 'db_version', db_version.id )
-            print( 'db_version', db_version.ver )
+            
             db_version.save()
+            system_version_form.save_m2m()
 
             db_meta = system_version_metadata_form.save()
             db_version.meta = db_meta
             db_version.save()
             
             system.ver = db_version.ver
-            system.modified = datetime.now()
+            system.modified = datetime.datetime.now()
             system.save()
 
             db_version.description_citations.clear()
@@ -489,25 +620,15 @@ class SystemView(View):
 
     def get(self, request, slug):
         system = get_object_or_404(System, slug=slug)
-
         system_version = system.current()
+        system_features = SystemFeature.objects.filter(system=system_version).select_related('feature').order_by('feature__label')
 
         return render(request, self.template_name, {
             'system': system,
+            'system_features': system_features,
             'system_version': system_version,
-            'system_features': system_version.features.all()
+            
+            'counter_token': CounterView.build_token('system', pk=system.id),
         })
 
-    pass
-
-class UpdateViewCount(View):
-
-    def get(self, request):
-        slug = request.META['HTTP_REFERER'].split('/')[-2]
-        system = get_object_or_404(System, slug=slug)
-        system.view_count += 1
-        system.save()
-
-        return HttpResponse(b'Ok', status=200)
-    
     pass

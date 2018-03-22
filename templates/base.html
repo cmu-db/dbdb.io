@@ -5,15 +5,19 @@
 	<meta charset="UTF-8">
 	<title>Database of Databases - {% block title %}{% endblock %}</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	{% if counter_token %}
+	<meta name="counter" content="{{ counter_token }}">
+	{% endif %}
 	<link href="{% static 'core/images/favicon.ico' %}" rel="shortcut icon" type="image/x-icon" />
-	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
-	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,700,800' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" href="{% static 'lib/css/bootstrap.css' %}">
-	<link rel="stylesheet" href="{% static 'lib/css/font-awesome.min.css' %}">
-	<link rel="stylesheet" href="{% static 'lib/css/bootstrap-select.css' %}">
-	<link rel="stylesheet" href="{% static 'core/css/base.css' %}">
-	
-	{% block css %}{% endblock %}
+
+	<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,700,800">
+	<link rel="stylesheet" type="text/css" href="https://use.fontawesome.com/releases/v5.0.8/css/solid.css" integrity="sha384-v2Tw72dyUXeU3y4aM2Y0tBJQkGfplr39mxZqlTBDUZAb9BGoC40+rdFCG0m10lXk" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="https://use.fontawesome.com/releases/v5.0.8/css/fontawesome.css" integrity="sha384-q3jl8XQu1OpdLgGFvNRnPdj5VIlCvgsDQTQB6owSOHWlAurxul7f+JpUOVdAiJ5P" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="{% static 'lib/css/bootstrap-select.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'core/css/base.css' %}">
+
+{% block css %}{% endblock %}
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light">
@@ -83,9 +87,9 @@
 	</div>
 </footer>
 
-<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
-<script src="{% static 'lib/js/bootstrap.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <!--

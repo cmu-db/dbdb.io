@@ -111,7 +111,7 @@ class Publication(models.Model):
 
     title = models.CharField(max_length=250)
     authors = models.CharField(blank=True, max_length=250)
-    year = models.IntegerField(null=True)
+    year = models.PositiveIntegerField(blank=True, null=True)
     number = models.IntegerField(default=1, null=True)
     url = models.URLField(blank=True, max_length=500)
 
@@ -204,14 +204,14 @@ class SystemVersion(models.Model):
     description_citations = models.ManyToManyField('CitationUrl', blank=True, related_name='version_descriptions')
     end_year_citations = models.ManyToManyField('CitationUrl', blank=True, related_name='version_end_years')
     history_citations = models.ManyToManyField('CitationUrl', blank=True, related_name='version_histories')
-    projecttypes = models.ManyToManyField('ProjectType', blank=True, related_name='project_types')
+    project_types = models.ManyToManyField('ProjectType', blank=True, related_name='project_types', verbose_name='Project Type')
     start_year_citations = models.ManyToManyField('CitationUrl', blank=True, related_name='version_start_years')
 
     created = models.DateTimeField(default=timezone.now)
     is_current = models.BooleanField(default=True)
     developer = models.CharField(blank=True, max_length=500)
-    start_year = models.CharField(blank=True, max_length=128)
-    end_year = models.CharField(blank=True, max_length=128)
+    start_year = models.PositiveIntegerField(blank=True, null=True)
+    end_year = models.PositiveIntegerField(blank=True, null=True)
     logo = ThumbnailerImageField(blank=True, upload_to='logos/')
     tech_docs = models.URLField(blank=True, max_length=500)
     url = models.URLField(blank=True, max_length=500)
@@ -240,9 +240,9 @@ class SystemVersion(models.Model):
     def get_absolute_url(self):
         return reverse('system_revision_view', args=[self.system.slug, self.ver])
 
-    def project_type_str(self):
-        return ', '.join([str(l) for l in self.project_type.all()])
-    
+    def project_types_str(self):
+        return ', '.join( self.project_types.values_list('name', flat=True) )
+
     def update_version(self):
         created = self.id is None
 

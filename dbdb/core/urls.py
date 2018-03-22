@@ -19,5 +19,5 @@ urlpatterns = [
 
     url(r'^user/create$', views.CreateUser.as_view(), name='create_user'),
 
-    url(r'^update-view-count$', views.UpdateViewCount.as_view(), name='update_view_count'),
+    url(r'^counter$', views.CounterView.as_view(), name='counter'),
 ]

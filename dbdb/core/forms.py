@@ -45,22 +45,6 @@ class TagFieldM2M(MultipleChoiceField):
 
 # forms
 
-class AdvancedSearchForm(forms.Form):
-
-    def __init__(self, *args, **kwargs):
-        super(AdvancedSearchForm, self).__init__(*args, **kwargs)
-        features = Feature.objects.all()
-
-        for feature in features:
-            self.fields[feature.label] = forms.MultipleChoiceField(
-                choices=(
-                    (x, x) for x in FeatureOption.objects.filter(feature=feature)
-                ), required=False
-            )
-        return
-    
-    pass
-
 class SystemFeaturesForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
@@ -209,7 +193,7 @@ class SystemVersionEditForm(forms.ModelForm):
             'start_year_citations',
             'end_year',
             'end_year_citations',
-            'projecttypes',
+            'project_types',
             'comment'
         ]
     
@@ -249,7 +233,7 @@ class SystemVersionForm(forms.ModelForm):
             'start_year_citations',
             'end_year',
             'end_year_citations',
-            'projecttypes',
+            'project_types',
         ]
 
     pass

@@ -168,7 +168,7 @@ class Command(BaseCommand):
 
             for pt_name in db.get('Project Type', []):
                 pt, _ = ProjectType.objects.get_or_create(slug=slugify(pt_name), defaults=dict(name=pt_name))
-                sv.projecttypes.add(pt)
+                sv.project_types.add(pt)
                 pass
 
             sv.save()
