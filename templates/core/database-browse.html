@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% load bootstrap4 %}
+
+{% block title %}
+Browse
+{% endblock %}
+
+
+{% block css %}
+<style>
+#content { padding:40px 0; }
+
+nav.letters { text-align: center; }
+nav.letters.no-results { display:table; width:100%; vertical-align:center; }
+nav.letters.no-results div.letters { display:table-cell; height: 75vh; text-align: center; vertical-align:middle; }
+
+
+div.results { min-height: 60vh; padding:40px 40px 30px 40px; }
+div.results div.version { margin-bottom:20px; max-width:800px; }
+div.results div.version h3 { font-size:20px; margin:0; }
+div.results div.version cite { color:#006621; font-size:13px; font-style:normal; }
+div.results div.version p { margin:0; }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<form id="content" method="GET">
+
+	<nav class="letters {% if not has_results %}no-results{% endif %}" aria-label="Page navigation example">
+		<div class="letters">
+			{% for page in pagination %}
+			<button type="submit" class="btn {% if page.is_active %}btn-primary active{% else %}btn-secondary{% endif %} {% if page.is_disabled %}disabled{% endif %}" name="letter" value="{{ page.letter }}">{{ page.letter }}</button>
+			{% endfor %}
+		</div>
+	</nav>
+	
+	{% if has_results %}
+	<div class="results">
+		{% for version in versions %}
+		<div class="version">
+			<h3><a href="{% url 'system' version.system.slug %}">{{ version.system.name }}</a></h3>
+			
+			<div>
+				<cite>{{ version.href }}</site>
+			</div>
+			
+			<p>{{ version.description|truncatechars_html:500 }}</p>
+		</div>
+		{% endfor %}
+	</div>
+	{% endif %}
+
+</form>
+{% endblock %}
+
+
+{% block scripts %}
+<script src="{% static 'lib/js/bootstrap-select.js' %}"></script>
+
+<script>
+$(document).ready(function () {
+
+	var $filtered_content = $('#filtered_content');
+
+	$('.filter-group').each(function(){
+		var $clear = $('a.clear', this);
+		var $filtergroup = $(this);
+		var $seemore = $('li.see-more', this);
+
+		$clear.click(function(){
+			$filtergroup.find(':checked').prop('checked', false);
+			$filtered_content.submit();
+		});
+
+		$seemore.find('a').click(function(){
+			var $a = $(this);
+			var $ul = $a.closest('ul');
+			var $more = $ul.find('.more');
+
+			if ( $a.hasClass('active') ) {
+				$more.hide();
+				$a.text('Show more');
+				$a.removeClass('active');
+			}
+			else {
+				$more.show();
+				$a.text('Show less');
+				$a.addClass('active');
+			}
+		});
+	});
+
+	$('.filter-group :checkbox').change(function(){
+		$filtered_content.submit();
+	});
+
+});
+</script>
+{% endblock %}
