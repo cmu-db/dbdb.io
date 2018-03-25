@@ -38,7 +38,7 @@
 			{% block navbuttons %}{% endblock %}
 		</ul>
 		
-		{% if request.resolver_match.url_name != "home" %}
+		{% if not no_nav_search %}
 		<form action="{% url 'search' %}" method="GET" class="form-inline form-search my-2 my-lg-0 mr-4">
 			<div class="input-group">
 				<input type="search" class="form-control" placeholder="Search" aria-label="Search" name="q" value="{% if query %}{{ query }}{% endif %}">

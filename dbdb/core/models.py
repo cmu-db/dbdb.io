@@ -167,6 +167,9 @@ class System(models.Model):
         return self.name
 
     def current(self):
+        if self.id is None:
+            return SystemVersion(system=self)
+
         return self.systemversion_set.get(is_current=True)
 
     def get_absolute_url(self):

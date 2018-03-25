@@ -21,6 +21,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.text import smart_split
+from django.utils.text import slugify
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 # third-party imports
@@ -173,6 +174,7 @@ class AdvancedSearchView(View):
             
             'has_search': has_search,
             'q': search_q,
+            'no_nav_search': True,
         })
 
     pass
@@ -299,122 +301,6 @@ class CounterView(View):
 
     pass
 
-class CreateDatabase(View, LoginRequiredMixin):
-
-    template_name = 'core/create-database.html'
-
-    def get(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            raise Http404()
-
-        if 'id' not in kwargs:
-            self.template_name = 'core/create-database.html'
-            context = {
-                'system_form': SystemForm(),
-                'system_version_form': SystemVersionForm(),
-                'system_version_metadata_form': SystemVersionMetadataForm(),
-                'feature_form': SystemFeaturesForm()
-            }
-
-        return render(request, template_name=self.template_name, context=context)
-
-    @transaction.atomic
-    def post(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            raise Http404()
-
-        system_form = SystemForm(request.POST)
-        system_version_form = SystemVersionForm(request.POST)
-        system_version_metadata_form = SystemVersionMetadataForm(
-            request.POST, request.FILES)
-        form = SystemFeaturesForm(request.POST)
-
-        if system_form.is_valid() and system_version_form.is_valid() and \
-                system_version_metadata_form.is_valid() and form.is_valid():
-
-            db = system_form.save()
-            db_version = system_version_form.save(commit=False)
-            db_version.creator = request.user
-            db_version.system = db
-            db_version.save()
-
-            db_meta = system_version_metadata_form.save()
-            db_version.meta = db_meta
-            db_version.save()
-
-            db_version.description_citations.clear()
-            for url in system_version_form.cleaned_data.get('description_citations', []):
-                db_version.description_citations.add(url)
-
-            db_version.history_citations.clear()
-            for url in system_version_form.cleaned_data.get('history_citations', []):
-                db_version.history_citations.add(url)
-
-            db_version.start_year_citations.clear()
-            for url in system_version_form.cleaned_data.get('start_year_citations', []):
-                db_version.start_year_citations.add(url)
-
-            db_version.end_year_citations.clear()
-            for url in system_version_form.cleaned_data.get('end_year_citations', []):
-                db_version.end_year_citations.add(url)
-
-            features = {
-                f.label : f
-                for f in Feature.objects.all()
-            }
-            for field_name, value in form.cleaned_data.items():
-                feature_label = '_'.join( field_name.split('_')[:-1] )
-                print( 'feature_label', feature_label )
-                if '_description' in feature:
-                    feature_obj = Feature.objects.get(label=feature[:-12])
-                    saved, _ = SystemFeature.objects.get_or_create(
-                        system=db_version,
-                        feature=feature_obj
-                    )
-                    saved.description = value
-                    saved.save()
-                elif '_citation' in feature:
-                    feature_obj = Feature.objects.get(label=feature[:-9])
-                    saved, _ = SystemFeature.objects.get_or_create(
-                        system=db_version,
-                        feature=feature_obj
-                    )
-                    saved.citation.clear()
-                    for url in filter(None, value.split(',')):
-                        cit_url, _ = CitationUrl.objects.get_or_create(url=url)
-                        saved.citation.add(cit_url)
-
-                else:
-                    feature_obj = Feature.objects.get(label=feature)
-                    saved = SystemFeature.objects.create(
-                        system=db_version,
-                        feature=feature_obj
-                    )
-                    if isinstance(value, str):
-                        saved.value.add(
-                            FeatureOption.objects.get(
-                                feature=feature_obj,
-                                value=value)
-                        )
-                    else:
-                        for v in value:
-                            saved.value.add(
-                                FeatureOption.objects.get(
-                                    feature=feature_obj,
-                                    value=v)
-                            )
-            return redirect(db_version.system.get_absolute_url())
-        context = {
-            'system_form': system_form,
-            'system_version_form': system_version_form,
-            'system_version_metadata_form': system_version_metadata_form,
-            'feature_form': form
-        }
-
-        return render(request, template_name=self.template_name, context=context)
-
-    pass
-
 class CreateUser(View):
 
     template_name = 'registration/create_user.html'
@@ -445,18 +331,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
 
     template_name = 'core/databases-edit.html'
 
-    def get(self, request, slug):
-        system = System.objects.get(slug=slug)
-        system_version = SystemVersion.objects.get(system=system, is_current=True)
-        system_meta = system_version.meta
-        system_features = system_version.features.all()
-
-        system_form = SystemForm(instance=system)
-        if not request.user.is_superuser:
-            system_form.fields['name'].disabled = True
-
-        feature_form = SystemFeaturesForm(features=system_features)
-        
+    def build_features(self, feature_form):
         features = Feature.objects.all()
         features = collections.OrderedDict(
             (
@@ -477,6 +352,33 @@ class DatabasesEditView(View, LoginRequiredMixin):
             
             features[feature_id][name] = bf
             pass
+        return features
+
+    def get(self, request, slug=None):
+        if slug is None:
+            if not request.user.is_superuser:
+                raise Http404()
+
+            system = System()
+            system_version = SystemVersion(system=system, is_current=True)
+            system_meta = SystemVersionMetadata()
+            system_features = SystemFeature.objects.none()
+            pass
+        else:
+            system = System.objects.get(slug=slug)
+            system_version = SystemVersion.objects.get(system=system, is_current=True)
+            system_meta = system_version.meta
+            system_features = system_version.features.all()
+            pass
+
+        system_form = SystemForm(instance=system)
+
+        if not request.user.is_superuser:
+            system_form.fields['name'].disabled = True
+
+        feature_form = SystemFeaturesForm(features=system_features)
+        
+        features = self.build_features(feature_form)
 
         return render(request, self.template_name, {
             'system_name': system.name,
@@ -489,16 +391,43 @@ class DatabasesEditView(View, LoginRequiredMixin):
         })
 
     @transaction.atomic
-    def post(self, request, slug):
-        system = System.objects.get(slug=slug)
+    def post(self, request, slug=None):
+        if slug is None:
+            if not request.user.is_superuser:
+                raise Http404()
+
+            system = System()
+            system_version = SystemVersion(system=system, is_current=True)
+            system_meta = SystemVersionMetadata()
+            system_features = SystemFeature.objects.none()
+            pass
+        else:
+            system = System.objects.get(slug=slug)
+            system_version = SystemVersion.objects.get(system=system, is_current=True)
+            system_meta = system_version.meta
+            system_features = system_version.features.all()
+            pass
+
+        system_form = SystemForm(request.POST, instance=system)
         system_version_form = SystemVersionEditForm(request.POST, request.FILES)
         system_version_metadata_form = SystemVersionMetadataForm(request.POST)
-        form = SystemFeaturesForm(request.POST)
+        feature_form = SystemFeaturesForm(request.POST, features=system_features)
 
-        if system_version_form.is_valid() and \
-                system_version_metadata_form.is_valid() and \
-                form.is_valid():
-            logo = system.current().logo
+        if system_form.is_valid() and \
+            system_version_form.is_valid() and \
+            system_version_metadata_form.is_valid() and \
+            feature_form.is_valid():
+
+            if request.user.is_superuser:
+                system = system_form.save(commit=False)
+                system.slug = slugify(system.name)
+                system.save()
+                
+                logo = ''
+                pass
+            else:
+                logo = system.current().logo
+                pass
 
             system.systemversion_set.update(is_current=False)
             db_version = system_version_form.save(commit=False)
@@ -538,11 +467,11 @@ class DatabasesEditView(View, LoginRequiredMixin):
                 f.label : f
                 for f in Feature.objects.all()
             }
-            for field_name in form.cleaned_data.keys():
+            for field_name in feature_form.cleaned_data.keys():
                 feature_label = '_'.join( field_name.split('_')[:-1] )
 
                 feature = features[feature_label]
-                value = form.cleaned_data[field_name]
+                value = feature_form.cleaned_data[field_name]
                 
                 if '_description' in field_name:
                     sf, _ = SystemFeature.objects.get_or_create(
@@ -590,34 +519,17 @@ class DatabasesEditView(View, LoginRequiredMixin):
                 pass
 
             return redirect(db_version.system.get_absolute_url())
-        ## IF
-        system_form = SystemForm(instance=system)
-        context = {
+        
+        features = self.build_features(feature_form)
+
+        return render(request, self.template_name, {
+            'system_name': system.name,
             'system_form': system_form,
             'system_version_form': system_version_form,
             'system_version_metadata_form': system_version_metadata_form,
-            'feature_form': form
-        }
-
-        return render(request, template_name=self.template_name, context=context)
-
-    pass
-
-class HomeView(View):
-
-    template_name = 'core/home.html'
-
-    def get(self, request):
-        items_to_show = 5
-        
-        most_edited = System.objects.order_by('-ver', '-name')[:items_to_show]
-        most_recent = System.objects.order_by('-modified')[:items_to_show]
-        most_views = System.objects.order_by('-view_count')[:items_to_show]
-
-        return render(request, self.template_name, context={
-            'most_edited': most_edited,
-            'most_recent': most_recent,
-            'most_views': most_views
+            'feature_form': feature_form,
+            
+            'features': features,
         })
 
     pass
@@ -667,6 +579,27 @@ class DatabaseRevisionView(View):
             'system': system_version.system,
             'system_version': system_version,
             'system_features': system_version.features.all()
+        })
+
+    pass
+
+class HomeView(View):
+
+    template_name = 'core/home.html'
+
+    def get(self, request):
+        items_to_show = 5
+        
+        most_edited = System.objects.order_by('-ver', '-name')[:items_to_show]
+        most_recent = System.objects.order_by('-modified')[:items_to_show]
+        most_views = System.objects.order_by('-view_count')[:items_to_show]
+
+        return render(request, self.template_name, context={
+            'most_edited': most_edited,
+            'most_recent': most_recent,
+            'most_views': most_views,
+            
+            'no_nav_search': True,
         })
 
     pass

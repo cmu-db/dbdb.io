@@ -1,4 +1,4 @@
-import environ
+import environ # http://django-environ.readthedocs.io/
 
 
 root = environ.Path(__file__) - 2
