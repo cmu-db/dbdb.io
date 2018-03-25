@@ -257,7 +257,7 @@ class CounterView(View):
     def build_token(origin, **kwargs):
         payload = dict(kwargs)
         payload.update( {
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=15), # +15 seconds
+            #'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=15), # +15 seconds ## disabled expatriation to allow caching
             'iss': 'counter:{}'.format(origin),
             'nbf': datetime.datetime.utcnow(),
         })
