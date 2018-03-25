@@ -20,7 +20,7 @@
 {% block css %}{% endblock %}
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light">
+<nav class="navbar navbar-expand-lg navbar-dark">
 	<a class="navbar-brand" href="{%  url 'home' %}">Database of Databases</a>
 
 	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,13 +34,20 @@
 				<a class="nav-link btn btn-outline-secondary" href="{% url 'create_database' %}">Create Database</a>
 			</li>
 			{% endif %}
+
 			{% block navbuttons %}{% endblock %}
 		</ul>
 		
 		{% if request.resolver_match.url_name != "home" %}
-		<form action="{% url 'search' %}" method="GET" class="form-inline my-2 my-lg-0 mr-4">
-			<input name="q" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" value="{% if query%}{{ query }}{% endif %}">
-			<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+		<form action="{% url 'search' %}" method="GET" class="form-inline form-search my-2 my-lg-0 mr-4">
+			<div class="input-group">
+				<input type="search" class="form-control" placeholder="Search" aria-label="Search" name="q" value="{% if query %}{{ query }}{% endif %}">
+				<div class="input-group-append">
+					<button class="btn" type="submit">
+						<i class="fas fa-search"></i>
+					</button>
+				</div>
+			</div>
 		</form>
 		{% endif %}
 
@@ -80,10 +87,12 @@
 {% block content %}{% endblock %}
 
 <footer>
-	<div class="footer">
-		<div class="footer-text">
-			<p>Copyright &copy; {% now "Y" %} &bullet; <a href="http://db.cs.cmu.edu">Carnegie Mellon Database Group</a></p>
-		</div>
+	<div class="footer-text">
+		<p>
+			Copyright &copy; {% now "Y" %}
+			&bullet;
+			<a target="_blank" href="http://db.cs.cmu.edu">Carnegie Mellon Database Group</a>
+		</p>
 	</div>
 </footer>
 

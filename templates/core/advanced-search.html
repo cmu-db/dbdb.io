@@ -4,7 +4,7 @@
 {% load bootstrap4 %}
 
 {% block title %}
-Home
+Advanced Search
 {% endblock %}
 
 
@@ -132,7 +132,7 @@ Home
 			{% if has_search %}
 			<p class="empty">no results found</p>
 			{% else %}
-			<p class="empty">enter a search query or choose a filter</p>
+			<p class="empty">enter a search query or choose a filter, or <a href="{% url 'browse' %}">browse databases</a></p>
 			{% endif %}
 			{% endfor %}
 

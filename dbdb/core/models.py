@@ -278,6 +278,9 @@ class SystemVersionMetadata(models.Model):
         system = self.systemversion_set.first()
         return '{} - {} Meta'.format(system.system.name, system.version_number)
 
+    def derived_from_str(self):
+        return ', '.join([str(l) for l in self.derived_from.all()])
+
     def licenses_str(self):
         return ', '.join([str(l) for l in self.licenses.all()])
 

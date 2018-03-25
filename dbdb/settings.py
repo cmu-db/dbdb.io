@@ -1,58 +1,60 @@
-import os
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+import environ
 
 
+root = environ.Path(__file__) - 2
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+env.read_env('.env') # reading .env file
 
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-
-
+BASE_DIR = root()
+DEBUG = env('DEBUG') # False if not in os.environ
 
 # Application definition
 
 INSTALLED_APPS = [
-	'django.contrib.admin',
-	'django.contrib.auth',
-	'django.contrib.contenttypes',
-	'django.contrib.sessions',
-	'django.contrib.messages',
-	'django.contrib.staticfiles',
-	
-	#'autoslug',
-	'bootstrap4',
-	'easy_thumbnails',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    
+    #'autoslug',
+    'bootstrap4',
+    'easy_thumbnails',
 
-	'dbdb.core'
+    'dbdb.core'
 ]
 
 MIDDLEWARE = [
-	'django.middleware.security.SecurityMiddleware',
-	'django.contrib.sessions.middleware.SessionMiddleware',
-	'django.middleware.common.CommonMiddleware',
-	'django.middleware.csrf.CsrfViewMiddleware',
-	'django.contrib.auth.middleware.AuthenticationMiddleware',
-	'django.contrib.messages.middleware.MessageMiddleware',
-	'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 TEMPLATES = [
-	{
-		'BACKEND': 'django.template.backends.django.DjangoTemplates',
-		'DIRS': [ os.path.join(BASE_DIR, 'templates') ],
-		'APP_DIRS': True,
-		'OPTIONS': {
-			'context_processors': [
-				'django.template.context_processors.debug',
-				'django.template.context_processors.request',
-				'django.contrib.auth.context_processors.auth',
-				'django.contrib.messages.context_processors.messages',
-			],
-			'string_if_invalid': 'ERR(%s)' if DEBUG else '',
-		},
-	},
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            root.path('templates')(),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+            'string_if_invalid': 'ERR(%s)' if DEBUG else '',
+        },
+    },
 ]
 
 APPEND_SLASH = False
@@ -67,29 +69,25 @@ WSGI_APPLICATION = 'dbdb.wsgi.application'
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 DATABASES = {
-	'default': {
-		'ENGINE': 'django.db.backends.sqlite3',
-		'NAME': os.path.join(BASE_DIR, 'data', 'db.sqlite3'),
-	}
+    'default': env.db( default='sqlite:///{}'.format( root.path('data/db.sqlite3') ) )
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-	{
-		'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-	},
-	{
-		'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-	},
-	{
-		'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-	},
-	{
-		'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-	},
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
 ]
 
 
@@ -105,24 +103,24 @@ USE_TZ = True
 
 # Media files (uploads)
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = root.path('media')()
 MEDIA_URL = '/media/'
 
 # Security
 
-ALLOWED_HOSTS = ['*']
-SECRET_KEY = 'd^vk$w#a_3v#%fvsz$i)$&@b=ki=cv$$joji_gn-gsh*4w1g_$'
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
+SECRET_KEY = env('SECRET_KEY')
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATICFILES_DIRS = (
-	os.path.join(BASE_DIR, 'static'),
+   root.path('static')(),
 )
 STATICFILES_FINDERS = (
-	'django.contrib.staticfiles.finders.FileSystemFinder',
-	'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 STATIC_ROOT = ''
 STATIC_URL = '/static/'
@@ -131,9 +129,8 @@ STATIC_URL = '/static/'
 # Thumbnails
 
 THUMBNAIL_ALIASES = {
-	'': {
-		'thumb': {'size': (256, 256), 'crop': False},
-		'homepage': {'size': (100, 60), 'crop': False},
-	},
+    '': {
+        'thumb': {'size': (256, 256), 'crop': False},
+        'homepage': {'size': (100, 60), 'crop': False},
+    },
 }
-

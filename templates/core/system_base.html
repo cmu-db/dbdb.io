@@ -141,21 +141,39 @@
 			{% endif %}
 			
 			{% if system_version.start_year %}
-			<div class="card">
+			<div class="card has-citations">
 				<div class="card-body">
-					<h6 class="card-title">Start Year</h6>
-					<p class="card-text">{{ system_version.start_year }}</p>
-					<button type="button" class="btn btn-sm btn-secondary" data-container="body" data-toggle="popover" title="Citations" data-placement="right" data-content="<ul>{% for url in system_version.start_year_citations.all %}<li>{{ url.url }}</li>{% endfor %}</ul>"><i class="fa fa-info-circle"></i></button>
+					<h6 class="card-title">
+						Start Year
+						<a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
+					</h6>
+					<div class="card-text">{{ system_version.start_year }}</div>
+					<cite class="hidden">
+						<ul>
+							{% for citation in system_version.start_year_citations.all %}
+							<li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
+							{% endfor %}
+						</ul>
+					</cite>
 				</div>
 			</div>
 			{% endif %}
-			
+
 			{% if system_version.end_year %}
-			<div class="card">
+			<div class="card has-citations">
 				<div class="card-body">
-					<h6 class="card-title">End Year</h6>
-					<p class="card-text">{{ system_version.end_year }}</p>
-					<button type="button" class="btn btn-secondary" data-container="body" data-toggle="popover" title="Citations" data-placement="right" data-content="<ul>{% for url in system_version.end_year_citations.all %}<li>{{ url.url }}</li>{% endfor %}</ul>"><i class="fa fa-info-circle"></i></button>
+					<h6 class="card-title">
+						End Year
+						<a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
+					</h6>
+					<div class="card-text">{{ system_version.end_year }}</div>
+					<cite class="hidden">
+						<ul>
+							{% for citation in system_version.end_year_citations.all %}
+							<li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
+							{% endfor %}
+						</ul>
+					</cite>
 				</div>
 			</div>
 			{% endif %}
@@ -164,7 +182,7 @@
 			<div class="card">
 				<div class="card-body">
 					<h6 class="card-title">Derived From</h6>
-					<p class="card-text">{{ system_version.meta.derived_from_str }}</p>
+					<div class="card-text">{{ system_version.meta.derived_from_str }}</div>
 				</div>
 			</div>
 			{% endif %}
@@ -173,7 +191,7 @@
 			<div class="card">
 				<div class="card-body">
 					<h6 class="card-title">Operating Systems</h6>
-					<p class="card-text">{{ system_version.meta.oses_str }}</p>
+					<div class="card-text">{{ system_version.meta.oses_str }}</div>
 				</div>
 			</div>
 			{% endif %}
@@ -195,12 +213,16 @@
 				</div>
 			</div>
 			{% endif %}
+			
+			<div class="card card-version">
+				<div class="card-body">
+					Revision #{{ system_version.ver }}
+					&nbsp;&nbsp;|&nbsp;&nbsp;
+					Last updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
+				</div>
+			</div>
 
 		</div>
-	</div>
-	<div class="revision-footer">
-		Revision #{{ system_version.ver }} &bullet;
-		Last Updated: {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
 	</div>
 </div>
 {% endblock %}

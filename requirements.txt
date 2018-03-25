@@ -1,7 +1,9 @@
 Django==2.0.3
 django-autoslug==1.9.3
 django-bootstrap4==0.0.6
+django-environ==0.4.4
 easy-thumbnails==2.5
 Pillow==5.0.0
 PyJWT==1.6.1
 pytz==2018.3
+six==1.11.0

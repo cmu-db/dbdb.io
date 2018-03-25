@@ -6,23 +6,26 @@ body {
 	font-size: 14px;
 	font-family: "Roboto","Open Sans",sans-serif;
 }
+body > div.jumbotron { margin-bottom:0; }
 
-nav {
-	background-color:#417690;
-}
+nav.navbar-dark { background-color:#244A64; color: #fff; }
+nav.navbar-dark .navbar-brand { margin-right: 2rem; }
+nav.navbar-dark ul.navbar-nav > li.nav-item { margin-right:1rem; }
+nav.navbar-dark ul.navbar-nav > li.nav-item a.btn { border:none;  border-bottom: solid 2px transparent; border-radius: 0; padding: .25rem 0.1rem; }
+nav.navbar-dark ul.navbar-nav > li.nav-item a.btn:hover { background-color:transparent; border-bottom: solid 2px #fff;}
+
+nav.navbar-dark form.form-search .btn { background-color: #49AA55; }
 
 section#content { padding:30px 30px; }
 
-.footer {
-	padding: 20px;
-	border-top-color: black;
-	border-top-width: 1px;
-	border-top-style: solid;
+footer {
+	background-color: #292B33;
+	color: #ffffff;
+	padding: 30px 0;
 }
-
-.footer-text {
-  text-align: center;
-}
+footer .footer-text { text-align: center; }
+footer .footer-text a { color: #62B855; }
+footer .footer-text p { margin: 0; }
 
 h6.card-title {
 	font-weight: bold;

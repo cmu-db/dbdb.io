@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^db/create$', views.CreateDatabase.as_view(), name='create_database'),
     url(r'^db/create/(?P<id>\d+)/(?P<kind>meta)/$', views.CreateDatabase.as_view(), name='create_db_meta'),
 
+    url(r'^browse$', views.DatabaseBrowseView.as_view(), name='browse'),
     url(r'^search$', views.SearchView.as_view(), name='search'),
     url(r'^search/advanced$', views.AdvancedSearchView.as_view(), name='advanced_search'),
 

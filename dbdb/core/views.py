@@ -73,6 +73,8 @@ class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) 
 
     pass
 
+LetterPage = collections.namedtuple('LetterPage', ['id','letter','is_active','is_disabled'])
+
 
 # class based views
 
@@ -150,10 +152,13 @@ class AdvancedSearchView(View):
                 .filter(id__in=versions.values_list('id', flat=True)) \
                 .select_related('system') \
                 .order_by('system__name')
+            
+            pagination = None
             pass
         else:
-             versions = SystemVersion.objects.none()
-             pass
+            versions = SystemVersion.objects.none()
+
+            pass
         
         # convert query list to regular list
         versions = list(versions)
@@ -168,6 +173,77 @@ class AdvancedSearchView(View):
             
             'has_search': has_search,
             'q': search_q,
+        })
+
+    pass
+
+class DatabaseBrowseView(View):
+
+    template_name = 'core/database-browse.html'
+
+    def build_pagination(self, letter):
+        letters_alphabet = set(
+            chr(i)
+            for i in range( ord('A') , ord('Z')+1 )
+        )
+        letters_available = set(
+            name.upper()[0]
+            for name in System.objects.all().values_list('name', flat=True)
+        )
+        letters_missing = letters_alphabet.difference( letters_available )
+        letters_all = letters_alphabet.union( letters_available )
+        
+        pagination = list(
+            LetterPage(
+                l,
+                l,
+                l == letter,
+                l not in letters_available
+            )
+            for l in sorted(letters_all)
+        )
+        pagination.append(
+            LetterPage(
+                'ALL',
+                'All',
+                'ALL' == letter,
+                False
+            )
+        )
+        
+        return pagination
+        
+    def get(self, request):
+        has_search = False
+        
+        # pull search criteria
+        search_letter = request.GET.get('letter', '').strip().upper()
+        
+        if search_letter == 'ALL':
+            versions = SystemVersion.objects.all()
+            pass
+        elif search_letter:
+            versions = SystemVersion.objects \
+                .filter( Q(system__name__startswith=search_letter) | Q(system__name__startswith=search_letter.lower()) )
+            pass
+        else:
+            versions = SystemVersion.objects.none()
+            pass
+        pagination = self.build_pagination(search_letter)
+
+        # convert query list to regular list
+        versions = list( versions.order_by('system__name') )
+        # and add href/url to each
+        for version in versions:
+            version.href = request.build_absolute_uri( version.system.get_absolute_url() )
+            pass
+     
+        has_results = len(versions) > 0
+
+        return render(request, self.template_name, {
+            'has_results': has_results,
+            'pagination': pagination,
+            'versions': versions,
         })
 
     pass
@@ -304,8 +380,8 @@ class CreateDatabase(View, LoginRequiredMixin):
                         feature=feature_obj
                     )
                     saved.citation.clear()
-                    for url in value.split(','):
-                        cit_url, _ = CitationUrls.objects.get_or_create(url=url)
+                    for url in filter(None, value.split(',')):
+                        cit_url, _ = CitationUrl.objects.get_or_create(url=url)
                         saved.citation.add(cit_url)
 
                 else:
@@ -484,7 +560,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
                     )
                     
                     sf.citations.clear()
-                    for url in value.split(','):
+                    for url in filter(None, value.split(',')):
                         cit_url, _ = CitationUrl.objects.get_or_create(url=url)
                         sf.citations.add(cit_url)
                         pass
@@ -622,7 +698,7 @@ class SystemView(View):
         system = get_object_or_404(System, slug=slug)
         system_version = system.current()
         system_features = SystemFeature.objects.filter(system=system_version).select_related('feature').order_by('feature__label')
-
+            
         return render(request, self.template_name, {
             'system': system,
             'system_features': system_features,
