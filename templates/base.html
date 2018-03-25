@@ -37,7 +37,7 @@
 
 			{% block navbuttons %}{% endblock %}
 		</ul>
-		
+
 		{% if not no_nav_search %}
 		<form action="{% url 'search' %}" method="GET" class="form-inline form-search my-2 my-lg-0 mr-4">
 			<div class="input-group">
@@ -60,7 +60,7 @@
 					Accounts
 					{% endif %}
 				</a>
-				
+
 				{% if user.is_authenticated %}
 				<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 					<a class="dropdown-item" href="#">Profile</a>
@@ -68,7 +68,7 @@
 					{% if user.is_staff %}
 					<a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a>
 					{% endif %}
-					
+
 					<div class="dropdown-divider"></div>
 					<a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
 				</div>

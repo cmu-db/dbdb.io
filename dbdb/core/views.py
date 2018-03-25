@@ -44,7 +44,7 @@ FieldSet = collections.namedtuple('FieldSet', ['id','label','choices','descripti
 class FilterChoice( collections.namedtuple('FilterChoice', ['id','label','checked']) ):
 
     is_hidden = False
-    
+
     @property
     def sort_key(self):
         return (
@@ -58,10 +58,10 @@ class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) 
 
     has_checked = False
     has_more = False
-    
+
     def prepare(self):
         self.choices.sort(key=lambda fc: fc.sort_key)
-        
+
         for i,choice in enumerate(self.choices):
             self.has_checked = self.has_checked or choice.checked
 
@@ -106,18 +106,18 @@ class AdvancedSearchView(View):
             FeatureOption.objects.all().order_by('value').values_list('feature_id','id','value', named=True),
             filtergroups
         )
-        
+
         filtergroups = filtergroups.values()
-        
+
         for fg in filtergroups:
             fg.prepare()
             pass
-        
+
         return filtergroups
-        
+
     def get(self, request):
         has_search = False
-        
+
         # pull search criteria
         search_q = request.GET.get('q', '').strip()
         search_fg = {
@@ -125,14 +125,14 @@ class AdvancedSearchView(View):
             for k in request.GET.keys()
             if k.startswith('fg')
         }
-        
+
         if search_q or search_fg:
             has_search = True
 
             # only search current versions
             versions = SystemVersion.objects \
                 .filter(is_current=True)
-            
+
             # apply keyword search to name (require all terms)
             if search_q:
                 terms = smart_split( search_q.lower() )
@@ -147,31 +147,31 @@ class AdvancedSearchView(View):
                     features__options__id__in=option_ids
                 )
                 pass
-            
+
             # use generated list of PKs to get actual versions with systems
             versions = SystemVersion.objects \
                 .filter(id__in=versions.values_list('id', flat=True)) \
                 .select_related('system') \
                 .order_by('system__name')
-            
+
             pagination = None
             pass
         else:
             versions = SystemVersion.objects.none()
 
             pass
-        
+
         # convert query list to regular list
         versions = list(versions)
         # and add href/url to each
         for version in versions:
             version.href = request.build_absolute_uri( version.system.get_absolute_url() )
             pass
-     
+
         return render(request, self.template_name, {
             'filtergroups': self.build_filter_groups(request.GET),
             'versions': versions,
-            
+
             'has_search': has_search,
             'q': search_q,
             'no_nav_search': True,
@@ -194,7 +194,7 @@ class DatabaseBrowseView(View):
         )
         letters_missing = letters_alphabet.difference( letters_available )
         letters_all = letters_alphabet.union( letters_available )
-        
+
         pagination = list(
             LetterPage(
                 l,
@@ -212,15 +212,15 @@ class DatabaseBrowseView(View):
                 False
             )
         )
-        
+
         return pagination
-        
+
     def get(self, request):
         has_search = False
-        
+
         # pull search criteria
         search_letter = request.GET.get('letter', '').strip().upper()
-        
+
         if search_letter == 'ALL':
             versions = SystemVersion.objects.all()
             pass
@@ -239,7 +239,7 @@ class DatabaseBrowseView(View):
         for version in versions:
             version.href = request.build_absolute_uri( version.system.get_absolute_url() )
             pass
-     
+
         has_results = len(versions) > 0
 
         return render(request, self.template_name, {
@@ -269,19 +269,19 @@ class CounterView(View):
 
     def post(self, request):
         token = request.POST.get('token')
-        
+
         if not token:
             return JsonResponse({ 'status':'missing token'}, status=400)
-        
+
         try:
             payload = jwt.decode(
-                token.encode('utf-8'), 
+                token.encode('utf-8'),
                  settings.SECRET_KEY,
                  algorithms=['HS256']
             )
-            
+
             iss = payload.get('iss')
-            
+
             if iss == 'counter:system':
                 pk = payload['pk']
 
@@ -324,7 +324,7 @@ class CreateUser(View):
         return render(request, context={
             'form': form
         }, template_name=self.template_name)
-    
+
     pass
 
 class DatabasesEditView(View, LoginRequiredMixin):
@@ -349,14 +349,17 @@ class DatabasesEditView(View, LoginRequiredMixin):
         for bf in feature_form:
             name = bf.name.split('_')[-1]
             feature_id = bf.field.feature_id
-            
+
             features[feature_id][name] = bf
             pass
         return features
 
     def get(self, request, slug=None):
         if slug is None:
-            if not request.user.is_superuser:
+
+            if not request.user.is_authenticated:
+                return redirect( settings.LOGIN_URL + '?next=' + reverse('create_database') )
+            elif not request.user.is_superuser:
                 raise Http404()
 
             system = System()
@@ -377,7 +380,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
             system_form.fields['name'].disabled = True
 
         feature_form = SystemFeaturesForm(features=system_features)
-        
+
         features = self.build_features(feature_form)
 
         return render(request, self.template_name, {
@@ -386,7 +389,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
             'system_version_form': SystemVersionForm(instance=system_version),
             'system_version_metadata_form': SystemVersionMetadataForm(instance=system_meta),
             'feature_form': feature_form,
-            
+
             'features': features,
         })
 
@@ -422,7 +425,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
                 system = system_form.save(commit=False)
                 system.slug = slugify(system.name)
                 system.save()
-                
+
                 logo = ''
                 pass
             else:
@@ -435,16 +438,16 @@ class DatabasesEditView(View, LoginRequiredMixin):
             db_version.system = system
 
             if logo: db_version.logo = logo
-            
+
             db_version.save()
             system_version_form.save_m2m()
 
             db_meta = system_version_metadata_form.save()
             db_version.meta = db_meta
             db_version.save()
-            
+
             system.ver = db_version.ver
-            system.modified = datetime.datetime.now()
+            system.modified = timezone.now()
             system.save()
 
             db_version.description_citations.clear()
@@ -472,13 +475,13 @@ class DatabasesEditView(View, LoginRequiredMixin):
 
                 feature = features[feature_label]
                 value = feature_form.cleaned_data[field_name]
-                
+
                 if '_description' in field_name:
                     sf, _ = SystemFeature.objects.get_or_create(
                         system=db_version,
                         feature=feature
                     )
-                    
+
                     sf.description = value
                     sf.save()
                     pass
@@ -487,7 +490,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
                         system=db_version,
                         feature=feature
                     )
-                    
+
                     sf.citations.clear()
                     for url in filter(None, value.split(',')):
                         cit_url, _ = CitationUrl.objects.get_or_create(url=url)
@@ -499,7 +502,9 @@ class DatabasesEditView(View, LoginRequiredMixin):
                         system=db_version,
                         feature=feature
                     )
-                    if isinstance(value, str):
+                    if not value:
+                        pass
+                    elif isinstance(value, str):
                         sf.options.add(
                             FeatureOption.objects.get(
                                 feature=feature,
@@ -519,7 +524,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
                 pass
 
             return redirect(db_version.system.get_absolute_url())
-        
+
         features = self.build_features(feature_form)
 
         return render(request, self.template_name, {
@@ -528,7 +533,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
             'system_version_form': system_version_form,
             'system_version_metadata_form': system_version_metadata_form,
             'feature_form': feature_form,
-            
+
             'features': features,
         })
 
@@ -589,7 +594,7 @@ class HomeView(View):
 
     def get(self, request):
         items_to_show = 5
-        
+
         most_edited = System.objects.order_by('-ver', '-name')[:items_to_show]
         most_recent = System.objects.order_by('-modified')[:items_to_show]
         most_views = System.objects.order_by('-view_count')[:items_to_show]
@@ -598,7 +603,7 @@ class HomeView(View):
             'most_edited': most_edited,
             'most_recent': most_recent,
             'most_views': most_views,
-            
+
             'no_nav_search': True,
         })
 
@@ -631,12 +636,12 @@ class SystemView(View):
         system = get_object_or_404(System, slug=slug)
         system_version = system.current()
         system_features = SystemFeature.objects.filter(system=system_version).select_related('feature').order_by('feature__label')
-            
+
         return render(request, self.template_name, {
             'system': system,
             'system_features': system_features,
             'system_version': system_version,
-            
+
             'counter_token': CounterView.build_token('system', pk=system.id),
         })
 

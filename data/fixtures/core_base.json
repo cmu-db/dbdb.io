@@ -4,7 +4,7 @@
   "pk": 1,
   "fields": {
     "name": "Linux",
-    "website": "https://www.linuxfoundation.org",
+    "url": "https://www.linuxfoundation.org",
     "slug": "linux"
   }
 },
@@ -13,7 +13,7 @@
   "pk": 2,
   "fields": {
     "name": "Windows",
-    "website": "https://www.microsoft.com/en-us/windows/",
+    "url": "https://www.microsoft.com/en-us/windows/",
     "slug": "windows"
   }
 },
@@ -22,7 +22,7 @@
   "pk": 1,
   "fields": {
     "name": "Python",
-    "website": "http://python.org",
+    "url": "http://python.org",
     "slug": "python"
   }
 },
@@ -31,7 +31,7 @@
   "pk": 2,
   "fields": {
     "name": "Java",
-    "website": "http://oracle.com",
+    "url": "http://oracle.com",
     "slug": "java"
   }
 },
@@ -40,7 +40,7 @@
   "pk": 1,
   "fields": {
     "name": "MIT",
-    "website": "https://opensource.org/licenses/MIT",
+    "url": "https://opensource.org/licenses/MIT",
     "slug": "mit"
   }
 },
@@ -59,7 +59,7 @@
     "title": "CCB",
     "authors": "No Author",
     "bibtex": "",
-    "link": null,
+    "url": "",
     "year": 2008,
     "number": 2,
     "cite": ""

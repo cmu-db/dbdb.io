@@ -5,7 +5,7 @@
   "fields": {
     "name": "SQLite",
     "created": "2017-10-30T23:26:31.207Z",
-    "current_version": 0,
+    "ver": 0,
     "slug": "sqlite",
     "secret_key": "d11e7a07-4c80-44bc-86e4-68e491fe45a8"
   }
@@ -15,21 +15,21 @@
   "pk": 1,
   "fields": {
     "system": 1,
-    "version_number": 1,
+    "ver": 1,
     "is_current": true,
     "created": "2017-10-30T23:26:31.231Z",
     "creator": 1,
     "comment": "",
     "description": "Nice description",
     "history": "",
-    "website": "http://sqlite.com",
+    "url": "http://sqlite.com",
     "tech_docs": "http://docs.sqlite.com",
     "developer": "Sqlite Developer",
     "start_year": "2001",
-    "end_year": "",
+    "end_year": null,
     "logo": "",
     "meta": 1,
-    "project_type": [
+    "project_types": [
       1
     ]
   }
@@ -59,23 +59,23 @@
   }
 },
 {
-  "model": "core.systemfeatures",
+  "model": "core.systemfeature",
   "pk": 1,
   "fields": {
     "system": 1,
     "feature": 1,
-    "value": [
+    "options": [
       3
     ]
   }
 },
 {
-  "model": "core.systemfeatures",
+  "model": "core.systemfeature",
   "pk": 2,
   "fields": {
     "system": 1,
     "feature": 2,
-    "value": [
+    "options": [
       4,
       5
     ]

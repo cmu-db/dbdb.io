@@ -53,7 +53,7 @@ class License(models.Model):
 
     slug = models.SlugField(unique=True)
     name = models.CharField(max_length=32)
-    website = models.URLField(blank=True, max_length=512)
+    url = models.URLField(blank=True, max_length=512)
 
     class Meta:
         ordering = ('name',)
@@ -115,8 +115,8 @@ class Publication(models.Model):
     number = models.IntegerField(default=1, null=True)
     url = models.URLField(blank=True, max_length=500)
 
-    bibtex = models.TextField(default=None, null=True, blank=True)
-    cite = models.TextField(default=None, null=True, blank=True)
+    bibtex = models.TextField(blank=True)
+    cite = models.TextField(blank=True)
 
     def __str__(self):
         return self.title
@@ -324,9 +324,9 @@ __all__ = (
 def systemversion_pre_save(sender, **kwargs):
     instance = kwargs['instance']
     update_fields = kwargs['update_fields']
-   
+
     created = instance.id is None
-    
+
     if created:
         aggregates = SystemVersion.objects.filter(system=instance.system).aggregate(max_ver=Max('ver'))
         max_ver = aggregates['max_ver']
@@ -342,5 +342,5 @@ def systemversion_pre_save(sender, **kwargs):
         instance.system.ver = instance.ver
         instance.system.save()
         pass
-    print( 'system_id,ver', (instance.system_id, instance.ver) )
+
     return
