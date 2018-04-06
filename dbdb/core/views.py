@@ -91,13 +91,13 @@ class AdvancedSearchView(View):
                 FilterChoice(
                     option.id,
                     option.value,
-                    str(option.id) in querydict.getlist( f'fg{option.feature_id}', empty_set )
+                    str(option.id) in querydict.getlist( 'fg{0}'.format(option.feature_id), empty_set )
                 )
             )
             return mapping
 
         filtergroups = collections.OrderedDict(
-            ( f_id, FilterGroup(f'fg{f_id}', f_label, []) )
+            ( f_id, FilterGroup('fg{}'.format(f_id), f_label, []) )
             for f_id,f_label in Feature.objects.all().order_by().values_list('id','label')
         )
 
@@ -337,7 +337,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
             (
                 f.id,
                 {
-                    'id': f'feature_{f.id}',
+                    'id': 'feature_{}'.format(f.id),
                     'label': f.label,
                     'choices': None,
                     'description': None,
