@@ -233,12 +233,10 @@
     "Developer": "Salvatore Sanfilippo",
     
     
-    "Start Date": "First release in 2009-05",
     "Start Date Citations": [
         "https://en.wikipedia.org/wiki/Redis"
     ],
     
-    "End Date": "Latest release in 2017-02, project still being maintained",
     "End Date Citations": [
         "https://en.wikipedia.org/wiki/Redis"
     ],

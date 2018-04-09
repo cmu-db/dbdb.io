@@ -118,9 +118,16 @@ class Command(BaseCommand):
             except User.DoesNotExist:
                 user = User.objects.create_user(username, email, password)
 
-            meta = SystemVersionMetadata.objects.create(
-                derived_from=db.get('Derived From', '')
-            )
+            meta = SystemVersionMetadata.objects.create()
+
+            derived_from = db.get('Derived From')
+            if derived_from:
+                try:
+                    derived_from_system = System.objects.get(name__iexact=derived_from)
+                    meta.derived_from.add( derived_from_system )
+                except System.DoesNotExist:
+                    pass
+                pass
 
             for lang in db.get('Programming Language', []):
                 pl, _ = ProgrammingLanguage.objects.get_or_create(slug=slugify(lang), defaults=dict(name=lang))
@@ -135,14 +142,16 @@ class Command(BaseCommand):
                 meta.oses.add(op_sys)
                 pass
 
+            empty_values = set(('','NA','N/A','Active','Present','YYYY-MM','On-going'))
+
             sv = SystemVersion.objects.create(
                 system=system,
                 creator=user,
                 meta=meta,
 
                 developer=db['Developer'],
-                start_year=db['Start Date'].split('-')[0],
-                end_year=db.get('End Date', '').split('-')[0],
+                start_year=None if ('Start Date' not in db or db['Start Date'] in empty_values) else db['Start Date'].split('-')[0],
+                end_year=None if ('End Date' not in db or db['End Date'] in empty_values) else db.get('End Date', '').split('-')[0],
                 url=db['Website'],
 
                 description=db['Description'],

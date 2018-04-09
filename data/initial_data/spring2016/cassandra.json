@@ -202,13 +202,10 @@
 	],
 
 
-	"End Date": "None / Active",
+	"End Date": "N/A",
 	"End Date Citations": [
 		"https://en.wikipedia.org/wiki/Apache_Cassandra"
 	],
-
-
-	"Derived From": "None",
 
 
 	"Licenses": [
