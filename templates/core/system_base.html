@@ -47,15 +47,6 @@
 			</div>
 			{% endif %}
 			
-			{% if system_version.project_types.exists %}
-			<div class="card">
-				<div class="card-body">
-					<h4 class="card-title">Project Type</h4>
-					<p class="card-text">{{ system_version.project_types_str }}</p>
-				</div>
-			</div>
-			{% endif %}
-			
 			{% if system_version.meta.written_in.exists %}
 			<div class="card">
 				<div class="card-body">
@@ -113,11 +104,11 @@
 
 			{% block extra_sidebar %}{% endblock %}
 
-			{% if system_version.website %}
+			{% if system_version.url %}
 			<div class="card">
 				<div class="card-body">
 					<h6 class="card-title">Website</h6>
-					<p class="card-text"><a href="{{ system_version.website }}">{{ system_version.website }}</a></p>
+					<p class="card-text"><a href="{{ system_version.url }}">{{ system_version.url }}</a></p>
 				</div>
 			</div>
 			{% endif %}
@@ -174,6 +165,15 @@
 							{% endfor %}
 						</ul>
 					</cite>
+				</div>
+			</div>
+			{% endif %}
+			
+            {% if system_version.project_types.exists %}
+			<div class="card">
+				<div class="card-body">
+					<h6 class="card-title">Project Type</h6>
+					<p class="card-text">{{ system_version.project_types_str }}</p>
 				</div>
 			</div>
 			{% endif %}
