@@ -47,24 +47,6 @@
 			</div>
 			{% endif %}
 			
-			{% if system_version.meta.written_in.exists %}
-			<div class="card">
-				<div class="card-body">
-					<h4 class="card-title">Written in</h4>
-					<p class="card-text">{{ system_version.meta.written_in_str }}</p>
-				</div>
-			</div>
-			{% endif %}
-			
-			{% if system_version.meta.supported_languages.exists %}
-			<div class="card">
-				<div class="card-body">
-					<h4 class="card-title">Supported languages</h4>
-					<p class="card-text">{{ system_version.meta.supported_languages_str }}</p>
-				</div>
-			</div>
-			{% endif %}
-			
 			{% for feature in system_features %}
 			{% if feature.options.exists %}
 			<div class="card card-feature has-citations">
@@ -178,6 +160,24 @@
 			</div>
 			{% endif %}
 			
+            {% if system_version.meta.written_in.exists %}
+			<div class="card">
+				<div class="card-body">
+					<h6 class="card-title">Written in</h6>
+					<p class="card-text">{{ system_version.meta.written_in_str }}</p>
+				</div>
+			</div>
+			{% endif %}
+			
+			{% if system_version.meta.supported_languages.exists %}
+			<div class="card">
+				<div class="card-body">
+					<h6 class="card-title">Supported languages</h6>
+					<p class="card-text">{{ system_version.meta.supported_languages_str }}</p>
+				</div>
+			</div>
+			{% endif %}
+
 			{% if system_version.meta.derived_from.exists %}
 			<div class="card">
 				<div class="card-body">
