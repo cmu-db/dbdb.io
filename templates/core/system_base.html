@@ -47,33 +47,6 @@
 			</div>
 			{% endif %}
 			
-			{% if system_version.project_types.exists %}
-			<div class="card">
-				<div class="card-body">
-					<h4 class="card-title">Project Type</h4>
-					<p class="card-text">{{ system_version.project_types_str }}</p>
-				</div>
-			</div>
-			{% endif %}
-			
-			{% if system_version.meta.written_in.exists %}
-			<div class="card">
-				<div class="card-body">
-					<h4 class="card-title">Written in</h4>
-					<p class="card-text">{{ system_version.meta.written_in_str }}</p>
-				</div>
-			</div>
-			{% endif %}
-			
-			{% if system_version.meta.supported_languages.exists %}
-			<div class="card">
-				<div class="card-body">
-					<h4 class="card-title">Supported languages</h4>
-					<p class="card-text">{{ system_version.meta.supported_languages_str }}</p>
-				</div>
-			</div>
-			{% endif %}
-			
 			{% for feature in system_features %}
 			{% if feature.options.exists %}
 			<div class="card card-feature has-citations">
@@ -113,11 +86,11 @@
 
 			{% block extra_sidebar %}{% endblock %}
 
-			{% if system_version.website %}
+			{% if system_version.url %}
 			<div class="card">
 				<div class="card-body">
 					<h6 class="card-title">Website</h6>
-					<p class="card-text"><a href="{{ system_version.website }}">{{ system_version.website }}</a></p>
+					<p class="card-text"><a href="{{ system_version.url }}">{{ system_version.url }}</a></p>
 				</div>
 			</div>
 			{% endif %}
@@ -178,12 +151,44 @@
 			</div>
 			{% endif %}
 			
+            {% if system_version.project_types.exists %}
+			<div class="card">
+				<div class="card-body">
+					<h6 class="card-title">Project Type</h6>
+					<p class="card-text">{{ system_version.project_types_str }}</p>
+				</div>
+			</div>
+			{% endif %}
+			
+            {% if system_version.meta.written_in.exists %}
+			<div class="card">
+				<div class="card-body">
+					<h6 class="card-title">Written in</h6>
+					<p class="card-text">{{ system_version.meta.written_in_str }}</p>
+				</div>
+			</div>
+			{% endif %}
+			
+			{% if system_version.meta.supported_languages.exists %}
+			<div class="card">
+				<div class="card-body">
+					<h6 class="card-title">Supported languages</h6>
+					<p class="card-text">{{ system_version.meta.supported_languages_str }}</p>
+				</div>
+			</div>
+			{% endif %}
+
 			{% if system_version.meta.derived_from.exists %}
 			<div class="card">
 				<div class="card-body">
 					<h6 class="card-title">Derived From</h6>
-					<div class="card-text">{{ system_version.meta.derived_from_str }}</div>
-				</div>
+					<div class="card-text">
+                        {% for derived in system_version.meta.derived_from.all %}
+                        {% if not forloop.first %}, {% endif %}
+                        <a class="card-title" href="{% url 'system' derived.slug %}">{{  derived.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
 			</div>
 			{% endif %}
 			
