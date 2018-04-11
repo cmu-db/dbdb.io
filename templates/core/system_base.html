@@ -182,8 +182,13 @@
 			<div class="card">
 				<div class="card-body">
 					<h6 class="card-title">Derived From</h6>
-					<div class="card-text">{{ system_version.meta.derived_from_str }}</div>
-				</div>
+					<div class="card-text">
+                        {% for derived in system_version.meta.derived_from.all %}
+                        {% if not forloop.first %}, {% endif %}
+                        <a class="card-title" href="{% url 'system' derived.slug %}">{{  derived.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
 			</div>
 			{% endif %}
 			
