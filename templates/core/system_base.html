@@ -9,7 +9,9 @@
 {% block content %}
 <div class="jumbotron">
 	<div class="row justify-content-md-center">
-		<div class="col-md-7">
+	
+        <!-- START: MAIN BODY -->
+		<div class="col-md-7 order-1 order-sm-7 col-xs-7">
 
 			<div class="card has-citations">
 				<div class="card-body">
@@ -75,7 +77,10 @@
 			{% endif %}
 			{% endfor %}
 		</div>
-		<div class="col-md-3">
+		<!-- END: MAIN BODY -->
+		
+		<!-- START: SIDEBAR -->
+		<div class="col-md-3 order-0 order-sm-7 col-xs-7">
 			{% if system_version.logo %}
 			<div class="card">
 				<div class="card-body text-center">
@@ -228,6 +233,8 @@
 			</div>
 
 		</div>
+		<!-- END: SIDEBAR -->
+	
 	</div>
 </div>
 {% endblock %}
