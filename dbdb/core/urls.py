@@ -18,7 +18,7 @@ urlpatterns = [
     url(r'^search$', views.SearchView.as_view(), name='search'),
     url(r'^search/advanced$', views.AdvancedSearchView.as_view(), name='advanced_search'),
 
-    url(r'^user/create$', views.CreateUser.as_view(), name='create_user'),
+    url(r'^user/create[/]?$', views.CreateUser.as_view(), name='create_user'),
 
     url(r'^counter$', views.CounterView.as_view(), name='counter'),
 ]
