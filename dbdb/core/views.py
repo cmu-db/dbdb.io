@@ -426,7 +426,10 @@ class DatabasesEditView(View, LoginRequiredMixin):
                 system.slug = slugify(system.name)
                 system.save()
 
-                logo = ''
+                try:
+                    logo = system.current().logo
+                except SystemVersion.DoesNotExist:
+                    logo = ''
                 pass
             else:
                 logo = system.current().logo
@@ -437,7 +440,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
             db_version.creator = request.user
             db_version.system = system
 
-            if logo: db_version.logo = logo
+            if logo and not db_version.logo: db_version.logo = logo
 
             db_version.save()
             system_version_form.save_m2m()
