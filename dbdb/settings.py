@@ -5,8 +5,7 @@ root = environ.Path(__file__) - 2
 env = environ.Env(
     DEBUG=(bool, False)
 )
-env.read_env('.env') # reading .env file
-
+env.read_env(env_file=root('.env')) # reading .env file
 
 BASE_DIR = root()
 DEBUG = env('DEBUG') # False if not in os.environ
