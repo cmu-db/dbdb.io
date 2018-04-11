@@ -222,10 +222,11 @@ class DatabaseBrowseView(View):
         search_letter = request.GET.get('letter', '').strip().upper()
 
         if search_letter == 'ALL':
-            versions = SystemVersion.objects.all()
+            versions = SystemVersion.objects.filter(is_current=True)
             pass
         elif search_letter:
             versions = SystemVersion.objects \
+                .filter(is_current=True) \
                 .filter( Q(system__name__startswith=search_letter) | Q(system__name__startswith=search_letter.lower()) )
             pass
         else:
