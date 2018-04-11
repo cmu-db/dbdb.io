@@ -221,7 +221,7 @@ class DatabaseBrowseView(View):
         # pull search criteria
         search_letter = request.GET.get('letter', '').strip().upper()
 
-        if search_letter == 'ALL':
+        if search_letter == 'ALL' or not search_letter:
             versions = SystemVersion.objects.filter(is_current=True)
             pass
         elif search_letter:
@@ -229,9 +229,8 @@ class DatabaseBrowseView(View):
                 .filter(is_current=True) \
                 .filter( Q(system__name__startswith=search_letter) | Q(system__name__startswith=search_letter.lower()) )
             pass
-        else:
-            versions = SystemVersion.objects.none()
-            pass
+            #versions = SystemVersion.objects.none()
+            #pass
         pagination = self.build_pagination(search_letter)
 
         # convert query list to regular list
