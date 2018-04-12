@@ -18,7 +18,7 @@ class FeatureAdmin(admin.ModelAdmin):
 
 class SystemAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
-    list_display = ('name', 'created', 'modified', 'ver')
+    list_display = ('name', 'created', 'modified', 'ver', 'view_count')
     list_filter = ['created', 'modified' ]
     search_fields = ('name', )
 
