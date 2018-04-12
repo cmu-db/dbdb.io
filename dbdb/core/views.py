@@ -597,12 +597,16 @@ class HomeView(View):
 
     def get(self, request):
         items_to_show = 5
+        
+        num_systems = System.objects.all().count()
+
 
         most_edited = System.objects.order_by('-ver', '-name')[:items_to_show]
         most_recent = System.objects.order_by('-modified')[:items_to_show]
         most_views = System.objects.order_by('-view_count')[:items_to_show]
 
         return render(request, self.template_name, context={
+            'num_systems': num_systems,
             'most_edited': most_edited,
             'most_recent': most_recent,
             'most_views': most_views,
