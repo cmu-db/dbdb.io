@@ -14,7 +14,6 @@ from dbdb.core.models import System
 from dbdb.core.models import SystemVersion
 from dbdb.core.models import SystemVersionMetadata
 
-
 # fields
 
 class TagFieldM2M(MultipleChoiceField):
@@ -177,7 +176,7 @@ class SystemVersionEditForm(forms.ModelForm):
         help_text="Separate the urls with commas",
         required=False
     )
-
+    
     class Meta:
         model = SystemVersion
         fields = [
@@ -195,6 +194,7 @@ class SystemVersionEditForm(forms.ModelForm):
             'end_year',
             'end_year_citations',
             'project_types',
+            'countries',
             'comment'
         ]
     
@@ -236,6 +236,7 @@ class SystemVersionForm(forms.ModelForm):
             'end_year',
             'end_year_citations',
             'project_types',
+            'countries',
         ]
 
     pass

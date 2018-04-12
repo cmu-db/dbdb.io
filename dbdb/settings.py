@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     #'autoslug',
     'bootstrap4',
     'easy_thumbnails',
+    'django_countries',
 
     'dbdb.core'
 ]
@@ -137,3 +138,6 @@ THUMBNAIL_ALIASES = {
         'homepage': {'size': (100, 60), 'crop': False},
     },
 }
+
+# Django Countries
+COUNTRIES_FIRST = ['US']

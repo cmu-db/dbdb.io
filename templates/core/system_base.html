@@ -127,6 +127,21 @@
 			</div>
 			{% endif %}
 			
+            {% if system_version.countries %}
+            <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
+			<div class="card">
+				<div class="card-body">
+					<h6 class="card-title">Country of Origin</h6>
+					<p class="card-text">
+					{% for country in system_version.countries %}
+					{% if not forloop.first %}, {% endif %}
+					<i class="{{ country.flag_css }}"></i> {{ country }}
+					{% endfor %}
+					</p>
+				</div>
+			</div>
+			{% endif %}
+			
 			{% if system_version.start_year %}
 			<div class="card has-citations">
 				<div class="card-body">

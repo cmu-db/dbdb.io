@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 # third-party imports
 from easy_thumbnails.fields import ThumbnailerImageField
-
+from django_countries.fields import CountryField
 
 # concrete models
 
@@ -221,7 +221,13 @@ class SystemVersion(models.Model):
     url = models.URLField(blank=True, max_length=500,
                           help_text="URL of the DBMS company or project")
     source_url = models.URLField(blank=True, max_length=500,
+                                 verbose_name="Source Code URL",
                                  help_text="URL of where to download source code (if available)")
+    
+    countries = CountryField(blank=True, multiple=True,
+                             verbose_name="Countries of Origin",
+                             help_text="Country of where the DBMS company or project started")
+    
     ver = models.PositiveIntegerField('Version No.', default=1)
 
     description = models.TextField(blank=True, help_text="This field support Markdown Syntax")
@@ -283,7 +289,7 @@ class SystemVersionMetadata(models.Model):
 
     def __str__(self):
         system = self.systemversion_set.first()
-        return '{} - {} Meta'.format(system.system.name, system.version_number)
+        return '{} - {} Meta'.format(system.system.name, system.ver)
 
     def derived_from_str(self):
         return ', '.join([str(l) for l in self.derived_from.all()])
