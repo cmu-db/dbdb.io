@@ -216,8 +216,12 @@ class SystemVersion(models.Model):
     start_year = models.PositiveIntegerField(blank=True, null=True)
     end_year = models.PositiveIntegerField(blank=True, null=True)
     logo = ThumbnailerImageField(blank=True, upload_to='logos/')
-    tech_docs = models.URLField(blank=True, max_length=500)
-    url = models.URLField(blank=True, max_length=500)
+    tech_docs = models.URLField(blank=True, max_length=500,
+                                help_text="URL of the where to find technical documentation about the DBMS")
+    url = models.URLField(blank=True, max_length=500,
+                          help_text="URL of the DBMS company or project")
+    source_url = models.URLField(blank=True, max_length=500,
+                                 help_text="URL of where to download source code (if available)")
     ver = models.PositiveIntegerField('Version No.', default=1)
 
     description = models.TextField(blank=True, help_text="This field support Markdown Syntax")

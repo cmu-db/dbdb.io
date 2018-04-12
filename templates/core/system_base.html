@@ -100,6 +100,15 @@
 			</div>
 			{% endif %}
 			
+            {% if system_version.source_url %}
+			<div class="card">
+				<div class="card-body">
+					<h6 class="card-title">Source Code</h6>
+					<p class="card-text"><a href="{{ system_version.source_url }}">{{ system_version.source_url }}</a></p>
+				</div>
+			</div>
+			{% endif %}
+			
 			{% if system_version.tech_docs %}
 			<div class="card">
 				<div class="card-body">
