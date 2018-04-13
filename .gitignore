@@ -21,4 +21,4 @@ dbdb_io/settings.py
 media/logos/*.jpg
 media/logos/*.png
 .env
-static/admin
+static-live
