@@ -195,6 +195,7 @@ class SystemVersionEditForm(forms.ModelForm):
             'end_year_citations',
             'project_types',
             'countries',
+            'former_names',
             'comment'
         ]
     
@@ -237,6 +238,7 @@ class SystemVersionForm(forms.ModelForm):
             'end_year_citations',
             'project_types',
             'countries',
+            'former_names',
         ]
 
     pass

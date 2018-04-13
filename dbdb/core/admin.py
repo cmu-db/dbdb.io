@@ -21,11 +21,13 @@ class SystemAdmin(admin.ModelAdmin):
     list_display = ('name', 'created', 'modified', 'ver', 'view_count')
     list_filter = ['created', 'modified' ]
     search_fields = ('name', )
+    readonly_fields=('ver', )
 
 class SystemVersionAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
     list_display = ('system', 'ver', 'created')
     list_filter = ['created']
+    readonly_fields=('ver', )
 
 
 # registrations

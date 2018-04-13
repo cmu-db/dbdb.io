@@ -118,6 +118,15 @@
 			</div>
 			{% endif %}
 			
+            {% if system_version.former_names %}
+			<div class="card">
+				<div class="card-body">
+					<h6 class="card-title">Former Names</h6>
+					<p class="card-text">{{ system_version.former_names }}</p>
+				</div>
+			</div>
+			{% endif %}
+			
 			{% if system_version.developer %}
 			<div class="card">
 				<div class="card-body">

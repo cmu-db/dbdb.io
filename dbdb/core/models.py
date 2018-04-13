@@ -228,6 +228,9 @@ class SystemVersion(models.Model):
                              verbose_name="Countries of Origin",
                              help_text="Country of where the DBMS company or project started")
     
+    former_names = models.CharField(blank=True, max_length=100,
+                                    help_text="Previous names of the system")
+    
     ver = models.PositiveIntegerField('Version No.', default=1)
 
     description = models.TextField(blank=True, help_text="This field support Markdown Syntax")
