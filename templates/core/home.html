@@ -3,80 +3,81 @@
 {% load thumbnail %}
 
 {% block title %}
-	Home
+    Home
 {% endblock %}
 
 
 {% block content %}
-<div class="jumbotron">
-	<div class="row justify-content-md-center">
-		<div class="col col-8 text-center">
-			<h1 class="display-3">Database of Databases</h1>
-			<p class="lead">Discover and learn about <b>{{ num_systems }}</b> database management systems</p>
-			<form action="{% url 'search' %}" method="GET" >
-				<div class="form-group">
-					<input type="text" name="q" class="form-control form-control-lg" id="search" aria-describedby="Search field" placeholder="Begin searching!">
-				</div>
-				<p class="lead">
-					<a class="btn btn-link btn-lg" href="{% url 'advanced_search' %}" role="button">Advanced Search</a>
-				</p>
-			</form>
-		</div>
-	</div>
+<div class="container">
+    <div class="row justify-content-md-center homepage-header">
+        <div class="col col-12 text-center">
+            <h1 class="display-3">Database of Databases</h1>
+            <p class="lead">Discover and learn about <b>{{ num_systems }}</b> database management systems</p>
+            <form action="{% url 'search' %}" method="GET" >
+                <div class="form-group">
+                    <input type="text" name="q" class="form-control form-control-lg" id="search" aria-describedby="Search field" placeholder="Begin searching!">
+                </div>
+                <p class="lead">
+                    <a class="btn btn-link btn-lg" href="{% url 'advanced_search' %}" role="button">Advanced Search</a>
+                </p>
+            </form>
+        </div>
+    </div>
 </div>
-<div class="row homepage-list">
-	<div class="col-md-4 text-center">
-		<h3>Most Edited Entry</h3>
-		<table class="table table-hover">
-			<tbody>
-			{% for item in most_edited %}
-				<tr>
-					<td>
-						{% if item.current.logo %}
-						<img src="{{ item.current.logo|thumbnail_url:'homepage' }}" alt="{{ item.name }}" />
-						{% endif %}
-					</td>
-					<td class="homepage-system"><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
-					<!-- <td>{{ item.systemversion__count }}</td> -->
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
+<div class="container">
+    <div class="row homepage-list">
+        <div class="col-md-4 text-center">
+            <h3>Most Edited Entry</h3>
+            <table class="table table-hover">
+                <tbody>
+                {% for item in most_edited %}
+                    <tr>
+                        <td>
+                            {% if item.current.logo %}
+                            <a href="{{ item.get_absolute_url }}"><img src="{{ item.current.logo|thumbnail_url:'homepage' }}" alt="{{ item.name }}" /></a>
+                            {% endif %}
+                        </td>
+                        <td class="homepage-system"><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
 
-	</div>
-	<div class="col-md-4 text-center">
-		<h3>Most Recent</h3>
-		<table class="table table-hover">
-			<tbody>
-			{% for item in most_recent %}
-				<tr>
-					<td class="homepage-logo">
-						{% if item.current.logo %}
-						<img src="{{ item.current.logo|thumbnail_url:'homepage' }}" alt="{{ item.name }}" />
-						{% endif %}
-					</td>
-					<td class="homepage-system"><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-	</div>
-	<div class="col-md-4 text-center">
-		<h3>Most Views</h3>
-		<table class="table table-hover">
-			<tbody>
-			{% for item in most_views %}
-				<tr>
-					<td class="homepage-logo">
-					{% if item.current.logo %}
-						<img src="{{ item.current.logo|thumbnail_url:'homepage' }}" alt="{{ item.name }}" />
-					{% endif %}
-					</td>
-					<td class="homepage-system"><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-	</div>
+        </div>
+        <div class="col-md-4 text-center">
+            <h3>Most Recent</h3>
+            <table class="table table-hover">
+                <tbody>
+                {% for item in most_recent %}
+                    <tr>
+                        <td class="homepage-logo">
+                            {% if item.current.logo %}
+                            <a href="{{ item.get_absolute_url }}"><img src="{{ item.current.logo|thumbnail_url:'homepage' }}" alt="{{ item.name }}" /></a>
+                            {% endif %}
+                        </td>
+                        <td class="homepage-system"><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-4 text-center">
+            <h3>Most Views</h3>
+            <table class="table table-hover">
+                <tbody>
+                {% for item in most_views %}
+                    <tr>
+                        <td class="homepage-logo">
+                        {% if item.current.logo %}
+                            <a href="{{ item.get_absolute_url }}"><img src="{{ item.current.logo|thumbnail_url:'homepage' }}" alt="{{ item.name }}" /></a>
+                        {% endif %}
+                        </td>
+                        <td class="homepage-system"><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 {% endblock %}

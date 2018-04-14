@@ -46,9 +46,21 @@ td.homepage-system {
 	font-weight: bold;
 	text-align: left;
 }
+
+.homepage-header h1 {
+    font-weight: bold;
+}
+div.homepage-header {
+    padding-top: 18px;
+    padding-bottom: 18px;
+}
+
 .homepage-list {
 	margin-right: 0px !important;
 	margin-left: 0px !important;
+}
+.homepage-list td {
+    vertical-align: middle;   
 }
 
 div.sidebar { background-color:#F8F8F8; border-radius:4px; padding:20px; }
@@ -56,3 +68,16 @@ div.sidebar .btn-primary { background-color:#417690; border-color:#417690; color
 div.sidebar .btn-primary:hover { background-color:#205067; border-color:#205067; }
 div.sidebar .btn-default { background-color:#79aec8; border-color:#79aec8; color:#ffffff;}
 div.sidebar .btn-default:hover { background-color:#609AB6; border-color:#609AB6; }
+
+
+@media screen and (max-width: 760px) {
+    .homepage-header h1 {
+        font-size: 250%;
+    }
+    .navbar-brand {
+        font-size: 100%;
+    }
+    .footer-text {
+        font-size: 85%;
+    }
+}
