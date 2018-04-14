@@ -16,6 +16,9 @@ class FeatureOptionsInlines(admin.StackedInline):
 class FeatureAdmin(admin.ModelAdmin):
     inlines = [FeatureOptionsInlines]
 
+class FeatureOptionAdmin(admin.ModelAdmin):
+    list_filter = ['feature']
+
 class SystemAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
     list_display = ('name', 'created', 'modified', 'ver', 'view_count')
@@ -33,7 +36,7 @@ class SystemVersionAdmin(admin.ModelAdmin):
 # registrations
 
 admin.site.register(Feature, FeatureAdmin)
-admin.site.register(FeatureOption)
+admin.site.register(FeatureOption, FeatureOptionAdmin)
 admin.site.register(License)
 admin.site.register(OperatingSystem)
 admin.site.register(ProgrammingLanguage)
