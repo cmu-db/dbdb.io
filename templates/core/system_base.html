@@ -8,267 +8,215 @@
 
 {% block content %}
 <div class="jumbotron">
-	<div class="row justify-content-md-center">
-	
+    <div class="row justify-content-md-center">
+    
         <!-- START: MAIN BODY -->
-		<div class="col-md-7 order-1 order-sm-7 col-xs-7">
+        <div class="col-md-7 order-1 order-sm-7 col-xs-7">
 
-			<div class="card has-citations">
-				<div class="card-body">
-					<h2 class="card-title">
-						{{ system.name }}
-						<a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
-					</h2>
-					<p class="card-text markdown-area">{{ system_version.description }}</p>
-					<cite class="hidden">
-						<ul>
-							{% for citation in system_version.description_citations.all %}
-							<li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
-							{% endfor %}
-						</ul>
-					</cite>
-				</div>
-			</div>
-			
-			{% if system_version.history %}
-			<div class="card has-citations">
-				<div class="card-body">
-					<h4 class="card-title">
-						History
-						<a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
-					</h4>
-					<p class="card-text markdown-area">{{ system_version.history }}</p>
-					<cite class="hidden">
-						<ul>
-							{% for citation in system_version.history_citations.all %}
-							<li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
-							{% endfor %}
-						</ul>
-					</cite>
-				</div>
-			</div>
-			{% endif %}
-			
-			{% for feature in system_features %}
-			{% if feature.options.exists %}
-			<div class="card card-feature has-citations">
-				<div class="card-body">
-					<h4 class="card-title">
-						{{ feature.feature.label }}
-						<a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
-					</h4>
-					<p class="card-text">
-						{% for v in feature.options.all %}
-						<span class="badge badge-info">{{ v }}</span>
-						{% endfor %}
-					</p>
-					<p class="markdown-area">
-						{{ feature.description }}
-					</p>
-					<cite class="hidden">
-						<ul>
-							{% for citation in feature.citations.all %}
-							<li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
-							{% endfor %}
-						</ul>
-					</cite>
-				</div>
-			</div>
-			{% endif %}
-			{% endfor %}
-		</div>
-		<!-- END: MAIN BODY -->
-		
-		<!-- START: SIDEBAR -->
-		<div class="col-md-3 order-0 order-sm-7 col-xs-7">
-			{% if system_version.logo %}
-			<div class="card">
-				<div class="card-body text-center">
-					<img class="img-thumbnail" src="{{ system_version.logo|thumbnail_url:'thumb' }}" style="border:none;">
-				</div>
-			</div>
-			{% endif %}
+            <div class="card has-citations">
+                <div class="card-body">
+                    <h2 class="card-title">
+                        {{ system.name }}
+                        <a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
+                    </h2>
+                    <p class="card-text markdown-area">{{ system_version.description }}</p>
+                    <cite class="hidden">
+                        <ul>
+                            {% for citation in system_version.description_citations.all %}
+                            <li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </cite>
+                </div>
+            </div>
+            
+            {% if system_version.history %}
+            <div class="card has-citations">
+                <div class="card-body">
+                    <h4 class="card-title">
+                        History
+                        <a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
+                    </h4>
+                    <p class="card-text markdown-area">{{ system_version.history }}</p>
+                    <cite class="hidden">
+                        <ul>
+                            {% for citation in system_version.history_citations.all %}
+                            <li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </cite>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% for feature in system_features %}
+            {% if feature.options.exists %}
+            <div class="card card-feature has-citations">
+                <div class="card-body">
+                    <h4 class="card-title">
+                        {{ feature.feature.label }}
+                        <a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
+                    </h4>
+                    <p class="card-text">
+                        {% for v in feature.options.all %}
+                        <span class="badge badge-info">{{ v }}</span>
+                        {% endfor %}
+                    </p>
+                    <p class="markdown-area">
+                        {{ feature.description }}
+                    </p>
+                    <cite class="hidden">
+                        <ul>
+                            {% for citation in feature.citations.all %}
+                            <li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </cite>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <!-- END: MAIN BODY -->
+        
+        <!-- START: SIDEBAR -->
+        <div class="col-md-3 order-0 order-sm-7 col-xs-7">
+            {% if system_version.logo %}
+            <div class="card">
+                <div class="card-body text-center">
+                    <img class="img-thumbnail" src="{{ system_version.logo|thumbnail_url:'thumb' }}" style="border:none;">
+                </div>
+            </div>
+            {% endif %}
 
-			{% block extra_sidebar %}{% endblock %}
+            {% block extra_sidebar %}{% endblock %}
 
-			{% if system_version.url %}
-			<div class="card">
-				<div class="card-body">
-					<h6 class="card-title">Website</h6>
-					<p class="card-text"><a href="{{ system_version.url }}">{{ system_version.url }}</a></p>
-				</div>
-			</div>
-			{% endif %}
-			
-            {% if system_version.source_url %}
-			<div class="card">
-				<div class="card-body">
-					<h6 class="card-title">Source Code</h6>
-					<p class="card-text"><a href="{{ system_version.source_url }}">{{ system_version.source_url }}</a></p>
-				</div>
-			</div>
-			{% endif %}
-			
-			{% if system_version.tech_docs %}
-			<div class="card">
-				<div class="card-body">
-					<h6 class="card-title">Tech Docs</h6>
-					<p class="card-text"><a href="{{ system_version.tech_docs }}">{{ system_version.tech_docs }}</a></p>
-				</div>
-			</div>
-			{% endif %}
-			
-            {% if system_version.former_names %}
-			<div class="card">
-				<div class="card-body">
-					<h6 class="card-title">Former Name</h6>
-					<p class="card-text">{{ system_version.former_names }}</p>
-				</div>
-			</div>
-			{% endif %}
-			
-			{% if system_version.developer %}
-			<div class="card">
-				<div class="card-body">
-					<h6 class="card-title">Developer</h6>
-					<p class="card-text">{{ system_version.developer }}</p>
-				</div>
-			</div>
-			{% endif %}
-			
-            {% if system_version.countries %}
-            <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
-			<div class="card">
-				<div class="card-body">
-					<h6 class="card-title">Country of Origin</h6>
-					<p class="card-text">
-					{% for country in system_version.countries %}
-					{% if not forloop.first %}, {% endif %}
-					<i class="{{ country.flag_css }}"></i> {{ country }}
-					{% endfor %}
-					</p>
-				</div>
-			</div>
-			{% endif %}
-			
-			{% if system_version.start_year %}
-			<div class="card has-citations">
-				<div class="card-body">
-					<h6 class="card-title">
-						Start Year
-						<a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
-					</h6>
-					<div class="card-text">{{ system_version.start_year }}</div>
-					<cite class="hidden">
-						<ul>
-							{% for citation in system_version.start_year_citations.all %}
-							<li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
-							{% endfor %}
-						</ul>
-					</cite>
-				</div>
-			</div>
-			{% endif %}
+            <div class="card has-citations">
+                <div class="card-body">
+                {% if system_version.url %}
+                    <h6 class="card-title">Website</h6>
+                    <p class="card-text"><a href="{{ system_version.url }}">{{ system_version.url }}</a></p>
+                {% endif %}
+            
+                {% if system_version.source_url %}
+                    <h6 class="card-title">Source Code</h6>
+                    <p class="card-text"><a href="{{ system_version.source_url }}">{{ system_version.source_url }}</a></p>
+                {% endif %}
+            
+                {% if system_version.tech_docs %}
+                    <h6 class="card-title">Tech Docs</h6>
+                    <p class="card-text"><a href="{{ system_version.tech_docs }}">{{ system_version.tech_docs }}</a></p>
+                {% endif %}
+            
+                {% if system_version.former_names %}
+                    <h6 class="card-title">Former Name</h6>
+                    <p class="card-text">{{ system_version.former_names }}</p>
+                {% endif %}
+            
+                {% if system_version.developer %}
+                    <h6 class="card-title">Developer</h6>
+                    <p class="card-text">{{ system_version.developer }}</p>
+                {% endif %}
+            
+                {% if system_version.countries %}
+                <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
+                    <h6 class="card-title">Country of Origin</h6>
+                    <p class="card-text">
+                    {% for country in system_version.countries %}
+                    {% if not forloop.first %}, {% endif %}
+                    <i class="{{ country.flag_css }}"></i> {{ country }}
+                    {% endfor %}
+                    </p>
+                {% endif %}
+            
+                {% if system_version.start_year %}
+                    <h6 class="card-title">
+                        Start Year
+                        <a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
+                    </h6>
+                    <p class="card-text">{{ system_version.start_year }}</p>
+                    <cite class="hidden">
+                        <ul>
+                            {% for citation in system_version.start_year_citations.all %}
+                            <li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </cite>
+                {% endif %}
 
-			{% if system_version.end_year %}
-			<div class="card has-citations">
-				<div class="card-body">
-					<h6 class="card-title">
-						End Year
-						<a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
-					</h6>
-					<div class="card-text">{{ system_version.end_year }}</div>
-					<cite class="hidden">
-						<ul>
-							{% for citation in system_version.end_year_citations.all %}
-							<li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
-							{% endfor %}
-						</ul>
-					</cite>
-				</div>
-			</div>
-			{% endif %}
-			
-            {% if system_version.project_types.exists %}
-			<div class="card">
-				<div class="card-body">
-					<h6 class="card-title">Project Type</h6>
-					<p class="card-text">{{ system_version.project_types_str }}</p>
-				</div>
-			</div>
-			{% endif %}
-			
-            {% if system_version.meta.written_in.exists %}
-			<div class="card">
-				<div class="card-body">
-					<h6 class="card-title">Written in</h6>
-					<p class="card-text">{{ system_version.meta.written_in_str }}</p>
-				</div>
-			</div>
-			{% endif %}
-			
-			{% if system_version.meta.supported_languages.exists %}
-			<div class="card">
-				<div class="card-body">
-					<h6 class="card-title">Supported languages</h6>
-					<p class="card-text">{{ system_version.meta.supported_languages_str }}</p>
-				</div>
-			</div>
-			{% endif %}
+                {% if system_version.end_year %}
+                    <h6 class="card-title">
+                        End Year
+                        <a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
+                    </h6>
+                    <p class="card-text">{{ system_version.end_year }}</p>
+                    <cite class="hidden">
+                        <ul>
+                            {% for citation in system_version.end_year_citations.all %}
+                            <li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </cite>
+                {% endif %}
+            
+                {% if system_version.project_types.exists %}
+                    <h6 class="card-title">Project Type</h6>
+                    <p class="card-text">{{ system_version.project_types_str }}</p>
+                {% endif %}
+            
+                {% if system_version.meta.written_in.exists %}
+                    <h6 class="card-title">Written in</h6>
+                    <p class="card-text">{{ system_version.meta.written_in_str }}</p>
+                {% endif %}
+            
+                {% if system_version.meta.supported_languages.exists %}
+                    <h6 class="card-title">Supported languages</h6>
+                    <p class="card-text">{{ system_version.meta.supported_languages_str }}</p>
+                {% endif %}
 
-			{% if system_version.meta.derived_from.exists %}
-			<div class="card">
-				<div class="card-body">
-					<h6 class="card-title">Derived From</h6>
-					<div class="card-text">
+                {% if system_version.meta.derived_from.exists %}
+                    <h6 class="card-title">Derived From</h6>
+                    <p class="card-text">
                         {% for derived in system_version.meta.derived_from.all %}
                         {% if not forloop.first %}, {% endif %}
                         <a class="card-title" href="{% url 'system' derived.slug %}">{{  derived.name }}</a>
                         {% endfor %}
-                    </div>
+                    </p>
+                {% endif %}
+            
+                {% if system_version.meta.oses.exists %}
+                    <h6 class="card-title">Operating Systems</h6>
+                    <p class="card-text">{{ system_version.meta.oses_str }}</p>
+                {% endif %}
+            
+                {% if system_version.meta.licenses.exists %}
+                    <h6 class="card-title">Licenses</h6>
+                    <p class="card-text">{{ system_version.meta.licenses_str }}</p>
+                {% endif %}
                 </div>
-			</div>
-			{% endif %}
-			
-			{% if system_version.meta.oses.exists %}
-			<div class="card">
-				<div class="card-body">
-					<h6 class="card-title">Operating Systems</h6>
-					<div class="card-text">{{ system_version.meta.oses_str }}</div>
-				</div>
-			</div>
-			{% endif %}
-			
-			{% if system_version.meta.licenses.exists %}
-			<div class="card">
-				<div class="card-body">
-					<h6 class="card-title">Licenses</h6>
-					<p class="card-text">{{ system_version.meta.licenses_str }}</p>
-				</div>
-			</div>
-			{% endif %}
-			
-			{% if system_version.meta.publications.exists %}
-			<div class="card">
-				<div class="card-body">
-					<h6 class="card-title">Publications</h6>
-					<p class="card-text">{{ system_version.meta.publications_str }}</p>
-				</div>
-			</div>
-			{% endif %}
-			
-			<div class="card card-version">
-				<div class="card-body">
-					Revision #{{ system_version.ver }}
-					&nbsp;&nbsp;|&nbsp;&nbsp;
-					Last updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
-				</div>
-			</div>
+            </div>
+            
+            {% if system_version.meta.publications.exists %}
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Publications</h6>
+                    <p class="card-text">{{ system_version.meta.publications_str }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card card-version">
+                <div class="card-body">
+                    Revision #{{ system_version.ver }}
+                    &nbsp;&nbsp;|&nbsp;&nbsp;
+                    Last updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
+                </div>
+            </div>
 
-		</div>
-		<!-- END: SIDEBAR -->
-	
-	</div>
+        </div>
+        <!-- END: SIDEBAR -->
+    
+    </div>
 </div>
 {% endblock %}
 
