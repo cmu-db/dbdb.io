@@ -18,7 +18,7 @@ class FeatureAdmin(admin.ModelAdmin):
 
 class FeatureOptionAdmin(admin.ModelAdmin):
     list_filter = ['feature']
-    list_display = ('feature', 'value')
+    list_display = ('value', 'feature')
 
 class SystemAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
