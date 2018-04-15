@@ -44,7 +44,9 @@ Revision {{ system.name }}
 				</tbody>
 			</table>
 
+            {% if user.is_authenticated %}
 			<button class="btn btn-primary" type="submit">Set Current Version</button>
+			{% endif %}
 			{% csrf_token %}
 		</form>
 	</div>
