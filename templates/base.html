@@ -2,107 +2,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<title>Database of Databases - {% block title %}{% endblock %}</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	{% if counter_token %}
-	<meta name="counter" content="{{ counter_token }}">
-	{% endif %}
-	<link href="{% static 'core/images/favicon.ico' %}" rel="shortcut icon" type="image/x-icon" />
+    <meta charset="UTF-8">
+    <title>Database of Databases - {% block title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% if counter_token %}
+    <meta name="counter" content="{{ counter_token }}">
+    {% endif %}
+    <link href="{% static 'core/images/favicon.ico' %}" rel="shortcut icon" type="image/x-icon" />
 
-	<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,700,800">
-	<link rel="stylesheet" type="text/css" href="https://use.fontawesome.com/releases/v5.0.8/css/solid.css" integrity="sha384-v2Tw72dyUXeU3y4aM2Y0tBJQkGfplr39mxZqlTBDUZAb9BGoC40+rdFCG0m10lXk" crossorigin="anonymous">
-	<link rel="stylesheet" type="text/css" href="https://use.fontawesome.com/releases/v5.0.8/css/fontawesome.css" integrity="sha384-q3jl8XQu1OpdLgGFvNRnPdj5VIlCvgsDQTQB6owSOHWlAurxul7f+JpUOVdAiJ5P" crossorigin="anonymous">
-	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-	<link rel="stylesheet" type="text/css" href="{% static 'lib/css/bootstrap-select.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'core/css/base.css' %}">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,700,800">
+    <link rel="stylesheet" type="text/css" href="https://use.fontawesome.com/releases/v5.0.8/css/solid.css" integrity="sha384-v2Tw72dyUXeU3y4aM2Y0tBJQkGfplr39mxZqlTBDUZAb9BGoC40+rdFCG0m10lXk" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://use.fontawesome.com/releases/v5.0.8/css/fontawesome.css" integrity="sha384-q3jl8XQu1OpdLgGFvNRnPdj5VIlCvgsDQTQB6owSOHWlAurxul7f+JpUOVdAiJ5P" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static 'lib/css/bootstrap-select.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'core/css/base.css' %}">
 
 {% block css %}{% endblock %}
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark">
-	<a class="navbar-brand" href="{%  url 'home' %}">Database of Databases</a>
+    <a class="navbar-brand" href="{%  url 'home' %}">Database of Databases</a>
 
-	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-		<span class="navbar-toggler-icon"></span>
-	</button>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
 
-	<div class="collapse navbar-collapse" id="navbarSupportedContent">
-		<ul class="navbar-nav mr-auto">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
                 <a class="nav-link btn btn-outline-secondary" href="{% url 'browse' %}">Browse</a>
             </li>
-			{% if user.is_authenticated and user.is_superuser %}
-			<li class="nav-item active">
-				<a class="nav-link btn btn-outline-secondary" href="{% url 'create_database' %}">Create</a>
-			</li>
-			{% endif %}
+            {% if user.is_authenticated and user.is_superuser %}
+            <li class="nav-item active">
+                <a class="nav-link btn btn-outline-secondary" href="{% url 'create_database' %}">Create</a>
+            </li>
+            {% endif %}
 
-			{% block navbuttons %}{% endblock %}
-		</ul>
+            {% block navbuttons %}{% endblock %}
+        </ul>
 
-		{% if not no_nav_search %}
-		<form action="{% url 'search' %}" method="GET" class="form-inline form-search my-2 my-lg-0 mr-4">
-			<div class="input-group">
-				<input type="search" class="form-control" placeholder="Search" aria-label="Search" name="q" value="{% if query %}{{ query }}{% endif %}">
-				<div class="input-group-append">
-					<button class="btn" type="submit">
-						<i class="fas fa-search"></i>
-					</button>
-				</div>
-			</div>
-		</form>
-		{% endif %}
+        {% if not no_nav_search %}
+        <form action="{% url 'search' %}" method="GET" class="form-inline form-search my-2 my-lg-0 mr-4">
+            <div class="input-group">
+                <input type="search" class="form-control" placeholder="Search" aria-label="Search" name="q" value="{% if query %}{{ query }}{% endif %}">
+                <div class="input-group-append">
+                    <button class="btn" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+        {% endif %}
 
-		<ul class="navbar-nav my-2 my-lg-0 mr-4">
-			<li class="nav-item dropdown">
-				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					{% if user.is_authenticated %}
-					{{ user.username }}
-					{% else %}
-					Accounts
-					{% endif %}
-				</a>
+        <ul class="navbar-nav my-2 my-lg-0 mr-4">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {% if user.is_authenticated %}
+                    {{ user.username }}
+                    {% else %}
+                    Accounts
+                    {% endif %}
+                </a>
 
-				{% if user.is_authenticated %}
-				<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-					<a class="dropdown-item" href="#">Profile</a>
+                {% if user.is_authenticated %}
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="#">Profile</a>
 
-					{% if user.is_staff %}
-					<a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a>
-					{% endif %}
+                    {% if user.is_staff %}
+                    <a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a>
+                    {% endif %}
 
-					<div class="dropdown-divider"></div>
-					<a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
-				</div>
-				{% else %}
-				<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-					<a class="dropdown-item" href="{% url "login" %}">Login</a>
-					<!-- <div class="dropdown-divider"></div> -->
-					<!-- <a class="dropdown-item" href="{% url "create_user" %}">Create Account</a> -->
-				</div>
-				{% endif %}
-			</li>
-		</ul>
-	</div>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                </div>
+                {% else %}
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{% url "login" %}">Login</a>
+                    <!-- <div class="dropdown-divider"></div> -->
+                    <!-- <a class="dropdown-item" href="{% url "create_user" %}">Create Account</a> -->
+                </div>
+                {% endif %}
+            </li>
+        </ul>
+    </div>
 </nav>
 
 {% block content %}{% endblock %}
 
 <footer>
-	<div class="footer-text">
-		<p>
-			Copyright &copy; {% now "Y" %}
-			&bullet;
-			<a target="_blank" href="http://db.cs.cmu.edu">Carnegie Mellon Database Group</a>
-		</p>
-	</div>
+    <div class="footer-text">
+        <p>
+            Copyright &copy; {% now "Y" %}
+            &bullet;
+            <a target="_blank" href="http://db.cs.cmu.edu">Carnegie Mellon Database Group</a>
+        </p>
+    </div>
 </footer>
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
+{% if not user.is_authenticated and user.is_superuser %}
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-4067813-21"></script>
 <script>
@@ -112,6 +113,7 @@
 
   gtag('config', 'UA-4067813-21');
 </script>
+{% endif %}
 
 {% block scripts %}{% endblock %}
 </body>
