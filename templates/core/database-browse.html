@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% load thumbnail %}
+
 
 {% load bootstrap4 %}
 
@@ -27,33 +29,39 @@ div.results div.version p { margin:0; }
 
 
 {% block content %}
-<form id="content" method="GET">
-
-	<nav class="letters {% if not has_results %}no-results{% endif %}" aria-label="Page navigation example">
-		<div class="letters">
-			{% for page in pagination %}
-			<button type="submit" class="btn {% if page.is_active %}btn-primary active{% else %}btn-secondary{% endif %} {% if page.is_disabled %}disabled{% endif %}" name="letter" value="{{ page.letter }}">{{ page.letter }}</button>
-			{% endfor %}
-		</div>
-	</nav>
-	
-	{% if has_results %}
-	<div class="results">
-		{% for version in versions %}
-		<div class="version">
-			<h3><a href="{% url 'system' version.system.slug %}">{{ version.system.name }}</a></h3>
-			
-			<div>
-				<cite>{{ version.href }}</site>
-			</div>
-			
-			<p>{{ version.description|truncatechars_html:500 }}</p>
-		</div>
-		{% endfor %}
-	</div>
-	{% endif %}
-
-</form>
+<div class="main">
+    <div class="container search-results">
+        <div class="row">
+            <form id="content" method="GET">
+            <nav class="letters {% if not has_results %}no-results{% endif %}" aria-label="Page navigation example">
+                <div class="letters">
+                    {% for page in pagination %}
+                    <button type="submit" class="btn {% if page.is_active %}btn-primary active{% else %}btn-secondary{% endif %} {% if page.is_disabled %}disabled{% endif %}" name="letter" value="{{ page.letter }}">{{ page.letter }}</button>
+                    {% endfor %}
+                </div>
+            </nav>
+            </form>
+        </div>
+        <div class="card-columns">
+            {% for version in versions %}
+                <div class="card text-center" style="width: 18rem;">
+                    <a class="card-title" href="{% url 'system' version.system.slug %}">
+                    {% if version.logo %}
+                    <img src="{{ version.logo|thumbnail_url:'search' }}" alt="{{ system.name }}" />
+                    {% else %}
+                    <img class="card-img-top no-logo" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ version.system.name }}" />
+                    {% endif %}
+                    </a>
+                    <div class="card-body">
+                        <a class="card-title" href="{% url 'system' version.system.slug %}"><h5>{{ version.system.name }}</h5></a>
+                        <p class="card-text"><small class="text-muted">Last updated {{ version.created }}</small></p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <!-- END: CARD-COLUMNS -->
+    </div>
+</div>
 {% endblock %}
 
 

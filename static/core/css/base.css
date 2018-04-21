@@ -66,6 +66,12 @@ div.main {
     vertical-align: middle;   
 }
 
+.letters button {
+    font-size: 90%;
+    font-weight: bold;
+}
+
+
 div.sidebar { background-color:#F8F8F8; border-radius:4px; padding:20px; }
 div.sidebar .btn-primary { background-color:#417690; border-color:#417690; color:#ffffff; }
 div.sidebar .btn-primary:hover { background-color:#205067; border-color:#205067; }
