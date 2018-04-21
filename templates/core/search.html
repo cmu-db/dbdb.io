@@ -11,7 +11,7 @@
         <div class="row">
             <div class="col-md-10">
                 {% if systems %}
-                    <h3>Results for "{{ query }}"</h3>
+                    <h3>Found {{ systems.count }} results for "{{ query }}"</h3>
                 {% else %}
                     <h3>No results found for "{{ query }}"</h3>
                 {% endif %}
