@@ -8,6 +8,7 @@
 
 
 {% block content %}
+<div class="main">
 <div class="container">
     <div class="row justify-content-md-center homepage-header">
         <div class="col col-12 text-center">
@@ -26,6 +27,26 @@
 </div>
 <div class="container">
     <div class="row homepage-list">
+        <div class="col-md-4 text-center">
+            <h3>Most Views</h3>
+            <table class="table table-hover">
+                <tbody>
+                {% for item in most_views %}
+                    <tr>
+                        <td class="homepage-logo">
+                            <a href="{{ item.get_absolute_url }}">
+                            {% if item.current.logo %}
+                            <img src="{{ item.current.logo|thumbnail_url:'homepage' }}" alt="{{ item.name }}" />
+                            {% else %}
+                            <img src="{% static 'core/images/database-nologo.svg' %}" alt="{{ item.name }}" />
+                            {% endif %}
+                        </td>
+                        <td class="homepage-system"><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
         <div class="col-md-4 text-center">
             <h3>Most Edited Entry</h3>
             <table class="table table-hover">
@@ -46,7 +67,6 @@
                 {% endfor %}
                 </tbody>
             </table>
-
         </div>
         <div class="col-md-4 text-center">
             <h3>Most Recent</h3>
@@ -68,26 +88,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="col-md-4 text-center">
-            <h3>Most Views</h3>
-            <table class="table table-hover">
-                <tbody>
-                {% for item in most_views %}
-                    <tr>
-                        <td class="homepage-logo">
-                            <a href="{{ item.get_absolute_url }}">
-                            {% if item.current.logo %}
-                            <img src="{{ item.current.logo|thumbnail_url:'homepage' }}" alt="{{ item.name }}" />
-                            {% else %}
-                            <img src="{% static 'core/images/database-nologo.svg' %}" alt="{{ item.name }}" />
-                            {% endif %}
-                        </td>
-                        <td class="homepage-system"><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
     </div>
+</div>
 </div>
 {% endblock %}

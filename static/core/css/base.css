@@ -54,6 +54,9 @@ div.homepage-header {
     padding-top: 18px;
     padding-bottom: 18px;
 }
+div.main {
+    padding-top: 1%;
+}
 
 .homepage-list {
 	margin-right: 0px !important;
@@ -69,6 +72,13 @@ div.sidebar .btn-primary:hover { background-color:#205067; border-color:#205067;
 div.sidebar .btn-default { background-color:#79aec8; border-color:#79aec8; color:#ffffff;}
 div.sidebar .btn-default:hover { background-color:#609AB6; border-color:#609AB6; }
 
+.search-results div.card {
+    padding-top: 8px;
+}
+.search-results img.no-logo {
+    max-height: 125px;
+    max-width: 125px;
+}
 
 @media screen and (max-width: 760px) {
     .homepage-header h1 {

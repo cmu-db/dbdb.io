@@ -1,34 +1,42 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% load thumbnail %}
 
 {% block title %}
-    Home
+    Search Results "{{ query }}"
 {% endblock %}
 {% block content %}
-    <div class="jumbotron">
-        <div class="row justify-content-md-center">
+<div class="main">
+    <div class="container search-results">
+        <div class="row">
             <div class="col-md-10">
                 {% if systems %}
-                <h3>Results for "{{ query }}"</h3>
+                    <h3>Results for "{{ query }}"</h3>
                 {% else %}
-                <h3>No results found for "{{ query }}"</h3>
+                    <h3>No results found for "{{ query }}"</h3>
                 {% endif %}
-                {% for system in systems %}
-                    <div class="card">
-                <div class="card-body">
-                    <a class="card-title" href="{% url 'system' system.slug %}"><h5>{{  system.name }}</h5></a>
-                    <p class="card-text">{{ system.current.description }}</p>
-                </div>
-            </div>
-                {% endfor %}
             </div>
         </div>
-        <div class="row">
+        <div class="card-columns">
             {% for system in systems %}
-                <div class="col-md-3">
-                    <a href="{{ system.get_absolute_url }}">{{ system.name }}</a>
+                <div class="card text-center" style="width: 18rem;">
+                    <a class="card-title" href="{% url 'system' system.slug %}">
+                    {% if system.current.logo %}
+                    <img src="{{ system.current.logo|thumbnail_url:'search' }}" alt="{{ system.name }}" />
+                    {% else %}
+                    <img class="card-img-top no-logo" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ system.name }}" />
+                    {% endif %}
+                    </a>
+                    <div class="card-body">
+                        <a class="card-title" href="{% url 'system' system.slug %}"><h5>{{ system.name }}</h5></a>
+                        <p class="card-text"><small class="text-muted">Last updated {{ system.current.created }}</small></p>
+
+                    </div>
                 </div>
             {% endfor %}
+            </div>
         </div>
     </div>
+    <!-- END: CONTAINER -->
+</div>
 {% endblock %}

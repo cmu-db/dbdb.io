@@ -135,6 +135,7 @@ STATIC_URL = '/static/'
 THUMBNAIL_ALIASES = {
     '': {
         'thumb': {'size': (256, 256), 'crop': False},
+        'search': {'size': (200, 200), 'crop': False},
         'homepage': {'size': (100, 60), 'crop': False},
     },
 }
