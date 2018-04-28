@@ -193,25 +193,6 @@ class AdvancedSearchView(View):
 
     pass
 
-class SearchView(View):
-    template_name = 'core/search.html'
-
-    def get(self, request):
-        query = request.GET.get('q')
-        if query is None:
-            return redirect('home')
-        if not isinstance(query, str):
-            query = query[0]
-
-        systems = System.objects.prefetch_related('systemversion_set').filter(name__icontains=query)
-        context = {
-            'systems': systems,
-            'query': query
-        }
-        return render(request, template_name=self.template_name, context=context)
-
-    pass
-
 class DatabaseBrowseView(View):
 
     template_name = 'core/database-browse.html'
