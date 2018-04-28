@@ -199,43 +199,53 @@ class SystemFeature(models.Model):
     pass
 
 class SystemVersion(models.Model):
-
+    
+    # Internal Version Meta-data
     system = models.ForeignKey('System', models.CASCADE)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT)
     meta = models.ForeignKey('SystemVersionMetadata', models.SET_NULL, blank=True, null=True)
+    ver = models.PositiveIntegerField('Version No.', default=1)
+    is_current = models.BooleanField(default=True)
+    comment = models.TextField(blank=True)
 
+    # Fields with citations
+    description = models.TextField(blank=True, help_text="This field support Markdown Syntax")
     description_citations = models.ManyToManyField('CitationUrl', blank=True, related_name='version_descriptions')
-    end_year_citations = models.ManyToManyField('CitationUrl', blank=True, related_name='version_end_years')
-    history_citations = models.ManyToManyField('CitationUrl', blank=True, related_name='version_histories')
-    project_types = models.ManyToManyField('ProjectType', blank=True, related_name='project_types', verbose_name='Project Type')
+
+    start_year = models.PositiveIntegerField(blank=True, null=True)
     start_year_citations = models.ManyToManyField('CitationUrl', blank=True, related_name='version_start_years')
 
-    created = models.DateTimeField(default=timezone.now)
-    is_current = models.BooleanField(default=True)
-    developer = models.CharField(blank=True, max_length=500)
-    start_year = models.PositiveIntegerField(blank=True, null=True)
     end_year = models.PositiveIntegerField(blank=True, null=True)
-    logo = ThumbnailerImageField(blank=True, upload_to='logos/')
-    tech_docs = models.URLField(blank=True, max_length=500,
-                                help_text="URL of the where to find technical documentation about the DBMS")
-    url = models.URLField(blank=True, max_length=500,
-                          help_text="URL of the DBMS company or project")
-    source_url = models.URLField(blank=True, max_length=500,
-                                 verbose_name="Source Code URL",
-                                 help_text="URL of where to download source code (if available)")
+    end_year_citations = models.ManyToManyField('CitationUrl', blank=True, related_name='version_end_years')
     
+    history = models.TextField(blank=True, help_text="This field support Markdown Syntax")
+    history_citations = models.ManyToManyField('CitationUrl', blank=True, related_name='version_histories')
+
+    acquired_by = models.CharField(blank=True, max_length=32,
+                                    help_text="Name of the company that first acquired the DBMS")
+    acquired_by_citations = models.ManyToManyField('CitationUrl', blank=True, related_name='version_acquired_bys')
+    
+    # General Information Fields
+    project_types = models.ManyToManyField('ProjectType', blank=True, related_name='project_types', verbose_name='Project Type')
+    created = models.DateTimeField(default=timezone.now)
+    developer = models.CharField(blank=True, max_length=500)
+    logo = ThumbnailerImageField(blank=True, upload_to='logos/')
     countries = CountryField(blank=True, multiple=True,
                              verbose_name="Countries of Origin",
                              help_text="Country of where the DBMS company or project started")
-    
     former_names = models.CharField(blank=True, max_length=100,
                                     help_text="Previous names of the system")
     
-    ver = models.PositiveIntegerField('Version No.', default=1)
+    # URLs
+    url = models.URLField(blank=True, max_length=500,
+                          help_text="URL of the DBMS company or project")
+    tech_docs = models.URLField(blank=True, max_length=500,
+                                help_text="URL of the where to find technical documentation about the DBMS")
+    source_url = models.URLField(blank=True, max_length=500,
+                                 verbose_name="Source Code URL",
+                                 help_text="URL of where to download source code (if available)")
 
-    description = models.TextField(blank=True, help_text="This field support Markdown Syntax")
-    history = models.TextField(blank=True, help_text="This field support Markdown Syntax")
-    comment = models.TextField(blank=True)
+
 
     class Meta:
         ordering = ('-ver',)

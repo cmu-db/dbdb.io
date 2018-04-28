@@ -26,6 +26,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 # third-party imports
 import jwt
+from django_countries import countries
 # project imports
 from dbdb.core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm, \
     SystemVersionEditForm
@@ -114,6 +115,7 @@ class AdvancedSearchView(View):
             pass
 
         return filtergroups
+    ## DEF
 
     def get(self, request):
         has_search = False
@@ -125,8 +127,9 @@ class AdvancedSearchView(View):
             for k in request.GET.keys()
             if k.startswith('fg')
         }
+        search_country = request.GET.get('country', '').strip()
 
-        if search_q or search_fg:
+        if search_q or search_fg or search_country:
             has_search = True
 
             # only search current versions
@@ -147,6 +150,16 @@ class AdvancedSearchView(View):
                     features__options__id__in=option_ids
                 )
                 pass
+            ## FOR
+            
+            # Country search
+            if search_country:
+                terms = smart_split( search_country.upper() )
+                # query = [Q(system__countries__in=t) for t in terms]
+                query = Q(countries__in=terms)
+                versions = versions.filter( query )
+            # IF
+                
 
             # use generated list of PKs to get actual versions with systems
             versions = SystemVersion.objects \
@@ -174,8 +187,28 @@ class AdvancedSearchView(View):
 
             'has_search': has_search,
             'q': search_q,
+            'country': search_country,
             'no_nav_search': True,
         })
+
+    pass
+
+class SearchView(View):
+    template_name = 'core/search.html'
+
+    def get(self, request):
+        query = request.GET.get('q')
+        if query is None:
+            return redirect('home')
+        if not isinstance(query, str):
+            query = query[0]
+
+        systems = System.objects.prefetch_related('systemversion_set').filter(name__icontains=query)
+        context = {
+            'systems': systems,
+            'query': query
+        }
+        return render(request, template_name=self.template_name, context=context)
 
     pass
 
@@ -217,11 +250,20 @@ class DatabaseBrowseView(View):
 
     def get(self, request):
         has_search = False
-
-        # pull search criteria
+    
+        # Search String
+        search_query = request.GET.get('q')
+        if search_query is not None and not isinstance(search_query, str):
+            search_query = search_query[0]
+        
+        # Search Letter
         search_letter = request.GET.get('letter', '').strip().upper()
 
-        if search_letter == 'ALL' or not search_letter:
+        if search_query:
+            versions = SystemVersion.objects \
+                .filter(is_current=True) \
+                .filter(system__name__icontains=search_query)
+        elif search_letter == 'ALL' or not search_letter:
             versions = SystemVersion.objects.filter(is_current=True)
             pass
         elif search_letter:
@@ -245,6 +287,7 @@ class DatabaseBrowseView(View):
         return render(request, self.template_name, {
             'has_results': has_results,
             'pagination': pagination,
+            'query': search_query,
             'versions': versions,
         })
 
@@ -616,24 +659,6 @@ class HomeView(View):
 
     pass
 
-class SearchView(View):
-    template_name = 'core/search.html'
-
-    def get(self, request):
-        query = request.GET.get('q')
-        if query is None:
-            return redirect('home')
-        if not isinstance(query, str):
-            query = query[0]
-
-        systems = System.objects.prefetch_related('systemversion_set').filter(name__icontains=query)
-        context = {
-            'systems': systems,
-            'query': query
-        }
-        return render(request, template_name=self.template_name, context=context)
-
-    pass
 
 class SystemView(View):
 

@@ -123,8 +123,8 @@
                     <h6 class="card-title">Country of Origin</h6>
                     <p class="card-text">
                     {% for country in system_version.countries %}
-                    {% if not forloop.first %}, {% endif %}
-                    <i class="{{ country.flag_css }}"></i> {{ country }}
+                    {% if not forloop.first %},{% endif %}
+                    <a href="{% url 'advanced_search' %}?country={{ country.code }}" title="View other systems from {{ country.name }}"><i class="{{ country.flag_css }}"></i> {{ country }}</a>
                     {% endfor %}
                     </p>
                 {% endif %}

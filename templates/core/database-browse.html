@@ -32,6 +32,15 @@ div.results div.version p { margin:0; }
 <div class="main">
     <div class="container search-results">
         <div class="row">
+        {% if query %}
+            <div class="col-md-10">
+            {% if versions %}
+                <h3>Found {{ versions|length }} results for "{{ query }}"</h3>
+            {% else %}
+                <h3>No results found for "{{ query }}"</h3>
+            {% endif %}
+            </div>
+        {% else %}
             <form id="content" method="GET">
             <nav class="letters {% if not has_results %}no-results{% endif %}" aria-label="Page navigation example">
                 <div class="letters">
@@ -41,7 +50,10 @@ div.results div.version p { margin:0; }
                 </div>
             </nav>
             </form>
+        {% endif %}
         </div>
+        
+        <!-- RESULTS -->
         <div class="card-columns">
             {% for version in versions %}
                 <div class="card text-center" style="width: 18rem;">
