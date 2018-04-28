@@ -25,7 +25,7 @@ class SystemAdmin(admin.ModelAdmin):
     list_display = ('name', 'created', 'modified', 'ver', 'view_count')
     list_filter = ['created', 'modified' ]
     search_fields = ('name', )
-    readonly_fields=('ver', )
+    readonly_fields=('ver', 'view_count', 'created', 'modified' )
 
 class SystemVersionAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
