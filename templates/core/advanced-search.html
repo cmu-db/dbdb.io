@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
-
+{% load countries %}
 {% load bootstrap4 %}
 
 {% block title %}
@@ -118,7 +118,15 @@ Advanced Search
 
             {% if has_search %}
                 {% if versions %}
-                    <h3>Found {{ versions|length }} results for "{{ q }}"</h3>
+                    <h3>Found {{ versions|length }} results for
+                    {% if country %}
+                        {% get_country country as country %}
+                        "{{ country.name }}"
+                    {% endif %}
+                    {% if q %}
+                        "{{ q }}"
+                    {% endif %}
+                    </h3>
                 {% else %}
                     <h3>No results found for "{{ q }}"</h3>
                 {% endif %}

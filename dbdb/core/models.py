@@ -101,7 +101,6 @@ class ProjectType(models.Model):
     class Meta:
         ordering = ('name',)
 
-
     def __str__(self):
         return self.name
 
@@ -226,6 +225,9 @@ class SystemVersion(models.Model):
     acquired_by_citations = models.ManyToManyField('CitationUrl', blank=True, related_name='version_acquired_bys')
     
     # General Information Fields
+    project_types = models.ManyToManyField('ProjectType', blank=True, 
+                                           related_name='project_types', 
+                                           verbose_name='Project Type')
     project_types = models.ManyToManyField('ProjectType', blank=True, related_name='project_types', verbose_name='Project Type')
     created = models.DateTimeField(default=timezone.now)
     developer = models.CharField(blank=True, max_length=500)
