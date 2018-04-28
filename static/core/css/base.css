@@ -85,6 +85,9 @@ div.sidebar .btn-default:hover { background-color:#609AB6; border-color:#609AB6;
     max-height: 125px;
     max-width: 125px;
 }
+.search-results .card-title h5 {
+    font-weight: bold;
+}
 
 @media screen and (max-width: 760px) {
     .homepage-header h1 {
