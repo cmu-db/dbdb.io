@@ -11,58 +11,58 @@ Advanced Search
 {% block css %}
 <style>
 #filtered_content {
-	align-content: stretch;
-	align-items: stretch;
-	display: flex;
+    align-content: stretch;
+    align-items: stretch;
+    display: flex;
 }
 
 #filtered_content > section.filters {
-	background-color: #E9ECEF;
-	padding: 10px;
-	width: 400px;
+    background-color: #E9ECEF;
+    padding: 10px;
+    width: 400px;
 }
 #filtered_content > section.filters > h2 {
-	color: #767676;
-	font-size: 18px;
-	margin-bottom: 20px;
+    color: #767676;
+    font-size: 18px;
+    margin-bottom: 20px;
 }
 #filtered_content > section.filters > div.filter-group {
-	margin-top: 10px;
+    margin-top: 10px;
 }
 #filtered_content > section.filters > div.filter-group > h3 {
-	color: #000000;
-	font-size: 14px;
-	font-weight: bold;
-	margin-bottom: 5px;
+    color: #000000;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
 }
 #filtered_content > section.filters > div.filter-group > h3 > a {
-	font-size: 12px;
-	font-weight: normal;
-	display: none;
+    font-size: 12px;
+    font-weight: normal;
+    display: none;
 }
 #filtered_content > section.filters > div.filter-group > h3 > a:hover { text-decoration:none; }
 #filtered_content > section.filters > div.filter-group > h3:hover > a { display: inline; }
 #filtered_content > section.filters > div.filter-group > ul {
-	list-style-type: none;
-	margin: 5px 0 0 5px;
-	padding: 0;
+    list-style-type: none;
+    margin: 5px 0 0 5px;
+    padding: 0;
 }
 #filtered_content > section.filters > div.filter-group > ul > li {
-	font-size: 12px;
-	padding: 1px 0;
+    font-size: 12px;
+    padding: 1px 0;
 }
 #filtered_content > section.filters > div.filter-group > ul > li.more {
-	display:none;
+    display:none;
 }
 #filtered_content > section.filters > div.filter-group > ul > li > label {
-	display:inline;
-	margin:0;
+    display:inline;
+    margin:0;
 }
 
 #filtered_content > section.content {
-	background-color: #FFFFFF;
-	flex-grow: 1;
-	padding: 30px 30px;
+    background-color: #FFFFFF;
+    flex-grow: 1;
+    padding: 30px 30px;
 }
 #filtered_content > section.content p.empty { font-size:2.0em; margin-top:100px; text-align:center; }
 #filtered_content > section.content div.version { margin-bottom:20px; max-width:800px; }
@@ -76,69 +76,64 @@ Advanced Search
 {% block content %}
 <form id="filtered_content" method="GET">
 
-	<section class="filters">
+    <section class="filters">
 
-		<h2>Refine by</h2>
+        <h2>Refine by</h2>
 
-		{% for filtergroup in filtergroups %}
-		<div class="filter-group" id="filtergroup_{{ filtergroup.id }}">
+        {% for filtergroup in filtergroups %}
+        <div class="filter-group" id="filtergroup_{{ filtergroup.id }}">
 
-			<h3>
-				{{ filtergroup.label }}
-				{% if filtergroup.has_checked %}
-				<a href="javascript:;" class="clear" title="clear selected"><i class="fas fa-eraser"></i> clear </a>
-				{% endif %}
-			</h3>
+            <h3>
+                {{ filtergroup.label }}
+                {% if filtergroup.has_checked %}
+                <a href="javascript:;" class="clear" title="clear selected"><i class="fas fa-eraser"></i> clear </a>
+                {% endif %}
+            </h3>
 
-			<ul>
-				{% for choice in filtergroup.choices %}
-				<li {% if choice.is_hidden %}class="more"{% endif %}><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" {% if choice.checked %}checked="checked"{% endif %}> {{ choice.label }}</label></li>
-				{% endfor %}
-				{% if filtergroup.has_more %}
-				<li class="see-more">
-					<a href="javascript:;">Show more</a>
-				</li>
-				{% endif %}
-			</ul>
+            <ul>
+                {% for choice in filtergroup.choices %}
+                <li {% if choice.is_hidden %}class="more"{% endif %}><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" {% if choice.checked %}checked="checked"{% endif %}> {{ choice.label }}</label></li>
+                {% endfor %}
+                {% if filtergroup.has_more %}
+                <li class="see-more">
+                    <a href="javascript:;">Show more</a>
+                </li>
+                {% endif %}
+            </ul>
 
-		</div>
-		{% endfor %}
+        </div>
+        {% endfor %}
 
-	</section>
+    </section>
 
-	<section class="content">
-		<h1>Advanced Search</h1>
+    <section class="content search-results">
+            <h1>Advanced Search</h1>
 
-		<div class="input-group input-group-lg" style=" margin:40px auto 40px auto; width:80%;">
-			<input type="text" class="form-control" placeholder="Begin searching!" aria-label="Begin searching!" aria-describedby="search" name="q" value="{{ q }}">
-			<div class="input-group-append">
-				<span class="input-group-text" id="search">Search</span>
-			</div>
-		</div>
+            <div class="input-group input-group-lg" style=" margin:40px auto 40px auto; width:80%;">
+                <input type="text" class="form-control" placeholder="Begin searching!" aria-label="Begin searching!" aria-describedby="search" name="q" value="{{ q }}">
+                <div class="input-group-append">
+                    <span class="input-group-text" id="search">Search</span>
+                </div>
+            </div>
 
-		<div class="results">
+            {% if has_search %}
+                {% if versions %}
+                    <h3>Found {{ versions|length }} results for "{{ q }}"</h3>
+                {% else %}
+                    <h3>No results found for "{{ q }}"</h3>
+                {% endif %}
+            {% else %}
+                <p class="empty">enter a search query or choose a filter, or <a href="{% url 'browse' %}">browse databases</a></p>
+            {% endif %}
 
-			{% for version in versions %}
-			<div class="version">
-				<h3><a href="{% url 'system' version.system.slug %}">{{ version.system.name }}</a></h3>
-
-				<div>
-					<cite>{{ version.href }}</cite>
-				</div>
-
-				<p>{{ version.description|truncatechars_html:500 }}</p>
-			</div>
-			{% empty %}
-			{% if has_search %}
-			<p class="empty">no results found</p>
-			{% else %}
-			<p class="empty">enter a search query or choose a filter, or <a href="{% url 'browse' %}">browse databases</a></p>
-			{% endif %}
-			{% endfor %}
-
-		</div>
-
-	</section>
+            <!-- RESULTS -->
+            <div class="card-columns">
+                {% for version in versions %}
+                    {% include 'core/version-card.html' %}
+                {% endfor %}
+            </div>
+            <!-- END: CARD-COLUMNS -->
+    </section>
 
 </form>
 {% endblock %}
@@ -150,39 +145,39 @@ Advanced Search
 <script>
 $(document).ready(function () {
 
-	var $filtered_content = $('#filtered_content');
+    var $filtered_content = $('#filtered_content');
 
-	$('.filter-group').each(function(){
-		var $clear = $('a.clear', this);
-		var $filtergroup = $(this);
-		var $seemore = $('li.see-more', this);
+    $('.filter-group').each(function(){
+        var $clear = $('a.clear', this);
+        var $filtergroup = $(this);
+        var $seemore = $('li.see-more', this);
 
-		$clear.click(function(){
-			$filtergroup.find(':checked').prop('checked', false);
-			$filtered_content.submit();
-		});
+        $clear.click(function(){
+            $filtergroup.find(':checked').prop('checked', false);
+            $filtered_content.submit();
+        });
 
-		$seemore.find('a').click(function(){
-			var $a = $(this);
-			var $ul = $a.closest('ul');
-			var $more = $ul.find('.more');
+        $seemore.find('a').click(function(){
+            var $a = $(this);
+            var $ul = $a.closest('ul');
+            var $more = $ul.find('.more');
 
-			if ( $a.hasClass('active') ) {
-				$more.hide();
-				$a.text('Show more');
-				$a.removeClass('active');
-			}
-			else {
-				$more.show();
-				$a.text('Show less');
-				$a.addClass('active');
-			}
-		});
-	});
+            if ( $a.hasClass('active') ) {
+                $more.hide();
+                $a.text('Show more');
+                $a.removeClass('active');
+            }
+            else {
+                $more.show();
+                $a.text('Show less');
+                $a.addClass('active');
+            }
+        });
+    });
 
-	$('.filter-group :checkbox').change(function(){
-		$filtered_content.submit();
-	});
+    $('.filter-group :checkbox').change(function(){
+        $filtered_content.submit();
+    });
 
 });
 </script>

@@ -1,0 +1,16 @@
+{% load staticfiles %}
+{% load thumbnail %}
+
+<div class="card text-center" style="width: 18rem;">
+    <a class="card-title" href="{% url 'system' version.system.slug %}">
+    {% if version.logo %}
+    <img src="{{ version.logo|thumbnail_url:'search' }}" alt="{{ system.name }}" />
+    {% else %}
+    <img class="card-img-top no-logo" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ version.system.name }}" />
+    {% endif %}
+    </a>
+    <div class="card-body">
+        <a class="card-title" href="{% url 'system' version.system.slug %}"><h5>{{ version.system.name }}</h5></a>
+        <p class="card-text"><small class="text-muted">Last updated {{ version.created }}</small></p>
+    </div>
+</div>
