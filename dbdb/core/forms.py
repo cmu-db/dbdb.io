@@ -176,6 +176,10 @@ class SystemVersionEditForm(forms.ModelForm):
         help_text="Separate the urls with commas",
         required=False
     )
+    acquired_by_citations = TagFieldM2M(
+        help_text="Separate the urls with commas",
+        required=False
+    )
     
     class Meta:
         model = SystemVersion
@@ -193,6 +197,8 @@ class SystemVersionEditForm(forms.ModelForm):
             'start_year_citations',
             'end_year',
             'end_year_citations',
+            'acquired_by',
+            'acquired_by_citations',
             'project_types',
             'countries',
             'former_names',
@@ -219,6 +225,10 @@ class SystemVersionForm(forms.ModelForm):
         help_text="Separate the urls with commas",
         required=False
     )
+    acquired_by_citations = TagFieldM2M(
+        help_text="Separate the urls with commas",
+        required=False
+    )
 
     class Meta:
         model = SystemVersion
@@ -236,6 +246,8 @@ class SystemVersionForm(forms.ModelForm):
             'start_year_citations',
             'end_year',
             'end_year_citations',
+            'acquired_by',
+            'acquired_by_citations',
             'project_types',
             'countries',
             'former_names',

@@ -158,6 +158,21 @@
                         </ul>
                     </cite>
                 {% endif %}
+                
+                {% if system_version.acquired_by %}
+                    <h6 class="card-title">
+                        Acquired By
+                        <a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
+                    </h6>
+                    <p class="card-text">{{ system_version.acquired_by }}</p>
+                    <cite class="hidden">
+                        <ul>
+                            {% for citation in system_version.acquired_by_citations.all %}
+                            <li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </cite>
+                {% endif %}
             
                 {% if system_version.project_types.exists %}
                     <h6 class="card-title">Project Type</h6>

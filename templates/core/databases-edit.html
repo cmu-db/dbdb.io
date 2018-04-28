@@ -20,146 +20,157 @@ Edit {{ system_name }}
 {% block content %}
 <form method="POST" enctype="multipart/form-data">
 
-	<div class="row">
+    <div class="row">
 
-		<div class="col-md-10">
-			<section id="content">
-				<h1>Edit Database System</h1>
-				
-				{% bootstrap_form_errors system_form type='non_fields' %}
-				{% bootstrap_form_errors system_version_form type='non_fields' %}
+        <div class="col-md-10">
+            <section id="content">
+                <h1>Edit Database System</h1>
+                
+                {% bootstrap_form_errors system_form type='non_fields' %}
+                {% bootstrap_form_errors system_version_form type='non_fields' %}
 
-				{% bootstrap_form system_form %}
-				
+                {% bootstrap_form system_form %}
+                
                 <div class="row">
-					<div class="col-lg-12">
-						{% bootstrap_field system_version_form.logo %}
-					</div>
-				</div>
+                    <div class="col-lg-12">
+                        {% bootstrap_field system_version_form.logo %}
+                    </div>
+                </div>
 
-				
-				<div class="row">
-					<div class="col-lg-6">
-						{% bootstrap_field system_version_form.url %}
-						{% bootstrap_field system_version_form.developer %}
-						{% bootstrap_field system_version_form.source_url %}
-						{% bootstrap_field system_version_form.tech_docs %}
-						{% bootstrap_field system_version_form.former_names %}
-						{% bootstrap_field system_version_form.project_types form_group_class="form-group multi-select" %}
-					</div>
+                
+                <div class="row">
+                    <div class="col-lg-6">
+                        {% bootstrap_field system_version_form.url %}
+                        {% bootstrap_field system_version_form.developer %}
+                        {% bootstrap_field system_version_form.source_url %}
+                        {% bootstrap_field system_version_form.tech_docs %}
+                        {% bootstrap_field system_version_form.former_names %}
+                        {% bootstrap_field system_version_form.project_types form_group_class="form-group multi-select" %}
+                    </div>
 
-					<div class="col-lg-6">
-						<div class="row">
+                    <div class="col-lg-6">
+                        <div class="row">
 
-							<div class="col-md-6">
-								{% bootstrap_field system_version_form.start_year %}
-							</div>
+                            <div class="col-md-6">
+                                {% bootstrap_field system_version_form.start_year %}
+                            </div>
 
-							<div class="col-md-6">
-								{% bootstrap_field system_version_form.end_year %}
-							</div>
+                            <div class="col-md-6">
+                                {% bootstrap_field system_version_form.end_year %}
+                            </div>
 
-						</div>
-						
-						{% bootstrap_field system_version_form.start_year_citations %}
-						{% bootstrap_field system_version_form.end_year_citations %}
-						{% bootstrap_field system_version_form.countries %}
-					</div>
+                        </div>
+                        
+                        {% bootstrap_field system_version_form.start_year_citations %}
+                        {% bootstrap_field system_version_form.end_year_citations %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                {% bootstrap_field system_version_form.acquired_by %}
+                            </div>
 
-				</div>
-				
-				<div class="row">
+                            <div class="col-md-6">
+                                {% bootstrap_field system_version_form.acquired_by_citations %}
+                            </div>
+                        </div>
+                        
+                        {% bootstrap_field system_version_form.countries %}
+                    </div>
 
-					<div class="col-lg-6">
-						{% bootstrap_field system_version_form.description form_group_class="form-group md-textarea" %}
-						{% bootstrap_field system_version_form.description_citations %}
-					</div>
+                </div>
+                
+                <div class="row">
 
-					<div class="col-lg-6">
-						{% bootstrap_field system_version_form.history form_group_class="form-group md-textarea" %}
-						{% bootstrap_field system_version_form.history_citations %}
-					</div>
+                    <div class="col-lg-6">
+                        {% bootstrap_field system_version_form.description form_group_class="form-group md-textarea" %}
+                        {% bootstrap_field system_version_form.description_citations %}
+                    </div>
 
-				</div>
+                    <div class="col-lg-6">
+                        {% bootstrap_field system_version_form.history form_group_class="form-group md-textarea" %}
+                        {% bootstrap_field system_version_form.history_citations %}
+                    </div>
+
+                </div>
 
 
-				<div class="row">
+                <div class="row">
 
-					<div class="col-md-3">
-						{% bootstrap_field system_version_metadata_form.licenses form_group_class="form-group multi-select" %}
-					</div>
+                    <div class="col-md-3">
+                        {% bootstrap_field system_version_metadata_form.licenses form_group_class="form-group multi-select" %}
+                    </div>
 
-					<div class="col-md-3">
-						{% bootstrap_field system_version_metadata_form.oses form_group_class="form-group multi-select" %}
-					</div>
+                    <div class="col-md-3">
+                        {% bootstrap_field system_version_metadata_form.oses form_group_class="form-group multi-select" %}
+                    </div>
 
-					<div class="col-md-3">
-						{% bootstrap_field system_version_metadata_form.supported_languages form_group_class="form-group multi-select" %}
-					</div>
+                    <div class="col-md-3">
+                        {% bootstrap_field system_version_metadata_form.supported_languages form_group_class="form-group multi-select" %}
+                    </div>
 
-					<div class="col-md-3">
-						{% bootstrap_field system_version_metadata_form.written_in form_group_class="form-group multi-select" %}
-					</div>
+                    <div class="col-md-3">
+                        {% bootstrap_field system_version_metadata_form.written_in form_group_class="form-group multi-select" %}
+                    </div>
 
-				</div>
+                </div>
 
-				<div class="row">
-				
-					<div class="col-md-9">
-						{% bootstrap_field system_version_metadata_form.publications form_group_class="form-group multi-select" %}
-					</div>
+                <div class="row">
+                
+                    <div class="col-md-9">
+                        {% bootstrap_field system_version_metadata_form.publications form_group_class="form-group multi-select" %}
+                    </div>
 
-					<div class="col-md-3">
-						{% bootstrap_field system_version_metadata_form.derived_from form_group_class="form-group multi-select" %}
-					</div>
+                    <div class="col-md-3">
+                        {% bootstrap_field system_version_metadata_form.derived_from form_group_class="form-group multi-select" %}
+                    </div>
 
-				</div>
-			
-				<h2>Features</h2>
+                </div>
+            
+                <h2>Features</h2>
 
-				<div id="features">
+                <div id="features">
 
-					{% for featureset in features.values %}
-					<div class="card" id="{{ featureset.id }}">
-						<div class="card-header" id="{{ featureset.id }}_header">
-							<h5 class="mb-0">
-								<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#{{ featureset.id }}_body" aria-expanded="true" aria-controls="collapseOne">
-									{{ featureset.label }}
-								</button>
-							</h5>
-						</div>
-						<div class="collapse" id="{{ featureset.id }}_body" aria-labelledby="{{ featureset.id }}_header" data-parent="#features">
-							<div class="card-body">
-								{% bootstrap_field featureset.choices form_group_class="form-group multi-select" %}
-								{% bootstrap_field featureset.description form_group_class="form-group md-textarea" %}
-								{% bootstrap_field featureset.citation %}
-							</div>
-						</div>
-					</div>
-					{% endfor %}
+                    {% for featureset in features.values %}
+                    <div class="card" id="{{ featureset.id }}">
+                        <div class="card-header" id="{{ featureset.id }}_header">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#{{ featureset.id }}_body" aria-expanded="true" aria-controls="collapseOne">
+                                    {{ featureset.label }}
+                                </button>
+                            </h5>
+                        </div>
+                        <div class="collapse" id="{{ featureset.id }}_body" aria-labelledby="{{ featureset.id }}_header" data-parent="#features">
+                            <div class="card-body">
+                                {% bootstrap_field featureset.choices form_group_class="form-group multi-select" %}
+                                {% bootstrap_field featureset.description form_group_class="form-group md-textarea" %}
+                                {% bootstrap_field featureset.citation %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
 
-				</div>
+                </div>
 
-			</section>
-		</div>
+            </section>
+        </div>
 
-		<div class="col-md-2">
-			<div class="sidebar sticky-top">
-				<div class="buttons">
-					<button type="submit" class="btn btn-primary" name="action" value="save">Save</button>
-					<button type="submit" class="btn btn-default" name="action" value="cancel">Cancel</button>
-				</div>
-				
-				<hr />
-				
-				<div class="form-group">
-					<label for="id_comment">Revision Comment</label>
-					<textarea name="comment" required rows="4" class="form-control" placeholder="Comment" title="This field support Markdown Syntax" id="id_comment"></textarea>
-				</div>
-			</div>
-		</div>
+        <div class="col-md-2">
+            <div class="sidebar sticky-top">
+                <div class="buttons">
+                    <button type="submit" class="btn btn-primary" name="action" value="save">Save</button>
+                    <button type="submit" class="btn btn-default" name="action" value="cancel">Cancel</button>
+                </div>
+                
+                <hr />
+                
+                <div class="form-group">
+                    <label for="id_comment">Revision Comment</label>
+                    <textarea name="comment" required rows="4" class="form-control" placeholder="Comment" title="This field support Markdown Syntax" id="id_comment"></textarea>
+                </div>
+            </div>
+        </div>
 
-	</div>
+    </div>
 
 {% csrf_token %}
 </form>
@@ -171,7 +182,7 @@ Edit {{ system_name }}
 
 <script>
 $(function(){
-	$('textarea[data-role="tagsinput"]').tagsinput();
+    $('textarea[data-role="tagsinput"]').tagsinput();
 });
 </script>
 {% endblock %}
