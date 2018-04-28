@@ -128,8 +128,10 @@ class AdvancedSearchView(View):
             if k.startswith('fg')
         }
         search_country = request.GET.get('country', '').strip()
+        search_derived = request.GET.get('derived', '').strip()
+        derived = None
 
-        if search_q or search_fg or search_country:
+        if search_q or search_fg or search_country or search_derived:
             has_search = True
 
             # only search current versions
@@ -157,9 +159,20 @@ class AdvancedSearchView(View):
                 terms = smart_split( search_country.upper() )
                 # query = [Q(system__countries__in=t) for t in terms]
                 query = Q(countries__in=terms)
-                versions = versions.filter( query )
+                versions = versions.filter(query)
             # IF
-                
+            
+            # Derived System
+            if search_derived:
+                try:
+                    derived = System.objects.get(slug=search_derived)
+                    versions = versions.filter(meta__derived_from__id=derived.id)
+                    search_derived = derived.name
+                except:
+                    versions = SystemVersion.objects.none()
+                    pass
+                pass
+            # IF
 
             # use generated list of PKs to get actual versions with systems
             versions = SystemVersion.objects \
@@ -186,8 +199,9 @@ class AdvancedSearchView(View):
             'versions': versions,
 
             'has_search': has_search,
-            'q': search_q,
+            'query': search_q,
             'country': search_country,
+            'derived': search_derived,
             'no_nav_search': True,
         })
 

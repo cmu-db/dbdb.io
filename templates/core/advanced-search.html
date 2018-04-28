@@ -110,7 +110,7 @@ Advanced Search
             <h1>Advanced Search</h1>
 
             <div class="input-group input-group-lg" style=" margin:40px auto 40px auto; width:80%;">
-                <input type="text" class="form-control" placeholder="Begin searching!" aria-label="Begin searching!" aria-describedby="search" name="q" value="{{ q }}">
+                <input type="text" class="form-control" placeholder="Begin searching!" aria-label="Begin searching!" aria-describedby="search" name="q" value="{{ query }}">
                 <div class="input-group-append">
                     <span class="input-group-text" id="search">Search</span>
                 </div>
@@ -123,12 +123,26 @@ Advanced Search
                         {% get_country country as country %}
                         "{{ country.name }}"
                     {% endif %}
-                    {% if q %}
-                        "{{ q }}"
+                    {% if derived %}
+                        derived from "{{ derived }}"
+                    {% endif %}
+                    {% if query %}
+                        "{{ query }}"
                     {% endif %}
                     </h3>
                 {% else %}
-                    <h3>No results found for "{{ q }}"</h3>
+                    <h3>No results found for 
+                    {% if country %}
+                        {% get_country country as country %}
+                        "{{ country.name }}"
+                    {% endif %}
+                    {% if derived %}
+                        derived from "{{ derived }}"
+                    {% endif %}
+                    {% if query %}
+                        "{{ query }}"
+                    {% endif %}
+                    </h3>
                 {% endif %}
             {% else %}
                 <p class="empty">enter a search query or choose a filter, or <a href="{% url 'browse' %}">browse databases</a></p>
