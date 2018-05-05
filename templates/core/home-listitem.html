@@ -1,0 +1,14 @@
+{% load staticfiles %}
+{% load thumbnail %}
+
+<tr>
+    <td class="homepage-logo">
+        <a href="{{ item.get_absolute_url }}">
+        {% if item.current.logo %}
+        <img src="{{ item.current.logo|thumbnail_url:'homepage' }}" alt="{{ item.name }}" />
+        {% else %}
+        <img src="{% static 'core/images/database-nologo.svg' %}" alt="{{ item.name }}" />
+        {% endif %}
+    </td>
+    <td class="homepage-system"><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
+</tr>

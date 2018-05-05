@@ -24,6 +24,7 @@ from django.utils.text import smart_split
 from django.utils.text import slugify
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import never_cache
 # third-party imports
 import jwt
 from django_countries import countries
@@ -365,6 +366,7 @@ class CreateUser(View):
 
     pass
 
+
 class DatabasesEditView(View, LoginRequiredMixin):
 
     template_name = 'core/databases-edit.html'
@@ -392,6 +394,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
             pass
         return features
 
+    @never_cache
     def get(self, request, slug=None):
         if slug is None:
 

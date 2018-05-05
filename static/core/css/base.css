@@ -65,6 +65,10 @@ div.main {
 .homepage-list td {
     vertical-align: middle;   
 }
+.homepage-list a {
+    display:block;
+    width:100%;
+}
 
 .letters button {
     font-size: 90%;
@@ -81,13 +85,82 @@ div.sidebar .btn-default:hover { background-color:#609AB6; border-color:#609AB6;
 .search-results div.card {
     padding-top: 8px;
 }
+.search-results div.card:hover {
+    background-color: #ffff99;
+}
+
 .search-results img.no-logo {
     max-height: 125px;
     max-width: 125px;
 }
+.search-results img {
+    max-height: 125px;
+}
 .search-results .card-title h5 {
     font-weight: bold;
 }
+
+#filtered_content {
+    align-content: stretch;
+    align-items: stretch;
+    display: flex;
+}
+
+#filtered_content > section.filters {
+    background-color: #E9ECEF;
+    padding: 10px;
+    width: 400px;
+}
+#filtered_content > section.filters > h2 {
+    color: #767676;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+#filtered_content > section.filters > div.filter-group {
+    margin-top: 10px;
+}
+#filtered_content > section.filters > div.filter-group > h3 {
+    color: #000000;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+#filtered_content > section.filters > div.filter-group > h3 > a {
+    font-size: 12px;
+    font-weight: normal;
+    display: none;
+}
+#filtered_content > section.filters > div.filter-group > h3 > a:hover { text-decoration:none; }
+#filtered_content > section.filters > div.filter-group > h3:hover > a { display: inline; }
+#filtered_content > section.filters > div.filter-group > ul {
+    list-style-type: none;
+    margin: 5px 0 0 5px;
+    padding: 0;
+}
+#filtered_content > section.filters > div.filter-group > ul > li {
+    font-size: 12px;
+    padding: 1px 0;
+}
+#filtered_content > section.filters > div.filter-group > ul > li.more {
+    display:none;
+}
+#filtered_content > section.filters > div.filter-group > ul > li > label {
+    display:inline;
+    margin:0;
+}
+
+#filtered_content > section.content {
+    background-color: #FFFFFF;
+    flex-grow: 1;
+    padding: 30px 30px;
+}
+#filtered_content > section.content p.empty { font-size:2.0em; margin-top:100px; text-align:center; }
+#filtered_content > section.content div.version { margin-bottom:20px; max-width:800px; }
+#filtered_content > section.content div.version h3 { font-size:20px; margin:0; }
+#filtered_content > section.content div.version cite { color:#006621; font-size:13px; font-style:normal; }
+#filtered_content > section.content div.version p { margin:0; }
+
+
 
 @media screen and (max-width: 760px) {
     .homepage-header h1 {
@@ -99,4 +172,11 @@ div.sidebar .btn-default:hover { background-color:#609AB6; border-color:#609AB6;
     .footer-text {
         font-size: 85%;
     }
+    section#content { 
+        padding: 10px 10px;
+    }
+    section#filters {
+        font-size: 85%;
+    }
+
 }
