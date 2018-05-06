@@ -258,7 +258,8 @@ class DatabaseBrowseView(View):
         if search_query:
             versions = SystemVersion.objects \
                 .filter(is_current=True) \
-                .filter(system__name__icontains=search_query)
+                .filter(Q(system__name__icontains=search_query) | \
+                        Q(former_names__icontains=search_query))
         elif search_letter == 'ALL' or not search_letter:
             versions = SystemVersion.objects.filter(is_current=True)
             pass
