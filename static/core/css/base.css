@@ -83,15 +83,15 @@ div.sidebar .btn-default { background-color:#79aec8; border-color:#79aec8; color
 div.sidebar .btn-default:hover { background-color:#609AB6; border-color:#609AB6; }
 
 .search-results div.card {
-    padding-top: 8px;
+    padding: 8px;
 }
 .search-results div.card:hover {
     background-color: #ffff99;
 }
 
 .search-results img.no-logo {
-    max-height: 125px;
-    max-width: 125px;
+/*     max-height: 125px; */
+/*     max-width: 125px; */
 }
 .search-results img {
     max-height: 125px;

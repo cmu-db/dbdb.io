@@ -84,7 +84,7 @@
             {% if system_version.logo %}
             <div class="card">
                 <div class="card-body text-center">
-                    <img class="img-thumbnail" src="{{ system_version.logo|thumbnail_url:'thumb' }}" style="border:none;">
+                    <a href="{{ system_version.logo.url }}"><img class="img-thumbnail" src="{{ system_version.logo|thumbnail_url:'thumb' }}" style="border:none;"></a>
                 </div>
             </div>
             {% endif %}
