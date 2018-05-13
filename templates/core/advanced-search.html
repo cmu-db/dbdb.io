@@ -57,13 +57,18 @@ Advanced Search
 
             {% if has_search %}
                 {% if versions %}
-                    <h3>Found {{ versions|length }} results for
+                    <h3>Found {{ versions|length }} result{% if versions|length > 1 %}s{% endif %} for
                     {% if country %}
                         {% get_country country as country %}
                         "{{ country.name }}"
                     {% endif %}
                     {% if derived %}
-                        derived from "{{ derived }}"
+                        derived from 
+                        {% if derived_system %}
+                            <a href="{% url 'system' derived_system.slug %}">{{ derived_system.name }}</a>
+                        {% else %}
+                            "{{ derived }}"
+                        {% endif %}
                     {% endif %}
                     {% if query %}
                         "{{ query }}"

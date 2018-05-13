@@ -203,6 +203,7 @@ class AdvancedSearchView(View):
             'query': search_q,
             'country': search_country,
             'derived': search_derived,
+            'derived_system': derived,
             'no_nav_search': True,
         })
 
