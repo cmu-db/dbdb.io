@@ -123,9 +123,7 @@
                     <h6 class="card-title">Country of Origin</h6>
                     <p class="card-text">
                     {% for country in system_version.countries %}
-                    {% if not forloop.first %},{% endif %}
-                    <a href="{% url 'advanced_search' %}?country={{ country.code }}" title="View other systems from {{ country.name }}"><i class="{{ country.flag_css }}"></i> {{ country }}</a>
-                    {% endfor %}
+                    {% if not forloop.first %}, {% endif %} <a href="{% url 'advanced_search' %}?country={{ country.code }}" title="View other systems from {{ country.name }}"><i class="{{ country.flag_css }}"></i> {{ country }}</a> {% endfor %}
                     </p>
                 {% endif %}
             
@@ -192,10 +190,7 @@
                 {% if system_version.meta.derived_from.exists %}
                     <h6 class="card-title">Derived From</h6>
                     <p class="card-text">
-                        {% for derived in system_version.meta.derived_from.all %}
-                        {% if not forloop.first %},{% endif %}
-                        <a class="card-title" href="{% url 'advanced_search' %}?derived={{ derived.slug }}" title="View other systems derived from {{ derived.name }}">{{ derived.name }}</a>
-                        {% endfor %}
+                        {% for derived in system_version.meta.derived_from.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'advanced_search' %}?derived={{ derived.slug }}" title="View other systems derived from {{ derived.name }}">{{ derived.name }}</a>{% endfor %}
                     </p>
                 {% endif %}
             
