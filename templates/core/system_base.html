@@ -107,7 +107,7 @@
                     <h6 class="card-title">Tech Docs</h6>
                     <p class="card-text"><a href="{{ system_version.tech_docs }}">{{ system_version.tech_docs }}</a></p>
                 {% endif %}
-            
+                
                 {% if system_version.former_names %}
                     <h6 class="card-title">Former Name</h6>
                     <p class="card-text">{{ system_version.former_names }}</p>
@@ -217,6 +217,12 @@
                     <h6 class="card-title">Licenses</h6>
                     <p class="card-text">{{ system_version.meta.licenses_str }}</p>
                 {% endif %}
+                
+                {% if system_version.wikipedia_url %}
+                    <h6 class="card-title">Wikipedia</h6>
+                    <p class="card-text"><a target="wikipedia" href="{{ system_version.wikipedia_url }}">{{ system_version.wikipedia_url }}</a></p>
+                {% endif %}
+                
                 </div>
             </div>
             

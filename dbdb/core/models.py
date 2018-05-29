@@ -311,7 +311,11 @@ class SystemVersion(models.Model):
         blank=True, max_length=500,
         verbose_name="Source Code URL",
         help_text="URL of where to download source code (if available)")
-
+    
+    wikipedia_url = models.URLField(
+        blank=True, max_length=500,
+        verbose_name="Wikipedia URL",
+        help_text="URL of Wikipedia article about this system (if available)")
 
     class Meta:
         ordering = ('-ver',)

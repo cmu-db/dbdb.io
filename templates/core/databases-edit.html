@@ -44,7 +44,7 @@ Edit {{ system_name }}
                         {% bootstrap_field system_version_form.developer %}
                         {% bootstrap_field system_version_form.source_url %}
                         {% bootstrap_field system_version_form.tech_docs %}
-                        {% bootstrap_field system_version_form.former_names %}
+                        {% bootstrap_field system_version_form.wikipedia_url %}
                         {% bootstrap_field system_version_form.project_types form_group_class="form-group multi-select" %}
                     </div>
 
@@ -63,6 +63,12 @@ Edit {{ system_name }}
                         
                         {% bootstrap_field system_version_form.start_year_citations %}
                         {% bootstrap_field system_version_form.end_year_citations %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                {% bootstrap_field system_version_form.former_names %}
+                            </div>
+                        </div>
                         
                         <div class="row">
                             <div class="col-md-6">
