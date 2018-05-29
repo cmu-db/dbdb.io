@@ -190,7 +190,21 @@
                 {% if system_version.meta.derived_from.exists %}
                     <h6 class="card-title">Derived From</h6>
                     <p class="card-text">
-                        {% for derived in system_version.meta.derived_from.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'advanced_search' %}?derived={{ derived.slug }}" title="View other systems derived from {{ derived.name }}">{{ derived.name }}</a>{% endfor %}
+                        {% for other in system_version.meta.derived_from.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'advanced_search' %}?derived={{ other.slug }}" title="View other systems derived from {{ other.name }}">{{ other.name }}</a>{% endfor %}
+                    </p>
+                {% endif %}
+                
+                {% if system_version.meta.inspired_by.exists %}
+                    <h6 class="card-title">Inspired By</h6>
+                    <p class="card-text">
+                        {% for other in system_version.meta.inspired_by.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'advanced_search' %}?inspired={{ other.slug }}" title="View other systems inspired by {{ other.name }}">{{ other.name }}</a>{% endfor %}
+                    </p>
+                {% endif %}
+                
+                {% if system_version.meta.compatible_with.exists %}
+                    <h6 class="card-title">Compatible With</h6>
+                    <p class="card-text">
+                        {% for other in system_version.meta.compatible_with.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'advanced_search' %}?compatible={{ other.slug }}" title="View other systems compatible with {{ other.name }}">{{ other.name }}</a>{% endfor %}
                     </p>
                 {% endif %}
             

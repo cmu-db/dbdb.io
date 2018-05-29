@@ -14,8 +14,9 @@ from django.utils import timezone
 from easy_thumbnails.fields import ThumbnailerImageField
 from django_countries.fields import CountryField
 
-# concrete models
-
+# ==============================================
+# CitationUrl
+# ==============================================
 class CitationUrl(models.Model):
 
     url = models.URLField(max_length=500)
@@ -25,6 +26,9 @@ class CitationUrl(models.Model):
 
     pass
 
+# ==============================================
+# Feature
+# ==============================================
 class Feature(models.Model):
 
     label = models.CharField(max_length=100, unique=True)
@@ -38,6 +42,9 @@ class Feature(models.Model):
 
     pass
 
+# ==============================================
+# FeatureOption
+# ==============================================
 class FeatureOption(models.Model):
 
     feature = models.ForeignKey('Feature', models.CASCADE)
@@ -49,6 +56,9 @@ class FeatureOption(models.Model):
 
     pass
 
+# ==============================================
+# License
+# ==============================================
 class License(models.Model):
 
     slug = models.SlugField(unique=True)
@@ -64,6 +74,9 @@ class License(models.Model):
 
     pass
 
+# ==============================================
+# OperatingSystem
+# ==============================================
 class OperatingSystem(models.Model):
 
     slug = models.SlugField(unique=True)
@@ -79,6 +92,9 @@ class OperatingSystem(models.Model):
 
     pass
 
+# ==============================================
+# ProgrammingLanguage
+# ==============================================
 class ProgrammingLanguage(models.Model):
 
     slug = models.SlugField(unique=True)
@@ -93,6 +109,9 @@ class ProgrammingLanguage(models.Model):
 
     pass
 
+# ==============================================
+# ProjectType
+# ==============================================
 class ProjectType(models.Model):
 
     slug = models.SlugField(unique=True)
@@ -106,6 +125,9 @@ class ProjectType(models.Model):
 
     pass
 
+# ==============================================
+# Publication
+# ==============================================
 class Publication(models.Model):
 
     title = models.CharField(max_length=250)
@@ -122,6 +144,9 @@ class Publication(models.Model):
 
     pass
 
+# ==============================================
+# SuggestedSystem
+# ==============================================
 class SuggestedSystem(models.Model):
 
     name = models.CharField(max_length=100)
@@ -140,6 +165,9 @@ class SuggestedSystem(models.Model):
 
     pass
 
+# ==============================================
+# System
+# ==============================================
 class System(models.Model):
 
     slug = models.SlugField(unique=True)
@@ -176,6 +204,9 @@ class System(models.Model):
 
     pass
 
+# ==============================================
+# SystemFeature
+# ==============================================
 class SystemFeature(models.Model):
 
     system = models.ForeignKey('SystemVersion', models.CASCADE, related_name='features')
@@ -197,6 +228,9 @@ class SystemFeature(models.Model):
 
     pass
 
+# ==============================================
+# SystemVersion
+# ==============================================
 class SystemVersion(models.Model):
     
     # Internal Version Meta-data
@@ -206,47 +240,77 @@ class SystemVersion(models.Model):
     ver = models.PositiveIntegerField('Version No.', default=1)
     is_current = models.BooleanField(default=True)
     comment = models.TextField(blank=True)
+    created = models.DateTimeField(default=timezone.now)
 
     # Fields with citations
-    description = models.TextField(blank=True, help_text="This field support Markdown Syntax")
-    description_citations = models.ManyToManyField('CitationUrl', blank=True, related_name='version_descriptions')
+    description = models.TextField(
+        blank=True,
+        help_text="This field support Markdown Syntax")
+    description_citations = models.ManyToManyField(
+        'CitationUrl', blank=True,
+        related_name='version_descriptions')
 
-    start_year = models.PositiveIntegerField(blank=True, null=True)
-    start_year_citations = models.ManyToManyField('CitationUrl', blank=True, related_name='version_start_years')
+    start_year = models.PositiveIntegerField(
+        blank=True, null=True)
+    start_year_citations = models.ManyToManyField(
+        'CitationUrl', blank=True,
+        related_name='version_start_years')
 
-    end_year = models.PositiveIntegerField(blank=True, null=True)
-    end_year_citations = models.ManyToManyField('CitationUrl', blank=True, related_name='version_end_years')
+    end_year = models.PositiveIntegerField(
+        blank=True, null=True)
+    end_year_citations = models.ManyToManyField(
+        'CitationUrl', blank=True,
+        related_name='version_end_years')
     
-    history = models.TextField(blank=True, help_text="This field support Markdown Syntax")
-    history_citations = models.ManyToManyField('CitationUrl', blank=True, related_name='version_histories')
+    history = models.TextField(
+        blank=True,
+        help_text="This field support Markdown Syntax")
+    history_citations = models.ManyToManyField(
+        'CitationUrl', blank=True,
+        related_name='version_histories')
 
-    acquired_by = models.CharField(blank=True, max_length=32,
-                                    help_text="Name of the company that first acquired the DBMS")
-    acquired_by_citations = models.ManyToManyField('CitationUrl', blank=True, related_name='version_acquired_bys')
+    acquired_by = models.CharField(
+        blank=True, max_length=32,
+        help_text="Name of the company that first acquired the DBMS")
+    acquired_by_citations = models.ManyToManyField(
+        'CitationUrl', blank=True,
+        related_name='version_acquired_bys')
     
     # General Information Fields
-    project_types = models.ManyToManyField('ProjectType', blank=True, 
-                                           related_name='project_types', 
-                                           verbose_name='Project Type')
-    project_types = models.ManyToManyField('ProjectType', blank=True, related_name='project_types', verbose_name='Project Type')
-    created = models.DateTimeField(default=timezone.now)
-    developer = models.CharField(blank=True, max_length=500)
-    logo = ThumbnailerImageField(blank=True, upload_to='logos/')
-    countries = CountryField(blank=True, multiple=True,
-                             verbose_name="Countries of Origin",
-                             help_text="Country of where the DBMS company or project started")
-    former_names = models.CharField(blank=True, max_length=100,
-                                    help_text="Previous names of the system")
+    project_types = models.ManyToManyField(
+        'ProjectType', blank=True, 
+        related_name='project_types', 
+        verbose_name='Project Type')
+    
+    developer = models.CharField(
+        blank=True, max_length=500,
+        help_text="The original organization that developed the DBMS.")
+    
+    logo = ThumbnailerImageField(
+        blank=True, upload_to='logos/')
+    
+    countries = CountryField(
+        blank=True, multiple=True,
+        verbose_name="Countries of Origin",
+        help_text="Country of where the DBMS company or project started")
+    
+    former_names = models.CharField(
+        blank=True, max_length=100,
+        help_text="Previous names of the system")
     
     # URLs
-    url = models.URLField(blank=True, max_length=500,
-                          help_text="URL of the DBMS company or project")
-    tech_docs = models.URLField(blank=True, max_length=500,
-                                help_text="URL of the where to find technical documentation about the DBMS")
-    source_url = models.URLField(blank=True, max_length=500,
-                                 verbose_name="Source Code URL",
-                                 help_text="URL of where to download source code (if available)")
-
+    url = models.URLField(
+        blank=True, max_length=500,
+        help_text="URL of the DBMS company or project")
+    
+    tech_docs = models.URLField(
+        blank=True, max_length=500,
+        help_text="URL of the where to find technical documentation about the DBMS")
+    
+    source_url = models.URLField(
+        blank=True, max_length=500,
+        verbose_name="Source Code URL",
+        help_text="URL of where to download source code (if available)")
 
 
     class Meta:
@@ -257,13 +321,12 @@ class SystemVersion(models.Model):
         return hash((
             self.created,
             self.id,
-            self.is_current,
             self.system,
             self.ver,
         ))
 
     def __str__(self):
-        return '{} - {}'.format(self.system.name, self.ver)
+        return '{} - Ver#{}'.format(self.system.name, self.ver)
 
     def get_absolute_url(self):
         return reverse('system_revision_view', args=[self.system.slug, self.ver])
@@ -293,14 +356,50 @@ class SystemVersion(models.Model):
 
     pass
 
+# ==============================================
+# SystemVersionMetadata
+# ==============================================
 class SystemVersionMetadata(models.Model):
 
-    derived_from = models.ManyToManyField('System', blank=True, related_name='derived_from_systems', verbose_name='Systems Derived From')
-    licenses = models.ManyToManyField('License', blank=True, related_name='systems_licenses')
-    oses = models.ManyToManyField('OperatingSystem', blank=True, related_name='systems_oses', verbose_name='Operating Systems')
-    publications = models.ManyToManyField('Publication', blank=True, related_name='systems_publications')
-    supported_languages = models.ManyToManyField('ProgrammingLanguage', blank=True, related_name='systems_supported', verbose_name='Supported Languages')
-    written_in = models.ManyToManyField('ProgrammingLanguage', blank=True, related_name='systems_written')
+    derived_from = models.ManyToManyField(
+        'System', blank=True,
+        related_name='derived_from_systems',
+        verbose_name='Systems Derived From',
+        help_text="Systems that this system uses or its source code is based on")
+    
+    inspired_by = models.ManyToManyField(
+        'System', blank=True,
+        related_name='inspired_by_systems',
+        verbose_name='Systems Inspired By',
+        help_text="Systems used for inspiration in its design but did not rely on source code")
+    
+    compatible_with = models.ManyToManyField(
+        'System', blank=True,
+        related_name='compatible_with_systems',
+        verbose_name='Systems Compatible With',
+        help_text="Other systems that this system is compatible with (e.g., wire protocol, file formats).")
+    
+    licenses = models.ManyToManyField(
+        'License', blank=True,
+        related_name='systems_licenses')
+    
+    oses = models.ManyToManyField(
+        'OperatingSystem', blank=True,
+        related_name='systems_oses',
+        verbose_name='Operating Systems')
+    
+    publications = models.ManyToManyField(
+        'Publication', blank=True,
+        related_name='systems_publications')
+    
+    supported_languages = models.ManyToManyField(
+        'ProgrammingLanguage', blank=True,
+        related_name='systems_supported',
+        verbose_name='Supported Languages')
+    
+    written_in = models.ManyToManyField(
+        'ProgrammingLanguage', blank=True,
+        related_name='systems_written')
 
     def __str__(self):
         system = self.systemversion_set.first()
@@ -308,6 +407,12 @@ class SystemVersionMetadata(models.Model):
 
     def derived_from_str(self):
         return ', '.join([str(l) for l in self.derived_from.all()])
+    
+    def inspired_by_str(self):
+        return ', '.join([str(l) for l in self.inspired_by.all()])
+
+    def compatible_with_str(self):
+        return ', '.join([str(l) for l in self.compatible_with.all()])
 
     def licenses_str(self):
         return ', '.join([str(l) for l in self.licenses.all()])

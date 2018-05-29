@@ -92,8 +92,7 @@ Edit {{ system_name }}
                     </div>
 
                 </div>
-
-
+                
                 <div class="row">
 
                     <div class="col-md-3">
@@ -116,12 +115,20 @@ Edit {{ system_name }}
 
                 <div class="row">
                 
-                    <div class="col-md-9">
+<!--                    <div class="col-md-9">
                         {% bootstrap_field system_version_metadata_form.publications form_group_class="form-group multi-select" %}
-                    </div>
+                    </div>-->
 
                     <div class="col-md-3">
                         {% bootstrap_field system_version_metadata_form.derived_from form_group_class="form-group multi-select" %}
+                    </div>
+                    
+                    <div class="col-md-3">
+                        {% bootstrap_field system_version_metadata_form.inspired_by form_group_class="form-group multi-select" %}
+                    </div>
+                    
+                    <div class="col-md-3">
+                        {% bootstrap_field system_version_metadata_form.compatible_with form_group_class="form-group multi-select" %}
                     </div>
 
                 </div>
