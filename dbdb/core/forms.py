@@ -81,7 +81,7 @@ class SystemFeaturesForm(forms.Form):
                     initial_value = initial[feature.label]['options']
                 self.fields[feature.label+'_choices'] = forms.MultipleChoiceField(
                     choices=(
-                        (x, x) for x in FeatureOption.objects.filter(feature=feature)
+                        (x, x) for x in FeatureOption.objects.filter(feature=feature).order_by('value')
                     ),
                     initial=initial_value,
                     required=False
@@ -92,7 +92,7 @@ class SystemFeaturesForm(forms.Form):
                     initial_value = initial[feature.label]['options']
                 self.fields[feature.label+'_choices'] = forms.ChoiceField(
                     choices=(
-                        (x, x) for x in FeatureOption.objects.filter(feature=feature)
+                        (x, x) for x in FeatureOption.objects.filter(feature=feature).order_by('value')
                     ),
                     initial=initial_value,
                     required=False
