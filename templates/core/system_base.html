@@ -238,8 +238,10 @@
             <div class="card card-version">
                 <div class="card-body">
                     Revision #{{ system_version.ver }}
-                    &nbsp;&nbsp;|&nbsp;&nbsp;
-                    Last updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
+                    &nbsp;|&nbsp;
+                    <time datetime="{{ system_version.created|date:"c" }}">
+                    Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
+                    </time>
                 </div>
             </div>
 
