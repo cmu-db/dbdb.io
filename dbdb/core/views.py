@@ -129,10 +129,18 @@ class AdvancedSearchView(View):
             if k.startswith('fg')
         }
         search_country = request.GET.get('country', '').strip()
+
         search_derived = request.GET.get('derived', '').strip()
         derived = None
 
-        if search_q or search_fg or search_country or search_derived:
+        search_inspired = request.GET.get('inspired', '').strip()
+        inspired = None
+        
+        search_compatible = request.GET.get('compatible', '').strip()
+        compatible = None
+
+        if search_q or search_fg or search_country or \
+            search_derived or search_inspired or search_compatible:
             has_search = True
 
             # only search current versions
@@ -161,14 +169,32 @@ class AdvancedSearchView(View):
                 # query = [Q(system__countries__in=t) for t in terms]
                 query = Q(countries__in=terms)
                 versions = versions.filter(query)
-            # IF
-            
             # Derived System
-            if search_derived:
+            elif search_derived:
                 try:
                     derived = System.objects.get(slug=search_derived)
                     versions = versions.filter(meta__derived_from__id=derived.id)
                     search_derived = derived.name
+                except:
+                    versions = SystemVersion.objects.none()
+                    pass
+                pass
+            # Inspired System
+            elif search_inspired:
+                try:
+                    inspired = System.objects.get(slug=search_inspired)
+                    versions = versions.filter(meta__inspired_by__id=inspired.id)
+                    search_inspired = inspired.name
+                except:
+                    versions = SystemVersion.objects.none()
+                    pass
+                pass
+            # Compatible System
+            elif search_compatible:
+                try:
+                    compatible = System.objects.get(slug=search_compatible)
+                    versions = versions.filter(meta__compatible_with__id=compatible.id)
+                    search_compatible = compatible.name
                 except:
                     versions = SystemVersion.objects.none()
                     pass
@@ -204,6 +230,10 @@ class AdvancedSearchView(View):
             'country': search_country,
             'derived': search_derived,
             'derived_system': derived,
+            'inspired': search_inspired,
+            'inspired_system': inspired,
+            'compatible': search_compatible,
+            'compatible_system': compatible,
             'no_nav_search': True,
         })
 

@@ -61,16 +61,28 @@ Advanced Search
                     {% if country %}
                         {% get_country country as country %}
                         "{{ country.name }}"
-                    {% endif %}
-                    {% if derived %}
+                    {% elif derived %}
                         derived from 
                         {% if derived_system %}
                             <a href="{% url 'system' derived_system.slug %}">{{ derived_system.name }}</a>
                         {% else %}
                             "{{ derived }}"
                         {% endif %}
-                    {% endif %}
-                    {% if query %}
+                    {% elif inspired %}
+                        inspired by 
+                        {% if inspired_system %}
+                            <a href="{% url 'system' inspired_system.slug %}">{{ inspired_system.name }}</a>
+                        {% else %}
+                            "{{ inspired }}"
+                        {% endif %}
+                    {% elif compatible %}
+                        compatible with 
+                        {% if compatible_system %}
+                            <a href="{% url 'system' compatible_system.slug %}">{{ compatible_system.name }}</a>
+                        {% else %}
+                            "{{ compatible }}"
+                        {% endif %}
+                    {% elif query %}
                         "{{ query }}"
                     {% endif %}
                     </h3>
@@ -79,11 +91,13 @@ Advanced Search
                     {% if country %}
                         {% get_country country as country %}
                         "{{ country.name }}"
-                    {% endif %}
-                    {% if derived %}
+                    {% elif derived %}
                         derived from "{{ derived }}"
-                    {% endif %}
-                    {% if query %}
+                    {% elif inspired %}
+                        inspired by "{{ inspired }}"
+                    {% elif compatible %}
+                        compatible with "{{ compatible }}"
+                    {% elif query %}
                         "{{ query }}"
                     {% endif %}
                     </h3>
