@@ -11,9 +11,11 @@ Field Checker
 {% block content %}
 <div class="main">
     <div class="container">
+            <h1>Show Empty Fields</h1>
         <div class="row">
             <form id="content" method="GET">
-                <select name="field">
+                <label for="formFieldSelect">Field:</label>
+                <select id="formFieldSelect" name="field">
                     {% for f in fields %}
                     <option value="{{ f }}" {% if f == field %}selected{% endif %}>{{ f }}</option>
                     {% endfor %}
@@ -23,7 +25,8 @@ Field Checker
         </div>
         
         {% if field %}
-        <div class="row">
+        <div class="row border-top mt-4 pt-4">
+            <h2>Matches: {{ versions|length}} / {{ num_systems }} [{{ match_percent }}%]</h2>
             <table class="table">
                 <thead>
                     <tr>
@@ -35,7 +38,10 @@ Field Checker
                 <tbody>
                 {% for version in versions %}
                     <tr>
-                        <td><a target="edit-{{ version.system.slug}}" href="{% url 'system_edit' version.system.slug %}">{{ version.system.name }}</a></td>
+                        <td>
+                            <b><a target="view-{{ version.system.slug}}" href="{% url 'system' version.system.slug %}">{{ version.system.name }}</a></b>
+                            <a target="edit-{{ version.system.slug}}" href="{% url 'system_edit' version.system.slug %}">[EDIT]</a>
+                        </td>
                         <td>
                             {% if field == 'wikipedia_url' %}
                                 <a target="wiki-{{ version.system.slug}}" href="http://en.wikipedia.org/wiki/Special:Search?search={{ version.system.name }}&go=Go">[Search]</a>

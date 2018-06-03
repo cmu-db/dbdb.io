@@ -249,13 +249,20 @@ class DatabaseFieldsView(View):
     def build_search_fields(self):
         import django.db.models.fields
         fields = [ ]
-        IGNORE = set([
+        IGNORE_TYPES = set([
             django.db.models.fields.AutoField,
             django.db.models.fields.related.ForeignKey,
             django.db.models.fields.related.ManyToManyField,
         ])
+        IGNORE_NAMES = set([
+            "ver",
+            "comment",
+            "features",
+            "created",
+        ])
         for f in SystemVersion._meta.get_fields():
-            if not type(f) in IGNORE:
+            if not type(f) in IGNORE_TYPES and \
+               not f.name in IGNORE_NAMES:
                 fields.append(f.name)
         ## FOR
         return (sorted(fields))
@@ -282,13 +289,15 @@ class DatabaseFieldsView(View):
             pass
         
         fields = self.build_search_fields()
-        
+        num_systems = System.objects.all().count()
         
         return render(request, self.template_name, {
             'versions': versions,
             'field': search_field,
             'check': search_check,
             'fields': fields,
+            'match_percent': "%.1f" % (100 * (len(versions) / num_systems)),
+            'num_systems': num_systems,
         })
 
     pass
