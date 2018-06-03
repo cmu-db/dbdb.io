@@ -1,5 +1,8 @@
 # django imports
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
+
 # local imports
 from .models import *
 
@@ -12,6 +15,9 @@ class FeatureOptionsInlines(admin.StackedInline):
 
 
 # model admins
+
+class CustomUserAdmin(UserAdmin):
+    list_display = ('username', 'email', 'is_staff', 'date_joined', 'last_login')
 
 class FeatureAdmin(admin.ModelAdmin):
     inlines = [FeatureOptionsInlines]
@@ -35,6 +41,9 @@ class SystemVersionAdmin(admin.ModelAdmin):
 
 
 # registrations
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)
+
 
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(FeatureOption, FeatureOptionAdmin)
