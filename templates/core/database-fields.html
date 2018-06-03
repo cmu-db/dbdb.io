@@ -36,7 +36,13 @@ Field Checker
                 {% for version in versions %}
                     <tr>
                         <td><a target="edit-{{ version.system.slug}}" href="{% url 'system_edit' version.system.slug %}">{{ version.system.name }}</a></td>
-                        <td>Missing</td>
+                        <td>
+                            {% if field == 'wikipedia_url' %}
+                                <a target="wiki-{{ version.system.slug}}" href="http://en.wikipedia.org/wiki/Special:Search?search={{ version.system.name }}&go=Go">[Search]</a>
+                            {% else %}
+                                Missing
+                            {% endif %}
+                        </td>
                         <td>{{ version.created }}</td>
                 {% endfor %}
                 </tbody>
