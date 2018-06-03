@@ -248,6 +248,7 @@ class DatabaseFieldsView(View):
 
     def build_search_fields(self):
         import django.db.models.fields
+
         fields = [ ]
         IGNORE_TYPES = set([
             django.db.models.fields.AutoField,
@@ -269,6 +270,8 @@ class DatabaseFieldsView(View):
     ## DEF
 
     def get(self, request):
+        import django.db.models.fields
+        
         if not request.user.is_authenticated:
             return redirect( settings.LOGIN_URL + '?next=' + reverse('fields') )
         elif not request.user.is_superuser:
@@ -279,7 +282,11 @@ class DatabaseFieldsView(View):
         search_field = request.GET.get('field')
         search_check = request.GET.get('check')
         if search_field:
-            versions = versions.filter(**{search_field: ''})
+            field = SystemVersion._meta.get_field(search_field)
+            if type(field) == django.db.models.fields.PositiveIntegerField:
+                versions = versions.filter(**{search_field: None})
+            else:
+                versions = versions.filter(**{search_field: ''})
         
         # convert query list to regular list
         # and add href/url to each
