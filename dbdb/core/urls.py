@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^db/(?P<slug>[\w-]+)/revisions/(?P<ver>\d+)$', views.DatabaseRevisionView.as_view(), name='system_revision_view'),
 
     url(r'^browse$', views.DatabaseBrowseView.as_view(), name='browse'),
+    url(r'^fields$', views.DatabaseFieldsView.as_view(), name='fields'),
     url(r'^search$', views.DatabaseBrowseView.as_view(), name='search'),
     url(r'^search/advanced$', views.AdvancedSearchView.as_view(), name='advanced_search'),
 

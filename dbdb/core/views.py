@@ -239,6 +239,65 @@ class AdvancedSearchView(View):
 
     pass
 
+# ==============================================
+# DatabaseFieldsView
+# ==============================================
+class DatabaseFieldsView(View):
+
+    template_name = 'core/database-fields.html'
+
+    def build_search_fields(self):
+        import django.db.models.fields
+        fields = [ ]
+        IGNORE = set([
+            django.db.models.fields.AutoField,
+            django.db.models.fields.related.ForeignKey,
+            django.db.models.fields.related.ManyToManyField,
+        ])
+        for f in SystemVersion._meta.get_fields():
+            if not type(f) in IGNORE:
+                fields.append(f.name)
+        ## FOR
+        return (sorted(fields))
+    ## DEF
+
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return redirect( settings.LOGIN_URL + '?next=' + reverse('fields') )
+        elif not request.user.is_superuser:
+            raise Http404()
+        
+        versions = SystemVersion.objects.filter(is_current=True)
+        
+        search_field = request.GET.get('field')
+        search_check = request.GET.get('check')
+        if search_field:
+            versions = versions.filter(**{search_field: ''})
+        
+        # convert query list to regular list
+        # and add href/url to each
+        versions = list( versions.order_by('system__name') )
+        for version in versions:
+            version.href = request.build_absolute_uri( version.system.get_absolute_url() )
+            pass
+        
+        fields = self.build_search_fields()
+        
+        
+        return render(request, self.template_name, {
+            'versions': versions,
+            'field': search_field,
+            'check': search_check,
+            'fields': fields,
+        })
+
+    pass
+
+## CLASS
+
+# ==============================================
+# DatabaseBrowseView
+# ==============================================
 class DatabaseBrowseView(View):
 
     template_name = 'core/database-browse.html'
