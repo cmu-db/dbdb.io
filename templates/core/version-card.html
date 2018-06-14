@@ -3,12 +3,17 @@
 
 <a class="card-title" href="{% url 'system' version.system.slug %}">
 <div class="card text-center">
-    {% if version.logo %}
-    <img src="{{ version.logo|thumbnail_url:'search' }}" alt="{{ version.system.name }}" />
-    {% else %}
+    {% if not version.logo %}
     <img class="card-img-top no-logo" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ version.system.name }}" />
     {% endif %}
+
     <div class="card-body">
+        <div>
+             {% if version.logo %}
+            <img src="{{ version.logo|thumbnail_url:'search' }}" alt="{{ version.system.name }}" />
+            {% endif %}
+        </div>
+
         <h5>{{ version.system.name }}</h5>
         <p class="card-text"><small class="text-muted">Last updated {{ version.created }}</small></p>
     </div>
