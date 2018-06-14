@@ -18,5 +18,5 @@ cite.hidden { display:none; }
 
 div.col-md-3 div.card h6.card-title { margin-bottom: .15rem; }
 
-div.col-md-3 div.card-version { background-color:#292B33; color:#eee; }
-div.col-md-3 div.card-version div.card-body { font-size: 12px; padding: .75rem 1.25rem; text-align:center; }
+div.system-content div.card-version { background-color:#292B33; color:#eee; }
+div.system-content div.card-version div.card-body { font-size: 12px; padding: .75rem 1.25rem; text-align:center; }

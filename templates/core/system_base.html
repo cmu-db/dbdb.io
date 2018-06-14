@@ -8,10 +8,10 @@
 
 {% block content %}
 <div class="jumbotron">
-    <div class="row justify-content-md-center">
+    <div class="row justify-content-md-center system-content">
     
         <!-- START: MAIN BODY -->
-        <div class="col-md-7 order-1 order-sm-7 col-xs-7">
+        <div class=" col-sm-12 col-md-7 order-2 order-md-1">
 
             <div class="card has-citations">
                 <div class="card-body">
@@ -76,11 +76,21 @@
             </div>
             {% endif %}
             {% endfor %}
+            
+            <div class="card card-version d-block d-md-none">
+                <div class="card-body">
+                    Revision #{{ system_version.ver }}
+                    &nbsp;|&nbsp;
+                    <time datetime="{{ system_version.created|date:"c" }}">
+                    Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
+                    </time>
+                </div>
+            </div>
         </div>
         <!-- END: MAIN BODY -->
         
         <!-- START: SIDEBAR -->
-        <div class="col-md-3 order-0 order-sm-7 col-xs-7">
+        <div class=" col-sm-12 col-md-3 order-1 order-md-2">
             {% if system_version.logo %}
             <div class="card">
                 <div class="card-body text-center">
@@ -97,7 +107,7 @@
                     <h6 class="card-title">Website</h6>
                     <p class="card-text"><a href="{{ system_version.url }}">{{ system_version.url }}</a></p>
                 {% endif %}
-            
+            adasds
                 {% if system_version.source_url %}
                     <h6 class="card-title">Source Code</h6>
                     <p class="card-text"><a href="{{ system_version.source_url }}">{{ system_version.source_url }}</a></p>
@@ -161,7 +171,7 @@
                         </ul>
                     </cite>
                 {% endif %}
-                
+
                 {% if system_version.acquired_by %}
                     <h6 class="card-title">
                         Acquired By
@@ -176,7 +186,7 @@
                         </ul>
                     </cite>
                 {% endif %}
-            
+
                 {% if system_version.project_types.exists %}
                     <h6 class="card-title">Project Type</h6>
                     <p class="card-text">{{ system_version.project_types_str }}</p>
@@ -240,7 +250,7 @@
             </div>
             {% endif %}
             
-            <div class="card card-version">
+            <div class="card card-version d-none d-md-block">
                 <div class="card-body">
                     Revision #{{ system_version.ver }}
                     &nbsp;|&nbsp;
@@ -254,6 +264,7 @@
         <!-- END: SIDEBAR -->
     
     </div>
+
 </div>
 {% endblock %}
 
