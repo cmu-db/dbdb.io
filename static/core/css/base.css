@@ -161,6 +161,10 @@ div.sidebar .btn-default:hover { background-color:#609AB6; border-color:#609AB6;
 #filtered_content > section.content div.version p { margin:0; }
 
 
+nav.letters > div.letters button {
+    margin-top: 5px;
+}
+
 
 @media screen and (max-width: 760px) {
     .homepage-header h1 {
