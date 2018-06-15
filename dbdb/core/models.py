@@ -229,6 +229,20 @@ class SystemFeature(models.Model):
     pass
 
 # ==============================================
+# SystemRedirect
+# ==============================================
+class SystemRedirect(models.Model):
+
+    system = models.ForeignKey('System', models.CASCADE, related_name='redirects')
+
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+    pass
+
+# ==============================================
 # SystemVersion
 # ==============================================
 class SystemVersion(models.Model):

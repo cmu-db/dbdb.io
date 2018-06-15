@@ -32,6 +32,7 @@ from django_countries import countries
 from dbdb.core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm, \
     SystemVersionEditForm
 from dbdb.core.models import System, SystemVersionMetadata
+from dbdb.core.models import SystemRedirect
 from dbdb.core.models import SystemVersion
 from dbdb.core.models import Feature
 from dbdb.core.models import FeatureOption
@@ -570,9 +571,21 @@ class DatabasesEditView(View, LoginRequiredMixin):
             feature_form.is_valid():
 
             if request.user.is_superuser:
+                original_system_slug = system.slug
                 system = system_form.save(commit=False)
                 system.slug = slugify(system.name)
                 system.save()
+
+                # handle a redirect for a name change
+                if system.slug != original_system_slug:
+                    SystemRedirect.objects.get_or_create(
+                        slug=original_system_slug,
+
+                        defaults=dict(
+                            system=system
+                        )
+                    )
+                    pass
 
                 try:
                     logo = system.current().logo
@@ -770,7 +783,22 @@ class SystemView(View):
     template_name = 'core/system.html'
 
     def get(self, request, slug):
-        system = get_object_or_404(System, slug=slug)
+        # try to get system by slug
+        try:
+            system = System.objects.get(slug=slug)
+            pass
+        except System.DoesNotExist:
+            # if the system doesn't exist, check for a redirect
+            try:
+                r = SystemRedirect.objects.get(slug=slug)
+                return redirect( 'system' , permanent=True, slug=r.system.slug )
+                pass
+            except SystemRedirect.DoesNotExist:
+                # with no redirect, throw 404
+                raise Http404( 'system does not exist' )
+                pass
+            pass
+
         system_version = system.current()
         system_features = SystemFeature.objects.filter(system=system_version).select_related('feature').order_by('feature__label')
 
