@@ -9,6 +9,7 @@ def fix(apps, schema_editor):
     
     for sv in SystemVersion.objects.all():
         if not isinstance(sv.countries, list): continue
+        if len( sv.countries ) == 0: continue
         if str(sv.countries[0]) != '[': continue
 
         sv.countries = eval( ''.join(list(map(str,sv.countries))).replace(' ',',') )
