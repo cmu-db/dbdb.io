@@ -319,6 +319,38 @@ class DatabaseBrowseView(View):
 
     template_name = 'core/database-browse.html'
 
+    def build_filter_groups(self, querydict):
+        empty_set = set()
+
+        def reduce_feature_options(mapping, option):
+            mapping[option.feature_id].choices.append(
+                FilterChoice(
+                    option.id,
+                    option.value,
+                    str(option.id) in querydict.getlist( 'fg{0}'.format(option.feature_id), empty_set )
+                )
+            )
+            return mapping
+
+        filtergroups = collections.OrderedDict(
+            ( f_id, FilterGroup('fg{}'.format(f_id), f_label, []) )
+            for f_id,f_label in Feature.objects.all().order_by().values_list('id','label')
+        )
+
+        filtergroups = reduce(
+            reduce_feature_options,
+            FeatureOption.objects.all().order_by('value').values_list('feature_id','id','value', named=True),
+            filtergroups
+        )
+
+        filtergroups = filtergroups.values()
+
+        for fg in filtergroups:
+            fg.prepare()
+            pass
+
+        return filtergroups
+
     def build_pagination(self, letter):
         letters_alphabet = set(
             chr(i)
@@ -351,22 +383,103 @@ class DatabaseBrowseView(View):
 
         return pagination
 
-    def get(self, request):
+    def do_search(self, request):
+        compatible = None
+        derived = None
+        inspired = None
         has_search = False
-    
-        # Search String
-        search_query = request.GET.get('q')
-        if search_query is not None and not isinstance(search_query, str):
-            search_query = search_query[0]
+
+        # pull search criteria
+        search_q = request.GET.get('q', '').strip()
+        search_fg = {
+            int( k[2:] ) : set( map(int, request.GET.getlist(k)) )
+            for k in request.GET.keys()
+            if k.startswith('fg')
+        }
+
+        search_country = request.GET.get('country', '').strip()
+        search_derived = request.GET.get('derived', '').strip()
+        search_inspired = request.GET.get('inspired', '').strip()
+        search_compatible = request.GET.get('compatible', '').strip()
+
+        if not any((search_q, search_fg, search_country, search_derived, search_inspired, search_compatible)):
+            return None
+
+        # only search current versions
+        versions = SystemVersion.objects \
+            .filter(is_current=True)
+
+        # apply keyword search to name (require all terms)
+        if search_q:
+            terms = smart_split( search_q.lower() )
+            query = [Q(system__name__icontains=t) for t in terms]
+            versions = versions.filter( reduce(operator.and_, query) )
+            pass
+
+        # search for features
+        for feature_id,option_ids in search_fg.items():
+            versions = versions.filter(
+                features__feature_id=feature_id,
+                features__options__id__in=option_ids
+            )
+            pass
         
+        # country search
+        if search_country:
+            terms = smart_split( search_country.upper() )
+            # query = [Q(system__countries__in=t) for t in terms]
+            query = Q(countries__in=terms)
+            versions = versions.filter(query)
+            pass
+
+        # derived system
+        if search_derived:
+            try:
+                derived = System.objects.get(slug=search_derived)
+                versions = versions.filter(meta__derived_from__id=derived.id)
+                search_derived = derived.name
+            except:
+                return SystemVersion.objects.none()
+            pass
+
+        # inspired system
+        if search_inspired:
+            try:
+                inspired = System.objects.get(slug=search_inspired)
+                versions = versions.filter(meta__inspired_by__id=inspired.id)
+                search_inspired = inspired.name
+            except:
+                return SystemVersion.objects.none()
+            pass
+
+        # compatible system
+        if search_compatible:
+            try:
+                compatible = System.objects.get(slug=search_compatible).only('id')
+                versions = versions.filter(meta__compatible_with__id=compatible.id)
+                search_compatible = compatible.name
+            except:
+                return SystemVersion.objects.none()
+            pass
+
+        # use generated list of PKs to get actual versions with systems
+        versions = SystemVersion.objects \
+            .filter(id__in=versions.values_list('id', flat=True)) \
+            .select_related('system') \
+            .order_by('system__name')
+
+        return versions
+
+    def get(self, request):
+        search_q = request.GET.get('q', '').strip()
+
+        versions = self.do_search(request)
+
         # Search Letter
         search_letter = request.GET.get('letter', '').strip().upper()
 
-        if search_query:
-            versions = SystemVersion.objects \
-                .filter(is_current=True) \
-                .filter(Q(system__name__icontains=search_query) | \
-                        Q(former_names__icontains=search_query))
+        if versions is not None:
+            pass
         elif search_letter == 'ALL' or not search_letter:
             versions = SystemVersion.objects.filter(is_current=True)
             pass
@@ -375,12 +488,12 @@ class DatabaseBrowseView(View):
                 .filter(is_current=True) \
                 .filter( Q(system__name__startswith=search_letter) | Q(system__name__startswith=search_letter.lower()) )
             pass
-            #versions = SystemVersion.objects.none()
-            #pass
+
         pagination = self.build_pagination(search_letter)
 
         # convert query list to regular list
         versions = list( versions.order_by('system__name') )
+
         # and add href/url to each
         for version in versions:
             version.href = request.build_absolute_uri( version.system.get_absolute_url() )
@@ -389,9 +502,11 @@ class DatabaseBrowseView(View):
         has_results = len(versions) > 0
 
         return render(request, self.template_name, {
+            'filtergroups': self.build_filter_groups(request.GET),
+
             'has_results': has_results,
             'pagination': pagination,
-            'query': search_query,
+            'query': search_q,
             'versions': versions,
         })
 

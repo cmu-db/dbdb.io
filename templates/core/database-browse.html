@@ -26,29 +26,63 @@ div.results div.version p { margin:0; }
 
 
 {% block content %}
-<div class="main">
-    <div class="container search-results">
-        <div class="row">
-        {% if query %}
-            <div class="col-md-10">
-            {% if versions %}
-                <h3>Found {{ versions|length }} results for "{{ query }}"</h3>
-            {% else %}
-                <h3>No results found for "{{ query }}"</h3>
-            {% endif %}
-            </div>
-        {% else %}
-            <form id="content" method="GET">
-            <nav class="letters {% if not has_results %}no-results{% endif %}" aria-label="Page navigation example">
-                <div class="letters">
-                    {% for page in pagination %}
-                    <button type="submit" class="btn {% if page.is_active %}btn-primary active{% else %}btn-secondary{% endif %} {% if page.is_disabled %}disabled{% endif %}" name="letter" value="{{ page.letter }}">{{ page.letter }}</button>
-                    {% endfor %}
-                </div>
-            </nav>
-            </form>
-        {% endif %}
+<form class="main main-search">
+
+    <div class="filters">
+
+        <h2>Refine by</h2>
+
+        {% for filtergroup in filtergroups %}
+        <div class="filter-group" id="filtergroup_{{ filtergroup.id }}">
+
+            <h3>
+                {{ filtergroup.label }}
+                {% if filtergroup.has_checked %}
+                <a href="javascript:;" class="clear" title="clear selected"><i class="fas fa-eraser"></i> clear </a>
+                {% endif %}
+            </h3>
+
+            <ul>
+                {% for choice in filtergroup.choices %}
+                <li {% if choice.is_hidden %}class="more"{% endif %}><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" {% if choice.checked %}checked="checked"{% endif %}> {{ choice.label }}</label></li>
+                {% endfor %}
+                {% if filtergroup.has_more %}
+                <li class="see-more">
+                    <a href="javascript:;">Show more</a>
+                </li>
+                {% endif %}
+            </ul>
+
         </div>
+        {% endfor %}
+
+    </div>
+
+    <div class="search-results">
+        <div class="input-group input-group-lg">
+            <input type="text" class="form-control" placeholder="Begin searching!" aria-label="Begin searching!" aria-describedby="search" name="q" value="{{ query }}">
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="submit" id="search">Search</button>
+            </span>
+        </div>
+
+        {% if query %}
+        <p class="results-info">
+            {% if versions %}
+            Found {{ versions|length }} results for "{{ query }}"
+            {% else %}
+            No results found for "<i>{{ query }}</i>"
+            {% endif %}
+        </p>
+        {% else %}
+        <nav class="letters {% if not has_results %}no-results{% endif %}" aria-label="Page navigation example">
+            <div class="letters">
+                {% for page in pagination %}
+                <button type="submit" class="btn {% if page.is_active %}btn-primary active{% else %}btn-secondary{% endif %} {% if page.is_disabled %}disabled{% endif %}" name="letter" value="{{ page.letter }}">{{ page.letter }}</button>
+                {% endfor %}
+            </div>
+        </nav>
+        {% endif %}
         
         <!-- RESULTS -->
         <div class="card-columns">
@@ -58,7 +92,7 @@ div.results div.version p { margin:0; }
         </div>
         <!-- END: CARD-COLUMNS -->
     </div>
-</div>
+</form>
 {% endblock %}
 
 
