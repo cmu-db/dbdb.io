@@ -1,6 +1,7 @@
 # django imports
 from django.conf import settings
 from django.conf.urls import url
+from django.urls import path
 from django.views.generic.base import RedirectView
 from django.views.generic.base import TemplateView
 # project imports
@@ -25,5 +26,6 @@ urlpatterns = [
     url(r'^user/create$', views.CreateUser.as_view(), name='create_user'),
     url(r'^user/create/$', RedirectView.as_view(pattern_name='create_user')),
 
-    url(r'^counter$', views.CounterView.as_view(), name='counter'),
+    path('counter', views.CounterView.as_view(), name='counter'),
+    path('sitemap.xml', views.SitemapView.as_view(), name='sitemap'),
 ]

@@ -26,8 +26,9 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import never_cache
 # third-party imports
-import jwt
 from django_countries import countries
+from lxml import etree
+import jwt
 # project imports
 from dbdb.core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm, \
     SystemVersionEditForm
@@ -39,6 +40,10 @@ from dbdb.core.models import FeatureOption
 from dbdb.core.models import SystemFeature
 from dbdb.core.models import CitationUrl
 
+
+SITEMPA_NS = 'http://www.sitemaps.org/schemas/sitemap/0.9'
+SITEMAP_PREFIX = '{%s}' % SITEMPA_NS
+SITEMAP_NSMAP = { None : SITEMPA_NS }
 
 # helper classes
 
@@ -892,6 +897,29 @@ class HomeView(View):
 
     pass
 
+class SitemapView(View):
+
+    def get(self, request):
+        response = HttpResponse(content_type='text/xml; charset=utf-8')
+
+        root = etree.Element(SITEMAP_PREFIX+'urlset', nsmap=SITEMAP_NSMAP)
+        tree = etree.ElementTree(root)
+
+        for system in System.objects.order_by('name').iterator():
+            url = etree.SubElement(root, 'url')
+            loc = etree.SubElement(url, 'loc')
+            loc.text = request.build_absolute_uri( reverse('system', args=[system.slug]) )
+            lastmod = etree.SubElement(url, 'lastmod')
+            lastmod.text = system.modified.date().isoformat()
+            changefreq = etree.SubElement(url, 'changefreq')
+            changefreq.text = 'daily'
+            pass
+
+        tree.write(response, encoding='UTF-8', pretty_print=True, xml_declaration=True)
+
+        return response
+
+    pass
 
 class SystemView(View):
 
@@ -926,3 +954,5 @@ class SystemView(View):
         })
 
     pass
+
+    
