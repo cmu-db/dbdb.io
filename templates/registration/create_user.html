@@ -2,20 +2,45 @@
 
 {% load bootstrap4 %}
 
+{% block css %}
+<style>
+form#registration { background-color:#fff; margin:0 auto; padding:40px 40px; max-width:500px; }
+form#registration h1 { font-size:2rem; margin-top:0; margin-bottom:1rem; text-align:center; }
+form#registration label { margin-bottom:0.2rem; }
+form#registration .form-group:last-child { margin-top:30px; margin-bottom:0px; }
+form#registration [for="captcha"] { display:none; }
+</style>
+{% endblock %}
+
 {% block content %}
     <div class="jumbotron">
         <div class="row justify-content-md-center">
             <div class="col-md-6">
-                <form action="." method="POST">
+                <form method="POST" id="registration">
+                    <h1>User Registration</h1>
+
                     {% csrf_token %}
                     {% bootstrap_form form %}
                     {% buttons %}
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" id="btn_submit">
                             Submit
                         </button>
+                        <a href="/" class="btn btn-default float-right">
+                            Cancel
+                        </a>
                     {% endbuttons %}
                 </form>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>	    
+
+<script>
+function onCaptchaSubmit(){
+    document.getElementById('registration').submit();
+}
+</script>
 {% endblock %}

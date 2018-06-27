@@ -453,11 +453,11 @@ class CreateUser(View):
     template_name = 'registration/create_user.html'
 
     def get(self, request, *args, **kwargs):
-        context = {'form': CreateUserForm()}
+        context = { 'form': CreateUserForm(auto_id='%s') }
         return render(request, context=context, template_name=self.template_name)
 
     def post(self, request, *args, **kwargs):
-        form = CreateUserForm(request.POST)
+        form = CreateUserForm(request.POST, auto_id='%s')
         User = get_user_model()
 
         if form.is_valid():

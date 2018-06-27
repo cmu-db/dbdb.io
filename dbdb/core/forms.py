@@ -1,11 +1,15 @@
 # stdlib imports
 # django imports
+from django import forms
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django import forms
-from django.forms.fields import MultipleChoiceField
 from django.forms import widgets
+from django.forms.fields import MultipleChoiceField
 from django.forms.widgets import Textarea
+# third-party imports
+from nocaptcha_recaptcha.fields import NoReCaptchaField
+from nocaptcha_recaptcha.widgets import NoReCaptchaWidget
 # project imports
 from dbdb.core.models import CitationUrl
 from dbdb.core.models import Feature
@@ -13,6 +17,13 @@ from dbdb.core.models import FeatureOption
 from dbdb.core.models import System
 from dbdb.core.models import SystemVersion
 from dbdb.core.models import SystemVersionMetadata
+
+
+# widgets
+
+class InvisibleReCaptchaWidget(NoReCaptchaWidget):
+    template = getattr(settings, 'INVISIBLE_RECAPTCHA_WIDGET_TEMPLATE', 'nocaptcha_recaptcha/widget.html')
+
 
 # fields
 
@@ -139,6 +150,14 @@ class CreateUserForm(forms.ModelForm):
     password = forms.CharField(max_length=128, label='Password', widget=widgets.PasswordInput)
     password2 = forms.CharField(max_length=128, label='Password Confirmation', widget=widgets.PasswordInput)
 
+    captcha = NoReCaptchaField(
+        gtag_attrs={
+            'callback': 'onCaptchaSubmit',  # name of JavaScript callback function
+            'bind': 'btn_submit'  # submit button's ID in the form template
+        },
+        widget=InvisibleReCaptchaWidget
+    )
+
     def clean_password2(self):
         if self.cleaned_data['password2'] == self.cleaned_data['password']:
             return self.cleaned_data['password2']
@@ -146,7 +165,7 @@ class CreateUserForm(forms.ModelForm):
 
     class Meta:
         model = get_user_model()
-        fields = ['username', 'email', 'password', 'password2']
+        fields = ['username', 'email', 'password', 'password2', 'captcha']
 
     pass
 

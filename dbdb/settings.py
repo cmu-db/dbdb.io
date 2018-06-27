@@ -69,7 +69,17 @@ WSGI_APPLICATION = 'dbdb.wsgi.application'
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 DATABASES = {
-    'default': env.db( default='sqlite:///{}'.format( root.path('data/db.sqlite3') ) )
+	'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'dbdb',
+        'USER': 'dbdb',
+        'PASSWORD': 'dbdb',
+        'HOST': 'localhost',
+        'OPTIONS': {
+            'init_command': 'SET default_storage_engine=INNODB',
+        },
+    },
+    'default1': env.db( default='sqlite:///{}'.format( root.path('data/db.sqlite3') ) )
 }
 
 # Password validation
@@ -142,3 +152,7 @@ THUMBNAIL_ALIASES = {
 
 # Django Countries
 COUNTRIES_FIRST = ['US']
+
+# Django Invisible reCaptcha
+NORECAPTCHA_SITE_KEY = '6Lfo8VwUAAAAAEHNqeL01PSkiRul7ImQ8Bsw8Nqc'
+NORECAPTCHA_SECRET_KEY = '6Lfo8VwUAAAAALFGUrGKqrzCR94pfgFahtd56WY9'

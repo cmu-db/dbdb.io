@@ -1,8 +1,11 @@
-from django.conf.urls import url
-from django.views.generic.base import TemplateView
+# django imports
 from django.conf import settings
+from django.conf.urls import url
+from django.views.generic.base import RedirectView
+from django.views.generic.base import TemplateView
 # project imports
 from dbdb.core import views
+
 
 urlpatterns = [
     url(r'^$', views.HomeView.as_view(), name="home"),
@@ -19,7 +22,8 @@ urlpatterns = [
     url(r'^search$', views.DatabaseBrowseView.as_view(), name='search'),
     url(r'^search/advanced$', views.AdvancedSearchView.as_view(), name='advanced_search'),
 
-    url(r'^user/create[/]?$', views.CreateUser.as_view(), name='create_user'),
+    url(r'^user/create$', views.CreateUser.as_view(), name='create_user'),
+    url(r'^user/create/$', RedirectView.as_view(pattern_name='create_user')),
 
     url(r'^counter$', views.CounterView.as_view(), name='counter'),
 ]
