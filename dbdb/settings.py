@@ -69,17 +69,7 @@ WSGI_APPLICATION = 'dbdb.wsgi.application'
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 DATABASES = {
-	'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'dbdb',
-        'USER': 'dbdb',
-        'PASSWORD': 'dbdb',
-        'HOST': 'localhost',
-        'OPTIONS': {
-            'init_command': 'SET default_storage_engine=INNODB',
-        },
-    },
-    'default1': env.db( default='sqlite:///{}'.format( root.path('data/db.sqlite3') ) )
+    'default': env.db( default='sqlite:///{}'.format( root.path('data/db.sqlite3') ) )
 }
 
 # Password validation
