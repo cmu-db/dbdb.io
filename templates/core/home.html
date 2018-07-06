@@ -6,6 +6,16 @@
     Home
 {% endblock %}
 
+{% block css %}
+    <meta property="og:site_name" content="Database of Databases" />
+    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
+    <meta property="og:title" content="Database of Databases" />
+    <meta property="og:description" content="The on-line encyclopedia of databases systems from Carnegie Mellon University." />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
+    <meta name="twitter:title" content="Database of Databases" />
+    <meta name="twitter:description" content="The on-line encyclopedia of databases systems from Carnegie Mellon University." />
+{% endblock %}
 
 {% block content %}
 <div class="main">
