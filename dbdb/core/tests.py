@@ -236,7 +236,7 @@ class SearchTestCase(TestCase):
     def test_search_valid_parameter(self):
         query = {'q': 'sql'}
         response = self.client.get(reverse('search'), data=query)
-        self.assertContains(response, '<h3>Found 1 results for \"sql\"</h3>', html=True)
+        self.assertContains(response, 'Found 1 results for \"sql\"', html=True)
         self.assertContains(response, 'SQLite', html=True)
         # self.assertContains(response, '<p class="card-text">Nice description</p>', html=True)
         return
@@ -244,7 +244,7 @@ class SearchTestCase(TestCase):
     def test_search_invalid_parameters(self):
         query = {'q': 'dock'}
         response = self.client.get(reverse('search'), data=query)
-        self.assertContains(response, '<h3>No results found for \"dock\"</h3>', html=True)
+        self.assertContains(response, 'No results found for \"<i>dock</i>\"', html=True)
         return
 
     pass
