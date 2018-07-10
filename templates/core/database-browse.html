@@ -102,7 +102,7 @@ div.results div.version p { margin:0; }
 <script>
 $(document).ready(function () {
 
-	var $filtered_content = $('#filtered_content');
+	var $form = $('form.main-search');
 
 	$('.filter-group').each(function(){
 		var $clear = $('a.clear', this);
@@ -111,7 +111,7 @@ $(document).ready(function () {
 
 		$clear.click(function(){
 			$filtergroup.find(':checked').prop('checked', false);
-			$filtered_content.submit();
+			$form.submit();
 		});
 
 		$seemore.find('a').click(function(){
@@ -133,7 +133,7 @@ $(document).ready(function () {
 	});
 
 	$('.filter-group :checkbox').change(function(){
-		$filtered_content.submit();
+		$form.submit();
 	});
 
 });
