@@ -21,12 +21,12 @@
 <div class="main">
 <div class="container">
     <div class="row justify-content-md-center homepage-header">
-        <div class="col col-md-8 col-sm-12 text-center">
+        <div class="col col-md-12 col-sm-12 text-center">
             <h1 class="display-3">Database of Databases</h1>
             <p class="lead">Discover and learn about <b>{{ num_systems }}</b> database management systems</p>
             <form action="{% url 'browse' %}" method="GET" >
                 <div class="form-group">
-                    <input type="text" name="q" class="form-control form-control-lg" id="search" aria-describedby="Search field" placeholder="Begin searching!">
+                    <input type="text" name="q" class="form-control form-control-lg" id="search" aria-describedby="Search field" placeholder="Begin searching!" style="max-width:700px;margin:0 auto;">
                 </div>
                 <p class="lead">
                     <a class="btn btn-link btn-lg" href="{% url 'browse' %}" role="button">Advanced Search</a>
