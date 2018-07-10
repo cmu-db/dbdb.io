@@ -124,7 +124,7 @@ div.sidebar .btn-default:hover { background-color:#609AB6; border-color:#609AB6;
 form.main-search { align-content: stretch; align-items: stretch; display: flex; padding:0; }
 form.main-search > div.filters { background-color: #E9ECEF; padding: 10px; width: 400px; }
 form.main-search > div.filters > h2 { color: #767676; font-size: 18px; margin-bottom: 20px; }
-form.main-search > div.filters > div.filter-group { margin-top: 10px; }
+form.main-search > div.filters > div.filter-group { margin-top: 10px; min-width: 300px; }
 form.main-search > div.filters > div.filter-group > h3 { color: #000000; font-size: 14px; font-weight: bold; margin-bottom: 5px; }
 form.main-search > div.filters > div.filter-group > h3 > a { font-size: 12px; font-weight: normal; display: none; }
 form.main-search > div.filters > div.filter-group > h3 > a:hover { text-decoration:none; }
