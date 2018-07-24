@@ -8,6 +8,7 @@ Browse
 
 
 {% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'lib/css/nouislider.min.css' %}">
 <style>
 #content { padding:40px 0; }
 
@@ -15,6 +16,18 @@ nav.letters { text-align: center; }
 nav.letters.no-results { display:table; width:100%; vertical-align:center; }
 nav.letters.no-results div.letters { display:table-cell; height: 75vh; text-align: center; vertical-align:middle; }
 
+form.main-search > div.filters > div.filter-group-range { margin-bottom:30px; }
+form.main-search > div.filters > div.filter-group-range > h3 { font-weight:bold; margin-bottom:15px; }
+form.main-search > div.filters > div.filter-group-range > h3 span.years { display:none; font-size:0.85em; font-weight:normal; padding-left:0.5em; }
+form.main-search > div.filters > div.filter-group-range > h3 span.years var { font-style:normal; }
+form.main-search > div.filters > div.filter-group-range > h3 button.btn { float:right; font-size:12px; padding:1px 6px; }
+form.main-search > div.filters > div.filter-group-range > h3 button.btn-apply { background-color:#49AA55; color:#fff; display:none; margin-right:5px; }
+form.main-search > div.filters > div.filter-group-range > h3 button.btn-toggle { background-color:#6c757d; color:#fff; }
+form.main-search > div.filters > div.filter-group-range.active > h3 button.btn-toggle { background-color:#244A64; }
+form.main-search > div.filters > div.filter-group-range.active > h3 span.years { display:inline; }
+form.main-search > div.filters > div.filter-group-range.changed > h3 button.btn-apply { display:inline; }
+form.main-search > div.filters > div.filter-group-range > div.range-container { padding:0 20px; }
+form.main-search > div.filters > div.filter-group-range > div.range-container .noUi-connect { background-color:#007bff; }
 
 div.results { min-height: 60vh; padding:40px 40px 30px 40px; }
 div.results div.version { margin-bottom:20px; max-width:800px; }
@@ -31,6 +44,34 @@ div.results div.version p { margin:0; }
     <div class="filters">
 
         <h2>Refine by</h2>
+
+        <div class="filter-group filter-group-range" id="start_year" data-min="{{ years.min_start_year }}" data-max="{{ years.max_start_year }}">
+            <h3>
+                Start Year
+                <span class="years">(<var for="min"></var> &ndash; <var for="max"></var>)</span>
+                <button type="button" class="btn btn-xs btn-toggle"></button>
+                <button type="submit" class="btn btn-xs btn-apply">Apply</button>
+            </h3>
+            <div class="range-container">
+                <div class="range"></div>
+            </div>
+            <input type="hidden" name="start-min" for="min" value="{{ search.start_min }}" />
+            <input type="hidden" name="start-max" for="max" value="{{ search.start_max }}" />
+        </div>
+
+         <div class="filter-group filter-group-range" id="end_year" data-min="{{ years.min_end_year }}" data-max="{{ years.max_end_year }}">
+            <h3>
+                End Year
+                <span class="years">(<var for="min"></var> &ndash; <var for="max"></var>)</span>
+                <button type="button" class="btn btn-xs btn-toggle"></button>
+                <button type="submit" class="btn btn-xs btn-apply">Apply</button>
+            </h3>
+            <div class="range-container">
+                <div class="range"></div>
+            </div>
+            <input type="hidden" name="end-min" for="min" value="{{ search.end_min }}" />
+            <input type="hidden" name="end-max" for="max" value="{{ search.end_max }}" />
+        </div>
 
         {% for filtergroup in filtergroups %}
         <div class="filter-group" id="filtergroup_{{ filtergroup.id }}">
@@ -92,15 +133,129 @@ div.results div.version p { margin:0; }
         </div>
         <!-- END: CARD-COLUMNS -->
     </div>
+
 </form>
 {% endblock %}
 
 
 {% block scripts %}
 <script src="{% static 'lib/js/bootstrap-select.js' %}"></script>
+<script src="{% static 'lib/js/nouislider.min.js' %}"></script>
 
 <script>
+function YearRange(selector) {
+
+    var self = this;
+    var $elem = $(selector);
+    var $btn_toggle = $elem.find('button.btn-toggle');
+    var $input_min = $elem.find('input[for="min"]');
+    var $input_max = $elem.find('input[for="max"]');
+    var $var_min = $elem.find('var[for="min"]');
+    var $var_max = $elem.find('var[for="max"]');
+    var $range = $elem.find('div.range');
+    var range = $range[0];
+
+    var initial_state = null;
+    var min = parseInt( $elem.data('min') , 10 );
+    var max = parseInt( $elem.data('max') , 10 );
+    var selected_min = $input_min.val() ? parseInt( $input_min.val() , 10 ) : '';
+    var selected_max = $input_max.val() ? parseInt( $input_max.val() , 10 ) : '';
+
+
+    self.update = function update(values, handle) {
+        if ( ! $elem.hasClass('active') ) return;
+
+        var val = parseInt( values[handle] , 10 );
+
+        if ( handle == 0 ) {
+            $input_min.val(val);
+            $var_min.text(val);
+
+            if (val != selected_min) $elem.addClass('changed');
+        }
+        else if ( handle == 1 ) {
+            $input_max.val(val);
+            $var_max.text(val);
+
+            if (val != selected_max) $elem.addClass('changed');
+        }
+    };
+
+    self.toggle = function toggle() {
+        if ( $elem.hasClass('active') ) {
+            self.disable();
+        }
+        else {
+            self.enable();
+        }
+
+        $elem.addClass('changed');
+    };
+
+    self.enable = function enable() {
+        $elem.addClass('active');
+        $range.show();
+        $btn_toggle.text('Enabled');
+
+        $input_min.prop('disabled', false);
+        $input_max.prop('disabled', false);
+
+        var values = range.noUiSlider.get();
+        self.update(values, 0);
+        self.update(values, 1);
+    };
+    
+    self.disable = function disable() {
+        $elem.removeClass('active');
+        $range.hide();
+        $btn_toggle.text('Enable');
+
+        $input_min.prop('disabled', true);
+        $input_max.prop('disabled', true);
+
+        $input_min.val('');
+        $input_max.val('');
+    };
+
+    self.init = function init() {
+        if ( selected_min && selected_max ) {
+            $elem.addClass('active');
+        }
+
+        noUiSlider.create(range, {
+            connect: true,
+            start: [selected_min ? selected_min : min, selected_max ? selected_max : max],
+            step: 1,
+
+            range: {
+                'min': min,
+                'max': max
+            }
+        });
+
+        range.noUiSlider.on('update', self.update);
+
+        if ( $elem.hasClass('active') ) {
+            initial_state = 'active';
+            self.enable();
+        }
+        else {
+            initial_state = 'disabled';
+            self.disable();
+        }
+
+        $btn_toggle.click(self.toggle);
+
+    };
+
+
+    self.init();
+}
+
 $(document).ready(function () {
+
+	new YearRange('#start_year');
+	new YearRange('#end_year');
 
 	var $form = $('form.main-search');
 

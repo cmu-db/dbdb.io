@@ -3,13 +3,14 @@ from functools import reduce
 import collections
 import datetime
 import operator
+import json
 # django imports
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Max, Min
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import JsonResponse
@@ -406,8 +407,23 @@ class DatabaseBrowseView(View):
         search_derived = request.GET.get('derived', '').strip()
         search_inspired = request.GET.get('inspired', '').strip()
         search_compatible = request.GET.get('compatible', '').strip()
+        search_start_min = request.GET.get('start-min', '').strip()
+        search_start_max = request.GET.get('start-max', '').strip()
+        search_end_min = request.GET.get('end-min', '').strip()
+        search_end_max = request.GET.get('end-max', '').strip()
+        
+        searches = (
+            search_country,
+            search_derived,
+            search_inspired,
+            search_compatible,
+            search_start_min,
+            search_start_max,
+            search_end_min,
+            search_end_max,
+        )
 
-        if not any((search_q, search_fg, search_country, search_derived, search_inspired, search_compatible)):
+        if not any(searches):
             return None
 
         # only search current versions
@@ -428,7 +444,7 @@ class DatabaseBrowseView(View):
                 features__options__id__in=option_ids
             )
             pass
-        
+
         # country search
         if search_country:
             terms = smart_split( search_country.upper() )
@@ -467,6 +483,14 @@ class DatabaseBrowseView(View):
                 return SystemVersion.objects.none()
             pass
 
+        # apply year limits
+        if all((search_start_min, search_start_max)):
+            versions = versions.filter(start_year__range=[ int(search_start_min) , int(search_start_max) ])
+            pass
+        if all((search_end_min, search_end_max)):
+            versions = versions.filter(end_year__range=[ int(search_end_min) , int(search_end_max) ])
+            pass
+
         # use generated list of PKs to get actual versions with systems
         versions = SystemVersion.objects \
             .filter(id__in=versions.values_list('id', flat=True)) \
@@ -477,6 +501,10 @@ class DatabaseBrowseView(View):
 
     def get(self, request):
         search_q = request.GET.get('q', '').strip()
+        search_start_min = request.GET.get('start-min', '').strip()
+        search_start_max = request.GET.get('start-max', '').strip()
+        search_end_min = request.GET.get('end-min', '').strip()
+        search_end_max = request.GET.get('end-max', '').strip()
 
         versions = self.do_search(request)
 
@@ -506,6 +534,18 @@ class DatabaseBrowseView(View):
 
         has_results = len(versions) > 0
 
+        years_start = SystemVersion.objects.filter(is_current=True).filter(start_year__gt=0).aggregate(
+            min_start_year=Min('start_year'),
+            max_start_year=Max('start_year')
+        )
+        years_end = SystemVersion.objects.filter(is_current=True).filter(end_year__gt=0).aggregate(
+            min_end_year=Min('end_year'),
+            max_end_year=Max('end_year')
+        )
+        years = {}
+        years.update(years_start)
+        years.update(years_end)
+
         return render(request, self.template_name, {
             'filtergroups': self.build_filter_groups(request.GET),
 
@@ -513,6 +553,15 @@ class DatabaseBrowseView(View):
             'pagination': pagination,
             'query': search_q,
             'versions': versions,
+            'years': years,
+            
+            'search': {
+                'q': search_q,
+                'start_min': search_start_min,
+                'start_max': search_start_max,
+                'end_min': search_end_min,
+                'end_max': search_end_max,
+            }
         })
 
     pass
