@@ -71,7 +71,7 @@
                     </h4>
                     <p class="card-text">
                         {% for v in feature.options.all %}
-                        <span class="badge badge-info">{{ v }}</span>
+                        <a class="badge badge-info" href="{% url 'browse' %}?fg{{ v.feature_id }}={{ v.id }}">{{ v }}</a>
                         {% endfor %}
                     </p>
                     <p class="markdown-area">
