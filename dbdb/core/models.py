@@ -299,10 +299,10 @@ class SystemVersion(models.Model):
     developer = models.CharField(
         blank=True, max_length=500,
         help_text="The original organization that developed the DBMS.")
-    
+
     logo = ThumbnailerImageField(
         blank=True, upload_to='logos/')
-    
+
     countries = CountryField(
         blank=True, multiple=True,
         verbose_name="Countries of Origin",

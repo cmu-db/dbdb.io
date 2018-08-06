@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load countries %}
+{% load bootstrap4 %}
+
+{% block title %}
+Advanced Search
+{% endblock %}
+
+
+{% block css %}
+<style>
+table.table-stats { }
+table.table-stats tbody { }
+table.table-stats tbody tr { }
+table.table-stats tbody tr td.stat-label { text-align:left; }
+table.table-stats tbody tr td.stat-value { text-align:right; }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="main">
+	<div class="container">
+		<div class="row justify-content-md-center homepage-header">
+			<div class="col col-md-12 col-sm-12 text-center">
+				<h1 class="display-3">Statistics</h1>
+				<p class="lead">Database counts.</p>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="row">
+			{% for stat in stats %}
+			<div class="col-md-4 text-center">
+				<h3>{{ stat.label }}</h3>
+				<table class="table table-hover table-stats">
+					<tbody>
+						{% for item in stat.items %}
+						<tr>
+							<td class="stat-label">{{ item.label }}</td>
+							<td class="stat-value">{{ item.value }}</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+$(document).ready(function () {
+
+});
+</script>
+{% endblock %}

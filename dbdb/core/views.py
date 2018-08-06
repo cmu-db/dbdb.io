@@ -49,6 +49,9 @@ SITEMAP_NSMAP = { None : SITEMPA_NS }
 # helper classes
 
 FieldSet = collections.namedtuple('FieldSet', ['id','label','choices','description','citation'])
+LetterPage = collections.namedtuple('LetterPage', ['id','letter','is_active','is_disabled'])
+Stat = collections.namedtuple('Stat', ['label','items'])
+StatItem = collections.namedtuple('StatItem', ['label','value'])
 
 class FilterChoice( collections.namedtuple('FilterChoice', ['id','label','checked']) ):
 
@@ -82,8 +85,6 @@ class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) 
         return
 
     pass
-
-LetterPage = collections.namedtuple('LetterPage', ['id','letter','is_active','is_disabled'])
 
 
 # class based views
@@ -643,7 +644,6 @@ class CreateUser(View):
 
     pass
 
-
 class DatabasesEditView(View, LoginRequiredMixin):
 
     template_name = 'core/databases-edit.html'
@@ -942,6 +942,47 @@ class HomeView(View):
             'most_views': most_views,
 
             'no_nav_search': True,
+        })
+
+    pass
+
+class StatsView(View):
+
+    template_name = 'core/stats.html'
+
+    def get_bycountries(self):
+        def reduce_countries(mapping, item):
+            countries = item.countries.split(',')
+            for c in countries:
+                if c:
+                    mapping[c] = mapping.get(c, 0) + 1
+            return mapping
+
+        system_countries = SystemVersion.objects \
+            .filter(is_current=True) \
+            .values_list('system_id','countries', named=True)
+        system_countries = reduce(reduce_countries, system_countries, {})
+        system_countries = [
+            StatItem(k, v)
+            for k,v in system_countries.items()
+        ]
+        system_countries.sort(key=lambda i: i.value, reverse=True)
+
+        stat = Stat(
+            'Systems per Country',
+            system_countries
+        )
+
+        return stat
+
+    def get(self, request):
+        stats = []
+
+        
+        stats.append( self.get_bycountries() )
+
+        return render(request, self.template_name, context={
+            'stats': stats,
         })
 
     pass
