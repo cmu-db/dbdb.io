@@ -149,7 +149,7 @@ div.results div.version p { margin:0; }
             {% endif %}
             </p>
         {% else %}
-        <nav class="letters {% if not has_results %}no-results{% endif %}" aria-label="Page navigation example">
+        <nav class="letters {% if not has_results %}no-results{% endif %}" aria-label="Page Navigation">
             <div class="letters">
                 {% for page in pagination %}
                 <button type="submit" class="btn {% if page.is_active %}btn-primary active{% else %}btn-secondary{% endif %} {% if page.is_disabled %}disabled{% endif %}" name="letter" value="{{ page.letter }}">{{ page.letter }}</button>

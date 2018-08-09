@@ -7,7 +7,6 @@ from pyquery import PyQuery as pq
 # local imports
 from .models import Feature
 
-
 # test cases
 
 class AdvancedSearchTestCase(TestCase):
@@ -29,7 +28,8 @@ class AdvancedSearchTestCase(TestCase):
         response = self.client.get(reverse('browse'))
         d = pq(response.content)
         filtergroups = d('div.filter-group')
-        self.assertEquals(quantity, len(filtergroups))
+        # Add two for the year filtergroups
+        self.assertEquals(quantity + 2, len(filtergroups))
         return
 
     def test_search_with_insuficient_data(self):
@@ -37,7 +37,7 @@ class AdvancedSearchTestCase(TestCase):
             'fg1': ['1'],
         }
         response = self.client.get(reverse('browse'), data=data)
-        self.assertContains(response, 'No results found')
+        self.assertContains(response, 'No databases found')
         return
 
     def test_search_with_suficient_data(self):
@@ -84,7 +84,7 @@ class AdvancedSearchTestCase(TestCase):
             'fg2': [5]
         }
         response = self.client.get(reverse('browse'), data=data)
-        self.assertContains(response, 'No results found for')
+        self.assertContains(response, 'No databases found')
         return
 
     pass
@@ -236,7 +236,8 @@ class SearchTestCase(TestCase):
     def test_search_valid_parameter(self):
         query = {'q': 'sql'}
         response = self.client.get(reverse('search'), data=query)
-        self.assertContains(response, 'Found 1 results for \"sql\"', html=True)
+        #print(response.content)
+        self.assertContains(response, 'Found 1 database for \"sql\"', html=True)
         self.assertContains(response, 'SQLite', html=True)
         # self.assertContains(response, '<p class="card-text">Nice description</p>', html=True)
         return
@@ -244,7 +245,7 @@ class SearchTestCase(TestCase):
     def test_search_invalid_parameters(self):
         query = {'q': 'dock'}
         response = self.client.get(reverse('search'), data=query)
-        self.assertContains(response, 'No results found for \"<i>dock</i>\"', html=True)
+        self.assertContains(response, 'No databases found for \"dock\"', html=True)
         return
 
     pass

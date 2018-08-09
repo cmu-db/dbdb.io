@@ -414,6 +414,7 @@ class DatabaseBrowseView(View):
         search_end_max = request.GET.get('end-max', '').strip()
         
         searches = (
+            search_q,
             search_country,
             search_derived,
             search_inspired,
@@ -500,7 +501,7 @@ class DatabaseBrowseView(View):
 
         # HACK: Create mapping to return to template
         search_mapping = {
-            'q': search_q,
+            'query': search_q,
             'country': search_country,
             'derived': search_derived,
             'derived_system': derived,
