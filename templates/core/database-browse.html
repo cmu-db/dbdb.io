@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% load countries %}
 {% load bootstrap4 %}
 
 {% block title %}
@@ -106,15 +107,47 @@ div.results div.version p { margin:0; }
                 <button class="btn btn-default" type="submit" id="search">Search</button>
             </span>
         </div>
-
-        {% if query %}
-        <p class="results-info">
+        
+        {% if has_search %}
+            <p class="results-info">
             {% if versions %}
-            Found {{ versions|length }} results for "{{ query }}"
+                Found {{ versions|length }} database{% if versions|length > 1 %}s{% endif %}
             {% else %}
-            No results found for "<i>{{ query }}</i>"
+                No databases found
             {% endif %}
-        </p>
+            {% if search.country %}
+                <!-- COUNTRY -->
+                {% get_country search.country as country %}
+                for "{{ country.name }}"
+            {% elif search.derived %}
+                <!-- DERIVED -->
+                derived from 
+                {% if search.derived_system %}
+                    <a href="{% url 'system' search.derived_system.slug %}">{{ search.derived_system.name }}</a>
+                {% else %}
+                    "{{ search.derived }}"
+                {% endif %}
+            {% elif search.inspired %}
+                <!-- INSPIRED -->
+                inspired by 
+                {% if search.inspired_system %}
+                    <a href="{% url 'system' search.inspired_system.slug %}">{{ search.inspired_system.name }}</a>
+                {% else %}
+                    "{{ search.inspired }}"
+                {% endif %}
+            {% elif search.compatible %}
+                <!-- COMPATIBLE -->
+                compatible with 
+                {% if search.compatible_system %}
+                    <a href="{% url 'system' search.compatible_system.slug %}">{{ search.compatible_system.name }}</a>
+                {% else %}
+                    "{{ search.compatible }}"
+                {% endif %}
+            {% elif search.query %}
+                <!-- QUERY -->
+                for "{{ search.query }}"
+            {% endif %}
+            </p>
         {% else %}
         <nav class="letters {% if not has_results %}no-results{% endif %}" aria-label="Page navigation example">
             <div class="letters">

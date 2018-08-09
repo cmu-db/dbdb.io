@@ -424,9 +424,9 @@ class DatabaseBrowseView(View):
             search_end_max,
         )
 
-        if not any(searches):
-            return None
-
+        if not any(searches) and not any(search_fg):
+            return (None, { })
+        
         # only search current versions
         versions = SystemVersion.objects \
             .filter(is_current=True)
@@ -498,17 +498,31 @@ class DatabaseBrowseView(View):
             .select_related('system') \
             .order_by('system__name')
 
-        return versions
+        # HACK: Create mapping to return to template
+        search_mapping = {
+            'q': search_q,
+            'country': search_country,
+            'derived': search_derived,
+            'derived_system': derived,
+            'inspired': search_inspired,
+            'inspired_system': inspired,
+            'compatible': search_compatible,
+            'compatible_system': compatible,
+            'start_min': search_start_min,
+            'start_max': search_start_max,
+            'end_min': search_end_min,
+            'end_max': search_end_max,
+        }
+
+        return (versions, search_mapping)
 
     def get(self, request):
+        # Perform the search and get back the versions along with a
+        # mapping with the search keys
+        versions, search_keys = self.do_search(request)
+
         search_q = request.GET.get('q', '').strip()
-        search_start_min = request.GET.get('start-min', '').strip()
-        search_start_max = request.GET.get('start-max', '').strip()
-        search_end_min = request.GET.get('end-min', '').strip()
-        search_end_max = request.GET.get('end-max', '').strip()
-
-        versions = self.do_search(request)
-
+        
         # Search Letter
         search_letter = request.GET.get('letter', '').strip().upper()
 
@@ -516,6 +530,7 @@ class DatabaseBrowseView(View):
             pass
         elif search_letter == 'ALL' or not search_letter:
             versions = SystemVersion.objects.filter(is_current=True)
+            search_letter = 'ALL'
             pass
         elif search_letter:
             versions = SystemVersion.objects \
@@ -555,15 +570,17 @@ class DatabaseBrowseView(View):
             'query': search_q,
             'versions': versions,
             'years': years,
-            
-            'search': {
-                'q': search_q,
-                'start_min': search_start_min,
-                'start_max': search_start_max,
-                'end_min': search_end_min,
-                'end_max': search_end_max,
-            }
+            'has_search': len(search_keys) != 0,
+            'search': search_keys,
         })
+    
+    #'search': {
+                #'q': search_q,
+                #'start_min': search_start_min,
+                #'start_max': search_start_max,
+                #'end_min': search_end_min,
+                #'end_max': search_end_max,
+            #}
 
     pass
 

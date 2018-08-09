@@ -19,14 +19,14 @@ class AdvancedSearchTestCase(TestCase):
         'core_system.json'
     ]
 
-    def test_can_access_advanced_search(self):
-        response = self.client.get(reverse('advanced_search'))
+    def test_can_access_browse(self):
+        response = self.client.get(reverse('browse'))
         self.assertEquals(response.status_code, 200)
         return
 
     def test_inputs_quantity(self):
         quantity = Feature.objects.count()
-        response = self.client.get(reverse('advanced_search'))
+        response = self.client.get(reverse('browse'))
         d = pq(response.content)
         filtergroups = d('div.filter-group')
         self.assertEquals(quantity, len(filtergroups))
@@ -36,7 +36,7 @@ class AdvancedSearchTestCase(TestCase):
         data = {
             'fg1': ['1'],
         }
-        response = self.client.get(reverse('advanced_search'), data=data)
+        response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'No results found')
         return
 
@@ -44,7 +44,7 @@ class AdvancedSearchTestCase(TestCase):
         data = {
             'fg1': [3],
         }
-        response = self.client.get(reverse('advanced_search'), data=data)
+        response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'SQLite', html=True)
         return
 
@@ -52,7 +52,7 @@ class AdvancedSearchTestCase(TestCase):
         data = {
             'fg1': [2, 3],
         }
-        response = self.client.get(reverse('advanced_search'), data=data)
+        response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'SQLite', html=True)
         return
 
@@ -61,7 +61,7 @@ class AdvancedSearchTestCase(TestCase):
             'fg1': [3],
             'fg2': [4],
         }
-        response = self.client.get(reverse('advanced_search'), data=data)
+        response = self.client.get(reverse('browse'), data=data)
         #print(response.content)
         self.assertContains(response, '<h5>SQLite</h5>', html=True)
 
@@ -69,21 +69,21 @@ class AdvancedSearchTestCase(TestCase):
             'fg1': [3],
             'fg2': [5]
         }
-        response = self.client.get(reverse('advanced_search'), data=data)
+        response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, '<h5>SQLite</h5>', html=True)
 
         data = {
             'fg1': [3],
             'fg2': [5, 4]
         }
-        response = self.client.get(reverse('advanced_search'), data=data)
+        response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'SQLite', html=True)
 
         data = {
             'fg1': [2],
             'fg2': [5]
         }
-        response = self.client.get(reverse('advanced_search'), data=data)
+        response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'No results found for')
         return
 
