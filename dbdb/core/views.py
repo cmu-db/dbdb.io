@@ -268,6 +268,23 @@ class DatabaseBrowseView(View):
         if not any(searches) and not any(search_fg):
             return (None, { })
         
+        
+        # HACK: Create mapping to return to template
+        search_mapping = {
+            'query': search_q,
+            'country': search_country,
+            'derived': search_derived,
+            'derived_system': derived,
+            'inspired': search_inspired,
+            'inspired_system': inspired,
+            'compatible': search_compatible,
+            'compatible_system': compatible,
+            'start_min': search_start_min,
+            'start_max': search_start_max,
+            'end_min': search_end_min,
+            'end_max': search_end_max,
+        }
+        
         # only search current versions
         versions = SystemVersion.objects \
             .filter(is_current=True)
@@ -300,9 +317,10 @@ class DatabaseBrowseView(View):
             try:
                 derived = System.objects.get(slug=search_derived)
                 versions = versions.filter(meta__derived_from__id=derived.id)
-                search_derived = derived.name
+                search_mapping['derived'] = derived.name
+                search_mapping['derived_system'] = derived
             except:
-                return SystemVersion.objects.none()
+                return (SystemVersion.objects.none(), search_mapping)
             pass
 
         # inspired system
@@ -310,19 +328,21 @@ class DatabaseBrowseView(View):
             try:
                 inspired = System.objects.get(slug=search_inspired)
                 versions = versions.filter(meta__inspired_by__id=inspired.id)
-                search_inspired = inspired.name
+                search_mapping['inspired'] = inspired.name
+                search_mapping['inspired_system'] = inspired
             except:
-                return SystemVersion.objects.none()
+                return (SystemVersion.objects.none(), search_mapping)
             pass
 
         # compatible system
         if search_compatible:
             try:
-                compatible = System.objects.get(slug=search_compatible).only('id')
+                compatible = System.objects.get(slug=search_compatible)
                 versions = versions.filter(meta__compatible_with__id=compatible.id)
-                search_compatible = compatible.name
+                search_mapping['compatible'] = compatible.name
+                search_mapping['compatible_system'] = compatible
             except:
-                return SystemVersion.objects.none()
+                return (SystemVersion.objects.none(), search_mapping)
             pass
 
         # apply year limits
@@ -338,22 +358,6 @@ class DatabaseBrowseView(View):
             .filter(id__in=versions.values_list('id', flat=True)) \
             .select_related('system') \
             .order_by('system__name')
-
-        # HACK: Create mapping to return to template
-        search_mapping = {
-            'query': search_q,
-            'country': search_country,
-            'derived': search_derived,
-            'derived_system': derived,
-            'inspired': search_inspired,
-            'inspired_system': inspired,
-            'compatible': search_compatible,
-            'compatible_system': compatible,
-            'start_min': search_start_min,
-            'start_max': search_start_max,
-            'end_min': search_end_min,
-            'end_max': search_end_max,
-        }
 
         return (versions, search_mapping)
 
