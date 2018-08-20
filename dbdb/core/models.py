@@ -33,6 +33,7 @@ class Feature(models.Model):
 
     label = models.CharField(max_length=100, unique=True)
     multivalued = models.BooleanField(default=True)
+    description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
 
     class Meta:
         ordering = ('label',)
@@ -48,8 +49,8 @@ class Feature(models.Model):
 class FeatureOption(models.Model):
 
     feature = models.ForeignKey('Feature', models.CASCADE)
-
     value = models.CharField(max_length=100)
+    description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
 
     def __str__(self):
         return self.value
