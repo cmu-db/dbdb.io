@@ -35,6 +35,17 @@ div.results div.version { margin-bottom:20px; max-width:800px; }
 div.results div.version h3 { font-size:20px; margin:0; }
 div.results div.version cite { color:#006621; font-size:13px; font-style:normal; }
 div.results div.version p { margin:0; }
+
+#filter_modal { }
+#filter_modal form.modal-content div.modal-body { align-items:stretch; border-radius:0px; flex-direction:row; flex-wrap:nowrap; display:flex; height:60vh; padding:0; }
+#filter_modal form.modal-content div.modal-body ul.nav-tabs { display:block; overflow-y:scroll; width:200px; }
+#filter_modal form.modal-content div.modal-body ul.nav-tabs li { border-bottom:1px solid #ddd; display:block; }
+#filter_modal form.modal-content div.modal-body ul.nav-tabs li a { color:#555; display:block; font-size:13px; font-weight:bold; padding:10px 0px 10px 30px; }
+#filter_modal form.modal-content div.modal-body ul.nav-tabs li a.active { background-color:#DDDDDD; }
+#filter_modal form.modal-content div.modal-body ul.nav-tabs li a:hover { color:#0645BA; text-decoration:none; }
+#filter_modal form.modal-content div.modal-body div.tab-content { display:block; flex-grow:1; overflow-y:auto; padding:30px 30px; width:400px; }
+#filter_modal form.modal-content div.modal-body div.tab-content ul.checkbox-list { list-style-type:none; margin:0; padding:0; }
+#filter_modal form.modal-content div.modal-footer { padding:0.5rem 1rem; }
 </style>
 {% endblock %}
 
@@ -60,7 +71,7 @@ div.results div.version p { margin:0; }
             <input type="hidden" name="start-max" for="max" value="{{ search.start_max }}" />
         </div>
 
-         <div class="filter-group filter-group-range" id="end_year" data-min="{{ years.min_end_year }}" data-max="{{ years.max_end_year }}">
+        <div class="filter-group filter-group-range" id="end_year" data-min="{{ years.min_end_year }}" data-max="{{ years.max_end_year }}">
             <h3>
                 End Year
                 <span class="years">(<var for="min"></var> &ndash; <var for="max"></var>)</span>
@@ -75,28 +86,40 @@ div.results div.version p { margin:0; }
         </div>
 
         {% for filtergroup in filtergroups %}
+        {% if filtergroup.has_checked %}
         <div class="filter-group" id="filtergroup_{{ filtergroup.id }}">
 
             <h3>
                 {{ filtergroup.label }}
-                {% if filtergroup.has_checked %}
+
                 <a href="javascript:;" class="clear" title="clear selected"><i class="fas fa-eraser"></i> clear </a>
-                {% endif %}
             </h3>
 
             <ul>
                 {% for choice in filtergroup.choices %}
-                <li {% if choice.is_hidden %}class="more"{% endif %}><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" {% if choice.checked %}checked="checked"{% endif %}> {{ choice.label }}</label></li>
-                {% endfor %}
-                {% if filtergroup.has_more %}
-                <li class="see-more">
-                    <a href="javascript:;">Show more</a>
-                </li>
+                {% if choice.checked %}
+                <li {% if choice.is_hidden %}class="more"{% endif %}><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" checked="checked"> {{ choice.label }}</label></li>
                 {% endif %}
+                {% endfor %}
             </ul>
 
         </div>
+        {% endif %}
         {% endfor %}
+
+        <a href="javascript:show_refinements();" style="display:block; margin-top:20px;">More refinements...</a>
+
+        <div id="refinements">
+        {% for filtergroup in filtergroups %}
+        {% if filtergroup.has_checked %}
+        {% for choice in filtergroup.choices %}
+        {% if choice.checked %}
+        <input type="hidden" name="{{ filtergroup.id }}" value="{{ choice.id }}">
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        {% endfor %}
+        </div>
 
     </div>
 
@@ -168,6 +191,35 @@ div.results div.version p { margin:0; }
     </div>
 
 </form>
+
+<div class="modal" tabindex="-1" role="dialog" id="filter_modal">
+    <div class="modal-dialog modal-lg" role="document">
+        <form class="modal-content">
+            <div class="modal-body">
+                <ul class="nav nav-tabs" role="tablist">
+                    {% for filtergroup in filtergroups %}
+                    <li role="presentation"><a {% if forloop.first %}class="active"{% endif %} href="#{{ filtergroup.id }}" aria-controls="{{ filtergroup.id }}" role="tab" data-toggle="tab">{{ filtergroup.label }}</a></li>
+                    {% endfor %}
+                </ul>
+                <div class="tab-content">
+                    {% for filtergroup in filtergroups %}
+                    <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ filtergroup.id }}">
+                        <ul class="checkbox-list">
+                            {% for choice in filtergroup.choices %}
+                            <li><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" {% if choice.checked %}checked="checked"{% endif %}> {{ choice.label }}</label></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="apply_refinements()">Apply</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 
@@ -285,12 +337,37 @@ function YearRange(selector) {
     self.init();
 }
 
+function apply_refinements() {
+
+    $('#filter_modal').modal('hide');
+
+    var $refinements = $('#refinements');
+    
+    $refinements.empty();
+
+    $(':checked', '#filter_modal').each(function(){
+        var $this = $(this);
+        var $that = $('<input type="hidden" />');
+        
+        $refinements.append($that);
+        $that.attr('name', $this.attr('name'));
+        $that.val( $this.val() );
+    });
+
+    $('form.main-search').submit();
+
+}
+
+function show_refinements() {
+    $('#filter_modal').modal('show');
+}
+
 $(document).ready(function () {
 
-	new YearRange('#start_year');
-	new YearRange('#end_year');
+    new YearRange('#start_year');
+    new YearRange('#end_year');
 
-	var $form = $('form.main-search');
+    var $form = $('form.main-search');
 
 	$('.filter-group').each(function(){
 		var $clear = $('a.clear', this);
@@ -320,9 +397,13 @@ $(document).ready(function () {
 		});
 	});
 
-	$('.filter-group :checkbox').change(function(){
-		$form.submit();
-	});
+    $('.filter-group :checkbox').change(function(){
+        $form.submit();
+    });
+
+    $('#filter_modal').modal({
+        show: false
+    });
 
 });
 </script>
