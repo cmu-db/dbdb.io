@@ -10,9 +10,28 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 # third-party imports
 from easy_thumbnails.fields import ThumbnailerImageField
 from django_countries.fields import CountryField
+
+
+# ==============================================
+# DocumentationTag
+# ==============================================
+class DocumentationTag(models.Model):
+    name = models.CharField(max_length=32, unique=True)
+    short_description = models.CharField(max_length=256)
+    description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
+    created = models.DateTimeField(default=timezone.now)
+    modified = models.DateTimeField(default=timezone.now)
+
+    def slug(self):
+        return slugify(self.name)
+
+    def __str__(self):
+        return self.name
+    pass
 
 # ==============================================
 # CitationUrl
@@ -452,6 +471,7 @@ class SystemVersionMetadata(models.Model):
 
 
 __all__ = (
+    'DocumentationTag',
     'Feature',
     'FeatureOption',
     'License',

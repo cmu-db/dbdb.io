@@ -40,6 +40,7 @@ from dbdb.core.models import Feature
 from dbdb.core.models import FeatureOption
 from dbdb.core.models import SystemFeature
 from dbdb.core.models import CitationUrl
+from dbdb.core.models import DocumentationTag
 
 
 SITEMPA_NS = 'http://www.sitemaps.org/schemas/sitemap/0.9'
@@ -85,6 +86,23 @@ class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) 
         return
 
     pass
+
+# ==============================================
+# DocumentationView
+# ==============================================
+class DocumentationView(View):
+
+    template_name = 'core/documentation.html'
+
+    def get(self, request):
+        doc_tags = DocumentationTag.objects.all().order_by('name')
+        return render(request, self.template_name, {
+            'tags': doc_tags,
+        })
+
+    pass
+
+## CLASS
 
 
 # ==============================================

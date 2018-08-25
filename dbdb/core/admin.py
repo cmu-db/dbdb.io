@@ -25,6 +25,12 @@ class FeatureAdmin(admin.ModelAdmin):
 class FeatureOptionAdmin(admin.ModelAdmin):
     list_filter = ['feature']
     list_display = ('value', 'feature')
+    
+class DocumentationTagAdmin(admin.ModelAdmin):
+    list_display = ('name', 'short_description', 'created', 'modified',)
+    list_filter = ['created', 'modified' ]
+    search_fields = ('name', 'short_description')
+    readonly_fields=('created', 'modified' )
 
 class SystemAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
@@ -44,7 +50,7 @@ class SystemVersionAdmin(admin.ModelAdmin):
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 
-
+admin.site.register(DocumentationTag, DocumentationTagAdmin)
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(FeatureOption, FeatureOptionAdmin)
 admin.site.register(License)
