@@ -42,9 +42,11 @@ from dbdb.core.models import SystemFeature
 from dbdb.core.models import CitationUrl
 
 
+FILTERGROUP_VISIBLE_LENGTH = 3
 SITEMPA_NS = 'http://www.sitemaps.org/schemas/sitemap/0.9'
 SITEMAP_PREFIX = '{%s}' % SITEMPA_NS
 SITEMAP_NSMAP = { None : SITEMPA_NS }
+
 
 # helper classes
 
@@ -72,12 +74,12 @@ class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) 
     has_more = False
 
     def prepare(self):
-        self.choices.sort(key=lambda fc: fc.sort_key)
+        #self.choices.sort(key=lambda fc: fc.sort_key)
 
         for i,choice in enumerate(self.choices):
             self.has_checked = self.has_checked or choice.checked
 
-            if i >=4 and not choice.checked:
+            if i >= FILTERGROUP_VISIBLE_LENGTH and not choice.checked:
                 choice.is_hidden = True
                 self.has_more = True
                 pass
@@ -179,6 +181,28 @@ class DatabaseBrowseView(View):
             )
             return mapping
 
+        other_filtersgroups = []
+
+        fg_country = FilterGroup('country', 'Country', [
+            FilterChoice(
+               code,
+               name,
+               code in querydict.getlist( 'country', empty_set )
+            )
+            for code,name in list(countries)
+        ])
+        other_filtersgroups.append(fg_country)
+
+        fg_derived = FilterGroup('derived', 'Derived From', [
+            FilterChoice(
+                sys.id,
+                sys.name,
+                str(sys.id) in querydict.getlist( 'derived', empty_set )
+            )
+            for sys in System.objects.values_list('id', 'name', named=True)
+        ])
+        other_filtersgroups.append(fg_derived)
+
         filtergroups = collections.OrderedDict(
             ( f_id, FilterGroup('fg{}'.format(f_id), f_label, []) )
             for f_id,f_label in Feature.objects.all().order_by().values_list('id','label')
@@ -190,7 +214,9 @@ class DatabaseBrowseView(View):
             filtergroups
         )
 
-        filtergroups = filtergroups.values()
+        filtergroups = list( filtergroups.values() )
+
+        filtergroups = other_filtersgroups + filtergroups
 
         for fg in filtergroups:
             fg.prepare()
@@ -244,7 +270,7 @@ class DatabaseBrowseView(View):
             if k.startswith('fg')
         }
 
-        search_country = request.GET.get('country', '').strip()
+        search_country = request.GET.getlist('country', '')
         search_derived = request.GET.get('derived', '').strip()
         search_inspired = request.GET.get('inspired', '').strip()
         search_compatible = request.GET.get('compatible', '').strip()
@@ -306,16 +332,25 @@ class DatabaseBrowseView(View):
 
         # country search
         if search_country:
-            terms = smart_split( search_country.upper() )
+            #terms = smart_split( search_country.upper() )
             # query = [Q(system__countries__in=t) for t in terms]
-            query = Q(countries__in=terms)
+            query = Q(countries__in=search_country)
             versions = versions.filter(query)
             pass
 
         # derived system
-        if search_derived:
+        if search_derived and not search_derived.isdigit():
             try:
                 derived = System.objects.get(slug=search_derived)
+                versions = versions.filter(meta__derived_from__id=derived.id)
+                search_mapping['derived'] = derived.name
+                search_mapping['derived_system'] = derived
+            except:
+                return (SystemVersion.objects.none(), search_mapping)
+            pass
+        if search_derived and search_derived.isdigit():
+            try:
+                derived = System.objects.get(id=search_derived)
                 versions = versions.filter(meta__derived_from__id=derived.id)
                 search_mapping['derived'] = derived.name
                 search_mapping['derived_system'] = derived
