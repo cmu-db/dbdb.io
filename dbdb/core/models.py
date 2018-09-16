@@ -14,6 +14,7 @@ from django.utils import timezone
 from easy_thumbnails.fields import ThumbnailerImageField
 from django_countries.fields import CountryField
 
+
 # ==============================================
 # CitationUrl
 # ==============================================
@@ -246,7 +247,7 @@ class SystemRedirect(models.Model):
 # SystemVersion
 # ==============================================
 class SystemVersion(models.Model):
-    
+
     # Internal Version Meta-data
     system = models.ForeignKey('System', models.CASCADE)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT)
@@ -275,7 +276,7 @@ class SystemVersion(models.Model):
     end_year_citations = models.ManyToManyField(
         'CitationUrl', blank=True,
         related_name='version_end_years')
-    
+
     history = models.TextField(
         blank=True,
         help_text="This field support Markdown Syntax")
@@ -289,13 +290,13 @@ class SystemVersion(models.Model):
     acquired_by_citations = models.ManyToManyField(
         'CitationUrl', blank=True,
         related_name='version_acquired_bys')
-    
+
     # General Information Fields
     project_types = models.ManyToManyField(
-        'ProjectType', blank=True, 
-        related_name='project_types', 
+        'ProjectType', blank=True,
+        related_name='project_types',
         verbose_name='Project Type')
-    
+
     developer = models.CharField(
         blank=True, max_length=500,
         help_text="The original organization that developed the DBMS.")
@@ -307,25 +308,25 @@ class SystemVersion(models.Model):
         blank=True, multiple=True,
         verbose_name="Countries of Origin",
         help_text="Country of where the DBMS company or project started")
-    
+
     former_names = models.CharField(
         blank=True, max_length=100,
         help_text="Previous names of the system")
-    
+
     # URLs
     url = models.URLField(
         blank=True, max_length=500,
         help_text="URL of the DBMS company or project")
-    
+
     tech_docs = models.URLField(
         blank=True, max_length=500,
         help_text="URL of the where to find technical documentation about the DBMS")
-    
+
     source_url = models.URLField(
         blank=True, max_length=500,
         verbose_name="Source Code URL",
         help_text="URL of where to download source code (if available)")
-    
+
     wikipedia_url = models.URLField(
         blank=True, max_length=500,
         verbose_name="Wikipedia URL",
@@ -384,37 +385,37 @@ class SystemVersionMetadata(models.Model):
         related_name='derived_from_systems',
         verbose_name='Systems Derived From',
         help_text="Systems that this system uses or its source code is based on")
-    
+
     inspired_by = models.ManyToManyField(
         'System', blank=True,
         related_name='inspired_by_systems',
         verbose_name='Systems Inspired By',
         help_text="Systems used for inspiration in its design but did not rely on source code")
-    
+
     compatible_with = models.ManyToManyField(
         'System', blank=True,
         related_name='compatible_with_systems',
         verbose_name='Systems Compatible With',
         help_text="Other systems that this system is compatible with (e.g., wire protocol, file formats).")
-    
+
     licenses = models.ManyToManyField(
         'License', blank=True,
         related_name='systems_licenses')
-    
+
     oses = models.ManyToManyField(
         'OperatingSystem', blank=True,
         related_name='systems_oses',
         verbose_name='Operating Systems')
-    
+
     publications = models.ManyToManyField(
         'Publication', blank=True,
         related_name='systems_publications')
-    
+
     supported_languages = models.ManyToManyField(
         'ProgrammingLanguage', blank=True,
         related_name='systems_supported',
         verbose_name='Supported Languages')
-    
+
     written_in = models.ManyToManyField(
         'ProgrammingLanguage', blank=True,
         related_name='systems_written')
@@ -425,12 +426,12 @@ class SystemVersionMetadata(models.Model):
 
     def derived_from_str(self):
         return ', '.join([str(l) for l in self.derived_from.all()])
-    
-    def inspired_by_str(self):
-        return ', '.join([str(l) for l in self.inspired_by.all()])
 
     def compatible_with_str(self):
         return ', '.join([str(l) for l in self.compatible_with.all()])
+
+    def inspired_by_str(self):
+        return ', '.join([str(l) for l in self.inspired_by.all()])
 
     def licenses_str(self):
         return ', '.join([str(l) for l in self.licenses.all()])
