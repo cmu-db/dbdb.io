@@ -86,7 +86,6 @@ div.results div.version p { margin:0; }
         </div>
 
         {% for filtergroup in filtergroups %}
-        {% if filtergroup.has_checked %}
         <div class="filter-group" id="filtergroup_{{ filtergroup.id }}">
 
             <h3>
@@ -97,29 +96,19 @@ div.results div.version p { margin:0; }
 
             <ul>
                 {% for choice in filtergroup.choices %}
-                {% if choice.checked %}
-                <li {% if choice.is_hidden %}class="more"{% endif %}><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" checked="checked"> {{ choice.label }}</label></li>
-                {% endif %}
+                <li {% if choice.is_hidden %}class="more"{% endif %}><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" {% if choice.checked %}checked="checked"{% endif %}> {{ choice.label }}</label></li>
                 {% endfor %}
+                
+                {% if filtergroup.has_more %}
+                <li class="see-more">
+                    <a href="javascript:;">Show more</a>
+                </li>
+                {% endif %}
+
             </ul>
 
         </div>
-        {% endif %}
         {% endfor %}
-
-        <a href="javascript:show_refinements();" style="display:block; margin-top:20px;">More refinements...</a>
-
-        <div id="refinements">
-        {% for filtergroup in filtergroups %}
-        {% if filtergroup.has_checked %}
-        {% for choice in filtergroup.choices %}
-        {% if choice.checked %}
-        <input type="hidden" name="{{ filtergroup.id }}" value="{{ choice.id }}">
-        {% endif %}
-        {% endfor %}
-        {% endif %}
-        {% endfor %}
-        </div>
 
     </div>
 
@@ -132,45 +121,45 @@ div.results div.version p { margin:0; }
         </div>
         
         {% if has_search %}
-            <p class="results-info">
-            {% if versions %}
-                Found {{ versions|length }} database{% if versions|length > 1 %}s{% endif %}
+        <p class="results-info">
+        {% if versions %}
+            Found {{ versions|length }} database{% if versions|length > 1 %}s{% endif %}
+        {% else %}
+            No databases found
+        {% endif %}
+        {% if search.country %}
+            <!-- COUNTRY -->
+            {% get_country search.country as country %}
+            for "{{ country.name }}"
+        {% elif search.derived %}
+            <!-- DERIVED -->
+            derived from 
+            {% if search.derived_system %}
+                <a href="{% url 'system' search.derived_system.slug %}">{{ search.derived_system.name }}</a>
             {% else %}
-                No databases found
+                "{{ search.derived }}"
             {% endif %}
-            {% if search.country %}
-                <!-- COUNTRY -->
-                {% get_country search.country as country %}
-                for "{{ country.name }}"
-            {% elif search.derived %}
-                <!-- DERIVED -->
-                derived from 
-                {% if search.derived_system %}
-                    <a href="{% url 'system' search.derived_system.slug %}">{{ search.derived_system.name }}</a>
-                {% else %}
-                    "{{ search.derived }}"
-                {% endif %}
-            {% elif search.inspired %}
-                <!-- INSPIRED -->
-                inspired by 
-                {% if search.inspired_system %}
-                    <a href="{% url 'system' search.inspired_system.slug %}">{{ search.inspired_system.name }}</a>
-                {% else %}
-                    "{{ search.inspired }}"
-                {% endif %}
-            {% elif search.compatible %}
-                <!-- COMPATIBLE -->
-                compatible with 
-                {% if search.compatible_system %}
-                    <a href="{% url 'system' search.compatible_system.slug %}">{{ search.compatible_system.name }}</a>
-                {% else %}
-                    "{{ search.compatible }}"
-                {% endif %}
-            {% elif search.query %}
-                <!-- QUERY -->
-                for "{{ search.query }}"
+        {% elif search.inspired %}
+            <!-- INSPIRED -->
+            inspired by 
+            {% if search.inspired_system %}
+                <a href="{% url 'system' search.inspired_system.slug %}">{{ search.inspired_system.name }}</a>
+            {% else %}
+                "{{ search.inspired }}"
             {% endif %}
-            </p>
+        {% elif search.compatible %}
+            <!-- COMPATIBLE -->
+            compatible with 
+            {% if search.compatible_system %}
+                <a href="{% url 'system' search.compatible_system.slug %}">{{ search.compatible_system.name }}</a>
+            {% else %}
+                "{{ search.compatible }}"
+            {% endif %}
+        {% elif search.query %}
+            <!-- QUERY -->
+            for "{{ search.query }}"
+        {% endif %}
+        </p>
         {% else %}
         <nav class="letters {% if not has_results %}no-results{% endif %}" aria-label="Page Navigation">
             <div class="letters">

@@ -453,14 +453,6 @@ class DatabaseBrowseView(View):
             'has_search': len(search_keys) != 0,
             'search': search_keys,
         })
-    
-    #'search': {
-                #'q': search_q,
-                #'start_min': search_start_min,
-                #'start_max': search_start_max,
-                #'end_min': search_end_min,
-                #'end_max': search_end_max,
-            #}
 
     pass
 
