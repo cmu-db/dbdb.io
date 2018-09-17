@@ -1,0 +1,6 @@
+{{ object.system.name }}
+
+{% for sf in object.features.all %}{% for o in sf.options.all %}
+{{ sf.feature.label }}
+{{ o.value }}
+{% endfor %}{% endfor %}

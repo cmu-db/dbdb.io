@@ -48,7 +48,7 @@ class Feature(models.Model):
 # ==============================================
 class FeatureOption(models.Model):
 
-    feature = models.ForeignKey('Feature', models.CASCADE)
+    feature = models.ForeignKey('Feature', models.CASCADE, related_name='options')
 
     value = models.CharField(max_length=100)
 
@@ -211,10 +211,10 @@ class System(models.Model):
 class SystemFeature(models.Model):
 
     system = models.ForeignKey('SystemVersion', models.CASCADE, related_name='features')
-    feature = models.ForeignKey('Feature', models.CASCADE)
+    feature = models.ForeignKey('Feature', models.CASCADE, related_name='system_features')
 
-    citations = models.ManyToManyField('CitationUrl')
-    options = models.ManyToManyField('FeatureOption')
+    citations = models.ManyToManyField('CitationUrl', related_name='system_features')
+    options = models.ManyToManyField('FeatureOption', related_name='system_features')
 
     description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
 

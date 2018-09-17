@@ -122,43 +122,51 @@ div.results div.version p { margin:0; }
         
         {% if has_search %}
         <p class="results-info">
-        {% if versions %}
-            Found {{ versions|length }} database{% if versions|length > 1 %}s{% endif %}
-        {% else %}
+            {% if results %}
+            Found {{ results|length }} database{% if results|length > 1 %}s{% endif %}
+            {% else %}
             No databases found
-        {% endif %}
-        {% if search.country %}
-            <!-- COUNTRY -->
-            {% get_country search.country as country %}
-            for "{{ country.name }}"
-        {% elif search.derived %}
-            <!-- DERIVED -->
+            {% endif %}
+
+            {% if search.country %}
+            <!-- country -->
+            {% for c in search.country %}
+                {% get_country c as country %}
+                for "{{ country.name }}"
+            {% endfor %}
+            <!-- /country -->
+            {% elif search.derived %}
+            <!-- derived -->
             derived from 
             {% if search.derived_system %}
                 <a href="{% url 'system' search.derived_system.slug %}">{{ search.derived_system.name }}</a>
             {% else %}
                 "{{ search.derived }}"
             {% endif %}
-        {% elif search.inspired %}
-            <!-- INSPIRED -->
+            <!-- /derived -->
+            {% elif search.inspired %}
+            <!-- inspired -->
             inspired by 
             {% if search.inspired_system %}
-                <a href="{% url 'system' search.inspired_system.slug %}">{{ search.inspired_system.name }}</a>
+            <a href="{% url 'system' search.inspired_system.slug %}">{{ search.inspired_system.name }}</a>
             {% else %}
-                "{{ search.inspired }}"
+            "{{ search.inspired }}"
             {% endif %}
-        {% elif search.compatible %}
-            <!-- COMPATIBLE -->
+            <!-- /inspired -->
+            {% elif search.compatible %}
+            <!-- compatible -->
             compatible with 
             {% if search.compatible_system %}
-                <a href="{% url 'system' search.compatible_system.slug %}">{{ search.compatible_system.name }}</a>
+            <a href="{% url 'system' search.compatible_system.slug %}">{{ search.compatible_system.name }}</a>
             {% else %}
-                "{{ search.compatible }}"
+            "{{ search.compatible }}"
             {% endif %}
-        {% elif search.query %}
-            <!-- QUERY -->
+            <!-- /compatible -->
+            {% elif search.query %}
+            <!-- query -->
             for "{{ search.query }}"
-        {% endif %}
+            <!-- /query -->
+            {% endif %}
         </p>
         {% else %}
         <nav class="letters {% if not has_results %}no-results{% endif %}" aria-label="Page Navigation">
@@ -172,8 +180,8 @@ div.results div.version p { margin:0; }
         
         <!-- RESULTS -->
         <div class="card-columns">
-            {% for version in versions %}
-                {% include 'core/version-card.html' %}
+            {% for result in results %}
+            {% include 'core/version-card.html' %}
             {% endfor %}
         </div>
         <!-- END: CARD-COLUMNS -->
@@ -209,6 +217,7 @@ div.results div.version p { margin:0; }
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 
