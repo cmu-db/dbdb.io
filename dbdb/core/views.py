@@ -30,6 +30,8 @@ from django.views.decorators.cache import never_cache
 from django_countries import countries
 from lxml import etree
 import jwt
+from haystack.inputs import AutoQuery
+from haystack.query import SearchQuerySet
 # project imports
 from dbdb.core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm, \
     SystemVersionEditForm
@@ -278,7 +280,7 @@ class DatabaseBrowseView(View):
         search_start_max = request.GET.get('start-max', '').strip()
         search_end_min = request.GET.get('end-min', '').strip()
         search_end_max = request.GET.get('end-max', '').strip()
-        
+
         searches = (
             search_q,
             search_country,
@@ -293,7 +295,6 @@ class DatabaseBrowseView(View):
 
         if not any(searches) and not any(search_fg):
             return (None, { })
-        
         
         # HACK: Create mapping to return to template
         search_mapping = {
@@ -310,7 +311,49 @@ class DatabaseBrowseView(View):
             'end_min': search_end_min,
             'end_max': search_end_max,
         }
-        
+
+        sqs = SearchQuerySet()
+
+        # apply keyword search to name (require all terms)
+        if search_q:
+            sqs = sqs.filter(content=AutoQuery(search_q))
+
+        # apply year limits
+        if all((search_start_min, search_start_max)):
+            search_start_min = int(search_start_min)
+            search_start_max = int(search_start_max)
+
+            sqs = sqs.filter(start_year__gte=search_start_min, start_year__lte=search_start_max)
+            pass
+        if all((search_end_min, search_end_max)):
+            search_end_min = int(search_end_min)
+            search_end_max = int(search_end_max)
+
+            sqs = sqs.filter(end_year__gte=search_end_min, end_year__lte=search_end_max)
+            pass
+
+        # country search
+        if search_country:
+            sqs = sqs.filter(countries__in=search_country)
+            pass
+
+       # search for features
+        filter_option_ids = set()
+        for feature_id,option_ids in search_fg.items():
+            filter_option_ids.update(option_ids)
+            pass
+        if filter_option_ids:
+            sqs = sqs.filter(feature_options__in=filter_option_ids)
+
+        return (sqs, search_mapping)
+
+        sqs = list(sqs)
+        print( 'search_q', search_q )
+        print( 'sqs', sqs )
+        print( 'sqs', len(sqs) )
+        print( 'sqs', None if not sqs else sqs[0].feature_options )
+        print( 'filter_option_ids', filter_option_ids )
+
         # only search current versions
         versions = SystemVersion.objects \
             .filter(is_current=True)
@@ -399,37 +442,32 @@ class DatabaseBrowseView(View):
     def get(self, request):
         # Perform the search and get back the versions along with a
         # mapping with the search keys
-        versions, search_keys = self.do_search(request)
+        results, search_keys = self.do_search(request)
 
         search_q = request.GET.get('q', '').strip()
         
         # Search Letter
         search_letter = request.GET.get('letter', '').strip().upper()
 
-        if versions is not None:
+        if results is not None:
             pass
         elif search_letter == 'ALL' or not search_letter:
-            versions = SystemVersion.objects.filter(is_current=True)
+            results = SearchQuerySet().exclude(content='foo')
             search_letter = 'ALL'
             pass
         elif search_letter:
-            versions = SystemVersion.objects \
-                .filter(is_current=True) \
-                .filter( Q(system__name__startswith=search_letter) | Q(system__name__startswith=search_letter.lower()) )
+            results = SearchQuerySet().filter(letter__exact=search_letter.lower()).filter(name__startswith=search_letter)
             pass
 
+        # generate letter pagination
         pagination = self.build_pagination(search_letter)
 
         # convert query list to regular list
-        versions = list( versions.order_by('system__name') )
+        results = list( results.order_by('name') )
 
-        # and add href/url to each
-        for version in versions:
-            version.href = request.build_absolute_uri( version.system.get_absolute_url() )
-            pass
+        has_results = len(results) > 0
 
-        has_results = len(versions) > 0
-
+        # get year ranges
         years_start = SystemVersion.objects.filter(is_current=True).filter(start_year__gt=0).aggregate(
             min_start_year=Min('start_year'),
             max_start_year=Max('start_year')
@@ -448,7 +486,7 @@ class DatabaseBrowseView(View):
             'has_results': has_results,
             'pagination': pagination,
             'query': search_q,
-            'versions': versions,
+            'results': results,
             'years': years,
             'has_search': len(search_keys) != 0,
             'search': search_keys,

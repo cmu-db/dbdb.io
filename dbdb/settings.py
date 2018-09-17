@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'bootstrap4',
     'easy_thumbnails',
     'django_countries',
+    'haystack', # django-haystack
 
     'dbdb.core'
 ]
@@ -89,6 +90,17 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
+# Haystack
+# https://django-haystack.readthedocs.io/
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': root.path('data/whoosh')(),
+    },
+}
 
 
 # Internationalization
