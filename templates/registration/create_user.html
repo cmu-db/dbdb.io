@@ -10,6 +10,8 @@ form#registration label { margin-bottom:0.2rem; }
 form#registration .form-group:last-child { margin-top:30px; margin-bottom:0px; }
 form#registration [for="captcha"] { display:none; }
 </style>
+
+<script src='https://www.google.com/recaptcha/api.js'></script>
 {% endblock %}
 
 {% block content %}
@@ -22,7 +24,10 @@ form#registration [for="captcha"] { display:none; }
                     {% csrf_token %}
                     {% bootstrap_form form %}
                     {% buttons %}
-                        <button type="submit" class="btn btn-primary" id="btn_submit">
+                        <button type="submit" id="btn_submit"
+                            class="g-recaptcha btn btn-primary"
+                            data-sitekey="{{ recaptcha_key }}"
+                            data-callback="onCaptchaSubmit">
                             Submit
                         </button>
                         <a href="/" class="btn btn-default float-right">
@@ -36,8 +41,6 @@ form#registration [for="captcha"] { display:none; }
 {% endblock %}
 
 {% block scripts %}
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>	    
-
 <script>
 function onCaptchaSubmit(){
     document.getElementById('registration').submit();

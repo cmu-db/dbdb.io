@@ -161,7 +161,7 @@ class CreateUserForm(forms.ModelForm):
     def clean_password2(self):
         if self.cleaned_data['password2'] == self.cleaned_data['password']:
             return self.cleaned_data['password2']
-        raise ValidationError("The passwords don't match")
+        raise ValidationError("The passwords do not match")
 
     class Meta:
         model = get_user_model()

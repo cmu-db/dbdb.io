@@ -485,7 +485,10 @@ class CreateUser(View):
     template_name = 'registration/create_user.html'
 
     def get(self, request, *args, **kwargs):
-        context = { 'form': CreateUserForm(auto_id='%s') }
+        context = { 
+            'form': CreateUserForm(auto_id='%s'),
+            'recaptcha_key': getattr(settings, 'NORECAPTCHA_SITE_KEY'),
+        }
         return render(request, context=context, template_name=self.template_name)
 
     def post(self, request, *args, **kwargs):
@@ -498,10 +501,11 @@ class CreateUser(View):
                 email=form.cleaned_data['email'],
                 password=form.cleaned_data['password']
             )
-            return redirect('/login/')
+            return redirect('/login/?status=success')
 
         return render(request, context={
-            'form': form
+            'form': form,
+            'recaptcha_key': getattr(settings, 'NORECAPTCHA_SITE_KEY'),
         }, template_name=self.template_name)
 
     pass
