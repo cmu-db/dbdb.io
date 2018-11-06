@@ -25,6 +25,7 @@ class FeatureAdmin(admin.ModelAdmin):
 class FeatureOptionAdmin(admin.ModelAdmin):
     list_filter = ['feature']
     list_display = ('value', 'feature')
+    search_fields = ('value', )
 
 class SystemAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
