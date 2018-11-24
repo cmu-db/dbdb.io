@@ -8,7 +8,9 @@ Recent Changes
 <div class="jumbotron col-md-8" style="background-color:#ffffff;">
 
     <div class="row">
-        <h1 class="offset-md-2">Recent Changes</h1>
+        <h1 class="offset-md-2">
+            Recent Changes{% if user %}: {{ user.username }}{% endif %}
+        </h1>
     </div>
 
     <div class="row justify-content-center">
@@ -28,7 +30,7 @@ Recent Changes
                     <td><a href="{{ version.get_absolute_url }}">{{ version.created }}</a></td>
                     <td>{{ version.system.name }}</td>
 <!--                     <td>{{ version.ver }}</td> -->
-                    <td>{{ version.creator.username }}</td>
+                    <td><a href="{% url 'recent' %}?user={{ version.creator.username }}">{{ version.creator.username }}</a></td>
                     <td>{{ version.comment }}</td>
                 </tr>
                 {% endfor %}
@@ -37,8 +39,8 @@ Recent Changes
     
         <div class="text-center pagination">
             <span class="step-links">
-                {% if versions.has_previous %}<a href="?page=1">{% endif %}&laquo; first{% if versions.has_previous %}</a>{% endif %}
-                {% if versions.has_previous %}<a href="?page={{ versions.previous_page_number }}">{% endif %}previous{% if versions.has_previous %}</a>{% endif %}
+                {% if versions.has_previous %}<a href="?page=1{% if user %}&user={{ user }}{% endif %}">{% endif %}&laquo; first{% if versions.has_previous %}</a>{% endif %}
+                {% if versions.has_previous %}<a href="?page={{ versions.previous_page_number }}{% if user %}&user={{ user }}{% endif %}">{% endif %}previous{% if versions.has_previous %}</a>{% endif %}
 
                 <span class="current">
                     &bullet;
@@ -46,8 +48,8 @@ Recent Changes
                     &bullet;
                 </span>
 
-                {% if versions.has_next %}<a href="?page={{ versions.next_page_number }}">{% endif %}next{% if versions.has_next %}</a>{% endif %}
-                {% if versions.has_next %}<a href="?page={{ versions.paginator.num_pages }}">{% endif %}last &raquo;{% if versions.has_next %}</a>{% endif %}
+                {% if versions.has_next %}<a href="?page={{ versions.next_page_number }}{% if user %}&user={{ user }}{% endif %}">{% endif %}next{% if versions.has_next %}</a>{% endif %}
+                {% if versions.has_next %}<a href="?page={{ versions.paginator.num_pages }}{% if user %}&user={{ user }}{% endif %}">{% endif %}last &raquo;{% if versions.has_next %}</a>{% endif %}
             </span>
         </div>
     </div>

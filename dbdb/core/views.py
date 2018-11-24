@@ -812,18 +812,36 @@ class RecentChangesView(View):
 
     def get(self, request):
         from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-        versions = SystemVersion.objects.all().order_by('-created')
         page = request.GET.get('page', 1)
+        user = request.GET.get('user', None)
+        versions = None
+        
+        # Try to get the versions for the given user
+        if not user is None:
+            User = get_user_model()
+            try:
+                user = User.objects.get(username=user)
+                versions = SystemVersion.objects.filter(creator=user)
+            except:
+                user = None
+                pass
+        if versions is None:
+            versions = SystemVersion.objects.all()
+
+        # Sort by timestamps
+        versions = versions.order_by('-created')
 
         paginator = Paginator(versions, 25)
         try:
             versions = paginator.get_page(page)
         except PageNotAnInteger:
-            versoins = paginator.get_page(1)
+            versions = paginator.get_page(1)
         except EmptyPage:
             versions = paginator.get_page(paginator.num_pages)
         
-        return render(request, self.template_name, {'versions': versions})
+        return render(request, self.template_name,
+                      {'versions': versions,
+                       'user': user})
 
     pass
 
