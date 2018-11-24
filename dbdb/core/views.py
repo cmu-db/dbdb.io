@@ -797,6 +797,7 @@ class DatabaseRevisionView(View):
         return render(request, self.template_name, {
             'system': system_version.system,
             'system_version': system_version,
+            'has_revision': True,
             'system_features': system_version.features.all()
         })
 
