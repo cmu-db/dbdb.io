@@ -31,6 +31,9 @@
             <li class="nav-item active">
                 <a class="nav-link btn btn-outline-secondary" href="{% url 'browse' %}">Browse</a>
             </li>
+            <li class="nav-item active">
+                <a class="nav-link btn btn-outline-secondary" href="{% url 'recent' %}">Recent</a>
+            </li>
             {% if user.is_authenticated and user.is_superuser %}
             <li class="nav-item active">
                 <a class="nav-link btn btn-outline-secondary" href="{% url 'create_database' %}">Create</a>

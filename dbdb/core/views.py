@@ -86,7 +86,6 @@ class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) 
 
     pass
 
-
 # ==============================================
 # DatabaseFieldsView
 # ==============================================
@@ -429,6 +428,10 @@ class DatabaseBrowseView(View):
 
     pass
 
+
+# ==============================================
+# CounterView
+# ==============================================
 @method_decorator(csrf_exempt, name='dispatch')
 class CounterView(View):
 
@@ -480,6 +483,9 @@ class CounterView(View):
 
     pass
 
+# ==============================================
+# CreateUser
+# ==============================================
 class CreateUser(View):
 
     template_name = 'registration/create_user.html'
@@ -510,6 +516,9 @@ class CreateUser(View):
 
     pass
 
+# ==============================================
+# DatabasesEditView
+# ==============================================
 class DatabasesEditView(View, LoginRequiredMixin):
 
     template_name = 'core/databases-edit.html'
@@ -738,6 +747,9 @@ class DatabasesEditView(View, LoginRequiredMixin):
 
     pass
 
+# ==============================================
+# DatabaseRevisionList
+# ==============================================
 class DatabaseRevisionList(View):
 
     template_name = 'core/revision_list.html'
@@ -772,6 +784,9 @@ class DatabaseRevisionList(View):
 
     pass
 
+# ==============================================
+# DatabaseRevisionView
+# ==============================================
 class DatabaseRevisionView(View):
 
     template_name = 'core/revision_view.html'
@@ -787,6 +802,33 @@ class DatabaseRevisionView(View):
 
     pass
 
+# ==============================================
+# RecentChangesView
+# ==============================================
+class RecentChangesView(View):
+
+    template_name = 'core/recent.html'
+
+    def get(self, request):
+        from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+        versions = SystemVersion.objects.all().order_by('-created')
+        page = request.GET.get('page', 1)
+
+        paginator = Paginator(versions, 25)
+        try:
+            versions = paginator.get_page(page)
+        except PageNotAnInteger:
+            versoins = paginator.get_page(1)
+        except EmptyPage:
+            versions = paginator.get_page(paginator.num_pages)
+        
+        return render(request, self.template_name, {'versions': versions})
+
+    pass
+
+# ==============================================
+# HomeView
+# ==============================================
 class HomeView(View):
 
     template_name = 'core/home.html'
@@ -812,6 +854,9 @@ class HomeView(View):
 
     pass
 
+# ==============================================
+# StatsView
+# ==============================================
 class StatsView(View):
 
     template_name = 'core/stats.html'
@@ -853,6 +898,9 @@ class StatsView(View):
 
     pass
 
+# ==============================================
+# StatsView
+# ==============================================
 class SitemapView(View):
 
     def get(self, request):
@@ -877,6 +925,9 @@ class SitemapView(View):
 
     pass
 
+# ==============================================
+# SystemView
+# ==============================================
 class SystemView(View):
 
     template_name = 'core/system.html'

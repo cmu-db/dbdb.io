@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Recent Changes
+{% endblock %}
+
+{% block content %}
+<div class="jumbotron col-md-8" style="background-color:#ffffff;">
+
+    <div class="row ">
+        <h1 class="offset-md-2">Recent Changes</h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <table class="table table-striped offset-md-2">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>System</th>
+                    <th>Version</th>
+                    <th>Edited By</th>
+                    <th>Comments</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for version in versions %}
+                <tr>
+                    <td><a href="{{ version.get_absolute_url }}">{{ version.created }}</a></td>
+                    <td>{{ version.system.name }}</td>
+                    <td>{{ version.ver }}</td>
+                    <td>{{ version.creator.username }}</td>
+                    <td>{{ version.comment }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+        <div class="text-center pagination">
+            <span class="step-links">
+                {% if versions.has_previous %}<a href="?page=1">{% endif %}&laquo; first{% if versions.has_previous %}</a>{% endif %}
+                {% if versions.has_previous %}<a href="?page={{ versions.previous_page_number }}">{% endif %}previous{% if versions.has_previous %}</a>{% endif %}
+
+                <span class="current">
+                    &bullet;
+                    Page {{ versions.number }} of {{ versions.paginator.num_pages }}
+                    &bullet;
+                </span>
+
+                {% if versions.has_next %}<a href="?page={{ versions.next_page_number }}">{% endif %}next{% if versions.has_next %}</a>{% endif %}
+                {% if versions.has_next %}<a href="?page={{ versions.paginator.num_pages }}">{% endif %}last &raquo;{% if versions.has_next %}</a>{% endif %}
+            </span>
+        </div>
+    </div>
+</div>
+{% endblock %}
