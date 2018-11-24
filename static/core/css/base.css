@@ -166,5 +166,7 @@ nav.letters > div.letters button {
     section#filters {
         font-size: 85%;
     }
-
+    table {
+        font-size: 75%;
+    }
 }
