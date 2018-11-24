@@ -149,6 +149,10 @@ nav.letters > div.letters button {
     margin-top: 5px;
 }
 
+.revision-card a {
+    color: white;
+}
+
 
 @media screen and (max-width: 760px) {
     .homepage-header h1 {

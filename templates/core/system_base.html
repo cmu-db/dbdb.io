@@ -267,7 +267,8 @@
             </div>
             {% endif %}
             
-            <div class="card card-version d-none d-md-block">
+            <div class="card card-version d-none d-md-block revision-card">
+                <a href="{% url 'system_revision' system.slug %}">
                 <div class="card-body">
                     Revision #{{ system_version.ver }}
                     &nbsp;|&nbsp;
@@ -275,6 +276,7 @@
                     Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
                     </time>
                 </div>
+                </a>
             </div>
 
         </div>

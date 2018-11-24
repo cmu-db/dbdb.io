@@ -37,7 +37,7 @@ Revision {{ system.name }}
                         </td>
                         <td>{{ version.ver }}</td>
                         <td><a href="{% if version.is_current %}{{ system.get_absolute_url }}{% else %}{{ version.get_absolute_url }}{% endif %}">{{ version.created }}</a></td>
-                        <td>{{ version.creator.username }}</td>
+                        <td><a href="{% url 'recent' %}?user={{ version.creator.username }}">{{ version.creator.username }}</a></td>
                         <td>{{ version.comment }}</td>
                     </tr>
                     {% endfor %}
