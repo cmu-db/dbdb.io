@@ -179,7 +179,7 @@ class HomeTestCase(TestCase):
         response = self.client.get(reverse('home'))
         self.assertContains(
             response,
-            'href="/db/create"',
+            'href="/create"',
         )
         self.client.logout()
         return
