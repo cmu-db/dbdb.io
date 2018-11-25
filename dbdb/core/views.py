@@ -87,11 +87,11 @@ class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) 
     pass
 
 # ==============================================
-# DatabaseFieldsView
+# EmptyFieldsView
 # ==============================================
-class DatabaseFieldsView(View):
+class EmptyFieldsView(View):
 
-    template_name = 'core/database-fields.html'
+    template_name = 'core/empty-fields.html'
 
     def build_search_fields(self):
         import django.db.models.fields
