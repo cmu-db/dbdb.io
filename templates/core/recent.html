@@ -31,7 +31,7 @@ Recent Changes
                 <tr>
                     <td><a href="{{ version.get_absolute_url }}">{{ version.created }}</a></td>
                     <td>{{ version.system.name }}</td>
-<!--                     <td>{{ version.ver }}</td> -->
+<!--                     <td>#{{ version.ver }}</td> -->
                     <td><a href="{% url 'recent' %}?username={{ version.creator.username }}">{{ version.creator.username }}</a></td>
                     <td>{{ version.comment }}</td>
                 </tr>
