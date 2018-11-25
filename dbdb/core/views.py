@@ -147,6 +147,7 @@ class EmptyFieldsView(View):
         num_systems = System.objects.all().count()
         
         return render(request, self.template_name, {
+            'activate': 'empty', # NAV-LINKS
             'versions': versions,
             'field': search_field,
             'check': search_check,
@@ -408,6 +409,7 @@ class DatabaseBrowseView(View):
         years.update(years_end)
 
         return render(request, self.template_name, {
+            'activate': 'browse', # NAV-LINKS
             'filtergroups': self.build_filter_groups(request.GET),
 
             'has_results': has_results,
@@ -583,6 +585,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
         features = self.build_features(feature_form)
 
         return render(request, self.template_name, {
+            'activate': 'create' if system.id is None else 'edit', # NAV-LINKS
             'system_name': system.name,
             'system_form': system_form,
             'system_version_form': SystemVersionForm(instance=system_version),
@@ -742,6 +745,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
         features = self.build_features(feature_form)
 
         return render(request, self.template_name, {
+            'activate': 'edit', # NAV-LINKS
             'system_name': system.name,
             'system_form': system_form,
             'system_version_form': system_version_form,
@@ -768,6 +772,7 @@ class DatabaseRevisionList(View):
             .select_related('system')
 
         return render(request, self.template_name, {
+            'activate': 'revisions', # NAV-LINKS
             'system': system,
             'versions': versions,
         })
@@ -801,6 +806,7 @@ class DatabaseRevisionView(View):
         system_version = get_object_or_404(SystemVersion.objects.select_related('system'), system__slug=slug, ver=ver)
 
         return render(request, self.template_name, {
+            'activate': 'revisions', # NAV-LINKS
             'system': system_version.system,
             'system_version': system_version,
             'has_revision': True,
@@ -819,17 +825,18 @@ class RecentChangesView(View):
     def get(self, request):
         from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
         page = request.GET.get('page', 1)
-        user = request.GET.get('user', None)
+        username = request.GET.get('username', None)
         versions = None
+        lookup_user = None
         
-        # Try to get the versions for the given user
-        if not user is None:
+        # Try to get the versions for the given username
+        if not username is None:
             User = get_user_model()
             try:
-                user = User.objects.get(username=user)
-                versions = SystemVersion.objects.filter(creator=user)
+                lookup_user = User.objects.get(username=username)
+                versions = SystemVersion.objects.filter(creator=lookup_user)
             except:
-                user = None
+                lookup_user = None
                 pass
         if versions is None:
             versions = SystemVersion.objects.all()
@@ -845,9 +852,11 @@ class RecentChangesView(View):
         except EmptyPage:
             versions = paginator.get_page(paginator.num_pages)
         
-        return render(request, self.template_name,
-                      {'versions': versions,
-                       'user': user})
+        return render(request, self.template_name, context={
+            'activate': 'recent', # NAV-LINKS
+            'versions': versions,
+            'lookup_user': lookup_user,
+        })
 
     pass
 
@@ -918,13 +927,14 @@ class StatsView(View):
         stats.append( self.get_bycountries() )
 
         return render(request, self.template_name, context={
+            'activate': 'stats', # NAV-LINKS
             'stats': stats,
         })
 
     pass
 
 # ==============================================
-# StatsView
+# SitemapView
 # ==============================================
 class SitemapView(View):
 
@@ -978,6 +988,7 @@ class SystemView(View):
         system_features = SystemFeature.objects.filter(system=system_version).select_related('feature').order_by('feature__label')
 
         return render(request, self.template_name, {
+            'activate': 'system', # NAV-LINKS
             'system': system,
             'system_features': system_features,
             'system_version': system_version,

@@ -28,15 +28,18 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
+        <li class="nav-item{% if activate == 'browse' %} active{% endif %}">
                 <a class="nav-link btn btn-outline-secondary" href="{% url 'browse' %}">Browse</a>
             </li>
-            <li class="nav-item active">
+            <li class="nav-item{% if activate == 'recent' %} active{% endif %}">
                 <a class="nav-link btn btn-outline-secondary" href="{% url 'recent' %}">Recent</a>
             </li>
             {% if user.is_authenticated and user.is_superuser %}
-            <li class="nav-item active">
+            <li class="nav-item{% if activate == 'create' %} active{% endif %}">
                 <a class="nav-link btn btn-outline-secondary" href="{% url 'create_database' %}">Create</a>
+            </li>
+            <li class="nav-item{% if activate == 'empty' %} active{% endif %}">
+                <a class="nav-link btn btn-outline-secondary" href="{% url 'empty_fields' %}">EmptyFields</a>
             </li>
             {% endif %}
 

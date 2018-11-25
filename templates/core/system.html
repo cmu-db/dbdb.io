@@ -3,13 +3,13 @@
 
 {% block navbuttons %}
 {% if user.is_authenticated %}
-<li class="nav-item active ml-2">
-	<a class="nav-link btn btn-outline-secondary" href="{% url 'system_edit' system.slug %}">Edit</a>
+<li class="nav-item ml-2 {% if activate == 'create' %} active{% endif %}">
+    <a class="nav-link btn btn-outline-secondary" href="{% url 'system_edit' system.slug %}">Edit</a>
 </li>
 {% endif %}
 
-<li class="nav-item active ml-2">
-	<a class="nav-link btn btn-outline-secondary" href="{% url 'system_revision' system.slug %}">Revision List</a>
+<li class="nav-item ml-2 {% if activate == 'create' %} active{% endif %}">
+    <a class="nav-link btn btn-outline-secondary" href="{% url 'system_revision' system.slug %}">Revision List</a>
 </li>
 {% endblock %}
 
