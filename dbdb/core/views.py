@@ -6,6 +6,7 @@ import operator
 import json
 # django imports
 from django.conf import settings
+from django.forms import HiddenInput
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -569,8 +570,13 @@ class DatabasesEditView(View, LoginRequiredMixin):
 
         system_form = SystemForm(instance=system)
 
-        if not request.user.is_superuser:
-            system_form.fields['name'].disabled = True
+        # Don't allow non-superusers from editting the system name
+        # This only really hides it from the UI.
+        if request.user.is_superuser:
+            system_form.fields['orig_name'].widget = HiddenInput()
+        else:
+            system_form.fields['name'].widget = HiddenInput()
+            system_form.fields['orig_name'].initial = system.name
 
         feature_form = SystemFeaturesForm(features=system_features)
 
@@ -608,7 +614,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
         system_version_form = SystemVersionEditForm(request.POST, request.FILES)
         system_version_metadata_form = SystemVersionMetadataForm(request.POST)
         feature_form = SystemFeaturesForm(request.POST, features=system_features)
-
+        
         if system_form.is_valid() and \
             system_version_form.is_valid() and \
             system_version_metadata_form.is_valid() and \

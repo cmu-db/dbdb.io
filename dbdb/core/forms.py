@@ -171,9 +171,12 @@ class CreateUserForm(forms.ModelForm):
 
 class SystemForm(forms.ModelForm):
 
+    # This is only shown to non-superusers
+    orig_name = forms.CharField(max_length=128, label="Name", disabled=True, required=False)
+    
     class Meta:
         model = System
-        fields = ['name']
+        fields = ['name','orig_name']
     
     pass
 
