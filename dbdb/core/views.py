@@ -7,12 +7,12 @@ import json
 import urllib.parse
 # django imports
 from django.conf import settings
-from django.forms import HiddenInput
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.db.models import Q, Count, Max, Min
+from django.forms import HiddenInput
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import JsonResponse
@@ -23,28 +23,35 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.utils.text import smart_split
 from django.utils.text import slugify
+from django.utils.text import smart_split
 from django.views import View
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_exempt
 # third-party imports
 from django_countries import countries
-from lxml import etree
-import jwt
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
+from lxml import etree
+import jwt
 # project imports
 from dbdb.core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm, \
     SystemVersionEditForm
-from dbdb.core.models import System, SystemVersionMetadata
-from dbdb.core.models import SystemRedirect
-from dbdb.core.models import SystemVersion
+from dbdb.core.models import CitationUrl
 from dbdb.core.models import Feature
 from dbdb.core.models import FeatureOption
+from dbdb.core.models import License
+from dbdb.core.models import OperatingSystem
+from dbdb.core.models import ProgrammingLanguage
+from dbdb.core.models import ProjectType
+from dbdb.core.models import System
 from dbdb.core.models import SystemFeature
-from dbdb.core.models import CitationUrl
+from dbdb.core.models import SystemRedirect
+from dbdb.core.models import SystemVersion
+from dbdb.core.models import SystemVersionMetadata
 
+
+# constants
 
 FILTERGROUP_VISIBLE_LENGTH = 3
 SITEMPA_NS = 'http://www.sitemaps.org/schemas/sitemap/0.9'
@@ -91,6 +98,9 @@ class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) 
         return
 
     pass
+
+
+# class based views
 
 # ==============================================
 # EmptyFieldsView
@@ -187,6 +197,7 @@ class DatabaseBrowseView(View):
 
         other_filtersgroups = []
 
+        # add countries
         fg_country = FilterGroup('country', 'Country', [
             FilterChoice(
                code,
@@ -197,15 +208,60 @@ class DatabaseBrowseView(View):
         ])
         other_filtersgroups.append(fg_country)
 
+        # add derived from
         fg_derived = FilterGroup('derived', 'Derived From', [
             FilterChoice(
-                sys.id,
+                sys.slug,
                 sys.name,
-                str(sys.id) in querydict.getlist( 'derived', empty_set )
+                sys.slug in querydict.getlist( 'derived', empty_set )
             )
-            for sys in System.objects.values_list('id', 'name', named=True)
+            for sys in System.objects.values_list('id','slug','name', named=True)
         ])
         other_filtersgroups.append(fg_derived)
+
+        # add operating system
+        fg_os = FilterGroup('os', 'Operating System', [
+            FilterChoice(
+                os.slug,
+                os.name,
+                os.slug in querydict.getlist( 'os', empty_set )
+            )
+            for os in OperatingSystem.objects.values_list('id','slug','name', named=True)
+        ])
+        other_filtersgroups.append(fg_os)
+
+        # add programming languages
+        fg_programming = FilterGroup('programming', 'Programming Languages', [
+            FilterChoice(
+                p.slug,
+                p.name,
+                p.slug in querydict.getlist( 'programming', empty_set )
+            )
+            for p in ProgrammingLanguage.objects.values_list('id','slug','name', named=True)
+        ])
+        other_filtersgroups.append(fg_programming)
+
+        # add project types
+        fg_project_type = FilterGroup('type', 'Project Types', [
+            FilterChoice(
+                pt.slug,
+                pt.name,
+                pt.slug in querydict.getlist( 'type', empty_set )
+            )
+            for pt in ProjectType.objects.values_list('id','slug','name', named=True)
+        ])
+        other_filtersgroups.append(fg_project_type)
+
+        # add licenses
+        fg_license = FilterGroup('license', 'Licenses', [
+            FilterChoice(
+                l.slug,
+                l.name,
+                l.slug in querydict.getlist( 'license', empty_set )
+            )
+            for l in License.objects.values_list('id','slug','name', named=True)
+        ])
+        other_filtersgroups.append(fg_license)
 
         # build from list of features (alphabetical order)
         filtergroups = collections.OrderedDict(
@@ -223,9 +279,7 @@ class DatabaseBrowseView(View):
             filtergroups
         )
 
-        filtergroups = list( filtergroups.values() )
-
-        filtergroups = other_filtersgroups + filtergroups
+        filtergroups = other_filtersgroups + list( filtergroups.values() )
 
         for fg in filtergroups:
             fg.prepare()
@@ -266,9 +320,6 @@ class DatabaseBrowseView(View):
         return pagination
 
     def do_search(self, request):
-        compatible = None
-        derived = None
-        inspired = None
         has_search = False
 
         # map feature slugs to ids
@@ -291,45 +342,46 @@ class DatabaseBrowseView(View):
             if k in features_map
         }
 
-        search_country = request.GET.getlist('country', '')
-        search_derived = request.GET.get('derived', '').strip()
-        search_inspired = request.GET.get('inspired', '').strip()
-        search_compatible = request.GET.get('compatible', '').strip()
+        # define date filters
         search_start_min = request.GET.get('start-min', '').strip()
         search_start_max = request.GET.get('start-max', '').strip()
         search_end_min = request.GET.get('end-min', '').strip()
         search_end_max = request.GET.get('end-max', '').strip()
 
-        searches = (
-            search_q,
-            search_country,
-            search_derived,
-            search_inspired,
-            search_compatible,
-            search_start_min,
-            search_start_max,
-            search_end_min,
-            search_end_max,
-        )
+        # define static filters
+        search_compatible = request.GET.get('compatible', '').strip()
+        search_country = request.GET.getlist('country')
+        search_derived = request.GET.getlist('derived')
+        search_inspired = request.GET.get('inspired', '').strip()
+        search_os = request.GET.getlist('os')
+        search_programming = request.GET.getlist('programming')
+        search_type = request.GET.getlist('type')
+        search_license = request.GET.getlist('license')
 
-        if not any(searches) and not any(search_fg):
-            return (None, { })
-
-        # HACK: Create mapping to return to template
+        # collect filters
         search_mapping = {
             'query': search_q,
-            'country': search_country,
-            'derived': search_derived,
-            'derived_system': derived,
-            'inspired': search_inspired,
-            'inspired_system': inspired,
-            'compatible': search_compatible,
-            'compatible_system': compatible,
+
             'start_min': search_start_min,
             'start_max': search_start_max,
             'end_min': search_end_min,
             'end_max': search_end_max,
+
+            'compatible': search_compatible,
+            'country': search_country,
+            'derived': search_derived,
+            'inspired': search_inspired,
+            'os': search_os,
+            'programming': search_programming,
+            'type': search_type,
+            'license': search_license,
         }
+
+        if not any(search_mapping.values()) and not any(search_fg):
+            return (None, { })
+
+        # HACK: Create mapping to return to template
+        
 
         sqs = SearchQuerySet()
 
@@ -351,9 +403,35 @@ class DatabaseBrowseView(View):
             sqs = sqs.filter(end_year__gte=search_end_min, end_year__lte=search_end_max)
             pass
 
-        # country search
+        # search - country
         if search_country:
             sqs = sqs.filter(countries__in=search_country)
+            pass
+
+        # search - derived from
+        if search_derived:
+            sqs = sqs.filter(derived_from__in=search_derived)
+            pass
+
+        # search - operating systems
+        if search_os:
+            sqs = sqs.filter(oses__in=search_os)
+            pass
+
+        # search - programming languages
+        if search_programming:
+            sqs = sqs.filter(written_langs__in=search_programming)
+            pass
+
+        # search - project types
+        if search_type:
+            sqs = sqs.filter(project_types__in=search_type)
+            pass
+
+        # search - licenses
+        if search_license:
+            sqs = sqs.filter(licenses__in=search_license)
+            print( 'search_license', search_license )
             pass
 
         # convert feature option slugs to IDs to do search by filtering
@@ -368,98 +446,6 @@ class DatabaseBrowseView(View):
             sqs = sqs.filter(feature_options__in=filter_option_ids)
 
         return (sqs, search_mapping)
-
-        sqs = list(sqs)
-        print( 'search_q', search_q )
-        print( 'sqs', sqs )
-        print( 'sqs', len(sqs) )
-        print( 'sqs', None if not sqs else sqs[0].feature_options )
-        print( 'filter_option_ids', filter_option_ids )
-
-        # only search current versions
-        versions = SystemVersion.objects \
-            .filter(is_current=True)
-
-        # apply keyword search to name (require all terms)
-        if search_q:
-            terms = smart_split( search_q.lower() )
-            query = [Q(system__name__icontains=t) for t in terms]
-            versions = versions.filter( reduce(operator.and_, query) )
-            pass
-
-        # search for features
-        for feature_id,option_ids in search_fg.items():
-            versions = versions.filter(
-                features__feature_id=feature_id,
-                features__options__id__in=option_ids
-            )
-            pass
-
-        # country search
-        if search_country:
-            #terms = smart_split( search_country.upper() )
-            # query = [Q(system__countries__in=t) for t in terms]
-            query = Q(countries__in=search_country)
-            versions = versions.filter(query)
-            pass
-
-        # derived system
-        if search_derived and not search_derived.isdigit():
-            try:
-                derived = System.objects.get(slug=search_derived)
-                versions = versions.filter(meta__derived_from__id=derived.id)
-                search_mapping['derived'] = derived.name
-                search_mapping['derived_system'] = derived
-            except:
-                return (SystemVersion.objects.none(), search_mapping)
-            pass
-        if search_derived and search_derived.isdigit():
-            try:
-                derived = System.objects.get(id=search_derived)
-                versions = versions.filter(meta__derived_from__id=derived.id)
-                search_mapping['derived'] = derived.name
-                search_mapping['derived_system'] = derived
-            except:
-                return (SystemVersion.objects.none(), search_mapping)
-            pass
-
-        # inspired system
-        if search_inspired:
-            try:
-                inspired = System.objects.get(slug=search_inspired)
-                versions = versions.filter(meta__inspired_by__id=inspired.id)
-                search_mapping['inspired'] = inspired.name
-                search_mapping['inspired_system'] = inspired
-            except:
-                return (SystemVersion.objects.none(), search_mapping)
-            pass
-
-        # compatible system
-        if search_compatible:
-            try:
-                compatible = System.objects.get(slug=search_compatible)
-                versions = versions.filter(meta__compatible_with__id=compatible.id)
-                search_mapping['compatible'] = compatible.name
-                search_mapping['compatible_system'] = compatible
-            except:
-                return (SystemVersion.objects.none(), search_mapping)
-            pass
-
-        # apply year limits
-        if all((search_start_min, search_start_max)):
-            versions = versions.filter(start_year__range=[ int(search_start_min) , int(search_start_max) ])
-            pass
-        if all((search_end_min, search_end_max)):
-            versions = versions.filter(end_year__range=[ int(search_end_min) , int(search_end_max) ])
-            pass
-
-        # use generated list of PKs to get actual versions with systems
-        versions = SystemVersion.objects \
-            .filter(id__in=versions.values_list('id', flat=True)) \
-            .select_related('system') \
-            .order_by('system__name')
-
-        return (versions, search_mapping)
 
     def handle_old_urls(self, request):
         query = []

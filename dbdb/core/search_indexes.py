@@ -22,6 +22,11 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
 
     countries = indexes.MultiValueField()
     derived_from = indexes.MultiValueField()
+    oses = indexes.MultiValueField()
+    written_langs = indexes.MultiValueField()
+    project_types = indexes.MultiValueField()
+    licenses = indexes.MultiValueField()
+
     features = indexes.MultiValueField()
     feature_options = indexes.MultiValueField()
 
@@ -45,10 +50,48 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
         if obj.meta_id is None:
             return []
 
+        values = list(
+            obj.meta.derived_from.values_list('slug', flat=True)
+        )
+
+        return values
+
+    def prepare_oses(self, obj):
+        if obj.meta_id is None:
+            return []
+
         values = [
             pk
-            for pk in obj.meta.derived_from.values_list('id', flat=True)
+            for pk in obj.meta.oses.values_list('slug', flat=True)
         ]
+
+        return values
+
+    def prepare_written_langs(self, obj):
+        if obj.meta_id is None:
+            return []
+
+        values = [
+            pk
+            for pk in obj.meta.written_in.values_list('slug', flat=True)
+        ]
+
+        return values
+
+    def prepare_project_types(self, obj):
+        values = list(
+            obj.project_types.values_list('slug', flat=True)
+        )
+
+        return values
+
+    def prepare_licenses(self, obj):
+        if obj.meta_id is None:
+            return []
+
+        values = list(
+            obj.meta.licenses.values_list('slug', flat=True)
+        )
 
         return values
 
