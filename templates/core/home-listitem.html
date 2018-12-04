@@ -9,6 +9,7 @@
         {% else %}
         <img src="{% static 'core/images/database-nologo.svg' %}" alt="{{ item.name }}" />
         {% endif %}
+        </a>
     </td>
     <td class="homepage-system"><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
 </tr>

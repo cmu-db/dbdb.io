@@ -11,16 +11,16 @@ from dbdb.core import views
 urlpatterns = [
     url(r'^$', views.HomeView.as_view(), name="home"),
 
-    url(r'^db/create$', views.DatabasesEditView.as_view(), name='create_database'),
-
     url(r'^db/(?P<slug>[\w-]+)$', views.SystemView.as_view(), name='system'),
     url(r'^db/(?P<slug>[\w-]+)/edit$', views.DatabasesEditView.as_view(), name='system_edit'),
     url(r'^db/(?P<slug>[\w-]+)/revisions/$', views.DatabaseRevisionList.as_view(), name='system_revision'),
     url(r'^db/(?P<slug>[\w-]+)/revisions/(?P<ver>\d+)$', views.DatabaseRevisionView.as_view(), name='system_revision_view'),
 
+    url(r'^create$', views.DatabasesEditView.as_view(), name='create_database'),
     url(r'^browse$', views.DatabaseBrowseView.as_view(), name='browse'),
-    url(r'^fields$', views.DatabaseFieldsView.as_view(), name='fields'),
+    url(r'^fields$', views.EmptyFieldsView.as_view(), name='empty_fields'),
     url(r'^search$', views.DatabaseBrowseView.as_view(), name='search'),
+    url(r'^recent$', views.RecentChangesView.as_view(), name='recent'),
     url(r'^search/advanced$', views.DatabaseBrowseView.as_view(), name='advanced_search'),
     url(r'^stats$', views.StatsView.as_view(), name='stats'),
 

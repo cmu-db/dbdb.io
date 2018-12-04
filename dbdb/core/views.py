@@ -6,6 +6,7 @@ import operator
 import json
 # django imports
 from django.conf import settings
+from django.forms import HiddenInput
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -90,13 +91,12 @@ class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) 
 
     pass
 
-
 # ==============================================
-# DatabaseFieldsView
+# EmptyFieldsView
 # ==============================================
-class DatabaseFieldsView(View):
+class EmptyFieldsView(View):
 
-    template_name = 'core/database-fields.html'
+    template_name = 'core/empty-fields.html'
 
     def build_search_fields(self):
         import django.db.models.fields
@@ -151,6 +151,7 @@ class DatabaseFieldsView(View):
         num_systems = System.objects.all().count()
         
         return render(request, self.template_name, {
+            'activate': 'empty', # NAV-LINKS
             'versions': versions,
             'field': search_field,
             'check': search_check,
@@ -481,6 +482,7 @@ class DatabaseBrowseView(View):
         years.update(years_end)
 
         return render(request, self.template_name, {
+            'activate': 'browse', # NAV-LINKS
             'filtergroups': self.build_filter_groups(request.GET),
 
             'has_results': has_results,
@@ -494,6 +496,10 @@ class DatabaseBrowseView(View):
 
     pass
 
+
+# ==============================================
+# CounterView
+# ==============================================
 @method_decorator(csrf_exempt, name='dispatch')
 class CounterView(View):
 
@@ -545,12 +551,18 @@ class CounterView(View):
 
     pass
 
+# ==============================================
+# CreateUser
+# ==============================================
 class CreateUser(View):
 
     template_name = 'registration/create_user.html'
 
     def get(self, request, *args, **kwargs):
-        context = { 'form': CreateUserForm(auto_id='%s') }
+        context = { 
+            'form': CreateUserForm(auto_id='%s'),
+            'recaptcha_key': getattr(settings, 'NORECAPTCHA_SITE_KEY'),
+        }
         return render(request, context=context, template_name=self.template_name)
 
     def post(self, request, *args, **kwargs):
@@ -563,14 +575,18 @@ class CreateUser(View):
                 email=form.cleaned_data['email'],
                 password=form.cleaned_data['password']
             )
-            return redirect('/login/')
+            return redirect('/login/?status=success')
 
         return render(request, context={
-            'form': form
+            'form': form,
+            'recaptcha_key': getattr(settings, 'NORECAPTCHA_SITE_KEY'),
         }, template_name=self.template_name)
 
     pass
 
+# ==============================================
+# DatabasesEditView
+# ==============================================
 class DatabasesEditView(View, LoginRequiredMixin):
 
     template_name = 'core/databases-edit.html'
@@ -621,14 +637,20 @@ class DatabasesEditView(View, LoginRequiredMixin):
 
         system_form = SystemForm(instance=system)
 
-        if not request.user.is_superuser:
-            system_form.fields['name'].disabled = True
+        # Don't allow non-superusers from editting the system name
+        # This only really hides it from the UI.
+        if request.user.is_superuser:
+            system_form.fields['orig_name'].widget = HiddenInput()
+        else:
+            system_form.fields['name'].widget = HiddenInput()
+            system_form.fields['orig_name'].initial = system.name
 
         feature_form = SystemFeaturesForm(features=system_features)
 
         features = self.build_features(feature_form)
 
         return render(request, self.template_name, {
+            'activate': 'create' if system.id is None else 'edit', # NAV-LINKS
             'system_name': system.name,
             'system_form': system_form,
             'system_version_form': SystemVersionForm(instance=system_version),
@@ -660,7 +682,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
         system_version_form = SystemVersionEditForm(request.POST, request.FILES)
         system_version_metadata_form = SystemVersionMetadataForm(request.POST)
         feature_form = SystemFeaturesForm(request.POST, features=system_features)
-
+        
         if system_form.is_valid() and \
             system_version_form.is_valid() and \
             system_version_metadata_form.is_valid() and \
@@ -788,6 +810,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
         features = self.build_features(feature_form)
 
         return render(request, self.template_name, {
+            'activate': 'edit', # NAV-LINKS
             'system_name': system.name,
             'system_form': system_form,
             'system_version_form': system_version_form,
@@ -799,6 +822,9 @@ class DatabasesEditView(View, LoginRequiredMixin):
 
     pass
 
+# ==============================================
+# DatabaseRevisionList
+# ==============================================
 class DatabaseRevisionList(View):
 
     template_name = 'core/revision_list.html'
@@ -811,6 +837,7 @@ class DatabaseRevisionList(View):
             .select_related('system')
 
         return render(request, self.template_name, {
+            'activate': 'revisions', # NAV-LINKS
             'system': system,
             'versions': versions,
         })
@@ -833,6 +860,9 @@ class DatabaseRevisionList(View):
 
     pass
 
+# ==============================================
+# DatabaseRevisionView
+# ==============================================
 class DatabaseRevisionView(View):
 
     template_name = 'core/revision_view.html'
@@ -841,13 +871,63 @@ class DatabaseRevisionView(View):
         system_version = get_object_or_404(SystemVersion.objects.select_related('system'), system__slug=slug, ver=ver)
 
         return render(request, self.template_name, {
+            'activate': 'revisions', # NAV-LINKS
             'system': system_version.system,
             'system_version': system_version,
+            'has_revision': True,
             'system_features': system_version.features.all()
         })
 
     pass
 
+# ==============================================
+# RecentChangesView
+# ==============================================
+class RecentChangesView(View):
+
+    template_name = 'core/recent.html'
+
+    def get(self, request):
+        from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+        page = request.GET.get('page', 1)
+        username = request.GET.get('username', None)
+        versions = None
+        lookup_user = None
+        
+        # Try to get the versions for the given username
+        if not username is None:
+            User = get_user_model()
+            try:
+                lookup_user = User.objects.get(username=username)
+                versions = SystemVersion.objects.filter(creator=lookup_user)
+            except:
+                lookup_user = None
+                pass
+        if versions is None:
+            versions = SystemVersion.objects.all()
+
+        # Sort by timestamps
+        versions = versions.order_by('-created')
+
+        paginator = Paginator(versions, 25)
+        try:
+            versions = paginator.get_page(page)
+        except PageNotAnInteger:
+            versions = paginator.get_page(1)
+        except EmptyPage:
+            versions = paginator.get_page(paginator.num_pages)
+        
+        return render(request, self.template_name, context={
+            'activate': 'recent', # NAV-LINKS
+            'versions': versions,
+            'lookup_user': lookup_user,
+        })
+
+    pass
+
+# ==============================================
+# HomeView
+# ==============================================
 class HomeView(View):
 
     template_name = 'core/home.html'
@@ -873,6 +953,9 @@ class HomeView(View):
 
     pass
 
+# ==============================================
+# StatsView
+# ==============================================
 class StatsView(View):
 
     template_name = 'core/stats.html'
@@ -909,11 +992,15 @@ class StatsView(View):
         stats.append( self.get_bycountries() )
 
         return render(request, self.template_name, context={
+            'activate': 'stats', # NAV-LINKS
             'stats': stats,
         })
 
     pass
 
+# ==============================================
+# SitemapView
+# ==============================================
 class SitemapView(View):
 
     def get(self, request):
@@ -938,6 +1025,9 @@ class SitemapView(View):
 
     pass
 
+# ==============================================
+# SystemView
+# ==============================================
 class SystemView(View):
 
     template_name = 'core/system.html'
@@ -963,6 +1053,7 @@ class SystemView(View):
         system_features = SystemFeature.objects.filter(system=system_version).select_related('feature').order_by('feature__label')
 
         return render(request, self.template_name, {
+            'activate': 'system', # NAV-LINKS
             'system': system,
             'system_features': system_features,
             'system_version': system_version,
