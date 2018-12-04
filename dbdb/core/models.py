@@ -32,6 +32,7 @@ class CitationUrl(models.Model):
 # ==============================================
 class Feature(models.Model):
 
+    slug = models.SlugField(db_index=True, unique=True)
     label = models.CharField(max_length=100, unique=True)
     multivalued = models.BooleanField(default=True)
 
@@ -50,7 +51,11 @@ class FeatureOption(models.Model):
 
     feature = models.ForeignKey('Feature', models.CASCADE, related_name='options')
 
+    slug = models.SlugField(db_index=True, unique=False)
     value = models.CharField(max_length=100)
+
+    class Meta:
+        unique_together = ('feature','slug')
 
     def __str__(self):
         return self.value

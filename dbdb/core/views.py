@@ -177,9 +177,9 @@ class DatabaseBrowseView(View):
         def reduce_feature_options(mapping, option):
             mapping[option.feature_id].choices.append(
                 FilterChoice(
-                    option.id,
+                    option.slug,
                     option.value,
-                    str(option.id) in querydict.getlist( 'fg{0}'.format(option.feature_id), empty_set )
+                    option.slug in querydict.getlist( option.feature__slug, empty_set )
                 )
             )
             return mapping
@@ -206,14 +206,19 @@ class DatabaseBrowseView(View):
         ])
         other_filtersgroups.append(fg_derived)
 
+        # build from list of features (alphabetical order)
         filtergroups = collections.OrderedDict(
-            ( f_id, FilterGroup('fg{}'.format(f_id), f_label, []) )
-            for f_id,f_label in Feature.objects.all().order_by().values_list('id','label')
+            (
+                f_id,
+                FilterGroup(f_slug, f_label, []),
+            )
+            for f_id,f_slug,f_label in Feature.objects.all().order_by('label').values_list('id','slug','label')
         )
 
+        # add feature options to features
         filtergroups = reduce(
             reduce_feature_options,
-            FeatureOption.objects.all().order_by('value').values_list('feature_id','id','value', named=True),
+            FeatureOption.objects.all().order_by('value').values_list('feature_id','feature__slug','id','slug','value', named=True),
             filtergroups
         )
 
@@ -265,12 +270,24 @@ class DatabaseBrowseView(View):
         inspired = None
         has_search = False
 
+        # map feature slugs to ids
+        features_map = {
+            f_slug : f_id
+            for f_id,f_slug in Feature.objects.all().order_by().values_list('id','slug')
+        }
+        
+        # map feature options slugs to ids
+        featuresoptions_map = {
+            (f_id,fo_slug) : fo_id
+            for f_id,fo_id,fo_slug in FeatureOption.objects.all().order_by().values_list('feature_id','id','slug')
+        }
+
         # pull search criteria
         search_q = request.GET.get('q', '').strip()
         search_fg = {
-            int( k[2:] ) : set( map(int, request.GET.getlist(k)) )
+            features_map[k] : set( request.GET.getlist(k) )
             for k in request.GET.keys()
-            if k.startswith('fg')
+            if k in features_map
         }
 
         search_country = request.GET.getlist('country', '')
@@ -296,7 +313,7 @@ class DatabaseBrowseView(View):
 
         if not any(searches) and not any(search_fg):
             return (None, { })
-        
+
         # HACK: Create mapping to return to template
         search_mapping = {
             'query': search_q,
@@ -338,11 +355,14 @@ class DatabaseBrowseView(View):
             sqs = sqs.filter(countries__in=search_country)
             pass
 
-       # search for features
+        # convert feature option slugs to IDs to do search by filtering
         filter_option_ids = set()
-        for feature_id,option_ids in search_fg.items():
+        for feature_id,option_slugs in search_fg.items():
+            option_ids = map(lambda option_slug: featuresoptions_map[(feature_id,option_slug)], option_slugs)
             filter_option_ids.update(option_ids)
             pass
+
+        # if there are filter options to search for, apply filter
         if filter_option_ids:
             sqs = sqs.filter(feature_options__in=filter_option_ids)
 
