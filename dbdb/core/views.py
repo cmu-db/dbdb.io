@@ -4,6 +4,7 @@ import collections
 import datetime
 import operator
 import json
+import urllib.parse
 # django imports
 from django.conf import settings
 from django.forms import HiddenInput
@@ -123,14 +124,14 @@ class EmptyFieldsView(View):
 
     def get(self, request):
         import django.db.models.fields
-        
+
         if not request.user.is_authenticated:
             return redirect( settings.LOGIN_URL + '?next=' + reverse('fields') )
         elif not request.user.is_superuser:
             raise Http404()
-        
+
         versions = SystemVersion.objects.filter(is_current=True)
-        
+
         search_field = request.GET.get('field')
         search_check = request.GET.get('check')
         if search_field:
@@ -139,17 +140,17 @@ class EmptyFieldsView(View):
                 versions = versions.filter(**{search_field: None})
             else:
                 versions = versions.filter(**{search_field: ''})
-        
+
         # convert query list to regular list
         # and add href/url to each
         versions = list( versions.order_by('system__name') )
         for version in versions:
             version.href = request.build_absolute_uri( version.system.get_absolute_url() )
             pass
-        
+
         fields = self.build_search_fields()
         num_systems = System.objects.all().count()
-        
+
         return render(request, self.template_name, {
             'activate': 'empty', # NAV-LINKS
             'versions': versions,
@@ -275,7 +276,7 @@ class DatabaseBrowseView(View):
             f_slug : f_id
             for f_id,f_slug in Feature.objects.all().order_by().values_list('id','slug')
         }
-        
+
         # map feature options slugs to ids
         featuresoptions_map = {
             (f_id,fo_slug) : fo_id
@@ -460,13 +461,39 @@ class DatabaseBrowseView(View):
 
         return (versions, search_mapping)
 
+    def handle_old_urls(self, request):
+        query = []
+
+        # get mapping of feature options
+        featuresoptions_map = {
+            str(fo_id): (f_slug, fo_slug)
+            for fo_id,fo_slug,f_slug in FeatureOption.objects.all().order_by().values_list('id','slug','feature__slug')
+        }
+
+        for k in request.GET.keys():
+            for v in request.GET.getlist(k):
+                if k.startswith('fg'):
+                    query.append( featuresoptions_map[v] )
+                    pass
+                elif v:
+                    query.append((k,v))
+                    pass
+                pass
+            pass
+
+        return redirect( request.path + '?' + urllib.parse.urlencode(query) )
+
     def get(self, request):
+        # handle older filter group urls
+        if any( filter(lambda k: k.startswith('fg'), request.GET.keys()) ):
+           return self.handle_old_urls(request)
+
         # Perform the search and get back the versions along with a
         # mapping with the search keys
         results, search_keys = self.do_search(request)
 
         search_q = request.GET.get('q', '').strip()
-        
+
         # Search Letter
         search_letter = request.GET.get('letter', '').strip().upper()
 
@@ -579,7 +606,7 @@ class CreateUser(View):
     template_name = 'registration/create_user.html'
 
     def get(self, request, *args, **kwargs):
-        context = { 
+        context = {
             'form': CreateUserForm(auto_id='%s'),
             'recaptcha_key': getattr(settings, 'NORECAPTCHA_SITE_KEY'),
         }
@@ -702,7 +729,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
         system_version_form = SystemVersionEditForm(request.POST, request.FILES)
         system_version_metadata_form = SystemVersionMetadataForm(request.POST)
         feature_form = SystemFeaturesForm(request.POST, features=system_features)
-        
+
         if system_form.is_valid() and \
             system_version_form.is_valid() and \
             system_version_metadata_form.is_valid() and \
@@ -913,7 +940,7 @@ class RecentChangesView(View):
         username = request.GET.get('username', None)
         versions = None
         lookup_user = None
-        
+
         # Try to get the versions for the given username
         if not username is None:
             User = get_user_model()
@@ -936,7 +963,7 @@ class RecentChangesView(View):
             versions = paginator.get_page(1)
         except EmptyPage:
             versions = paginator.get_page(paginator.num_pages)
-        
+
         return render(request, self.template_name, context={
             'activate': 'recent', # NAV-LINKS
             'versions': versions,
@@ -954,7 +981,7 @@ class HomeView(View):
 
     def get(self, request):
         items_to_show = 5
-        
+
         num_systems = System.objects.all().count()
 
 
@@ -1008,7 +1035,6 @@ class StatsView(View):
     def get(self, request):
         stats = []
 
-        
         stats.append( self.get_bycountries() )
 
         return render(request, self.template_name, context={
@@ -1082,5 +1108,3 @@ class SystemView(View):
         })
 
     pass
-
-    
