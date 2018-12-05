@@ -1,5 +1,21 @@
 {{ object.system.name }}
 
+{{ object.former_names }}
+
+{{ object.description }}
+{% for curl in object.description_citations.all %}
+{{ curl.url }}{% endfor %}
+
+{{ object.history }}
+{% for curl in object.history_citations.all %}
+{{ curl.url }}{% endfor %}
+
+{{ object.acquired_by }}
+{% for curl in object.acquired_by_citations.all %}
+{{ curl.url }}{% endfor %}
+
+{{ object.developer }}
+
 {% for sf in object.features.all %}{% for o in sf.options.all %}
 {{ sf.feature.label }}
 {{ o.value }}
