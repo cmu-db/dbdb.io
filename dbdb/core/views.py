@@ -402,9 +402,7 @@ class DatabaseBrowseView(View):
         if not any(search_mapping.values()) and not any(search_fg):
             return (None, { })
 
-        # HACK: Create mapping to return to template
-        
-
+        # create new search query
         sqs = SearchQuerySet()
 
         # apply keyword search to name (require all terms)
