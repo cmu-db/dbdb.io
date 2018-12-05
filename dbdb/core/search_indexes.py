@@ -20,8 +20,10 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
     start_year = indexes.IntegerField(model_attr='start_year', null=True)
     end_year = indexes.IntegerField(model_attr='end_year', null=True)
 
+    compatible_with = indexes.MultiValueField()
     countries = indexes.MultiValueField()
     derived_from = indexes.MultiValueField()
+    inspired_by = indexes.MultiValueField()
     oses = indexes.MultiValueField()
     written_langs = indexes.MultiValueField()
     project_types = indexes.MultiValueField()
@@ -38,6 +40,16 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
             .filter(is_current=True) \
             .select_related('system')
 
+    def prepare_compatible_with(self, obj):
+        if obj.meta_id is None:
+            return []
+
+        values = list(
+            obj.meta.compatible_with.values_list('slug', flat=True)
+        )
+
+        return values
+
     def prepare_countries(self, obj):
         values = [
             c
@@ -52,6 +64,16 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
 
         values = list(
             obj.meta.derived_from.values_list('slug', flat=True)
+        )
+
+        return values
+
+    def prepare_inspired_by(self, obj):
+        if obj.meta_id is None:
+            return []
+
+        values = list(
+            obj.meta.inspired_by.values_list('slug', flat=True)
         )
 
         return values

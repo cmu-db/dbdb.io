@@ -197,6 +197,17 @@ class DatabaseBrowseView(View):
 
         other_filtersgroups = []
 
+        # add derived from
+        fg_compatible = FilterGroup('compatible', 'Compatible With', [
+            FilterChoice(
+                sys.slug,
+                sys.name,
+                sys.slug in querydict.getlist( 'compatible', empty_set )
+            )
+            for sys in System.objects.values_list('id','slug','name', named=True)
+        ])
+        other_filtersgroups.append(fg_compatible)
+
         # add countries
         fg_country = FilterGroup('country', 'Country', [
             FilterChoice(
@@ -218,6 +229,17 @@ class DatabaseBrowseView(View):
             for sys in System.objects.values_list('id','slug','name', named=True)
         ])
         other_filtersgroups.append(fg_derived)
+
+        # add inspired by
+        fg_inspired = FilterGroup('inspired', 'Inspired By', [
+            FilterChoice(
+                sys.slug,
+                sys.name,
+                sys.slug in querydict.getlist( 'inspired', empty_set )
+            )
+            for sys in System.objects.values_list('id','slug','name', named=True)
+        ])
+        other_filtersgroups.append(fg_inspired)
 
         # add operating system
         fg_os = FilterGroup('os', 'Operating System', [
@@ -349,10 +371,10 @@ class DatabaseBrowseView(View):
         search_end_max = request.GET.get('end-max', '').strip()
 
         # define static filters
-        search_compatible = request.GET.get('compatible', '').strip()
+        search_compatible = request.GET.getlist('compatible')
         search_country = request.GET.getlist('country')
         search_derived = request.GET.getlist('derived')
-        search_inspired = request.GET.get('inspired', '').strip()
+        search_inspired = request.GET.getlist('inspired')
         search_os = request.GET.getlist('os')
         search_programming = request.GET.getlist('programming')
         search_type = request.GET.getlist('type')
@@ -403,6 +425,11 @@ class DatabaseBrowseView(View):
             sqs = sqs.filter(end_year__gte=search_end_min, end_year__lte=search_end_max)
             pass
 
+        # search - compatible
+        if search_compatible:
+            sqs = sqs.filter(compatible_with__in=search_compatible)
+            pass
+
         # search - country
         if search_country:
             sqs = sqs.filter(countries__in=search_country)
@@ -411,6 +438,11 @@ class DatabaseBrowseView(View):
         # search - derived from
         if search_derived:
             sqs = sqs.filter(derived_from__in=search_derived)
+            pass
+
+        # search - inspired by
+        if search_inspired:
+            sqs = sqs.filter(inspired_by__in=search_inspired)
             pass
 
         # search - operating systems
@@ -510,6 +542,7 @@ class DatabaseBrowseView(View):
             min_end_year=Min('end_year'),
             max_end_year=Max('end_year')
         )
+
         years = {}
         years.update(years_start)
         years.update(years_end)
