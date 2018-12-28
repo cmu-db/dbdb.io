@@ -198,48 +198,48 @@ class DatabaseBrowseView(View):
         other_filtersgroups = []
 
         # add derived from
-        fg_compatible = FilterGroup('compatible', 'Compatible With', [
-            FilterChoice(
-                sys.slug,
-                sys.name,
-                sys.slug in querydict.getlist( 'compatible', empty_set )
-            )
-            for sys in System.objects.values_list('id','slug','name', named=True)
-        ])
-        other_filtersgroups.append(fg_compatible)
+        #fg_compatible = FilterGroup('compatible', 'Compatible With', [
+            #FilterChoice(
+                #sys.slug,
+                #sys.name,
+                #sys.slug in querydict.getlist( 'compatible', empty_set )
+            #)
+            #for sys in System.objects.values_list('id','slug','name', named=True)
+        #])
+        #other_filtersgroups.append(fg_compatible)
 
         # add countries
-        fg_country = FilterGroup('country', 'Country', [
-            FilterChoice(
-               code,
-               name,
-               code in querydict.getlist( 'country', empty_set )
-            )
-            for code,name in list(countries)
-        ])
-        other_filtersgroups.append(fg_country)
+        #fg_country = FilterGroup('country', 'Country', [
+            #FilterChoice(
+               #code,
+               #name,
+               #code in querydict.getlist( 'country', empty_set )
+            #)
+            #for code,name in list(countries)
+        #])
+        #other_filtersgroups.append(fg_country)
 
         # add derived from
-        fg_derived = FilterGroup('derived', 'Derived From', [
-            FilterChoice(
-                sys.slug,
-                sys.name,
-                sys.slug in querydict.getlist( 'derived', empty_set )
-            )
-            for sys in System.objects.values_list('id','slug','name', named=True)
-        ])
-        other_filtersgroups.append(fg_derived)
+        #fg_derived = FilterGroup('derived', 'Derived From', [
+            #FilterChoice(
+                #sys.slug,
+                #sys.name,
+                #sys.slug in querydict.getlist( 'derived', empty_set )
+            #)
+            #for sys in System.objects.values_list('id','slug','name', named=True)
+        #])
+        #other_filtersgroups.append(fg_derived)
 
         # add inspired by
-        fg_inspired = FilterGroup('inspired', 'Inspired By', [
-            FilterChoice(
-                sys.slug,
-                sys.name,
-                sys.slug in querydict.getlist( 'inspired', empty_set )
-            )
-            for sys in System.objects.values_list('id','slug','name', named=True)
-        ])
-        other_filtersgroups.append(fg_inspired)
+        #fg_inspired = FilterGroup('inspired', 'Inspired By', [
+            #FilterChoice(
+                #sys.slug,
+                #sys.name,
+                #sys.slug in querydict.getlist( 'inspired', empty_set )
+            #)
+            #for sys in System.objects.values_list('id','slug','name', named=True)
+        #])
+        #other_filtersgroups.append(fg_inspired)
 
         # add operating system
         fg_os = FilterGroup('os', 'Operating System', [
@@ -253,15 +253,15 @@ class DatabaseBrowseView(View):
         other_filtersgroups.append(fg_os)
 
         # add programming languages
-        fg_programming = FilterGroup('programming', 'Programming Languages', [
-            FilterChoice(
-                p.slug,
-                p.name,
-                p.slug in querydict.getlist( 'programming', empty_set )
-            )
-            for p in ProgrammingLanguage.objects.values_list('id','slug','name', named=True)
-        ])
-        other_filtersgroups.append(fg_programming)
+        #fg_programming = FilterGroup('programming', 'Programming Languages', [
+            #FilterChoice(
+                #p.slug,
+                #p.name,
+                #p.slug in querydict.getlist( 'programming', empty_set )
+            #)
+            #for p in ProgrammingLanguage.objects.values_list('id','slug','name', named=True)
+        #])
+        #other_filtersgroups.append(fg_programming)
 
         # add project types
         fg_project_type = FilterGroup('type', 'Project Types', [
