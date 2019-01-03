@@ -20,6 +20,8 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
     start_year = indexes.IntegerField(model_attr='start_year', null=True)
     end_year = indexes.IntegerField(model_attr='end_year', null=True)
 
+    lowercase_name = indexes.NgramField()
+
     compatible_with = indexes.MultiValueField()
     countries = indexes.MultiValueField()
     derived_from = indexes.MultiValueField()
@@ -139,5 +141,8 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_letter(self, obj):
         return obj.system.name[0].lower()
+
+    def prepare_lowercase_name(self, obj):
+        return obj.system.name.lower().strip()
 
     pass

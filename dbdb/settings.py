@@ -97,9 +97,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 HAYSTACK_CONNECTIONS = {
     'default': {
-        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': root.path('data/whoosh')(),
+        'ENGINE': 'xapian_backend.XapianEngine',
+        'PATH': root.path('data/xapian')(),
     },
+    # 'default': {
+        # 'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        # 'PATH': root.path('data/whoosh')(),
+    # },
 }
 
 

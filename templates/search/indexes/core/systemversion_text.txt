@@ -1,4 +1,5 @@
 {{ object.system.name }}
+{{ object.system.name|lower }}
 
 {{ object.former_names }}
 
