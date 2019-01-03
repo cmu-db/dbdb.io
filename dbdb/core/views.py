@@ -528,10 +528,8 @@ class DatabaseBrowseView(View):
         pagination = self.build_pagination(search_letter)
 
         # convert query list to regular list
-        t1 = time.time()
         results = list( results.order_by('name') )
-        print( 'Time to list:', time.time()-t1 )
-
+        # check if there are results
         has_results = len(results) > 0
 
         # get year ranges
