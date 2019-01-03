@@ -82,20 +82,12 @@ div.sidebar .btn-primary:hover { background-color:#205067; border-color:#205067;
 div.sidebar .btn-default { background-color:#79aec8; border-color:#79aec8; color:#ffffff;}
 div.sidebar .btn-default:hover { background-color:#609AB6; border-color:#609AB6; }
 
-.search-results div.card {
-    padding: 8px;
-}
-.search-results div.card:hover {
-    background-color: #ffff99;
-}
+.search-results div.card { padding: 8px; }
+.search-results div.card:hover { background-color: #ffff99; }
+.search-results div.card img.card-img-top { max-height: 125px; max-width: 100%; width:auto; }
+.search-results div.card img.card-logo-lazy { width: 100%; }
+.search-results div.card img.card-img-placeholder { width: 100%; }
 
-.search-results img.no-logo {
-/*     max-height: 125px; */
-/*     max-width: 125px; */
-}
-.search-results img {
-    max-height: 125px;
-}
 .search-results .card-title h5 {
     font-weight: bold;
 }

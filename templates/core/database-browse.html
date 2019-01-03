@@ -222,8 +222,11 @@ div.results div.version p { margin:0; }
 
 
 {% block scripts %}
-<script src="{% static 'lib/js/bootstrap-select.js' %}"></script>
-<script src="{% static 'lib/js/nouislider.min.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.10/jquery.lazy.min.js" integrity="sha256-ZPvH+DBiXs1v8yk7lmZa6+wqm+kzbwL9R1COtZ9+wjo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.10/jquery.lazy.plugins.min.js" integrity="sha256-VYuzzxzkmIY1LtJUW3CU83sP845Dy2h2Otbvh4ecIEA=" crossorigin="anonymous"></script>
+
+<script type="text/javascript" src="{% static 'lib/js/bootstrap-select.js' %}"></script>
+<script type="text/javascript" src="{% static 'lib/js/nouislider.min.js' %}"></script>
 
 <script>
 function YearRange(selector) {
@@ -367,33 +370,33 @@ $(document).ready(function () {
 
     var $form = $('form.main-search');
 
-	$('.filter-group').each(function(){
-		var $clear = $('a.clear', this);
-		var $filtergroup = $(this);
-		var $seemore = $('li.see-more', this);
+    $('.filter-group').each(function(){
+        var $clear = $('a.clear', this);
+        var $filtergroup = $(this);
+        var $seemore = $('li.see-more', this);
 
-		$clear.click(function(){
-			$filtergroup.find(':checked').prop('checked', false);
-			$form.submit();
-		});
+        $clear.click(function(){
+            $filtergroup.find(':checked').prop('checked', false);
+            $form.submit();
+        });
 
-		$seemore.find('a').click(function(){
-			var $a = $(this);
-			var $ul = $a.closest('ul');
-			var $more = $ul.find('.more');
+        $seemore.find('a').click(function(){
+            var $a = $(this);
+            var $ul = $a.closest('ul');
+            var $more = $ul.find('.more');
 
-			if ( $a.hasClass('active') ) {
-				$more.hide();
-				$a.text('Show more');
-				$a.removeClass('active');
-			}
-			else {
-				$more.show();
-				$a.text('Show less');
-				$a.addClass('active');
-			}
-		});
-	});
+            if ( $a.hasClass('active') ) {
+                $more.hide();
+                $a.text('Show more');
+                $a.removeClass('active');
+            }
+            else {
+                $more.show();
+                $a.text('Show less');
+                $a.addClass('active');
+            }
+        });
+    });
 
     $('.filter-group :checkbox').change(function(){
         $form.submit();
@@ -401,6 +404,15 @@ $(document).ready(function () {
 
     $('#filter_modal').modal({
         show: false
+    });
+
+    $('.card-logo-lazy').Lazy({
+        effect: 'fadeIn',
+        visibleOnly: true,
+
+        afterLoad: function(element) {
+            element.removeClass('card-logo-lazy');
+        },
     });
 
 });
