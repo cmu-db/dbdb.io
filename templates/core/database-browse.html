@@ -406,12 +406,12 @@ $(document).ready(function () {
         show: false
     });
 
-    $('.card-logo-lazy').Lazy({
+    $('img.card-img-placeholder').Lazy({
         effect: 'fadeIn',
         visibleOnly: true,
 
         afterLoad: function(element) {
-            element.removeClass('card-logo-lazy');
+            element.removeClass('card-img-placeholder');
         },
     });
 

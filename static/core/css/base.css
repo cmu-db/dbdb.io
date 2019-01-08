@@ -84,9 +84,10 @@ div.sidebar .btn-default:hover { background-color:#609AB6; border-color:#609AB6;
 
 .search-results div.card { padding: 8px; }
 .search-results div.card:hover { background-color: #ffff99; }
-.search-results div.card img.card-img-top { max-height: 125px; max-width: 100%; width:auto; }
-.search-results div.card img.card-logo-lazy { width: 100%; }
-.search-results div.card img.card-img-placeholder { width: 100%; }
+.search-results div.card .card-header { padding: 20px 0 0 0; background-color: transparent; border-bottom:none; }
+.search-results div.card img.card-logo { max-height: 125px; max-width: 100%; width:auto; }
+.search-results div.card img.card-default-logo { height: 100px; max-height: 125px; max-width: 100%; }
+.search-results div.card img.card-img-placeholder { height: 100px; max-height: 125px; max-width: 100%; }
 
 .search-results .card-title h5 {
     font-weight: bold;

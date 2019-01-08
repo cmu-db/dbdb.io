@@ -3,17 +3,18 @@
 {% with logo=result.logo|thumbnail_url:'search' %}
 <a class="card-title" href="{% url 'system' result.slug %}">
 <div class="card text-center">
-    {% if logo %}
-    <img class="card-img-top card-logo card-logo-lazy" src="{% static 'core/images/database-nologo.svg' %}" data-src="{{ logo }}" alt="{{ result.name }}" />
-    {% else %}
-    <img class="card-img-top card-img-placeholder" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ result.name }}" />
-    {% endif %}
+	<div class="card-header">
+		{% if logo %}
+		<img class="card-logo card-img-placeholder" src="{% static 'core/images/database-nologo.svg' %}" data-src="{{ logo }}" alt="{{ result.name }}" />
+		{% else %}
+		<img class="card-logo card-default-logo" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ result.name }}" />
+		{% endif %}
+	</div>
+	<div class="card-body">
+		<h5>{{ result.name }}</h5>
 
-    <div class="card-body">
-        <h5>{{ result.name }}</h5>
-
-        <p class="card-text"><small class="text-muted">Last updated {{ result.created }}</small></p>
-    </div>
+		<p class="card-text"><small class="text-muted">Last updated {{ result.created }}</small></p>
+	</div>
 </div>
 </a>
 {% endwith %}
