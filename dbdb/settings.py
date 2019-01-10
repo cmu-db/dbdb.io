@@ -111,6 +111,7 @@ HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'xapian_backend.XapianEngine',
         'PATH': root.path('data/xapian')(),
+        'FLAGS': HAYSTACK_XAPIAN_FLAGS,
     },
     # 'default': {
         # 'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
