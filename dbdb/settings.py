@@ -95,6 +95,18 @@ AUTH_PASSWORD_VALIDATORS = [
 # Haystack
 # https://django-haystack.readthedocs.io/
 
+import xapian
+
+HAYSTACK_XAPIAN_FLAGS = (
+    xapian.QueryParser.FLAG_PHRASE |
+    xapian.QueryParser.FLAG_BOOLEAN |
+    xapian.QueryParser.FLAG_LOVEHATE |
+    xapian.QueryParser.FLAG_WILDCARD |
+    xapian.QueryParser.FLAG_PURE_NOT |
+    xapian.QueryParser.FLAG_PARTIAL
+)
+HAYSTACK_XAPIAN_STEMMING_STRATEGY = 'STEM_ALL'
+
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'xapian_backend.XapianEngine',
