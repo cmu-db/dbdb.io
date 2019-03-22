@@ -462,19 +462,19 @@ class DatabaseBrowseView(View):
         # search - licenses
         if search_license:
             sqs = sqs.filter(licenses__in=search_license)
-            print( 'search_license', search_license )
             pass
 
         # convert feature option slugs to IDs to do search by filtering
         filter_option_ids = set()
         for feature_id,option_slugs in search_fg.items():
-            option_ids = map(lambda option_slug: featuresoptions_map[(feature_id,option_slug)], option_slugs)
+            option_ids = set( map(lambda option_slug: featuresoptions_map[(feature_id,option_slug)], option_slugs) )
             filter_option_ids.update(option_ids)
             pass
 
         # if there are filter options to search for, apply filter
         if filter_option_ids:
-            sqs = sqs.filter(feature_options__in=filter_option_ids)
+            for option_id in filter_option_ids:
+                sqs = sqs.filter(feature_options__contains=option_id)
 
         return (sqs, search_mapping)
 

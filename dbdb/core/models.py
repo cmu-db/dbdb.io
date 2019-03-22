@@ -227,7 +227,7 @@ class SystemFeature(models.Model):
         unique_together = ('system','feature')
 
     def __str__(self):
-        return self.system.system.name
+        return '{} > {}'.format(self.system.system.name, self.feature.label)
 
     def values_str(self):
         return ', '.join([str(l) for l in self.options.all()])
