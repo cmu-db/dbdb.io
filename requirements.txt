@@ -1,4 +1,4 @@
-Django==2.0.9
+Django==2.0.13
 django-autoslug==1.9.3
 django-bootstrap4==0.0.7
 django-countries==5.3.2
@@ -13,4 +13,4 @@ PyJWT==1.7.0
 pytz==2018.7
 six==1.11.0
 Whoosh==2.7.4
-xapian-haystack==2.1.01
+xapian-haystack==2.1.1
