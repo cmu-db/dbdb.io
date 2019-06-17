@@ -341,6 +341,18 @@ class DatabaseBrowseView(View):
         )
 
         return pagination
+    
+    def convert_slugs(self, slugs):
+        full_systems = [ ]
+        for slug in slugs:
+            try:
+                full_systems.append(System.objects.get(slug=slug))
+            except:
+                # Ignore any invalid slugs 
+                pass
+        return full_systems
+    ## DEF
+        
 
     def do_search(self, request):
         has_search = False
@@ -414,33 +426,19 @@ class DatabaseBrowseView(View):
         if all((search_start_min, search_start_max)):
             search_start_min = int(search_start_min)
             search_start_max = int(search_start_max)
-
             sqs = sqs.filter(start_year__gte=search_start_min, start_year__lte=search_start_max)
             pass
+
         if all((search_end_min, search_end_max)):
             search_end_min = int(search_end_min)
             search_end_max = int(search_end_max)
-
             sqs = sqs.filter(end_year__gte=search_end_min, end_year__lte=search_end_max)
             pass
 
         # search - compatible
         if search_compatible:
             sqs = sqs.filter(compatible_with__in=search_compatible)
-            
-            compat_systems = [ ]
-            for compat_slug in search_compatible:
-                try:
-                    compat_system = System.objects.get(slug=compat_slug)
-                    if compat_system:
-                        compat_systems.append(compat_system)
-                    else:
-                        # compat_systems.append(compat_slug)
-                        pass
-                except:
-                    # Ignore
-                    pass
-            search_mapping['compatible'] = compat_systems
+            search_mapping['compatible'] = self.convert_slugs(search_compatible)
             pass
 
         # search - country
@@ -451,11 +449,13 @@ class DatabaseBrowseView(View):
         # search - derived from
         if search_derived:
             sqs = sqs.filter(derived_from__in=search_derived)
+            search_mapping['derived'] = self.convert_slugs(search_derived)
             pass
 
         # search - inspired by
         if search_inspired:
             sqs = sqs.filter(inspired_by__in=search_inspired)
+            search_mapping['inspired'] = self.convert_slugs(search_inspired)
             pass
 
         # search - operating systems

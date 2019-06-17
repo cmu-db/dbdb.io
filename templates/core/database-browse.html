@@ -141,7 +141,7 @@ div.results div.version p { margin:0; }
             {% if search.derived_system %}
                 <a href="{% url 'system' search.derived_system.slug %}">{{ search.derived_system.name }}</a>
             {% else %}
-                "{{ search.derived }}"
+                [ {% for derived_system in search.derived %}{% if forloop.first is False %}, {% endif %}<a href="{% url 'system' derived_system.slug %}">{{ derived_system.name }}</a>{% endfor %} ]
             {% endif %}
             <!-- /derived -->
             {% elif search.inspired %}
@@ -150,7 +150,7 @@ div.results div.version p { margin:0; }
             {% if search.inspired_system %}
             <a href="{% url 'system' search.inspired_system.slug %}">{{ search.inspired_system.name }}</a>
             {% else %}
-            "{{ search.inspired }}"
+                [ {% for inspired_system in search.inspired %}{% if forloop.first is False %}, {% endif %}<a href="{% url 'system' inspired_system.slug %}">{{ inspired_system.name }}</a>{% endfor %} ]
             {% endif %}
             <!-- /inspired -->
             {% elif search.compatible %}
