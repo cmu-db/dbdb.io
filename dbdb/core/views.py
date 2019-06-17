@@ -427,6 +427,20 @@ class DatabaseBrowseView(View):
         # search - compatible
         if search_compatible:
             sqs = sqs.filter(compatible_with__in=search_compatible)
+            
+            compat_systems = [ ]
+            for compat_slug in search_compatible:
+                try:
+                    compat_system = System.objects.get(slug=compat_slug)
+                    if compat_system:
+                        compat_systems.append(compat_system)
+                    else:
+                        # compat_systems.append(compat_slug)
+                        pass
+                except:
+                    # Ignore
+                    pass
+            search_mapping['compatible'] = compat_systems
             pass
 
         # search - country

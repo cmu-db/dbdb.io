@@ -159,7 +159,7 @@ div.results div.version p { margin:0; }
             {% if search.compatible_system %}
             <a href="{% url 'system' search.compatible_system.slug %}">{{ search.compatible_system.name }}</a>
             {% else %}
-            "{{ search.compatible }}"
+                [ {% for compat_system in search.compatible %}{% if forloop.first is False %}, {% endif %}<a href="{% url 'system' compat_system.slug %}">{{ compat_system.name }}</a>{% endfor %} ]
             {% endif %}
             <!-- /compatible -->
             {% elif search.query %}
