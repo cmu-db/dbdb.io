@@ -3,8 +3,11 @@ python:
   - "3.6"
 install:
   - ./install_xapian.sh 1.4.9
-  - pip install -r requirements.txt
-  - pip install -r requirements-test.txt
+  - pip install git+https://github.com/notanumber/xapian-haystack.git
+  - sudo apt-get install python3-sphinx
+  - mkdir -p data/xapian
+  - pip3 install -r requirements.txt
+  - pip3 install -r requirements-test.txt
 before_script:
   - python manage.py migrate
 
