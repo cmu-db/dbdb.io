@@ -2,6 +2,7 @@ language: python
 python:
   - "3.6"
 install:
+  - sudo apt-get install python3-xapian
   - pip install -r requirements.txt
   - pip install -r requirements-test.txt
 before_script:
@@ -9,3 +10,4 @@ before_script:
 
 script:
   - python manage.py test
+  
