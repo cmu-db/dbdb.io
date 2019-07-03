@@ -3,6 +3,7 @@ python:
   - "3.6"
 install:
   - sudo apt-get install python3-sphinx
+  - sudo pip3 install Sphinx
   - ./install_xapian.sh 1.4.9
   - pip install git+https://github.com/notanumber/xapian-haystack.git
   - mkdir -p data/xapian
