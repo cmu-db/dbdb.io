@@ -39,7 +39,7 @@ fi
 
 # The bindings for Python require python-sphinx
 echo "Installing Python-Sphinx..."
-pip install sphinx
+pip3 install "sphinx<2"
 
 echo "Installing Xapian-bindings..."
 cd $VIRTUAL_ENV/packages/${BINDINGS}
