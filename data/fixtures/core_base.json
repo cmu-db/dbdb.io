@@ -70,7 +70,8 @@
   "pk": 1,
   "fields": {
     "label": "Feature One",
-    "multivalued": false
+    "multivalued": false,
+    "slug": "feature1"
   }
 },
 {
@@ -78,7 +79,8 @@
   "pk": 2,
   "fields": {
     "label": "Feature Two",
-    "multivalued": true
+    "multivalued": true,
+    "slug": "feature2"
   }
 },
 {
@@ -86,7 +88,8 @@
   "pk": 1,
   "fields": {
     "feature": 1,
-    "value": "1"
+    "value": "1",
+    "slug": "option1"
   }
 },
 {
@@ -94,7 +97,8 @@
   "pk": 2,
   "fields": {
     "feature": 1,
-    "value": "2"
+    "value": "2",
+    "slug": "option2"
   }
 },
 {
@@ -102,7 +106,8 @@
   "pk": 3,
   "fields": {
     "feature": 1,
-    "value": "3"
+    "value": "3",
+    "slug": "option3"
   }
 },
 {
@@ -110,7 +115,8 @@
   "pk": 4,
   "fields": {
     "feature": 2,
-    "value": "high"
+    "value": "high",
+    "slug": "option-high"
   }
 },
 {
@@ -118,7 +124,8 @@
   "pk": 5,
   "fields": {
     "feature": 2,
-    "value": "low"
+    "value": "low",
+    "slug": "option-low"
   }
 }
 ]
