@@ -7,6 +7,8 @@ from pyquery import PyQuery as pq
 # local imports
 from .models import Feature
 
+from pprint import pprint
+
 # test cases
 
 class AdvancedSearchTestCase(TestCase):
@@ -29,20 +31,23 @@ class AdvancedSearchTestCase(TestCase):
         d = pq(response.content)
         filtergroups = d('div.filter-group')
         # Add two for the year filtergroups
-        self.assertEquals(quantity + 2, len(filtergroups))
+        # Add eight for country, OS, project type, PL, inspired, derived, compatiable, licenses
+        #pprint(filtergroups)
+        self.assertEquals(quantity + 2 + 8, len(filtergroups))
         return
 
     def test_search_with_insuficient_data(self):
         data = {
-            'fg1': ['1'],
+            'feature1': ['option1'],
         }
         response = self.client.get(reverse('browse'), data=data)
+        #pprint(response.content)
         self.assertContains(response, 'No databases found')
         return
 
     def test_search_with_suficient_data(self):
         data = {
-            'fg1': [3],
+            'feature1': ['option3'],
         }
         response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'SQLite', html=True)
@@ -50,7 +55,7 @@ class AdvancedSearchTestCase(TestCase):
 
     def test_search_with_extra_data(self):
         data = {
-            'fg1': [2, 3],
+            'feature1': ['option2', 'option3'],
         }
         response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'SQLite', html=True)
@@ -58,30 +63,30 @@ class AdvancedSearchTestCase(TestCase):
 
     def test_search_with_combined_fields(self):
         data = {
-            'fg1': [3],
-            'fg2': [4],
+            'feature1': ['option3'],
+            'feature2': ['option4'],
         }
         response = self.client.get(reverse('browse'), data=data)
         #print(response.content)
         self.assertContains(response, '<h5>SQLite</h5>', html=True)
 
         data = {
-            'fg1': [3],
-            'fg2': [5]
+            'feature1': ['option3'],
+            'feature2': ['option5']
         }
         response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, '<h5>SQLite</h5>', html=True)
 
         data = {
-            'fg1': [3],
-            'fg2': [5, 4]
+            'feature1': ['option3'],
+            'feature2': ['option5', 'option4']
         }
         response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'SQLite', html=True)
 
         data = {
-            'fg1': [2],
-            'fg2': [5]
+            'feature1': ['option2'],
+            'feature2': ['option5']
         }
         response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'No databases found')
