@@ -69,7 +69,7 @@
   "model": "core.feature",
   "pk": 1,
   "fields": {
-    "label": "Feature One",
+    "label": "feature1",
     "multivalued": false,
     "slug": "feature1"
   }
@@ -78,7 +78,7 @@
   "model": "core.feature",
   "pk": 2,
   "fields": {
-    "label": "Feature Two",
+    "label": "feature2",
     "multivalued": true,
     "slug": "feature2"
   }
@@ -88,7 +88,7 @@
   "pk": 1,
   "fields": {
     "feature": 1,
-    "value": "1",
+    "value": "option1",
     "slug": "option1"
   }
 },
@@ -97,7 +97,7 @@
   "pk": 2,
   "fields": {
     "feature": 1,
-    "value": "2",
+    "value": "option2",
     "slug": "option2"
   }
 },
@@ -106,7 +106,7 @@
   "pk": 3,
   "fields": {
     "feature": 1,
-    "value": "3",
+    "value": "option3",
     "slug": "option3"
   }
 },
@@ -115,7 +115,7 @@
   "pk": 4,
   "fields": {
     "feature": 2,
-    "value": "high",
+    "value": "option-high",
     "slug": "option-high"
   }
 },
@@ -124,7 +124,7 @@
   "pk": 5,
   "fields": {
     "feature": 2,
-    "value": "low",
+    "value": "option-low",
     "slug": "option-low"
   }
 }

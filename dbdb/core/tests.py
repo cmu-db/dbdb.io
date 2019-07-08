@@ -32,8 +32,8 @@ HAYSTACK_XAPIAN_FLAGS = (
 TEST_INDEX = {
     'default': {
         'ENGINE': 'xapian_backend.XapianEngine',
-        #'PATH': tempfile.mkdtemp(),
-        'PATH': root.path('data/xapian')(),
+        'PATH': tempfile.mkdtemp(),
+        #'PATH': root.path('data/xapian')(),
         'FLAGS': HAYSTACK_XAPIAN_FLAGS,
     },
 }
@@ -43,7 +43,7 @@ class BaseTestCase(TestCase):
 
     def setUp(self):
         haystack.connections.reload('default')
-        management.call_command('rebuild_index', interactive=False, verbosity=1)
+        management.call_command('rebuild_index', interactive=False, verbosity=0)
         super(BaseTestCase, self).setUp()
 
     def tearDown(self):
@@ -140,7 +140,7 @@ class AdvancedSearchTestCase(BaseTestCase):
     def test_search_with_combined_fields(self):
         data = {
             'feature1': ['option3'],
-            'feature2': ['option4'],
+            'feature2': ['option-high'],
         }
         response = self.client.get(reverse('browse'), data=data)
         #print(response.content)
@@ -155,14 +155,14 @@ class AdvancedSearchTestCase(BaseTestCase):
 
         data = {
             'feature1': ['option3'],
-            'feature2': ['option5', 'option4']
+            'feature2': ['option-high', 'option-low']
         }
         response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'SQLite', html=True)
 
         data = {
             'feature1': ['option2'],
-            'feature2': ['option5']
+            'feature2': ['option-low']
         }
         response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'No databases found')
