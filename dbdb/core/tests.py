@@ -143,12 +143,12 @@ class AdvancedSearchTestCase(BaseTestCase):
             'feature2': ['option-high'],
         }
         response = self.client.get(reverse('browse'), data=data)
-        #print(response.content)
+        print(response.content)
         self.assertContains(response, '<h5>SQLite</h5>', html=True)
 
         data = {
             'feature1': ['option3'],
-            'feature2': ['option5']
+            'feature2': ['option-low']
         }
         response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, '<h5>SQLite</h5>', html=True)
