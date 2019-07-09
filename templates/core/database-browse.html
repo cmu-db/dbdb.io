@@ -192,29 +192,32 @@ div.results div.version p { margin:0; }
 <div class="modal" tabindex="-1" role="dialog" id="filter_modal">
     <div class="modal-dialog modal-lg" role="document">
         <form class="modal-content">
-            <div class="modal-body">
-                <ul class="nav nav-tabs" role="tablist">
-                    {% for filtergroup in filtergroups %}
-                    <li role="presentation"><a {% if forloop.first %}class="active"{% endif %} href="#{{ filtergroup.id }}" aria-controls="{{ filtergroup.id }}" role="tab" data-toggle="tab">{{ filtergroup.label }}</a></li>
-                    {% endfor %}
-                </ul>
-                <div class="tab-content">
-                    {% for filtergroup in filtergroups %}
-                    <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ filtergroup.id }}">
-                        <ul class="checkbox-list">
-                            {% for choice in filtergroup.choices %}
-                            <li><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" {% if choice.checked %}checked="checked"{% endif %}> {{ choice.label }}</label></li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% endfor %}
+        <!-- BEGIN: modal-body -->
+        <div class="modal-body">
+            <ul class="nav nav-tabs" role="tablist">
+                {% for filtergroup in filtergroups %}
+                <li role="presentation"><a {% if forloop.first %}class="active"{% endif %} href="#{{ filtergroup.id }}" aria-controls="{{ filtergroup.id }}" role="tab" data-toggle="tab">{{ filtergroup.label }}</a></li>
+                {% endfor %}
+            </ul>
+            <div class="tab-content">
+                {% for filtergroup in filtergroups %}
+                <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ filtergroup.id }}">
+                    <ul class="checkbox-list">
+                        {% for choice in filtergroup.choices %}
+                        <li><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" {% if choice.checked %}checked="checked"{% endif %}> {{ choice.label }}</label></li>
+                        {% endfor %}
+                    </ul>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-link" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="apply_refinements()">Apply</button>
+                {% endfor %}
             </div>
         </div>
+        <!-- END: modal-body -->
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-link" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="apply_refinements()">Apply</button>
+        </div>
+        </form>
     </div>
 </div>
 

@@ -1,15 +1,109 @@
 # django imports
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.contrib.auth import get_user
 from django.urls import reverse
+from django.core import management
 # third-party imports
 from pyquery import PyQuery as pq
+import xapian
+import environ
+import haystack
+from haystack.query import SearchQuerySet
 # local imports
 from .models import Feature
 
-# test cases
+import tempfile
+from pprint import pprint
 
-class AdvancedSearchTestCase(TestCase):
+# ==============================================
+# HAYSTACK CONFIG
+# ==============================================
+
+root = environ.Path(__file__) - 2
+
+HAYSTACK_XAPIAN_FLAGS = (
+    xapian.QueryParser.FLAG_PHRASE |
+    xapian.QueryParser.FLAG_BOOLEAN |
+    xapian.QueryParser.FLAG_LOVEHATE |
+    xapian.QueryParser.FLAG_WILDCARD |
+    xapian.QueryParser.FLAG_PURE_NOT |
+    xapian.QueryParser.FLAG_PARTIAL
+)
+
+TEST_INDEX = {
+    'default': {
+        'ENGINE': 'xapian_backend.XapianEngine',
+        'PATH': tempfile.mkdtemp(),
+        #'PATH': root.path('data/xapian')(),
+        'FLAGS': HAYSTACK_XAPIAN_FLAGS,
+    },
+}
+
+@override_settings(HAYSTACK_CONNECTIONS=TEST_INDEX)
+class BaseTestCase(TestCase):
+
+    def setUp(self):
+        haystack.connections.reload('default')
+        management.call_command('rebuild_index', interactive=False, verbosity=0)
+        super(BaseTestCase, self).setUp()
+
+    def tearDown(self):
+        management.call_command('clear_index', interactive=False, verbosity=0)
+# CLASS
+
+# ==============================================
+# SearchTestCase
+# ==============================================
+class SearchTestCase(BaseTestCase):
+
+    fixtures = [
+        'adminuser.json',
+        'testuser.json',
+        'core_base.json',
+        'core_system.json'
+    ]
+
+    #def test_can_access_search_page(self):
+        #response = self.client.get(reverse('search'))
+        #self.assertRedirects(response, reverse('home'))
+        #return
+        
+    def test_haystack_contents(self):
+        """Make sure we are setting up haystack correctly."""
+        sqs = SearchQuerySet()
+        num_results = len(sqs)
+        self.assertEquals(num_results, 1)
+        res = sqs[0]
+        self.assertEquals(res.name, "SQLite")
+        return
+    
+    def test_search_no_parameters(self):
+        query = {'q': 'sql'}
+        response = self.client.get(reverse('browse'))
+        self.assertContains(response, 'SQLite', html=True)
+        return
+
+    def test_search_valid_parameters(self):
+        query = {'q': 'sql'}
+        response = self.client.get(reverse('browse'), data=query)
+        #print(response.content)
+        self.assertContains(response, 'Found 1 database for \"sql\"', html=True)
+        self.assertContains(response, 'SQLite', html=True)
+        # self.assertContains(response, '<p class="card-text">Nice description</p>', html=True)
+        return
+
+    def test_search_invalid_parameters(self):
+        query = {'q': 'dock'}
+        response = self.client.get(reverse('browse'), data=query)
+        self.assertContains(response, 'No databases found for \"dock\"', html=True)
+        return
+
+    pass
+
+# ==============================================
+# AdvancedSearchTestCase
+# ==============================================
+class AdvancedSearchTestCase(BaseTestCase):
 
     fixtures = [
         'adminuser.json',
@@ -29,20 +123,23 @@ class AdvancedSearchTestCase(TestCase):
         d = pq(response.content)
         filtergroups = d('div.filter-group')
         # Add two for the year filtergroups
-        self.assertEquals(quantity + 2, len(filtergroups))
+        # Add eight for country, OS, project type, PL, inspired, derived, compatiable, licenses
+        #pprint(filtergroups)
+        self.assertEquals(quantity + 2 + 8, len(filtergroups))
         return
 
     def test_search_with_insuficient_data(self):
         data = {
-            'fg1': ['1'],
+            'feature1': ['option1'],
         }
         response = self.client.get(reverse('browse'), data=data)
+        #pprint(response.content)
         self.assertContains(response, 'No databases found')
         return
 
     def test_search_with_suficient_data(self):
         data = {
-            'fg1': [3],
+            'feature1': ['option3'],
         }
         response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'SQLite', html=True)
@@ -50,7 +147,7 @@ class AdvancedSearchTestCase(TestCase):
 
     def test_search_with_extra_data(self):
         data = {
-            'fg1': [2, 3],
+            'feature1': ['option2', 'option3'],
         }
         response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'SQLite', html=True)
@@ -58,30 +155,29 @@ class AdvancedSearchTestCase(TestCase):
 
     def test_search_with_combined_fields(self):
         data = {
-            'fg1': [3],
-            'fg2': [4],
-        }
-        response = self.client.get(reverse('browse'), data=data)
-        #print(response.content)
-        self.assertContains(response, '<h5>SQLite</h5>', html=True)
-
-        data = {
-            'fg1': [3],
-            'fg2': [5]
+            'feature1': ['option3'],
+            'feature2': ['option-high'],
         }
         response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, '<h5>SQLite</h5>', html=True)
 
         data = {
-            'fg1': [3],
-            'fg2': [5, 4]
+            'feature1': ['option3'],
+            'feature2': ['option-low']
+        }
+        response = self.client.get(reverse('browse'), data=data)
+        self.assertContains(response, '<h5>SQLite</h5>', html=True)
+
+        data = {
+            'feature1': ['option3'],
+            'feature2': ['option-high', 'option-low']
         }
         response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'SQLite', html=True)
 
         data = {
-            'fg1': [2],
-            'fg2': [5]
+            'feature1': ['option1'],
+            'feature2': ['option-low']
         }
         response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'No databases found')
@@ -89,7 +185,10 @@ class AdvancedSearchTestCase(TestCase):
 
     pass
 
-class CreateDatabaseTestCase(TestCase):
+# ==============================================
+# CreateDatabaseTestCase
+# ==============================================
+class CreateDatabaseTestCase(BaseTestCase):
 
     fixtures = [
         'adminuser.json',
@@ -144,7 +243,10 @@ class CreateDatabaseTestCase(TestCase):
         return
     pass
 
-class HomeTestCase(TestCase):
+# ==============================================
+# HomeTestCase
+# ==============================================
+class HomeTestCase(BaseTestCase):
 
     fixtures = [
         'adminuser.json',
@@ -185,7 +287,10 @@ class HomeTestCase(TestCase):
         return
     pass
 
-class LoginTestCase(TestCase):
+# ==============================================
+# LoginTestCase
+# ==============================================
+class LoginTestCase(BaseTestCase):
 
     fixtures = ['testuser.json']
 
@@ -219,33 +324,4 @@ class LoginTestCase(TestCase):
         return
     pass
 
-class SearchTestCase(TestCase):
 
-    fixtures = [
-        'adminuser.json',
-        'testuser.json',
-        'core_base.json',
-        'core_system.json'
-    ]
-
-    #def test_can_access_search_page(self):
-        #response = self.client.get(reverse('search'))
-        #self.assertRedirects(response, reverse('home'))
-        #return
-
-    def test_search_valid_parameter(self):
-        query = {'q': 'sql'}
-        response = self.client.get(reverse('search'), data=query)
-        #print(response.content)
-        self.assertContains(response, 'Found 1 database for \"sql\"', html=True)
-        self.assertContains(response, 'SQLite', html=True)
-        # self.assertContains(response, '<p class="card-text">Nice description</p>', html=True)
-        return
-
-    def test_search_invalid_parameters(self):
-        query = {'q': 'dock'}
-        response = self.client.get(reverse('search'), data=query)
-        self.assertContains(response, 'No databases found for \"dock\"', html=True)
-        return
-
-    pass
