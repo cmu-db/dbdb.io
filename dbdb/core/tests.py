@@ -8,6 +8,7 @@ from pyquery import PyQuery as pq
 import xapian
 import environ
 import haystack
+from haystack.query import SearchQuerySet
 # local imports
 from .models import Feature
 
@@ -66,10 +67,25 @@ class SearchTestCase(BaseTestCase):
         #response = self.client.get(reverse('search'))
         #self.assertRedirects(response, reverse('home'))
         #return
-
-    def test_search_valid_parameter(self):
+        
+    def test_haystack_contents(self):
+        """Make sure we are setting up haystack correctly."""
+        sqs = SearchQuerySet()
+        num_results = len(sqs)
+        self.assertEquals(num_results, 1)
+        res = sqs[0]
+        self.assertEquals(res.name, "SQLite")
+        return
+    
+    def test_search_no_parameters(self):
         query = {'q': 'sql'}
-        response = self.client.get(reverse('search'), data=query)
+        response = self.client.get(reverse('browse'))
+        self.assertContains(response, 'SQLite', html=True)
+        return
+
+    def test_search_valid_parameters(self):
+        query = {'q': 'sql'}
+        response = self.client.get(reverse('browse'), data=query)
         #print(response.content)
         self.assertContains(response, 'Found 1 database for \"sql\"', html=True)
         self.assertContains(response, 'SQLite', html=True)
@@ -78,7 +94,7 @@ class SearchTestCase(BaseTestCase):
 
     def test_search_invalid_parameters(self):
         query = {'q': 'dock'}
-        response = self.client.get(reverse('search'), data=query)
+        response = self.client.get(reverse('browse'), data=query)
         self.assertContains(response, 'No databases found for \"dock\"', html=True)
         return
 
@@ -143,7 +159,6 @@ class AdvancedSearchTestCase(BaseTestCase):
             'feature2': ['option-high'],
         }
         response = self.client.get(reverse('browse'), data=data)
-        print(response.content)
         self.assertContains(response, '<h5>SQLite</h5>', html=True)
 
         data = {
@@ -161,7 +176,7 @@ class AdvancedSearchTestCase(BaseTestCase):
         self.assertContains(response, 'SQLite', html=True)
 
         data = {
-            'feature1': ['option2'],
+            'feature1': ['option1'],
             'feature2': ['option-low']
         }
         response = self.client.get(reverse('browse'), data=data)
