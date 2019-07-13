@@ -223,7 +223,7 @@ class SystemACL(models.Model):
         unique_together = ('system', 'user')
         
     def __str__(self):
-        return str((self.system, self.user))
+        return "(%s, %s)" % (self.system.name, self.user.username)
     
     pass
 

@@ -13,11 +13,17 @@ class FeatureOptionsInlines(admin.StackedInline):
     model = FeatureOption
     extra = 0
 
+class SystemACLInlines(admin.StackedInline):
+    model = SystemACL
+    extra = 0
+    exclude=('created', 'modified')
 
 # model admins
 
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'is_staff', 'date_joined', 'last_login')
+    readonly_fields=('date_joined', 'last_login')
+    inlines = [SystemACLInlines]
 
 class FeatureAdmin(admin.ModelAdmin):
     inlines = [FeatureOptionsInlines]
