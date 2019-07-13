@@ -14,7 +14,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         User = get_user_model()
         for user in User.objects.all():
-            if user.username == "developer": continue
+            if user.username == "developer" or user.is_superuser: continue
             
             systems = set()
             # Find what systems this user has editted
