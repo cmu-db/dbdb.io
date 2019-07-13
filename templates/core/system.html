@@ -2,7 +2,7 @@
 {% load staticfiles %}
 
 {% block navbuttons %}
-{% if user.is_authenticated %}
+{% if user.is_authenticated and user_can_edit %}
 <li class="nav-item ml-2 {% if activate == 'create' %} active{% endif %}">
     <a class="nav-link btn btn-outline-secondary" href="{% url 'system_edit' system.slug %}">Edit</a>
 </li>

@@ -50,7 +50,7 @@ from dbdb.core.models import SystemFeature
 from dbdb.core.models import SystemRedirect
 from dbdb.core.models import SystemVersion
 from dbdb.core.models import SystemVersionMetadata
-
+from dbdb.core.models import SystemACL
 
 # constants
 
@@ -695,20 +695,41 @@ class DatabasesEditView(View, LoginRequiredMixin):
 
     @never_cache
     def get(self, request, slug=None):
+        
+        # You always have to be logged in to edit an entry
+        if not request.user.is_authenticated:
+            return redirect( settings.LOGIN_URL + '?next=' + reverse('system', args=[slug]))
+        
+        # If there is no slug, then they are trying to create a new database.
+        # Only superusers are allowed to do that.
         if slug is None:
-
-            if not request.user.is_authenticated:
-                return redirect( settings.LOGIN_URL + '?next=' + reverse('create_database') )
-            elif not request.user.is_superuser:
+            if not request.user.is_superuser:
                 raise Http404()
 
+            # Create a new empty system for the form
             system = System()
             system_version = SystemVersion(system=system, is_current=True)
             system_meta = SystemVersionMetadata()
             system_features = SystemFeature.objects.none()
             pass
+        
+        # If there is a slug, then check to see whether they have permission
+        # to edit this mofo
         else:
             system = System.objects.get(slug=slug)
+            
+            # Make sure this user has permissions to edit this page
+            if not request.user.is_superuser:
+                try:
+                    system_acl = SystemACL.objects.get(system=system, user=request.user)
+                except SystemACL.DoesNotExist:
+                    base_url = reverse('system', args=[slug])
+                    query_string =  urllib.parse.urlencode({'noperms': 1})
+                    url = '{}?{}'.format(base_url, query_string)
+                    return redirect(url)
+            ## IF
+                    
+            # Load in what we need
             system_version = SystemVersion.objects.get(system=system, is_current=True)
             system_meta = system_version.meta
             system_features = system_version.features.all()
@@ -1130,12 +1151,25 @@ class SystemView(View):
         system_version = system.current()
         system_features = SystemFeature.objects.filter(system=system_version).select_related('feature').order_by('feature__label')
 
+        # If they are logged in, check whether they are allowed to edit
+        user_can_edit = False
+        if request.user.is_authenticated:
+            if request.user.is_superuser:
+                user_can_edit = True
+            else:
+                try:
+                    SystemACL.objects.get(system=system, user=request.user)
+                    user_can_edit = True
+                except SystemACL.DoesNotExist:
+                    pass
+        ## IF
+
         return render(request, self.template_name, {
             'activate': 'system', # NAV-LINKS
             'system': system,
             'system_features': system_features,
             'system_version': system_version,
-
+            'user_can_edit': user_can_edit,
             'counter_token': CounterView.build_token('system', pk=system.id),
         })
 

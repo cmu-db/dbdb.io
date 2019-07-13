@@ -39,12 +39,16 @@ class SystemVersionAdmin(admin.ModelAdmin):
     list_display = ('system', 'ver', 'created')
     list_filter = ['created']
     readonly_fields=('ver', )
+    
+class SystemACLAdmin(admin.ModelAdmin):
+    list_display = ('system', 'user', 'created', 'modified')
+    list_filter = ['created']
+    readonly_fields=('created', 'modified')
 
 
 # registrations
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
-
 
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(FeatureOption, FeatureOptionAdmin)
@@ -56,5 +60,6 @@ admin.site.register(Publication)
 admin.site.register(SuggestedSystem)
 admin.site.register(System, SystemAdmin)
 admin.site.register(SystemFeature)
+admin.site.register(SystemACL, SystemACLAdmin)
 admin.site.register(SystemVersion, SystemVersionAdmin)
 admin.site.register(SystemVersionMetadata)
