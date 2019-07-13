@@ -695,11 +695,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
 
     @never_cache
     def get(self, request, slug=None):
-        
-        # You always have to be logged in to edit an entry
-        if not request.user.is_authenticated:
-            return redirect( settings.LOGIN_URL + '?next=' + reverse('system', args=[slug]))
-        
+                
         # If there is no slug, then they are trying to create a new database.
         # Only superusers are allowed to do that.
         if slug is None:
@@ -716,6 +712,10 @@ class DatabasesEditView(View, LoginRequiredMixin):
         # If there is a slug, then check to see whether they have permission
         # to edit this mofo
         else:
+            # You always have to be logged in to edit an entry
+            if not request.user.is_authenticated:
+                return redirect( settings.LOGIN_URL + '?next=' + reverse('system', args=[slug]))
+            
             system = System.objects.get(slug=slug)
             
             # Make sure this user has permissions to edit this page
