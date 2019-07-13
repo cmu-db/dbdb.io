@@ -211,6 +211,23 @@ class System(models.Model):
     pass
 
 # ==============================================
+# SystemACL
+# ==============================================
+class SystemACL(models.Model):
+    system = models.ForeignKey('System', models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT)
+    created = models.DateTimeField(default=timezone.now)
+    modified = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        unique_together = ('system', 'user')
+        
+    def __str__(self):
+        return "(%s, %s)" % (self.system.name, self.user.username)
+    
+    pass
+
+# ==============================================
 # SystemFeature
 # ==============================================
 class SystemFeature(models.Model):
@@ -468,6 +485,7 @@ __all__ = (
     'System',
     'SystemFeature',
     'SystemVersion',
+    'SystemACL',
     'SystemVersionMetadata',
 )
 

@@ -13,11 +13,17 @@ class FeatureOptionsInlines(admin.StackedInline):
     model = FeatureOption
     extra = 0
 
+class SystemACLInlines(admin.StackedInline):
+    model = SystemACL
+    extra = 0
+    exclude=('created', 'modified')
 
 # model admins
 
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'is_staff', 'date_joined', 'last_login')
+    readonly_fields=('date_joined', 'last_login')
+    inlines = [SystemACLInlines]
 
 class FeatureAdmin(admin.ModelAdmin):
     inlines = [FeatureOptionsInlines]
@@ -39,12 +45,16 @@ class SystemVersionAdmin(admin.ModelAdmin):
     list_display = ('system', 'ver', 'created')
     list_filter = ['created']
     readonly_fields=('ver', )
+    
+class SystemACLAdmin(admin.ModelAdmin):
+    list_display = ('system', 'user', 'created', 'modified')
+    list_filter = ['created']
+    readonly_fields=('created', 'modified')
 
 
 # registrations
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
-
 
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(FeatureOption, FeatureOptionAdmin)
@@ -56,5 +66,6 @@ admin.site.register(Publication)
 admin.site.register(SuggestedSystem)
 admin.site.register(System, SystemAdmin)
 admin.site.register(SystemFeature)
+admin.site.register(SystemACL, SystemACLAdmin)
 admin.site.register(SystemVersion, SystemVersionAdmin)
 admin.site.register(SystemVersionMetadata)

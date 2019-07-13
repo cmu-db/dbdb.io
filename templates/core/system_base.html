@@ -30,7 +30,13 @@
                     Viewing Revision #{{ system_version.ver }} from {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
                 </div>
             {% endif %}
-
+            {% if request.GET.noperms and request.GET.noperms == '1' %}
+                <div class="alert alert-danger alert-dismissable alert-link">
+                    <button class="close" type="button" data-dismiss="alert" aria-hidden="true">&#215;</button>
+                    You do not have permission to edit this entry
+                </div>
+            {% endif %}
+            
             <div class="card has-citations">
                 <div class="card-body">
                     <h2 class="card-title">

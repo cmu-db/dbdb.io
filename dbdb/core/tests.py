@@ -198,7 +198,7 @@ class CreateDatabaseTestCase(BaseTestCase):
 
     def test_cant_access_not_authenticated(self):
         response = self.client.get(reverse('create_database'))
-        self.assertRedirects(response, '/login/?next=/create')
+        self.assertEquals(response.status_code, 404)
         return
 
     def test_cant_access_not_superuser(self):
