@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^fields$', views.EmptyFieldsView.as_view(), name='empty_fields'),
     url(r'^search$', views.DatabaseBrowseView.as_view(), name='search'),
     url(r'^recent$', views.RecentChangesView.as_view(), name='recent'),
+    url(r'^search/autocomplete/$', views.search_autocomplete, name='search_autocomplete'),
     url(r'^search/advanced$', views.DatabaseBrowseView.as_view(), name='advanced_search'),
     url(r'^stats$', views.StatsView.as_view(), name='stats'),
 

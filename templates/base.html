@@ -47,9 +47,9 @@
         </ul>
 
         {% if not no_nav_search %}
-        <form action="{% url 'browse' %}" method="GET" class="form-inline form-search my-2 my-lg-0 mr-4">
+        <form action="{% url 'browse' %}" method="GET" id="top-form" class="form-inline form-search my-2 my-lg-0 mr-4">
             <div class="input-group">
-                <input type="search" class="form-control" placeholder="Search" aria-label="Search" name="q" value="{% if query %}{{ query }}{% endif %}">
+                <input type="search" class="form-control" placeholder="Search" aria-label="Search" id="top-searchbox" name="q" value="{% if query %}{{ query }}{% endif %}">
                 <div class="input-group-append">
                     <button class="btn" type="submit">
                         <i class="fas fa-search"></i>
@@ -99,7 +99,7 @@
         <p>
             Copyright &copy; {% now "Y" %}
             &bullet;
-            <a target="_blank" href="http://db.cs.cmu.edu">Carnegie Mellon Database Group</a>
+            <a target="_blank" href="https://db.cs.cmu.edu">Carnegie Mellon Database Group</a>
         </p>
     </div>
 </footer>
@@ -121,5 +121,19 @@ gtag('config', 'UA-4067813-21');
 {% endif %}
 
 {% block scripts %}{% endblock %}
+
+<!-- Search Box Autocomplete -->
+<script src="{% static 'core/js/autocomplete.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        window.autocomplete = new Autocomplete({
+            form_selector: '.top-form',
+            querybox_selector: '.top-searchbox'
+            
+        });
+        window.autocomplete.setup();
+    });
+</script>
+
 </body>
 </html>

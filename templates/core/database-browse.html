@@ -51,7 +51,7 @@ div.results div.version p { margin:0; }
 
 
 {% block content %}
-<form class="main main-search">
+<form id="mainsearch" class="main main-search">
 
     <div class="filters">
 
@@ -114,7 +114,7 @@ div.results div.version p { margin:0; }
 
     <div class="search-results">
         <div class="input-group input-group-lg">
-            <input type="text" class="form-control" placeholder="Begin searching!" aria-label="Begin searching!" aria-describedby="search" name="q" value="{{ query }}">
+            <input type="text" class="form-control" placeholder="Begin searching!" aria-label="Begin searching!" aria-describedby="search" id="mainsearch-q" name="q" value="{{ query }}">
             <span class="input-group-btn">
                 <button class="btn btn-default" type="submit" id="search">Search</button>
             </span>
@@ -418,6 +418,14 @@ $(document).ready(function () {
         },
     });
 
+});
+
+$(document).ready(function() {
+    window.autocomplete = new Autocomplete({
+        form_selector: '#mainsearch',
+        querybox_selector: 'mainsearch-q'
+    });
+    window.autocomplete.setup();
 });
 </script>
 {% endblock %}

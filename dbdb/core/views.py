@@ -1174,3 +1174,20 @@ class SystemView(View):
         })
 
     pass
+
+
+# ==============================================
+# System Name AutoComplete 
+# ==============================================
+def search_autocomplete(request):
+    search_q = request.GET.get('q', '').strip()
+    if search_q:
+        sqs = SearchQuerySet().autocomplete(autocomplete_name=request.GET.get('q', ''))[:5]
+        suggestions = [system.name for system in sqs]
+    else:
+        suggestions = [ ]
+        
+    data = json.dumps({
+        'results': suggestions
+    })
+    return HttpResponse(data, content_type='application/json')
