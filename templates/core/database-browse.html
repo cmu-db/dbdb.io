@@ -420,12 +420,13 @@ $(document).ready(function () {
 
 });
 
-$(document).ready(function() {
-    window.autocomplete = new Autocomplete({
-        form_selector: '#mainsearch',
-        querybox_selector: 'mainsearch-q'
-    });
-    window.autocomplete.setup();
+// Browe Page Search Box
+$("#mainsearch").find('input[name="q"]').autoComplete({
+    minChars: 3,
+    source: function(term, response) {
+        $.getJSON('/search/autocomplete/', { q: term }, function(data) { response(data); });
+    }
 });
+
 </script>
 {% endblock %}

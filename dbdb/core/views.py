@@ -1187,7 +1187,5 @@ def search_autocomplete(request):
     else:
         suggestions = [ ]
         
-    data = json.dumps({
-        'results': suggestions
-    })
+    data = json.dumps(suggestions)
     return HttpResponse(data, content_type='application/json')
