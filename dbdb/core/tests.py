@@ -101,6 +101,41 @@ class SearchTestCase(BaseTestCase):
     pass
 
 # ==============================================
+# AutoCompleteTestCase
+# ==============================================
+class AutoCompleteTestCase(BaseTestCase):
+
+    fixtures = [
+        'adminuser.json',
+        'testuser.json',
+        'core_base.json',
+        'core_system.json'
+    ]
+
+    def test_autocom_valid_parameters(self):
+        target = "SQLite"
+        for i in range(1, len(target)):
+            query = {'q': target[:i+1]}
+            #pprint(query)
+            response = self.client.get(reverse('search_autocomplete'), data=query)
+            #pprint(response.json())
+            self.assertContains(response, 'SQLite', html=False)
+        return
+    
+    def test_autocom_invalid_parameters(self):
+        query = {'q': "XXX"}
+        response = self.client.get(reverse('search_autocomplete'), data=query)
+        #pprint(response.json())
+        self.assertEquals(len(response.json()), 0)
+        return
+    
+    def test_autocom_no_parameters(self):
+        response = self.client.get(reverse('search_autocomplete'))
+        self.assertEquals(len(response.json()), 0)
+        return
+    pass
+
+# ==============================================
 # AdvancedSearchTestCase
 # ==============================================
 class AdvancedSearchTestCase(BaseTestCase):
