@@ -15,6 +15,7 @@
     <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{% static 'lib/css/bootstrap-select.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'core/css/base.css' %}?v=2">
+    <link rel="stylesheet" type="text/css" href="{% static 'core/css/jquery.auto-complete.css' %}">
 
 {% block css %}{% endblock %}
 </head>
@@ -47,9 +48,9 @@
         </ul>
 
         {% if not no_nav_search %}
-        <form action="{% url 'browse' %}" method="GET" class="form-inline form-search my-2 my-lg-0 mr-4">
+        <form action="{% url 'browse' %}" method="GET" id="topsearch" class="form-inline form-search my-2 my-lg-0 mr-4">
             <div class="input-group">
-                <input type="search" class="form-control" placeholder="Search" aria-label="Search" name="q" value="{% if query %}{{ query }}{% endif %}">
+                <input type="search" class="form-control" placeholder="Search" aria-label="Search" id="top-searchbox" name="q" value="{% if query %}{{ query }}{% endif %}">
                 <div class="input-group-append">
                     <button class="btn" type="submit">
                         <i class="fas fa-search"></i>
@@ -99,7 +100,7 @@
         <p>
             Copyright &copy; {% now "Y" %}
             &bullet;
-            <a target="_blank" href="http://db.cs.cmu.edu">Carnegie Mellon Database Group</a>
+            <a target="_blank" href="https://db.cs.cmu.edu">Carnegie Mellon Database Group</a>
         </p>
     </div>
 </footer>
@@ -120,6 +121,21 @@ gtag('config', 'UA-4067813-21');
 </script>
 {% endif %}
 
+<!-- Search Box Autocomplete -->
+<script src="{% static 'core/js/jquery.auto-complete.min.js' %}"></script>
+{% if not no_nav_search %}
+<script type="text/javascript">
+    // Top Search Box
+    $("#topsearch").find('input[name="q"]').autoComplete({
+        minChars: 3,
+        source: function(term, response) {
+            $.getJSON('/search/autocomplete/', { q: term }, function(data) { response(data); });
+        },
+        onSelect: function(e, term, item) { window.location.href = "/db/" + term; }
+    });
+</script>
+{% endif %}
 {% block scripts %}{% endblock %}
+
 </body>
 </html>

@@ -21,6 +21,7 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
     end_year = indexes.IntegerField(model_attr='end_year', null=True)
 
     lowercase_name = indexes.NgramField()
+    autocomplete_name = indexes.EdgeNgramField(model_attr='system__name')
 
     compatible_with = indexes.MultiValueField()
     countries = indexes.MultiValueField()
@@ -144,5 +145,8 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_lowercase_name(self, obj):
         return obj.system.name.lower().strip()
+    
+    def prepare_autocomplete_name(self, obj):
+        return obj.system.name.strip()
 
     pass

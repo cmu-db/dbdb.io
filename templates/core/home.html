@@ -24,9 +24,9 @@
         <div class="col col-md-12 col-sm-12 text-center">
             <h1 class="display-3">Database of Databases</h1>
             <p class="lead">Discover and learn about <b>{{ num_systems }}</b> database management systems</p>
-            <form action="{% url 'browse' %}" method="GET" >
+            <form id="mainsearch" action="{% url 'browse' %}" method="GET" >
                 <div class="form-group">
-                    <input type="text" name="q" class="form-control form-control-lg" id="search" aria-describedby="Search field" placeholder="Begin searching!" style="max-width:700px;margin:0 auto;">
+                    <input autofocus type="text" name="q" class="form-control form-control-lg" aria-describedby="Search field" placeholder="Search" style="max-width:700px;margin:0 auto;">
                 </div>
                 <p class="lead">
                     <a class="btn btn-link btn-lg" href="{% url 'browse' %}" role="button">Advanced Search</a>
@@ -70,4 +70,18 @@
     </div>
 </div>
 </div>
+    
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    // Homepage Search Box
+    $("#mainsearch").find('input[name="q"]').autoComplete({
+        minChars: 3,
+        source: function(term, response) {
+            $.getJSON('/search/autocomplete/', { q: term }, function(data) { response(data); });
+        },
+        onSelect: function(e, term, item) { window.location.href = "/db/" + term; }
+    });
+</script>
 {% endblock %}
