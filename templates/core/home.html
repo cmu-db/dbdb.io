@@ -81,7 +81,7 @@
         source: function(term, response) {
             $.getJSON('/search/autocomplete/', { q: term }, function(data) { response(data); });
         },
-        onSelect: function(e, term, item) { window.location.href = "/db/" + term; }
+        onSelect: function(e, term, item) { window.location.href = "/db/" + convertToSlug(term); }
     });
 </script>
 {% endblock %}

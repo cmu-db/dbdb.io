@@ -121,6 +121,16 @@ gtag('config', 'UA-4067813-21');
 </script>
 {% endif %}
 
+<!-- Slugify -->
+<script type="text/javascript">
+    function convertToSlug(text) {
+    return text
+        .toLowerCase()
+        .replace(/[^\w ]+/g,'')
+        .replace(/ +/g,'-');
+    }
+</script>
+
 <!-- Search Box Autocomplete -->
 <script src="{% static 'core/js/jquery.auto-complete.min.js' %}"></script>
 {% if not no_nav_search %}
@@ -131,10 +141,11 @@ gtag('config', 'UA-4067813-21');
         source: function(term, response) {
             $.getJSON('/search/autocomplete/', { q: term }, function(data) { response(data); });
         },
-        onSelect: function(e, term, item) { window.location.href = "/db/" + term; }
+        onSelect: function(e, term, item) { window.location.href = "/db/" + convertToSlug(term); }
     });
 </script>
 {% endif %}
+
 {% block scripts %}{% endblock %}
 
 </body>
