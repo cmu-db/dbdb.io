@@ -266,6 +266,19 @@ class SystemRedirect(models.Model):
     pass
 
 # ==============================================
+# SystemVisit
+# ==============================================
+class SystemVisit(models.Model):
+    system = models.ForeignKey('System', models.CASCADE, related_name='counter')
+    ip_address = models.GenericIPAddressField(null=False)
+    created = models.DateTimeField(default=timezone.now)
+    
+    def __str__(self):
+        return "(%s, %s, %s)" % (self.system.name, self.ip_address, str(self.created))
+
+    pass
+
+# ==============================================
 # SystemVersion
 # ==============================================
 class SystemVersion(models.Model):
@@ -486,6 +499,7 @@ __all__ = (
     'SystemFeature',
     'SystemVersion',
     'SystemACL',
+    'SystemVisit',
     'SystemVersionMetadata',
 )
 
