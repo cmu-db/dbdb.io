@@ -1,5 +1,5 @@
 # django imports
-from django.test import TestCase, override_settings
+from django.test import TestCase, Client, override_settings
 from django.contrib.auth import get_user
 from django.urls import reverse
 from django.core import management
@@ -154,6 +154,7 @@ class SystemViewTestCase(BaseTestCase):
         target = "SQLite"
         system = System.objects.get(name=target)
         orig_count = system.view_count
+        orig_visits = SystemVisit.objects.filter(system=system).count()
         
         data = {"token": CounterView.build_token('system', pk=system.id)}
         response = self.client.post(reverse('counter'), data)
@@ -166,7 +167,31 @@ class SystemViewTestCase(BaseTestCase):
         new_count = system.view_count
         self.assertEquals(new_count, orig_count+1)
         
+        # Check that we got added a SystemVisit
+        new_visits = SystemVisit.objects.filter(system=system).count()
+        self.assertEquals(new_visits, orig_visits+1)
+        
         return
+    
+    def test_bot_block(self):
+        target = "SQLite"
+        system = System.objects.get(name=target)
+        orig_count = system.view_count
+        
+        c = Client(HTTP_USER_AGENT='(KHTML, like Gecko; compatible; Googlebot/2.1)')
+        
+        data = {"token": CounterView.build_token('system', pk=system.id)}
+        response = c.post(reverse('counter'), data)
+        result = response.json();
+        self.assertTrue("status" in result)
+        self.assertEquals(result["status"], "bot")
+        
+        # Make sure count is the same
+        system = System.objects.get(name=target)
+        new_count = system.view_count
+        self.assertEquals(new_count, orig_count)
+        return
+        
     
     pass
 
