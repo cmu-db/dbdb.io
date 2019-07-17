@@ -630,7 +630,7 @@ class CounterView(View):
                 else:
                     ip = request.META.get('REMOTE_ADDR')
                 user_agent = request.META.get('HTTP_USER_AGENT', '')
-                system_visit = SystemVisit(system=system, ip_address=ip, user_agent=user_agent)
+                system_visit = SystemVisit(system=system, ip_address=ip, user_agent=user_agent[:127])
                 system_visit.save()
                 
             else:
