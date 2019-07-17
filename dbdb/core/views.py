@@ -51,6 +51,7 @@ from dbdb.core.models import SystemRedirect
 from dbdb.core.models import SystemVersion
 from dbdb.core.models import SystemVersionMetadata
 from dbdb.core.models import SystemACL
+from dbdb.core.models import SystemVisit
 
 # constants
 
@@ -614,12 +615,24 @@ class CounterView(View):
             if iss == 'counter:system':
                 pk = payload['pk']
 
+                ## Update the system's counter
+                system = None
                 with transaction.atomic():
                     system = System.objects.select_for_update().get(pk=pk)
                     system.view_count += 1
                     system.save()
-                    pass
-                pass
+                #pass
+                
+                # And add a SystemVisit entry
+                x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+                if x_forwarded_for:
+                    ip = x_forwarded_for.split(',')[-1].strip()
+                else:
+                    ip = request.META.get('REMOTE_ADDR')
+                user_agent = request.META.get('HTTP_USER_AGENT', '')
+                system_visit = SystemVisit(system=system, ip_address=ip, user_agent=user_agent)
+                system_visit.save()
+                
             else:
                 return JsonResponse({ 'status':('unrecognized counter: %r' % iss)}, status=400)
             pass

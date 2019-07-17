@@ -51,6 +51,11 @@ class SystemACLAdmin(admin.ModelAdmin):
     list_filter = ['created']
     readonly_fields=('created', 'modified')
 
+class SystemVisitAdmin(admin.ModelAdmin):
+    list_display = ('system', 'ip_address', 'created')
+    list_filter = ['created', 'system']
+    readonly_fields=('created',)
+
 
 # registrations
 admin.site.unregister(User)
@@ -66,6 +71,7 @@ admin.site.register(Publication)
 admin.site.register(SuggestedSystem)
 admin.site.register(System, SystemAdmin)
 admin.site.register(SystemFeature)
+admin.site.register(SystemVisit, SystemVisitAdmin)
 admin.site.register(SystemACL, SystemACLAdmin)
 admin.site.register(SystemVersion, SystemVersionAdmin)
 admin.site.register(SystemVersionMetadata)
