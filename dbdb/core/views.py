@@ -614,6 +614,11 @@ class CounterView(View):
 
             if iss == 'counter:system':
                 pk = payload['pk']
+                
+                # Skip bots
+                user_agent = request.META.get('HTTP_USER_AGENT', '')
+                if user_agent.lower().find("bot") != -1:
+                    return JsonResponse({ 'status':'bot' })
 
                 ## Update the system's counter
                 system = None
@@ -629,7 +634,7 @@ class CounterView(View):
                     ip = x_forwarded_for.split(',')[-1].strip()
                 else:
                     ip = request.META.get('REMOTE_ADDR')
-                user_agent = request.META.get('HTTP_USER_AGENT', '')
+                
                 system_visit = SystemVisit(system=system, ip_address=ip, user_agent=user_agent[:127])
                 system_visit.save()
                 
