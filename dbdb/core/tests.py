@@ -10,7 +10,10 @@ import environ
 import haystack
 from haystack.query import SearchQuerySet
 # local imports
+from .models import System
+from .models import SystemVisit
 from .models import Feature
+from .views import CounterView
 
 import tempfile
 from pprint import pprint
@@ -133,6 +136,38 @@ class AutoCompleteTestCase(BaseTestCase):
         response = self.client.get(reverse('search_autocomplete'))
         self.assertEquals(len(response.json()), 0)
         return
+    pass
+
+# ==============================================
+# SystemViewTestCase
+# ==============================================
+class SystemViewTestCase(BaseTestCase):
+
+    fixtures = [
+        'adminuser.json',
+        'testuser.json',
+        'core_base.json',
+        'core_system.json'
+    ]
+
+    def test_counter(self):
+        target = "SQLite"
+        system = System.objects.get(name=target)
+        orig_count = system.view_count
+        
+        data = {"token": CounterView.build_token('system', pk=system.id)}
+        response = self.client.post(reverse('counter'), data)
+        result = response.json();
+        self.assertTrue("status" in result)
+        self.assertEquals(result["status"], "ok")
+        
+        # Make sure count increased by one
+        system = System.objects.get(name=target)
+        new_count = system.view_count
+        self.assertEquals(new_count, orig_count+1)
+        
+        return
+    
     pass
 
 # ==============================================
