@@ -55,6 +55,7 @@ class SystemVisitAdmin(admin.ModelAdmin):
     list_display = ('system', 'ip_address', 'created')
     list_filter = ['created', 'system']
     readonly_fields=('created',)
+    ordering = ('-created',)
 
 
 # registrations
