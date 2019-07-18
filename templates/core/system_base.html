@@ -242,6 +242,13 @@
                     </p>
                 {% endif %}
                 
+                {% if system_version.meta.embedded.exists %}
+                    <h6 class="card-title">Embeds / Uses</h6>
+                    <p class="card-text">
+                        {% for other in system_version.meta.embedded.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?embedded={{ other.slug }}" title="View other systems that embed {{ other.name }}">{{ other.name }}</a>{% endfor %}
+                    </p>
+                {% endif %}
+                
                 {% if system_version.meta.inspired_by.exists %}
                     <h6 class="card-title">Inspired By</h6>
                     <p class="card-text">

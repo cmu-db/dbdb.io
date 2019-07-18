@@ -198,18 +198,7 @@ class DatabaseBrowseView(View):
             return mapping
 
         other_filtersgroups = []
-
-        # add derived from
-        fg_compatible = FilterGroup('compatible', 'Compatible With', [
-            FilterChoice(
-                sys.slug,
-                sys.name,
-                sys.slug in querydict.getlist( 'compatible', empty_set )
-            )
-            for sys in System.objects.values_list('id','slug','name', named=True)
-        ])
-        other_filtersgroups.append(fg_compatible)
-
+        
         # add countries
         fg_country = FilterGroup('country', 'Country', [
             FilterChoice(
@@ -220,6 +209,28 @@ class DatabaseBrowseView(View):
             for code,name in list(countries)
         ])
         other_filtersgroups.append(fg_country)
+
+        # add compatible
+        fg_compatible = FilterGroup('compatible', 'Compatible With', [
+            FilterChoice(
+                sys.slug,
+                sys.name,
+                sys.slug in querydict.getlist( 'compatible', empty_set )
+            )
+            for sys in System.objects.values_list('id','slug','name', named=True)
+        ])
+        other_filtersgroups.append(fg_compatible)
+
+        # add embedded
+        fg_embedded = FilterGroup('embedded', 'Embedded', [
+            FilterChoice(
+                sys.slug,
+                sys.name,
+                sys.slug in querydict.getlist( 'embedded', empty_set )
+            )
+            for sys in System.objects.values_list('id','slug','name', named=True)
+        ])
+        other_filtersgroups.append(fg_embedded)
 
         # add derived from
         fg_derived = FilterGroup('derived', 'Derived From', [
@@ -388,6 +399,7 @@ class DatabaseBrowseView(View):
         search_compatible = request.GET.getlist('compatible')
         search_country = request.GET.getlist('country')
         search_derived = request.GET.getlist('derived')
+        search_embedded = request.GET.getlist('embedded')
         search_inspired = request.GET.getlist('inspired')
         search_os = request.GET.getlist('os')
         search_programming = request.GET.getlist('programming')
@@ -406,6 +418,7 @@ class DatabaseBrowseView(View):
             'compatible': search_compatible,
             'country': search_country,
             'derived': search_derived,
+            'embedded': search_embedded,
             'inspired': search_inspired,
             'os': search_os,
             'programming': search_programming,
@@ -451,6 +464,12 @@ class DatabaseBrowseView(View):
         if search_derived:
             sqs = sqs.filter(derived_from__in=search_derived)
             search_mapping['derived'] = self.convert_slugs(search_derived)
+            pass
+        
+        # search - embedded
+        if search_embedded:
+            sqs = sqs.filter(embedded__in=search_embedded)
+            search_mapping['embedded'] = self.convert_slugs(search_embedded)
             pass
 
         # search - inspired by

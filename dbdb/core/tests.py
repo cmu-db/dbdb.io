@@ -218,9 +218,9 @@ class AdvancedSearchTestCase(BaseTestCase):
         d = pq(response.content)
         filtergroups = d('div.filter-group')
         # Add two for the year filtergroups
-        # Add eight for country, OS, project type, PL, inspired, derived, compatiable, licenses
+        # Add nine for country, OS, project type, PL, inspired, derived, embedded compatiable, licenses
         #pprint(filtergroups)
-        self.assertEquals(quantity + 2 + 8, len(filtergroups))
+        self.assertEquals(quantity + 2 + 9, len(filtergroups))
         return
 
     def test_search_with_insuficient_data(self):

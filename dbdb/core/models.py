@@ -420,7 +420,13 @@ class SystemVersionMetadata(models.Model):
         'System', blank=True,
         related_name='derived_from_systems',
         verbose_name='Systems Derived From',
-        help_text="Systems that this system uses or its source code is based on")
+        help_text="Systems that this system's source code is based on")
+
+    embedded = models.ManyToManyField(
+        'System', blank=True,
+        related_name='embedded_systems',
+        verbose_name='Systems Embedded',
+        help_text="Systems that this system uses on the inside (e.g., storage manager)")
 
     inspired_by = models.ManyToManyField(
         'System', blank=True,
