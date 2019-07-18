@@ -468,6 +468,9 @@ class SystemVersionMetadata(models.Model):
 
     def derived_from_str(self):
         return ', '.join([str(l) for l in self.derived_from.all()])
+    
+    def embedded_str(self):
+        return ', '.join([str(l) for l in self.embedded.all()])
 
     def compatible_with_str(self):
         return ', '.join([str(l) for l in self.compatible_with.all()])

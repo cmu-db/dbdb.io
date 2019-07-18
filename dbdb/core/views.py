@@ -114,11 +114,10 @@ class EmptyFieldsView(View):
     def build_search_fields(self):
         import django.db.models.fields
 
-        fields = [ ]
         IGNORE_TYPES = set([
             django.db.models.fields.AutoField,
             django.db.models.fields.related.ForeignKey,
-            django.db.models.fields.related.ManyToManyField,
+            #django.db.models.fields.related.ManyToManyField,
         ])
         IGNORE_NAMES = set([
             "ver",
@@ -126,12 +125,22 @@ class EmptyFieldsView(View):
             "features",
             "created",
         ])
+        
+        version_fields = [ ]
         for f in SystemVersion._meta.get_fields():
             if not type(f) in IGNORE_TYPES and \
-               not f.name in IGNORE_NAMES:
-                fields.append(f.name)
+               not f.name in IGNORE_NAMES and \
+               not f.name.endswith("_citations"): \
+                version_fields.append(f.name)
         ## FOR
-        return (sorted(fields))
+        
+        meta_fields = [ ]
+        for f in SystemVersionMetadata._meta.get_fields():
+            if not type(f) in IGNORE_TYPES and \
+               not f.name in IGNORE_NAMES:
+                meta_fields.append(f.name)
+        
+        return (version_fields, meta_fields)
     ## DEF
 
     def get(self, request):
@@ -142,33 +151,57 @@ class EmptyFieldsView(View):
         elif not request.user.is_superuser:
             raise Http404()
 
+        version_fields, meta_fields = self.build_search_fields()
         versions = SystemVersion.objects.filter(is_current=True)
 
         search_field = request.GET.get('field')
         search_reverse = request.GET.get('reverse', False)
         if search_field:
-            field = SystemVersion._meta.get_field(search_field)
             query = None
+            field = None
             
-            if type(field) == django.db.models.fields.PositiveIntegerField:
-                query = Q(**{search_field: None})
-            else:
-                query = Q(**{search_field: ''})
+            if search_field in version_fields:
+                field = SystemVersion._meta.get_field(search_field)
+                field_name = search_field
+                if type(field) == django.db.models.fields.PositiveIntegerField:
+                    query = Q(**{search_field: None})
+                else:
+                    query = Q(**{search_field: ''})
+            
+            elif search_field in meta_fields:
+                field = SystemVersionMetadata._meta.get_field(search_field)
+                field_name = "meta__" + search_field
                 
+                if type(field) in (django.db.models.fields.PositiveIntegerField, django.db.models.fields.related.ManyToManyField):
+                    query = Q(**{field_name: None})
+                else:
+                    query = Q(**{field_name: ''})
+            else:
+                raise Exception("Invalid field '%s'" % search_field)
+            
             if search_reverse:
                 versions = versions.filter(~query)
             else:
                 versions = versions.filter(query)
+                
+            # convert query list to regular list
+            # and add href/url to each
+            versions = list( versions.order_by('system__name') )
+            for version in versions:
+                version.href = request.build_absolute_uri( version.system.get_absolute_url() )
+                if search_field in meta_fields:
+                    if type(field) == django.db.models.fields.related.ManyToManyField:
+                        method_handle = getattr(version.meta, search_field + "_str")
+                        version.value = method_handle()
+                    else:
+                        version.value = getattr(version.meta, search_field, "XXX")
+                else:
+                    version.value = getattr(version, field_name, None)
+                pass
+        ## IF
 
-        # convert query list to regular list
-        # and add href/url to each
-        versions = list( versions.order_by('system__name') )
-        for version in versions:
-            version.href = request.build_absolute_uri( version.system.get_absolute_url() )
-            pass
-
-        fields = self.build_search_fields()
         num_systems = System.objects.all().count()
+        fields = sorted(version_fields + meta_fields)
 
         return render(request, self.template_name, {
             'activate': 'empty', # NAV-LINKS
