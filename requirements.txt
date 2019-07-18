@@ -14,3 +14,4 @@ pytz==2018.7
 six==1.11.0
 Whoosh==2.7.4
 xapian-haystack==2.1.1
+python-dateutil==2.8.0
