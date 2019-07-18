@@ -144,6 +144,15 @@ div.results div.version p { margin:0; }
                 [ {% for derived_system in search.derived %}{% if forloop.first is False %}, {% endif %}<a href="{% url 'system' derived_system.slug %}">{{ derived_system.name }}</a>{% endfor %} ]
             {% endif %}
             <!-- /derived -->
+            {% elif search.embedded %}
+            <!-- embedded -->
+            that uses
+            {% if search.embedded_system %}
+                <a href="{% url 'system' search.embedded_system.slug %}">{{ search.embeds_system.name }}</a>
+            {% else %}
+                [ {% for embedded_system in search.embedded %}{% if forloop.first is False %}, {% endif %}<a href="{% url 'system' embedded_system.slug %}">{{ embedded_system.name }}</a>{% endfor %} ]
+            {% endif %}
+            <!-- /embedded -->            
             {% elif search.inspired %}
             <!-- inspired -->
             inspired by 

@@ -26,6 +26,7 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
     compatible_with = indexes.MultiValueField()
     countries = indexes.MultiValueField()
     derived_from = indexes.MultiValueField()
+    embedded = indexes.MultiValueField()
     inspired_by = indexes.MultiValueField()
     oses = indexes.MultiValueField()
     written_langs = indexes.MultiValueField()
@@ -67,6 +68,16 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
 
         values = list(
             obj.meta.derived_from.values_list('slug', flat=True)
+        )
+
+        return values
+    
+    def prepare_embedded(self, obj):
+        if obj.meta_id is None:
+            return []
+
+        values = list(
+            obj.meta.embedded.values_list('slug', flat=True)
         )
 
         return values
