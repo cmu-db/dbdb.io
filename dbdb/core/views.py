@@ -145,13 +145,20 @@ class EmptyFieldsView(View):
         versions = SystemVersion.objects.filter(is_current=True)
 
         search_field = request.GET.get('field')
-        search_check = request.GET.get('check')
+        search_reverse = request.GET.get('reverse', False)
         if search_field:
             field = SystemVersion._meta.get_field(search_field)
+            query = None
+            
             if type(field) == django.db.models.fields.PositiveIntegerField:
-                versions = versions.filter(**{search_field: None})
+                query = Q(**{search_field: None})
             else:
-                versions = versions.filter(**{search_field: ''})
+                query = Q(**{search_field: ''})
+                
+            if search_reverse:
+                versions = versions.filter(~query)
+            else:
+                versions = versions.filter(query)
 
         # convert query list to regular list
         # and add href/url to each
@@ -167,7 +174,7 @@ class EmptyFieldsView(View):
             'activate': 'empty', # NAV-LINKS
             'versions': versions,
             'field': search_field,
-            'check': search_check,
+            'reverse': search_reverse,
             'fields': fields,
             'match_percent': "%.1f" % (100 * (len(versions) / num_systems)),
             'num_systems': num_systems,
