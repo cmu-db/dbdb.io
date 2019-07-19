@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 {% load countries %}
+{% load thumbnail %}
 {% load bootstrap4 %}
 
 {% block title %}
@@ -44,8 +45,17 @@ table.table-stats tbody tr td.stat-value { text-align:right; }
                         <tr>
                             <td class="stat-label">
                             {% if stat.search_field == "country" %}
-                                    {% get_country item.label as country %}
-                                    <a href="{% url 'browse' %}?country={{ country.code }}" title="View other systems from {{ country.name }}"><i class="{{ country.flag_css }}"></i> {{ country.name }}
+                                {% get_country item.label as country %}
+                                <a href="{% url 'browse' %}?country={{ country.code }}" title="View other systems from {{ country.name }}"><i class="{{ country.flag_css }}"></i> {{ country.name }}
+                            {% elif stat.systems %}
+                                <a href="{% url 'browse' %}?{{ stat.search_field }}={{  item.slug }}">
+                                {% if item.label.current.logo %}
+                                    <img src="{{ item.label.current.logo|thumbnail_url:'stats' }}" alt="{{ item.label.name }}" />
+                                {% else %}
+                                    <img src="{% static 'core/images/database-nologo.svg' %}" alt="{{ item.label.name }}" />
+                                {% endif %}
+                                {{ item.label.name }}
+                                </a>
                             {% else %}
                                 <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}">{{ item.label }}</a>
                             {% endif %}

@@ -67,7 +67,7 @@ SITEMAP_NSMAP = { None : SITEMPA_NS }
 
 FieldSet = collections.namedtuple('FieldSet', ['id','label','choices','description','citation'])
 LetterPage = collections.namedtuple('LetterPage', ['id','letter','is_active','is_disabled'])
-Stat = collections.namedtuple('Stat', ['label','items', 'search_field'])
+Stat = collections.namedtuple('Stat', ['label','items', 'search_field', 'systems'])
 StatItem = collections.namedtuple('StatItem', ['label','value','slug'])
 
 class FilterChoice( collections.namedtuple('FilterChoice', ['id','label','checked']) ):
@@ -1162,12 +1162,13 @@ class StatsView(View):
         stat = Stat(
             'Country of Origin',
             system_countries[:self.limit],
-            'country'
+            'country',
+            False
         )
 
         return stat
     
-    def get_by_field(self, title, field, search_field, labels, slugs):
+    def get_by_field(self, title, field, search_field, labels, slugs, is_systems):
         def reduce_counts(mapping, item):
             assert not mapping is None
             if item is not None:
@@ -1185,15 +1186,25 @@ class StatsView(View):
         #counts = reduce(reduce_counts, values, { })
         pprint(counts)
         
-        stat_items = [
-            StatItem(labels[k], v, slugs[k])
-            for k,v in counts.items()
-        ]
+        stat_items = [ ]
+        
+        if is_systems:
+            stat_items = [
+                StatItem(System.objects.get(id=k), v, slugs[k])
+                for k,v in counts.items()
+            ]
+        else:
+            stat_items = [
+                StatItem(labels[k], v, slugs[k])
+                for k,v in counts.items()
+            ]
+            
         stat_items.sort(key=lambda i: i.value, reverse=True)
         stat = Stat(
             title,
             stat_items[:self.limit],
-            search_field
+            search_field,
+            is_systems
         )
 
         return stat
@@ -1208,12 +1219,25 @@ class StatsView(View):
         # Licenses
         labels = dict(License.objects.all().values_list('id', 'name'))
         slugs = dict(License.objects.all().values_list('id', 'slug'))
-        stats.append( self.get_by_field('License', 'licenses', 'license', labels, slugs) )
+        stats.append( self.get_by_field('License', 'licenses', 'license', labels, slugs, False) )
 
-        # Written In
-        labels = dict(ProgrammingLanguage.objects.all().values_list('id', 'name'))
-        slugs = dict(ProgrammingLanguage.objects.all().values_list('id', 'slug'))
-        stats.append( self.get_by_field('Language', 'written_in', 'programming', labels, slugs) )
+        # Implementation Language
+        all_values = ProgrammingLanguage.objects.all()
+        labels = dict(all_values.values_list('id', 'name'))
+        slugs = dict(all_values.values_list('id', 'slug'))
+        stats.append( self.get_by_field('Language', 'written_in', 'programming', labels, slugs, False) )
+        
+        # Compatibility
+        all_values = System.objects.all()
+        labels = dict(all_values.values_list('id', 'name'))
+        slugs = dict(all_values.values_list('id', 'slug'))
+        stats.append( self.get_by_field('Compatibility', 'compatible_with', 'compatible', labels, slugs, True) )
+        
+        # Derived From
+        stats.append( self.get_by_field('Derived From', 'derived_from', 'derived', labels, slugs, True) )
+        
+        # Embeds
+        stats.append( self.get_by_field('Embeds / Uses', 'embedded', 'derived', labels, slugs, True) )
 
         return render(request, self.template_name, context={
             'activate': 'stats', # NAV-LINKS

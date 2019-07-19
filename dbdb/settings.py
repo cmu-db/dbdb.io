@@ -166,6 +166,7 @@ THUMBNAIL_ALIASES = {
         'thumb': {'size': (300, 300), 'crop': False},
         'search': {'size': (200, 200), 'crop': False},
         'homepage': {'size': (100, 60), 'crop': False},
+        'stats': {'size': (60, 60), 'crop': False},
         'recommendation': {'size': (200, 180), 'crop': False},
     },
 }
