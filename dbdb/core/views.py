@@ -6,6 +6,7 @@ import operator
 import json
 import time
 import urllib.parse
+from pprint import pprint
 # django imports
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -66,8 +67,8 @@ SITEMAP_NSMAP = { None : SITEMPA_NS }
 
 FieldSet = collections.namedtuple('FieldSet', ['id','label','choices','description','citation'])
 LetterPage = collections.namedtuple('LetterPage', ['id','letter','is_active','is_disabled'])
-Stat = collections.namedtuple('Stat', ['label','items'])
-StatItem = collections.namedtuple('StatItem', ['label','value'])
+Stat = collections.namedtuple('Stat', ['label','items', 'search_field'])
+StatItem = collections.namedtuple('StatItem', ['label','value','slug'])
 
 class FilterChoice( collections.namedtuple('FilterChoice', ['id','label','checked']) ):
 
@@ -1137,6 +1138,7 @@ class HomeView(View):
 class StatsView(View):
 
     template_name = 'core/stats.html'
+    limit = 10
 
     def get_bycountries(self):
         def reduce_countries(mapping, item):
@@ -1148,25 +1150,70 @@ class StatsView(View):
 
         system_countries = SystemVersion.objects \
             .filter(is_current=True) \
-            .values_list('system_id','countries', named=True)
+            .values_list('system_id', 'countries', named=True)
         system_countries = reduce(reduce_countries, system_countries, {})
+        
         system_countries = [
-            StatItem(k, v)
+            StatItem(k, v, k)
             for k,v in system_countries.items()
         ]
         system_countries.sort(key=lambda i: i.value, reverse=True)
 
         stat = Stat(
-            'Systems per Country',
-            system_countries
+            'Country of Origin',
+            system_countries[:self.limit],
+            'country'
         )
 
         return stat
+    
+    def get_by_field(self, title, field, search_field, labels, slugs):
+        def reduce_counts(mapping, item):
+            assert not mapping is None
+            if item is not None:
+                mapping[item] = mapping.get(item, 0) + 1
+        
+        values = SystemVersionMetadata.objects \
+            .filter(systemversion__is_current=True) \
+            .filter(~Q(**{field: None})) \
+            .values_list('systemversion__system_id', field, named=True)
+        #pprint(values)
+        counts = { }
+        for v in values:
+            #print(v[0])
+            counts[v[1]] = counts.get(v[1], 0) + 1
+        #counts = reduce(reduce_counts, values, { })
+        pprint(counts)
+        
+        stat_items = [
+            StatItem(labels[k], v, slugs[k])
+            for k,v in counts.items()
+        ]
+        stat_items.sort(key=lambda i: i.value, reverse=True)
+        stat = Stat(
+            title,
+            stat_items[:self.limit],
+            search_field
+        )
+
+        return stat
+        
 
     def get(self, request):
         stats = []
 
+        # Countries
         stats.append( self.get_bycountries() )
+
+        # Licenses
+        labels = dict(License.objects.all().values_list('id', 'name'))
+        slugs = dict(License.objects.all().values_list('id', 'slug'))
+        stats.append( self.get_by_field('License', 'licenses', 'license', labels, slugs) )
+
+        # Written In
+        labels = dict(ProgrammingLanguage.objects.all().values_list('id', 'name'))
+        slugs = dict(ProgrammingLanguage.objects.all().values_list('id', 'slug'))
+        stats.append( self.get_by_field('Language', 'written_in', 'programming', labels, slugs) )
 
         return render(request, self.template_name, context={
             'activate': 'stats', # NAV-LINKS
