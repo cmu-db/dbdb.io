@@ -221,6 +221,7 @@ class SystemACL(models.Model):
 
     class Meta:
         unique_together = ('system', 'user')
+        verbose_name = "Permission"
         
     def __str__(self):
         return "(%s, %s)" % (self.system.name, self.user.username)
@@ -276,6 +277,25 @@ class SystemVisit(models.Model):
     
     def __str__(self):
         return "(%s, %s, %s)" % (self.system.name, self.ip_address, str(self.created))
+
+    class Meta:
+        verbose_name = "Visit"
+
+    pass
+
+# ==============================================
+# SystemRecommendation
+# ==============================================
+class SystemRecommendation(models.Model):
+    system = models.ForeignKey('System', models.CASCADE, related_name='recommendation_to')
+    recommendation = models.ForeignKey('System', models.CASCADE, related_name='recommendation_from')
+    created = models.DateTimeField(default=timezone.now)
+    
+    def __str__(self):
+        return "(%s, %s)" % (self.system.name, self.recommendation.name)
+
+    class Meta:
+        verbose_name = "Recommendation"
 
     pass
 
@@ -509,6 +529,7 @@ __all__ = (
     'SystemFeature',
     'SystemVersion',
     'SystemACL',
+    'SystemRecommendation',
     'SystemVisit',
     'SystemVersionMetadata',
 )

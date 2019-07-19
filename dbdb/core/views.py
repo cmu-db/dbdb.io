@@ -52,6 +52,7 @@ from dbdb.core.models import SystemVersion
 from dbdb.core.models import SystemVersionMetadata
 from dbdb.core.models import SystemACL
 from dbdb.core.models import SystemVisit
+from dbdb.core.models import SystemRecommendation
 
 # constants
 
@@ -1240,6 +1241,12 @@ class SystemView(View):
                 except SystemACL.DoesNotExist:
                     pass
         ## IF
+        
+        # Recommendations
+        recommendations = [ ]
+        for rec in SystemRecommendation.objects.filter(system=system).order_by("-recommendation__name").select_related():
+            recommendations.append(rec.recommendation)
+        
 
         return render(request, self.template_name, {
             'activate': 'system', # NAV-LINKS
@@ -1247,6 +1254,7 @@ class SystemView(View):
             'system_features': system_features,
             'system_version': system_version,
             'user_can_edit': user_can_edit,
+            'recommendations': recommendations,
             'counter_token': CounterView.build_token('system', pk=system.id),
         })
 

@@ -50,6 +50,12 @@ class SystemACLAdmin(admin.ModelAdmin):
     list_display = ('system', 'user', 'created', 'modified')
     list_filter = ['created']
     readonly_fields=('created', 'modified')
+    
+class SystemRecommendationAdmin(admin.ModelAdmin):
+    list_display = ('system', 'recommendation', 'created')
+    list_filter = ['created', 'system']
+    readonly_fields=('created', )
+    ordering = ('-created',)
 
 class SystemVisitAdmin(admin.ModelAdmin):
     list_display = ('system', 'ip_address', 'created')
@@ -69,10 +75,11 @@ admin.site.register(OperatingSystem)
 admin.site.register(ProgrammingLanguage)
 admin.site.register(ProjectType)
 admin.site.register(Publication)
-admin.site.register(SuggestedSystem)
+#admin.site.register(SuggestedSystem)
 admin.site.register(System, SystemAdmin)
 admin.site.register(SystemFeature)
 admin.site.register(SystemVisit, SystemVisitAdmin)
+admin.site.register(SystemRecommendation, SystemRecommendationAdmin)
 admin.site.register(SystemACL, SystemACLAdmin)
 admin.site.register(SystemVersion, SystemVersionAdmin)
 admin.site.register(SystemVersionMetadata)

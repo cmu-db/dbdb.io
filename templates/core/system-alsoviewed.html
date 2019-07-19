@@ -1,0 +1,19 @@
+{% load staticfiles %}
+{% load thumbnail %}
+
+<div class="card-body">
+    <h4 class="card-title">
+        People Also Viewed
+    </h4>
+    <ul class="list-group list-group-flush">
+    {% for item in recommendations %}
+        <li class="list-group-item">
+            <a href="{{ item.get_absolute_url }}">
+            {% if item.current.logo %}
+                <img src="{{ item.current.logo|thumbnail_url:'recommendation' }}" alt="{{ item.name }}" />
+            {% else %}
+                <img src="{% static 'core/images/database-nologo.svg' %}" alt="{{ item.name }}" />
+            {% endif %}
+    {% endfor %}
+    </ul>
+</div>
