@@ -67,7 +67,7 @@ SITEMAP_NSMAP = { None : SITEMPA_NS }
 
 FieldSet = collections.namedtuple('FieldSet', ['id','label','choices','description','citation'])
 LetterPage = collections.namedtuple('LetterPage', ['id','letter','is_active','is_disabled'])
-Stat = collections.namedtuple('Stat', ['label','items', 'search_field', 'systems'])
+Stat = collections.namedtuple('Stat', ['label','items', 'search_field', 'systems', 'count'])
 StatItem = collections.namedtuple('StatItem', ['label','value','slug'])
 
 class FilterChoice( collections.namedtuple('FilterChoice', ['id','label','checked']) ):
@@ -1138,7 +1138,7 @@ class HomeView(View):
 class StatsView(View):
 
     template_name = 'core/stats.html'
-    limit = 10
+    limit = 5
 
     def get_bycountries(self):
         def reduce_countries(mapping, item):
@@ -1163,7 +1163,8 @@ class StatsView(View):
             'Country of Origin',
             system_countries[:self.limit],
             'country',
-            False
+            False,
+            len(system_countries)
         )
 
         return stat
@@ -1204,7 +1205,8 @@ class StatsView(View):
             title,
             stat_items[:self.limit],
             search_field,
-            is_systems
+            is_systems,
+            len(stat_items)
         )
 
         return stat

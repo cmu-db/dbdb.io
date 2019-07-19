@@ -32,10 +32,10 @@ table.table-stats tbody tr td.stat-value { text-align:right; }
         </div>
     </div>
     <div class="container">
-        <div class="row">
+        <div class="row mx-auto">
             {% for stat in stats %}
             <!-- BEGIN: {{ stat.label|upper }} -->
-            <div class="card d-md-block text-center" style="width: 18rem;">
+            <div class="card d-md-block mx-4 mb-4 text-center" style="width: 18rem;">
                 <div class="card-header">
                     <h3>{{ stat.label }}</h3>
                 </div>
@@ -65,7 +65,11 @@ table.table-stats tbody tr td.stat-value { text-align:right; }
                         {% endfor %}
                     </tbody>
                 </table>
+               <div class="card-footer text-muted p-1">
+                    <a href="{% url 'stats' %}/{{ stat.search_field }}">View All ({{ stat.count }})</a>
+                </div>
             </div>
+            
             <!-- END: {{ stat.label|upper }} -->
             {% endfor %}
         </div>
