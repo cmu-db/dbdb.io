@@ -100,7 +100,7 @@
             </div>
             {% endif %}
             {% endfor %}
-            
+                        
             <div class="card card-version d-block d-md-none revision-card">
                 <a href="{% url 'system_revision' system.slug %}" title="View All Revisions for {{ system.name }}">
                 <div class="card-body">
@@ -113,16 +113,24 @@
                 </a>
             </div>
             
+            {% if recommendations %}
+            <!-- START: RECOMMENDATIONS -->
+            <div class="card d-block d-md-none recommendations" style="margin-top: 20px;">
+                {% include 'core/system-alsoviewed.html' %}
+            </div>
+            <!-- END: RECOMMENDATIONS -->
+            {% endif %}
+            
         </div>
         <!-- END: MAIN BODY -->
         
         <!-- START: SIDEBAR -->
         <div class=" col-sm-12 col-md-3 order-1 order-md-2">
             {% if has_revision %}
-                <div class="alert alert-info d-block d-md-none" style="line-height: 34px;" role="alert">
-                    <a href="{{ system.get_absolute_url }}" class="btn btn-secondary btn-sm float-right active" role="button" aria-pressed="true">View Current</a>
-                    Viewing Revision #{{ system_version.ver }} from {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
-                </div>
+            <div class="alert alert-info d-block d-md-none" style="line-height: 34px;" role="alert">
+                <a href="{{ system.get_absolute_url }}" class="btn btn-secondary btn-sm float-right active" role="button" aria-pressed="true">View Current</a>
+                Viewing Revision #{{ system_version.ver }} from {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
+            </div>
             {% endif %}
         
             {% if system_version.logo %}
@@ -301,9 +309,19 @@
                 </div>
                 </a>
             </div>
-
+            
+                    
+            {% if recommendations %}
+            <!-- START: RECOMMENDATIONS -->
+            <div class="card d-none d-md-block recommendations" style="margin-top: 20px;">
+                {% include 'core/system-alsoviewed.html' %}
+            </div>
+            <!-- END: RECOMMENDATIONS -->
+            {% endif %}
+            
         </div>
         <!-- END: SIDEBAR -->
+
     
     </div>
 

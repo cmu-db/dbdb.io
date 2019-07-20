@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% load thumbnail %}
 {% load bootstrap4 %}
 
 {% block title %}
@@ -30,7 +31,16 @@ Recent Changes
                 {% for version in versions %}
                 <tr>
                     <td><a href="{{ version.get_absolute_url }}">{{ version.created }}</a></td>
-                    <td>{{ version.system.name }}</td>
+                    <td>
+                        <a href="{{ version.system.get_absolute_url }}">
+                        {% if version.system.current.logo %}
+                            <img src="{{ version.system.current.logo|thumbnail_url:'recent' }}" alt="{{ version.system.name }}" />
+                        {% else %}
+                            <img src="{% static 'core/images/database-nologo.svg' %}" alt="{{ version.system.name }}" />
+                        {% endif %}
+                        {{ version.system.name }}
+                        </a>
+                    </td>
 <!--                     <td>#{{ version.ver }}</td> -->
                     <td><a href="{% url 'recent' %}?username={{ version.creator.username }}">{{ version.creator.username }}</a></td>
                     <td>{{ version.comment }}</td>

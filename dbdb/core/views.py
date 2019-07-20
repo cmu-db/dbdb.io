@@ -6,6 +6,7 @@ import operator
 import json
 import time
 import urllib.parse
+from pprint import pprint
 # django imports
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -52,6 +53,7 @@ from dbdb.core.models import SystemVersion
 from dbdb.core.models import SystemVersionMetadata
 from dbdb.core.models import SystemACL
 from dbdb.core.models import SystemVisit
+from dbdb.core.models import SystemRecommendation
 
 # constants
 
@@ -65,8 +67,8 @@ SITEMAP_NSMAP = { None : SITEMPA_NS }
 
 FieldSet = collections.namedtuple('FieldSet', ['id','label','choices','description','citation'])
 LetterPage = collections.namedtuple('LetterPage', ['id','letter','is_active','is_disabled'])
-Stat = collections.namedtuple('Stat', ['label','items'])
-StatItem = collections.namedtuple('StatItem', ['label','value'])
+Stat = collections.namedtuple('Stat', ['label','items', 'search_field', 'systems', 'count'])
+StatItem = collections.namedtuple('StatItem', ['label','value','slug'])
 
 class FilterChoice( collections.namedtuple('FilterChoice', ['id','label','checked']) ):
 
@@ -1136,8 +1138,9 @@ class HomeView(View):
 class StatsView(View):
 
     template_name = 'core/stats.html'
+    default_limit = 10
 
-    def get_bycountries(self):
+    def get_bycountries(self, limit):
         def reduce_countries(mapping, item):
             countries = item.countries.split(',')
             for c in countries:
@@ -1147,29 +1150,111 @@ class StatsView(View):
 
         system_countries = SystemVersion.objects \
             .filter(is_current=True) \
-            .values_list('system_id','countries', named=True)
+            .values_list('system_id', 'countries', named=True)
         system_countries = reduce(reduce_countries, system_countries, {})
+        
         system_countries = [
-            StatItem(k, v)
+            StatItem(k, v, k)
             for k,v in system_countries.items()
         ]
         system_countries.sort(key=lambda i: i.value, reverse=True)
 
         stat = Stat(
-            'Systems per Country',
-            system_countries
+            'Country of Origin',
+            system_countries[:limit],
+            'country',
+            False,
+            len(system_countries)
         )
 
         return stat
+    
+    def get_by_field(self, title, field, search_field, labels, slugs, is_systems, limit):
+        def reduce_counts(mapping, item):
+            assert not mapping is None
+            if item is not None:
+                mapping[item] = mapping.get(item, 0) + 1
+        
+        values = SystemVersionMetadata.objects \
+            .filter(systemversion__is_current=True) \
+            .filter(~Q(**{field: None})) \
+            .values_list('systemversion__system_id', field, named=True)
+        #pprint(values)
+        counts = { }
+        for v in values:
+            #print(v[0])
+            counts[v[1]] = counts.get(v[1], 0) + 1
+        #counts = reduce(reduce_counts, values, { })
+        pprint(counts)
+        
+        stat_items = [ ]
+        
+        if is_systems:
+            stat_items = [
+                StatItem(System.objects.get(id=k), v, slugs[k])
+                for k,v in counts.items()
+            ]
+        else:
+            stat_items = [
+                StatItem(labels[k], v, slugs[k])
+                for k,v in counts.items()
+            ]
+            
+        stat_items.sort(key=lambda i: i.value, reverse=True)
+        stat = Stat(
+            title,
+            stat_items[:limit],
+            search_field,
+            is_systems,
+            len(stat_items)
+        )
 
-    def get(self, request):
+        return stat
+        
+
+    def get(self, request, stats_type=None):
         stats = []
 
-        stats.append( self.get_bycountries() )
+        # Countries
+        if stats_type is None or stats_type == "country":
+            limit = -1 if stats_type == "country" else self.default_limit
+            stats.append( self.get_bycountries(limit) )
+
+        # Licenses
+        if stats_type is None or stats_type == "license":
+            limit = -1 if stats_type == "license" else self.default_limit
+            labels = dict(License.objects.all().values_list('id', 'name'))
+            slugs = dict(License.objects.all().values_list('id', 'slug'))
+            stats.append( self.get_by_field('License', 'licenses', 'license', labels, slugs, False, limit) )
+
+        # Implementation Language
+        if stats_type is None or stats_type == "programming":
+            limit = -1 if stats_type == "programming" else self.default_limit
+            all_values = ProgrammingLanguage.objects.all()
+            labels = dict(all_values.values_list('id', 'name'))
+            slugs = dict(all_values.values_list('id', 'slug'))
+            stats.append( self.get_by_field('Programming Lang.', 'written_in', 'programming', labels, slugs, False, limit) )
+        
+        all_values = System.objects.all()
+        labels = dict(all_values.values_list('id', 'name'))
+        slugs = dict(all_values.values_list('id', 'slug'))
+        
+        # Compatibility
+        if stats_type is None or stats_type == "compatible":
+            stats.append( self.get_by_field('Compatibility', 'compatible_with', 'compatible', labels, slugs, True, self.default_limit) )
+        
+        # Derived From
+        if stats_type is None or stats_type == "derived":
+            stats.append( self.get_by_field('Derived From', 'derived_from', 'derived', labels, slugs, True, self.default_limit) )
+        
+        # Embeds
+        if stats_type is None or stats_type == "embeds":
+            stats.append( self.get_by_field('Embeds / Uses', 'embedded', 'embeds', labels, slugs, True, self.default_limit ) )
 
         return render(request, self.template_name, context={
             'activate': 'stats', # NAV-LINKS
             'stats': stats,
+            'stats_type': stats_type,
         })
 
     pass
@@ -1240,6 +1325,12 @@ class SystemView(View):
                 except SystemACL.DoesNotExist:
                     pass
         ## IF
+        
+        # Recommendations
+        recommendations = [ ]
+        for rec in SystemRecommendation.objects.filter(system=system).order_by("-recommendation__name").select_related():
+            recommendations.append(rec.recommendation)
+        
 
         return render(request, self.template_name, {
             'activate': 'system', # NAV-LINKS
@@ -1247,6 +1338,7 @@ class SystemView(View):
             'system_features': system_features,
             'system_version': system_version,
             'user_can_edit': user_can_edit,
+            'recommendations': recommendations,
             'counter_token': CounterView.build_token('system', pk=system.id),
         })
 

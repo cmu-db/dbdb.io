@@ -23,7 +23,8 @@ urlpatterns = [
     url(r'^recent$', views.RecentChangesView.as_view(), name='recent'),
     url(r'^search/autocomplete/$', views.search_autocomplete, name='search_autocomplete'),
     url(r'^search/advanced$', views.DatabaseBrowseView.as_view(), name='advanced_search'),
-    url(r'^stats$', views.StatsView.as_view(), name='stats'),
+    url(r'^stats[/]?$', views.StatsView.as_view(), name='stats'),
+    url(r'^stats(?:/(?P<stats_type>[\w]+))$', views.StatsView.as_view(), name='stats_detailed'),
 
     url(r'^user/create$', views.CreateUser.as_view(), name='create_user'),
     url(r'^user/create/$', RedirectView.as_view(pattern_name='create_user')),
