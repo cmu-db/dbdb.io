@@ -296,6 +296,7 @@ class SystemRecommendation(models.Model):
 
     class Meta:
         verbose_name = "Recommendation"
+        unique_together = ('system', 'recommendation')
 
     pass
 
