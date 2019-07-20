@@ -27,15 +27,15 @@ table.table-stats tbody tr td.stat-value { text-align:right; }
         <div class="row justify-content-md-center homepage-header">
             <div class="col col-md-12 col-sm-12 text-center">
                 <h1 class="display-3">Statistics</h1>
-                <p class="lead">Database counts.</p>
+                <p class="lead">Top Rankings</p>
             </div>
         </div>
     </div>
     <div class="container">
-        <div class="row mx-auto">
+        <div class="row">
             {% for stat in stats %}
             <!-- BEGIN: {{ stat.label|upper }} -->
-            <div class="card d-md-block mx-4 mb-4 text-center" style="width: 18rem;">
+            <div class="card d-md-block mx-4 mb-4 text-center mx-auto" style="width: 18rem;">
                 <div class="card-header">
                     <h3>{{ stat.label }}</h3>
                 </div>
@@ -65,9 +65,13 @@ table.table-stats tbody tr td.stat-value { text-align:right; }
                         {% endfor %}
                     </tbody>
                 </table>
-               <div class="card-footer text-muted p-1">
+                <!--
+                {% if stats_type == stats.search_field %}
+                <div class="card-footer text-muted p-1 font-weight-bold">
                     <a href="{% url 'stats' %}/{{ stat.search_field }}">View All ({{ stat.count }})</a>
                 </div>
+                {% endif %}
+                -->
             </div>
             
             <!-- END: {{ stat.label|upper }} -->

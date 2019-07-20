@@ -1138,9 +1138,9 @@ class HomeView(View):
 class StatsView(View):
 
     template_name = 'core/stats.html'
-    limit = 5
+    default_limit = 10
 
-    def get_bycountries(self):
+    def get_bycountries(self, limit):
         def reduce_countries(mapping, item):
             countries = item.countries.split(',')
             for c in countries:
@@ -1161,7 +1161,7 @@ class StatsView(View):
 
         stat = Stat(
             'Country of Origin',
-            system_countries[:self.limit],
+            system_countries[:limit],
             'country',
             False,
             len(system_countries)
@@ -1169,7 +1169,7 @@ class StatsView(View):
 
         return stat
     
-    def get_by_field(self, title, field, search_field, labels, slugs, is_systems):
+    def get_by_field(self, title, field, search_field, labels, slugs, is_systems, limit):
         def reduce_counts(mapping, item):
             assert not mapping is None
             if item is not None:
@@ -1203,7 +1203,7 @@ class StatsView(View):
         stat_items.sort(key=lambda i: i.value, reverse=True)
         stat = Stat(
             title,
-            stat_items[:self.limit],
+            stat_items[:limit],
             search_field,
             is_systems,
             len(stat_items)
@@ -1212,38 +1212,49 @@ class StatsView(View):
         return stat
         
 
-    def get(self, request):
+    def get(self, request, stats_type=None):
         stats = []
 
         # Countries
-        stats.append( self.get_bycountries() )
+        if stats_type is None or stats_type == "country":
+            limit = -1 if stats_type == "country" else self.default_limit
+            stats.append( self.get_bycountries(limit) )
 
         # Licenses
-        labels = dict(License.objects.all().values_list('id', 'name'))
-        slugs = dict(License.objects.all().values_list('id', 'slug'))
-        stats.append( self.get_by_field('License', 'licenses', 'license', labels, slugs, False) )
+        if stats_type is None or stats_type == "license":
+            limit = -1 if stats_type == "license" else self.default_limit
+            labels = dict(License.objects.all().values_list('id', 'name'))
+            slugs = dict(License.objects.all().values_list('id', 'slug'))
+            stats.append( self.get_by_field('License', 'licenses', 'license', labels, slugs, False, limit) )
 
         # Implementation Language
-        all_values = ProgrammingLanguage.objects.all()
-        labels = dict(all_values.values_list('id', 'name'))
-        slugs = dict(all_values.values_list('id', 'slug'))
-        stats.append( self.get_by_field('Language', 'written_in', 'programming', labels, slugs, False) )
+        if stats_type is None or stats_type == "programming":
+            limit = -1 if stats_type == "programming" else self.default_limit
+            all_values = ProgrammingLanguage.objects.all()
+            labels = dict(all_values.values_list('id', 'name'))
+            slugs = dict(all_values.values_list('id', 'slug'))
+            stats.append( self.get_by_field('Language', 'written_in', 'programming', labels, slugs, False, limit) )
         
-        # Compatibility
         all_values = System.objects.all()
         labels = dict(all_values.values_list('id', 'name'))
         slugs = dict(all_values.values_list('id', 'slug'))
-        stats.append( self.get_by_field('Compatibility', 'compatible_with', 'compatible', labels, slugs, True) )
+        
+        # Compatibility
+        if stats_type is None or stats_type == "compatible":
+            stats.append( self.get_by_field('Compatibility', 'compatible_with', 'compatible', labels, slugs, True, self.default_limit) )
         
         # Derived From
-        stats.append( self.get_by_field('Derived From', 'derived_from', 'derived', labels, slugs, True) )
+        if stats_type is None or stats_type == "derived":
+            stats.append( self.get_by_field('Derived From', 'derived_from', 'derived', labels, slugs, True, self.default_limit) )
         
         # Embeds
-        stats.append( self.get_by_field('Embeds / Uses', 'embedded', 'derived', labels, slugs, True) )
+        if stats_type is None or stats_type == "embeds":
+            stats.append( self.get_by_field('Embeds / Uses', 'embedded', 'embeds', labels, slugs, True, self.default_limit ) )
 
         return render(request, self.template_name, context={
             'activate': 'stats', # NAV-LINKS
             'stats': stats,
+            'stats_type': stats_type,
         })
 
     pass
