@@ -29,7 +29,9 @@
                     <input autofocus type="text" name="q" class="form-control form-control-lg" aria-describedby="Search field" placeholder="Search" style="max-width:700px;margin:0 auto;">
                 </div>
                 <p class="lead">
-                    <a class="btn btn-link btn-lg" href="{% url 'browse' %}" role="button">Advanced Search</a>
+                    <a href="{% url 'browse' %}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true">Browse</a>
+                    &nbsp;
+                    <a href="{% url 'stats' %}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true">Statistics</a>
                 </p>
             </form>
         </div>

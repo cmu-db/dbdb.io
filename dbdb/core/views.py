@@ -1233,7 +1233,7 @@ class StatsView(View):
             all_values = ProgrammingLanguage.objects.all()
             labels = dict(all_values.values_list('id', 'name'))
             slugs = dict(all_values.values_list('id', 'slug'))
-            stats.append( self.get_by_field('Language', 'written_in', 'programming', labels, slugs, False, limit) )
+            stats.append( self.get_by_field('Programming Lang.', 'written_in', 'programming', labels, slugs, False, limit) )
         
         all_values = System.objects.all()
         labels = dict(all_values.values_list('id', 'name'))
