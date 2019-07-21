@@ -127,10 +127,10 @@ gtag('config', 'UA-4067813-21');
 <!-- Slugify -->
 <script type="text/javascript">
     function convertToSlug(text) {
-    return text
-        .toLowerCase()
-        .replace(/[^\w ]+/g,'')
-        .replace(/ +/g,'-');
+        return text
+            .toLowerCase()
+            .replace(/[^\w -]+/g,'')
+            .replace(/ +/g,'-');
     }
 </script>
 
