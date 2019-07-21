@@ -4,6 +4,7 @@ import gzip
 import re
 import os
 import sys
+import operator
 import dateutil.parser
 from pprint import pprint
 
@@ -24,13 +25,32 @@ from sklearn.metrics import mean_squared_error
 
 class Command(BaseCommand):
     
+    def add_arguments(self, parser):
+        parser.add_argument('--threshold', type=int, default=2,
+                            help="Visit count threshold per user")
+        parser.add_argument('--ignore', action='append', type=str,
+                            help="List of IP addresses to ignore")
+        return
+    
     def handle(self, *args, **options):
         
         # Get the list of all unique IPs
         ip_addresses = [ ]
         with connection.cursor() as cursor:
-            cursor.execute("SELECT ip_address, user_agent, count(*) AS cnt FROM core_systemvisit GROUP BY ip_address, user_agent HAVING cnt > 2")
-            ip_addresses = [ (row[0],row[1]) for row in cursor.fetchall() ]
+            sql = "SELECT ip_address, user_agent, count(*) AS cnt FROM core_systemvisit "
+
+            # Remove ignored IPs
+            if options['ignore']:
+                sql += "WHERE ip_address NOT IN %s "
+                sql_args = (options['ignore'], options['threshold'])
+            else:
+                sql_args = (options['threshold'], )
+            
+            sql += "GROUP BY ip_address, user_agent HAVING cnt > %s"
+            
+            cursor.execute(sql, sql_args)
+            ip_addresses = set([ (row[0],row[1]) for row in cursor.fetchall() ])
+        # WITH
 
         # For each ip/user pair, get the systems that they viewed
         all_visits = { }
@@ -51,6 +71,12 @@ class Command(BaseCommand):
             next_user_id += 1
         ## FOR
         system_cnt = System.objects.all().count()
+        
+        for user_id in sorted(all_visits.keys(), key=lambda x: -1*len(all_visits[x]))[:10]:
+            print(user_info[user_id], "=>", len(all_visits[user_id]))
+        sys.exit(1)
+        
+        
         
         print("# of Users:", next_user_id)
         print("# of Sytems: %d (total=%d)" % (next_system_id, system_cnt))
