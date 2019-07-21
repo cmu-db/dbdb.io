@@ -113,7 +113,7 @@ class EmptyFieldsView(View):
 
     template_name = 'core/empty-fields.html'
 
-    def build_search_fields(self):
+    def build_search_fields(include_citations=False):
         import django.db.models.fields
 
         IGNORE_TYPES = set([
@@ -130,9 +130,11 @@ class EmptyFieldsView(View):
         
         version_fields = [ ]
         for f in SystemVersion._meta.get_fields():
+            if f.name.endswith("_citations") and not include_citations:
+                continue
+            
             if not type(f) in IGNORE_TYPES and \
-               not f.name in IGNORE_NAMES and \
-               not f.name.endswith("_citations"): \
+               not f.name in IGNORE_NAMES:
                 version_fields.append(f.name)
         ## FOR
         
@@ -153,7 +155,7 @@ class EmptyFieldsView(View):
         elif not request.user.is_superuser:
             raise Http404()
 
-        version_fields, meta_fields = self.build_search_fields()
+        version_fields, meta_fields = build_search_fields()
         versions = SystemVersion.objects.filter(is_current=True)
 
         search_field = request.GET.get('field')
@@ -264,11 +266,11 @@ class DatabaseBrowseView(View):
         other_filtersgroups.append(fg_compatible)
 
         # add embedded
-        fg_embedded = FilterGroup('embedded', 'Embedded', [
+        fg_embedded = FilterGroup('embeds', 'Embeds / Uses', [
             FilterChoice(
                 sys.slug,
                 sys.name,
-                sys.slug in querydict.getlist( 'embedded', empty_set )
+                sys.slug in querydict.getlist( 'embeds', empty_set )
             )
             for sys in System.objects.values_list('id','slug','name', named=True)
         ])
@@ -441,7 +443,7 @@ class DatabaseBrowseView(View):
         search_compatible = request.GET.getlist('compatible')
         search_country = request.GET.getlist('country')
         search_derived = request.GET.getlist('derived')
-        search_embedded = request.GET.getlist('embedded')
+        search_embeds = request.GET.getlist('embeds')
         search_inspired = request.GET.getlist('inspired')
         search_os = request.GET.getlist('os')
         search_programming = request.GET.getlist('programming')
@@ -460,7 +462,7 @@ class DatabaseBrowseView(View):
             'compatible': search_compatible,
             'country': search_country,
             'derived': search_derived,
-            'embedded': search_embedded,
+            'embeds': search_embeds,
             'inspired': search_inspired,
             'os': search_os,
             'programming': search_programming,
@@ -509,9 +511,10 @@ class DatabaseBrowseView(View):
             pass
         
         # search - embedded
-        if search_embedded:
-            sqs = sqs.filter(embedded__in=search_embedded)
-            search_mapping['embedded'] = self.convert_slugs(search_embedded)
+        if search_embeds:
+            sqs = sqs.filter(embedded__in=search_embeds)
+            print(sqs)
+            search_mapping['embeds'] = self.convert_slugs(search_embeds)
             pass
 
         # search - inspired by
