@@ -289,6 +289,7 @@ class SystemVisit(models.Model):
 class SystemRecommendation(models.Model):
     system = models.ForeignKey('System', models.CASCADE, related_name='recommendation_to')
     recommendation = models.ForeignKey('System', models.CASCADE, related_name='recommendation_from')
+    score = models.FloatField(blank=True, null=True)
     created = models.DateTimeField(default=timezone.now)
     
     def __str__(self):

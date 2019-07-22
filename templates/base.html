@@ -98,13 +98,23 @@
 
 {% block content %}{% endblock %}
 
-<footer>
-    <div class="footer-text">
-        <p>
-            Copyright &copy; {% now "Y" %}
-            &bullet;
-            <a target="_blank" href="https://db.cs.cmu.edu">Carnegie Mellon Database Group</a>
-        </p>
+<footer class="font-small mdb-color pt-4">
+    <div class="container align-top">
+        <div class="row d-flex align-items-center ">
+            <div class="col-md-7 col-lg-8 footer-text">
+                <p class="text-center text-md-left">
+                    Copyright &copy; {% now "Y" %}
+                    &bullet;
+                    <a target="_blank" href="https://db.cs.cmu.edu">Carnegie Mellon Database Group</a>
+                </p>
+            </div>
+            <div class="col-md-5 col-lg-4">
+                <div class="text-center text-md-right footer-text">
+                    <a href="mailto:info@dbdb.io" class="btn-floating btn-sm rgba-white-slight"><i class="fa fa-envelope"></i> Contact</a>
+                    <a href="https://github.com/cmu-db/dbdb.io" class="btn-floating btn-sm"><i class="fa fa-github-square"></i> Github</a>
+                </div>
+            </div>
+        </div>
     </div>
 </footer>
 
