@@ -278,7 +278,9 @@
             
                 {% if system_version.meta.licenses.exists %}
                     <h6 class="card-title">Licenses</h6>
-                    <p class="card-text">{{ system_version.meta.licenses_str }}</p>
+                    <p class="card-text">
+                        {% for license in system_version.meta.licenses.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?license={{ license.slug }}" title="View other systems that use {{ license.name }}">{{ license.name }}</a>{% endfor %}
+                    </p>
                 {% endif %}
                 
                 {% if system_version.wikipedia_url %}
