@@ -52,7 +52,7 @@ class SystemACLAdmin(admin.ModelAdmin):
     readonly_fields=('created', 'modified')
     
 class SystemRecommendationAdmin(admin.ModelAdmin):
-    list_display = ('system', 'recommendation', 'created')
+    list_display = ('system', 'recommendation', 'score', 'created')
     list_filter = ['created', 'system']
     readonly_fields=('created', )
     ordering = ('-created',)

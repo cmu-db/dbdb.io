@@ -14,6 +14,7 @@
             {% else %}
                 <img src="{% static 'core/images/database-nologo.svg' %}" alt="{{ item.name }}" />
             {% endif %}
+            {{ item.name }}
         </li>
         </a>
     {% endfor %}

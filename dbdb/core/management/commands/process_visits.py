@@ -17,6 +17,7 @@ from dbdb.core.models import System
 from dbdb.core.models import SystemFeature
 from dbdb.core.models import SystemVersion
 from dbdb.core.models import SystemVisit
+from dbdb.core.models import SystemRecommendation
 
 import numpy as np
 import pandas as pd
@@ -34,6 +35,10 @@ class Command(BaseCommand):
                             help="Min visit count threshold per system")
         parser.add_argument('--ignore', action='append', type=str,
                             help="List of IP addresses to ignore")
+        parser.add_argument('--clear', action='store_true',
+                            help="Clear out existing recommendations in the database")
+        parser.add_argument('--store', action='store_true',
+                            help="Store the recommendation in the database")
         return
     
     def handle(self, *args, **options):
@@ -130,12 +135,23 @@ class Command(BaseCommand):
 
         #print("# of IPs: %s" % len(ip_addresses))
         
+        if options['clear']:
+            SystemRecommendation.objects.all().delete()
+        
         for system_idx in range(0, next_system_idx):
             recommendations = self.top_k_systems(similarity, system_idx, 5)
-            print(System.objects.get(id=idx_system_xref[system_idx]))
+            system = System.objects.get(id=idx_system_xref[system_idx])
+            print(system)
             for i in range(1, len(recommendations)):
                 score = similarity[system_idx, recommendations[i]]
-                print("  + %s [%f]" % (System.objects.get(id=idx_system_xref[recommendations[i]]), score))
+                other_sys = System.objects.get(id=idx_system_xref[recommendations[i]])
+                
+                if system == other_sys: continue
+                
+                if options['store']:
+                    rec = SystemRecommendation(system=system, recommendation=other_sys, score=score)
+                    rec.save()
+                print("  + %s [%f]" % (other_sys, score))
             print()
         ## FOR
 
