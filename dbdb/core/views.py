@@ -513,7 +513,6 @@ class DatabaseBrowseView(View):
         # search - embedded
         if search_embeds:
             sqs = sqs.filter(embedded__in=search_embeds)
-            print(sqs)
             search_mapping['embeds'] = self.convert_slugs(search_embeds)
             pass
 
@@ -1329,11 +1328,40 @@ class SystemView(View):
                     pass
         ## IF
         
-        # Recommendations
-        recommendations = [ ]
-        for rec in SystemRecommendation.objects.filter(system=system).order_by("-recommendation__name").select_related():
-            recommendations.append(rec.recommendation)
+        # Compatible Systems
+        compatible = [
+            ver.system for ver in SystemVersion.objects
+                                .filter(is_current=True)
+                                .filter(meta__compatible_with=system)
+                                .order_by("system__name")
+                                .select_related()
+        ]
         
+        # Derived Systems
+        derived = [
+            ver.system for ver in SystemVersion.objects
+                                .filter(is_current=True)
+                                .filter(meta__derived_from=system)
+                                .order_by("system__name")
+                                .select_related()
+        ]
+        
+        # Embedding Systems
+        embeds = [
+            ver.system for ver in SystemVersion.objects
+                                .filter(is_current=True)
+                                .filter(meta__embedded=system)
+                                .order_by("system__name")
+                                .select_related()
+        ]
+        
+        # Recommendations
+        recommendations = [
+            rec.recommendation for rec in SystemRecommendation.objects
+                                .filter(system=system)
+                                .order_by("-score")
+                                .select_related()
+        ]
 
         return render(request, self.template_name, {
             'activate': 'system', # NAV-LINKS
@@ -1341,6 +1369,9 @@ class SystemView(View):
             'system_features': system_features,
             'system_version': system_version,
             'user_can_edit': user_can_edit,
+            'compatible': compatible,
+            'derived': derived,
+            'embeds': embeds,
             'recommendations': recommendations,
             'counter_token': CounterView.build_token('system', pk=system.id),
         })

@@ -115,8 +115,8 @@
             
             {% if recommendations %}
             <!-- START: RECOMMENDATIONS -->
-            <div class="card d-block d-md-none recommendations" style="margin-top: 20px;">
-                {% include 'core/system-alsoviewed.html' %}
+            <div class="card d-none d-md-block recommendations" style="margin-top: 20px;">
+                {% include 'core/system-sys-sidebar.html' with sidebar_title='People Also Viewed' sidebar_systems=recommendations %}
             </div>
             <!-- END: RECOMMENDATIONS -->
             {% endif %}
@@ -253,7 +253,7 @@
                 {% if system_version.meta.embedded.exists %}
                     <h6 class="card-title">Embeds / Uses</h6>
                     <p class="card-text">
-                        {% for other in system_version.meta.embedded.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?embedded={{ other.slug }}" title="View other systems that embed {{ other.name }}">{{ other.name }}</a>{% endfor %}
+                        {% for other in system_version.meta.embedded.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?embeds={{ other.slug }}" title="View other systems that embed {{ other.name }}">{{ other.name }}</a>{% endfor %}
                     </p>
                 {% endif %}
                 
@@ -312,11 +312,34 @@
                 </a>
             </div>
             
+            {% if compatible %}
+            <!-- START: COMPATIBLE -->
+            <div class="card d-none d-md-block compatible" style="margin-top: 20px;">
+                {% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}
+            </div>
+            <!-- END: COMPATIBLE -->
+            {% endif %}
+            
+            {% if derived %}
+            <!-- START: DERIVED -->
+            <div class="card d-none d-md-block compatible" style="margin-top: 20px;">
+                {% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}
+            </div>
+            <!-- END: DERIVED -->
+            {% endif %}
+            
+            {% if embeds %}
+            <!-- START: EMBEDS -->
+            <div class="card d-none d-md-block compatible" style="margin-top: 20px;">
+                {% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}
+            </div>
+            <!-- END: DERIVED -->
+            {% endif %}
                     
             {% if recommendations %}
             <!-- START: RECOMMENDATIONS -->
             <div class="card d-none d-md-block recommendations" style="margin-top: 20px;">
-                {% include 'core/system-alsoviewed.html' %}
+                {% include 'core/system-sys-sidebar.html' with title='People Also Viewed' systems=recommendations %}
             </div>
             <!-- END: RECOMMENDATIONS -->
             {% endif %}

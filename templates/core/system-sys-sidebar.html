@@ -1,0 +1,28 @@
+{% load staticfiles %}
+{% load thumbnail %}
+
+<div class="card-body">
+    <h4 class="card-title" >
+        {{ title }}
+    </h4>
+    <ul class="list-group list-group-flush">
+    {% for other_sys in systems %}
+        {% if not limit or forloop.counter0 < limit %}
+        <a href="{{ other_sys.get_absolute_url }}" title="{{ other_sys.name }}">
+            <li class="list-group-item list-group-item-action">
+            {% if other_sys.current.logo %}
+                <img src="{{ other_sys.current.logo|thumbnail_url:'recommendation' }}" alt="{{ other_sys.name }}" />
+            {% else %}
+                <img src="{% static 'core/images/database-nologo.svg' %}" alt="{{ other_sys.name }}" /> {{ other_sys.name }}
+            {% endif %}
+            </li>
+        </a>
+        {% endif %}
+    {% endfor %}
+    </ul>
+    {% if limit and systems|length > limit %}
+    <div class="card-footer text-muted p-1 font-weight-bold">
+        <a href="{% url 'browse' %}?{{ field }}={{ slug }}">View All ({{ systems|length }})</a>
+    </div>
+    {% endif %}
+</div>
