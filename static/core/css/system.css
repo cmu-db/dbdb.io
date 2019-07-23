@@ -20,3 +20,13 @@ div.col-md-3 div.card h6.card-title { margin-bottom: .15rem; }
 
 div.system-content div.card-version { background-color:#292B33; color:#eee; }
 div.system-content div.card-version div.card-body { font-size: 12px; padding: .75rem 1.25rem; text-align:center; }
+
+div.systems-extra {
+    margin-top: 20px;
+}
+@media screen and (max-width: 760px) {
+    div.systems-extra h4 {
+        font-size: 140%;
+    }
+}
+    

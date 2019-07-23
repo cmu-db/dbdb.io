@@ -113,14 +113,39 @@
                 </a>
             </div>
             
+            {% if compatible %}
+            <!-- START: COMPATIBLE -->
+            <div class="card d-block d-md-none systems-extra" >
+                {% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}
+            </div>
+            <!-- END: COMPATIBLE -->
+            {% endif %}
+            
+            {% if derived %}
+            <!-- START: DERIVED -->
+            <div class="card d-block d-md-none systems-extra" >
+                {% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}
+            </div>
+            <!-- END: DERIVED -->
+            {% endif %}
+            
+            {% if embeds %}
+            <!-- START: EMBEDS -->
+            <div class="card d-block d-md-none systems-extra" >
+                {% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}
+            </div>
+            <!-- END: DERIVED -->
+            {% endif %}
+                    
+                    
             {% if recommendations %}
             <!-- START: RECOMMENDATIONS -->
-            <div class="card d-none d-md-block recommendations" style="margin-top: 20px;">
-                {% include 'core/system-sys-sidebar.html' with sidebar_title='People Also Viewed' sidebar_systems=recommendations %}
+            <div class="card d-block d-md-none systems-extra" >
+                {% include 'core/system-sys-sidebar.html' with title='People Also Viewed' systems=recommendations %}
             </div>
             <!-- END: RECOMMENDATIONS -->
             {% endif %}
-            
+                    
         </div>
         <!-- END: MAIN BODY -->
         
@@ -314,7 +339,7 @@
             
             {% if compatible %}
             <!-- START: COMPATIBLE -->
-            <div class="card d-none d-md-block compatible" style="margin-top: 20px;">
+            <div class="card d-none d-md-block systems-extra" >
                 {% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}
             </div>
             <!-- END: COMPATIBLE -->
@@ -322,7 +347,7 @@
             
             {% if derived %}
             <!-- START: DERIVED -->
-            <div class="card d-none d-md-block compatible" style="margin-top: 20px;">
+            <div class="card d-none d-md-block systems-extra" >
                 {% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}
             </div>
             <!-- END: DERIVED -->
@@ -330,7 +355,7 @@
             
             {% if embeds %}
             <!-- START: EMBEDS -->
-            <div class="card d-none d-md-block compatible" style="margin-top: 20px;">
+            <div class="card d-none d-md-block systems-extra" >
                 {% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}
             </div>
             <!-- END: DERIVED -->
@@ -338,7 +363,7 @@
                     
             {% if recommendations %}
             <!-- START: RECOMMENDATIONS -->
-            <div class="card d-none d-md-block recommendations" style="margin-top: 20px;">
+            <div class="card d-none d-md-block systems-extra" >
                 {% include 'core/system-sys-sidebar.html' with title='People Also Viewed' systems=recommendations %}
             </div>
             <!-- END: RECOMMENDATIONS -->
