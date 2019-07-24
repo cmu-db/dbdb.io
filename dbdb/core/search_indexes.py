@@ -21,7 +21,7 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
     end_year = indexes.IntegerField(model_attr='end_year', null=True)
 
     lowercase_name = indexes.NgramField()
-    autocomplete_name = indexes.EdgeNgramField(model_attr='system__name')
+    autocomplete_name = indexes.NgramField(model_attr='system__name')
 
     compatible_with = indexes.MultiValueField()
     countries = indexes.MultiValueField()
