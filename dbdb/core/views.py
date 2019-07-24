@@ -1333,7 +1333,7 @@ class SystemView(View):
             ver.system for ver in SystemVersion.objects
                                 .filter(is_current=True)
                                 .filter(meta__compatible_with=system)
-                                .order_by("system__name")
+                                .order_by("-logo")
                                 .select_related()
         ]
         
@@ -1342,7 +1342,7 @@ class SystemView(View):
             ver.system for ver in SystemVersion.objects
                                 .filter(is_current=True)
                                 .filter(meta__derived_from=system)
-                                .order_by("system__name")
+                                .order_by("-logo")
                                 .select_related()
         ]
         
@@ -1351,7 +1351,7 @@ class SystemView(View):
             ver.system for ver in SystemVersion.objects
                                 .filter(is_current=True)
                                 .filter(meta__embedded=system)
-                                .order_by("system__name")
+                                .order_by("-logo")
                                 .select_related()
         ]
         
