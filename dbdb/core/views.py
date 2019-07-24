@@ -1385,7 +1385,7 @@ class SystemView(View):
 def search_autocomplete(request):
     search_q = request.GET.get('q', '').strip()
     if search_q:
-        sqs = SearchQuerySet().autocomplete(autocomplete_name=request.GET.get('q', '')) # [:5]
+        sqs = SearchQuerySet().autocomplete(autocomplete_name=search_q) # [:5]
         suggestions = [system.name for system in sqs]
     else:
         suggestions = [ ]
