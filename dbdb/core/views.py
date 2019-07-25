@@ -227,6 +227,27 @@ class EmptyFieldsView(View):
 class DatabaseBrowseView(View):
 
     template_name = 'core/database-browse.html'
+    
+    def build_filter_group_for_field(self, field, search_field, label, all_systems, querydict):
+        empty_set = set()
+        
+        values = SystemVersionMetadata.objects \
+            .filter(systemversion__is_current=True) \
+            .filter(~Q(**{field: None})) \
+            .values_list(field)
+            #.distinct() \
+            #.order_by()
+        fg = FilterGroup(search_field, label, [
+            FilterChoice(
+                all_systems[v[0]].slug,
+                all_systems[v[0]].name,
+                all_systems[v[0]].slug in querydict.getlist(search_field, empty_set)
+            )
+            for v in set(values)
+            #for sys in System.objects.values_list('id','slug','name', named=True)
+        ])
+        return fg
+        
 
     def build_filter_groups(self, querydict):
         empty_set = set()
@@ -265,57 +286,46 @@ class DatabaseBrowseView(View):
         ])
         other_filtersgroups.append(fg_country)
 
-        all_systems = System.objects.values_list('id','slug','name', named=True)
+        all_systems = dict([
+            (sys.id, sys)
+            for sys in System.objects.values_list('id','slug','name', named=True)
+        ])
 
         # Compatible
-        fg_compatible = FilterGroup('compatible', 'Compatible With', [
-            FilterChoice(
-                all_systems[sys_id].slug,
-                all_systems[sys_id].name,
-                all_systems[sys_id].slug in querydict.getlist( 'compatible', empty_set )
-            )
-            for sys_id in SystemVersion.objects
-                        .filter(is_current=True)
-                        .filter(~Q(**{"meta__compatible_with": None}))
-                        .values_list("meta__compatible_with", flat=True)
-                        .distinct()
-                        .order_by()
-            #for sys in System.objects.values_list('id','slug','name', named=True)
-        ])
-        other_filtersgroups.append(fg_compatible)
+        other_filtersgroups.append(self.build_filter_group_for_field(\
+            'compatible_with', \
+            'compatible', \
+            'Compatible With', \
+            all_systems, \
+            querydict
+        ))
 
-        # add embedded
-        fg_embedded = FilterGroup('embeds', 'Embeds / Uses', [
-            FilterChoice(
-                sys.slug,
-                sys.name,
-                sys.slug in querydict.getlist( 'embeds', empty_set )
-            )
-            for sys in System.objects.values_list('id','slug','name', named=True)
-        ])
-        other_filtersgroups.append(fg_embedded)
+        # Embedded
+        other_filtersgroups.append(self.build_filter_group_for_field(\
+            'embedded', \
+            'embeds', \
+            'Embeds / Uses', \
+            all_systems, \
+            querydict
+        ))
 
-        # add derived from
-        fg_derived = FilterGroup('derived', 'Derived From', [
-            FilterChoice(
-                sys.slug,
-                sys.name,
-                sys.slug in querydict.getlist( 'derived', empty_set )
-            )
-            for sys in System.objects.values_list('id','slug','name', named=True)
-        ])
-        other_filtersgroups.append(fg_derived)
-
-        # add inspired by
-        fg_inspired = FilterGroup('inspired', 'Inspired By', [
-            FilterChoice(
-                sys.slug,
-                sys.name,
-                sys.slug in querydict.getlist( 'inspired', empty_set )
-            )
-            for sys in System.objects.values_list('id','slug','name', named=True)
-        ])
-        other_filtersgroups.append(fg_inspired)
+        # Derived
+        other_filtersgroups.append(self.build_filter_group_for_field(\
+            'derived_from', \
+            'derived', \
+            'Derived From', \
+            all_systems, \
+            querydict
+        ))
+        
+        # Inspired
+        other_filtersgroups.append(self.build_filter_group_for_field(\
+            'inspired_by', \
+            'inspired', \
+            'Inspired By', \
+            all_systems, \
+            querydict
+        ))
 
         # add operating system
         fg_os = FilterGroup('os', 'Operating System', [
@@ -1201,12 +1211,20 @@ class StatsView(View):
             .filter(~Q(**{field: None})) \
             .values_list('systemversion__system_id', field, named=True)
         #pprint(values)
+        
+        #if field == 'compatible_with':
+            ##all_systems = System.objects.values_list('id','slug','name', named=True)
+            #for v in set(values):
+                ##print(all_systems[v[0]].name, "=>", all_systems[v[1]].name)
+                #print(System.objects.get(id=v[0]).name, "=>", System.objects.get(id=v[1]).name)
+        
+        
         counts = { }
         for v in values:
             #print(v[0])
             counts[v[1]] = counts.get(v[1], 0) + 1
         #counts = reduce(reduce_counts, values, { })
-        pprint(counts)
+        #pprint(counts)
         
         stat_items = [ ]
         
