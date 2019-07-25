@@ -243,25 +243,44 @@ class DatabaseBrowseView(View):
 
         other_filtersgroups = []
         
-        # add countries
+        # Countries
+        def reduce_countries(mapping, item):
+            countries = item.countries.split(',')
+            for c in countries:
+                if c: mapping[c] = mapping.get(c, 0) + 1
+            return mapping
+
+        system_countries = SystemVersion.objects \
+            .filter(is_current=True) \
+            .values_list('countries', named=True)
+        system_countries = reduce(reduce_countries, system_countries, {})
         fg_country = FilterGroup('country', 'Country', [
             FilterChoice(
                code,
-               name,
+               dict(countries)[code], # name,
                code in querydict.getlist( 'country', empty_set )
             )
-            for code,name in list(countries)
+            for code in system_countries.keys()
+            #for code,name in list(countries)
         ])
         other_filtersgroups.append(fg_country)
 
-        # add compatible
+        all_systems = System.objects.values_list('id','slug','name', named=True)
+
+        # Compatible
         fg_compatible = FilterGroup('compatible', 'Compatible With', [
             FilterChoice(
-                sys.slug,
-                sys.name,
-                sys.slug in querydict.getlist( 'compatible', empty_set )
+                all_systems[sys_id].slug,
+                all_systems[sys_id].name,
+                all_systems[sys_id].slug in querydict.getlist( 'compatible', empty_set )
             )
-            for sys in System.objects.values_list('id','slug','name', named=True)
+            for sys_id in SystemVersion.objects
+                        .filter(is_current=True)
+                        .filter(~Q(**{"meta__compatible_with": None}))
+                        .values_list("meta__compatible_with", flat=True)
+                        .distinct()
+                        .order_by()
+            #for sys in System.objects.values_list('id','slug','name', named=True)
         ])
         other_filtersgroups.append(fg_compatible)
 
