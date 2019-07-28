@@ -12,6 +12,7 @@ from pprint import pprint
 from django.core.management import BaseCommand
 from django.conf import settings
 from django.db import connection
+from django.db.models import Q
 
 from dbdb.core.models import System
 from dbdb.core.models import SystemFeature
@@ -39,9 +40,32 @@ class Command(BaseCommand):
                             help="Clear out existing recommendations in the database")
         parser.add_argument('--store', action='store_true',
                             help="Store the recommendation in the database")
+        parser.add_argument('--show-missing', action='store_true',
+                            help="Show which systems are missing recommendations")
         return
     
+    def show_missing(self, options):
+        systems = System.objects \
+                    .filter(recommendation_to__isnull=True) \
+                    .distinct() \
+                    .order_by("name")
+        
+        self.stdout.write("No Recommendations [%d]" % systems.count())
+        for system in systems:
+            num_visits = SystemVisit.objects.filter(system=system)
+            if options['ignore']:
+                num_visits = num_visits.filter(~Q(ip_address__in=options['ignore']))
+            self.stdout.write(" + %s [num_visits=%d]" % (system.name, num_visits.count()))
+        
+        return
+        
+    
     def handle(self, *args, **options):
+        
+        if options['show_missing']:
+            self.show_missing(options)
+            return
+        # IF
         
         # Get the list of all unique IPs
         ip_addresses = [ ]
@@ -58,8 +82,8 @@ class Command(BaseCommand):
             sql_args.append(options['min_threshold'])
             sql_args.append(options['max_threshold'])
             
-            print(sql)
-            print(sql_args)
+            self.stdout.write(sql)
+            self.stdout.write(str(sql_args))
             
             cursor.execute(sql, tuple(sql_args))
             ip_addresses = set([ (row[0],row[1]) for row in cursor.fetchall() ])
@@ -73,7 +97,7 @@ class Command(BaseCommand):
             visits_per_system = dict([ (row[0],int(row[1])) for row in cursor.fetchall() ])
         # WITH
         #for system_id in sorted(visits_per_system.keys(), key=lambda x: -1*visits_per_system[x]):
-            #print(System.objects.get(id=system_id), "=>", visits_per_system[system_id])
+            #self.stdout.write(System.objects.get(id=system_id), "=>", visits_per_system[system_id])
         #sys.exit(1)
 
         # For each ip/user pair, get the systems that they viewed
@@ -109,50 +133,66 @@ class Command(BaseCommand):
         #sys.exit(1)
         
         #for user_idx in sorted(all_visits.keys(), key=lambda x: -1*len(all_visits[x]))[:10]:
-            #print(user_info[user_idx], "=>", len(all_visits[user_idx]))
+            #self.stdout.write(user_info[user_idx], "=>", len(all_visits[user_idx]))
         #sys.exit(1)
         
-        print("# of Users:", next_user_idx)
-        print("# of Sytems: %d (total=%d)" % (next_system_idx, system_cnt))
+        self.stdout.write("# of Users: %d" % next_user_idx)
+        self.stdout.write("# of Sytems: %d (total=%d)" % (next_system_idx, system_cnt))
         
         data = np.zeros((next_user_idx, next_system_idx))
         for user_idx in all_visits.keys():
             for system_idx in all_visits[user_idx]:
                 data[user_idx, system_idx] += 1
-        print(data)
+        self.stdout.write(str(data))
         sparsity = float(len(data.nonzero()[0]))
         sparsity /= (data.shape[0] * data.shape[1])
         sparsity *= 100
-        print('Sparsity: {:4.2f}%'.format(sparsity))
+        self.stdout.write('Sparsity: {:4.2f}%'.format(sparsity))
 
         train_data, test_data = self.train_test_split(data)
         
         similarity = self.compute_similarity(train_data)
-        print(similarity[:4, :4])
+        self.stdout.write(str(similarity[:4, :4]))
         pred = data.dot(similarity) / np.array([np.abs(similarity).sum(axis=1)])
         
-        print('MSE: ' + str(self.get_mse(pred, test_data)))
+        self.stdout.write('MSE: ' + str(self.get_mse(pred, test_data)))
 
-        #print("# of IPs: %s" % len(ip_addresses))
-        
-        if options['clear']:
-            SystemRecommendation.objects.all().delete()
+        #self.stdout.write("# of IPs: %s" % len(ip_addresses))
         
         for system_idx in range(0, next_system_idx):
             recommendations = self.top_k_systems(similarity, system_idx, 5)
             system = System.objects.get(id=idx_system_xref[system_idx])
-            print(system)
+            self.stdout.write(str(system))
+            
+            before_recs = SystemRecommendation.objects.filter(system=system)
+            before_output = [ "*BEFORE*" ]
+            for rec in before_recs:
+                before_output.append("+ %s [%f]" % (rec.recommendation, rec.score))
+                
+            if options['clear']: before_recs.delete()
+            
+            new_output = [ "*AFTER*" ]
             for i in range(1, len(recommendations)):
                 score = similarity[system_idx, recommendations[i]]
                 other_sys = System.objects.get(id=idx_system_xref[recommendations[i]])
                 
                 if system == other_sys: continue
-                
+
                 if options['store']:
                     rec = SystemRecommendation(system=system, recommendation=other_sys, score=score)
                     rec.save()
-                print("  + %s [%f]" % (other_sys, score))
-            print()
+                    
+                new_output.append("+ %s [%f]" % (other_sys, score))
+            ## FOR
+            
+            for i in range(0, max(len(before_output), len(new_output))):
+                right = ""
+                left = ""
+                if i < len(before_output): left = before_output[i]
+                if i < len(new_output): right = new_output[i]
+                self.stdout.write('  {0:30}  {1}'.format(left, right))
+            ## FOR
+            self.stdout.write("")
         ## FOR
 
         return
