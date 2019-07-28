@@ -237,7 +237,7 @@ class DatabaseBrowseView(View):
             .values_list(field)
             #.distinct() \
             #.order_by()
-        fg = FilterGroup(search_field, label, [
+        fg = FilterGroup(search_field, label, sorted([
             FilterChoice(
                 all_systems[v[0]].slug,
                 all_systems[v[0]].name,
@@ -245,7 +245,7 @@ class DatabaseBrowseView(View):
             )
             for v in set(values)
             #for sys in System.objects.values_list('id','slug','name', named=True)
-        ])
+        ], key=lambda x: x[1]))
         return fg
         
 
@@ -275,7 +275,7 @@ class DatabaseBrowseView(View):
             .filter(is_current=True) \
             .values_list('countries', named=True)
         system_countries = reduce(reduce_countries, system_countries, {})
-        fg_country = FilterGroup('country', 'Country', [
+        fg_country = FilterGroup('country', 'Country', sorted([
             FilterChoice(
                code,
                dict(countries)[code], # name,
@@ -283,7 +283,7 @@ class DatabaseBrowseView(View):
             )
             for code in system_countries.keys()
             #for code,name in list(countries)
-        ])
+        ], key=lambda x: x[1]))
         other_filtersgroups.append(fg_country)
 
         all_systems = dict([
