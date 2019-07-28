@@ -75,9 +75,12 @@ class SearchTestCase(BaseTestCase):
         """Make sure we are setting up haystack correctly."""
         sqs = SearchQuerySet()
         num_results = len(sqs)
-        self.assertEquals(num_results, 1)
-        res = sqs[0]
-        self.assertEquals(res.name, "SQLite")
+        self.assertEquals(num_results, 2)
+        
+        expected = ["SQLite", "XXX"]
+        for i in range(num_results):
+            res = sqs[i]
+            self.assertTrue(res.name in expected)
         return
     
     def test_search_no_parameters(self):
@@ -126,7 +129,7 @@ class AutoCompleteTestCase(BaseTestCase):
         return
     
     def test_autocom_invalid_parameters(self):
-        query = {'q': "XXX"}
+        query = {'q': "YYY"}
         response = self.client.get(reverse('search_autocomplete'), data=query)
         #pprint(response.json())
         self.assertEquals(len(response.json()), 0)

@@ -50,9 +50,6 @@
     "licenses": [
       1
     ],
-    "derived_from": [
-      7
-    ],
     "publications": [
       1
     ]
@@ -79,6 +76,74 @@
     "options": [
       4,
       5
+    ]
+  }
+},
+{
+  "model": "core.system",
+  "pk": 2,
+  "fields": {
+    "name": "XXX",
+    "created": "2019-10-30T23:26:31.207Z",
+    "ver": 0,
+    "slug": "xxx",
+    "secret_key": "d11e7a07-4c80-44bc-86e4-68e491fe45a9"
+  }
+},
+{
+  "model": "core.systemversion",
+  "pk": 2,
+  "fields": {
+    "system": 2,
+    "ver": 1,
+    "is_current": true,
+    "created": "2017-10-30T23:26:31.231Z",
+    "creator": 1,
+    "comment": "",
+    "description": "Nice description",
+    "history": "",
+    "url": "http://xxx.com",
+    "tech_docs": "http://xxx.com/docs",
+    "developer": "XXXX Developer",
+    "start_year": "2019",
+    "end_year": null,
+    "logo": "",
+    "meta": 1,
+    "project_types": [
+      1
+    ]
+  }
+},
+{
+  "model": "core.systemversionmetadata",
+  "pk": 2,
+  "fields": {
+    "written_in": [
+      1
+    ],
+    "supported_languages": [
+      1
+    ],
+    "oses": [
+      1
+    ],
+    "licenses": [
+      1
+    ],
+    "derived_from": [
+      1
+    ],
+    "embedded": [
+      1
+    ],
+    "inspired_by": [
+      1
+    ],
+    "compatible_with": [
+      1
+    ],
+    "publications": [
+      1
     ]
   }
 }

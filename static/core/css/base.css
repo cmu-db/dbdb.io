@@ -75,6 +75,11 @@ div.main {
     font-weight: bold;
 }
 
+.stat-label > a {
+    display:block;
+    width:100%;
+}
+
 
 div.sidebar { background-color:#F8F8F8; border-radius:4px; padding:20px; }
 div.sidebar .btn-primary { background-color:#417690; border-color:#417690; color:#ffffff; }
