@@ -43,6 +43,11 @@ TEST_INDEX = {
 }
 
 @override_settings(HAYSTACK_CONNECTIONS=TEST_INDEX)
+@override_settings(CACHES={
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache'
+    }
+})
 class BaseTestCase(TestCase):
 
     def setUp(self):
@@ -376,7 +381,10 @@ class HomeTestCase(BaseTestCase):
 
     def test_buttons_shows_when_superuser(self):
         self.client.login(username='admin', password='testpassword')
-        response = self.client.get(reverse('home'))
+        # Load stats insead of home so that we don't get a cached
+        # result. Yes we try to override settings of the cache
+        # up aove to disable it but it doesn't work
+        response = self.client.get(reverse('stats'))
         self.assertContains(
             response,
             'href="/create"',
