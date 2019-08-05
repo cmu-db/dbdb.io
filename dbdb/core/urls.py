@@ -29,6 +29,7 @@ urlpatterns = [
 
     url(r'^user/create$', views.CreateUser.as_view(), name='create_user'),
     url(r'^user/create/$', RedirectView.as_view(pattern_name='create_user')),
+    url(r'^user/create/keycheck/$', views.SystemACLCheck.as_view(), name='systemacl_check'),
 
     path('counter', views.CounterView.as_view(), name='counter'),
     path('sitemap.xml', views.SitemapView.as_view(), name='sitemap'),

@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.forms import widgets
 from django.forms.fields import MultipleChoiceField
 from django.forms.widgets import Textarea
+from django.forms.widgets import TextInput
 # third-party imports
 from nocaptcha_recaptcha.fields import NoReCaptchaField
 from nocaptcha_recaptcha.widgets import NoReCaptchaWidget
@@ -23,8 +24,8 @@ from dbdb.core.models import SystemVersionMetadata
 
 class InvisibleReCaptchaWidget(NoReCaptchaWidget):
     template = getattr(settings, 'INVISIBLE_RECAPTCHA_WIDGET_TEMPLATE', 'nocaptcha_recaptcha/widget.html')
-
-
+    
+    
 # fields
 
 class TagFieldM2M(MultipleChoiceField):
@@ -149,6 +150,8 @@ class CreateUserForm(forms.ModelForm):
     email = forms.EmailField(max_length=254, required=True)
     password = forms.CharField(max_length=128, label='Password', widget=widgets.PasswordInput)
     password2 = forms.CharField(max_length=128, label='Password Confirmation', widget=widgets.PasswordInput)
+    
+    aclkey = forms.CharField(max_length=512, label='Registration Key (Optional)', required=False)
 
     captcha = NoReCaptchaField(
         gtag_attrs={
@@ -165,7 +168,7 @@ class CreateUserForm(forms.ModelForm):
 
     class Meta:
         model = get_user_model()
-        fields = ['username', 'email', 'password', 'password2', 'captcha']
+        fields = ['username', 'email', 'password', 'password2', 'aclkey', 'captcha']
 
     pass
 

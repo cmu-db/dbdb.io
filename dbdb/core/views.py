@@ -774,6 +774,37 @@ class CreateUser(View):
     pass
 
 # ==============================================
+# SystemACLCheck
+# ==============================================
+class SystemACLCheck(View):
+    
+    @staticmethod
+    def encode(systems):
+        payload = {"ids": [ system.id for system in systems ]}
+        key = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+        key = key.decode('utf-8')
+        return key
+    
+    def post(self, request):
+        status = "FAIL"
+        systems = [ ]
+        
+        key = request.GET.get('key', '').strip()
+        if key:
+            result = jwt.decode(
+                key.encode('utf-8'),
+                settings.SECRET_KEY,
+                algorithms=['HS256']
+            )
+            if "ids" in result and type(results["ids"]) is list:
+                sqs = System.objects.filter(slug__in=result["ids"])
+                systems = [system.name for system in sqs]
+                status = "OK"
+            
+        data = json.dumps({"status": status, "systems": systems})
+        return HttpResponse(data, content_type='application/json')
+
+# ==============================================
 # DatabasesEditView
 # ==============================================
 class DatabasesEditView(View, LoginRequiredMixin):
