@@ -155,7 +155,7 @@ class EmptyFieldsView(View):
         elif not request.user.is_superuser:
             raise Http404()
 
-        version_fields, meta_fields = build_search_fields()
+        version_fields, meta_fields = EmptyFieldsView.build_search_fields()
         versions = SystemVersion.objects.filter(is_current=True)
 
         search_field = request.GET.get('field')
