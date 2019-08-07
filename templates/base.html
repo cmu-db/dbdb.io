@@ -138,6 +138,7 @@ gtag('config', 'UA-4067813-21');
     function convertToSlug(text) {
         return text
             .toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
             .replace(/[^\w -]+/g,'')
             .replace(/ +/g,'-');
     }
