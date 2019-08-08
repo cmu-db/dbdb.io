@@ -1308,7 +1308,17 @@ class SitemapView(View):
 
         root = etree.Element(SITEMAP_PREFIX+'urlset', nsmap=SITEMAP_NSMAP)
         tree = etree.ElementTree(root)
+        
+        # Stats Page
+        url = etree.SubElement(root, 'url')
+        loc = etree.SubElement(url, 'loc')
+        loc.text = request.build_absolute_uri( reverse('stats') )
+        lastmod = etree.SubElement(url, 'lastmod')
+        lastmod.text = datetime.date.today().isoformat()
+        changefreq = etree.SubElement(url, 'changefreq')
+        changefreq.text = 'weekly'
 
+        # Systems
         for system in System.objects.order_by('name').iterator():
             url = etree.SubElement(root, 'url')
             loc = etree.SubElement(url, 'loc')
@@ -1316,7 +1326,7 @@ class SitemapView(View):
             lastmod = etree.SubElement(url, 'lastmod')
             lastmod.text = system.modified.date().isoformat()
             changefreq = etree.SubElement(url, 'changefreq')
-            changefreq.text = 'daily'
+            changefreq.text = 'weekly'
             pass
 
         tree.write(response, encoding='UTF-8', pretty_print=True, xml_declaration=True)
