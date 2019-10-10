@@ -124,9 +124,14 @@ class Command(BaseCommand):
                     systems.add(system_idx_xref[v.system.id])
                 else:
                     systems.append(system_idx_xref[v.system.id])
-            all_visits[next_user_idx] = systems
-            user_info[next_user_idx] = (ip, ua)
-            next_user_idx += 1
+                    
+            # Skip any user that visits only systems not above our threshold
+            # Otherwise we will have all zeros for the systems and this will
+            # break numpy when we split our training set
+            if len(systems) > 0:
+                all_visits[next_user_idx] = systems
+                user_info[next_user_idx] = (ip, ua)
+                next_user_idx += 1
         ## FOR
         assert len(visits_per_system) == len(idx_system_xref)
         system_cnt = System.objects.all().count()
