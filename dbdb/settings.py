@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'easy_thumbnails',
     'django_countries',
     'haystack', # django-haystack
+    'rest_framework',
 
     'dbdb.core'
 ]

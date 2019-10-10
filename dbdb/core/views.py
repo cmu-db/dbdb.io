@@ -36,6 +36,7 @@ from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 from lxml import etree
 import jwt
+from rest_framework import mixins, viewsets
 # project imports
 from dbdb.core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm, \
     SystemVersionEditForm
@@ -54,6 +55,7 @@ from dbdb.core.models import SystemVersionMetadata
 from dbdb.core.models import SystemACL
 from dbdb.core.models import SystemVisit
 from dbdb.core.models import SystemRecommendation
+from dbdb.core.serializers import SystemSerializer
 
 # constants
 
@@ -1425,7 +1427,6 @@ class SystemView(View):
 
     pass
 
-
 # ==============================================
 # System Name AutoComplete 
 # ==============================================
@@ -1439,3 +1440,13 @@ def search_autocomplete(request):
         
     data = json.dumps(suggestions)
     return HttpResponse(data, content_type='application/json')
+
+
+# ==============================================
+# System REST API
+# ==============================================
+class SystemViewSet(mixins.ListModelMixin,mixins.RetrieveModelMixin,viewsets.GenericViewSet):
+    queryset = System.objects.all().order_by('name')
+    serializer_class = SystemSerializer
+    
+    pass

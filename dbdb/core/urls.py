@@ -1,14 +1,20 @@
 # django imports
 from django.conf import settings
 from django.conf.urls import url
-from django.urls import path
+from django.urls import include,path
 from django.views.generic.base import RedirectView
 from django.views.generic.base import TemplateView
 from django.views.decorators.cache import cache_page
+# third-party imports
+from rest_framework import routers
 # project imports
 from dbdb.core import views
 
+# REST API
+router = routers.DefaultRouter()
+router.register(r'api', views.SystemViewSet)
 
+# Everything else
 urlpatterns = [
     url(r'^$', cache_page(60 * 60)(views.HomeView.as_view()), name="home"),
 
@@ -32,4 +38,7 @@ urlpatterns = [
 
     path('counter', views.CounterView.as_view(), name='counter'),
     path('sitemap.xml', views.SitemapView.as_view(), name='sitemap'),
+    
+    path('', include(router.urls)),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
