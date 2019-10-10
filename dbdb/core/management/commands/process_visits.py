@@ -92,8 +92,18 @@ class Command(BaseCommand):
         # Get the # of visits per system
         visits_per_system = { }
         with connection.cursor() as cursor:
-            sql = "SELECT system_id, count(*) AS cnt FROM core_systemvisit GROUP BY system_id HAVING cnt > %s"
-            cursor.execute(sql, (str(options['min_visit']),))
+            sql = "SELECT system_id, count(*) AS cnt FROM core_systemvisit "
+            sql_args = [ ]
+            
+            # Remove ignored IPs
+            if options['ignore']:
+                sql += "WHERE ip_address NOT IN %s "
+                sql_args.append(options['ignore'])
+            
+            sql += "GROUP BY system_id HAVING cnt > %s"
+            sql_args.append(str(options['min_visit']))
+            
+            cursor.execute(sql, tuple(sql_args))
             visits_per_system = dict([ (row[0],int(row[1])) for row in cursor.fetchall() ])
         # WITH
         #for system_id in sorted(visits_per_system.keys(), key=lambda x: -1*visits_per_system[x]):
@@ -133,6 +143,8 @@ class Command(BaseCommand):
                 user_info[next_user_idx] = (ip, ua)
                 next_user_idx += 1
         ## FOR
+        print("visits_per_system:", len(visits_per_system))
+        print("idx_system_xref:", len(idx_system_xref))
         assert len(visits_per_system) == len(idx_system_xref)
         system_cnt = System.objects.all().count()
         #sys.exit(1)
