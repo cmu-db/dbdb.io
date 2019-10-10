@@ -176,10 +176,10 @@ class Command(BaseCommand):
 
         #self.stdout.write("# of IPs: %s" % len(ip_addresses))
         
+        output = { }
         for system_idx in range(0, next_system_idx):
             recommendations = self.top_k_systems(similarity, system_idx, 5)
             system = System.objects.get(id=idx_system_xref[system_idx])
-            self.stdout.write(str(system))
             
             before_recs = SystemRecommendation.objects.filter(system=system)
             before_output = [ "*BEFORE*" ]
@@ -202,15 +202,20 @@ class Command(BaseCommand):
                 new_output.append("+ %s [%f]" % (other_sys, score))
             ## FOR
             
+            output_buffer = str(system) + "\n"
             for i in range(0, max(len(before_output), len(new_output))):
                 right = ""
                 left = ""
                 if i < len(before_output): left = before_output[i]
                 if i < len(new_output): right = new_output[i]
-                self.stdout.write('  {0:30}  {1}'.format(left, right))
+                output_buffer += '  {0:30}  {1}\n'.format(left, right)
             ## FOR
-            self.stdout.write("")
+            output[system.name] = output_buffer
         ## FOR
+        
+        # Print them sorted by name
+        for sys_name in sorted (output.keys()):
+            print(output[sys_name])
 
         return
     
