@@ -258,7 +258,8 @@
             
                 {% if system_version.meta.written_in.exists %}
                     <h6 class="card-title">Written in</h6>
-                    <p class="card-text">{{ system_version.meta.written_in_str }}</p>
+                    <p class="card-text">
+                        {% for written_in in system_version.meta.written_in.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?programming={{ written_in.slug }}" title="View other systems that are written in {{ written_in.name }}">{{ written_in.name }}</a>{% endfor %}
                 {% endif %}
             
                 {% if system_version.meta.supported_languages.exists %}
