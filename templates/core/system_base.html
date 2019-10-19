@@ -4,15 +4,13 @@
 
 {% block css %}
     <link href="{% static 'core/css/system.css' %}" rel="stylesheet">
-
-    <meta property="og:site_name" content="Database of Databases" />
-    <meta property="og:type" content="article" />
-    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
+{% endblock %}
+            
+{% block twitter %}
     <meta property="og:title" content="Database of Databases &mdash; {{ system.name }}" />
     <meta property="og:description" content="{{ system_version.description|truncatechars:300 }}" />{% if system_version.logo %}
     <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ system_version.logo.url }}" />{% endif %}
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
+    <meta property="og:type" content="article" />
     <meta name="twitter:title" content="Database of Databases &mdash; {{ system.name }}" />
     <meta name="twitter:description" content="{{ system_version.description|truncatechars:200 }}" />{% if system_version.logo %}
     <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ system_version.logo.url }}" />{% endif %}

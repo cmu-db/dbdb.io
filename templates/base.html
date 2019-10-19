@@ -16,7 +16,13 @@
     <link rel="stylesheet" type="text/css" href="{% static 'core/css/base.css' %}?v=2">
     <link rel="stylesheet" type="text/css" href="{% static 'core/css/jquery.auto-complete.css' %}">
 
-{% block css %}{% endblock %}
+    <meta property="og:site_name" content="Database of Databases" />
+    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
+    {% block twitter %}{% endblock %}
+
+    {% block css %}{% endblock %}
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark">

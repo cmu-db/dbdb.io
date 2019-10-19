@@ -6,13 +6,10 @@
     Home
 {% endblock %}
 
-{% block css %}
-    <meta property="og:site_name" content="Database of Databases" />
-    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
+{% block twitter %}
     <meta property="og:title" content="Database of Databases" />
     <meta property="og:description" content="The on-line encyclopedia of databases systems from Carnegie Mellon University." />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'core/images/dbdb_io_twitter.png' %}" />
     <meta name="twitter:title" content="Database of Databases" />
     <meta name="twitter:description" content="The encyclopedia of databases systems from Carnegie Mellon University. Curated by @andy_pavlo" />
     <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'core/images/dbdb_io_twitter.png' %}" />
