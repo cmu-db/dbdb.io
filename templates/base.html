@@ -7,7 +7,10 @@
     {% if counter_token %}
     <meta name="counter" content="{{ counter_token }}">
     {% endif %}
-    <link href="{% static 'core/images/favicon.ico' %}" rel="shortcut icon" type="image/x-icon" />
+    <link href="{% static 'core/images/favicon.ico' %}" rel="shortcut icon" type="image/png" />
+    <link rel="apple-touch-icon" sizes="32x32" href="{% static 'core/images/dbdb_io-32x32.png' %}">
+    <link rel="apple-touch-icon" sizes="90x90" href="{% static 'core/images/dbdb_io-90x90.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'core/images/dbdb_io-180x180.png' %}">
 
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,700,800">
     <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.9.0/css/all.css">
