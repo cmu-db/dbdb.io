@@ -12,8 +12,12 @@
     <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ system_version.logo.url }}" />{% endif %}
     <meta property="og:type" content="article" />
     <meta name="twitter:title" content="Database of Databases &mdash; {{ system.name }}" />
-    <meta name="twitter:description" content="{{ system_version.description|truncatechars:200 }}" />{% if system_version.logo %}
-    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ system_version.logo.url }}" />{% endif %}
+    <meta name="twitter:description" content="{{ system_version.description|truncatechars:200 }}" />
+    {% if system_version.logo %}
+    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ system_version.logo.url }}" />
+    {% else %}
+    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'core/images/dbdb_io_twitter.png' %}" />
+    {% endif %}
 {% endblock %}
 
 {% block content %}
