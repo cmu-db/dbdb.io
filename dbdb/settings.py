@@ -97,8 +97,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # CACHE
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'dbdb_io_cache',
+        #'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        #'LOCATION': 'dbdb_io_cache',
     }
 }
 

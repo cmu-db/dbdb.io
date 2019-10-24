@@ -10,7 +10,7 @@ from dbdb.core import views
 
 
 urlpatterns = [
-    url(r'^$', cache_page(60 * 60)(views.HomeView.as_view()), name="home"),
+    url(r'^$', views.HomeView.as_view(), name="home"),
 
     url(r'^db/(?P<slug>[\w-]+)$', views.SystemView.as_view(), name='system'),
     url(r'^db/(?P<slug>[\w-]+)/edit$', views.DatabasesEditView.as_view(), name='system_edit'),
@@ -24,7 +24,7 @@ urlpatterns = [
     url(r'^recent$', views.RecentChangesView.as_view(), name='recent'),
     url(r'^search/autocomplete/$', views.search_autocomplete, name='search_autocomplete'),
     url(r'^search/advanced$', views.DatabaseBrowseView.as_view(), name='advanced_search'),
-    url(r'^stats[/]?$', cache_page(60 * 60)(views.StatsView.as_view()), name='stats'),
+    url(r'^stats[/]?$', views.StatsView.as_view(), name='stats'),
     url(r'^stats(?:/(?P<stats_type>[\w]+))$', views.StatsView.as_view(), name='stats_detailed'),
 
     url(r'^user/create$', views.CreateUser.as_view(), name='create_user'),
