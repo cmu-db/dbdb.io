@@ -439,11 +439,7 @@ class SystemVersion(models.Model):
         return self.system.slug + ".png"
     
     def create_twitter_card(self):
-        from PIL import Image
-        
-        card_img = os.path.join(settings.TWITTER_CARD_ROOT, self.get_twitter_card_image())
-        if not self.logo:
-            return
+        from PIL import Image, ImageDraw, ImageFont
         
         # Create a nicely formatted version of the logo for the twitter card
         template = os.path.join(settings.BASE_DIR, "static", settings.TWITTER_CARD_TEMPLATE)
@@ -451,7 +447,30 @@ class SystemVersion(models.Model):
         new_im = Image.new('RGBA', (im1.width, im1.height))
         new_im.paste(im1, (0, 0))
 
-        logo = Image.open(self.logo).convert("RGBA")
+        
+        # If there is no logo, then we will create an image of just the name
+        if not self.logo:
+            font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 128)
+            name = self.system.name
+            text_size = font.getsize(name)
+            if name.find(" ") != -1:
+                name = name.replace(" ", "\n")
+                # Compute dimension of each line
+                text_size = [0, 0]
+                for line in name.split("\n"):
+                    line_size = font.getsize(line)
+                    #print("'%s' -> %s" % (line, str(line_size)))
+                    text_size[0] = max(text_size[0], line_size[0])
+                    text_size[1] += line_size[1] + 5
+            #print("text_size =", text_size)
+            
+            logo = Image.new('RGBA', text_size)
+            text_draw = ImageDraw.Draw(logo)
+            text_draw.text((0, 0), name, font=font, fill=(70,70,70,255))
+            
+        else:
+            logo = Image.open(self.logo).convert("RGBA")
+        
         new_size = (0, 0)
         if logo.width > logo.height:
             ratio = (settings.TWITTER_CARD_MAX_WIDTH / float(logo.size[0]))
@@ -478,6 +497,7 @@ class SystemVersion(models.Model):
                   settings.TWITTER_CARD_MARGIN + (settings.TWITTER_CARD_MAX_HEIGHT - logo.height) // 2)
 
         new_im.paste(logo, offset, logo)
+        card_img = os.path.join(settings.TWITTER_CARD_ROOT, self.get_twitter_card_image())
         new_im.save(card_img)
         return card_img
     ## DEF

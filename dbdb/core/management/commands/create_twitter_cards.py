@@ -34,9 +34,6 @@ class Command(BaseCommand):
         
         for ver in versions:
             card_img = os.path.join(settings.TWITTER_CARD_ROOT, ver.get_twitter_card_image())
-            if not ver.logo:
-                self.stdout.write("SKIP: %s" % ver.system.name)
-            
             self.stdout.write("%s -> %s" % (ver.system.name, card_img))
             ver.create_twitter_card()
             
