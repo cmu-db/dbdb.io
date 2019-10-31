@@ -452,14 +452,25 @@ class SystemVersion(models.Model):
         new_im.paste(im1, (0, 0))
 
         logo = Image.open(self.logo).convert("RGBA")
+        new_size = (0, 0)
         if logo.width > logo.height:
-            wpercent = (settings.TWITTER_CARD_MAX_WIDTH / float(logo.size[0]))
-            hsize = int((float(logo.size[1]) * float(wpercent)))
-            logo = logo.resize((settings.TWITTER_CARD_MAX_WIDTH, hsize), Image.ANTIALIAS)
+            ratio = (settings.TWITTER_CARD_MAX_WIDTH / float(logo.size[0]))
+            new_size = (settings.TWITTER_CARD_MAX_WIDTH, int((float(logo.size[1]) * float(ratio))))
         else:
-            hpercent = (settings.TWITTER_CARD_MAX_HEIGHT / float(logo.size[1]))
-            wsize = int((float(logo.size[0]) * float(hpercent)))
-            logo = logo.resize((wsize, settings.TWITTER_CARD_MAX_HEIGHT), Image.ANTIALIAS)
+            ratio = (settings.TWITTER_CARD_MAX_HEIGHT / float(logo.size[1]))
+            new_size = (int((float(logo.size[0]) * float(ratio))), settings.TWITTER_CARD_MAX_HEIGHT)
+            
+        # Check if either the new width or height exceed the max dimensions
+        # We have to do this because the dimensions are not square
+        if new_size[0] > settings.TWITTER_CARD_MAX_WIDTH:
+            ratio = (settings.TWITTER_CARD_MAX_WIDTH / float(new_size[0]))
+            new_size = (settings.TWITTER_CARD_MAX_WIDTH, int((float(new_size[1]) * float(ratio))))
+        elif new_size[1] > settings.TWITTER_CARD_MAX_HEIGHT:
+            ratio = (settings.TWITTER_CARD_MAX_HEIGHT / float(new_size[1]))
+            new_size = (int((float(new_size[0]) * float(ratio))), settings.TWITTER_CARD_MAX_HEIGHT)
+
+        # Resize the mofo
+        logo = logo.resize(new_size, Image.ANTIALIAS)
 
         # Figure out the center of the white part of the card
         # Assume that the origin is (0,0). We will adjust by the base offset later
@@ -468,7 +479,6 @@ class SystemVersion(models.Model):
 
         new_im.paste(logo, offset, logo)
         new_im.save(card_img)
-        print(card_img)
         return card_img
     ## DEF
 
