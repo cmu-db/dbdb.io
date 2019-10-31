@@ -1,4 +1,5 @@
 # stdlib imports
+import os
 import uuid
 # django imports
 from django.conf import settings
@@ -207,7 +208,7 @@ class System(models.Model):
 
     def get_absolute_url(self):
         return reverse('system', args=[self.slug])
-
+    
     pass
 
 # ==============================================
@@ -430,6 +431,46 @@ class SystemVersion(models.Model):
             instance.system.save()
             pass
         return
+    
+    def twitter_card_url(self):
+        return settings.TWITTER_CARD_URL + self.get_twitter_card_image()
+    
+    def get_twitter_card_image(self):
+        return self.system.slug + ".png"
+    
+    def create_twitter_card(self):
+        from PIL import Image
+        
+        card_img = os.path.join(settings.TWITTER_CARD_ROOT, self.get_twitter_card_image())
+        if not self.logo:
+            return
+        
+        # Create a nicely formatted version of the logo for the twitter card
+        template = os.path.join(settings.BASE_DIR, "static", settings.TWITTER_CARD_TEMPLATE)
+        im1 = Image.open(template).convert("RGBA")
+        new_im = Image.new('RGBA', (im1.width, im1.height))
+        new_im.paste(im1, (0, 0))
+
+        logo = Image.open(self.logo).convert("RGBA")
+        if logo.width > logo.height:
+            wpercent = (settings.TWITTER_CARD_MAX_WIDTH / float(logo.size[0]))
+            hsize = int((float(logo.size[1]) * float(wpercent)))
+            logo = logo.resize((settings.TWITTER_CARD_MAX_WIDTH, hsize), Image.ANTIALIAS)
+        else:
+            hpercent = (settings.TWITTER_CARD_MAX_HEIGHT / float(logo.size[1]))
+            wsize = int((float(logo.size[0]) * float(hpercent)))
+            logo = logo.resize((wsize, settings.TWITTER_CARD_MAX_HEIGHT), Image.ANTIALIAS)
+
+        # Figure out the center of the white part of the card
+        # Assume that the origin is (0,0). We will adjust by the base offset later
+        offset = (settings.TWITTER_CARD_BASE_OFFSET_X + settings.TWITTER_CARD_MARGIN + (settings.TWITTER_CARD_MAX_WIDTH - logo.width) // 2, \
+                  settings.TWITTER_CARD_MARGIN + (settings.TWITTER_CARD_MAX_HEIGHT - logo.height) // 2)
+
+        new_im.paste(logo, offset, logo)
+        new_im.save(card_img)
+        print(card_img)
+        return card_img
+    ## DEF
 
     pass
 

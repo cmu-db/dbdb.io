@@ -582,6 +582,20 @@ class DatabaseBrowseView(View):
         if filter_option_ids:
             for option_id in filter_option_ids:
                 sqs = sqs.filter(feature_options__contains=option_id)
+                
+        for x in sqs:
+            #if x.source_url and x.source_url.find("github") != -1:
+            #if x.source_url: print(",".join([x.name, x.source_url]))
+            try:
+                sys = x.object
+                if sys.source_url: print(",".join([x.name, str(sys.start_year), sys.source_url]))
+                #else: print("SKIP:", x.name)
+            except:
+                #print("SKIP:", x)
+                pass
+            #print(dir(sys))
+            #break
+            #print()
 
         return (sqs, search_mapping)
 
@@ -1341,7 +1355,7 @@ class SitemapView(View):
 class SystemView(View):
 
     template_name = 'core/system.html'
-
+    
     def get(self, request, slug):
         # try to get system by slug
         try:
@@ -1409,7 +1423,7 @@ class SystemView(View):
                                 .order_by("-score")
                                 .select_related()
         ]
-
+        
         return render(request, self.template_name, {
             'activate': 'system', # NAV-LINKS
             'system': system,

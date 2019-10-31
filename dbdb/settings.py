@@ -1,5 +1,5 @@
 import environ # http://django-environ.readthedocs.io/
-
+import os
 
 root = environ.Path(__file__) - 2
 env = environ.Env(
@@ -170,6 +170,17 @@ STATICFILES_FINDERS = (
 )
 STATIC_ROOT = ''
 STATIC_URL = '/static/'
+
+# Custom Twitter Cards
+TWITTER_CARD_ROOT = os.path.join(MEDIA_ROOT, 'twitter')
+if not os.path.exists(TWITTER_CARD_ROOT): os.mkdir(TWITTER_CARD_ROOT)
+TWITTER_CARD_URL = MEDIA_URL + "twitter/"
+
+TWITTER_CARD_TEMPLATE = os.path.join(STATIC_ROOT, 'core/images/dbdb_io_card_template.png')
+TWITTER_CARD_BASE_OFFSET_X = 200
+TWITTER_CARD_MARGIN = 30
+TWITTER_CARD_MAX_WIDTH = 600 - TWITTER_CARD_MARGIN*2
+TWITTER_CARD_MAX_HEIGHT = 419 - TWITTER_CARD_MARGIN*2
 
 
 # Thumbnails
