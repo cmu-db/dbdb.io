@@ -2,6 +2,7 @@ language: python
 python:
   - "3.6"
 install:
+  - mkdir -p media/logos media/twitter
   - sudo apt-get install python3-sphinx
   - pip3 install Sphinx
   - ./install_xapian.sh 1.4.9
