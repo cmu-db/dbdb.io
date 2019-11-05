@@ -74,7 +74,7 @@
             
             {% for feature in system_features %}
             {% if feature.options.exists %}
-            <div class="card card-feature has-citations">
+            <div id="{{feature.feature.slug }}" class="card card-feature has-citations">
                 <div class="card-body">
                     <h4 class="card-title">
                         {{ feature.feature.label }}
