@@ -8,6 +8,12 @@
     font-size: 1.3em;
 }
 
+/* Feature Highlight */
+div:target {
+    background-color: #FFFFCC;
+    border: 3px solid #E74C3C;
+}
+
 div.card h2 a { font-size: 16px; }
 div.card h4 a { font-size: 16px; }
 
