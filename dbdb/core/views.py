@@ -127,23 +127,23 @@ class EmptyFieldsView(View):
             "features",
             "created",
         ])
-        
+
         version_fields = [ ]
         for f in SystemVersion._meta.get_fields():
             if f.name.endswith("_citations") and not include_citations:
                 continue
-            
+
             if not type(f) in IGNORE_TYPES and \
                not f.name in IGNORE_NAMES:
                 version_fields.append(f.name)
         ## FOR
-        
+
         meta_fields = [ ]
         for f in SystemVersionMetadata._meta.get_fields():
             if not type(f) in IGNORE_TYPES and \
                not f.name in IGNORE_NAMES:
                 meta_fields.append(f.name)
-        
+
         return (version_fields, meta_fields)
     ## DEF
 
@@ -163,7 +163,7 @@ class EmptyFieldsView(View):
         if search_field:
             query = None
             field = None
-            
+
             if search_field in version_fields:
                 field = SystemVersion._meta.get_field(search_field)
                 field_name = search_field
@@ -171,23 +171,23 @@ class EmptyFieldsView(View):
                     query = Q(**{search_field: None})
                 else:
                     query = Q(**{search_field: ''})
-            
+
             elif search_field in meta_fields:
                 field = SystemVersionMetadata._meta.get_field(search_field)
                 field_name = "meta__" + search_field
-                
+
                 if type(field) in (django.db.models.fields.PositiveIntegerField, django.db.models.fields.related.ManyToManyField):
                     query = Q(**{field_name: None})
                 else:
                     query = Q(**{field_name: ''})
             else:
                 raise Exception("Invalid field '%s'" % search_field)
-            
+
             if search_reverse:
                 versions = versions.filter(~query)
             else:
                 versions = versions.filter(query)
-                
+
             # convert query list to regular list
             # and add href/url to each
             versions = list( versions.order_by('system__name') )
@@ -227,10 +227,10 @@ class EmptyFieldsView(View):
 class DatabaseBrowseView(View):
 
     template_name = 'core/database-browse.html'
-    
+
     def build_filter_group_for_field(self, field, search_field, label, all_systems, querydict):
         empty_set = set()
-        
+
         values = SystemVersionMetadata.objects \
             .filter(systemversion__is_current=True) \
             .filter(~Q(**{field: None})) \
@@ -247,7 +247,6 @@ class DatabaseBrowseView(View):
             #for sys in System.objects.values_list('id','slug','name', named=True)
         ], key=lambda x: x[1]))
         return fg
-        
 
     def build_filter_groups(self, querydict):
         empty_set = set()
@@ -263,7 +262,7 @@ class DatabaseBrowseView(View):
             return mapping
 
         other_filtersgroups = []
-        
+
         # Countries
         def reduce_countries(mapping, item):
             countries = item.countries.split(',')
@@ -317,7 +316,7 @@ class DatabaseBrowseView(View):
             all_systems, \
             querydict
         ))
-        
+
         # Inspired
         other_filtersgroups.append(self.build_filter_group_for_field(\
             'inspired_by', \
@@ -426,18 +425,18 @@ class DatabaseBrowseView(View):
         )
 
         return pagination
-    
+
     def convert_slugs(self, slugs):
         full_systems = [ ]
         for slug in slugs:
             try:
                 full_systems.append(System.objects.get(slug=slug))
             except:
-                # Ignore any invalid slugs 
+                # Ignore any invalid slugs
                 pass
         return full_systems
     ## DEF
-        
+
 
     def do_search(self, request):
         has_search = False
@@ -538,7 +537,7 @@ class DatabaseBrowseView(View):
             sqs = sqs.filter(derived_from__in=search_derived)
             search_mapping['derived'] = self.convert_slugs(search_derived)
             pass
-        
+
         # search - embedded
         if search_embeds:
             sqs = sqs.filter(embedded__in=search_embeds)
@@ -582,20 +581,6 @@ class DatabaseBrowseView(View):
         if filter_option_ids:
             for option_id in filter_option_ids:
                 sqs = sqs.filter(feature_options__contains=option_id)
-                
-        for x in sqs:
-            #if x.source_url and x.source_url.find("github") != -1:
-            #if x.source_url: print(",".join([x.name, x.source_url]))
-            try:
-                sys = x.object
-                if sys.source_url: print(",".join([x.name, str(sys.start_year), sys.source_url]))
-                #else: print("SKIP:", x.name)
-            except:
-                #print("SKIP:", x)
-                pass
-            #print(dir(sys))
-            #break
-            #print()
 
         return (sqs, search_mapping)
 
@@ -720,7 +705,7 @@ class CounterView(View):
 
             if iss == 'counter:system':
                 pk = payload['pk']
-                
+
                 # Skip bots
                 user_agent = request.META.get('HTTP_USER_AGENT', '')
                 if user_agent.lower().find("bot") != -1:
@@ -733,17 +718,17 @@ class CounterView(View):
                     system.view_count += 1
                     system.save()
                 #pass
-                
+
                 # And add a SystemVisit entry
                 x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
                 if x_forwarded_for:
                     ip = x_forwarded_for.split(',')[-1].strip()
                 else:
                     ip = request.META.get('REMOTE_ADDR')
-                
+
                 system_visit = SystemVisit(system=system, ip_address=ip, user_agent=user_agent[:127])
                 system_visit.save()
-                
+
             else:
                 return JsonResponse({ 'status':('unrecognized counter: %r' % iss)}, status=400)
             pass
@@ -819,7 +804,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
 
     @never_cache
     def get(self, request, slug=None):
-                
+
         # If there is no slug, then they are trying to create a new database.
         # Only superusers are allowed to do that.
         if slug is None:
@@ -832,16 +817,16 @@ class DatabasesEditView(View, LoginRequiredMixin):
             system_meta = SystemVersionMetadata()
             system_features = SystemFeature.objects.none()
             pass
-        
+
         # If there is a slug, then check to see whether they have permission
         # to edit this mofo
         else:
             # You always have to be logged in to edit an entry
             if not request.user.is_authenticated:
                 return redirect( settings.LOGIN_URL + '?next=' + reverse('system', args=[slug]))
-            
+
             system = System.objects.get(slug=slug)
-            
+
             # Make sure this user has permissions to edit this page
             if not request.user.is_superuser:
                 try:
@@ -852,7 +837,7 @@ class DatabasesEditView(View, LoginRequiredMixin):
                     url = '{}?{}'.format(base_url, query_string)
                     return redirect(url)
             ## IF
-                    
+
             # Load in what we need
             system_version = SystemVersion.objects.get(system=system, is_current=True)
             system_meta = system_version.meta
@@ -1197,7 +1182,7 @@ class StatsView(View):
             .filter(is_current=True) \
             .values_list('system_id', 'countries', named=True)
         system_countries = reduce(reduce_countries, system_countries, {})
-        
+
         system_countries = [
             StatItem(k, v, k)
             for k,v in system_countries.items()
@@ -1213,35 +1198,26 @@ class StatsView(View):
         )
 
         return stat
-    
+
     def get_by_field(self, title, field, search_field, labels, slugs, is_systems, limit):
+
         def reduce_counts(mapping, item):
             assert not mapping is None
             if item is not None:
                 mapping[item] = mapping.get(item, 0) + 1
-        
+
         values = SystemVersionMetadata.objects \
             .filter(systemversion__is_current=True) \
             .filter(~Q(**{field: None})) \
             .values_list('systemversion__system_id', field, named=True)
-        #pprint(values)
-        
-        #if field == 'compatible_with':
-            ##all_systems = System.objects.values_list('id','slug','name', named=True)
-            #for v in set(values):
-                ##print(all_systems[v[0]].name, "=>", all_systems[v[1]].name)
-                #print(System.objects.get(id=v[0]).name, "=>", System.objects.get(id=v[1]).name)
-        
-        
+
         counts = { }
         for v in values:
-            #print(v[0])
             counts[v[1]] = counts.get(v[1], 0) + 1
         #counts = reduce(reduce_counts, values, { })
-        #pprint(counts)
-        
+
         stat_items = [ ]
-        
+
         if is_systems:
             stat_items = [
                 StatItem(System.objects.get(id=k), v, slugs[k])
@@ -1252,7 +1228,7 @@ class StatsView(View):
                 StatItem(labels[k], v, slugs[k])
                 for k,v in counts.items()
             ]
-            
+
         stat_items.sort(key=lambda i: i.value, reverse=True)
         stat = Stat(
             title,
@@ -1263,7 +1239,7 @@ class StatsView(View):
         )
 
         return stat
-        
+
 
     def get(self, request, stats_type=None):
         stats = []
@@ -1287,19 +1263,19 @@ class StatsView(View):
             labels = dict(all_values.values_list('id', 'name'))
             slugs = dict(all_values.values_list('id', 'slug'))
             stats.append( self.get_by_field('Programming Lang.', 'written_in', 'programming', labels, slugs, False, limit) )
-        
+
         all_values = System.objects.all()
         labels = dict(all_values.values_list('id', 'name'))
         slugs = dict(all_values.values_list('id', 'slug'))
-        
+
         # Compatibility
         if stats_type is None or stats_type == "compatible":
             stats.append( self.get_by_field('Compatibility', 'compatible_with', 'compatible', labels, slugs, True, self.default_limit) )
-        
+
         # Derived From
         if stats_type is None or stats_type == "derived":
             stats.append( self.get_by_field('Derived From', 'derived_from', 'derived', labels, slugs, True, self.default_limit) )
-        
+
         # Embeds
         if stats_type is None or stats_type == "embeds":
             stats.append( self.get_by_field('Embeds / Uses', 'embedded', 'embeds', labels, slugs, True, self.default_limit ) )
@@ -1322,7 +1298,7 @@ class SitemapView(View):
 
         root = etree.Element(SITEMAP_PREFIX+'urlset', nsmap=SITEMAP_NSMAP)
         tree = etree.ElementTree(root)
-        
+
         # Stats Page
         url = etree.SubElement(root, 'url')
         loc = etree.SubElement(url, 'loc')
@@ -1355,7 +1331,7 @@ class SitemapView(View):
 class SystemView(View):
 
     template_name = 'core/system.html'
-    
+
     def get(self, request, slug):
         # try to get system by slug
         try:
@@ -1388,7 +1364,7 @@ class SystemView(View):
                 except SystemACL.DoesNotExist:
                     pass
         ## IF
-        
+
         # Compatible Systems
         compatible = [
             ver.system for ver in SystemVersion.objects
@@ -1397,7 +1373,7 @@ class SystemView(View):
                                 .order_by("-logo")
                                 .select_related()
         ]
-        
+
         # Derived Systems
         derived = [
             ver.system for ver in SystemVersion.objects
@@ -1406,7 +1382,7 @@ class SystemView(View):
                                 .order_by("-logo")
                                 .select_related()
         ]
-        
+
         # Embedding Systems
         embeds = [
             ver.system for ver in SystemVersion.objects
@@ -1415,7 +1391,7 @@ class SystemView(View):
                                 .order_by("-logo")
                                 .select_related()
         ]
-        
+
         # Recommendations
         recommendations = [
             rec.recommendation for rec in SystemRecommendation.objects
@@ -1423,7 +1399,7 @@ class SystemView(View):
                                 .order_by("-score")
                                 .select_related()
         ]
-        
+
         return render(request, self.template_name, {
             'activate': 'system', # NAV-LINKS
             'system': system,
@@ -1441,7 +1417,7 @@ class SystemView(View):
 
 
 # ==============================================
-# System Name AutoComplete 
+# System Name AutoComplete
 # ==============================================
 def search_autocomplete(request):
     search_q = request.GET.get('q', '').strip()
@@ -1450,6 +1426,6 @@ def search_autocomplete(request):
         suggestions = [system.name for system in sqs]
     else:
         suggestions = [ ]
-        
+
     data = json.dumps(suggestions)
     return HttpResponse(data, content_type='application/json')
