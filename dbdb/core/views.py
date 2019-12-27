@@ -103,6 +103,34 @@ class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) 
 
     pass
 
+class SearchTag:
+
+    __slots__ = ['query','group_slug','group_name', 'tag_slug', 'tag_name']
+
+    def __init__(self, query, group_slug, group_name, tag_slug, tag_name):
+        self.query = query
+        self.group_slug = group_slug
+        self.group_name = group_name
+        self.tag_slug = tag_slug
+        self.tag_name = tag_name
+        return
+
+    def __repr__(self):
+        return repr( tuple( map(str, (self.group_slug, self.group_name, self.tag_slug, self.tag_name)) ) )
+
+    def get_removal_url(self):
+        query = []
+
+        for key,values in self.query.lists():
+            for value in values:
+                if key == self.group_slug and value == self.tag_slug:
+                    continue
+                query.append((key, value))
+
+        return '?' + urllib.parse.urlencode(query, doseq=False)
+
+    pass
+
 
 # class based views
 
@@ -274,14 +302,16 @@ class DatabaseBrowseView(View):
             .filter(is_current=True) \
             .values_list('countries', named=True)
         system_countries = reduce(reduce_countries, system_countries, {})
+
+        countries_map = dict(countries)
+
         fg_country = FilterGroup('country', 'Country', sorted([
             FilterChoice(
                code,
-               dict(countries)[code], # name,
+               countries_map[code], # name,
                code in querydict.getlist( 'country', empty_set )
             )
             for code in system_countries.keys()
-            #for code,name in list(countries)
         ], key=lambda x: x[1]))
         other_filtersgroups.append(fg_country)
 
@@ -426,20 +456,19 @@ class DatabaseBrowseView(View):
 
         return pagination
 
-    def convert_slugs(self, slugs):
-        full_systems = [ ]
-        for slug in slugs:
-            try:
-                full_systems.append(System.objects.get(slug=slug))
-            except:
-                # Ignore any invalid slugs
-                pass
-        return full_systems
+    def slug_to_system(self, slugs):
+        slugs = { s.strip() for s in slugs }
+
+        systems = System.objects.filter(slug__in=slugs)
+
+        return { s.slug : s for s in systems }
     ## DEF
 
 
     def do_search(self, request):
         has_search = False
+
+        countries_map = dict(countries)
 
         # map feature slugs to ids
         features_map = {
@@ -499,7 +528,9 @@ class DatabaseBrowseView(View):
         }
 
         if not any(search_mapping.values()) and not any(search_fg):
-            return (None, { })
+            return (None, { }, [])
+
+        search_tags = []
 
         # create new search query
         sqs = SearchQuerySet()
@@ -524,50 +555,67 @@ class DatabaseBrowseView(View):
         # search - compatible
         if search_compatible:
             sqs = sqs.filter(compatible_with__in=search_compatible)
-            search_mapping['compatible'] = self.convert_slugs(search_compatible)
+            systems = self.slug_to_system(search_compatible)
+            search_mapping['compatible'] = systems.values()
+            search_tags.extend( SearchTag(request.GET, 'compatible', 'Compatible With', k, v) for k,v in systems.items() )
             pass
 
         # search - country
         if search_country:
             sqs = sqs.filter(countries__in=search_country)
+            search_tags.extend( SearchTag(request.GET, 'country', 'Country', c, countries_map[c]) for c in search_country )
             pass
 
         # search - derived from
         if search_derived:
             sqs = sqs.filter(derived_from__in=search_derived)
-            search_mapping['derived'] = self.convert_slugs(search_derived)
+            systems = self.slug_to_system(search_derived)
+            search_mapping['derived'] = systems.values()
+            search_tags.extend( SearchTag(request.GET, 'derived', 'Derived From', k, v) for k,v in systems.items() )
             pass
 
         # search - embedded
         if search_embeds:
             sqs = sqs.filter(embedded__in=search_embeds)
-            search_mapping['embeds'] = self.convert_slugs(search_embeds)
+            systems = self.slug_to_system(search_embeds)
+            search_mapping['embeds'] = systems.values()
+            search_tags.extend( SearchTag(request.GET, 'embeds', 'Embeds / Uses', k, v) for k,v in systems.items() )
             pass
 
         # search - inspired by
         if search_inspired:
             sqs = sqs.filter(inspired_by__in=search_inspired)
-            search_mapping['inspired'] = self.convert_slugs(search_inspired)
+            systems = self.slug_to_system(search_inspired)
+            search_mapping['inspired'] = systems.values()
+            search_tags.extend( SearchTag(request.GET, 'inspired', 'Inspired By', k, v) for k,v in systems.items() )
             pass
 
         # search - operating systems
         if search_os:
             sqs = sqs.filter(oses__in=search_os)
+            oses = OperatingSystem.objects.filter(slug__in=search_os)
+            search_tags.extend( SearchTag(request.GET, 'os', 'Operating System', os.slug, os.name) for os in oses )
             pass
 
         # search - programming languages
         if search_programming:
             sqs = sqs.filter(written_langs__in=search_programming)
+            langs = ProgrammingLanguage.objects.filter(slug__in=search_programming)
+            search_tags.extend( SearchTag(request.GET, 'programming', 'Programming Languages', lang.slug, lang.name) for lang in langs )
             pass
 
         # search - project types
         if search_type:
             sqs = sqs.filter(project_types__in=search_type)
+            types = ProjectType.objects.filter(slug__in=search_type)
+            search_tags.extend( SearchTag(request.GET, 'type', 'Project Types', type.slug, type.name) for type in types )
             pass
 
         # search - licenses
         if search_license:
             sqs = sqs.filter(licenses__in=search_license)
+            licenses = License.objects.filter(slug__in=search_license)
+            search_tags.extend( SearchTag(request.GET, 'license', 'Licenses', license.slug, license.name) for license in licenses )
             pass
 
         # convert feature option slugs to IDs to do search by filtering
@@ -582,7 +630,14 @@ class DatabaseBrowseView(View):
             for option_id in filter_option_ids:
                 sqs = sqs.filter(feature_options__contains=option_id)
 
-        return (sqs, search_mapping)
+            search_tags.extend(
+                SearchTag(request.GET, *row)
+                for row in FeatureOption.objects.filter(id__in=filter_option_ids).values_list('feature__slug','feature__label','slug','value')
+            )
+
+        for st in search_tags:
+            print('-', st)
+        return (sqs, search_mapping, search_tags)
 
     def handle_old_urls(self, request):
         query = []
@@ -613,7 +668,7 @@ class DatabaseBrowseView(View):
 
         # Perform the search and get back the versions along with a
         # mapping with the search keys
-        results, search_keys = self.do_search(request)
+        results, search_keys, search_tags = self.do_search(request)
 
         search_q = request.GET.get('q', '').strip()
 
@@ -663,6 +718,7 @@ class DatabaseBrowseView(View):
             'years': years,
             'has_search': len(search_keys) != 0,
             'search': search_keys,
+            'tags': search_tags,
         })
 
     pass

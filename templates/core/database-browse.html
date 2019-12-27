@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 {% load staticfiles %}
 {% load countries %}
 {% load bootstrap4 %}
@@ -26,6 +27,10 @@ form.main-search > div.filters > div.filter-group-range.active > h3 span.years {
 form.main-search > div.filters > div.filter-group-range.changed > h3 button.btn-apply { display:inline; }
 form.main-search > div.filters > div.filter-group-range > div.range-container { padding:0 20px; }
 form.main-search > div.filters > div.filter-group-range > div.range-container .noUi-connect { background-color:#007bff; }
+
+div.search-tags { margin: 40px auto 40px auto; text-align:center; width: 80%; }
+div.search-tags a.badge { font-size:85%; line-height: 1.5; padding-right: .75em; padding-left: .75em; }
+div.search-tags a.badge em { font-weight: normal; }
 
 div.results { min-height: 60vh; padding:40px 40px 30px 40px; }
 div.results div.version { margin-bottom:20px; max-width:800px; }
@@ -110,6 +115,7 @@ div.results div.version p { margin:0; }
     </div>
 
     <div class="search-results">
+
         <div class="input-group input-group-lg">
             <input type="text" class="form-control" placeholder="Begin searching!" aria-label="Begin searching!" aria-describedby="search" id="mainsearch-q" name="q" value="{{ query }}">
             <span class="input-group-btn">
@@ -118,59 +124,25 @@ div.results div.version p { margin:0; }
         </div>
         
         {% if has_search %}
+        <div class="search-tags">
+            {% for st in tags %}
+            <a class="badge badge-pill badge-info" href="{{ st.get_removal_url }}">
+                <em>{{ st.group_name }}</em>:
+                <span>{{ st.tag_name }}</span>
+                <i class="fas fa-times-circle" style="padding-left:2px;"></i>
+            </a>
+            {% endfor %}
+        </div>
         <p class="results-info">
             {% if results %}
-            Found {{ results|length }} database{% if results|length > 1 %}s{% endif %}
+            Found {{ results|length|intcomma }} database{% if results|length > 1 %}s{% endif %}
             {% else %}
             No databases found
             {% endif %}
 
-            {% if search.country %}
-            <!-- country -->
-            {% for c in search.country %}
-                {% get_country c as country %}
-                for "{{ country.name }}"
-            {% endfor %}
-            <!-- /country -->
-            {% elif search.derived %}
-            <!-- derived -->
-            derived from 
-            {% if search.derived_system %}
-                <a href="{% url 'system' search.derived_system.slug %}">{{ search.derived_system.name }}</a>
-            {% else %}
-                [&nbsp;{% for derived_system in search.derived %}{% if forloop.first is False %}, {% endif %}<a href="{% url 'system' derived_system.slug %}">{{ derived_system.name }}</a>{% endfor %}&nbsp;]
-            {% endif %}
-            <!-- /derived -->
-            {% elif search.embeds %}
-            <!-- embedded -->
-            that use{% if results|length == 1 %}s{% endif %}
-            {% if search.embedded_system %}
-                <a href="{% url 'system' search.embedded_system.slug %}">{{ search.embeds_system.name }}</a>
-            {% else %}
-                [&nbsp;{% for embedded_system in search.embeds %}{% if forloop.first is False %}, {% endif %}<a href="{% url 'system' embedded_system.slug %}">{{ embedded_system.name }}</a>{% endfor %}&nbsp;]
-            {% endif %}
-            <!-- /embedded -->            
-            {% elif search.inspired %}
-            <!-- inspired -->
-            inspired by 
-            {% if search.inspired_system %}
-            <a href="{% url 'system' search.inspired_system.slug %}">{{ search.inspired_system.name }}</a>
-            {% else %}
-                [&nbsp;{% for inspired_system in search.inspired %}{% if forloop.first is False %}, {% endif %}<a href="{% url 'system' inspired_system.slug %}">{{ inspired_system.name }}</a>{% endfor %}&nbsp;]
-            {% endif %}
-            <!-- /inspired -->
-            {% elif search.compatible %}
-            <!-- compatible -->
-            compatible with 
-            {% if search.compatible_system %}
-            <a href="{% url 'system' search.compatible_system.slug %}">{{ search.compatible_system.name }}</a>
-            {% else %}
-                [&nbsp;{% for compat_system in search.compatible %}{% if forloop.first is False %}, {% endif %}<a href="{% url 'system' compat_system.slug %}">{{ compat_system.name }}</a>{% endfor %}&nbsp;]
-            {% endif %}
-            <!-- /compatible -->
-            {% elif search.query %}
+            {% if search.query %}
             <!-- query -->
-            for "{{ search.query }}"
+            for "<em>{{ search.query }}</em>"
             <!-- /query -->
             {% endif %}
         </p>
@@ -191,6 +163,7 @@ div.results div.version p { margin:0; }
             {% endfor %}
         </div>
         <!-- END: CARD-COLUMNS -->
+
     </div>
 
 </form>
