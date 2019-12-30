@@ -43,6 +43,10 @@ MIDDLEWARE = [
     'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
+if DEBUG:
+    MIDDLEWARE.remove('django.middleware.cache.UpdateCacheMiddleware')
+    MIDDLEWARE.remove('django.middleware.cache.FetchFromCacheMiddleware')
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
