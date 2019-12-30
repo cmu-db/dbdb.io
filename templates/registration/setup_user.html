@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+
+
+{% block css %}
+<style>
+form#setup { background-color:#fff; margin:0 auto; padding:40px 40px; max-width:500px; }
+form#setup h1 { font-size:2rem; margin-top:0; margin-bottom:1rem; text-align:center; }
+form#setup label { margin-bottom:0.2rem; }
+form#setup .form-group:last-child { margin-top:30px; margin-bottom:0px; }
+form#setup [for="captcha"] { display:none; }
+
+div.form-check-pane > div.pane {
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-top-left-radius: .25rem;
+    border-top-right-radius: .25rem;
+    height: 200px;
+    padding: .375rem .75rem;
+    overflow:auto;
+}
+div.form-check-pane > div.footer {
+    background-color: #ced4da;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-bottom-left-radius: .25rem;
+    border-bottom-right-radius: .25rem;
+    margin-bottom: 1rem;
+    padding: .25rem .75rem;
+}
+
+samp { background-color:#E9ECEF; display:block; border: 1px solid #ced4da;  border-radius: .25rem; margin-top: 2rem; overflow-x: scroll; padding: .375rem .75rem; }
+</style>
+{% endblock %}
+
+
+{% block content %}
+    <div class="jumbotron">
+        <div class="row justify-content-md-center">
+            <div class="col-md-6">
+                <form method="POST" id="setup">
+                    <h1>User Registration Setup</h1>
+
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="email">Email</label><input type="email" name="email" placeholder="Email" id="email" maxlength="254" class="form-control" required title="" />
+                    </div>
+
+                    <label>Systems</label>
+                    <div class="form-check-pane">
+                        <div class="pane">
+                            {% for system in systems %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="system" value="{{ system.id }}" id="system_{{ system.id }}">
+                                <label class="form-check-label" for="system_{{ system.id }}">
+                                    {{ system.name }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="footer">
+                            <span class="info">0 selected</span>
+                            <span style="float:right;">
+                                Select &nbsp;
+                                <a href="javascript:;" class="all">All</a>
+                                |
+                                <a href="javascript:;" class="none">None</a>
+                            </span>
+                        </div>
+                    </div>
+                    {% buttons %}
+                        <button class="btn btn-primary" type="submit">
+                            Generate URL
+                        </button>
+                    {% endbuttons %}
+
+                    <samp id="url" style="display:none;"></samp>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+"use strict";
+
+$(function(){
+
+    $('#email').change(function(){
+        if ( $('#url').is(':visible') ) $('#url').fadeOut('fast');
+    });
+
+    $('div.form-check-pane').each(function(){
+        var $div = $(this);
+        var $all = $div.find('a.all');
+        var $none = $div.find('a.none');
+        var $info = $div.find('span.info');
+        var $pane = $div.find('div.pane');
+
+        function update_count() {
+            var count = $pane.find('[type="checkbox"]').filter(':checked').length.toLocaleString();
+            $info.text( count + ' selected' );
+
+            if ( $('#url').is(':visible') ) $('#url').fadeOut('fast');
+        }
+
+        $pane.find('[type="checkbox"]').change(update_count);
+
+        $all.click(function(){
+            $pane.find('[type="checkbox"]').prop('checked', true);
+            update_count();
+        });
+
+        $none.click(function(){
+            $pane.find('[type="checkbox"]').prop('checked', false);
+            update_count();
+        });
+
+        update_count();
+    });
+
+    $('#setup').submit(function(e){
+        if (e) e.preventDefault();
+
+        var email = $('#email').val();
+        var systems = [];
+
+        $('[name="system"]').filter(':checked').each(function(){ systems.push( $(this).val() ); });
+
+        jQuery.ajax({
+            cache: false,
+            data: { action:'url' , email:email, systems:systems },
+            traditional: true,
+
+            success: function(response) {
+                if (response.error) {
+                    $('#url').text(response.error);
+                }
+                else {
+                    $('#url').text(response.url);
+                }
+
+                $('#url').fadeIn('fast');
+            }
+        })
+
+        return false;
+    });
+});
+
+</script>
+{% endblock %}

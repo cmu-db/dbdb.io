@@ -21,6 +21,12 @@ form#registration [for="captcha"] { display:none; }
                 <form method="POST" id="registration">
                     <h1>User Registration</h1>
 
+                    {% if expired_token %}
+                    <div class="alert alert-danger mb-0" role="alert">
+                        <p><strong>The registration link provided to you has expired.</strong></p>
+                        <p>Please request a new one.</p>
+                    </div>
+                    {% else %}
                     {% csrf_token %}
                     {% bootstrap_form form %}
                     {% buttons %}
@@ -34,6 +40,7 @@ form#registration [for="captcha"] { display:none; }
                             Cancel
                         </a>
                     {% endbuttons %}
+                    {% endif %}
                 </form>
             </div>
         </div>

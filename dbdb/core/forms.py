@@ -158,6 +158,24 @@ class CreateUserForm(forms.ModelForm):
         widget=InvisibleReCaptchaWidget
     )
 
+    def __init__(self, *args, **kwargs):
+        super(CreateUserForm, self).__init__(*args, **kwargs)
+
+        self.initial_email = None
+
+        initial = getattr(self, 'initial', None)
+        if initial and 'email' in initial and initial['email']:
+            self.initial_email = initial['email']
+            self.fields['email'].widget.attrs['readonly'] = True
+            pass
+
+        return
+
+    def clean_email(self):
+        if self.initial_email:
+            return self.initial_email
+        return self.cleaned_data['email']
+
     def clean_password2(self):
         if self.cleaned_data['password2'] == self.cleaned_data['password']:
             return self.cleaned_data['password2']
