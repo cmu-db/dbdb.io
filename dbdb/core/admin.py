@@ -38,12 +38,12 @@ class SystemAdmin(admin.ModelAdmin):
     list_display = ('name', 'created', 'modified', 'ver', 'view_count')
     list_filter = ['created', 'modified' ]
     search_fields = ('name', )
-    readonly_fields=('ver', 'view_count', 'created', 'modified' )
+    readonly_fields=('view_count', 'created', 'modified' )
 
 class SystemVersionAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
-    list_display = ('system', 'ver', 'created')
-    list_filter = ['created']
+    list_display = ('system', 'ver', 'creator', 'created')
+    list_filter = ['created', 'system']
     readonly_fields=('ver', )
     
 class SystemACLAdmin(admin.ModelAdmin):
