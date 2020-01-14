@@ -17,6 +17,7 @@ class Command(BaseCommand):
     
     def add_arguments(self, parser):
         parser.add_argument('--system', type=str)
+        parser.add_argument('--missing', action='store_true')
         return
 
     def handle(self, *args, **options):
@@ -34,8 +35,9 @@ class Command(BaseCommand):
         
         for ver in versions:
             card_img = os.path.join(settings.TWITTER_CARD_ROOT, ver.get_twitter_card_image())
-            self.stdout.write("%s -> %s" % (ver.system.name, card_img))
+            if options['missing'] and os.path.exists(card_img): continue
             ver.create_twitter_card()
+            self.stdout.write("%s -> %s" % (ver.system.name, card_img))
             
         # FOR
         return
