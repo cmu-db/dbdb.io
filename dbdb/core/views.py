@@ -37,6 +37,7 @@ from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 from lxml import etree
 import jwt
+import pytz
 # project imports
 from dbdb.core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm, \
     SystemVersionEditForm
@@ -782,12 +783,12 @@ class CounterView(View):
                     return JsonResponse({ 'status':'bot' })
 
                 ## Update the system's counter
-                system = None
-                with transaction.atomic():
-                    system = System.objects.select_for_update().get(pk=pk)
-                    system.view_count += 1
-                    system.save()
-                #pass
+                # system = None
+                # with transaction.atomic():
+                    # system = System.objects.select_for_update().get(pk=pk)
+                    # system.view_count += 1
+                    # system.save()
+                    # pass
 
                 # And add a SystemVisit entry
                 x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -796,14 +797,18 @@ class CounterView(View):
                 else:
                     ip = request.META.get('REMOTE_ADDR')
 
-                system_visit = SystemVisit(system=system, ip_address=ip, user_agent=user_agent[:127])
-                system_visit.save()
-
+                # save visit
+                system_visit = SystemVisit.objects.create(
+                    system_id=pk,
+                    ip_address=ip,
+                    user_agent=user_agent[:127]
+                )
+                pass
             else:
-                return JsonResponse({ 'status':('unrecognized counter: %r' % iss)}, status=400)
+                return JsonResponse({ 'status':('unrecognized counter: %r' % iss) }, status=400)
             pass
         except jwt.ExpiredSignatureError:
-            return JsonResponse({ 'status':'expired counter'}, status=400)
+            return JsonResponse({ 'status':'expired counter' }, status=400)
 
         return JsonResponse({ 'status':'ok' })
 
@@ -1063,7 +1068,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
                 logo = system.current().logo
                 pass
 
-            system.systemversion_set.update(is_current=False)
+            system.versions.update(is_current=False)
             db_version = system_version_form.save(commit=False)
             db_version.creator = request.user
             db_version.system = system
@@ -1198,7 +1203,7 @@ class DatabaseRevisionList(View):
 
         system = System.objects.get(slug=slug)
         version = SystemVersion.objects.get(id=request.POST['ver'])
-        system.systemversion_set.update(is_current=False)
+        system.versions.update(is_current=False)
         version.is_current = True
         system.ver = version.ver
         system.modified = timezone.now()
@@ -1279,25 +1284,45 @@ class RecentChangesView(View):
 # ==============================================
 class HomeView(View):
 
+    ITEMS_TO_SHOW = 5
+
     template_name = 'core/home.html'
 
     def get(self, request):
-        items_to_show = 5
+        # calculate date window
+        start_date = timezone.now().astimezone(pytz.utc) - datetime.timedelta(days=30) # rolling 30 days
+        start_date = datetime.datetime.combine(start_date.date(), datetime.time(0, 0, 0))
+        start_date = pytz.utc.localize(start_date)
 
+        # get top systems by modified date
+        most_recent = System.objects \
+            .order_by('-modified')
+        most_recent = most_recent[:HomeView.ITEMS_TO_SHOW]
+
+        # get top systems by number of (windowed) versions
+        most_versions = System.objects \
+            .annotate(num_versions=Count('versions__id', filter=Q(versions__created__gte=start_date))) \
+            .order_by('-num_versions', 'name') \
+            .filter(num_versions__gt=0)
+        most_versions = most_versions[:HomeView.ITEMS_TO_SHOW]
+
+        # get top systems by number of (windowed) visits
+        most_visits = System.objects \
+            .annotate(num_visits=Count('visits__id', filter=Q(visits__created__gte=start_date))) \
+            .order_by('-num_visits', 'name') \
+            .filter(num_visits__gt=0)
+        most_visits = most_visits[:HomeView.ITEMS_TO_SHOW]
+
+        # count numb systems
         num_systems = System.objects.all().count()
 
-
-        most_edited = System.objects.order_by('-ver', '-name')[:items_to_show]
-        most_recent = System.objects.order_by('-modified')[:items_to_show]
-        most_views = System.objects.order_by('-view_count')[:items_to_show]
-
-        return render(request, self.template_name, context={
-            'num_systems': num_systems,
-            'most_edited': most_edited,
+        return render(request, self.template_name, {
             'most_recent': most_recent,
-            'most_views': most_views,
+            'most_versions': most_versions,
+            'most_visits': most_visits,
 
             'no_nav_search': True,
+            'num_systems': num_systems,
         })
 
     pass

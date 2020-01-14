@@ -204,7 +204,7 @@ class System(models.Model):
         if self.id is None:
             return SystemVersion(system=self)
 
-        return self.systemversion_set.get(is_current=True)
+        return self.versions.get(is_current=True)
 
     def get_absolute_url(self):
         return reverse('system', args=[self.slug])
@@ -271,7 +271,7 @@ class SystemRedirect(models.Model):
 # SystemVisit
 # ==============================================
 class SystemVisit(models.Model):
-    system = models.ForeignKey('System', models.CASCADE, related_name='counter')
+    system = models.ForeignKey('System', models.CASCADE, related_name='visits')
     ip_address = models.GenericIPAddressField(null=False)
     user_agent = models.CharField(max_length=128, blank=True, null=False)
     created = models.DateTimeField(default=timezone.now)
@@ -308,7 +308,7 @@ class SystemRecommendation(models.Model):
 class SystemVersion(models.Model):
 
     # Internal Version Meta-data
-    system = models.ForeignKey('System', models.CASCADE)
+    system = models.ForeignKey('System', models.CASCADE, related_name='versions')
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT)
     meta = models.ForeignKey('SystemVersionMetadata', models.SET_NULL, blank=True, null=True)
     ver = models.PositiveIntegerField('Version No.', default=1)

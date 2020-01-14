@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 {% load staticfiles %}
 {% load thumbnail %}
 
@@ -10,7 +11,7 @@
     <div class="row justify-content-md-center homepage-header">
         <div class="col col-md-12 col-sm-12 text-center">
             <h1 class="display-3">Database of Databases</h1>
-            <p class="lead">Discover and learn about <b>{{ num_systems }}</b> database management systems</p>
+            <p class="lead">Discover and learn about <b>{{ num_systems|intcomma }}</b> database management systems</p>
             <form id="mainsearch" action="{% url 'browse' %}" method="GET" >
                 <div class="form-group">
                     <input autofocus type="text" name="q" class="form-control form-control-lg" aria-describedby="Search field" placeholder="Search" style="max-width:700px;margin:0 auto;">
@@ -40,7 +41,7 @@
             <h3>Most Viewed</h3>
             <table class="table table-hover">
                 <tbody>
-                {% for item in most_views %}
+                {% for item in most_visits %}
                     {% include 'core/home-listitem.html' %}
                 {% endfor %}
                 </tbody>
@@ -50,7 +51,7 @@
             <h3>Most Edited</h3>
             <table class="table table-hover">
                 <tbody>
-                {% for item in most_edited %}
+                {% for item in most_versions %}
                     {% include 'core/home-listitem.html' %}
                 {% endfor %}
                 </tbody>
