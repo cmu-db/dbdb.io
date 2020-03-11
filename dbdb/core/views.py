@@ -521,6 +521,7 @@ class DatabaseBrowseView(View):
         search_programming = request.GET.getlist('programming')
         search_type = request.GET.getlist('type')
         search_license = request.GET.getlist('license')
+        search_suffix = request.GET.getlist('suffix')
 
         # collect filters
         search_mapping = {
@@ -540,6 +541,7 @@ class DatabaseBrowseView(View):
             'programming': search_programming,
             'type': search_type,
             'license': search_license,
+            'suffix': search_suffix,
         }
 
         if not any(search_mapping.values()) and not any(search_fg):
@@ -632,6 +634,18 @@ class DatabaseBrowseView(View):
             licenses = License.objects.filter(slug__in=search_license)
             search_tags.extend( SearchTag(request.GET, 'license', 'Licenses', license.slug, license.name) for license in licenses )
             pass
+        
+        # search - suffixes
+        if search_suffix:
+            # HACK Xapian doesn't supports 'endswith', so we'll do it the old fashioned way
+            #systems = System.objects.filter(reduce(lambda x, y: x | y, [Q(name__endswith=suffix) for suffix in search_suffix]))
+            #for system in systems:
+                #print(system.name)
+                #sqs = sqs.filter(name__regex=system.name)
+            for suffix in search_suffix:
+                sqs = sqs.filter(lowercase_name__contains=suffix)
+            search_tags.extend(SearchTag(request.GET, 'suffix', 'Suffix', 'suffix', suffix) for suffix in search_suffix)
+            pass
 
         # convert feature option slugs to IDs to do search by filtering
         filter_option_ids = set()
@@ -650,8 +664,8 @@ class DatabaseBrowseView(View):
                 for row in FeatureOption.objects.filter(id__in=filter_option_ids).values_list('feature__slug','feature__label','slug','value')
             )
 
-        for st in search_tags:
-            print('-', st)
+        #for st in search_tags:
+            #print('-', st)
         return (sqs, search_mapping, search_tags)
 
     def handle_old_urls(self, request):
