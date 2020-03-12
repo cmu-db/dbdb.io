@@ -128,6 +128,7 @@ class SearchTag:
         query = []
 
         for key,values in self.query.lists():
+            print(key, values)
             for value in values:
                 if key == self.group_slug and value == self.tag_slug:
                     continue
@@ -637,14 +638,9 @@ class DatabaseBrowseView(View):
         
         # search - suffixes
         if search_suffix:
-            # HACK Xapian doesn't supports 'endswith', so we'll do it the old fashioned way
-            #systems = System.objects.filter(reduce(lambda x, y: x | y, [Q(name__endswith=suffix) for suffix in search_suffix]))
-            #for system in systems:
-                #print(system.name)
-                #sqs = sqs.filter(name__regex=system.name)
             for suffix in search_suffix:
                 sqs = sqs.filter(lowercase_name__contains=suffix)
-            search_tags.extend(SearchTag(request.GET, 'suffix', 'Suffix', 'suffix', suffix) for suffix in search_suffix)
+            search_tags.extend(SearchTag(request.GET, 'suffix', 'Suffix', suffix, suffix) for suffix in search_suffix)
             pass
 
         # convert feature option slugs to IDs to do search by filtering
