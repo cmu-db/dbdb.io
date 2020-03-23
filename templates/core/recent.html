@@ -51,17 +51,16 @@ Recent Changes
     
         <div class="text-center pagination">
             <span class="step-links">
-                {% if versions.has_previous %}<a href="?page=1{% if user %}&username={{ user }}{% endif %}">{% endif %}&laquo; first{% if versions.has_previous %}</a>{% endif %}
-                {% if versions.has_previous %}<a href="?page={{ versions.previous_page_number }}{% if user %}&username={{ user }}{% endif %}">{% endif %}previous{% if versions.has_previous %}</a>{% endif %}
+                {% if versions.has_previous %}<a href="?page=1{% if lookup_user %}&username={{ lookup_user }}{% endif %}">{% endif %}&laquo; first{% if versions.has_previous %}</a>{% endif %}
+                {% if versions.has_previous %}<a href="?page={{ versions.previous_page_number }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}">{% endif %}previous{% if versions.has_previous %}</a>{% endif %}
 
                 <span class="current">
                     &bullet;
                     Page {{ versions.number }} of {{ versions.paginator.num_pages }}
                     &bullet;
                 </span>
-
-                {% if versions.has_next %}<a href="?page={{ versions.next_page_number }}{% if user %}&username={{ user }}{% endif %}">{% endif %}next{% if versions.has_next %}</a>{% endif %}
-                {% if versions.has_next %}<a href="?page={{ versions.paginator.num_pages }}{% if user %}&username={{ user }}{% endif %}">{% endif %}last &raquo;{% if versions.has_next %}</a>{% endif %}
+                {% if versions.has_next %}<a href="?page={{ versions.next_page_number }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}">{% endif %}next{% if versions.has_next %}</a>{% endif %}
+                {% if versions.has_next %}<a href="?page={{ versions.paginator.num_pages }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}">{% endif %}last &raquo;{% if versions.has_next %}</a>{% endif %}
             </span>
         </div>
     </div>
