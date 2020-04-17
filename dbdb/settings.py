@@ -95,14 +95,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # CACHE
+
 CACHES = {
     'default': {
-        #'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        #'LOCATION': 'dbdb_io_cache',
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
-
 
 
 # Haystack
@@ -152,7 +150,18 @@ MEDIA_URL = '/media/'
 # Rest Framework
 
 REST_FRAMEWORK = {
+    # https://www.django-rest-framework.org/api-guide/pagination/
     'DEFAULT_PAGINATION_CLASS': 'dbdb.api.pagination.StandardPagination',
+
+    # https://www.django-rest-framework.org/api-guide/throttling/
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '4/second',
+        'user': '4/second'
+    }
 }
 
 
