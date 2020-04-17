@@ -5,5 +5,5 @@ from django.conf.urls import url
 
 
 urlpatterns = [
-    path('v202004/', include('dbdb.api.api_v202004.urls')),
+    path('v202004/', include('dbdb.api.v202004.urls')),
 ]

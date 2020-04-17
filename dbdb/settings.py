@@ -28,7 +28,7 @@ INSTALLED_APPS = [
     'rest_framework', # djangorestframework
 
     'dbdb.core',
-    'dbdb.api.api_v202004',
+    'dbdb.api.v202004',
 ]
 
 MIDDLEWARE = [
@@ -82,23 +82,17 @@ DATABASES = {
     'default': env.db( default='sqlite:///{}'.format( root.path('data/db.sqlite3') ) )
 }
 
+
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    { 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator' },
+    { 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator' },
+    { 'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator' },
+    { 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator' },
 ]
+
 
 # CACHE
 CACHES = {
@@ -132,10 +126,6 @@ HAYSTACK_CONNECTIONS = {
         'PATH': root.path('data/xapian')(),
         'FLAGS': HAYSTACK_XAPIAN_FLAGS,
     },
-    # 'default': {
-        # 'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        # 'PATH': root.path('data/whoosh')(),
-    # },
 }
 
 
@@ -209,8 +199,10 @@ THUMBNAIL_ALIASES = {
     },
 }
 
+
 # Django Countries
 COUNTRIES_FIRST = ['US']
+
 
 # Django Invisible reCaptcha
 NORECAPTCHA_SITE_KEY = '6Lfo8VwUAAAAAEHNqeL01PSkiRul7ImQ8Bsw8Nqc'
