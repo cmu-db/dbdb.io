@@ -14,7 +14,7 @@ def populate(apps, schema_editor):
         fo.slug = slugify( fo.value )
 
         pair = ( fo.feature_id , fo.slug )
-        
+
         if pair in pairs:
             fo.delete()
         else:

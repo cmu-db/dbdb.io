@@ -633,7 +633,7 @@ class DatabaseBrowseView(View):
             licenses = License.objects.filter(slug__in=search_license)
             search_tags.extend( SearchTag(request.GET, 'license', 'Licenses', license.slug, license.name) for license in licenses )
             pass
-        
+
         # search - suffixes
         if search_suffix:
             for suffix in search_suffix:

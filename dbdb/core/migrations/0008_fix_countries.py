@@ -6,7 +6,7 @@ from django.db import migrations
 def fix(apps, schema_editor):
     from django_countries.fields import Country
     SystemVersion = apps.get_model('core', 'SystemVersion')
-    
+
     for sv in SystemVersion.objects.all():
         if not isinstance(sv.countries, list): continue
         if len( sv.countries ) == 0: continue

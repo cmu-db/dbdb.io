@@ -49,7 +49,7 @@ class TagFieldM2M(MultipleChoiceField):
             cit_url, _ = CitationUrl.objects.get_or_create(url=url)
             url_objs.append(cit_url)
         return url_objs
-    
+
     pass
 
 
@@ -132,13 +132,13 @@ class SystemFeaturesForm(forms.Form):
                 initial=initial_cit,
                 required=False
             )
-            
+
             self.fields[feature.label+'_choices'].feature_id = feature.id
             self.fields[feature.label+'_description'].feature_id = feature.id
             self.fields[feature.label+'_citation'].feature_id = feature.id
             pass
         return
-        
+
     pass
 
 
@@ -191,11 +191,11 @@ class SystemForm(forms.ModelForm):
 
     # This is only shown to non-superusers
     orig_name = forms.CharField(max_length=128, label="Name", disabled=True, required=False)
-    
+
     class Meta:
         model = System
         fields = ['name','orig_name']
-    
+
     pass
 
 class SystemVersionEditForm(forms.ModelForm):
@@ -220,7 +220,7 @@ class SystemVersionEditForm(forms.ModelForm):
         help_text="Separate the urls with commas",
         required=False
     )
-    
+
     class Meta:
         model = SystemVersion
         fields = [
@@ -245,7 +245,7 @@ class SystemVersionEditForm(forms.ModelForm):
             'former_names',
             'comment'
         ]
-    
+
     pass
 
 class SystemVersionForm(forms.ModelForm):

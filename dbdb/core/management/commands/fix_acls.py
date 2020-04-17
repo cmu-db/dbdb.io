@@ -15,7 +15,7 @@ class Command(BaseCommand):
         User = get_user_model()
         for user in User.objects.all():
             if user.username == "developer" or user.is_superuser: continue
-            
+
             systems = set()
             # Find what systems this user has editted
             for ver in SystemVersion.objects.filter(creator=user):

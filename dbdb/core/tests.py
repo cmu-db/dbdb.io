@@ -75,19 +75,19 @@ class SearchTestCase(BaseTestCase):
         #response = self.client.get(reverse('search'))
         #self.assertRedirects(response, reverse('home'))
         #return
-        
+
     def test_haystack_contents(self):
         """Make sure we are setting up haystack correctly."""
         sqs = SearchQuerySet()
         num_results = len(sqs)
         self.assertEquals(num_results, 2)
-        
+
         expected = ["SQLite", "XXX"]
         for i in range(num_results):
             res = sqs[i]
             self.assertTrue(res.name in expected)
         return
-    
+
     def test_search_no_parameters(self):
         query = {'q': 'sql'}
         response = self.client.get(reverse('browse'))
@@ -132,14 +132,14 @@ class AutoCompleteTestCase(BaseTestCase):
             #pprint(response.json())
             self.assertContains(response, 'SQLite', html=False)
         return
-    
+
     def test_autocom_invalid_parameters(self):
         query = {'q': "YYY"}
         response = self.client.get(reverse('search_autocomplete'), data=query)
         #pprint(response.json())
         self.assertEquals(len(response.json()), 0)
         return
-    
+
     def test_autocom_no_parameters(self):
         response = self.client.get(reverse('search_autocomplete'))
         self.assertEquals(len(response.json()), 0)
@@ -163,44 +163,44 @@ class SystemViewTestCase(BaseTestCase):
         system = System.objects.get(name=target)
         orig_count = system.view_count
         orig_visits = SystemVisit.objects.filter(system=system).count()
-        
+
         data = {"token": CounterView.build_token('system', pk=system.id)}
         response = self.client.post(reverse('counter'), data)
         result = response.json();
         self.assertTrue("status" in result)
         self.assertEquals(result["status"], "ok")
-        
+
         # Make sure count increased by one
         system = System.objects.get(name=target)
         new_count = system.view_count
         self.assertEquals(new_count, orig_count+1)
-        
+
         # Check that we got added a SystemVisit
         new_visits = SystemVisit.objects.filter(system=system).count()
         self.assertEquals(new_visits, orig_visits+1)
-        
+
         return
-    
+
     def test_bot_block(self):
         target = "SQLite"
         system = System.objects.get(name=target)
         orig_count = system.view_count
-        
+
         c = Client(HTTP_USER_AGENT='(KHTML, like Gecko; compatible; Googlebot/2.1)')
-        
+
         data = {"token": CounterView.build_token('system', pk=system.id)}
         response = c.post(reverse('counter'), data)
         result = response.json();
         self.assertTrue("status" in result)
         self.assertEquals(result["status"], "bot")
-        
+
         # Make sure count is the same
         system = System.objects.get(name=target)
         new_count = system.view_count
         self.assertEquals(new_count, orig_count)
         return
-        
-    
+
+
     pass
 
 # ==============================================

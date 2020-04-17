@@ -36,10 +36,10 @@ class Command(BaseCommand):
 
             for i,item in enumerate(sqs):
                 print( '% 2d)' % (i+1), item.name )
-            
+
             if not sqs:
                 print( ' NO RESULTS' )
-            
+
             print()
             pass
         return

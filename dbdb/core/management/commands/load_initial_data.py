@@ -26,7 +26,7 @@ class Command(BaseCommand):
 
     help = '''Creates a fixture based on the files on initial_data folder
     This should be run only for a newly created system deployment and if there's no better database dump to apply.
-    
+
     Please be sure you have a databasees.csv file in initial_data folder along with spring2017 and spring2016
     '''
 
@@ -39,7 +39,7 @@ class Command(BaseCommand):
         path_csv = os.path.join(settings.BASE_DIR, 'data', 'initial_data', 'databases.csv')
         path_sp2016 = os.path.join(settings.BASE_DIR, 'data', 'initial_data', 'spring2016')
         path_sp2017 = os.path.join(settings.BASE_DIR, 'data', 'initial_data', 'spring2017')
-        
+
         with transaction.atomic():
             # create initial account
             User = get_user_model()

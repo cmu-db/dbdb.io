@@ -45,12 +45,12 @@ class SystemVersionAdmin(admin.ModelAdmin):
     list_display = ('system', 'ver', 'creator', 'created')
     list_filter = ['created', 'system']
     readonly_fields=('ver', )
-    
+
 class SystemACLAdmin(admin.ModelAdmin):
     list_display = ('system', 'user', 'created', 'modified')
     list_filter = ['created']
     readonly_fields=('created', 'modified')
-    
+
 class SystemRecommendationAdmin(admin.ModelAdmin):
     list_display = ('system', 'recommendation', 'score', 'created')
     list_filter = ['created', 'system']
