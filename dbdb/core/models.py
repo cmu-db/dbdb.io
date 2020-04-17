@@ -459,10 +459,8 @@ class SystemVersion(models.Model):
                 text_size = [0, 0]
                 for line in name.split("\n"):
                     line_size = font.getsize(line)
-                    #print("'%s' -> %s" % (line, str(line_size)))
                     text_size[0] = max(text_size[0], line_size[0])
                     text_size[1] += line_size[1] + 5
-            #print("text_size =", text_size)
             
             logo = Image.new('RGBA', text_size)
             text_draw = ImageDraw.Draw(logo)

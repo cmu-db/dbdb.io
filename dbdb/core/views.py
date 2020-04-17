@@ -1,6 +1,5 @@
 # stdlib imports
 from functools import reduce
-from pprint import pprint
 import collections
 import datetime
 import json
@@ -128,7 +127,6 @@ class SearchTag:
         query = []
 
         for key,values in self.query.lists():
-            print(key, values)
             for value in values:
                 if key == self.group_slug and value == self.tag_slug:
                     continue
@@ -660,8 +658,6 @@ class DatabaseBrowseView(View):
                 for row in FeatureOption.objects.filter(id__in=filter_option_ids).values_list('feature__slug','feature__label','slug','value')
             )
 
-        #for st in search_tags:
-            #print('-', st)
         return (sqs, search_mapping, search_tags)
 
     def handle_old_urls(self, request):
