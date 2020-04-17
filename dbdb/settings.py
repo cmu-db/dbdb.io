@@ -21,13 +21,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    #'autoslug',
     'bootstrap4',
-    'easy_thumbnails',
     'django_countries',
+    'easy_thumbnails',
     'haystack', # django-haystack
+    'rest_framework', # djangorestframework
 
-    'dbdb.core'
+    'dbdb.core',
+    'dbdb.api.api_v202004',
 ]
 
 MIDDLEWARE = [
@@ -156,6 +157,14 @@ FIXTURE_DIRS = [
 
 MEDIA_ROOT = root.path('media')()
 MEDIA_URL = '/media/'
+
+
+# Rest Framework
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'dbdb.api.pagination.StandardPagination',
+}
+
 
 # Security
 

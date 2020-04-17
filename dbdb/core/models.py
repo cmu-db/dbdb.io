@@ -208,6 +208,17 @@ class System(models.Model):
 
     def get_absolute_url(self):
         return reverse('system', args=[self.slug])
+
+    def get_current(self):
+        if not hasattr(self, '_current'):
+            if self.id is None:
+                self._current = SystemVersion(system=self)
+            else:
+                print('get version', self.slug)
+                self._current = self.versions.get(is_current=True)
+            pass
+
+        return self._current
     
     pass
 
