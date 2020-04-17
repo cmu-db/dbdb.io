@@ -788,14 +788,6 @@ class CounterView(View):
                 if user_agent.lower().find("bot") != -1:
                     return JsonResponse({ 'status':'bot' })
 
-                ## Update the system's counter
-                # system = None
-                # with transaction.atomic():
-                    # system = System.objects.select_for_update().get(pk=pk)
-                    # system.view_count += 1
-                    # system.save()
-                    # pass
-
                 # And add a SystemVisit entry
                 x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
                 if x_forwarded_for:

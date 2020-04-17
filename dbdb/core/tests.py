@@ -1,22 +1,25 @@
+# stdlib imports
+from pprint import pprint
+import tempfile
 # django imports
-from django.test import TestCase, Client, override_settings
 from django.contrib.auth import get_user
-from django.urls import reverse
 from django.core import management
+from django.test import Client
+from django.test import TestCase
+from django.test import override_settings
+from django.urls import reverse
 # third-party imports
+from haystack.query import SearchQuerySet
 from pyquery import PyQuery as pq
-import xapian
 import environ
 import haystack
-from haystack.query import SearchQuerySet
+import xapian
 # local imports
+from .models import Feature
 from .models import System
 from .models import SystemVisit
-from .models import Feature
 from .views import CounterView
 
-import tempfile
-from pprint import pprint
 
 # ==============================================
 # HAYSTACK CONFIG
@@ -71,11 +74,6 @@ class SearchTestCase(BaseTestCase):
         'core_system.json'
     ]
 
-    #def test_can_access_search_page(self):
-        #response = self.client.get(reverse('search'))
-        #self.assertRedirects(response, reverse('home'))
-        #return
-
     def test_haystack_contents(self):
         """Make sure we are setting up haystack correctly."""
         sqs = SearchQuerySet()
@@ -97,16 +95,16 @@ class SearchTestCase(BaseTestCase):
     def test_search_valid_parameters(self):
         query = {'q': 'sql'}
         response = self.client.get(reverse('browse'), data=query)
-        #print(response.content)
-        self.assertContains(response, 'Found 1 database for \"sql\"', html=True)
-        self.assertContains(response, 'SQLite', html=True)
-        # self.assertContains(response, '<p class="card-text">Nice description</p>', html=True)
+
+        self.assertContains(response, 'Found 1 database', html=False)
+        self.assertContains(response, 'SQLite', html=False)
         return
 
     def test_search_invalid_parameters(self):
         query = {'q': 'dock'}
         response = self.client.get(reverse('browse'), data=query)
-        self.assertContains(response, 'No databases found for \"dock\"', html=True)
+
+        self.assertContains(response, 'No databases found', html=False)
         return
 
     pass
@@ -160,8 +158,8 @@ class SystemViewTestCase(BaseTestCase):
 
     def test_counter(self):
         target = "SQLite"
+
         system = System.objects.get(name=target)
-        orig_count = system.view_count
         orig_visits = SystemVisit.objects.filter(system=system).count()
 
         data = {"token": CounterView.build_token('system', pk=system.id)}
@@ -169,11 +167,6 @@ class SystemViewTestCase(BaseTestCase):
         result = response.json();
         self.assertTrue("status" in result)
         self.assertEquals(result["status"], "ok")
-
-        # Make sure count increased by one
-        system = System.objects.get(name=target)
-        new_count = system.view_count
-        self.assertEquals(new_count, orig_count+1)
 
         # Check that we got added a SystemVisit
         new_visits = SystemVisit.objects.filter(system=system).count()
@@ -301,7 +294,7 @@ class CreateDatabaseTestCase(BaseTestCase):
 
     def test_cant_access_not_authenticated(self):
         response = self.client.get(reverse('create_database'))
-        self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.status_code, 302)
         return
 
     def test_cant_access_not_superuser(self):
