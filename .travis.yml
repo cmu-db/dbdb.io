@@ -6,7 +6,7 @@ install:
   - mkdir -p media/logos
   - mkdir -p media/twitter
   - pip3 install -U pip setuptools wheel
-  - ./install_xapian.sh 1.4.16
+  - ./bin/install_xapian.sh 1.4.16
   - pip3 install -r requirements.txt
   - pip3 install -r requirements-test.txt
 before_script:
