@@ -1,3 +1,2 @@
-django-debug-toolbar==1.8django-debug-toolbar==1.8
-django-extensions==1.9.6
+django-debug-toolbar==1.8
 django-extensions==1.9.6
