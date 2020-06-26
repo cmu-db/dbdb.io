@@ -26,7 +26,7 @@ from sklearn.metrics import mean_squared_error
 
 
 class Command(BaseCommand):
-    
+
     def add_arguments(self, parser):
         parser.add_argument('--max-threshold', type=int, default=99999,
                             help="Max visit count threshold per user")
@@ -43,30 +43,30 @@ class Command(BaseCommand):
         parser.add_argument('--show-missing', action='store_true',
                             help="Show which systems are missing recommendations")
         return
-    
+
     def show_missing(self, options):
         systems = System.objects \
                     .filter(recommendation_to__isnull=True) \
                     .distinct() \
                     .order_by("name")
-        
+
         self.stdout.write("No Recommendations [%d]" % systems.count())
         for system in systems:
             num_visits = SystemVisit.objects.filter(system=system)
             if options['ignore']:
                 num_visits = num_visits.filter(~Q(ip_address__in=options['ignore']))
             self.stdout.write(" + %s [num_visits=%d]" % (system.name, num_visits.count()))
-        
+
         return
-        
-    
+
+
     def handle(self, *args, **options):
-        
+
         if options['show_missing']:
             self.show_missing(options)
             return
         # IF
-        
+
         # Get the list of all unique IPs
         ip_addresses = [ ]
         with connection.cursor() as cursor:
@@ -77,32 +77,32 @@ class Command(BaseCommand):
             if options['ignore']:
                 sql += "WHERE ip_address NOT IN %s "
                 sql_args.append(options['ignore'])
-            
+
             sql += "GROUP BY ip_address, user_agent HAVING cnt BETWEEN %s AND %s"
             sql_args.append(options['min_threshold'])
             sql_args.append(options['max_threshold'])
-            
+
             self.stdout.write(sql)
             self.stdout.write(str(sql_args))
-            
+
             cursor.execute(sql, tuple(sql_args))
             ip_addresses = set([ (row[0],row[1]) for row in cursor.fetchall() ])
         # WITH
-        
+
         # Get the # of visits per system
         visits_per_system = { }
         with connection.cursor() as cursor:
             sql = "SELECT system_id, count(*) AS cnt FROM core_systemvisit "
             sql_args = [ ]
-            
+
             # Remove ignored IPs
             if options['ignore']:
                 sql += "WHERE ip_address NOT IN %s "
                 sql_args.append(options['ignore'])
-            
+
             sql += "GROUP BY system_id HAVING cnt > %s"
             sql_args.append(str(options['min_visit']))
-            
+
             cursor.execute(sql, tuple(sql_args))
             visits_per_system = dict([ (row[0],int(row[1])) for row in cursor.fetchall() ])
         # WITH
@@ -121,11 +121,11 @@ class Command(BaseCommand):
             systems = list()
             #systems = set()
             visits = SystemVisit.objects.filter(ip_address=ip, user_agent=ua)
-            
+
             for v in visits:
                 # Skip anything that did not have enough total visits
                 if not v.system.id in visits_per_system: continue
-                
+
                 if not v.system.id in system_idx_xref:
                     system_idx_xref[v.system.id] = next_system_idx
                     idx_system_xref[next_system_idx] = v.system.id
@@ -134,7 +134,7 @@ class Command(BaseCommand):
                     systems.add(system_idx_xref[v.system.id])
                 else:
                     systems.append(system_idx_xref[v.system.id])
-                    
+
             # Skip any user that visits only systems not above our threshold
             # Otherwise we will have all zeros for the systems and this will
             # break numpy when we split our training set
@@ -148,14 +148,14 @@ class Command(BaseCommand):
         assert len(visits_per_system) == len(idx_system_xref)
         system_cnt = System.objects.all().count()
         #sys.exit(1)
-        
+
         #for user_idx in sorted(all_visits.keys(), key=lambda x: -1*len(all_visits[x]))[:10]:
             #self.stdout.write(user_info[user_idx], "=>", len(all_visits[user_idx]))
         #sys.exit(1)
-        
+
         self.stdout.write("# of Users: %d" % next_user_idx)
         self.stdout.write("# of Sytems: %d (total=%d)" % (next_system_idx, system_cnt))
-        
+
         data = np.zeros((next_user_idx, next_system_idx))
         for user_idx in all_visits.keys():
             for system_idx in all_visits[user_idx]:
@@ -167,41 +167,41 @@ class Command(BaseCommand):
         self.stdout.write('Sparsity: {:4.2f}%'.format(sparsity))
 
         train_data, test_data = self.train_test_split(data)
-        
+
         similarity = self.compute_similarity(train_data)
         self.stdout.write(str(similarity[:4, :4]))
         pred = data.dot(similarity) / np.array([np.abs(similarity).sum(axis=1)])
-        
+
         self.stdout.write('MSE: ' + str(self.get_mse(pred, test_data)))
 
         #self.stdout.write("# of IPs: %s" % len(ip_addresses))
-        
+
         output = { }
         for system_idx in range(0, next_system_idx):
             recommendations = self.top_k_systems(similarity, system_idx, 5)
             system = System.objects.get(id=idx_system_xref[system_idx])
-            
+
             before_recs = SystemRecommendation.objects.filter(system=system)
             before_output = [ "*BEFORE*" ]
             for rec in before_recs:
                 before_output.append("+ %s [%f]" % (rec.recommendation, rec.score))
-                
+
             if options['clear']: before_recs.delete()
-            
+
             new_output = [ "*AFTER*" ]
             for i in range(1, len(recommendations)):
                 score = similarity[system_idx, recommendations[i]]
                 other_sys = System.objects.get(id=idx_system_xref[recommendations[i]])
-                
+
                 if system == other_sys: continue
 
                 if options['store']:
                     rec = SystemRecommendation(system=system, recommendation=other_sys, score=score)
                     rec.save()
-                    
+
                 new_output.append("+ %s [%f]" % (other_sys, score))
             ## FOR
-            
+
             output_buffer = str(system) + "\n"
             for i in range(0, max(len(before_output), len(new_output))):
                 right = ""
@@ -212,29 +212,29 @@ class Command(BaseCommand):
             ## FOR
             output[system.name] = output_buffer
         ## FOR
-        
+
         # Print them sorted by name
         for sys_name in sorted (output.keys()):
             print(output[sys_name])
 
         return
-    
+
     def top_k_systems(self, similarity, system_idx, k=6):
         #assert system_idx in mapper
         return [x for x in np.argsort(similarity[system_idx,:])[:-k-1:-1]]
-    
+
     def train_test_split(self, data):
         test = np.zeros(data.shape)
         train = data.copy()
         for user_idx in range(data.shape[0]):
-            test_data = np.random.choice(data[user_idx, :].nonzero()[0], 
-                                            size=10, 
+            test_data = np.random.choice(data[user_idx, :].nonzero()[0],
+                                            size=10,
                                             replace=True)
             train[user_idx, test_data] = 0.
             test[user_idx, test_data] = data[user_idx, test_data]
-            
+
         # Test and training are truly disjoint
-        assert(np.all((train * test) == 0)) 
+        assert(np.all((train * test) == 0))
         return train, test
 
     def compute_similarity(self, data, epsilon=1e-9):
@@ -242,13 +242,13 @@ class Command(BaseCommand):
         sim = data.T.dot(data) + epsilon
         norms = np.array([np.sqrt(np.diagonal(sim))])
         return (sim / norms / norms.T)
-    
+
     def get_mse(self, pred, actual):
         # Ignore nonzero terms.
         pred = pred[actual.nonzero()].flatten()
         actual = actual[actual.nonzero()].flatten()
         return mean_squared_error(pred, actual)
 
-    
+
 
     pass

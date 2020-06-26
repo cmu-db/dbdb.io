@@ -21,4 +21,6 @@ dbdb_io/settings.py
 media
 .env
 static-live
+
+data/db.sqlite3.*
 data/xapian

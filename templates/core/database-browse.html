@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load humanize %}
-{% load staticfiles %}
+{% load static %}
 {% load countries %}
 {% load bootstrap4 %}
 
@@ -100,7 +100,7 @@ div.results div.version p { margin:0; }
                 {% for choice in filtergroup.choices %}
                 <li {% if choice.is_hidden %}class="more"{% endif %}><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" {% if choice.checked %}checked="checked"{% endif %}> {{ choice.label }}</label></li>
                 {% endfor %}
-                
+
                 {% if filtergroup.has_more %}
                 <li class="see-more">
                     <a href="javascript:;">Show more</a>
@@ -122,7 +122,7 @@ div.results div.version p { margin:0; }
                 <button class="btn btn-default" type="submit" id="search">Search</button>
             </span>
         </div>
-        
+
         {% if has_search %}
         <div class="search-tags">
             {% for st in tags %}
@@ -155,7 +155,7 @@ div.results div.version p { margin:0; }
             </div>
         </nav>
         {% endif %}
-        
+
         <!-- RESULTS -->
         <div class="card-columns">
             {% for result in results %}
@@ -191,7 +191,7 @@ div.results div.version p { margin:0; }
             </div>
         </div>
         <!-- END: modal-body -->
-        
+
         <div class="modal-footer">
             <button type="button" class="btn btn-link" data-dismiss="modal">Cancel</button>
             <button type="button" class="btn btn-primary" onclick="apply_refinements()">Apply</button>
@@ -272,7 +272,7 @@ function YearRange(selector) {
         self.update(values, 0);
         self.update(values, 1);
     };
-    
+
     self.disable = function disable() {
         $elem.removeClass('active');
         $range.hide();
@@ -325,13 +325,13 @@ function apply_refinements() {
     $('#filter_modal').modal('hide');
 
     var $refinements = $('#refinements');
-    
+
     $refinements.empty();
 
     $(':checked', '#filter_modal').each(function(){
         var $this = $(this);
         var $that = $('<input type="hidden" />');
-        
+
         $refinements.append($that);
         $that.attr('name', $this.attr('name'));
         $that.val( $this.val() );

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load bootstrap4 %}
-{% load staticfiles %}
+{% load static %}
 
 
 {% block title %}
@@ -25,19 +25,19 @@ Edit {{ system_name }}
         <div class="col-md-10">
             <section id="content">
                 <h1>Edit Database System</h1>
-                
+
                 {% bootstrap_form_errors system_form type='non_fields' %}
                 {% bootstrap_form_errors system_version_form type='non_fields' %}
 
                 {% bootstrap_form system_form %}
-                
+
                 <div class="row">
                     <div class="col-lg-12">
                         {% bootstrap_field system_version_form.logo %}
                     </div>
                 </div>
 
-                
+
                 <div class="row">
                     <div class="col-lg-6">
                         {% bootstrap_field system_version_form.url %}
@@ -60,16 +60,16 @@ Edit {{ system_name }}
                             </div>
 
                         </div>
-                        
+
                         {% bootstrap_field system_version_form.start_year_citations %}
                         {% bootstrap_field system_version_form.end_year_citations %}
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 {% bootstrap_field system_version_form.former_names %}
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 {% bootstrap_field system_version_form.acquired_by %}
@@ -79,12 +79,12 @@ Edit {{ system_name }}
                                 {% bootstrap_field system_version_form.acquired_by_citations %}
                             </div>
                         </div>
-                        
+
                         {% bootstrap_field system_version_form.countries %}
                     </div>
 
                 </div>
-                
+
                 <div class="row">
 
                     <div class="col-lg-6">
@@ -98,7 +98,7 @@ Edit {{ system_name }}
                     </div>
 
                 </div>
-                
+
                 <div class="row">
 
                     <div class="col-md-3">
@@ -120,7 +120,7 @@ Edit {{ system_name }}
                 </div>
 
                 <div class="row">
-                
+
 <!--                    <div class="col-md-9">
                         {% bootstrap_field system_version_metadata_form.publications form_group_class="form-group multi-select" %}
                     </div>-->
@@ -128,21 +128,21 @@ Edit {{ system_name }}
                     <div class="col-md-3">
                         {% bootstrap_field system_version_metadata_form.derived_from form_group_class="form-group multi-select" %}
                     </div>
-                    
+
                     <div class="col-md-3">
                         {% bootstrap_field system_version_metadata_form.embedded form_group_class="form-group multi-select" %}
                     </div>
-                    
+
                     <div class="col-md-3">
                         {% bootstrap_field system_version_metadata_form.inspired_by form_group_class="form-group multi-select" %}
                     </div>
-                    
+
                     <div class="col-md-3">
                         {% bootstrap_field system_version_metadata_form.compatible_with form_group_class="form-group multi-select" %}
                     </div>
 
                 </div>
-            
+
                 <h2>Features</h2>
 
                 <div id="features">
@@ -177,9 +177,9 @@ Edit {{ system_name }}
                     <button type="submit" class="btn btn-primary" name="action" value="save">Save</button>
                     <button type="submit" class="btn btn-default" name="action" value="cancel">Cancel</button>
                 </div>
-                
+
                 <hr />
-                
+
                 <div class="form-group">
                     <label for="id_comment">Revision Comment</label>
                     <textarea name="comment" required rows="4" class="form-control" placeholder="Comment" title="This field support Markdown Syntax" id="id_comment"></textarea>

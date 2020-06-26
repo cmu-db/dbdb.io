@@ -14,7 +14,7 @@ from dbdb.core.models import SystemVersionMetadata
 from dbdb.core.views import EmptyFieldsView
 
 class Command(BaseCommand):
-    
+
     def add_arguments(self, parser):
         parser.add_argument('--system', type=str)
         parser.add_argument('--missing', action='store_true')
@@ -23,22 +23,22 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         template = os.path.join(settings.BASE_DIR, "static", settings.TWITTER_CARD_TEMPLATE)
         assert os.path.exists(template), "Missing: " + template
-        
+
         versions = SystemVersion.objects.filter(is_current=True)
         if options['system']:
             keyword = options['system']
-            
+
             if keyword.isdigit():
                 versions = versions.filter(system__id=int(keyword))
             else:
                 versions = versions.filter(system__name__icontains=keyword)
-        
+
         for ver in versions:
             card_img = os.path.join(settings.TWITTER_CARD_ROOT, ver.get_twitter_card_image())
             if options['missing'] and os.path.exists(card_img): continue
             ver.create_twitter_card()
             self.stdout.write("%s -> %s" % (ver.system.name, card_img))
-            
+
         # FOR
         return
 

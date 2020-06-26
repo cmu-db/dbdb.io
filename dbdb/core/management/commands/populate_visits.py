@@ -60,29 +60,29 @@ SYS_REGEX = re.compile('/db/([\w\d\-]+)')
 
 
 class Command(BaseCommand):
-    
+
     def add_arguments(self, parser):
         parser.add_argument('log_dir', type=str)
         return
 
     def handle(self, *args, **options):
-        
+
         log_dir = options['log_dir']
         assert os.path.exists(log_dir)
-        
+
         for x in glob.glob(os.path.join(log_dir, "*.gz")):
             self.stdout.write(x)
             with gzip.open(x, 'r') as fd:
                 for line in fd:
                     if not line: continue
                     line = line.decode("utf-8")
-                
+
                     m = APACHE_REGEX.match(line)
                     if not m:
                         self.stdout.write(line)
                         continue
                         #sys.exit(1)
-                    
+
                     # We only care about the counter page
                     if m.groups()[2].find("/counter") == -1: continue
 
@@ -97,37 +97,37 @@ class Command(BaseCommand):
 
                     # IP ADDRESS
                     ip = m.groups()[0]
-                    
+
                     # TIMESTAMP
                     t = m.groups()[1]
                     timestamp = dateutil.parser.parse(t[:11] + " " + t[12:])
-                    
+
                     # USER AGENT
                     ua = m.groups()[-1][:127]
                     #self.stdout.write(ua)
-                    
+
                     # SYSTEM
                     sys_m = SYS_REGEX.search(m.groups()[5])
                     if not sys_m: continue
-                    
+
                     keyword = sys_m.groups()[0].strip().lower()
                     orig_keyword = keyword
-                    
-                    if keyword in SLUGS_TO_IGNORE: 
+
+                    if keyword in SLUGS_TO_IGNORE:
                         # self.stdout.write("Ignored Slug: " + keyword)
                         continue
-                    
+
                     if keyword in MANUAL_FIXES:
                         keyword = MANUAL_FIXES[keyword]
                     if keyword not in ["sybase-iq", "google-f1"]:
                         for prefix in ["amazon", "apache", "sybase", "google"]:
                             keyword = keyword.replace(prefix+"-", "")
-                    
+
                     try:
                         system = System.objects.get(slug=keyword)
                     except:
                         # Check the slug and former name
-                        try:       
+                        try:
                             vers = SystemVersion.objects.filter( \
                                 Q(former_names__icontains=keyword)
                             #| Q(former_names__icontains=keyword)
@@ -143,7 +143,7 @@ class Command(BaseCommand):
                         self.stdout.write("Bad Slug: %s (orig=%s)" % (keyword, orig_keyword))
                         sys.exit(1)
                         #self.stdout.write("MISSING: slug = " + keyword)
-                    
+
                     if system is None: continue
                         #raise
 

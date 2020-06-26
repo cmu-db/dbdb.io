@@ -2,17 +2,14 @@ language: python
 python:
   - "3.6"
 install:
-  - mkdir -p media/logos media/twitter
-  - sudo apt-get install python3-sphinx
-  - pip3 install Sphinx
-  - ./install_xapian.sh 1.4.9
-  - pip install git+https://github.com/notanumber/xapian-haystack.git
   - mkdir -p data/xapian
+  - mkdir -p media/logos
+  - mkdir -p media/twitter
+  - pip3 install -U pip setuptools wheel
+  - ./bin/install_xapian.sh 1.4.16
   - pip3 install -r requirements.txt
   - pip3 install -r requirements-test.txt
 before_script:
   - python manage.py migrate
-
 script:
   - python manage.py test
-  

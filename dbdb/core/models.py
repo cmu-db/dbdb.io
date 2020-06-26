@@ -208,7 +208,7 @@ class System(models.Model):
 
     def get_absolute_url(self):
         return reverse('system', args=[self.slug])
-    
+
     pass
 
 # ==============================================
@@ -223,10 +223,10 @@ class SystemACL(models.Model):
     class Meta:
         unique_together = ('system', 'user')
         verbose_name = "Permission"
-        
+
     def __str__(self):
         return "(%s, %s)" % (self.system.name, self.user.username)
-    
+
     pass
 
 # ==============================================
@@ -275,7 +275,7 @@ class SystemVisit(models.Model):
     ip_address = models.GenericIPAddressField(null=False)
     user_agent = models.CharField(max_length=128, blank=True, null=False)
     created = models.DateTimeField(default=timezone.now)
-    
+
     def __str__(self):
         return "(%s, %s, %s)" % (self.system.name, self.ip_address, str(self.created))
 
@@ -292,7 +292,7 @@ class SystemRecommendation(models.Model):
     recommendation = models.ForeignKey('System', models.CASCADE, related_name='recommendation_from')
     score = models.FloatField(blank=True, null=True)
     created = models.DateTimeField(default=timezone.now)
-    
+
     def __str__(self):
         return "(%s, %s)" % (self.system.name, self.recommendation.name)
 
@@ -431,23 +431,23 @@ class SystemVersion(models.Model):
             instance.system.save()
             pass
         return
-    
+
     def twitter_card_url(self):
         return settings.TWITTER_CARD_URL + self.get_twitter_card_image()
-    
+
     def get_twitter_card_image(self):
         return self.system.slug + ".png"
-    
+
     def create_twitter_card(self):
         from PIL import Image, ImageDraw, ImageFont
-        
+
         # Create a nicely formatted version of the logo for the twitter card
         template = os.path.join(settings.BASE_DIR, "static", settings.TWITTER_CARD_TEMPLATE)
         im1 = Image.open(template).convert("RGBA")
         new_im = Image.new('RGBA', (im1.width, im1.height))
         new_im.paste(im1, (0, 0))
 
-        
+
         # If there is no logo, then we will create an image of just the name
         if not self.logo:
             font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 128)
@@ -459,18 +459,16 @@ class SystemVersion(models.Model):
                 text_size = [0, 0]
                 for line in name.split("\n"):
                     line_size = font.getsize(line)
-                    #print("'%s' -> %s" % (line, str(line_size)))
                     text_size[0] = max(text_size[0], line_size[0])
                     text_size[1] += line_size[1] + 5
-            #print("text_size =", text_size)
-            
+
             logo = Image.new('RGBA', text_size)
             text_draw = ImageDraw.Draw(logo)
             text_draw.text((0, 0), name, font=font, fill=(70,70,70,255))
-            
+
         else:
             logo = Image.open(self.logo).convert("RGBA")
-        
+
         new_size = (0, 0)
         if logo.width > logo.height:
             ratio = (settings.TWITTER_CARD_MAX_WIDTH / float(logo.size[0]))
@@ -478,7 +476,7 @@ class SystemVersion(models.Model):
         else:
             ratio = (settings.TWITTER_CARD_MAX_HEIGHT / float(logo.size[1]))
             new_size = (int((float(logo.size[0]) * float(ratio))), settings.TWITTER_CARD_MAX_HEIGHT)
-            
+
         # Check if either the new width or height exceed the max dimensions
         # We have to do this because the dimensions are not square
         if new_size[0] > settings.TWITTER_CARD_MAX_WIDTH:
@@ -561,7 +559,7 @@ class SystemVersionMetadata(models.Model):
 
     def derived_from_str(self):
         return ', '.join([str(l) for l in self.derived_from.all()])
-    
+
     def embedded_str(self):
         return ', '.join([str(l) for l in self.embedded.all()])
 

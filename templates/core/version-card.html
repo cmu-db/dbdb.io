@@ -1,4 +1,4 @@
-{% load staticfiles %}
+{% load static %}
 {% load thumbnail %}
 {% with logo=result.logo|thumbnail_url:'search' %}
 <a class="card-title" href="{% url 'system' result.slug %}">
