@@ -28,12 +28,7 @@
     <meta property="og:description" content="The on-line encyclopedia of databases systems from Carnegie Mellon University." />
     <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'core/images/dbdb_io_twitter.png' %}" />
     <meta name="twitter:title" content="Database of Databases" />
-    {% if num_systems %}
-    <meta name="twitter:description" content="Encyclopedia of {{ num_systems }} databases systems from Carnegie Mellon University. Curated by @andy_pavlo" />
-    {% else %}
-    <meta name="twitter:description" content="Encyclopedia of databases systems from Carnegie Mellon University. Curated by @andy_pavlo" />
-    {% endif %}
-    
+    <meta name="twitter:description" content="Encyclopedia of {% if num_systems %}{{ num_systems }} {% endif %}databases systems from Carnegie Mellon University. Curated by @andy_pavlo" />
     <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'core/images/dbdb_io_twitter.png' %}" />
     {% endblock %}
 
