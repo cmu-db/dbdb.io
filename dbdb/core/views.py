@@ -1,6 +1,5 @@
 # stdlib imports
 from functools import reduce
-from pprint import pprint
 import collections
 import datetime
 import json
@@ -634,7 +633,7 @@ class DatabaseBrowseView(View):
             licenses = License.objects.filter(slug__in=search_license)
             search_tags.extend( SearchTag(request.GET, 'license', 'Licenses', license.slug, license.name) for license in licenses )
             pass
-        
+
         # search - suffixes
         if search_suffix:
             for suffix in search_suffix:
@@ -788,14 +787,6 @@ class CounterView(View):
                 user_agent = request.META.get('HTTP_USER_AGENT', '')
                 if user_agent.lower().find("bot") != -1:
                     return JsonResponse({ 'status':'bot' })
-
-                ## Update the system's counter
-                # system = None
-                # with transaction.atomic():
-                    # system = System.objects.select_for_update().get(pk=pk)
-                    # system.view_count += 1
-                    # system.save()
-                    # pass
 
                 # And add a SystemVisit entry
                 x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')

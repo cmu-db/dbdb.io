@@ -10,6 +10,7 @@ env.read_env(env_file=root('.env')) # reading .env file
 BASE_DIR = root()
 DEBUG = env('DEBUG') # False if not in os.environ
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -20,7 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     'bootstrap4',
     'django_countries',
     'easy_thumbnails',

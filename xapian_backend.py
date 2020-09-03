@@ -20,14 +20,16 @@ from haystack.inputs import AutoQuery
 from haystack.models import SearchResult
 from haystack.utils import get_identifier, get_model_ct
 
+
 NGRAM_MIN_LENGTH = 2
 NGRAM_MAX_LENGTH = 15
+
 
 try:
     import xapian
 except ImportError:
-    raise MissingDependency("The 'xapian' backend requires the installation of 'Xapian'. "
-                            "Please refer to the documentation.")
+    raise MissingDependency("The 'xapian' backend requires the installation of 'Xapian'. ")
+
 
 if sys.version_info[0] == 2:
     DirectoryExistsException = OSError

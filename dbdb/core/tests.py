@@ -1,19 +1,23 @@
+# stdlib imports
+from pprint import pprint
 import tempfile
 # django imports
-from django.test import TestCase, override_settings
 from django.contrib.auth import get_user
-from django.urls import reverse
 from django.core import management
+from django.test import Client
+from django.test import TestCase
+from django.test import override_settings
+from django.urls import reverse
 # third-party imports
+from haystack.query import SearchQuerySet
 from pyquery import PyQuery as pq
-import xapian
 import environ
 import haystack
-from haystack.query import SearchQuerySet
+import xapian
 # local imports
+from .models import Feature
 from .models import System
 from .models import SystemVisit
-from .models import Feature
 from .views import CounterView
 
 
@@ -70,11 +74,6 @@ class SearchTestCase(BaseTestCase):
         'core_system.json'
     ]
 
-    #def test_can_access_search_page(self):
-        #response = self.client.get(reverse('search'))
-        #self.assertRedirects(response, reverse('home'))
-        #return
-
     def test_haystack_contents(self):
         """Make sure we are setting up haystack correctly."""
         sqs = SearchQuerySet()
@@ -98,13 +97,13 @@ class SearchTestCase(BaseTestCase):
         response = self.client.get(reverse('browse'), data=query)
 
         self.assertContains(response, 'Found 1 database', html=False)
-        self.assertContains(response, 'SQLite', html=True)
-        # self.assertContains(response, '<p class="card-text">Nice description</p>', html=True)
+        self.assertContains(response, 'SQLite', html=False)
         return
 
     def test_search_invalid_parameters(self):
         query = {'q': 'dock'}
         response = self.client.get(reverse('browse'), data=query)
+
         self.assertContains(response, 'No databases found', html=False)
         return
 
@@ -143,6 +142,7 @@ class AutoCompleteTestCase(BaseTestCase):
         response = self.client.get(reverse('search_autocomplete'))
         self.assertEquals(len(response.json()), 0)
         return
+
     pass
 
 # ==============================================
@@ -159,6 +159,7 @@ class SystemViewTestCase(BaseTestCase):
 
     def test_counter(self):
         target = "SQLite"
+
         system = System.objects.get(name=target)
 
         orig_visits = SystemVisit.objects.filter(system=system).count()
@@ -172,7 +173,25 @@ class SystemViewTestCase(BaseTestCase):
         # Check that we got added a SystemVisit
         new_visits = SystemVisit.objects.filter(system=system).count()
         self.assertEquals(new_visits, orig_visits+1)
+        return
 
+    def test_bot_block(self):
+        target = "SQLite"
+        system = System.objects.get(name=target)
+        orig_count = system.view_count
+
+        c = Client(HTTP_USER_AGENT='(KHTML, like Gecko; compatible; Googlebot/2.1)')
+
+        data = {"token": CounterView.build_token('system', pk=system.id)}
+        response = c.post(reverse('counter'), data)
+        result = response.json();
+        self.assertTrue("status" in result)
+        self.assertEquals(result["status"], "bot")
+
+        # Make sure count is the same
+        system = System.objects.get(name=target)
+        new_count = system.view_count
+        self.assertEquals(new_count, orig_count)
         return
 
     pass
@@ -366,6 +385,7 @@ class HomeTestCase(BaseTestCase):
         )
         self.client.logout()
         return
+
     pass
 
 # ==============================================
@@ -403,6 +423,5 @@ class LoginTestCase(BaseTestCase):
             'Please enter a correct username and password. Note that both fields may be case-sensitive.'
         )
         return
+
     pass
-
-

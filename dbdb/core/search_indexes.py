@@ -71,7 +71,7 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
         )
 
         return values
-    
+
     def prepare_embedded(self, obj):
         if obj.meta_id is None:
             return []
@@ -156,7 +156,7 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_lowercase_name(self, obj):
         return obj.system.name.lower().strip()
-    
+
     def prepare_autocomplete_name(self, obj):
         return obj.system.name.strip()
 

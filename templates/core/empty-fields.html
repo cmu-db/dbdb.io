@@ -18,14 +18,14 @@ Field Checker
                     <option value="{{ f }}" {% if f == field %}selected{% endif %}>{{ f }}</option>
                     {% endfor %}
                 </select>
-                
+
                 <label for="formReverse">Reverse:</label>
                 <input id="formReverse" type="checkbox" name="reverse" value="1" {% if reverse %}checked{% endif %}/>
-                
+
                 <input type="submit" value="Submit">
             </form>
         </div>
-        
+
         {% if field %}
         <div class="row border-top mt-4 pt-4">
             <h2>Matches: {{ versions|length}} / {{ num_systems }} [{{ match_percent }}%]</h2>

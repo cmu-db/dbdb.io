@@ -24,23 +24,23 @@ class Command(BaseCommand):
         meta_fields = set(meta_fields) - set([
             "systemversion",
         ])
-        
-        
+
+
         for ver in SystemVersion.objects.filter(is_current=True):
             print(ver)
             score = 0
-            
+
             for field in sorted(version_fields):
                 val = getattr(ver, field)
                 if field.endswith("_citations"):
                     print(" +", field, "=>", val)
                     score += self.CITATION_REWARD
-                
+
                 elif not val is None and val != '':
                     score += self.FIELD_REWARD
                     print(" +", field)
             # FOR
-            
+
             for field in sorted(meta_fields):
                 val = getattr(ver.meta, field)
                 if not val is None and val != '':
