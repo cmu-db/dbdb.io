@@ -9,6 +9,7 @@ from . import views
 app_name = 'api_v202004'
 
 urlpatterns = [
+    path('', views.APIRootView.as_view(), name='root'),
     path('systems', views.SystemsView.as_view(), name='systems'),
     path('systems/<slug:slug>', views.SystemView.as_view(), name='systems_view'),
 ]
