@@ -214,7 +214,6 @@ class System(models.Model):
             if self.id is None:
                 self._current = SystemVersion(system=self)
             else:
-                print('get version', self.slug)
                 self._current = self.versions.get(is_current=True)
             pass
 
@@ -470,11 +469,10 @@ class SystemVersion(models.Model):
                 text_size = [0, 0]
                 for line in name.split("\n"):
                     line_size = font.getsize(line)
-                    #print("'%s' -> %s" % (line, str(line_size)))
+
                     text_size[0] = max(text_size[0], line_size[0])
                     text_size[1] += line_size[1] + 5
-            #print("text_size =", text_size)
-            
+
             logo = Image.new('RGBA', text_size)
             text_draw = ImageDraw.Draw(logo)
             text_draw.text((0, 0), name, font=font, fill=(70,70,70,255))
