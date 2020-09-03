@@ -10,6 +10,7 @@ app_name = 'api_v202004'
 
 urlpatterns = [
     path('systems', views.SystemsView.as_view(), name='systems'),
+    path('systems/<slug:slug>', views.SystemView.as_view(), name='systems_view'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

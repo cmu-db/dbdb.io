@@ -6,15 +6,24 @@ from rest_framework import generics
 from dbdb.core.models import System
 from dbdb.core.models import SystemVersion
 # local imports
+from .serializers import SystemBriefSerializer
 from .serializers import SystemSerializer
 
 
 # class based views
 
+class SystemView(generics.RetrieveAPIView):
+
+    lookup_field = 'slug'
+    queryset = System.objects.all()
+    serializer_class = SystemSerializer
+
+    pass
+
 class SystemsView(generics.ListAPIView):
 
     queryset = System.objects.all()
-    serializer_class = SystemSerializer
+    serializer_class = SystemBriefSerializer
 
     def paginate_queryset(self, queryset):
         if self.paginator is None:

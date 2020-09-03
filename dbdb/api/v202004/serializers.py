@@ -9,43 +9,11 @@ from dbdb.core.models import System
 from dbdb.core.models import SystemFeature
 
 
-# serializers
+# abstracts
 
-class SystemSerializer(serializers.HyperlinkedModelSerializer):
+class AbstractSystemSerializer:
 
-    class Meta:
-        model = System
-        fields = [
-            'href',
-            'name',
-            'former_names',
-            'start_year',
-            'end_year',
-            'description',
-            'history',
-            'acquired_by',
-            'developer',
-            'countries',
-            'features',
-            'project_types',
-            'urls',
-            'version',
-        ]
-
-    href = serializers.SerializerMethodField()
-    former_names = serializers.SerializerMethodField()
-    start_year = serializers.SerializerMethodField()
-    end_year = serializers.SerializerMethodField()
-    description = serializers.SerializerMethodField()
-    history = serializers.SerializerMethodField()
-    acquired_by = serializers.SerializerMethodField()
-    developer = serializers.SerializerMethodField()
-    countries = serializers.SerializerMethodField()
-    features = serializers.SerializerMethodField()
-    project_types = serializers.SerializerMethodField()
-    urls = serializers.SerializerMethodField()
-    version = serializers.IntegerField(source='ver', read_only=True)
-
+    
     def get_acquired_by(self, obj):
         current = obj.get_current()
         return current.acquired_by
@@ -135,6 +103,75 @@ class SystemSerializer(serializers.HyperlinkedModelSerializer):
     def get_start_year(self, obj):
         current = obj.get_current()
         return current.start_year
+
+    pass
+
+
+# serializers
+
+class SystemBriefSerializer(AbstractSystemSerializer, serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = System
+        fields = [
+            'url',
+            'href',
+            'name',
+            'start_year',
+            'end_year',
+            'description',
+            'history',
+            'acquired_by',
+            'developer',
+            'project_types',
+        ]
+
+    href = serializers.SerializerMethodField()
+    start_year = serializers.SerializerMethodField()
+    end_year = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    history = serializers.SerializerMethodField()
+    acquired_by = serializers.SerializerMethodField()
+    developer = serializers.SerializerMethodField()
+    project_types = serializers.SerializerMethodField()
+    url = serializers.HyperlinkedIdentityField(lookup_field='slug', read_only=True, view_name='api_v202004:systems_view')
+
+    pass
+
+class SystemSerializer(AbstractSystemSerializer, serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = System
+        fields = [
+            'href',
+            'name',
+            'former_names',
+            'start_year',
+            'end_year',
+            'description',
+            'history',
+            'acquired_by',
+            'developer',
+            'countries',
+            'features',
+            'project_types',
+            'urls',
+            'version',
+        ]
+
+    href = serializers.SerializerMethodField()
+    former_names = serializers.SerializerMethodField()
+    start_year = serializers.SerializerMethodField()
+    end_year = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    history = serializers.SerializerMethodField()
+    acquired_by = serializers.SerializerMethodField()
+    developer = serializers.SerializerMethodField()
+    countries = serializers.SerializerMethodField()
+    features = serializers.SerializerMethodField()
+    project_types = serializers.SerializerMethodField()
+    urls = serializers.SerializerMethodField()
+    version = serializers.IntegerField(source='ver', read_only=True)
 
     pass
 
