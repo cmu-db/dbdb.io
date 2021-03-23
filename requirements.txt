@@ -12,7 +12,7 @@ django-countries==6.1.2
 django-environ==0.4.5
 django-haystack==3.0b1
 django-nocaptcha-recaptcha==0.0.20
-djangorestframework==3.11.0
+djangorestframework==3.11.2
 docutils==0.16
 easy-thumbnails==2.7
 idna==2.9
