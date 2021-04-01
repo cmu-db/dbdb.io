@@ -1,0 +1,11 @@
+{% extends "rest_framework/base.html" %}
+
+
+{% block title %}{{ name }} – Database of Databases RESTful API{% endblock %}
+
+
+{% block branding %}
+<a class="navbar-brand" rel="nofollow" href="{{ request.path|slice:':14' }}">
+	<span style="color:#ccc;">Database of Databases RESTful API</span> <small>(v{{ request.path|slice:"6:"|slice:":6" }})</small>
+</a>
+{% endblock %}

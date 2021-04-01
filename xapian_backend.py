@@ -7,6 +7,7 @@ import re
 import shutil
 import sys
 
+import six
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.encoding import force_text
@@ -19,16 +20,21 @@ from haystack.inputs import AutoQuery
 from haystack.models import SearchResult
 from haystack.utils import get_identifier, get_model_ct
 
-import six
 
 NGRAM_MIN_LENGTH = 2
 NGRAM_MAX_LENGTH = 15
 
+
 try:
     import xapian
 except ImportError:
-    raise MissingDependency("The 'xapian' backend requires the installation of 'Xapian'. "
-                            "Please refer to the documentation.")
+    raise MissingDependency("The 'xapian' backend requires the installation of 'Xapian'. ")
+
+
+if sys.version_info[0] == 2:
+    DirectoryExistsException = OSError
+elif sys.version_info[0] == 3:
+    DirectoryExistsException = FileExistsError
 
 
 class NotSupportedError(Exception):
@@ -194,8 +200,11 @@ class XapianSearchBackend(BaseSearchBackend):
 
         self.path = connection_options.get('PATH')
 
-        if self.path != MEMORY_DB_NAME and not os.path.exists(self.path):
-            os.makedirs(self.path)
+        if self.path != MEMORY_DB_NAME:
+            try:
+                os.makedirs(self.path)
+            except DirectoryExistsException:
+                pass
 
         self.flags = connection_options.get('FLAGS', DEFAULT_XAPIAN_FLAGS)
         self.language = getattr(settings, 'HAYSTACK_XAPIAN_LANGUAGE', 'english')

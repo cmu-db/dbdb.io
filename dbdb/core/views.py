@@ -947,7 +947,6 @@ class DatabasesEditView(LoginRequiredMixin, View):
 
     @never_cache
     def get(self, request, slug=None):
-
         # If there is no slug, then they are trying to create a new database.
         # Only superusers are allowed to do that.
         if slug is None:

@@ -125,16 +125,16 @@ class AutoCompleteTestCase(BaseTestCase):
         target = "SQLite"
         for i in range(1, len(target)):
             query = {'q': target[:i+1]}
-            #pprint(query)
+
             response = self.client.get(reverse('search_autocomplete'), data=query)
-            #pprint(response.json())
+
             self.assertContains(response, 'SQLite', html=False)
         return
 
     def test_autocom_invalid_parameters(self):
         query = {'q': "YYY"}
         response = self.client.get(reverse('search_autocomplete'), data=query)
-        #pprint(response.json())
+
         self.assertEquals(len(response.json()), 0)
         return
 
@@ -142,6 +142,7 @@ class AutoCompleteTestCase(BaseTestCase):
         response = self.client.get(reverse('search_autocomplete'))
         self.assertEquals(len(response.json()), 0)
         return
+
     pass
 
 # ==============================================
@@ -160,6 +161,7 @@ class SystemViewTestCase(BaseTestCase):
         target = "SQLite"
 
         system = System.objects.get(name=target)
+
         orig_visits = SystemVisit.objects.filter(system=system).count()
 
         data = {"token": CounterView.build_token('system', pk=system.id)}
@@ -171,7 +173,6 @@ class SystemViewTestCase(BaseTestCase):
         # Check that we got added a SystemVisit
         new_visits = SystemVisit.objects.filter(system=system).count()
         self.assertEquals(new_visits, orig_visits+1)
-
         return
 
     def test_bot_block(self):
@@ -192,7 +193,6 @@ class SystemViewTestCase(BaseTestCase):
         new_count = system.view_count
         self.assertEquals(new_count, orig_count)
         return
-
 
     pass
 
@@ -220,7 +220,7 @@ class AdvancedSearchTestCase(BaseTestCase):
         filtergroups = d('div.filter-group')
         # Add two for the year filtergroups
         # Add nine for country, OS, project type, PL, inspired, derived, embedded compatiable, licenses
-        #pprint(filtergroups)
+
         self.assertEquals(quantity + 2 + 9, len(filtergroups))
         return
 
@@ -229,7 +229,7 @@ class AdvancedSearchTestCase(BaseTestCase):
             'feature1': ['option1'],
         }
         response = self.client.get(reverse('browse'), data=data)
-        #pprint(response.content)
+
         self.assertContains(response, 'No databases found')
         return
 
@@ -337,6 +337,7 @@ class CreateDatabaseTestCase(BaseTestCase):
         response = self.client.post(reverse('create_database'), data=data)
         self.assertRedirects(response, reverse('system', kwargs={'slug': 'testdb'}))
         return
+
     pass
 
 # ==============================================
@@ -384,6 +385,7 @@ class HomeTestCase(BaseTestCase):
         )
         self.client.logout()
         return
+
     pass
 
 # ==============================================
@@ -421,6 +423,5 @@ class LoginTestCase(BaseTestCase):
             'Please enter a correct username and password. Note that both fields may be case-sensitive.'
         )
         return
+
     pass
-
-
