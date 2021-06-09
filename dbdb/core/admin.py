@@ -62,6 +62,18 @@ class SystemVisitAdmin(admin.ModelAdmin):
     list_filter = ['created', 'system']
     readonly_fields=('created',)
     ordering = ('-created',)
+    
+class LicenseAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug', 'url')
+    ordering = ('name',)
+    
+class OperatingSystemAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug', 'url')
+    ordering = ('name',)
+    
+class ProgrammingLanguageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug', 'url')
+    ordering = ('name',)
 
 
 # registrations
@@ -70,9 +82,9 @@ admin.site.register(User, CustomUserAdmin)
 
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(FeatureOption, FeatureOptionAdmin)
-admin.site.register(License)
-admin.site.register(OperatingSystem)
-admin.site.register(ProgrammingLanguage)
+admin.site.register(License, LicenseAdmin)
+admin.site.register(OperatingSystem, OperatingSystemAdmin)
+admin.site.register(ProgrammingLanguage, ProgrammingLanguageAdmin)
 admin.site.register(ProjectType)
 admin.site.register(Publication)
 #admin.site.register(SuggestedSystem)
