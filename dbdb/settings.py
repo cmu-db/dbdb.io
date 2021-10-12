@@ -10,6 +10,7 @@ env.read_env(env_file=root('.env')) # reading .env file
 BASE_DIR = root()
 DEBUG = env('DEBUG') # False if not in os.environ
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -21,13 +22,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    #'autoslug',
     'bootstrap4',
-    'easy_thumbnails',
     'django_countries',
+    'easy_thumbnails',
     'haystack', # django-haystack
+    'rest_framework', # djangorestframework
 
-    'dbdb.core'
+    'dbdb.core',
+    'dbdb.api.v202004',
 ]
 
 MIDDLEWARE = [
@@ -81,33 +83,25 @@ DATABASES = {
     'default': env.db( default='sqlite:///{}'.format( root.path('data/db.sqlite3') ) )
 }
 
+
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    { 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator' },
+    { 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator' },
+    { 'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator' },
+    { 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator' },
 ]
 
+
 # CACHE
+
 CACHES = {
     'default': {
-        #'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        #'LOCATION': 'dbdb_io_cache',
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
-
 
 
 # Haystack
@@ -131,10 +125,6 @@ HAYSTACK_CONNECTIONS = {
         'PATH': root.path('data/xapian')(),
         'FLAGS': HAYSTACK_XAPIAN_FLAGS,
     },
-    # 'default': {
-        # 'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        # 'PATH': root.path('data/whoosh')(),
-    # },
 }
 
 
@@ -156,6 +146,25 @@ FIXTURE_DIRS = [
 
 MEDIA_ROOT = root.path('media')()
 MEDIA_URL = '/media/'
+
+
+# Rest Framework
+
+REST_FRAMEWORK = {
+    # https://www.django-rest-framework.org/api-guide/pagination/
+    'DEFAULT_PAGINATION_CLASS': 'dbdb.api.pagination.StandardPagination',
+
+    # https://www.django-rest-framework.org/api-guide/throttling/
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '4/second',
+        'user': '4/second'
+    }
+}
+
 
 # Security
 
@@ -200,8 +209,10 @@ THUMBNAIL_ALIASES = {
     },
 }
 
+
 # Django Countries
 COUNTRIES_FIRST = ['US']
+
 
 # Django Invisible reCaptcha
 NORECAPTCHA_SITE_KEY = '6Lfo8VwUAAAAAEHNqeL01PSkiRul7ImQ8Bsw8Nqc'

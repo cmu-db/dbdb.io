@@ -209,6 +209,16 @@ class System(models.Model):
     def get_absolute_url(self):
         return reverse('system', args=[self.slug])
 
+    def get_current(self):
+        if not hasattr(self, '_current'):
+            if self.id is None:
+                self._current = SystemVersion(system=self)
+            else:
+                self._current = self.versions.get(is_current=True)
+            pass
+
+        return self._current
+    
     pass
 
 # ==============================================
@@ -459,6 +469,7 @@ class SystemVersion(models.Model):
                 text_size = [0, 0]
                 for line in name.split("\n"):
                     line_size = font.getsize(line)
+
                     text_size[0] = max(text_size[0], line_size[0])
                     text_size[1] += line_size[1] + 5
 
