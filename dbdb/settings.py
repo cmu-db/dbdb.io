@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     'easy_thumbnails',
     'django_countries',
     'haystack', # django-haystack
+    'rest_framework', # djangorestframework
+    'markdownify.apps.MarkdownifyConfig',
 
     'dbdb.core'
 ]
@@ -206,3 +208,9 @@ COUNTRIES_FIRST = ['US']
 # Django Invisible reCaptcha
 NORECAPTCHA_SITE_KEY = '6Lfo8VwUAAAAAEHNqeL01PSkiRul7ImQ8Bsw8Nqc'
 NORECAPTCHA_SECRET_KEY = '6Lfo8VwUAAAAALFGUrGKqrzCR94pfgFahtd56WY9'
+
+MARKDOWNIFY = {
+    "default": {
+        "BLEACH": False
+    }
+}

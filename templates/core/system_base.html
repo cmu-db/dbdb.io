@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load thumbnail %}
+{% load markdownify %}
 
 {% block css %}
     <link href="{% static 'core/css/system.css' %}" rel="stylesheet">
@@ -42,7 +43,9 @@
                         {{ system.name }}
                         <a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
                     </h2>
-                    <p class="card-text markdown-area">{{ system_version.description }}</p>
+                    <p class="card-text">
+                    {{ system_version.description|markdownify }}
+                    </p>
                     <cite class="hidden">
                         <ul>
                             {% for citation in system_version.description_citations.all %}
@@ -60,7 +63,7 @@
                         History
                         <a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
                     </h4>
-                    <p class="card-text markdown-area">{{ system_version.history }}</p>
+                    <p class="card-text">{{ system_version.history|markdownify }}</p>
                     <cite class="hidden">
                         <ul>
                             {% for citation in system_version.history_citations.all %}
@@ -85,9 +88,7 @@
                         <a class="badge badge-info" href="{% url 'browse' %}?{{ feature.feature.slug }}={{ v.slug }}">{{ v.value }}</a>
                         {% endfor %}
                     </p>
-                    <p class="markdown-area">
-                        {{ feature.description }}
-                    </p>
+                    <p>{{ feature.description|markdownify }}</p>
                     <cite class="hidden">
                         <ul>
                             {% for citation in feature.citations.all %}
@@ -379,7 +380,6 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{% static 'lib/js/markdown.min.js' %}"></script>
 <script src="{% static 'lib/js/bootstrap.bundle.js' %}"></script>
 
 {% block system_script %}{% endblock %}
