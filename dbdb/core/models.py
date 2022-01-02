@@ -390,6 +390,10 @@ class SystemVersion(models.Model):
         blank=True, max_length=500,
         verbose_name="Wikipedia URL",
         help_text="URL of Wikipedia article about this system (if available)")
+    
+    twitter_handle = models.CharField(
+        blank=True, max_length=100,
+        help_text="Twitter account for the database (avoid company account if possible)")
 
     class Meta:
         ordering = ('-ver',)
@@ -431,6 +435,9 @@ class SystemVersion(models.Model):
             instance.system.save()
             pass
         return
+
+    def twitter_handle_url(self):
+        return settings.TWITTER_URL + self.twitter_handle.replace('@', '')
 
     def twitter_card_url(self):
         return settings.TWITTER_CARD_URL + self.get_twitter_card_image()

@@ -44,7 +44,9 @@ class SystemVersionAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
     list_display = ('system', 'ver', 'creator', 'created')
     list_filter = ['created', 'system']
-    readonly_fields=('ver', )
+    readonly_fields=('ver', 'system')
+    ordering = ('-created',)
+    exclude = ('system', )
 
 class SystemACLAdmin(admin.ModelAdmin):
     list_display = ('system', 'user', 'created', 'modified')

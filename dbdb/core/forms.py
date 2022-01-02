@@ -220,6 +220,13 @@ class SystemVersionEditForm(forms.ModelForm):
         help_text="Separate the urls with commas",
         required=False
     )
+    
+    def clean_twitter_handle(self):
+        data = self.cleaned_data['twitter_handle']
+        if data and data[0] != '@':
+            raise ValidationError("Invalid Twitter handle. Expected to start with '@' character")
+        return data
+    
 
     class Meta:
         model = SystemVersion
@@ -233,6 +240,7 @@ class SystemVersionEditForm(forms.ModelForm):
             'source_url',
             'tech_docs',
             'wikipedia_url',
+            'twitter_handle',
             'developer',
             'start_year',
             'start_year_citations',
@@ -283,6 +291,7 @@ class SystemVersionForm(forms.ModelForm):
             'source_url',
             'tech_docs',
             'wikipedia_url',
+            'twitter_handle',
             'developer',
             'start_year',
             'start_year_citations',

@@ -181,6 +181,7 @@ STATIC_URL = '/static/'
 # Custom Twitter Cards
 TWITTER_CARD_ROOT = os.path.join(MEDIA_ROOT, 'twitter')
 TWITTER_CARD_URL = MEDIA_URL + "twitter/"
+TWITTER_URL = "https://twitter.com/"
 
 TWITTER_CARD_TEMPLATE = os.path.join(STATIC_ROOT, 'core/images/dbdb_io_card_template.png')
 TWITTER_CARD_BASE_OFFSET_X = 200
