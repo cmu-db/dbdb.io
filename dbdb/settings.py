@@ -210,6 +210,10 @@ COUNTRIES_FIRST = ['US']
 NORECAPTCHA_SITE_KEY = '6Lfo8VwUAAAAAEHNqeL01PSkiRul7ImQ8Bsw8Nqc'
 NORECAPTCHA_SECRET_KEY = '6Lfo8VwUAAAAALFGUrGKqrzCR94pfgFahtd56WY9'
 
+# Email Configuration
+DEFAULT_FROM_EMAIL = ''
+
+# Markdown Configuration
 MARKDOWNIFY = {
     "default": {
         "BLEACH": False
