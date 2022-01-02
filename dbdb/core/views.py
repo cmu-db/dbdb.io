@@ -518,6 +518,7 @@ class DatabaseBrowseView(View):
         search_inspired = request.GET.getlist('inspired')
         search_os = request.GET.getlist('os')
         search_programming = request.GET.getlist('programming')
+        search_supported = request.GET.getlist('supported')
         search_type = request.GET.getlist('type')
         search_license = request.GET.getlist('license')
         search_suffix = request.GET.getlist('suffix')
@@ -538,6 +539,7 @@ class DatabaseBrowseView(View):
             'inspired': search_inspired,
             'os': search_os,
             'programming': search_programming,
+            'supported': search_supported,
             'type': search_type,
             'license': search_license,
             'suffix': search_suffix,
@@ -618,6 +620,13 @@ class DatabaseBrowseView(View):
             sqs = sqs.filter(written_langs__in=search_programming)
             langs = ProgrammingLanguage.objects.filter(slug__in=search_programming)
             search_tags.extend( SearchTag(request.GET, 'programming', 'Programming Languages', lang.slug, lang.name) for lang in langs )
+            pass
+        
+        # search - supported languages
+        if search_supported:
+            sqs = sqs.filter(supported_langs__in=search_supported)
+            langs = ProgrammingLanguage.objects.filter(slug__in=search_supported)
+            search_tags.extend( SearchTag(request.GET, 'supported', 'Supported Languages', lang.slug, lang.name) for lang in langs )
             pass
 
         # search - project types
@@ -1478,7 +1487,7 @@ class StatsView(View):
             all_values = ProgrammingLanguage.objects.all()
             labels = dict(all_values.values_list('id', 'name'))
             slugs = dict(all_values.values_list('id', 'slug'))
-            stats.append( self.get_by_field('Programming Lang.', 'written_in', 'programming', labels, slugs, False, limit) )
+            stats.append( self.get_by_field('Implementation', 'written_in', 'programming', labels, slugs, False, limit) )
 
         all_values = System.objects.all()
         labels = dict(all_values.values_list('id', 'name'))

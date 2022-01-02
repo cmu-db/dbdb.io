@@ -260,18 +260,23 @@
 
                 {% if system_version.project_types.exists %}
                     <h6 class="card-title">Project Type</h6>
-                    <p class="card-text">{{ system_version.project_types_str }}</p>
+                    <p class="card-text">
+                        {% for project_type in system_version.project_types.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?type={{ project_type.slug }}" title="View other {{ project_type.name }} systems">{{ project_type.name }}</a>{% endfor %}
+                    </p>
                 {% endif %}
 
                 {% if system_version.meta.written_in.exists %}
                     <h6 class="card-title">Written in</h6>
                     <p class="card-text">
                         {% for written_in in system_version.meta.written_in.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?programming={{ written_in.slug }}" title="View other systems that are written in {{ written_in.name }}">{{ written_in.name }}</a>{% endfor %}
+                    </p>
                 {% endif %}
 
                 {% if system_version.meta.supported_languages.exists %}
                     <h6 class="card-title">Supported languages</h6>
-                    <p class="card-text">{{ system_version.meta.supported_languages_str }}</p>
+                    <p class="card-text">
+                    {% for lang in system_version.meta.supported_languages.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?supported={{ lang.slug }}" title="View other systems that support {{ lang.name }}">{{ lang.name }}</a>{% endfor %}
+                    </p>
                 {% endif %}
 
                 {% if system_version.meta.derived_from.exists %}
@@ -304,7 +309,9 @@
 
                 {% if system_version.meta.oses.exists %}
                     <h6 class="card-title">Operating Systems</h6>
-                    <p class="card-text">{{ system_version.meta.oses_str }}</p>
+                    <p class="card-text">
+                        {% for os in system_version.meta.oses.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?os={{ os.slug }}" title="View other systems that support {{ os.name }} systems">{{ os.name }}</a>{% endfor %}
+                    </p>
                 {% endif %}
 
                 {% if system_version.meta.licenses.exists %}

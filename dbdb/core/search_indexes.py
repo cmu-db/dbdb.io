@@ -30,6 +30,7 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
     inspired_by = indexes.MultiValueField()
     oses = indexes.MultiValueField()
     written_langs = indexes.MultiValueField()
+    supported_langs = indexes.MultiValueField()
     project_types = indexes.MultiValueField()
     licenses = indexes.MultiValueField()
 
@@ -110,6 +111,17 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
         values = [
             pk
             for pk in obj.meta.written_in.values_list('slug', flat=True)
+        ]
+
+        return values
+    
+    def prepare_supported_langs(self, obj):
+        if obj.meta_id is None:
+            return []
+
+        values = [
+            pk
+            for pk in obj.meta.supported_languages.values_list('slug', flat=True)
         ]
 
         return values
