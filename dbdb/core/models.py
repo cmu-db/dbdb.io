@@ -69,7 +69,7 @@ class FeatureOption(models.Model):
 class License(models.Model):
 
     slug = models.SlugField(unique=True)
-    name = models.CharField(max_length=32)
+    name = models.CharField(max_length=64)
     url = models.URLField(blank=True, max_length=512)
 
     class Meta:
