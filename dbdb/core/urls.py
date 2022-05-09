@@ -12,7 +12,7 @@ from dbdb.core import views
 urlpatterns = [
     url(r'^$', views.HomeView.as_view(), name="home"),
 
-    url(r'^db/(?P<slug>[\w-]+)$', views.SystemView.as_view(), name='system'),
+    url(r'^db/(?P<slug>[\w-]+)[/]?$', views.SystemView.as_view(), name='system'),
     url(r'^db/(?P<slug>[\w-]+)/edit$', views.DatabasesEditView.as_view(), name='system_edit'),
     url(r'^db/(?P<slug>[\w-]+)/revisions/$', views.DatabaseRevisionList.as_view(), name='system_revision'),
     url(r'^db/(?P<slug>[\w-]+)/revisions/(?P<ver>\d+)$', views.DatabaseRevisionView.as_view(), name='system_revision_view'),
