@@ -31,6 +31,7 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
     oses = indexes.MultiValueField()
     written_langs = indexes.MultiValueField()
     supported_langs = indexes.MultiValueField()
+    tags = indexes.MultiValueField()
     project_types = indexes.MultiValueField()
     licenses = indexes.MultiValueField()
 
@@ -126,11 +127,16 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
 
         return values
 
+    def prepare_tags(self, obj):
+        values = list(
+            obj.tags.values_list('slug', flat=True)
+        )
+        return values
+
     def prepare_project_types(self, obj):
         values = list(
             obj.project_types.values_list('slug', flat=True)
         )
-
         return values
 
     def prepare_licenses(self, obj):

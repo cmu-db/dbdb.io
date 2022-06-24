@@ -64,6 +64,24 @@ class FeatureOption(models.Model):
     pass
 
 # ==============================================
+# Tag
+# ==============================================
+class Tag(models.Model):
+
+    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=64)
+    url = models.URLField(blank=True, max_length=512)
+
+    class Meta:
+        ordering = ('name',)
+
+
+    def __str__(self):
+        return self.name
+
+    pass
+
+# ==============================================
 # License
 # ==============================================
 class License(models.Model):
@@ -123,6 +141,7 @@ class ProjectType(models.Model):
 
     slug = models.SlugField(unique=True)
     name = models.CharField(max_length=32)
+    description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
 
     class Meta:
         ordering = ('name',)
@@ -351,6 +370,11 @@ class SystemVersion(models.Model):
         related_name='version_acquired_bys')
 
     # General Information Fields
+    tags = models.ManyToManyField(
+        'Tags', blank=True,
+        related_name='tags',
+        verbose_name='Tag')
+
     project_types = models.ManyToManyField(
         'ProjectType', blank=True,
         related_name='project_types',
@@ -412,6 +436,9 @@ class SystemVersion(models.Model):
 
     def get_absolute_url(self):
         return reverse('system_revision_view', args=[self.system.slug, self.ver])
+
+    def tags_str(self):
+        return ', '.join( self.tags.values_list('name', flat=True) )
 
     def project_types_str(self):
         return ', '.join( self.project_types.values_list('name', flat=True) )

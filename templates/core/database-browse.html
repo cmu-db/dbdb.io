@@ -28,9 +28,9 @@ form.main-search > div.filters > div.filter-group-range.changed > h3 button.btn-
 form.main-search > div.filters > div.filter-group-range > div.range-container { padding:0 20px; }
 form.main-search > div.filters > div.filter-group-range > div.range-container .noUi-connect { background-color:#007bff; }
 
-div.search-tags { margin: 40px auto 40px auto; text-align:center; width: 80%; }
-div.search-tags a.badge { font-size:100%; line-height: 1.5; padding-right: .75em; padding-left: .75em; }
-div.search-tags a.badge em { font-weight: normal; }
+div.search-badges { margin: 40px auto 40px auto; text-align:center; width: 80%; }
+div.search-badges a.badge { font-size:100%; line-height: 1.5; padding-right: .75em; padding-left: .75em; }
+div.search-badges a.badge em { font-weight: normal; }
 
 div.results { min-height: 60vh; padding:40px 40px 30px 40px; }
 div.results div.version { margin-bottom:20px; max-width:800px; }
@@ -124,11 +124,11 @@ div.results div.version p { margin:0; }
         </div>
 
         {% if has_search %}
-        <div class="search-tags">
-            {% for st in tags %}
-            <a class="badge badge-pill badge-info" href="{{ st.get_removal_url }}">
-                <em>{{ st.group_name }}</em>:
-                <span>{{ st.tag_name }}</span>
+        <div class="search-badges">
+            {% for b in badges %}
+            <a class="badge badge-pill badge-info" href="{{ b.get_removal_url }}">
+                <em>{{ b.group_name }}</em>:
+                <span>{{ b.badge_name }}</span>
                 <i class="fas fa-times-circle" style="padding-left:2px;"></i>
             </a>
             {% endfor %}
