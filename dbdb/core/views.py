@@ -46,7 +46,7 @@ from dbdb.core.models import FeatureOption
 from dbdb.core.models import License
 from dbdb.core.models import OperatingSystem
 from dbdb.core.models import ProgrammingLanguage
-from dbdb.core.models import Tags
+from dbdb.core.models import Tag
 from dbdb.core.models import ProjectType
 from dbdb.core.models import System
 from dbdb.core.models import SystemFeature
@@ -397,9 +397,9 @@ class DatabaseBrowseView(View):
                 t.name,
                 t.slug in querydict.getlist( 'tag', empty_set )
             )
-            for pt in Tag.objects.values_list('id','slug','name', named=True)
+            for t in Tag.objects.values_list('id','slug','name', named=True)
         ])
-        other_filtersgroups.append(fg_project_type)
+        other_filtersgroups.append(fg_tag)
 
         # add project types
         fg_project_type = FilterGroup('type', 'Project Types', [
@@ -453,7 +453,7 @@ class DatabaseBrowseView(View):
             for i in range( ord('A') , ord('Z')+1 )
         )
         letters_available = set(
-            name.upper()[0]
+            "#" if not name.upper()[0].isalpha() else name.upper()[0]
             for name in System.objects.all().values_list('name', flat=True)
         )
         letters_missing = letters_alphabet.difference( letters_available )
@@ -728,7 +728,7 @@ class DatabaseBrowseView(View):
             search_letter = 'ALL'
             pass
         elif search_letter:
-            results = SearchQuerySet().filter(letter__exact=search_letter.lower()).filter(name__startswith=search_letter)
+            results = SearchQuerySet().filter(letter__exact=search_letter.lower())
             pass
 
         # generate letter pagination
@@ -1075,7 +1075,6 @@ class DatabasesEditView(LoginRequiredMixin, View):
                 if system.slug != original_system_slug:
                     SystemRedirect.objects.get_or_create(
                         slug=original_system_slug,
-
                         defaults=dict(
                             system=system
                         )
@@ -1096,7 +1095,8 @@ class DatabasesEditView(LoginRequiredMixin, View):
             db_version.creator = request.user
             db_version.system = system
 
-            if logo and not db_version.logo: db_version.logo = logo
+            if logo and not db_version.logo:
+                db_version.logo = logo
 
             db_version.save()
             system_version_form.save_m2m()

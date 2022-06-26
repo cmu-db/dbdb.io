@@ -12,7 +12,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 # third-party imports
-from easy_thumbnails.fields import ThumbnailerImageField
+from easy_thumbnails.fields import ThumbnailerImageField,ThumbnailerField
 from django_countries.fields import CountryField
 
 
@@ -51,7 +51,6 @@ class Feature(models.Model):
 class FeatureOption(models.Model):
 
     feature = models.ForeignKey('Feature', models.CASCADE, related_name='options')
-
     slug = models.SlugField(db_index=True, unique=False)
     value = models.CharField(max_length=100)
 
@@ -64,10 +63,27 @@ class FeatureOption(models.Model):
     pass
 
 # ==============================================
+# M2MInfoModel
+# ==============================================
+#class M2MInfoModel(models.Model):
+    #slug = models.SlugField(unique=True)
+    #name = models.CharField(max_length=64)
+    #url = models.URLField(blank=True, max_length=512)
+    #description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
+
+    #class Meta:
+        #ordering = ('name',)
+        #abstract = True
+
+    #def __str__(self):
+        #return self.name
+
+    #pass
+
+# ==============================================
 # Tag
 # ==============================================
 class Tag(models.Model):
-
     slug = models.SlugField(unique=True)
     name = models.CharField(max_length=64)
     url = models.URLField(blank=True, max_length=512)
@@ -371,7 +387,7 @@ class SystemVersion(models.Model):
 
     # General Information Fields
     tags = models.ManyToManyField(
-        'Tags', blank=True,
+        'Tag', blank=True,
         related_name='tags',
         verbose_name='Tag')
 
@@ -384,7 +400,7 @@ class SystemVersion(models.Model):
         blank=True, max_length=500,
         help_text="The original organization that developed the DBMS.")
 
-    logo = ThumbnailerImageField(
+    logo = ThumbnailerField(
         blank=True, upload_to='logos/')
 
     countries = CountryField(
@@ -627,6 +643,7 @@ __all__ = (
     'License',
     'OperatingSystem',
     'ProgrammingLanguage',
+    'Tag',
     'ProjectType',
     'Publication',
     'SuggestedSystem',
