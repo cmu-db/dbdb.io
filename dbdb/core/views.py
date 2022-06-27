@@ -46,6 +46,7 @@ from dbdb.core.models import FeatureOption
 from dbdb.core.models import License
 from dbdb.core.models import OperatingSystem
 from dbdb.core.models import ProgrammingLanguage
+from dbdb.core.models import Tag
 from dbdb.core.models import ProjectType
 from dbdb.core.models import System
 from dbdb.core.models import SystemFeature
@@ -59,9 +60,7 @@ from dbdb.core.models import SystemRecommendation
 
 UserModel = get_user_model()
 
-
 # constants
-
 FILTERGROUP_VISIBLE_LENGTH = 3
 SITEMPA_NS = 'http://www.sitemaps.org/schemas/sitemap/0.9'
 SITEMAP_PREFIX = '{%s}' % SITEMPA_NS
@@ -69,7 +68,6 @@ SITEMAP_NSMAP = { None : SITEMPA_NS }
 
 
 # helper classes
-
 FieldSet = collections.namedtuple('FieldSet', ['id','label','choices','description','citation'])
 LetterPage = collections.namedtuple('LetterPage', ['id','letter','is_active','is_disabled'])
 Stat = collections.namedtuple('Stat', ['label','items', 'search_field', 'systems', 'count'])
@@ -108,27 +106,27 @@ class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) 
 
     pass
 
-class SearchTag:
+class SearchBadge:
 
-    __slots__ = ['query','group_slug','group_name', 'tag_slug', 'tag_name']
+    __slots__ = ['query','group_slug','group_name', 'badge_slug', 'badge_name']
 
-    def __init__(self, query, group_slug, group_name, tag_slug, tag_name):
+    def __init__(self, query, group_slug, group_name, badge_slug, badge_name):
         self.query = query
         self.group_slug = group_slug
         self.group_name = group_name
-        self.tag_slug = tag_slug
-        self.tag_name = tag_name
+        self.badge_slug = badge_slug
+        self.badge_name = badge_name
         return
 
     def __repr__(self):
-        return repr( tuple( map(str, (self.group_slug, self.group_name, self.tag_slug, self.tag_name)) ) )
+        return repr( tuple( map(str, (self.group_slug, self.group_name, self.badge_slug, self.badge_name)) ) )
 
     def get_removal_url(self):
         query = []
 
         for key,values in self.query.lists():
             for value in values:
-                if key == self.group_slug and value == self.tag_slug:
+                if key == self.group_slug and value == self.badge_slug:
                     continue
                 query.append((key, value))
 
@@ -392,6 +390,17 @@ class DatabaseBrowseView(View):
         ])
         other_filtersgroups.append(fg_programming)
 
+        # add tags
+        fg_tag = FilterGroup('tag', 'Tags', [
+            FilterChoice(
+                t.slug,
+                t.name,
+                t.slug in querydict.getlist( 'tag', empty_set )
+            )
+            for t in Tag.objects.values_list('id','slug','name', named=True)
+        ])
+        other_filtersgroups.append(fg_tag)
+
         # add project types
         fg_project_type = FilterGroup('type', 'Project Types', [
             FilterChoice(
@@ -444,7 +453,7 @@ class DatabaseBrowseView(View):
             for i in range( ord('A') , ord('Z')+1 )
         )
         letters_available = set(
-            name.upper()[0]
+            "#" if not name.upper()[0].isalpha() else name.upper()[0]
             for name in System.objects.all().values_list('name', flat=True)
         )
         letters_missing = letters_alphabet.difference( letters_available )
@@ -472,9 +481,7 @@ class DatabaseBrowseView(View):
 
     def slug_to_system(self, slugs):
         slugs = { s.strip() for s in slugs }
-
         systems = System.objects.filter(slug__in=slugs)
-
         return { s.slug : s for s in systems }
     ## DEF
 
@@ -520,6 +527,7 @@ class DatabaseBrowseView(View):
         search_programming = request.GET.getlist('programming')
         search_supported = request.GET.getlist('supported')
         search_type = request.GET.getlist('type')
+        search_tag = request.GET.getlist('tag')
         search_license = request.GET.getlist('license')
         search_suffix = request.GET.getlist('suffix')
 
@@ -540,6 +548,7 @@ class DatabaseBrowseView(View):
             'os': search_os,
             'programming': search_programming,
             'supported': search_supported,
+            'tag': search_tag,
             'type': search_type,
             'license': search_license,
             'suffix': search_suffix,
@@ -548,7 +557,7 @@ class DatabaseBrowseView(View):
         if not any(search_mapping.values()) and not any(search_fg):
             return (None, { }, [])
 
-        search_tags = []
+        search_badges = []
 
         # create new search query
         sqs = SearchQuerySet()
@@ -575,13 +584,13 @@ class DatabaseBrowseView(View):
             sqs = sqs.filter(compatible_with__in=search_compatible)
             systems = self.slug_to_system(search_compatible)
             search_mapping['compatible'] = systems.values()
-            search_tags.extend( SearchTag(request.GET, 'compatible', 'Compatible With', k, v) for k,v in systems.items() )
+            search_badges.extend( SearchBadge(request.GET, 'compatible', 'Compatible With', k, v) for k,v in systems.items() )
             pass
 
         # search - country
         if search_country:
             sqs = sqs.filter(countries__in=search_country)
-            search_tags.extend( SearchTag(request.GET, 'country', 'Country', c, countries_map[c]) for c in search_country )
+            search_badges.extend( SearchBadge(request.GET, 'country', 'Country', c, countries_map[c]) for c in search_country )
             pass
 
         # search - derived from
@@ -589,7 +598,7 @@ class DatabaseBrowseView(View):
             sqs = sqs.filter(derived_from__in=search_derived)
             systems = self.slug_to_system(search_derived)
             search_mapping['derived'] = systems.values()
-            search_tags.extend( SearchTag(request.GET, 'derived', 'Derived From', k, v) for k,v in systems.items() )
+            search_badges.extend( SearchBadge(request.GET, 'derived', 'Derived From', k, v) for k,v in systems.items() )
             pass
 
         # search - embedded
@@ -597,7 +606,7 @@ class DatabaseBrowseView(View):
             sqs = sqs.filter(embedded__in=search_embeds)
             systems = self.slug_to_system(search_embeds)
             search_mapping['embeds'] = systems.values()
-            search_tags.extend( SearchTag(request.GET, 'embeds', 'Embeds / Uses', k, v) for k,v in systems.items() )
+            search_badges.extend( SearchBadge(request.GET, 'embeds', 'Embeds / Uses', k, v) for k,v in systems.items() )
             pass
 
         # search - inspired by
@@ -605,49 +614,56 @@ class DatabaseBrowseView(View):
             sqs = sqs.filter(inspired_by__in=search_inspired)
             systems = self.slug_to_system(search_inspired)
             search_mapping['inspired'] = systems.values()
-            search_tags.extend( SearchTag(request.GET, 'inspired', 'Inspired By', k, v) for k,v in systems.items() )
+            search_badges.extend( SearchBadge(request.GET, 'inspired', 'Inspired By', k, v) for k,v in systems.items() )
             pass
 
         # search - operating systems
         if search_os:
             sqs = sqs.filter(oses__in=search_os)
             oses = OperatingSystem.objects.filter(slug__in=search_os)
-            search_tags.extend( SearchTag(request.GET, 'os', 'Operating System', os.slug, os.name) for os in oses )
+            search_badges.extend( SearchBadge(request.GET, 'os', 'Operating System', os.slug, os.name) for os in oses )
             pass
 
         # search - programming languages
         if search_programming:
             sqs = sqs.filter(written_langs__in=search_programming)
             langs = ProgrammingLanguage.objects.filter(slug__in=search_programming)
-            search_tags.extend( SearchTag(request.GET, 'programming', 'Programming Languages', lang.slug, lang.name) for lang in langs )
+            search_badges.extend( SearchBadge(request.GET, 'programming', 'Programming Languages', lang.slug, lang.name) for lang in langs )
             pass
         
         # search - supported languages
         if search_supported:
             sqs = sqs.filter(supported_langs__in=search_supported)
             langs = ProgrammingLanguage.objects.filter(slug__in=search_supported)
-            search_tags.extend( SearchTag(request.GET, 'supported', 'Supported Languages', lang.slug, lang.name) for lang in langs )
+            search_badges.extend( SearchBadge(request.GET, 'supported', 'Supported Languages', lang.slug, lang.name) for lang in langs )
+            pass
+
+        # search - tags
+        if search_type:
+            sqs = sqs.filter(tags__in=search_tag)
+            types = Tag.objects.filter(slug__in=search_type)
+            search_badges.extend( SearchBadge(request.GET, 'type', 'Tags', t.slug, t.name) for t in tags )
             pass
 
         # search - project types
         if search_type:
             sqs = sqs.filter(project_types__in=search_type)
             types = ProjectType.objects.filter(slug__in=search_type)
-            search_tags.extend( SearchTag(request.GET, 'type', 'Project Types', type.slug, type.name) for type in types )
+            search_badges.extend( SearchBadge(request.GET, 'type', 'Project Types', type.slug, type.name) for type in types )
             pass
 
         # search - licenses
         if search_license:
             sqs = sqs.filter(licenses__in=search_license)
             licenses = License.objects.filter(slug__in=search_license)
-            search_tags.extend( SearchTag(request.GET, 'license', 'Licenses', license.slug, license.name) for license in licenses )
+            search_badges.extend( SearchBadge(request.GET, 'license', 'Licenses', license.slug, license.name) for license in licenses )
             pass
 
         # search - suffixes
         if search_suffix:
             for suffix in search_suffix:
                 sqs = sqs.filter(lowercase_name__contains=suffix)
-            search_tags.extend(SearchTag(request.GET, 'suffix', 'Suffix', suffix, suffix) for suffix in search_suffix)
+            search_badges.extend(SearchBadge(request.GET, 'suffix', 'Suffix', suffix, suffix) for suffix in search_suffix)
             pass
 
         # convert feature option slugs to IDs to do search by filtering
@@ -662,12 +678,12 @@ class DatabaseBrowseView(View):
             for option_id in filter_option_ids:
                 sqs = sqs.filter(feature_options__contains=option_id)
 
-            search_tags.extend(
-                SearchTag(request.GET, *row)
+            search_badges.extend(
+                SearchBadge(request.GET, *row)
                 for row in FeatureOption.objects.filter(id__in=filter_option_ids).values_list('feature__slug','feature__label','slug','value')
             )
 
-        return (sqs, search_mapping, search_tags)
+        return (sqs, search_mapping, search_badges)
 
     def handle_old_urls(self, request):
         query = []
@@ -698,7 +714,7 @@ class DatabaseBrowseView(View):
 
         # Perform the search and get back the versions along with a
         # mapping with the search keys
-        results, search_keys, search_tags = self.do_search(request)
+        results, search_keys, search_badges = self.do_search(request)
 
         search_q = request.GET.get('q', '').strip()
 
@@ -712,7 +728,7 @@ class DatabaseBrowseView(View):
             search_letter = 'ALL'
             pass
         elif search_letter:
-            results = SearchQuerySet().filter(letter__exact=search_letter.lower()).filter(name__startswith=search_letter)
+            results = SearchQuerySet().filter(letter__exact=search_letter.lower())
             pass
 
         # generate letter pagination
@@ -748,7 +764,7 @@ class DatabaseBrowseView(View):
             'years': years,
             'has_search': len(search_keys) != 0,
             'search': search_keys,
-            'tags': search_tags,
+            'badges': search_badges,
         })
 
     pass
@@ -1059,7 +1075,6 @@ class DatabasesEditView(LoginRequiredMixin, View):
                 if system.slug != original_system_slug:
                     SystemRedirect.objects.get_or_create(
                         slug=original_system_slug,
-
                         defaults=dict(
                             system=system
                         )
@@ -1080,7 +1095,8 @@ class DatabasesEditView(LoginRequiredMixin, View):
             db_version.creator = request.user
             db_version.system = system
 
-            if logo and not db_version.logo: db_version.logo = logo
+            if logo and not db_version.logo:
+                db_version.logo = logo
 
             db_version.save()
             system_version_form.save_m2m()

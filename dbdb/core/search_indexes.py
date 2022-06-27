@@ -12,11 +12,8 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
 
     text = indexes.NgramField(document=True, use_template=True)
 
-    created = indexes.DateTimeField(model_attr='created')
     letter = indexes.CharField()
-    logo = indexes.CharField(model_attr='logo')
     name = indexes.CharField(model_attr='system__name')
-    slug = indexes.CharField(model_attr='system__slug')
     start_year = indexes.IntegerField(model_attr='start_year', null=True)
     end_year = indexes.IntegerField(model_attr='end_year', null=True)
 
@@ -31,11 +28,17 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
     oses = indexes.MultiValueField()
     written_langs = indexes.MultiValueField()
     supported_langs = indexes.MultiValueField()
+    tags = indexes.MultiValueField()
     project_types = indexes.MultiValueField()
     licenses = indexes.MultiValueField()
 
     features = indexes.MultiValueField()
     feature_options = indexes.MultiValueField()
+
+    # INCLUDE fields
+    slug = indexes.CharField(model_attr='system__slug', indexed=False)
+    created = indexes.DateTimeField(model_attr='created', indexed=False)
+    logo = indexes.CharField(model_attr='logo', indexed=False)
 
     def get_model(self):
         return SystemVersion
@@ -126,11 +129,16 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
 
         return values
 
+    def prepare_tags(self, obj):
+        values = list(
+            obj.tags.values_list('slug', flat=True)
+        )
+        return values
+
     def prepare_project_types(self, obj):
         values = list(
             obj.project_types.values_list('slug', flat=True)
         )
-
         return values
 
     def prepare_licenses(self, obj):
@@ -164,7 +172,10 @@ class SystemVersionIndex(indexes.SearchIndex, indexes.Indexable):
         return values
 
     def prepare_letter(self, obj):
-        return obj.system.name[0].lower()
+        letter = obj.system.name[0].lower()
+        if not letter.isalpha():
+            letter = '#'
+        return letter
 
     def prepare_lowercase_name(self, obj):
         return obj.system.name.lower().strip()

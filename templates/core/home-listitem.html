@@ -5,7 +5,7 @@
     <td class="homepage-logo">
         <a href="{{ item.get_absolute_url }}">
         {% if item.current.logo %}
-        <img src="{{ item.current.logo|thumbnail_url:'homepage' }}" alt="{{ item.name }}" />
+        <img src="{% if item.current.logo.url.lower|slice:"-3:" == "svg" %}{{ item.current.logo.url }}{% else %}{{ item.current.logo|thumbnail_url:'thumb' }}{% endif %}" alt="{{ item.name }}" />
         {% else %}
         <img src="{% static 'core/images/database-nologo.svg' %}" alt="{{ item.name }}" />
         {% endif %}

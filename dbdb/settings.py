@@ -202,6 +202,7 @@ THUMBNAIL_ALIASES = {
         'recommendation': {'size': (200, 50), 'crop': False},
     },
 }
+THUMBNAIL_PRESERVE_EXTENSIONS = ['png', 'svg']
 
 # Django Countries
 COUNTRIES_FIRST = ['US']
