@@ -83,6 +83,10 @@ div.main {
     display:block;
     width:100%;
 }
+.stat-label img {
+    max-width: 60px;
+    max-height: 40px;
+}
 
 .changelist img {
     max-width: 40px;

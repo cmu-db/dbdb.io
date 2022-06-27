@@ -50,7 +50,7 @@ table.table-stats tbody tr td.stat-value { text-align:right; }
                             {% elif stat.systems %}
                                 <a href="{% url 'browse' %}?{{ stat.search_field }}={{  item.slug }}">
                                 {% if item.label.current.logo %}
-                                    <img src="{{ item.label.current.logo|thumbnail_url:'stats' }}" alt="{{ item.label.name }}" />
+                                    <img src="{% if item.label.current.logo.url.lower|slice:"-3:" == "svg" %}{{ item.label.current.logo.url }}{% else %}{{ item.label.current.logo|thumbnail_url:'stats' }}{% endif %}" alt="{{ item.label.name }}" />
                                 {% else %}
                                     <img src="{% static 'core/images/database-nologo.svg' %}" alt="{{ item.label.name }}" />
                                 {% endif %}
