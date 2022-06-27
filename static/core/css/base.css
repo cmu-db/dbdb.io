@@ -41,6 +41,10 @@ div.revision-footer {
 td.homepage-logo {
 	width: 35%;
 }
+td.homepage-logo img {
+    max-width: 100px;
+    max-height: 60px;
+}
 td.homepage-system {
 	width: 65%;
 	font-weight: bold;
@@ -78,6 +82,11 @@ div.main {
 .stat-label > a {
     display:block;
     width:100%;
+}
+
+.changelist img {
+    max-width: 40px;
+    max-height: 40px;
 }
 
 
