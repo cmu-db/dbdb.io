@@ -567,16 +567,17 @@ class DatabaseBrowseView(View):
             sqs = sqs.filter(content=AutoQuery(search_q))
 
         # apply year limits
-        if all((search_start_min, search_start_max)):
-            search_start_min = int(search_start_min)
-            search_start_max = int(search_start_max)
-            sqs = sqs.filter(start_year__gte=search_start_min, start_year__lte=search_start_max)
+        if search_start_min.isdigit():
+            sqs = sqs.filter(start_year__gte=int(search_start_min))
             pass
-
-        if all((search_end_min, search_end_max)):
-            search_end_min = int(search_end_min)
-            search_end_max = int(search_end_max)
-            sqs = sqs.filter(end_year__gte=search_end_min, end_year__lte=search_end_max)
+        if search_start_max.isdigit():
+            sqs = sqs.filter(start_year__lte=int(search_start_max))
+            pass
+        if search_end_min.isdigit():
+            sqs = sqs.filter(end_year__gte=int(search_end_min))
+            pass
+        if search_end_max.isdigit():
+            sqs = sqs.filter(end_year__lte=int(search_end_max))
             pass
 
         # search - compatible
@@ -639,9 +640,9 @@ class DatabaseBrowseView(View):
             pass
 
         # search - tags
-        if search_type:
+        if search_tag:
             sqs = sqs.filter(tags__in=search_tag)
-            types = Tag.objects.filter(slug__in=search_type)
+            tags = Tag.objects.filter(slug__in=search_tag)
             search_badges.extend( SearchBadge(request.GET, 'type', 'Tags', t.slug, t.name) for t in tags )
             pass
 
