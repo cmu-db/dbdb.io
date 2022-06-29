@@ -161,7 +161,7 @@
             {% if system_version.logo %}
             <div class="card">
                 <div class="card-body text-center">
-                    <a href="{{ system_version.logo.url }}"><img class="img-thumbnail" src="{% if system_version.logo.url.lower|slice:"-3:" == "svg" %}{{ system_version.logo.url }}{% else %}{{ system_version.logo|thumbnail_url:'thumb' }}{% endif %}" style="border:none;" alt="{{ system.name }} Logo" title="{{ system.name }}"></a>
+                    <a href="{{ system_version.logo.url }}"><img class="logo-thumbnail" src="{% if system_version.logo.url.lower|slice:"-3:" == "svg" %}{{ system_version.logo.url }}{% else %}{{ system_version.logo|thumbnail_url:'thumb' }}{% endif %}" style="border:none;" alt="{{ system.name }} Logo" title="{{ system.name }}"></a>
                 </div>
             </div>
             {% endif %}

@@ -41,10 +41,7 @@ div.revision-footer {
 td.homepage-logo {
 	width: 35%;
 }
-td.homepage-logo img {
-    max-width: 100px;
-    max-height: 60px;
-}
+
 td.homepage-system {
 	width: 65%;
 	font-weight: bold;
@@ -83,15 +80,41 @@ div.main {
     display:block;
     width:100%;
 }
-.stat-label img {
+
+
+/* LOGOS */
+img.logo-thumbnail {
+    min-width: 300px;
+    max-width: 300px;
+    max-height: 250px;
+}
+img.logo-search {
+/*    min-width: 200px;
+    max-width: 200px;
+    max-height: 200px;*/
+}
+img.logo-homepage {
+    min-width: 100px;
+    max-width: 100px;
+    max-height: 60px;
+}
+img.logo-stats {
+    min-width: 60px;
     max-width: 60px;
     max-height: 40px;
 }
-
-.changelist img {
+img.logo-recent {
+    min-width: 40px;
     max-width: 40px;
     max-height: 40px;
 }
+img.logo-recommendation {
+    min-width: 100px;
+    max-width: 200px;
+    max-height: 50px;
+/*     object-fit: scale-down; */
+}
+
 
 
 div.sidebar { background-color:#F8F8F8; border-radius:4px; padding:20px; }
@@ -103,9 +126,22 @@ div.sidebar .btn-default:hover { background-color:#609AB6; border-color:#609AB6;
 .search-results div.card { padding: 8px; }
 .search-results div.card:hover { background-color: #ffff99; }
 .search-results div.card .card-header { padding: 20px 0 0 0; background-color: transparent; border-bottom:none; }
-.search-results div.card img.card-logo { max-height: 125px; max-width: 100%; width:auto; }
-.search-results div.card img.card-default-logo { height: 100px; max-height: 125px; max-width: 100%; }
-.search-results div.card img.card-img-placeholder { height: 100px; max-height: 125px; max-width: 100%; }
+
+.search-results div.card img.card-logo {
+    max-height: 125px;
+    max-width: 300px;
+/*     min-width: 80%; */
+}
+.search-results div.card img.card-db-logo {
+/*     object-fit: scale-down; */
+/*   object-fit: cover; */
+}
+.search-results div .card img.card-default-logo,
+.search-results div.card img.card-img-placeholder {
+    height: 100px;
+    max-height: 200px;
+    max-width: 100%;
+}
 
 .search-results .card-title h5 {
     font-weight: bold;
