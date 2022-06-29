@@ -490,13 +490,14 @@ class SystemVersion(models.Model):
 
     def create_twitter_card(self):
         from PIL import Image, ImageDraw, ImageFont
+        from cairosvg import svg2png
+        import tempfile
 
         # Create a nicely formatted version of the logo for the twitter card
         template = os.path.join(settings.BASE_DIR, "static", settings.TWITTER_CARD_TEMPLATE)
         im1 = Image.open(template).convert("RGBA")
         new_im = Image.new('RGBA', (im1.width, im1.height))
         new_im.paste(im1, (0, 0))
-
 
         # If there is no logo, then we will create an image of just the name
         if not self.logo:
@@ -516,6 +517,14 @@ class SystemVersion(models.Model):
             text_draw = ImageDraw.Draw(logo)
             text_draw.text((0, 0), name, font=font, fill=(70,70,70,255))
 
+        # SVG
+        elif self.logo.path.lower().endswith("svg"):
+            temp_name = next(tempfile._get_candidate_names()) + ".png"
+            with open(self.logo.path) as fd:
+                svg2png(bytestring=fd.read(),write_to=temp_name, scale=10)
+            logo = Image.open(temp_name).convert("RGBA")
+
+        # PNG
         else:
             logo = Image.open(self.logo).convert("RGBA")
 
