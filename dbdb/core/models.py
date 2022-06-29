@@ -519,9 +519,9 @@ class SystemVersion(models.Model):
 
         # SVG
         elif self.logo.path.lower().endswith("svg"):
-            temp_name = next(tempfile._get_candidate_names()) + ".png"
+            temp_name = os.path.join(tempfile.gettempdir(), next(tempfile._get_candidate_names()) + ".png")
             with open(self.logo.path) as fd:
-                svg2png(bytestring=fd.read(),write_to=temp_name, scale=10)
+                svg2png(bytestring=fd.read(),write_to=temp_name, scale=3)
             logo = Image.open(temp_name).convert("RGBA")
 
         # PNG

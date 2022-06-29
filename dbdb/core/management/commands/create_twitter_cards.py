@@ -19,6 +19,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('system', metavar='S', type=str, nargs='?',
                     help='System to force twiter card creation')
+        parser.add_argument('--skip-errors', action='store_true',
+                            help="Ignore errors and keep processing")
         return
 
     def handle(self, *args, **options):
@@ -50,7 +52,11 @@ class Command(BaseCommand):
                         continue
                 elif os.path.exists(card_img):
                     continue
-            ver.create_twitter_card()
+            try:
+                ver.create_twitter_card()
+            except:
+                self.stdout.write("FAIL: %s -> %s" % (ver.system.name, card_img))
+                if not options['skip_errors']: raise
             self.stdout.write("%s -> %s" % (ver.system.name, card_img))
         # FOR
         return
