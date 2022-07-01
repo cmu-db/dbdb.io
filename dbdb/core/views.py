@@ -207,7 +207,12 @@ class EmptyFieldsView(View):
             if search_field in version_fields:
                 field = SystemVersion._meta.get_field(search_field)
                 field_name = search_field
-                if type(field) == django.db.models.fields.PositiveIntegerField:
+                field_type = type(field)
+
+                # We have to query the different field types a certain way
+                if field_type == django.db.models.fields.PositiveIntegerField:
+                    query = Q(**{search_field: None})
+                elif field_type == django.db.models.fields.related.ManyToManyField:
                     query = Q(**{search_field: None})
                 else:
                     query = Q(**{search_field: ''})
@@ -240,7 +245,11 @@ class EmptyFieldsView(View):
                     else:
                         version.value = getattr(version.meta, search_field, "XXX")
                 else:
-                    version.value = getattr(version, field_name, None)
+                    if type(field) == django.db.models.fields.related.ManyToManyField:
+                        method_handle = getattr(version, search_field + "_str")
+                        version.value = method_handle()
+                    else:
+                        version.value = getattr(version, field_name, None)
                 pass
         ## IF
 
@@ -1602,6 +1611,11 @@ class SystemView(View):
         else:
             user_can_edit = SystemACL.objects.filter(system=system, user=request.user).exists()
             pass
+
+        # Citations
+        #citations = [ ]
+        #citations.append(system_version.description_citations)
+        #citations.append(
 
         # Compatible Systems
         compatible = [
