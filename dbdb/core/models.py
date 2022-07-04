@@ -36,6 +36,7 @@ class Feature(models.Model):
     slug = models.SlugField(db_index=True, unique=True)
     label = models.CharField(max_length=100, unique=True)
     multivalued = models.BooleanField(default=True)
+    description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
 
     class Meta:
         ordering = ('label',)
