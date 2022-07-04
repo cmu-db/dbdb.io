@@ -176,6 +176,10 @@ class EmptyFieldsView(View):
             if not type(f) in IGNORE_TYPES and \
                not f.name in IGNORE_NAMES:
                 version_fields.append(f.name)
+
+                # SPECIAL!
+                # I want to be able to find all the non-SVG logos
+                if f.name == "logo": version_fields.append(f.name + "__SVG")
         ## FOR
 
         meta_fields = [ ]
@@ -205,17 +209,23 @@ class EmptyFieldsView(View):
             field = None
 
             if search_field in version_fields:
-                field = SystemVersion._meta.get_field(search_field)
-                field_name = search_field
+                # SPECIAL
+                if search_field.endswith("__SVG"):
+                    field = SystemVersion._meta.get_field(search_field[:-5])
+                else:
+                    field = SystemVersion._meta.get_field(search_field)
+                field_name = field.name
                 field_type = type(field)
 
                 # We have to query the different field types a certain way
                 if field_type == django.db.models.fields.PositiveIntegerField:
-                    query = Q(**{search_field: None})
+                    query = Q(**{field_name: None})
                 elif field_type == django.db.models.fields.related.ManyToManyField:
-                    query = Q(**{search_field: None})
+                    query = Q(**{field_name: None})
+                elif search_field.endswith("__SVG"):
+                    query = Q(logo__endswith=".svg")
                 else:
-                    query = Q(**{search_field: ''})
+                    query = Q(**{field_name: ''})
 
             elif search_field in meta_fields:
                 field = SystemVersionMetadata._meta.get_field(search_field)
