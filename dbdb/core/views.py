@@ -71,8 +71,11 @@ SITEMAP_NSMAP = { None : SITEMPA_NS }
 FieldSet = collections.namedtuple('FieldSet', ['id','label','choices','description','citation'])
 LetterPage = collections.namedtuple('LetterPage', ['id','letter','is_active','is_disabled'])
 Stat = collections.namedtuple('Stat', ['label','items', 'search_field', 'systems', 'count'])
-StatItem = collections.namedtuple('StatItem', ['label','value','slug'])
+StatItem = collections.namedtuple('StatItem', ['label','value','slug','url'])
 
+# ==============================================
+# FilterChoice
+# ==============================================
 class FilterChoice( collections.namedtuple('FilterChoice', ['id','label','checked']) ):
 
     is_hidden = False
@@ -86,6 +89,9 @@ class FilterChoice( collections.namedtuple('FilterChoice', ['id','label','checke
 
     pass
 
+# ==============================================
+# FilterGroup
+# ==============================================
 class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) ):
 
     has_checked = False
@@ -106,6 +112,9 @@ class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) 
 
     pass
 
+# ==============================================
+# SearchBadge
+# ==============================================
 class SearchBadge:
 
     __slots__ = ['query','group_slug','group_name', 'badge_slug', 'badge_name']
@@ -176,6 +185,10 @@ class EmptyFieldsView(View):
             if not type(f) in IGNORE_TYPES and \
                not f.name in IGNORE_NAMES:
                 version_fields.append(f.name)
+
+                # SPECIAL!
+                # I want to be able to find all the non-SVG logos
+                if f.name == "logo": version_fields.append(f.name + "__SVG")
         ## FOR
 
         meta_fields = [ ]
@@ -205,12 +218,23 @@ class EmptyFieldsView(View):
             field = None
 
             if search_field in version_fields:
-                field = SystemVersion._meta.get_field(search_field)
-                field_name = search_field
-                if type(field) == django.db.models.fields.PositiveIntegerField:
-                    query = Q(**{search_field: None})
+                # SPECIAL
+                if search_field.endswith("__SVG"):
+                    field = SystemVersion._meta.get_field(search_field[:-5])
                 else:
-                    query = Q(**{search_field: ''})
+                    field = SystemVersion._meta.get_field(search_field)
+                field_name = field.name
+                field_type = type(field)
+
+                # We have to query the different field types a certain way
+                if field_type == django.db.models.fields.PositiveIntegerField:
+                    query = Q(**{field_name: None})
+                elif field_type == django.db.models.fields.related.ManyToManyField:
+                    query = Q(**{field_name: None})
+                elif search_field.endswith("__SVG"):
+                    query = Q(logo__endswith=".svg")
+                else:
+                    query = Q(**{field_name: ''})
 
             elif search_field in meta_fields:
                 field = SystemVersionMetadata._meta.get_field(search_field)
@@ -240,7 +264,11 @@ class EmptyFieldsView(View):
                     else:
                         version.value = getattr(version.meta, search_field, "XXX")
                 else:
-                    version.value = getattr(version, field_name, None)
+                    if type(field) == django.db.models.fields.related.ManyToManyField:
+                        method_handle = getattr(version, search_field + "_str")
+                        version.value = method_handle()
+                    else:
+                        version.value = getattr(version, field_name, None)
                 pass
         ## IF
 
@@ -567,16 +595,17 @@ class DatabaseBrowseView(View):
             sqs = sqs.filter(content=AutoQuery(search_q))
 
         # apply year limits
-        if all((search_start_min, search_start_max)):
-            search_start_min = int(search_start_min)
-            search_start_max = int(search_start_max)
-            sqs = sqs.filter(start_year__gte=search_start_min, start_year__lte=search_start_max)
+        if search_start_min.isdigit():
+            sqs = sqs.filter(start_year__gte=int(search_start_min))
             pass
-
-        if all((search_end_min, search_end_max)):
-            search_end_min = int(search_end_min)
-            search_end_max = int(search_end_max)
-            sqs = sqs.filter(end_year__gte=search_end_min, end_year__lte=search_end_max)
+        if search_start_max.isdigit():
+            sqs = sqs.filter(start_year__lte=int(search_start_max))
+            pass
+        if search_end_min.isdigit():
+            sqs = sqs.filter(end_year__gte=int(search_end_min))
+            pass
+        if search_end_max.isdigit():
+            sqs = sqs.filter(end_year__lte=int(search_end_max))
             pass
 
         # search - compatible
@@ -639,9 +668,9 @@ class DatabaseBrowseView(View):
             pass
 
         # search - tags
-        if search_type:
+        if search_tag:
             sqs = sqs.filter(tags__in=search_tag)
-            types = Tag.objects.filter(slug__in=search_type)
+            tags = Tag.objects.filter(slug__in=search_tag)
             search_badges.extend( SearchBadge(request.GET, 'type', 'Tags', t.slug, t.name) for t in tags )
             pass
 
@@ -1425,7 +1454,7 @@ class StatsView(View):
         system_countries = reduce(reduce_countries, system_countries, {})
 
         system_countries = [
-            StatItem(k, v, k)
+            StatItem(k, v, k, None)
             for k,v in system_countries.items()
         ]
         system_countries.sort(key=lambda i: i.value, reverse=True)
@@ -1440,7 +1469,7 @@ class StatsView(View):
 
         return stat
 
-    def get_by_field(self, title, field, search_field, labels, slugs, is_systems, limit):
+    def get_versionmeta_stat(self, title, field, search_field, labels, slugs, is_systems, limit):
 
         def reduce_counts(mapping, item):
             assert not mapping is None
@@ -1461,12 +1490,12 @@ class StatsView(View):
 
         if is_systems:
             stat_items = [
-                StatItem(System.objects.get(id=k), v, slugs[k])
+                StatItem(System.objects.get(id=k), v, slugs[k], None)
                 for k,v in counts.items()
             ]
         else:
             stat_items = [
-                StatItem(labels[k], v, slugs[k])
+                StatItem(labels[k], v, slugs[k], None)
                 for k,v in counts.items()
             ]
 
@@ -1481,6 +1510,68 @@ class StatsView(View):
 
         return stat
 
+    def get_version_stat(self, title, field, search_field, labels, slugs, is_systems, limit):
+
+        def reduce_counts(mapping, item):
+            assert not mapping is None
+            if item is not None:
+                mapping[item] = mapping.get(item, 0) + 1
+
+        values = SystemVersion.objects \
+            .filter(is_current=True) \
+            .filter(~Q(**{field: None})) \
+            .values_list('system_id', field, named=True)
+
+        counts = { }
+        for v in values:
+            counts[v[1]] = counts.get(v[1], 0) + 1
+        #counts = reduce(reduce_counts, values, { })
+
+        stat_items = [ ]
+
+        if is_systems:
+            stat_items = [
+                StatItem(System.objects.get(id=k), v, slugs[k], None)
+                for k,v in counts.items()
+            ]
+        else:
+            stat_items = [
+                StatItem(labels[k], v, slugs[k], None)
+                for k,v in counts.items()
+            ]
+
+        stat_items.sort(key=lambda i: i.value, reverse=True)
+        stat = Stat(
+            title,
+            stat_items[:limit],
+            search_field,
+            is_systems,
+            len(stat_items)
+        )
+
+        return stat
+
+    def get_system_stat(self, title, field, labels, slugs, limit):
+        values = System.objects \
+            .order_by('-'+field)[:limit]
+            #.values_list('id', field, named=True)
+
+        stat_items = [
+                StatItem(s, getattr(s, field), s.slug, s.get_absolute_url)
+                for s in values
+        ]
+
+        # stat_items.sort(key=lambda i: i.value, reverse=True)
+        stat = Stat(
+            title,
+            stat_items[:limit],
+            None,
+            True,
+            len(stat_items)
+        )
+
+        return stat
+
 
     def get(self, request, stats_type=None):
         stats = []
@@ -1490,12 +1581,36 @@ class StatsView(View):
             limit = -1 if stats_type == "country" else self.default_limit
             stats.append( self.get_bycountries(limit) )
 
+        all_values = System.objects.all()
+        labels = dict(all_values.values_list('id', 'name'))
+        slugs = dict(all_values.values_list('id', 'slug'))
+
+        # Compatibility
+        if stats_type is None or stats_type == "compatible":
+            stats.append( self.get_versionmeta_stat('Compatibility', 'compatible_with', 'compatible', labels, slugs, True, self.default_limit) )
+
+        # Derived From
+        if stats_type is None or stats_type == "derived":
+            stats.append( self.get_versionmeta_stat('Derived From', 'derived_from', 'derived', labels, slugs, True, self.default_limit) )
+
+        # Embeds
+        if stats_type is None or stats_type == "embeds":
+            stats.append( self.get_versionmeta_stat('Embeds / Uses', 'embedded', 'embeds', labels, slugs, True, self.default_limit ) )
+
+        # Versions
+        if stats_type is None or stats_type == "revisions":
+            stats.append( self.get_system_stat('Revisions', 'ver', labels, slugs, self.default_limit ) )
+
+        # Views
+        if stats_type is None or stats_type == "views":
+            stats.append( self.get_system_stat('Views', 'view_count', labels, slugs, self.default_limit ) )
+
         # Licenses
         if stats_type is None or stats_type == "license":
             limit = -1 if stats_type == "license" else self.default_limit
             labels = dict(License.objects.all().values_list('id', 'name'))
             slugs = dict(License.objects.all().values_list('id', 'slug'))
-            stats.append( self.get_by_field('License', 'licenses', 'license', labels, slugs, False, limit) )
+            stats.append( self.get_versionmeta_stat('License', 'licenses', 'license', labels, slugs, False, limit) )
 
         # Implementation Language
         if stats_type is None or stats_type == "programming":
@@ -1503,23 +1618,14 @@ class StatsView(View):
             all_values = ProgrammingLanguage.objects.all()
             labels = dict(all_values.values_list('id', 'name'))
             slugs = dict(all_values.values_list('id', 'slug'))
-            stats.append( self.get_by_field('Implementation', 'written_in', 'programming', labels, slugs, False, limit) )
+            stats.append( self.get_versionmeta_stat('Implementation', 'written_in', 'programming', labels, slugs, False, limit) )
 
-        all_values = System.objects.all()
-        labels = dict(all_values.values_list('id', 'name'))
-        slugs = dict(all_values.values_list('id', 'slug'))
-
-        # Compatibility
-        if stats_type is None or stats_type == "compatible":
-            stats.append( self.get_by_field('Compatibility', 'compatible_with', 'compatible', labels, slugs, True, self.default_limit) )
-
-        # Derived From
-        if stats_type is None or stats_type == "derived":
-            stats.append( self.get_by_field('Derived From', 'derived_from', 'derived', labels, slugs, True, self.default_limit) )
-
-        # Embeds
-        if stats_type is None or stats_type == "embeds":
-            stats.append( self.get_by_field('Embeds / Uses', 'embedded', 'embeds', labels, slugs, True, self.default_limit ) )
+        # Project Type
+        if stats_type is None or stats_type == "project_type":
+            limit = -1 if stats_type == "project_type" else self.default_limit
+            labels = dict(ProjectType.objects.all().values_list('id', 'name'))
+            slugs = dict(ProjectType.objects.all().values_list('id', 'slug'))
+            stats.append( self.get_version_stat('Project Type', 'project_types', 'type', labels, slugs, False, limit) )
 
         return render(request, self.template_name, context={
             'activate': 'stats', # NAV-LINKS
@@ -1601,6 +1707,11 @@ class SystemView(View):
         else:
             user_can_edit = SystemACL.objects.filter(system=system, user=request.user).exists()
             pass
+
+        # Citations
+        #citations = [ ]
+        #citations.append(system_version.description_citations)
+        #citations.append(
 
         # Compatible Systems
         compatible = [

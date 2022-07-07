@@ -2,7 +2,7 @@
 <html lang="en" prefix="og: http://ogp.me/ns#">
 <head>
     <meta charset="UTF-8">
-    <title>Database of Databases - {% block title %}{% if title %}{{ title }}{% endif %}{% endblock %}</title>
+    <title>{% block title %}{% if title %}{{ title }}{% endif %}{% endblock %} - Database of Databases</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% if counter_token %}
     <meta name="counter" content="{{ counter_token }}">

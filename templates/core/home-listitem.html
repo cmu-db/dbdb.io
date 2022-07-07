@@ -2,12 +2,12 @@
 {% load thumbnail %}
 
 <tr>
-    <td class="homepage-logo">
+    <td>
         <a href="{{ item.get_absolute_url }}">
         {% if item.current.logo %}
-        <img src="{% if item.current.logo.url.lower|slice:"-3:" == "svg" %}{{ item.current.logo.url }}{% else %}{{ item.current.logo|thumbnail_url:'thumb' }}{% endif %}" alt="{{ item.name }}" />
+        <img class="logo-homepage" src="{% if item.current.logo.url.lower|slice:"-3:" == "svg" %}{{ item.current.logo.url }}{% else %}{{ item.current.logo|thumbnail_url:'thumb' }}{% endif %}" alt="{{ item.name }}" />
         {% else %}
-        <img src="{% static 'core/images/database-nologo.svg' %}" alt="{{ item.name }}" />
+        <img class="logo-homepage" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ item.name }}" />
         {% endif %}
         </a>
     </td>
