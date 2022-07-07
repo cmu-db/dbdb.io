@@ -24,7 +24,7 @@ MarkupSafe==1.1.1
 mysqlclient==1.4.6
 packaging==20.4
 Pillow==8.3.2
-Pygments==2.6.1
+Pygments==2.7.4
 PyJWT==1.7.1
 pyparsing==2.4.7
 pyquery==1.4.1
