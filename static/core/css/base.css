@@ -84,7 +84,7 @@ div.main {
 
 /* LOGOS */
 img.logo-thumbnail {
-    min-width: 300px;
+    min-width: 200px;
     max-width: 300px;
     max-height: 250px;
 }
