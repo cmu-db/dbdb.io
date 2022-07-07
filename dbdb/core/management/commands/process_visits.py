@@ -67,6 +67,21 @@ class Command(BaseCommand):
             return
         # IF
 
+        # Get the total # of visits per system so that we can update
+        # the System objects for our stats calculation
+        visits_per_system = { }
+        with connection.cursor() as cursor:
+            sql = "SELECT system_id, count(*) AS cnt FROM core_systemvisit GROUP BY system_id"
+            cursor.execute(sql)
+            visits_per_system = dict([ (row[0],int(row[1])) for row in cursor.fetchall() ])
+        # WITH
+        for system_id, visits in visits_per_system.items():
+            system = System.objects.get(id=system_id)
+            system.view_count = visits
+            system.save()
+            #print(system, "=>", visits_per_system[system_id])
+        #sys.exit(0)
+
         # Get the list of all unique IPs
         ip_addresses = [ ]
         with connection.cursor() as cursor:

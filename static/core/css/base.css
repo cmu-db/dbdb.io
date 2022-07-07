@@ -99,7 +99,7 @@ img.logo-homepage {
     max-height: 60px;
 }
 img.logo-stats {
-    min-width: 60px;
+/*     min-width: 60px; */
     max-width: 60px;
     max-height: 40px;
 }

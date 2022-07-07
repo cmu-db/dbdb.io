@@ -71,8 +71,11 @@ SITEMAP_NSMAP = { None : SITEMPA_NS }
 FieldSet = collections.namedtuple('FieldSet', ['id','label','choices','description','citation'])
 LetterPage = collections.namedtuple('LetterPage', ['id','letter','is_active','is_disabled'])
 Stat = collections.namedtuple('Stat', ['label','items', 'search_field', 'systems', 'count'])
-StatItem = collections.namedtuple('StatItem', ['label','value','slug'])
+StatItem = collections.namedtuple('StatItem', ['label','value','slug','url'])
 
+# ==============================================
+# FilterChoice
+# ==============================================
 class FilterChoice( collections.namedtuple('FilterChoice', ['id','label','checked']) ):
 
     is_hidden = False
@@ -86,6 +89,9 @@ class FilterChoice( collections.namedtuple('FilterChoice', ['id','label','checke
 
     pass
 
+# ==============================================
+# FilterGroup
+# ==============================================
 class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) ):
 
     has_checked = False
@@ -106,6 +112,9 @@ class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) 
 
     pass
 
+# ==============================================
+# SearchBadge
+# ==============================================
 class SearchBadge:
 
     __slots__ = ['query','group_slug','group_name', 'badge_slug', 'badge_name']
@@ -1445,7 +1454,7 @@ class StatsView(View):
         system_countries = reduce(reduce_countries, system_countries, {})
 
         system_countries = [
-            StatItem(k, v, k)
+            StatItem(k, v, k, None)
             for k,v in system_countries.items()
         ]
         system_countries.sort(key=lambda i: i.value, reverse=True)
@@ -1460,7 +1469,7 @@ class StatsView(View):
 
         return stat
 
-    def get_by_field(self, title, field, search_field, labels, slugs, is_systems, limit):
+    def get_versionmeta_stat(self, title, field, search_field, labels, slugs, is_systems, limit):
 
         def reduce_counts(mapping, item):
             assert not mapping is None
@@ -1481,12 +1490,12 @@ class StatsView(View):
 
         if is_systems:
             stat_items = [
-                StatItem(System.objects.get(id=k), v, slugs[k])
+                StatItem(System.objects.get(id=k), v, slugs[k], None)
                 for k,v in counts.items()
             ]
         else:
             stat_items = [
-                StatItem(labels[k], v, slugs[k])
+                StatItem(labels[k], v, slugs[k], None)
                 for k,v in counts.items()
             ]
 
@@ -1501,6 +1510,68 @@ class StatsView(View):
 
         return stat
 
+    def get_version_stat(self, title, field, search_field, labels, slugs, is_systems, limit):
+
+        def reduce_counts(mapping, item):
+            assert not mapping is None
+            if item is not None:
+                mapping[item] = mapping.get(item, 0) + 1
+
+        values = SystemVersion.objects \
+            .filter(is_current=True) \
+            .filter(~Q(**{field: None})) \
+            .values_list('system_id', field, named=True)
+
+        counts = { }
+        for v in values:
+            counts[v[1]] = counts.get(v[1], 0) + 1
+        #counts = reduce(reduce_counts, values, { })
+
+        stat_items = [ ]
+
+        if is_systems:
+            stat_items = [
+                StatItem(System.objects.get(id=k), v, slugs[k], None)
+                for k,v in counts.items()
+            ]
+        else:
+            stat_items = [
+                StatItem(labels[k], v, slugs[k], None)
+                for k,v in counts.items()
+            ]
+
+        stat_items.sort(key=lambda i: i.value, reverse=True)
+        stat = Stat(
+            title,
+            stat_items[:limit],
+            search_field,
+            is_systems,
+            len(stat_items)
+        )
+
+        return stat
+
+    def get_system_stat(self, title, field, labels, slugs, limit):
+        values = System.objects \
+            .order_by('-'+field)[:limit]
+            #.values_list('id', field, named=True)
+
+        stat_items = [
+                StatItem(s, getattr(s, field), s.slug, s.get_absolute_url)
+                for s in values
+        ]
+
+        # stat_items.sort(key=lambda i: i.value, reverse=True)
+        stat = Stat(
+            title,
+            stat_items[:limit],
+            None,
+            True,
+            len(stat_items)
+        )
+
+        return stat
+
 
     def get(self, request, stats_type=None):
         stats = []
@@ -1510,12 +1581,36 @@ class StatsView(View):
             limit = -1 if stats_type == "country" else self.default_limit
             stats.append( self.get_bycountries(limit) )
 
+        all_values = System.objects.all()
+        labels = dict(all_values.values_list('id', 'name'))
+        slugs = dict(all_values.values_list('id', 'slug'))
+
+        # Compatibility
+        if stats_type is None or stats_type == "compatible":
+            stats.append( self.get_versionmeta_stat('Compatibility', 'compatible_with', 'compatible', labels, slugs, True, self.default_limit) )
+
+        # Derived From
+        if stats_type is None or stats_type == "derived":
+            stats.append( self.get_versionmeta_stat('Derived From', 'derived_from', 'derived', labels, slugs, True, self.default_limit) )
+
+        # Embeds
+        if stats_type is None or stats_type == "embeds":
+            stats.append( self.get_versionmeta_stat('Embeds / Uses', 'embedded', 'embeds', labels, slugs, True, self.default_limit ) )
+
+        # Versions
+        if stats_type is None or stats_type == "revisions":
+            stats.append( self.get_system_stat('Revisions', 'ver', labels, slugs, self.default_limit ) )
+
+        # Views
+        if stats_type is None or stats_type == "views":
+            stats.append( self.get_system_stat('Views', 'view_count', labels, slugs, self.default_limit ) )
+
         # Licenses
         if stats_type is None or stats_type == "license":
             limit = -1 if stats_type == "license" else self.default_limit
             labels = dict(License.objects.all().values_list('id', 'name'))
             slugs = dict(License.objects.all().values_list('id', 'slug'))
-            stats.append( self.get_by_field('License', 'licenses', 'license', labels, slugs, False, limit) )
+            stats.append( self.get_versionmeta_stat('License', 'licenses', 'license', labels, slugs, False, limit) )
 
         # Implementation Language
         if stats_type is None or stats_type == "programming":
@@ -1523,23 +1618,14 @@ class StatsView(View):
             all_values = ProgrammingLanguage.objects.all()
             labels = dict(all_values.values_list('id', 'name'))
             slugs = dict(all_values.values_list('id', 'slug'))
-            stats.append( self.get_by_field('Implementation', 'written_in', 'programming', labels, slugs, False, limit) )
+            stats.append( self.get_versionmeta_stat('Implementation', 'written_in', 'programming', labels, slugs, False, limit) )
 
-        all_values = System.objects.all()
-        labels = dict(all_values.values_list('id', 'name'))
-        slugs = dict(all_values.values_list('id', 'slug'))
-
-        # Compatibility
-        if stats_type is None or stats_type == "compatible":
-            stats.append( self.get_by_field('Compatibility', 'compatible_with', 'compatible', labels, slugs, True, self.default_limit) )
-
-        # Derived From
-        if stats_type is None or stats_type == "derived":
-            stats.append( self.get_by_field('Derived From', 'derived_from', 'derived', labels, slugs, True, self.default_limit) )
-
-        # Embeds
-        if stats_type is None or stats_type == "embeds":
-            stats.append( self.get_by_field('Embeds / Uses', 'embedded', 'embeds', labels, slugs, True, self.default_limit ) )
+        # Project Type
+        if stats_type is None or stats_type == "project_type":
+            limit = -1 if stats_type == "project_type" else self.default_limit
+            labels = dict(ProjectType.objects.all().values_list('id', 'name'))
+            slugs = dict(ProjectType.objects.all().values_list('id', 'slug'))
+            stats.append( self.get_version_stat('Project Type', 'project_types', 'type', labels, slugs, False, limit) )
 
         return render(request, self.template_name, context={
             'activate': 'stats', # NAV-LINKS
