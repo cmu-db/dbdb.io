@@ -1439,6 +1439,7 @@ class StatsView(View):
 
     template_name = 'core/stats.html'
     default_limit = 10
+    is_superuser = False
 
     def get_bycountries(self, limit):
         def reduce_countries(mapping, item):
@@ -1556,10 +1557,14 @@ class StatsView(View):
             .order_by('-'+field)[:limit]
             #.values_list('id', field, named=True)
 
-        stat_items = [
-                StatItem(s, getattr(s, field), s.slug, s.get_absolute_url)
-                for s in values
-        ]
+        stat_items = [ ]
+        for s in values:
+            if field == 'view_count' and self.is_superuser == False:
+                value = "#%02d" % (len(stat_items)+1)
+            else:
+                value = getattr(s, field)
+            stat_items.append(StatItem(s, value, s.slug, s.get_absolute_url))
+        # FOR
 
         # stat_items.sort(key=lambda i: i.value, reverse=True)
         stat = Stat(
@@ -1574,6 +1579,7 @@ class StatsView(View):
 
 
     def get(self, request, stats_type=None):
+        self.is_superuser = request.user.is_superuser
         stats = []
 
         # Countries
