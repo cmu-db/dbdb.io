@@ -84,7 +84,7 @@ div.main {
 
 /* LOGOS */
 img.logo-thumbnail {
-    min-width: 200px;
+    width: 100%;
     max-width: 300px;
     max-height: 250px;
 }
@@ -109,10 +109,10 @@ img.logo-recent {
     max-height: 40px;
 }
 img.logo-recommendation {
-    min-width: 100px;
+    width: 100%;
     max-width: 200px;
     max-height: 50px;
-/*     object-fit: scale-down; */
+    object-fit: scale-down;
 }
 
 
