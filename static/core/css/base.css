@@ -109,7 +109,7 @@ img.logo-recent {
     max-height: 40px;
 }
 img.logo-recommendation {
-    width: 100%;
+/*     width: 100%; */
     max-width: 200px;
     max-height: 50px;
     object-fit: scale-down;

@@ -8,15 +8,15 @@
     <ul class="list-group list-group-flush">
     {% for other_sys in systems %}
         {% if not limit or forloop.counter0 < limit %}
-        <a href="{{ other_sys.get_absolute_url }}" title="{{ other_sys.name }}">
             <li class="list-group-item list-group-item-action">
+                <a href="{{ other_sys.get_absolute_url }}" title="{{ other_sys.name }}">
             {% if other_sys.current.logo %}
                 <img class="logo-recommendation" src="{{ other_sys.current.logo|thumbnail_url:'recommendation' }}" alt="{{ other_sys.name }}" />
             {% else %}
                 <img src="{% static 'core/images/database-nologo.svg' %}" alt="{{ other_sys.name }}" /> {{ other_sys.name }}
             {% endif %}
+                </a>
             </li>
-        </a>
         {% endif %}
     {% endfor %}
     </ul>
