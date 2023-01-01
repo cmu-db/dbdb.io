@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'bootstrap4',
     'easy_thumbnails',
     'django_countries',
+    'captcha',
     'haystack', # django-haystack
     'rest_framework', # djangorestframework
     'markdownify.apps.MarkdownifyConfig',
@@ -82,6 +83,8 @@ WSGI_APPLICATION = 'dbdb.wsgi.application'
 DATABASES = {
     'default': env.db( default='sqlite:///{}'.format( root.path('data/db.sqlite3') ) )
 }
+
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -208,8 +211,8 @@ THUMBNAIL_PRESERVE_EXTENSIONS = ['png', 'svg']
 COUNTRIES_FIRST = ['US']
 
 # Django Invisible reCaptcha
-NORECAPTCHA_SITE_KEY = '6Lfo8VwUAAAAAEHNqeL01PSkiRul7ImQ8Bsw8Nqc'
-NORECAPTCHA_SECRET_KEY = '6Lfo8VwUAAAAALFGUrGKqrzCR94pfgFahtd56WY9'
+RECAPTCHA_PUBLIC_KEY = '6Lfo8VwUAAAAAEHNqeL01PSkiRul7ImQ8Bsw8Nqc'
+RECAPTCHA_PRIVATE_KEY = '6Lfo8VwUAAAAALFGUrGKqrzCR94pfgFahtd56WY9'
 
 # Email Configuration
 DEFAULT_FROM_EMAIL = ''
