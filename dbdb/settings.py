@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'dbdb.wsgi.application'
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 DATABASES = {
-    'default': env.db( default='sqlite:///{}'.format( root.path('data/db.sqlite3') ) )
+    'default': env.db(),
 }
 
 DEFAULT_AUTO_FIELD='django.db.models.AutoField'
@@ -118,15 +118,15 @@ CACHES = {
 # Haystack
 # https://django-haystack.readthedocs.io/
 
-import xapian
+#import xapian
 
 HAYSTACK_XAPIAN_FLAGS = (
-    xapian.QueryParser.FLAG_PHRASE |
-    xapian.QueryParser.FLAG_BOOLEAN |
-    xapian.QueryParser.FLAG_LOVEHATE |
-    xapian.QueryParser.FLAG_WILDCARD |
-    xapian.QueryParser.FLAG_PURE_NOT |
-    xapian.QueryParser.FLAG_PARTIAL
+#    xapian.QueryParser.FLAG_PHRASE |
+#    xapian.QueryParser.FLAG_BOOLEAN |
+#    xapian.QueryParser.FLAG_LOVEHATE |
+#    xapian.QueryParser.FLAG_WILDCARD |
+#    xapian.QueryParser.FLAG_PURE_NOT |
+#    xapian.QueryParser.FLAG_PARTIAL
 )
 HAYSTACK_XAPIAN_STEMMING_STRATEGY = 'STEM_ALL'
 

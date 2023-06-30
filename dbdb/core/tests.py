@@ -13,7 +13,7 @@ from haystack.query import SearchQuerySet
 from pyquery import PyQuery as pq
 import environ
 import haystack
-import xapian
+# import xapian
 # local imports
 from .models import Feature
 from .models import System
