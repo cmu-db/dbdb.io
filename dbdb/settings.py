@@ -20,13 +20,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
 
     #'autoslug',
     'bootstrap4',
     'easy_thumbnails',
     'django_countries',
     'captcha',
-    'haystack', # django-haystack
+    # 'haystack', # django-haystack
     'rest_framework', # djangorestframework
     'markdownify.apps.MarkdownifyConfig',
 
@@ -120,27 +121,27 @@ CACHES = {
 
 #import xapian
 
-HAYSTACK_XAPIAN_FLAGS = (
+# HAYSTACK_XAPIAN_FLAGS = (
 #    xapian.QueryParser.FLAG_PHRASE |
 #    xapian.QueryParser.FLAG_BOOLEAN |
 #    xapian.QueryParser.FLAG_LOVEHATE |
 #    xapian.QueryParser.FLAG_WILDCARD |
 #    xapian.QueryParser.FLAG_PURE_NOT |
 #    xapian.QueryParser.FLAG_PARTIAL
-)
-HAYSTACK_XAPIAN_STEMMING_STRATEGY = 'STEM_ALL'
-
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'xapian_backend.XapianEngine',
-        'PATH': root.path('data/xapian')(),
-        'FLAGS': HAYSTACK_XAPIAN_FLAGS,
-    },
-    # 'default': {
-        # 'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        # 'PATH': root.path('data/whoosh')(),
-    # },
-}
+# )
+# HAYSTACK_XAPIAN_STEMMING_STRATEGY = 'STEM_ALL'
+#
+# HAYSTACK_CONNECTIONS = {
+#     'default': {
+#         'ENGINE': 'xapian_backend.XapianEngine',
+#         'PATH': root.path('data/xapian')(),
+#         'FLAGS': HAYSTACK_XAPIAN_FLAGS,
+#     },
+#     # 'default': {
+#         # 'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+#         # 'PATH': root.path('data/whoosh')(),
+#     # },
+# }
 
 
 # Internationalization

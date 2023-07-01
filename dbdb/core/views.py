@@ -32,8 +32,8 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 # third-party imports
 from django_countries import countries
-from haystack.inputs import AutoQuery
-from haystack.query import SearchQuerySet
+# from haystack.inputs import AutoQuery
+# from haystack.query import SearchQuerySet
 from lxml import etree
 import jwt
 import pytz
@@ -582,135 +582,136 @@ class DatabaseBrowseView(View):
             'suffix': search_suffix,
         }
 
+        sqs = SystemVersion.objects.filter(is_current=True)
+
         if not any(search_mapping.values()) and not any(search_fg):
-            return (None, { }, [])
+            return (sqs, { }, [])
 
         search_badges = []
 
-        # create new search query
-        sqs = SearchQuerySet()
-
-        # apply keyword search to name (require all terms)
-        if search_q:
-            sqs = sqs.filter(content=AutoQuery(search_q))
-
-        # apply year limits
-        if search_start_min.isdigit():
-            sqs = sqs.filter(start_year__gte=int(search_start_min))
-            pass
-        if search_start_max.isdigit():
-            sqs = sqs.filter(start_year__lte=int(search_start_max))
-            pass
-        if search_end_min.isdigit():
-            sqs = sqs.filter(end_year__gte=int(search_end_min))
-            pass
-        if search_end_max.isdigit():
-            sqs = sqs.filter(end_year__lte=int(search_end_max))
-            pass
-
-        # search - compatible
-        if search_compatible:
-            sqs = sqs.filter(compatible_with__in=search_compatible)
-            systems = self.slug_to_system(search_compatible)
-            search_mapping['compatible'] = systems.values()
-            search_badges.extend( SearchBadge(request.GET, 'compatible', 'Compatible With', k, v) for k,v in systems.items() )
-            pass
-
-        # search - country
-        if search_country:
-            sqs = sqs.filter(countries__in=search_country)
-            search_badges.extend( SearchBadge(request.GET, 'country', 'Country', c, countries_map[c]) for c in search_country )
-            pass
-
-        # search - derived from
-        if search_derived:
-            sqs = sqs.filter(derived_from__in=search_derived)
-            systems = self.slug_to_system(search_derived)
-            search_mapping['derived'] = systems.values()
-            search_badges.extend( SearchBadge(request.GET, 'derived', 'Derived From', k, v) for k,v in systems.items() )
-            pass
-
-        # search - embedded
-        if search_embeds:
-            sqs = sqs.filter(embedded__in=search_embeds)
-            systems = self.slug_to_system(search_embeds)
-            search_mapping['embeds'] = systems.values()
-            search_badges.extend( SearchBadge(request.GET, 'embeds', 'Embeds / Uses', k, v) for k,v in systems.items() )
-            pass
-
-        # search - inspired by
-        if search_inspired:
-            sqs = sqs.filter(inspired_by__in=search_inspired)
-            systems = self.slug_to_system(search_inspired)
-            search_mapping['inspired'] = systems.values()
-            search_badges.extend( SearchBadge(request.GET, 'inspired', 'Inspired By', k, v) for k,v in systems.items() )
-            pass
-
-        # search - operating systems
-        if search_os:
-            sqs = sqs.filter(oses__in=search_os)
-            oses = OperatingSystem.objects.filter(slug__in=search_os)
-            search_badges.extend( SearchBadge(request.GET, 'os', 'Operating System', os.slug, os.name) for os in oses )
-            pass
-
-        # search - programming languages
-        if search_programming:
-            sqs = sqs.filter(written_langs__in=search_programming)
-            langs = ProgrammingLanguage.objects.filter(slug__in=search_programming)
-            search_badges.extend( SearchBadge(request.GET, 'programming', 'Programming Languages', lang.slug, lang.name) for lang in langs )
-            pass
-        
-        # search - supported languages
-        if search_supported:
-            sqs = sqs.filter(supported_langs__in=search_supported)
-            langs = ProgrammingLanguage.objects.filter(slug__in=search_supported)
-            search_badges.extend( SearchBadge(request.GET, 'supported', 'Supported Languages', lang.slug, lang.name) for lang in langs )
-            pass
-
-        # search - tags
-        if search_tag:
-            sqs = sqs.filter(tags__in=search_tag)
-            tags = Tag.objects.filter(slug__in=search_tag)
-            search_badges.extend( SearchBadge(request.GET, 'type', 'Tags', t.slug, t.name) for t in tags )
-            pass
-
-        # search - project types
-        if search_type:
-            sqs = sqs.filter(project_types__in=search_type)
-            types = ProjectType.objects.filter(slug__in=search_type)
-            search_badges.extend( SearchBadge(request.GET, 'type', 'Project Types', type.slug, type.name) for type in types )
-            pass
-
-        # search - licenses
-        if search_license:
-            sqs = sqs.filter(licenses__in=search_license)
-            licenses = License.objects.filter(slug__in=search_license)
-            search_badges.extend( SearchBadge(request.GET, 'license', 'Licenses', license.slug, license.name) for license in licenses )
-            pass
-
-        # search - suffixes
-        if search_suffix:
-            for suffix in search_suffix:
-                sqs = sqs.filter(lowercase_name__contains=suffix)
-            search_badges.extend(SearchBadge(request.GET, 'suffix', 'Suffix', suffix, suffix) for suffix in search_suffix)
-            pass
-
-        # convert feature option slugs to IDs to do search by filtering
-        filter_option_ids = set()
-        for feature_id,option_slugs in search_fg.items():
-            option_ids = set( map(lambda option_slug: featuresoptions_map[(feature_id,option_slug)], option_slugs) )
-            filter_option_ids.update(option_ids)
-            pass
-
-        # if there are filter options to search for, apply filter
-        if filter_option_ids:
-            for option_id in filter_option_ids:
-                sqs = sqs.filter(feature_options__contains=option_id)
-
-            search_badges.extend(
-                SearchBadge(request.GET, *row)
-                for row in FeatureOption.objects.filter(id__in=filter_option_ids).values_list('feature__slug','feature__label','slug','value')
-            )
+        # sqs = SearchQuerySet()
+        #
+        # # apply keyword search to name (require all terms)
+        # if search_q:
+        #     sqs = sqs.filter(content=AutoQuery(search_q))
+        #
+        # # apply year limits
+        # if search_start_min.isdigit():
+        #     sqs = sqs.filter(start_year__gte=int(search_start_min))
+        #     pass
+        # if search_start_max.isdigit():
+        #     sqs = sqs.filter(start_year__lte=int(search_start_max))
+        #     pass
+        # if search_end_min.isdigit():
+        #     sqs = sqs.filter(end_year__gte=int(search_end_min))
+        #     pass
+        # if search_end_max.isdigit():
+        #     sqs = sqs.filter(end_year__lte=int(search_end_max))
+        #     pass
+        #
+        # # search - compatible
+        # if search_compatible:
+        #     sqs = sqs.filter(compatible_with__in=search_compatible)
+        #     systems = self.slug_to_system(search_compatible)
+        #     search_mapping['compatible'] = systems.values()
+        #     search_badges.extend( SearchBadge(request.GET, 'compatible', 'Compatible With', k, v) for k,v in systems.items() )
+        #     pass
+        #
+        # # search - country
+        # if search_country:
+        #     sqs = sqs.filter(countries__in=search_country)
+        #     search_badges.extend( SearchBadge(request.GET, 'country', 'Country', c, countries_map[c]) for c in search_country )
+        #     pass
+        #
+        # # search - derived from
+        # if search_derived:
+        #     sqs = sqs.filter(derived_from__in=search_derived)
+        #     systems = self.slug_to_system(search_derived)
+        #     search_mapping['derived'] = systems.values()
+        #     search_badges.extend( SearchBadge(request.GET, 'derived', 'Derived From', k, v) for k,v in systems.items() )
+        #     pass
+        #
+        # # search - embedded
+        # if search_embeds:
+        #     sqs = sqs.filter(embedded__in=search_embeds)
+        #     systems = self.slug_to_system(search_embeds)
+        #     search_mapping['embeds'] = systems.values()
+        #     search_badges.extend( SearchBadge(request.GET, 'embeds', 'Embeds / Uses', k, v) for k,v in systems.items() )
+        #     pass
+        #
+        # # search - inspired by
+        # if search_inspired:
+        #     sqs = sqs.filter(inspired_by__in=search_inspired)
+        #     systems = self.slug_to_system(search_inspired)
+        #     search_mapping['inspired'] = systems.values()
+        #     search_badges.extend( SearchBadge(request.GET, 'inspired', 'Inspired By', k, v) for k,v in systems.items() )
+        #     pass
+        #
+        # # search - operating systems
+        # if search_os:
+        #     sqs = sqs.filter(oses__in=search_os)
+        #     oses = OperatingSystem.objects.filter(slug__in=search_os)
+        #     search_badges.extend( SearchBadge(request.GET, 'os', 'Operating System', os.slug, os.name) for os in oses )
+        #     pass
+        #
+        # # search - programming languages
+        # if search_programming:
+        #     sqs = sqs.filter(written_langs__in=search_programming)
+        #     langs = ProgrammingLanguage.objects.filter(slug__in=search_programming)
+        #     search_badges.extend( SearchBadge(request.GET, 'programming', 'Programming Languages', lang.slug, lang.name) for lang in langs )
+        #     pass
+        #
+        # # search - supported languages
+        # if search_supported:
+        #     sqs = sqs.filter(supported_langs__in=search_supported)
+        #     langs = ProgrammingLanguage.objects.filter(slug__in=search_supported)
+        #     search_badges.extend( SearchBadge(request.GET, 'supported', 'Supported Languages', lang.slug, lang.name) for lang in langs )
+        #     pass
+        #
+        # # search - tags
+        # if search_tag:
+        #     sqs = sqs.filter(tags__in=search_tag)
+        #     tags = Tag.objects.filter(slug__in=search_tag)
+        #     search_badges.extend( SearchBadge(request.GET, 'type', 'Tags', t.slug, t.name) for t in tags )
+        #     pass
+        #
+        # # search - project types
+        # if search_type:
+        #     sqs = sqs.filter(project_types__in=search_type)
+        #     types = ProjectType.objects.filter(slug__in=search_type)
+        #     search_badges.extend( SearchBadge(request.GET, 'type', 'Project Types', type.slug, type.name) for type in types )
+        #     pass
+        #
+        # # search - licenses
+        # if search_license:
+        #     sqs = sqs.filter(licenses__in=search_license)
+        #     licenses = License.objects.filter(slug__in=search_license)
+        #     search_badges.extend( SearchBadge(request.GET, 'license', 'Licenses', license.slug, license.name) for license in licenses )
+        #     pass
+        #
+        # # search - suffixes
+        # if search_suffix:
+        #     for suffix in search_suffix:
+        #         sqs = sqs.filter(lowercase_name__contains=suffix)
+        #     search_badges.extend(SearchBadge(request.GET, 'suffix', 'Suffix', suffix, suffix) for suffix in search_suffix)
+        #     pass
+        #
+        # # convert feature option slugs to IDs to do search by filtering
+        # filter_option_ids = set()
+        # for feature_id,option_slugs in search_fg.items():
+        #     option_ids = set( map(lambda option_slug: featuresoptions_map[(feature_id,option_slug)], option_slugs) )
+        #     filter_option_ids.update(option_ids)
+        #     pass
+        #
+        # # if there are filter options to search for, apply filter
+        # if filter_option_ids:
+        #     for option_id in filter_option_ids:
+        #         sqs = sqs.filter(feature_options__contains=option_id)
+        #
+        #     search_badges.extend(
+        #         SearchBadge(request.GET, *row)
+        #         for row in FeatureOption.objects.filter(id__in=filter_option_ids).values_list('feature__slug','feature__label','slug','value')
+        #     )
 
         return (sqs, search_mapping, search_badges)
 
@@ -753,18 +754,18 @@ class DatabaseBrowseView(View):
         if results is not None:
             pass
         elif search_letter == 'ALL' or not search_letter:
-            results = SearchQuerySet()
+            results = None # FIXME SearchQuerySet()
             search_letter = 'ALL'
             pass
         elif search_letter:
-            results = SearchQuerySet().filter(letter__exact=search_letter.lower())
+            results = None # FIXME SearchQuerySet().filter(letter__exact=search_letter.lower())
             pass
 
         # generate letter pagination
         pagination = self.build_pagination(search_letter)
 
         # convert query list to regular list
-        results = list( results.order_by('name') )
+        results = list( results.order_by('system__name') )
         # check if there are results
         has_results = len(results) > 0
 
@@ -1776,7 +1777,7 @@ class SystemView(View):
 def search_autocomplete(request):
     search_q = request.GET.get('q', '').strip()
     if search_q:
-        sqs = SearchQuerySet().autocomplete(autocomplete_name=search_q) # [:5]
+        sqs = None # FIXME SearchQuerySet().autocomplete(autocomplete_name=search_q) # [:5]
         suggestions = [system.name for system in sqs]
     else:
         suggestions = [ ]

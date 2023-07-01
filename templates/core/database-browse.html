@@ -204,8 +204,9 @@ div.results div.version p { margin:0; }
 
 
 {% block scripts %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.10/jquery.lazy.min.js" integrity="sha256-ZPvH+DBiXs1v8yk7lmZa6+wqm+kzbwL9R1COtZ9+wjo=" crossorigin="anonymous"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.10/jquery.lazy.min.js" integrity="sha256-ZPvH+DBiXs1v8yk7lmZa6+wqm+kzbwL9R1COtZ9+wjo=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.10/jquery.lazy.plugins.min.js" integrity="sha256-VYuzzxzkmIY1LtJUW3CU83sP845Dy2h2Otbvh4ecIEA=" crossorigin="anonymous"></script>
+-->
 
 <script type="text/javascript" src="{% static 'lib/js/bootstrap-select.js' %}"></script>
 <script type="text/javascript" src="{% static 'lib/js/nouislider.min.js' %}"></script>
@@ -388,14 +389,14 @@ $(document).ready(function () {
         show: false
     });
 
-    $('img.card-img-placeholder').Lazy({
-        effect: 'fadeIn',
-        visibleOnly: true,
-
-        afterLoad: function(element) {
-            element.removeClass('card-img-placeholder');
-        },
-    });
+    {#$('img.card-img-placeholder').Lazy({#}
+    {#    effect: 'fadeIn',#}
+    {#    visibleOnly: true,#}
+    {##}
+    {#    afterLoad: function(element) {#}
+    {#        element.removeClass('card-img-placeholder');#}
+    {#    },#}
+    {#});#}
 
 });
 
