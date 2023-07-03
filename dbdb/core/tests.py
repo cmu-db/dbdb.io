@@ -12,8 +12,6 @@ from django.urls import reverse
 from haystack.query import SearchQuerySet
 from pyquery import PyQuery as pq
 import environ
-import haystack
-# import xapian
 # local imports
 from .models import Feature
 from .models import System
@@ -21,51 +19,18 @@ from .models import SystemVisit
 from .views import CounterView
 
 
-# ==============================================
-# HAYSTACK CONFIG
-# ==============================================
-
 root = environ.Path(__file__) - 2
 
-HAYSTACK_XAPIAN_FLAGS = (
-    xapian.QueryParser.FLAG_PHRASE |
-    xapian.QueryParser.FLAG_BOOLEAN |
-    xapian.QueryParser.FLAG_LOVEHATE |
-    xapian.QueryParser.FLAG_WILDCARD |
-    xapian.QueryParser.FLAG_PURE_NOT |
-    xapian.QueryParser.FLAG_PARTIAL
-)
-
-TEST_INDEX = {
-    'default': {
-        'ENGINE': 'xapian_backend.XapianEngine',
-        'PATH': tempfile.mkdtemp(),
-        #'PATH': root.path('data/xapian')(),
-        'FLAGS': HAYSTACK_XAPIAN_FLAGS,
-    },
-}
-
-@override_settings(HAYSTACK_CONNECTIONS=TEST_INDEX)
 @override_settings(CACHES={
     'default': {
         'BACKEND': 'django.core.cache.backends.dummy.DummyCache'
     }
 })
-class BaseTestCase(TestCase):
-
-    def setUp(self):
-        haystack.connections.reload('default')
-        management.call_command('rebuild_index', interactive=False, verbosity=0)
-        super(BaseTestCase, self).setUp()
-
-    def tearDown(self):
-        management.call_command('clear_index', interactive=False, verbosity=0)
-# CLASS
 
 # ==============================================
 # SearchTestCase
 # ==============================================
-class SearchTestCase(BaseTestCase):
+class SearchTestCase(TestCase):
 
     fixtures = [
         'adminuser.json',
@@ -112,7 +77,7 @@ class SearchTestCase(BaseTestCase):
 # ==============================================
 # AutoCompleteTestCase
 # ==============================================
-class AutoCompleteTestCase(BaseTestCase):
+class AutoCompleteTestCase(TestCase):
 
     fixtures = [
         'adminuser.json',
@@ -147,7 +112,7 @@ class AutoCompleteTestCase(BaseTestCase):
 # ==============================================
 # SystemViewTestCase
 # ==============================================
-class SystemViewTestCase(BaseTestCase):
+class SystemViewTestCase(TestCase):
 
     fixtures = [
         'adminuser.json',
@@ -199,7 +164,7 @@ class SystemViewTestCase(BaseTestCase):
 # ==============================================
 # AdvancedSearchTestCase
 # ==============================================
-class AdvancedSearchTestCase(BaseTestCase):
+class AdvancedSearchTestCase(TestCase):
 
     fixtures = [
         'adminuser.json',
@@ -284,7 +249,7 @@ class AdvancedSearchTestCase(BaseTestCase):
 # ==============================================
 # CreateDatabaseTestCase
 # ==============================================
-class CreateDatabaseTestCase(BaseTestCase):
+class CreateDatabaseTestCase(TestCase):
 
     fixtures = [
         'adminuser.json',
@@ -342,7 +307,7 @@ class CreateDatabaseTestCase(BaseTestCase):
 # ==============================================
 # HomeTestCase
 # ==============================================
-class HomeTestCase(BaseTestCase):
+class HomeTestCase(TestCase):
 
     fixtures = [
         'adminuser.json',
@@ -389,7 +354,7 @@ class HomeTestCase(BaseTestCase):
 # ==============================================
 # LoginTestCase
 # ==============================================
-class LoginTestCase(BaseTestCase):
+class LoginTestCase(TestCase):
 
     fixtures = ['testuser.json']
 
