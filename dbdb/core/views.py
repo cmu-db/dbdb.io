@@ -12,8 +12,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.postgres.search import SearchQuery, SearchVector, TrigramSimilarity, TrigramWordSimilarity
 from django.db import transaction
-from django.db.models import Q, Count, Max, Min
+from django.db.models import Q, Count, Max, Min, Func, Value
 from django.forms import HiddenInput
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
@@ -514,7 +515,7 @@ class DatabaseBrowseView(View):
     ## DEF
 
 
-    def do_search(self, request):
+    def do_search(self, request, sqs):
         has_search = False
 
         countries_map = dict(countries)
@@ -582,19 +583,19 @@ class DatabaseBrowseView(View):
             'suffix': search_suffix,
         }
 
-        sqs = SystemVersion.objects.filter(is_current=True)
-
         if not any(search_mapping.values()) and not any(search_fg):
             return (sqs, { }, [])
 
         search_badges = []
 
-        # sqs = SearchQuerySet()
-        #
-        # # apply keyword search to name (require all terms)
-        # if search_q:
-        #     sqs = sqs.filter(content=AutoQuery(search_q))
-        #
+        # apply keyword search to name (require all terms)
+        if search_q:
+            sqs = sqs.annotate(similarity=TrigramWordSimilarity(search_q, 'system__name')).filter(similarity__gt=0.3).order_by('-similarity')
+            # search_query = SearchQuery(search_q)
+            # sqs = sqs.filter(system__name__search=search_query)
+            # sqs = sqs.annotate(search=SearchVector('system__name', config='english')).filter(search=search_q)
+
+
         # # apply year limits
         # if search_start_min.isdigit():
         #     sqs = sqs.filter(start_year__gte=int(search_start_min))
@@ -742,27 +743,32 @@ class DatabaseBrowseView(View):
         if any( filter(lambda k: k.startswith('fg'), request.GET.keys()) ):
            return self.handle_old_urls(request)
 
-        # Perform the search and get back the versions along with a
-        # mapping with the search keys
-        results, search_keys, search_badges = self.do_search(request)
-
+        # Search Query
         search_q = request.GET.get('q', '').strip()
 
         # Search Letter
         search_letter = request.GET.get('letter', '').strip().upper()
 
-        if results is not None:
-            pass
-        elif search_letter == 'ALL' or not search_letter:
-            results = None # FIXME SearchQuerySet()
+        # Perform the search and get back the versions along with a
+        # mapping with the search keys
+        search_keys = { }
+        search_badges = { }
+        results = SystemVersion.objects.filter(is_current=True)
+
+        if search_letter and search_letter != 'ALL':
+            if search_letter == "#":
+                results = results.filter(system__name__regex=r'^\d')
+            else:
+                results = results.filter(system__name__istartswith=search_letter)
+        else:
+            results, search_keys, search_badges = self.do_search(request, results)
             search_letter = 'ALL'
-            pass
-        elif search_letter:
-            results = None # FIXME SearchQuerySet().filter(letter__exact=search_letter.lower())
-            pass
 
         # generate letter pagination
         pagination = self.build_pagination(search_letter)
+
+        # Only get the columns we need for the browse page
+        # FIXME results = results.values('system__name', 'system__slug', 'logo', 'created')
 
         # convert query list to regular list
         results = list( results.order_by('system__name') )
@@ -1777,8 +1783,9 @@ class SystemView(View):
 def search_autocomplete(request):
     search_q = request.GET.get('q', '').strip()
     if search_q:
-        sqs = None # FIXME SearchQuerySet().autocomplete(autocomplete_name=search_q) # [:5]
-        suggestions = [system.name for system in sqs]
+        sqs = System.objects.filter(name__icontains=search_q).order_by('name')
+        sqs = sqs.values('name')[:6]
+        suggestions = [system["name"] for system in sqs]
     else:
         suggestions = [ ]
 
