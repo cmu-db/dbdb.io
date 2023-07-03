@@ -6,7 +6,7 @@
 <div class="card text-center">
     <div class="card-header">
         {% if result.logo %}
-        <img class="card-logo card-db-logo" src="{% if result.logo|lower|slice:"-3:" == "svg" %}/media/{{ result.logo }}{% else %}{{ logo }}{% endif %}" alt="{{ result.name }}" />
+        <img class="card-logo card-db-logo" loading="lazy" src="{% if result.logo|lower|slice:"-3:" == "svg" %}/media/{{ result.logo }}{% else %}{{ logo }}{% endif %}" alt="{{ result.name }}" />
         {% else %}
         <img class="card-logo card-default-logo" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ result.name }}" />
         {% endif %}
