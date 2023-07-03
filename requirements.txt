@@ -23,8 +23,8 @@ lxml==4.*
 MarkupSafe==1.1.1
 # mysqlclient==1.4.6
 psycopg2==2.9.6
-packaging==20.4
-Pillow==8.3.2
+packaging==23.1
+Pillow==10
 Pygments==2.6.1
 PyJWT==1.7.1
 pyparsing==2.4.7

@@ -29,7 +29,7 @@ from django.utils.decorators import method_decorator
 from django.utils.text import slugify
 from django.utils.text import smart_split
 from django.views import View
-from django.views.decorators.cache import never_cache
+from django.views.decorators.cache import never_cache, cache_control
 from django.views.decorators.csrf import csrf_exempt
 # third-party imports
 from django_countries import countries
@@ -1017,7 +1017,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
             pass
         return features
 
-    @never_cache
+    @method_decorator(cache_control(private=True))
     def get(self, request, slug=None):
 
         # If there is no slug, then they are trying to create a new database.
@@ -1094,12 +1094,14 @@ class DatabasesEditView(LoginRequiredMixin, View):
             system_version = SystemVersion(system=system, is_current=True)
             system_meta = SystemVersionMetadata()
             system_features = SystemFeature.objects.none()
+            old_logo = None
             pass
         else:
             system = System.objects.get(slug=slug)
             system_version = SystemVersion.objects.get(system=system, is_current=True)
             system_meta = system_version.meta
             system_features = system_version.features.all()
+            old_logo = system_version.logo
             pass
 
         system_form = SystemForm(request.POST, instance=system)
@@ -1228,6 +1230,16 @@ class DatabasesEditView(LoginRequiredMixin, View):
                         pass
                     pass
                 pass
+
+            # Do this down here to make sure the logo gets uploaded correctly
+            if db_version.logo is not None and old_logo != db_version.logo:
+                db_version.create_twitter_card()
+
+            # Update the search index too!
+            ver_search, created = SystemSearchText.objects.update_or_create(
+                system=system,
+                search_text=db_version.generate_searchtext())
+            ver_search.save()
 
             return redirect(db_version.system.get_absolute_url())
 

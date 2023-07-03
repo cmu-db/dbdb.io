@@ -567,7 +567,7 @@ class SystemVersion(models.Model):
             new_size = (int((float(new_size[0]) * float(ratio))), settings.TWITTER_CARD_MAX_HEIGHT)
 
         # Resize the mofo
-        logo = logo.resize(new_size, Image.ANTIALIAS)
+        logo = logo.resize(new_size, Image.Resampling.LANCZOS)
 
         # Figure out the center of the white part of the card
         # Assume that the origin is (0,0). We will adjust by the base offset later
