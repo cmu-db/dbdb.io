@@ -4,6 +4,7 @@ import uuid
 # django imports
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from django.db.models import Max
 from django.db.models.signals import post_save
@@ -14,6 +15,8 @@ from django.utils import timezone
 # third-party imports
 from easy_thumbnails.fields import ThumbnailerImageField,ThumbnailerField
 from django_countries.fields import CountryField
+
+from dbdb.core.common.searchvector import SearchVector
 
 
 # ==============================================
@@ -339,6 +342,23 @@ class SystemRecommendation(models.Model):
     pass
 
 # ==============================================
+# SystemSearchText
+# ==============================================
+class SystemSearchText(models.Model):
+    system = models.ForeignKey('System', models.CASCADE, related_name='search')
+    search_text = models.TextField(default=None, null=True,
+                                   help_text="Synthesized text for searching")
+    created = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        verbose_name = "System Search Text"
+        indexes = [
+            GinIndex(SearchVector("search_text", config="simple"), name="core_system_search__cf51c1_gin", fastupdate=False)
+        ]
+
+    pass
+
+# ==============================================
 # SystemVersion
 # ==============================================
 class SystemVersion(models.Model):
@@ -558,7 +578,24 @@ class SystemVersion(models.Model):
         card_img = os.path.join(settings.TWITTER_CARD_ROOT, self.get_twitter_card_image())
         new_im.save(card_img)
         return card_img
-    ## DEF
+
+    def generate_searchtext(self):
+        words = [self.system.name, self.developer]
+        words = words + [x.name for x in self.tags.all()]
+        words = words + [x.name for x in self.countries]
+        if self.former_names:
+            words = words + self.former_names.split(",")
+        words = words + [x.name for x in self.meta.written_in.all()]
+        words = words + [x.name for x in self.meta.supported_languages.all()]
+        words = words + [x.name for x in self.meta.oses.all()]
+        words = words + [x.name for x in self.meta.licenses.all()]
+        words = words + [x.slug for x in self.meta.licenses.all()]
+        for sf in SystemFeature.objects.filter(system=self):
+            words = words + [o.value for o in sf.options.all()]
+            if sf.description: words.append(sf.description)
+        words = words + [self.description]
+
+        return " ".join([w.replace('\r', '').replace('\n', ' ') for w in words])
 
     pass
 
@@ -646,7 +683,6 @@ class SystemVersionMetadata(models.Model):
 
     pass
 
-
 __all__ = (
     'Feature',
     'FeatureOption',
@@ -662,6 +698,7 @@ __all__ = (
     'SystemVersion',
     'SystemACL',
     'SystemRecommendation',
+    'SystemSearchText',
     'SystemVisit',
     'SystemVersionMetadata',
 )
