@@ -620,18 +620,18 @@ class DatabaseBrowseView(View):
             sqs = sqs.filter(end_year__lte=int(search_end_max))
             pass
 
-        # search - compatible
-        if search_compatible:
-            sqs = sqs.filter(compatible_with__slug__in=search_compatible)
-            systems = self.slug_to_system(search_compatible)
-            search_mapping['compatible'] = systems.values()
-            search_badges.extend( SearchBadge(request.GET, 'compatible', 'Compatible With', k, v) for k,v in systems.items() )
-            pass
-
         # search - country
         if search_country:
             sqs = sqs.filter(countries__in=search_country)
             search_badges.extend( SearchBadge(request.GET, 'country', 'Country', c, countries_map[c]) for c in search_country )
+            pass
+
+        # search - compatible
+        if search_compatible:
+            sqs = sqs.filter(meta__compatible_with__slug__in=search_compatible)
+            systems = self.slug_to_system(search_compatible)
+            search_mapping['compatible'] = systems.values()
+            search_badges.extend( SearchBadge(request.GET, 'compatible', 'Compatible With', k, v) for k,v in systems.items() )
             pass
 
         # search - derived from
@@ -652,7 +652,7 @@ class DatabaseBrowseView(View):
 
         # search - inspired by
         if search_inspired:
-            sqs = sqs.filter(inspired_by__slug__in=search_inspired)
+            sqs = sqs.filter(meta__inspired_by__slug__in=search_inspired)
             systems = self.slug_to_system(search_inspired)
             search_mapping['inspired'] = systems.values()
             search_badges.extend( SearchBadge(request.GET, 'inspired', 'Inspired By', k, v) for k,v in systems.items() )
@@ -660,21 +660,21 @@ class DatabaseBrowseView(View):
 
         # search - operating systems
         if search_os:
-            sqs = sqs.filter(oses__slug__in=search_os)
+            sqs = sqs.filter(meta__oses__slug__in=search_os)
             oses = OperatingSystem.objects.filter(slug__in=search_os)
             search_badges.extend( SearchBadge(request.GET, 'os', 'Operating System', os.slug, os.name) for os in oses )
             pass
 
         # search - programming languages
         if search_programming:
-            sqs = sqs.filter(written_langs__slug__in=search_programming)
+            sqs = sqs.filter(meta__written_in__slug__in=search_programming)
             langs = ProgrammingLanguage.objects.filter(slug__in=search_programming)
             search_badges.extend( SearchBadge(request.GET, 'programming', 'Programming Languages', lang.slug, lang.name) for lang in langs )
             pass
 
         # search - supported languages
         if search_supported:
-            sqs = sqs.filter(supported_langs__slug__in=search_supported)
+            sqs = sqs.filter(meta__supported_languages__slug__in=search_supported)
             langs = ProgrammingLanguage.objects.filter(slug__in=search_supported)
             search_badges.extend( SearchBadge(request.GET, 'supported', 'Supported Languages', lang.slug, lang.name) for lang in langs )
             pass
