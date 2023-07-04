@@ -1733,7 +1733,7 @@ class SystemView(View):
             pass
 
         system_version = system.current()
-        system_features = SystemFeature.objects.filter(system=system_version).select_related('feature').order_by('feature__label')
+        system_features = SystemFeature.objects.filter(version=system_version).select_related('feature').order_by('feature__label')
 
         # if they are logged in, check whether they are allowed to edit
         if not request.user.is_authenticated:
