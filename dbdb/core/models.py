@@ -590,7 +590,7 @@ class SystemVersion(models.Model):
         words = words + [x.name for x in self.meta.oses.all()]
         words = words + [x.name for x in self.meta.licenses.all()]
         words = words + [x.slug for x in self.meta.licenses.all()]
-        for sf in SystemFeature.objects.filter(system=self):
+        for sf in SystemFeature.objects.filter(version=self):
             words = words + [o.value for o in sf.options.all()]
             if sf.description: words.append(sf.description)
         words = words + [self.description]

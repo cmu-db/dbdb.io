@@ -1186,7 +1186,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
 
                 if '_description' in field_name:
                     sf, _ = SystemFeature.objects.get_or_create(
-                        system=db_version,
+                        version=db_version,
                         feature=feature
                     )
 
@@ -1195,7 +1195,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
                     pass
                 elif '_citation'in field_name:
                     sf, _ = SystemFeature.objects.get_or_create(
-                        system=db_version,
+                        version=db_version,
                         feature=feature
                     )
 
@@ -1207,7 +1207,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
                     pass
                 elif '_choices'in field_name:
                     sf, _ = SystemFeature.objects.get_or_create(
-                        system=db_version,
+                        version=db_version,
                         feature=feature
                     )
                     if not value:
