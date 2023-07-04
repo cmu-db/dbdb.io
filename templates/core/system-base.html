@@ -43,6 +43,12 @@
                         {{ system.name }}
                         <a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
                     </h2>
+                    {% if system_version.tags %}
+                        {% for tag in system_version.tags.all %}
+                            <a class="badge badge-secondary" style="font-size: 12px;" href="{% url 'browse' %}?tag={{ tag.slug }}">{{ tag.name }}</a>
+                        {% endfor %}
+                    {% endif %}
+
                     <p class="card-text">
                     {{ system_version.description|markdownify }}
                     </p>
