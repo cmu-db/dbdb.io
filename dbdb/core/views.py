@@ -695,7 +695,7 @@ class BrowseView(View):
 
         # search - licenses
         if search_license:
-            sqs = sqs.filter(licenses__slug__in=search_license)
+            sqs = sqs.filter(meta__licenses__slug__in=search_license)
             licenses = License.objects.filter(slug__in=search_license)
             search_badges.extend( SearchBadge(request.GET, 'license', 'Licenses', license.slug, license.name) for license in licenses )
             pass
