@@ -292,9 +292,9 @@ class EmptyFieldsView(View):
 # ==============================================
 # DatabaseBrowseView
 # ==============================================
-class DatabaseBrowseView(View):
+class BrowseView(View):
 
-    template_name = 'core/database-browse.html'
+    template_name = 'core/browse.html'
 
     def build_filter_group_for_field(self, field, search_field, label, all_systems, querydict):
         empty_set = set()
@@ -1301,7 +1301,7 @@ class DatabaseRevisionList(View):
 # ==============================================
 class DatabaseRevisionView(View):
 
-    template_name = 'core/revision_view.html'
+    template_name = 'core/system-revision.html'
 
     def get(self, request, slug, ver):
         system_version = get_object_or_404(SystemVersion.objects.select_related('system'), system__slug=slug, ver=ver)
