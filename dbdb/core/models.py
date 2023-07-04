@@ -273,7 +273,7 @@ class SystemACL(models.Model):
 # ==============================================
 class SystemFeature(models.Model):
 
-    system = models.ForeignKey('SystemVersion', models.CASCADE, related_name='features')
+    version = models.ForeignKey('SystemVersion', models.CASCADE, related_name='features')
     feature = models.ForeignKey('Feature', models.CASCADE, related_name='system_features')
 
     citations = models.ManyToManyField('CitationUrl', related_name='system_features')
@@ -282,10 +282,10 @@ class SystemFeature(models.Model):
     description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
 
     class Meta:
-        unique_together = ('system','feature')
+        unique_together = ('version','feature')
 
     def __str__(self):
-        return '{} > {}'.format(self.system.system.name, self.feature.label)
+        return '{} > {}'.format(self.version.system.name, self.feature.label)
 
     def values_str(self):
         return ', '.join([str(l) for l in self.options.all()])
