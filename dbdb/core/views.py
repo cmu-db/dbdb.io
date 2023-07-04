@@ -480,21 +480,22 @@ class BrowseView(View):
             chr(i)
             for i in range( ord('A') , ord('Z')+1 )
         )
-        letters_available = set(
-            "#" if not name.upper()[0].isalpha() else name.upper()[0]
-            for name in System.objects.all().values_list('name', flat=True)
-        )
-        letters_missing = letters_alphabet.difference( letters_available )
-        letters_all = letters_alphabet.union( letters_available )
+        letters_alphabet.add("#")
+        # letters_available = set(
+        #     "#" if not name.upper()[0].isalpha() else name.upper()[0]
+        #     for name in System.objects.all().values_list('name', flat=True)
+        # )
+        # letters_missing = letters_alphabet.difference( letters_available )
+        # letters_all = letters_alphabet.union( letters_available )
 
         pagination = list(
             LetterPage(
                 l,
                 l,
                 l == letter,
-                l not in letters_available
+                l not in letters_alphabet # letters_available
             )
-            for l in sorted(letters_all)
+            for l in sorted(letters_alphabet)
         )
         pagination.append(
             LetterPage(
@@ -708,21 +709,22 @@ class BrowseView(View):
             pass
 
         # convert feature option slugs to IDs to do search by filtering
-        filter_option_ids = set()
+        feature_option_ids = set()
         for feature_id,option_slugs in search_fg.items():
             option_ids = set( map(lambda option_slug: featuresoptions_map[(feature_id,option_slug)], option_slugs) )
-            filter_option_ids.update(option_ids)
+            feature_option_ids.update(option_ids)
             pass
 
         # if there are filter options to search for, apply filter
-        if filter_option_ids:
-            # FIXME
-            # for option_id in filter_option_ids:
-            #     sqs = sqs.filter(feature_options__contains=option_id)
+        if feature_option_ids:
+            # This sucks but we have to do a separate search to get all the current systems
+            # that have these features and then use that list to filter the main search query
+            feature_systems_versions = SystemFeature.objects.filter(options__id__in=feature_option_ids).filter(version__is_current=True).values_list("version__id")
+            sqs = sqs.filter(id__in=feature_systems_versions)
 
             search_badges.extend(
                 SearchBadge(request.GET, *row)
-                for row in FeatureOption.objects.filter(id__in=filter_option_ids).values_list('feature__slug','feature__label','slug','value')
+                for row in FeatureOption.objects.filter(id__in=feature_option_ids).values_list('feature__slug','feature__label','slug','value')
             )
 
         return (sqs, search_mapping, search_badges)
