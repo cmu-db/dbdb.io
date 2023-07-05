@@ -14,7 +14,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.postgres.search import SearchQuery, SearchRank, TrigramSimilarity
 from django.db import transaction
-from django.db.models import Q, Count, Max, Min, Func, Value
+from django.db.models import Q, Count, Max, Min, Func, Value, F
 from django.forms import HiddenInput
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
@@ -781,7 +781,7 @@ class BrowseView(View):
         pagination = self.build_pagination(search_letter)
 
         # Only get the columns we need for the browse page
-        # FIXME results = results.values('system__name', 'system__slug', 'logo', 'created')
+        results = results.annotate(name=F('system__name'), slug=F('system__slug')).values('name', 'slug', 'logo', 'created')
 
         # convert query list to regular list
         results = list( results.order_by('system__name') )

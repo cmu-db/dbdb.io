@@ -2,7 +2,7 @@
 {% load thumbnail %}
 {% with logo=result.logo|thumbnail_url:'search' %}
 
-<a class="card-title" href="{% url 'system' result.system.slug %}">
+<a class="card-title" href="{% url 'system' result.slug %}">
 <div class="card text-center">
     <div class="card-header">
         {% if result.logo %}
@@ -12,7 +12,7 @@
         {% endif %}
     </div>
     <div class="card-body">
-        <h5>{{ result.system.name }}</h5>
+        <h5>{{ result.name }}</h5>
         <p class="card-text"><small class="text-muted">Last updated {{ result.created }}</small></p>
     </div>
 </div>
