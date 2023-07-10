@@ -14,8 +14,8 @@ class Command(BaseCommand):
                 sstext.system = s.system
                 sstext.search_text = s.generate_searchtext()
                 sstext.save()
-                print("Created {}", s.system)
+                print("Created", s.system)
             except:
-                print("Failed {}", s.system)
+                print("Failed", s.system)
                 raise
     pass

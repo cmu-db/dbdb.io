@@ -1,5 +1,7 @@
 #!/bin/bash
 
+LOG_DIR="/var/log/gunicorn"
+
 # Find out the location of the script, not the working directory
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 cd $DIR/..
@@ -16,8 +18,8 @@ fi
 
 # Start Django with Gunicorn
 echo "# Starting Django with Gunicorn on port 8000..."
-gunicorn --bind 127.0.0.1:8000 -w 12 --access-logfile "$DIR/../../gunicorn_log/access-logfile" \
-    --error-logfile "$DIR/../../gunicorn_log/error-logfile" dbdb.wsgi
+gunicorn --bind 127.0.0.1:8000 -w 12 --access-logfile "$LOG_DIR/access-logfile" \
+    --error-logfile "$LOG_DIR/error-logfile" dbdb.wsgi
 # gunicorn --bind 127.0.0.1:8000 -w 12 dbdb.wsgi
 
 echo "# Done."

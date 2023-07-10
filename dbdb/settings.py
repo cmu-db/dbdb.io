@@ -27,7 +27,6 @@ INSTALLED_APPS = [
     'easy_thumbnails',
     'django_countries',
     'captcha',
-    # 'haystack', # django-haystack
     'rest_framework', # djangorestframework
     'markdownify.apps.MarkdownifyConfig',
 
@@ -77,32 +76,31 @@ LOGIN_URL = '/login/'
 ROOT_URLCONF = 'dbdb.urls'
 WSGI_APPLICATION = 'dbdb.wsgi.application'
 
-LOGGING = {
-    'version': 1,
-    'filters': {
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
-        }
-    },
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
-        }
-    },
-    'loggers': {
-        'django.db.backends': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-        }
-    }
-}
+# Uncommenting this will enable query logging to stdout
+# LOGGING = {
+#    'version': 1,
+#    'filters': {
+#        'require_debug_true': {
+#            '()': 'django.utils.log.RequireDebugTrue',
+#        }
+#    },
+#    'handlers': {
+#        'console': {
+#            'level': 'DEBUG',
+#            'filters': ['require_debug_true'],
+#            'class': 'logging.StreamHandler',
+#        }
+#    },
+#    'loggers': {
+#        'django.db.backends': {
+#            'level': 'DEBUG',
+#            'handlers': ['console'],
+#        }
+#    }
+# }
 
 
 # Database
-# https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
 DATABASES = {
     'default': env.db(),
 }
@@ -110,8 +108,6 @@ DATABASES = {
 DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 # Password validation
-# https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -136,39 +132,8 @@ CACHES = {
     }
 }
 
-
-
-# Haystack
-# https://django-haystack.readthedocs.io/
-
-#import xapian
-
-# HAYSTACK_XAPIAN_FLAGS = (
-#    xapian.QueryParser.FLAG_PHRASE |
-#    xapian.QueryParser.FLAG_BOOLEAN |
-#    xapian.QueryParser.FLAG_LOVEHATE |
-#    xapian.QueryParser.FLAG_WILDCARD |
-#    xapian.QueryParser.FLAG_PURE_NOT |
-#    xapian.QueryParser.FLAG_PARTIAL
-# )
-# HAYSTACK_XAPIAN_STEMMING_STRATEGY = 'STEM_ALL'
-#
-# HAYSTACK_CONNECTIONS = {
-#     'default': {
-#         'ENGINE': 'xapian_backend.XapianEngine',
-#         'PATH': root.path('data/xapian')(),
-#         'FLAGS': HAYSTACK_XAPIAN_FLAGS,
-#     },
-#     # 'default': {
-#         # 'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-#         # 'PATH': root.path('data/whoosh')(),
-#     # },
-# }
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'America/New_York'
 USE_I18N = True
@@ -181,19 +146,15 @@ FIXTURE_DIRS = [
 
 
 # Media files (uploads)
-
 MEDIA_ROOT = root.path('media')()
 MEDIA_URL = '/media/'
 
 # Security
-
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
 SECRET_KEY = env('SECRET_KEY')
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
-
 STATICFILES_DIRS = (
    root.path('static')(),
 )
@@ -201,7 +162,7 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
-STATIC_ROOT = ''
+STATIC_ROOT = os.path.join(BASE_DIR, 'static-live')
 STATIC_URL = '/static/'
 
 # Custom Twitter Cards
@@ -215,9 +176,7 @@ TWITTER_CARD_MARGIN = 40
 TWITTER_CARD_MAX_WIDTH = 600 - TWITTER_CARD_MARGIN*2
 TWITTER_CARD_MAX_HEIGHT = 419 - TWITTER_CARD_MARGIN*2
 
-
 # Thumbnails
-
 THUMBNAIL_ALIASES = {
     '': {
         'thumb': {'size': (280, 250), 'crop': False},
@@ -234,11 +193,11 @@ THUMBNAIL_PRESERVE_EXTENSIONS = ['png', 'svg']
 COUNTRIES_FIRST = ['US']
 
 # Django Invisible reCaptcha
-RECAPTCHA_PUBLIC_KEY = '6Lfo8VwUAAAAAEHNqeL01PSkiRul7ImQ8Bsw8Nqc'
-RECAPTCHA_PRIVATE_KEY = '6Lfo8VwUAAAAALFGUrGKqrzCR94pfgFahtd56WY9'
+RECAPTCHA_PUBLIC_KEY = env('RECAPTCHA_PUBLIC_KEY')
+RECAPTCHA_PRIVATE_KEY = env('RECAPTCHA_PRIVATE_KEY')
 
 # Email Configuration
-DEFAULT_FROM_EMAIL = ''
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 
 # Markdown Configuration
 MARKDOWNIFY = {
