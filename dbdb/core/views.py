@@ -36,6 +36,7 @@ from django_countries import countries
 from lxml import etree
 import jwt
 import pytz
+
 # project imports
 from dbdb.core.common.searchvector import SearchVector
 from dbdb.core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm, \
@@ -592,6 +593,10 @@ class BrowseView(View):
         if search_q:
             search_vector = SearchVector('search_text', config='simple')
             search_query = SearchQuery(search_q, config='simple')
+
+            # Busted!
+            # search_query = SearchQuery(search_q + ":*", config='simple', search_type='raw')
+
             # search_rank = TrigramSimilarity('search_text', search_q)
             # search_rank = SearchRank(search_vector, search_query)
 
@@ -600,7 +605,7 @@ class BrowseView(View):
             # It doesn't seem to produce reliable results anyway.
             matches = SystemSearchText.objects \
                 .annotate(search=search_vector) \
-                .filter(search=search_query) \
+                .filter(Q(name__icontains=search_q) | Q(search=search_query)) \
                 .values('system_id')
                 # .annotate(rank=search_rank) \
                 # .order_by("-rank") \
@@ -729,27 +734,21 @@ class BrowseView(View):
 
         return (sqs, search_mapping, search_badges)
 
-    def handle_old_urls(self, request):
-        query = []
+    def do_dym(self, search_q):
+        """Did you mean search"""
 
-        # get mapping of feature options
-        featuresoptions_map = {
-            str(fo_id): (f_slug, fo_slug)
-            for fo_id,fo_slug,f_slug in FeatureOption.objects.all().order_by().values_list('id','slug','feature__slug')
-        }
+        search_vector = SearchVector('name', config='simple')
+        search_query = SearchQuery(search_q, config='simple')
+        # search_rank = TrigramSimilarity('name', search_q)
+        search_rank = SearchRank(search_vector, search_query)
 
-        for k in request.GET.keys():
-            for v in request.GET.getlist(k):
-                if k.startswith('fg'):
-                    query.append( featuresoptions_map[v] )
-                    pass
-                elif v:
-                    query.append((k,v))
-                    pass
-                pass
-            pass
+        # matches = System.objects.annotate(searchX=search_vector).filter(searchX=search_query).annotate(rank=search_rank).order_by("-rank")
+        matches = System.objects.filter(name__search=search_query).annotate(rank=search_rank).order_by("-rank")
 
-        return redirect( request.path + '?' + urllib.parse.urlencode(query) )
+        matches = matches.values('id', 'name', 'slug', 'rank')[:1]
+        from pprint import pprint
+        pprint(matches)
+        return matches
 
     def get(self, request):
         # handle older filter group urls
@@ -788,6 +787,11 @@ class BrowseView(View):
         # check if there are results
         has_results = len(results) > 0
 
+        suggestion = None
+        # if not has_results:
+        #     search_q = request.GET.get('q', '').strip()
+        #     suggestion = self.do_dym(search_q)
+
         # get year ranges
         years_start = SystemVersion.objects.filter(is_current=True).filter(start_year__gt=0).aggregate(
             min_start_year=Min('start_year'),
@@ -814,7 +818,31 @@ class BrowseView(View):
             'has_search': len(search_keys) != 0,
             'search': search_keys,
             'badges': search_badges,
+            'suggestion': suggestion,
         })
+
+    def handle_old_urls(self, request):
+        query = []
+
+        # get mapping of feature options
+        featuresoptions_map = {
+            str(fo_id): (f_slug, fo_slug)
+            for fo_id,fo_slug,f_slug in FeatureOption.objects.all().order_by().values_list('id','slug','feature__slug')
+        }
+
+        for k in request.GET.keys():
+            for v in request.GET.getlist(k):
+                if k.startswith('fg'):
+                    query.append( featuresoptions_map[v] )
+                    pass
+                elif v:
+                    query.append((k,v))
+                    pass
+                pass
+            pass
+
+        return redirect( request.path + '?' + urllib.parse.urlencode(query) )
+
 
     pass
 
@@ -1240,6 +1268,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
             # Update the search index too!
             ver_search, created = SystemSearchText.objects.update_or_create(
                 system=system,
+                name=system.name,
                 search_text=db_version.generate_searchtext())
             ver_search.save()
 
