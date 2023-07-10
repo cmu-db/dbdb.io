@@ -15,6 +15,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.postgres.search import SearchQuery, SearchRank, TrigramSimilarity
 from django.db import transaction
 from django.db.models import Q, Count, Max, Min, Func, Value, F
+from django.db.models.expressions import RawSQL
 from django.forms import HiddenInput
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
@@ -736,19 +737,10 @@ class BrowseView(View):
 
     def do_dym(self, search_q):
         """Did you mean search"""
-
-        search_vector = SearchVector('name', config='simple')
-        search_query = SearchQuery(search_q, config='simple')
-        # search_rank = TrigramSimilarity('name', search_q)
-        search_rank = SearchRank(search_vector, search_query)
-
-        # matches = System.objects.annotate(searchX=search_vector).filter(searchX=search_query).annotate(rank=search_rank).order_by("-rank")
-        matches = System.objects.filter(name__search=search_query).annotate(rank=search_rank).order_by("-rank")
-
-        matches = matches.values('id', 'name', 'slug', 'rank')[:1]
+        matches = System.objects.annotate(rank=RawSQL("name <-> %s", [search_q])).order_by("rank").values("id", "name", "slug")[:1]
         from pprint import pprint
         pprint(matches)
-        return matches
+        return matches[0]
 
     def get(self, request):
         # handle older filter group urls
@@ -788,9 +780,9 @@ class BrowseView(View):
         has_results = len(results) > 0
 
         suggestion = None
-        # if not has_results:
-        #     search_q = request.GET.get('q', '').strip()
-        #     suggestion = self.do_dym(search_q)
+        if not has_results:
+            search_q = request.GET.get('q', '').strip()
+            suggestion = self.do_dym(search_q)
 
         # get year ranges
         years_start = SystemVersion.objects.filter(is_current=True).filter(start_year__gt=0).aggregate(

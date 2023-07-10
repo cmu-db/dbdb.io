@@ -145,6 +145,9 @@ div.results div.version p { margin:0; }
             for "<em>{{ search.query }}</em>"
             <!-- /query -->
             {% endif %}
+            {% if suggestion %}
+                </BR>Did you mean <a href="{% url 'system' suggestion.slug %}">{{ suggestion.name }}</a>?
+            {%  endif %}
         </p>
         {% else %}
         <nav class="letters {% if not has_results %}no-results{% endif %}" aria-label="Page Navigation">
