@@ -4,6 +4,7 @@ import uuid
 # django imports
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from django.db.models import Max
 from django.db.models.signals import post_save
@@ -14,6 +15,8 @@ from django.utils import timezone
 # third-party imports
 from easy_thumbnails.fields import ThumbnailerImageField,ThumbnailerField
 from django_countries.fields import CountryField
+
+from dbdb.core.common.searchvector import SearchVector
 
 
 # ==============================================
@@ -270,7 +273,7 @@ class SystemACL(models.Model):
 # ==============================================
 class SystemFeature(models.Model):
 
-    system = models.ForeignKey('SystemVersion', models.CASCADE, related_name='features')
+    version = models.ForeignKey('SystemVersion', models.CASCADE, related_name='features')
     feature = models.ForeignKey('Feature', models.CASCADE, related_name='system_features')
 
     citations = models.ManyToManyField('CitationUrl', related_name='system_features')
@@ -279,10 +282,10 @@ class SystemFeature(models.Model):
     description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
 
     class Meta:
-        unique_together = ('system','feature')
+        unique_together = ('version','feature')
 
     def __str__(self):
-        return '{} > {}'.format(self.system.system.name, self.feature.label)
+        return '{} > {}'.format(self.version.system.name, self.feature.label)
 
     def values_str(self):
         return ', '.join([str(l) for l in self.options.all()])
@@ -335,6 +338,23 @@ class SystemRecommendation(models.Model):
     class Meta:
         verbose_name = "Recommendation"
         unique_together = ('system', 'recommendation')
+
+    pass
+
+# ==============================================
+# SystemSearchText
+# ==============================================
+class SystemSearchText(models.Model):
+    system = models.ForeignKey('System', models.CASCADE, related_name='search')
+    search_text = models.TextField(default=None, null=True,
+                                   help_text="Synthesized text for searching")
+    created = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        verbose_name = "System Search Text"
+        indexes = [
+            GinIndex(SearchVector("search_text", config="simple"), name="core_system_search__cf51c1_gin", fastupdate=False)
+        ]
 
     pass
 
@@ -547,7 +567,7 @@ class SystemVersion(models.Model):
             new_size = (int((float(new_size[0]) * float(ratio))), settings.TWITTER_CARD_MAX_HEIGHT)
 
         # Resize the mofo
-        logo = logo.resize(new_size, Image.ANTIALIAS)
+        logo = logo.resize(new_size, Image.Resampling.LANCZOS)
 
         # Figure out the center of the white part of the card
         # Assume that the origin is (0,0). We will adjust by the base offset later
@@ -558,7 +578,24 @@ class SystemVersion(models.Model):
         card_img = os.path.join(settings.TWITTER_CARD_ROOT, self.get_twitter_card_image())
         new_im.save(card_img)
         return card_img
-    ## DEF
+
+    def generate_searchtext(self):
+        words = [self.system.name, self.developer]
+        words = words + [x.name for x in self.tags.all()]
+        words = words + [x.name for x in self.countries]
+        if self.former_names:
+            words = words + self.former_names.split(",")
+        words = words + [x.name for x in self.meta.written_in.all()]
+        words = words + [x.name for x in self.meta.supported_languages.all()]
+        words = words + [x.name for x in self.meta.oses.all()]
+        words = words + [x.name for x in self.meta.licenses.all()]
+        words = words + [x.slug for x in self.meta.licenses.all()]
+        for sf in SystemFeature.objects.filter(version=self):
+            words = words + [o.value for o in sf.options.all()]
+            if sf.description: words.append(sf.description)
+        words = words + [self.description]
+
+        return " ".join([w.replace('\r', '').replace('\n', ' ') for w in words])
 
     pass
 
@@ -646,7 +683,6 @@ class SystemVersionMetadata(models.Model):
 
     pass
 
-
 __all__ = (
     'Feature',
     'FeatureOption',
@@ -662,6 +698,7 @@ __all__ = (
     'SystemVersion',
     'SystemACL',
     'SystemRecommendation',
+    'SystemSearchText',
     'SystemVisit',
     'SystemVersionMetadata',
 )

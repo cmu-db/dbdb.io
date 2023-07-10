@@ -11,7 +11,7 @@
             <li class="list-group-item list-group-item-action">
                 <a href="{{ other_sys.get_absolute_url }}" title="{{ other_sys.name }}">
             {% if other_sys.current.logo %}
-                <img class="logo-recommendation" src="{{ other_sys.current.logo|thumbnail_url:'recommendation' }}" alt="{{ other_sys.name }}" />
+                <img class="logo-recommendation" src="{% if other_sys.current.logo.url|lower|slice:"-3:" == "svg" %}{{ other_sys.current.logo.url }}{% else %}{{ other_sys.current.logo|thumbnail_url:'recommendation' }}{% endif %}"  alt="{{ other_sys.name }}" />
             {% else %}
                 <img src="{% static 'core/images/database-nologo.svg' %}" alt="{{ other_sys.name }}" /> {{ other_sys.name }}
             {% endif %}

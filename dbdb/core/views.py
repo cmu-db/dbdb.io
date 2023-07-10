@@ -12,8 +12,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.postgres.search import SearchQuery, SearchRank, TrigramSimilarity
 from django.db import transaction
-from django.db.models import Q, Count, Max, Min
+from django.db.models import Q, Count, Max, Min, Func, Value, F
 from django.forms import HiddenInput
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
@@ -28,19 +29,18 @@ from django.utils.decorators import method_decorator
 from django.utils.text import slugify
 from django.utils.text import smart_split
 from django.views import View
-from django.views.decorators.cache import never_cache
+from django.views.decorators.cache import never_cache, cache_control
 from django.views.decorators.csrf import csrf_exempt
 # third-party imports
 from django_countries import countries
-from haystack.inputs import AutoQuery
-from haystack.query import SearchQuerySet
 from lxml import etree
 import jwt
 import pytz
 # project imports
+from dbdb.core.common.searchvector import SearchVector
 from dbdb.core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm, \
     SystemVersionEditForm
-from dbdb.core.models import CitationUrl
+from dbdb.core.models import CitationUrl, SystemSearchText
 from dbdb.core.models import Feature
 from dbdb.core.models import FeatureOption
 from dbdb.core.models import License
@@ -292,9 +292,9 @@ class EmptyFieldsView(View):
 # ==============================================
 # DatabaseBrowseView
 # ==============================================
-class DatabaseBrowseView(View):
+class BrowseView(View):
 
-    template_name = 'core/database-browse.html'
+    template_name = 'core/browse.html'
 
     def build_filter_group_for_field(self, field, search_field, label, all_systems, querydict):
         empty_set = set()
@@ -480,21 +480,22 @@ class DatabaseBrowseView(View):
             chr(i)
             for i in range( ord('A') , ord('Z')+1 )
         )
-        letters_available = set(
-            "#" if not name.upper()[0].isalpha() else name.upper()[0]
-            for name in System.objects.all().values_list('name', flat=True)
-        )
-        letters_missing = letters_alphabet.difference( letters_available )
-        letters_all = letters_alphabet.union( letters_available )
+        letters_alphabet.add("#")
+        # letters_available = set(
+        #     "#" if not name.upper()[0].isalpha() else name.upper()[0]
+        #     for name in System.objects.all().values_list('name', flat=True)
+        # )
+        # letters_missing = letters_alphabet.difference( letters_available )
+        # letters_all = letters_alphabet.union( letters_available )
 
         pagination = list(
             LetterPage(
                 l,
                 l,
                 l == letter,
-                l not in letters_available
+                l not in letters_alphabet # letters_available
             )
-            for l in sorted(letters_all)
+            for l in sorted(letters_alphabet)
         )
         pagination.append(
             LetterPage(
@@ -514,7 +515,7 @@ class DatabaseBrowseView(View):
     ## DEF
 
 
-    def do_search(self, request):
+    def do_search(self, request, sqs):
         has_search = False
 
         countries_map = dict(countries)
@@ -583,16 +584,28 @@ class DatabaseBrowseView(View):
         }
 
         if not any(search_mapping.values()) and not any(search_fg):
-            return (None, { }, [])
+            return (sqs, { }, [])
 
         search_badges = []
 
-        # create new search query
-        sqs = SearchQuerySet()
-
         # apply keyword search to name (require all terms)
         if search_q:
-            sqs = sqs.filter(content=AutoQuery(search_q))
+            search_vector = SearchVector('search_text', config='simple')
+            search_query = SearchQuery(search_q, config='simple')
+            # search_rank = TrigramSimilarity('search_text', search_q)
+            # search_rank = SearchRank(search_vector, search_query)
+
+            # Since we can't pass the rank over to the main search (sqs),
+            # we can ignore it for now.
+            # It doesn't seem to produce reliable results anyway.
+            matches = SystemSearchText.objects \
+                .annotate(search=search_vector) \
+                .filter(search=search_query) \
+                .values('system_id')
+                # .annotate(rank=search_rank) \
+                # .order_by("-rank") \
+                # .values('system_id', 'rank')
+            sqs = sqs.filter(system_id__in=[x['system_id'] for x in matches])
 
         # apply year limits
         if search_start_min.isdigit():
@@ -608,23 +621,23 @@ class DatabaseBrowseView(View):
             sqs = sqs.filter(end_year__lte=int(search_end_max))
             pass
 
-        # search - compatible
-        if search_compatible:
-            sqs = sqs.filter(compatible_with__in=search_compatible)
-            systems = self.slug_to_system(search_compatible)
-            search_mapping['compatible'] = systems.values()
-            search_badges.extend( SearchBadge(request.GET, 'compatible', 'Compatible With', k, v) for k,v in systems.items() )
-            pass
-
         # search - country
         if search_country:
             sqs = sqs.filter(countries__in=search_country)
             search_badges.extend( SearchBadge(request.GET, 'country', 'Country', c, countries_map[c]) for c in search_country )
             pass
 
+        # search - compatible
+        if search_compatible:
+            sqs = sqs.filter(meta__compatible_with__slug__in=search_compatible)
+            systems = self.slug_to_system(search_compatible)
+            search_mapping['compatible'] = systems.values()
+            search_badges.extend( SearchBadge(request.GET, 'compatible', 'Compatible With', k, v) for k,v in systems.items() )
+            pass
+
         # search - derived from
         if search_derived:
-            sqs = sqs.filter(derived_from__in=search_derived)
+            sqs = sqs.filter(meta__derived_from__slug__in=search_derived)
             systems = self.slug_to_system(search_derived)
             search_mapping['derived'] = systems.values()
             search_badges.extend( SearchBadge(request.GET, 'derived', 'Derived From', k, v) for k,v in systems.items() )
@@ -632,7 +645,7 @@ class DatabaseBrowseView(View):
 
         # search - embedded
         if search_embeds:
-            sqs = sqs.filter(embedded__in=search_embeds)
+            sqs = sqs.filter(meta__embedded__slug__in=search_embeds)
             systems = self.slug_to_system(search_embeds)
             search_mapping['embeds'] = systems.values()
             search_badges.extend( SearchBadge(request.GET, 'embeds', 'Embeds / Uses', k, v) for k,v in systems.items() )
@@ -640,7 +653,7 @@ class DatabaseBrowseView(View):
 
         # search - inspired by
         if search_inspired:
-            sqs = sqs.filter(inspired_by__in=search_inspired)
+            sqs = sqs.filter(meta__inspired_by__slug__in=search_inspired)
             systems = self.slug_to_system(search_inspired)
             search_mapping['inspired'] = systems.values()
             search_badges.extend( SearchBadge(request.GET, 'inspired', 'Inspired By', k, v) for k,v in systems.items() )
@@ -648,42 +661,42 @@ class DatabaseBrowseView(View):
 
         # search - operating systems
         if search_os:
-            sqs = sqs.filter(oses__in=search_os)
+            sqs = sqs.filter(meta__oses__slug__in=search_os)
             oses = OperatingSystem.objects.filter(slug__in=search_os)
             search_badges.extend( SearchBadge(request.GET, 'os', 'Operating System', os.slug, os.name) for os in oses )
             pass
 
         # search - programming languages
         if search_programming:
-            sqs = sqs.filter(written_langs__in=search_programming)
+            sqs = sqs.filter(meta__written_in__slug__in=search_programming)
             langs = ProgrammingLanguage.objects.filter(slug__in=search_programming)
             search_badges.extend( SearchBadge(request.GET, 'programming', 'Programming Languages', lang.slug, lang.name) for lang in langs )
             pass
-        
+
         # search - supported languages
         if search_supported:
-            sqs = sqs.filter(supported_langs__in=search_supported)
+            sqs = sqs.filter(meta__supported_languages__slug__in=search_supported)
             langs = ProgrammingLanguage.objects.filter(slug__in=search_supported)
             search_badges.extend( SearchBadge(request.GET, 'supported', 'Supported Languages', lang.slug, lang.name) for lang in langs )
             pass
 
         # search - tags
         if search_tag:
-            sqs = sqs.filter(tags__in=search_tag)
+            sqs = sqs.filter(tags__slug__in=search_tag)
             tags = Tag.objects.filter(slug__in=search_tag)
             search_badges.extend( SearchBadge(request.GET, 'type', 'Tags', t.slug, t.name) for t in tags )
             pass
 
         # search - project types
         if search_type:
-            sqs = sqs.filter(project_types__in=search_type)
+            sqs = sqs.filter(project_types__slug__in=search_type)
             types = ProjectType.objects.filter(slug__in=search_type)
             search_badges.extend( SearchBadge(request.GET, 'type', 'Project Types', type.slug, type.name) for type in types )
             pass
 
         # search - licenses
         if search_license:
-            sqs = sqs.filter(licenses__in=search_license)
+            sqs = sqs.filter(meta__licenses__slug__in=search_license)
             licenses = License.objects.filter(slug__in=search_license)
             search_badges.extend( SearchBadge(request.GET, 'license', 'Licenses', license.slug, license.name) for license in licenses )
             pass
@@ -691,25 +704,27 @@ class DatabaseBrowseView(View):
         # search - suffixes
         if search_suffix:
             for suffix in search_suffix:
-                sqs = sqs.filter(lowercase_name__contains=suffix)
+                sqs = sqs.filter(system__name__icontains=suffix)
             search_badges.extend(SearchBadge(request.GET, 'suffix', 'Suffix', suffix, suffix) for suffix in search_suffix)
             pass
 
         # convert feature option slugs to IDs to do search by filtering
-        filter_option_ids = set()
+        feature_option_ids = set()
         for feature_id,option_slugs in search_fg.items():
             option_ids = set( map(lambda option_slug: featuresoptions_map[(feature_id,option_slug)], option_slugs) )
-            filter_option_ids.update(option_ids)
+            feature_option_ids.update(option_ids)
             pass
 
         # if there are filter options to search for, apply filter
-        if filter_option_ids:
-            for option_id in filter_option_ids:
-                sqs = sqs.filter(feature_options__contains=option_id)
+        if feature_option_ids:
+            # This sucks but we have to do a separate search to get all the current systems
+            # that have these features and then use that list to filter the main search query
+            feature_systems_versions = SystemFeature.objects.filter(options__id__in=feature_option_ids).filter(version__is_current=True).values_list("version__id")
+            sqs = sqs.filter(id__in=feature_systems_versions)
 
             search_badges.extend(
                 SearchBadge(request.GET, *row)
-                for row in FeatureOption.objects.filter(id__in=filter_option_ids).values_list('feature__slug','feature__label','slug','value')
+                for row in FeatureOption.objects.filter(id__in=feature_option_ids).values_list('feature__slug','feature__label','slug','value')
             )
 
         return (sqs, search_mapping, search_badges)
@@ -741,30 +756,35 @@ class DatabaseBrowseView(View):
         if any( filter(lambda k: k.startswith('fg'), request.GET.keys()) ):
            return self.handle_old_urls(request)
 
-        # Perform the search and get back the versions along with a
-        # mapping with the search keys
-        results, search_keys, search_badges = self.do_search(request)
-
+        # Search Query
         search_q = request.GET.get('q', '').strip()
 
         # Search Letter
         search_letter = request.GET.get('letter', '').strip().upper()
 
-        if results is not None:
-            pass
-        elif search_letter == 'ALL' or not search_letter:
-            results = SearchQuerySet()
+        # Perform the search and get back the versions along with a
+        # mapping with the search keys
+        search_keys = { }
+        search_badges = { }
+        results = SystemVersion.objects.filter(is_current=True)
+
+        if search_letter and search_letter != 'ALL':
+            if search_letter == "#":
+                results = results.filter(system__name__regex=r'^\d')
+            else:
+                results = results.filter(system__name__istartswith=search_letter)
+        else:
+            results, search_keys, search_badges = self.do_search(request, results)
             search_letter = 'ALL'
-            pass
-        elif search_letter:
-            results = SearchQuerySet().filter(letter__exact=search_letter.lower())
-            pass
 
         # generate letter pagination
         pagination = self.build_pagination(search_letter)
 
+        # Only get the columns we need for the browse page
+        results = results.annotate(name=F('system__name'), slug=F('system__slug')).values('name', 'slug', 'logo', 'created')
+
         # convert query list to regular list
-        results = list( results.order_by('name') )
+        results = list( results.order_by('system__name') )
         # check if there are results
         has_results = len(results) > 0
 
@@ -999,7 +1019,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
             pass
         return features
 
-    @never_cache
+    @method_decorator(cache_control(private=True))
     def get(self, request, slug=None):
 
         # If there is no slug, then they are trying to create a new database.
@@ -1076,12 +1096,14 @@ class DatabasesEditView(LoginRequiredMixin, View):
             system_version = SystemVersion(system=system, is_current=True)
             system_meta = SystemVersionMetadata()
             system_features = SystemFeature.objects.none()
+            old_logo = None
             pass
         else:
             system = System.objects.get(slug=slug)
             system_version = SystemVersion.objects.get(system=system, is_current=True)
             system_meta = system_version.meta
             system_features = system_version.features.all()
+            old_logo = system_version.logo
             pass
 
         system_form = SystemForm(request.POST, instance=system)
@@ -1166,7 +1188,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
 
                 if '_description' in field_name:
                     sf, _ = SystemFeature.objects.get_or_create(
-                        system=db_version,
+                        version=db_version,
                         feature=feature
                     )
 
@@ -1175,7 +1197,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
                     pass
                 elif '_citation'in field_name:
                     sf, _ = SystemFeature.objects.get_or_create(
-                        system=db_version,
+                        version=db_version,
                         feature=feature
                     )
 
@@ -1187,7 +1209,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
                     pass
                 elif '_choices'in field_name:
                     sf, _ = SystemFeature.objects.get_or_create(
-                        system=db_version,
+                        version=db_version,
                         feature=feature
                     )
                     if not value:
@@ -1210,6 +1232,16 @@ class DatabasesEditView(LoginRequiredMixin, View):
                         pass
                     pass
                 pass
+
+            # Do this down here to make sure the logo gets uploaded correctly
+            if db_version.logo is not None and old_logo != db_version.logo:
+                db_version.create_twitter_card()
+
+            # Update the search index too!
+            ver_search, created = SystemSearchText.objects.update_or_create(
+                system=system,
+                search_text=db_version.generate_searchtext())
+            ver_search.save()
 
             return redirect(db_version.system.get_absolute_url())
 
@@ -1271,7 +1303,7 @@ class DatabaseRevisionList(View):
 # ==============================================
 class DatabaseRevisionView(View):
 
-    template_name = 'core/revision_view.html'
+    template_name = 'core/system-revision.html'
 
     def get(self, request, slug, ver):
         system_version = get_object_or_404(SystemVersion.objects.select_related('system'), system__slug=slug, ver=ver)
@@ -1703,7 +1735,7 @@ class SystemView(View):
             pass
 
         system_version = system.current()
-        system_features = SystemFeature.objects.filter(system=system_version).select_related('feature').order_by('feature__label')
+        system_features = SystemFeature.objects.filter(version=system_version).select_related('feature').order_by('feature__label')
 
         # if they are logged in, check whether they are allowed to edit
         if not request.user.is_authenticated:
@@ -1776,8 +1808,9 @@ class SystemView(View):
 def search_autocomplete(request):
     search_q = request.GET.get('q', '').strip()
     if search_q:
-        sqs = SearchQuerySet().autocomplete(autocomplete_name=search_q) # [:5]
-        suggestions = [system.name for system in sqs]
+        sqs = System.objects.filter(name__icontains=search_q).order_by('name')
+        sqs = sqs.values('name')[:6]
+        suggestions = [system["name"] for system in sqs]
     else:
         suggestions = [ ]
 
