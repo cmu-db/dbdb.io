@@ -12,7 +12,7 @@ from pprint import pprint
 from django.core.management import BaseCommand
 from django.conf import settings
 from django.db import connection
-from django.db.models import Q
+from django.db.models import Q, Count
 
 from dbdb.core.models import System
 from dbdb.core.models import SystemFeature
@@ -83,44 +83,23 @@ class Command(BaseCommand):
         #sys.exit(0)
 
         # Get the list of all unique IPs
-        ip_addresses = [ ]
-        with connection.cursor() as cursor:
-            sql = "SELECT ip_address, user_agent, count(*) AS cnt FROM core_systemvisit "
-            sql_args = [ ]
-
-            # Remove ignored IPs
-            if options['ignore']:
-                sql += "WHERE ip_address NOT IN %s "
-                sql_args.append(options['ignore'])
-
-            sql += "GROUP BY ip_address, user_agent HAVING cnt BETWEEN %s AND %s"
-            sql_args.append(options['min_threshold'])
-            sql_args.append(options['max_threshold'])
-
-            self.stdout.write(sql)
-            self.stdout.write(str(sql_args))
-
-            cursor.execute(sql, tuple(sql_args))
-            ip_addresses = set([ (row[0],row[1]) for row in cursor.fetchall() ])
-        # WITH
+        sqs = SystemVisit.objects.all()
+        if options['ignore']:
+            sqs = sqs.exclude(ip_address__in=options['ignore'])
+        sqs = sqs.values("ip_address", "user_agent").annotate(total=Count('id'))\
+                    .filter(total__gte=options['min_threshold'])\
+                    .filter(total__lte=options['max_threshold'])
+        ip_addresses = set([(x["ip_address"], x["user_agent"]) for x in sqs])
 
         # Get the # of visits per system
-        visits_per_system = { }
-        with connection.cursor() as cursor:
-            sql = "SELECT system_id, count(*) AS cnt FROM core_systemvisit "
-            sql_args = [ ]
+        sqs = SystemVisit.objects.all()
+        if options['ignore']:
+            sqs = sqs.exclude(ip_address__in=options['ignore'])
+        sqs = sqs.values("system_id").annotate(total=Count('id'))
+        if options['min_visit']:
+            sqs = sqs.filter(total__gte=options['min_visit'])
+        visits_per_system = dict([(x["system_id"], x["total"]) for x in sqs])
 
-            # Remove ignored IPs
-            if options['ignore']:
-                sql += "WHERE ip_address NOT IN %s "
-                sql_args.append(options['ignore'])
-
-            sql += "GROUP BY system_id HAVING cnt > %s"
-            sql_args.append(str(options['min_visit']))
-
-            cursor.execute(sql, tuple(sql_args))
-            visits_per_system = dict([ (row[0],int(row[1])) for row in cursor.fetchall() ])
-        # WITH
         #for system_id in sorted(visits_per_system.keys(), key=lambda x: -1*visits_per_system[x]):
             #self.stdout.write(System.objects.get(id=system_id), "=>", visits_per_system[system_id])
         #sys.exit(1)
