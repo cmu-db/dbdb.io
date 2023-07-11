@@ -1,22 +1,22 @@
 # django imports
-from django.conf.urls import url, include
+from django.urls import re_path, include
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 
 
 urlpatterns = [
-    url(r'^', include('django.contrib.auth.urls')),
-    url(r'^', include('dbdb.core.urls')),
+    re_path(r'^', include('django.contrib.auth.urls')),
+    re_path(r'^', include('dbdb.core.urls')),
 
-    url(r'^admin/', admin.site.urls),
+    re_path(r'^admin/', admin.site.urls),
 ]
 
 if settings.DEBUG:
     try:
         import debug_toolbar
         urlpatterns = [
-            url(r'^__debug__/', include(debug_toolbar.urls)),
+            re_path(r'^__debug__/', include(debug_toolbar.urls)),
         ] + urlpatterns
     except ImportError:
         pass

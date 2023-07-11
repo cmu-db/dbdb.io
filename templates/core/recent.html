@@ -34,9 +34,9 @@ Recent Changes
                     <td>
                         <a href="{{ version.system.get_absolute_url }}">
                         {% if version.system.current.logo %}
-                            <img src="{% if version.system.current.logo.url.lower|slice:"-3:" == "svg" %}{{ version.system.current.logo.url }}{% else %}{{ version.system.current.logo|thumbnail_url:'thumb' }}{% endif %}" alt="{{ version.system.name }}" />
+                            <img class="logo-recent" src="{% if version.system.current.logo.url.lower|slice:"-3:" == "svg" %}{{ version.system.current.logo.url }}{% else %}{{ version.system.current.logo|thumbnail_url:'thumb' }}{% endif %}" alt="{{ version.system.name }}" />
                         {% else %}
-                            <img src="{% static 'core/images/database-nologo.svg' %}" alt="{{ version.system.name }}" />
+                            <img class="logo-recent" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ version.system.name }}" />
                         {% endif %}
                         {{ version.system.name }}
                         </a>

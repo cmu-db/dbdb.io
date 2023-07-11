@@ -59,6 +59,11 @@ class SystemRecommendationAdmin(admin.ModelAdmin):
     readonly_fields=('created', )
     ordering = ('-created',)
 
+class SystemSearchTextAdmin(admin.ModelAdmin):
+    list_display = ('system', 'search_text', 'created')
+    readonly_fields = ('created',)
+    ordering = ('-created',)
+
 class SystemVisitAdmin(admin.ModelAdmin):
     list_display = ('system', 'ip_address', 'created')
     list_filter = ['created', 'system']
@@ -95,6 +100,7 @@ admin.site.register(System, SystemAdmin)
 admin.site.register(SystemFeature)
 admin.site.register(SystemVisit, SystemVisitAdmin)
 admin.site.register(SystemRecommendation, SystemRecommendationAdmin)
+admin.site.register(SystemSearchText, SystemSearchTextAdmin)
 admin.site.register(SystemACL, SystemACLAdmin)
 admin.site.register(SystemVersion, SystemVersionAdmin)
 admin.site.register(SystemVersionMetadata)

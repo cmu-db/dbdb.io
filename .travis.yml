@@ -1,14 +1,14 @@
 language: python
 python:
-  - "3.6"
+  - "3.10"
 install:
   - mkdir -p data/xapian
   - mkdir -p media/logos
   - mkdir -p media/twitter
-  - pip3 install -U pip setuptools wheel
-  - ./bin/install_xapian.sh 1.4.16
   - pip3 install -r requirements.txt
   - pip3 install -r requirements-test.txt
+  - pip3 install -U pip setuptools wheel
+  - ./bin/install_xapian.sh 1.4.16
 before_script:
   - python manage.py migrate
 script:
