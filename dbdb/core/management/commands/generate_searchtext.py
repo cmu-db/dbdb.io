@@ -12,6 +12,7 @@ class Command(BaseCommand):
             try:
                 sstext = SystemSearchText()
                 sstext.system = s.system
+                sstext.name = s.system.name
                 sstext.search_text = s.generate_searchtext()
                 sstext.save()
                 print("Created", s.system)

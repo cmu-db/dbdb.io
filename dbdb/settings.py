@@ -77,27 +77,27 @@ ROOT_URLCONF = 'dbdb.urls'
 WSGI_APPLICATION = 'dbdb.wsgi.application'
 
 # Uncommenting this will enable query logging to stdout
-# LOGGING = {
-#    'version': 1,
-#    'filters': {
-#        'require_debug_true': {
-#            '()': 'django.utils.log.RequireDebugTrue',
-#        }
-#    },
-#    'handlers': {
-#        'console': {
-#            'level': 'DEBUG',
-#            'filters': ['require_debug_true'],
-#            'class': 'logging.StreamHandler',
-#        }
-#    },
-#    'loggers': {
-#        'django.db.backends': {
-#            'level': 'DEBUG',
-#            'handlers': ['console'],
-#        }
-#    }
-# }
+LOGGING = {
+   'version': 1,
+   'filters': {
+       'require_debug_true': {
+           '()': 'django.utils.log.RequireDebugTrue',
+       }
+   },
+   'handlers': {
+       'console': {
+           'level': 'DEBUG',
+           'filters': ['require_debug_true'],
+           'class': 'logging.StreamHandler',
+       }
+   },
+   'loggers': {
+       'django.db.backends': {
+           'level': 'DEBUG',
+           'handlers': ['console'],
+       }
+   }
+}
 
 
 # Database
@@ -193,11 +193,11 @@ THUMBNAIL_PRESERVE_EXTENSIONS = ['png', 'svg']
 COUNTRIES_FIRST = ['US']
 
 # Django Invisible reCaptcha
-RECAPTCHA_PUBLIC_KEY = env('RECAPTCHA_PUBLIC_KEY')
-RECAPTCHA_PRIVATE_KEY = env('RECAPTCHA_PRIVATE_KEY')
+RECAPTCHA_PUBLIC_KEY = '' # env('RECAPTCHA_PUBLIC_KEY')
+RECAPTCHA_PRIVATE_KEY = '' # env('RECAPTCHA_PRIVATE_KEY')
 
 # Email Configuration
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+DEFAULT_FROM_EMAIL = '' # env('DEFAULT_FROM_EMAIL')
 
 # Markdown Configuration
 MARKDOWNIFY = {

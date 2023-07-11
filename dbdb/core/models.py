@@ -346,6 +346,7 @@ class SystemRecommendation(models.Model):
 # ==============================================
 class SystemSearchText(models.Model):
     system = models.ForeignKey('System', models.CASCADE, related_name='search')
+    name = models.CharField(max_length=64, blank=False, null=False)
     search_text = models.TextField(default=None, null=True,
                                    help_text="Synthesized text for searching")
     created = models.DateTimeField(default=timezone.now)
@@ -585,8 +586,11 @@ class SystemVersion(models.Model):
         words = words + [x.name for x in self.countries]
         if self.former_names:
             words = words + self.former_names.split(",")
+        if self.acquired_by:
+            words = words + self.acquired_by.split(",")
         words = words + [x.name for x in self.meta.written_in.all()]
         words = words + [x.name for x in self.meta.supported_languages.all()]
+        words = words + [x.slug for x in self.meta.supported_languages.all()]
         words = words + [x.name for x in self.meta.oses.all()]
         words = words + [x.name for x in self.meta.licenses.all()]
         words = words + [x.slug for x in self.meta.licenses.all()]
