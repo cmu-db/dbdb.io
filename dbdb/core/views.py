@@ -738,8 +738,8 @@ class BrowseView(View):
     def do_dym(self, search_q):
         """Did you mean search"""
         matches = System.objects.annotate(rank=RawSQL("name <-> %s", [search_q])).order_by("rank").values("id", "name", "slug")[:1]
-        from pprint import pprint
-        pprint(matches)
+        # from pprint import pprint
+        # pprint(matches)
         return matches[0]
 
     def get(self, request):
@@ -779,6 +779,7 @@ class BrowseView(View):
         # check if there are results
         has_results = len(results) > 0
 
+        # If there are no results, do a quick "Did You Mean?" search
         suggestion = None
         if not has_results:
             search_q = request.GET.get('q', '').strip()
