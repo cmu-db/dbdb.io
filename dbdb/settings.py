@@ -23,7 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
 
     #'autoslug',
-    'bootstrap4',
+    'django_bootstrap5',
     'easy_thumbnails',
     'django_countries',
     'captcha',
@@ -77,27 +77,27 @@ ROOT_URLCONF = 'dbdb.urls'
 WSGI_APPLICATION = 'dbdb.wsgi.application'
 
 # Uncommenting this will enable query logging to stdout
-LOGGING = {
-   'version': 1,
-   'filters': {
-       'require_debug_true': {
-           '()': 'django.utils.log.RequireDebugTrue',
-       }
-   },
-   'handlers': {
-       'console': {
-           'level': 'DEBUG',
-           'filters': ['require_debug_true'],
-           'class': 'logging.StreamHandler',
-       }
-   },
-   'loggers': {
-       'django.db.backends': {
-           'level': 'DEBUG',
-           'handlers': ['console'],
-       }
-   }
-}
+# LOGGING = {
+#    'version': 1,
+#    'filters': {
+#        'require_debug_true': {
+#            '()': 'django.utils.log.RequireDebugTrue',
+#        }
+#    },
+#    'handlers': {
+#        'console': {
+#            'level': 'DEBUG',
+#            'filters': ['require_debug_true'],
+#            'class': 'logging.StreamHandler',
+#        }
+#    },
+#    'loggers': {
+#        'django.db.backends': {
+#            'level': 'DEBUG',
+#            'handlers': ['console'],
+#        }
+#    }
+# }
 
 
 # Database

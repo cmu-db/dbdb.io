@@ -6,7 +6,6 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="main">
 <div class="container">
     <div class="row justify-content-md-center homepage-header">
         <div class="col col-md-12 col-sm-12 text-center">
@@ -16,7 +15,7 @@
                 <div class="form-group">
                     <input autofocus type="text" name="q" class="form-control form-control-lg" aria-describedby="Search field" placeholder="Search" style="max-width:700px;margin:0 auto;">
                 </div>
-                <p class="lead">
+                <p class="lead mt-3">
                     <a href="{% url 'browse' %}" class="btn btn-secondary active" role="button" aria-pressed="true"><i class="fas fa-th"></i> Browse</a>
                     &nbsp;
                     <a href="{% url 'stats' %}" class="btn btn-secondary active" role="button" aria-pressed="true"><i class="far fa-chart-bar"></i> Leaderboards</a>
@@ -58,7 +57,6 @@
             </table>
         </div>
     </div>
-</div>
 </div>
 
 {% endblock %}

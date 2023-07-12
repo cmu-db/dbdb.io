@@ -6,7 +6,7 @@ chardet==3.0.4
 cssselect==1.1.0
 Django==4.1.10
 django-autoslug==1.9.8
-django-bootstrap4==22.3
+django-bootstrap5==23.*
 django-countries==7.4.2
 django-environ==0.9.0
 django-recaptcha==3.0.0

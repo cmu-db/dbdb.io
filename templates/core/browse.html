@@ -2,7 +2,6 @@
 {% load humanize %}
 {% load static %}
 {% load countries %}
-{% load bootstrap4 %}
 
 {% block title %}Browse{% endblock %}
 
@@ -119,7 +118,7 @@ div.results div.version p { margin:0; }
         <div class="input-group input-group-lg">
             <input type="text" class="form-control" placeholder="Search name, keywords, features..." aria-label="Search name, keywords, features..." aria-describedby="search" id="mainsearch-q" name="q" value="{{ query }}">
             <span class="input-group-btn">
-                <button class="btn btn-default" type="submit" id="search">Search</button>
+                <button class="btn btn-primary" type="submit" id="search">Search</button>
             </span>
         </div>
 

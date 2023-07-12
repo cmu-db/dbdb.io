@@ -1,4 +1,6 @@
-{% load static %}<!DOCTYPE html>
+{% load static %}
+{% load django_bootstrap5 %}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -14,7 +16,12 @@
 
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,700,800">
     <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.9.0/css/all.css">
-    <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
+
+    {# Load CSS and JavaScript #}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+
     <link rel="stylesheet" type="text/css" href="{% static 'lib/css/bootstrap-select.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'core/css/base.css' %}?v=2">
     <link rel="stylesheet" type="text/css" href="{% static 'core/css/jquery.auto-complete.css' %}">
@@ -35,83 +42,12 @@
     {% block css %}{% endblock %}
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <a class="navbar-brand" href="{%  url 'home' %}">Database of Databases</a>
 
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+{% include "navbar.html" %}
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-        <li class="nav-item{% if activate == 'browse' %} active{% endif %}">
-                <a class="nav-link btn btn-outline-secondary" href="{% url 'browse' %}">Browse</a>
-            </li>
-            <li class="nav-item{% if activate == 'stats' %} active{% endif %}">
-                <a class="nav-link btn btn-outline-secondary" href="{% url 'stats' %}">Leaderboards</a>
-            </li>
-            <li class="nav-item{% if activate == 'recent' %} active{% endif %}">
-                <a class="nav-link btn btn-outline-secondary" href="{% url 'recent' %}">Recent</a>
-            </li>
-            {% if user.is_authenticated and user.is_superuser %}
-            <li class="nav-item{% if activate == 'create' %} active{% endif %}">
-                <a class="nav-link btn btn-outline-secondary" href="{% url 'create_database' %}">Create</a>
-            </li>
-            <li class="nav-item{% if activate == 'empty' %} active{% endif %}">
-                <a class="nav-link btn btn-outline-secondary" href="{% url 'empty_fields' %}">EmptyFields</a>
-            </li>
-            {% endif %}
-
-            {% block navbuttons %}{% endblock %}
-        </ul>
-
-        {% if not no_nav_search %}
-        <form action="{% url 'browse' %}" method="GET" id="topsearch" class="form-inline form-search my-2 my-lg-0 mr-4">
-            <div class="input-group">
-                <input type="search" class="form-control" placeholder="Search" aria-label="Search" id="top-searchbox" name="q" value="{% if query %}{{ query }}{% endif %}">
-                <div class="input-group-append">
-                    <button class="btn" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div>
-        </form>
-        {% endif %}
-
-        <ul class="navbar-nav my-2 my-lg-0 mr-4">
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {% if user.is_authenticated %}
-                    {{ user.username }}
-                    {% else %}
-                    Accounts
-                    {% endif %}
-                </a>
-
-                {% if user.is_authenticated %}
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="#">Profile</a>
-
-                    {% if user.is_staff %}
-                    <a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a>
-                    {% endif %}
-
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
-                </div>
-                {% else %}
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="{% url "login" %}">Login</a>
-                    <!-- <div class="dropdown-divider"></div> -->
-                    <!-- <a class="dropdown-item" href="{% url "create_user" %}">Create Account</a> -->
-                </div>
-                {% endif %}
-            </li>
-        </ul>
-    </div>
-</nav>
-
-{% block content %}{% endblock %}
+<main class="container py-5">
+    {% block content %}{% endblock %}
+</main>
 
 <footer class="font-small mdb-color pt-4">
     <div class="container align-top">
@@ -135,7 +71,7 @@
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+{#<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>#}
 
 {% if user.is_authenticated and not user.is_superuser or not user.is_authenticated %}
 <!-- Global site tag (gtag.js) - Google Analytics -->

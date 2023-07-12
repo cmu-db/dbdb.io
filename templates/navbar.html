@@ -1,0 +1,42 @@
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{%  url 'home' %}">Database of Databases</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                <li class="nav-item">
+                    <a class="nav-link {% if activate == 'browse' %} active{% endif %}" href="{% url 'browse' %}">Browse</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if activate == 'stats' %} active{% endif %}" href="{% url 'stats' %}">Leaderboards</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if activate == 'recent' %} active{% endif %}" href="{% url 'recent' %}">Recent</a>
+                </li>
+                {% if user.is_authenticated and user.is_superuser %}
+                <li class="nav-item">
+                    <a class="nav-link {% if activate == 'create' %} active{% endif %}" href="{% url 'create_database' %}">Create</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if activate == 'empty' %} active{% endif %}" href="{% url 'empty_fields' %}">EmptyFields</a>
+                </li>
+                {% endif %}
+            {% block navbuttons %}{% endblock %}
+            </ul>
+            {% if not no_nav_search %}
+            <form class="d-flex" role="search" action="{% url 'browse' %}" method="GET" id="topsearch">
+                <input type="search" class="form-control me-2" placeholder="Search" aria-label="Search" id="top-searchbox" name="q" value="{% if query %}{{ query }}{% endif %}">
+                <button class="btn btn-primary" type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+{#                <button class="btn btn-outline-success" type="submit">Search</button>#}
+{#                    <div class="input-group-append">#}
+{#                    </div>#}
+{#                </div>#}
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</nav>
