@@ -1739,6 +1739,17 @@ class SystemView(View):
 
     template_name = 'core/system.html'
 
+    def process_citations(self, citations):
+        citation_offsets = [ ]
+        for c in citations:
+            if c.url not in self.all_citation_urls:
+                self.all_citations.append(c.url)
+                self.all_citation_urls.add(c.url)
+                citation_offsets.append(self.citation_ctr)
+                self.citation_ctr += 1
+        return citation_offsets
+        pass
+
     def get(self, request, slug):
         # try to get system by slug
         try:
@@ -1768,10 +1779,28 @@ class SystemView(View):
             user_can_edit = SystemACL.objects.filter(system=system, user=request.user).exists()
             pass
 
-        # Citations
-        #citations = [ ]
-        #citations.append(system_version.description_citations)
-        #citations.append(
+        # Sections
+
+        self.all_citations = []
+        self.all_citation_urls = set()
+        self.citation_ctr = 0
+
+        sections = []
+        sections.append({
+            "id": "history",
+            "title": "History",
+            "body": system_version.history,
+            "citations": self.process_citations(system_version.history_citations.all())
+        })
+
+        for sf in SystemFeature.objects.filter(version=system_version).select_related('feature').order_by('feature__label'):
+            sections.append({
+                "id": sf.feature.slug,
+                "title": sf.feature.label,
+                "body": sf.description,
+                "citations": self.process_citations(sf.citations.all()),
+                "options": sf.options.all(),
+            })
 
         # Compatible Systems
         compatible = [
@@ -1811,7 +1840,8 @@ class SystemView(View):
         return render(request, self.template_name, {
             'activate': 'system', # NAV-LINKS
             'system': system,
-            'system_features': system_features,
+            'sections': sections,
+            'citations': self.all_citations,
             'system_version': system_version,
             'user_can_edit': user_can_edit,
             'compatible': compatible,

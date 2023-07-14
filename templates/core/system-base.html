@@ -19,19 +19,18 @@
 {% endblock %}
 
 {% block content %}
-    <div class="row justify-content-md-center system-content">
-
-        <!-- START: MAIN BODY -->
-        <div class="col-sm-12 col-md-7 order-2 order-md-1">
+    <div class="row">
+        <!-- BEGIN: MAIN COL -->
+        <section class="col-sm-12 col-md-7 order-2 order-md-1">
             {% if has_revision %}
                 <div class="alert alert-info d-none d-md-block" style="line-height: 34px;" role="alert">
                     Viewing Revision #{{ system_version.ver }} from {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
-                    <a href="{{ system.get_absolute_url }}" class="btn btn-secondary btn-sm float-end" role="button" aria-pressed="true">View Current</a>
+                    <a href="{{ system.get_absolute_url }}" class="btn btn-secondary btn-sm float-end ms-2" role="button" aria-pressed="true">View Current</a>
                     {% if not system_version.is_current and user.is_authenticated %}
-                    <form class="form-inline" action="{% url 'system_revision' system.slug %}" method="POST">
+                    <form class="form-inline d-inline" action="{% url 'system_revision' system.slug %}" method="POST">
                         {% csrf_token %}
                         <input type="hidden" value="{{ system_version.id }}" name="current_version">
-                        <button type="submit" class="btn btn-primary btn-sm float-end">Set As Current</button>
+                        <button type="submit" class="btn btn-primary btn-sm float-end ms-2">Set As Current</button>
                     </form>
                 {% endif %}
                 </div>
@@ -43,75 +42,43 @@
                 </div>
             {% endif %}
 
-            <div class="card has-citations">
-                <div class="card-body">
-                    <h2 class="card-title">
-                        {{ system.name }}
-                        <a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
-                    </h2>
-                    {% if system_version.tags %}
-                        {% for tag in system_version.tags.all %}
-                            <a class="badge badge-secondary" style="font-size: 12px;" href="{% url 'browse' %}?tag={{ tag.slug }}">{{ tag.name }}</a>
+            <h1 class="fw-bold">{{ system.name }}</h1>
+            {% if system_version.tags %}
+                {% for tag in system_version.tags.all %}
+                    <a class="badge badge-secondary" href="{% url 'browse' %}?tag={{ tag.slug }}">{{ tag.name }}</a>
+                {% endfor %}
+            {% endif %}
+            <p>{{ system_version.description|markdownify }}</p>
+
+            {% for sec in sections %}
+                <div id="{{ sec.id }}" class="mb-4">
+                    {% if sec.title %}
+                        <h3 class="mb-0">
+                            {{ sec.title }}
+                            {% if sec.citations %}
+                                {% for c in sec.citations %}
+                                    <sup><a href="#citation{{ c }}">[{{ c }}]</a></sup>
+                                {% endfor %}
+                            {% endif %}
+                        </h3>
+                    {% endif %}
+                    {% if sec.options %}
+                        {% for o in sec.options %}
+                        <a class="badge bg-secondary" href="{% url 'browse' %}?{{ sec.id }}={{ o.slug }}">{{ o.value }}</a>
                         {% endfor %}
                     {% endif %}
-
-                    <p class="card-text">
-                    {{ system_version.description|markdownify }}
-                    </p>
-                    <cite class="hidden">
-                        <ul>
-                            {% for citation in system_version.description_citations.all %}
-                            <li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </cite>
+                    {{ sec.body|markdownify }}
                 </div>
-            </div>
-
-            {% if system_version.history %}
-            <div class="card has-citations">
-                <div class="card-body">
-                    <h4 class="card-title">
-                        History
-                        <a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
-                    </h4>
-                    <p class="card-text">{{ system_version.history|markdownify }}</p>
-                    <cite class="hidden">
-                        <ul>
-                            {% for citation in system_version.history_citations.all %}
-                            <li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </cite>
-                </div>
-            </div>
-            {% endif %}
-
-            {% for feature in system_features %}
-            {% if feature.options.exists %}
-            <div id="{{feature.feature.slug }}" class="card card-feature has-citations">
-                <div class="card-body">
-                    <h4 class="card-title">
-                        {{ feature.feature.label }}
-                        <a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
-                    </h4>
-                    <p class="card-text">
-                        {% for v in feature.options.all %}
-                        <a class="badge badge-info" href="{% url 'browse' %}?{{ feature.feature.slug }}={{ v.slug }}">{{ v.value }}</a>
-                        {% endfor %}
-                    </p>
-                    <p>{{ feature.description|markdownify }}</p>
-                    <cite class="hidden">
-                        <ul>
-                            {% for citation in feature.citations.all %}
-                            <li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </cite>
-                </div>
-            </div>
-            {% endif %}
             {% endfor %}
+
+            {% if citations %}
+            <h3>Citations</h3>
+                <ol>
+                    {% for c in citations %}
+                        <li id="citation{{ forloop.counter }}"><a href="{{ c }}" target="_cite">{{ c }}</a></li>
+                    {% endfor %}
+                </ol>
+            {% endif %}
 
             <div class="card card-version d-block d-md-none revision-card">
                 <a href="{% url 'system_revision' system.slug %}" title="View All Revisions for {{ system.name }}">
