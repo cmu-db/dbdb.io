@@ -457,6 +457,11 @@ class SystemVersion(models.Model):
         blank=True, max_length=100,
         help_text="Twitter account for the database (avoid company account if possible)")
 
+    linkedin_url = models.URLField(
+        blank=True, max_length=500,
+        verbose_name="LinkedIn URL",
+        help_text="URL of LinkedIn profile for main developer backing the system (if available)")
+
     class Meta:
         ordering = ('-ver',)
         unique_together = ('system','ver')

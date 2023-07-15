@@ -221,7 +221,6 @@ class SystemVersionEditForm(forms.ModelForm):
         if data and data[0] != '@':
             raise ValidationError("Invalid Twitter handle. Expected to start with '@' character")
         return data
-    
 
     class Meta:
         model = SystemVersion
@@ -236,6 +235,7 @@ class SystemVersionEditForm(forms.ModelForm):
             'tech_docs',
             'wikipedia_url',
             'twitter_handle',
+            'linkedin_url',
             'developer',
             'start_year',
             'start_year_citations',
@@ -288,6 +288,7 @@ class SystemVersionForm(forms.ModelForm):
             'tech_docs',
             'wikipedia_url',
             'twitter_handle',
+            'linkedin_url',
             'developer',
             'start_year',
             'start_year_citations',
