@@ -599,6 +599,13 @@ class SystemVersion(models.Model):
             if sf.description: words.append(sf.description)
         words = words + [self.description]
 
+        # We also add the name of the DBMS without common suffixes
+        # For example, people sometimes search for "mongo"
+        suffixes = [ "DB", "SQL" ]
+        for w in [self.system.name]+self.former_names.split(","):
+            for s in suffixes:
+                if w.upper().endswith(s): words.append(w[:-len(s)])
+
         return " ".join([w.replace('\r', '').replace('\n', ' ') for w in words])
 
     pass
