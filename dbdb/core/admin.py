@@ -63,6 +63,7 @@ class SystemSearchTextAdmin(admin.ModelAdmin):
     list_display = ('system', 'search_text', 'created')
     readonly_fields = ('created',)
     ordering = ('-created',)
+    search_fields = ('system__name',)
 
 class SystemVisitAdmin(admin.ModelAdmin):
     list_display = ('system', 'ip_address', 'created')

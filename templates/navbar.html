@@ -23,7 +23,7 @@
                     <a class="nav-link {% if activate == 'empty' %} active{% endif %}" href="{% url 'empty_fields' %}">EmptyFields</a>
                 </li>
                 {% endif %}
-            {% block navbuttons %}{% endblock %}
+                {% block navbuttons %}{% endblock %}
             </ul>
             {% if not no_nav_search %}
             <form class="d-flex" role="search" action="{% url 'browse' %}" method="GET" id="topsearch">

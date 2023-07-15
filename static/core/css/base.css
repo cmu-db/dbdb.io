@@ -3,8 +3,8 @@
 }
 
 body {
-	font-size: 14px;
-	font-family: "Roboto","Open Sans",sans-serif;
+	/*font-size: 14px;*/
+	font-family: "Open Sans",sans-serif;
     padding-top: 4.5rem;
 }
 body > div.jumbotron { margin-bottom:0; }
@@ -27,10 +27,6 @@ footer {
 footer .footer-text { text-align: center; }
 footer .footer-text a { color: #62B855; }
 footer .footer-text p { margin: 0; }
-
-h6.card-title {
-	font-weight: bold;
-}
 
 div.revision-footer {
 	margin: auto;
@@ -117,8 +113,11 @@ img.logo-recommendation {
 }
 
 
-
-div.sidebar { background-color:#F8F8F8; border-radius:4px; padding:20px; }
+div.sidebar h5 {
+	font-weight: bold;
+    margin-bottom: 0px;
+}
+/*div.sidebar { background-color:#F8F8F8; border-radius:4px; padding:20px; }*/
 div.sidebar .btn-primary { background-color:#417690; border-color:#417690; color:#ffffff; }
 div.sidebar .btn-primary:hover { background-color:#205067; border-color:#205067; }
 div.sidebar .btn-default { background-color:#79aec8; border-color:#79aec8; color:#ffffff;}

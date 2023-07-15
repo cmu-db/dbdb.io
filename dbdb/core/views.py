@@ -1742,13 +1742,14 @@ class SystemView(View):
     def process_citations(self, citations):
         citation_offsets = [ ]
         for c in citations:
-            if c.url not in self.all_citation_urls:
+            offset = None
+            try:
+                offset = self.all_citations.index(c.url)
+            except:
                 self.all_citations.append(c.url)
-                self.all_citation_urls.add(c.url)
-                citation_offsets.append(self.citation_ctr)
-                self.citation_ctr += 1
+                offset = len(self.all_citations)
+            citation_offsets.append(offset)
         return citation_offsets
-        pass
 
     def get(self, request, slug):
         # try to get system by slug
@@ -1782,8 +1783,6 @@ class SystemView(View):
         # Sections
 
         self.all_citations = []
-        self.all_citation_urls = set()
-        self.citation_ctr = 0
 
         sections = []
         sections.append({
@@ -1794,6 +1793,7 @@ class SystemView(View):
         })
 
         for sf in SystemFeature.objects.filter(version=system_version).select_related('feature').order_by('feature__label'):
+            if not sf.description and sf.options.count() == 0: continue
             sections.append({
                 "id": sf.feature.slug,
                 "title": sf.feature.label,
@@ -1801,6 +1801,12 @@ class SystemView(View):
                 "citations": self.process_citations(sf.citations.all()),
                 "options": sf.options.all(),
             })
+
+        # FIXME
+        start_year_citations = self.process_citations(system_version.start_year_citations.all())
+        # system_version.start_year_citations.all()
+        # system_version.end_year_citations.all()
+        # system_version.acquired_by_citations.all()
 
         # Compatible Systems
         compatible = [
@@ -1836,12 +1842,12 @@ class SystemView(View):
                                 .order_by("-score")
                                 .select_related()
         ]
-
         return render(request, self.template_name, {
             'activate': 'system', # NAV-LINKS
             'system': system,
             'sections': sections,
             'citations': self.all_citations,
+            'start_year_citations': start_year_citations,
             'system_version': system_version,
             'user_can_edit': user_can_edit,
             'compatible': compatible,
@@ -1850,6 +1856,7 @@ class SystemView(View):
             'recommendations': recommendations,
             'counter_token': CounterView.build_token('system', pk=system.id),
         })
+
 
     pass
 
