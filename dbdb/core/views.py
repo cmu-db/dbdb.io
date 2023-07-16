@@ -3,8 +3,6 @@ from functools import reduce
 import collections
 import datetime
 import json
-import operator
-import time
 import urllib.parse
 # django imports
 from django.conf import settings
@@ -12,9 +10,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.contrib.postgres.search import SearchQuery, SearchRank, TrigramSimilarity
+from django.contrib.postgres.search import SearchQuery
 from django.db import transaction
-from django.db.models import Q, Count, Max, Min, Func, Value, F
+from django.db.models import Q, Count, Max, Min, F
 from django.db.models.expressions import RawSQL
 from django.forms import HiddenInput
 from django.http import HttpResponse
@@ -28,7 +26,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.text import slugify
-from django.utils.text import smart_split
 from django.views import View
 from django.views.decorators.cache import never_cache, cache_control
 from django.views.decorators.csrf import csrf_exempt
@@ -64,10 +61,9 @@ UserModel = get_user_model()
 
 # constants
 FILTERGROUP_VISIBLE_LENGTH = 3
-SITEMPA_NS = 'http://www.sitemaps.org/schemas/sitemap/0.9'
-SITEMAP_PREFIX = '{%s}' % SITEMPA_NS
-SITEMAP_NSMAP = { None : SITEMPA_NS }
-
+SITEMAP_NAMESPACE = 'https://www.sitemaps.org/schemas/sitemap/0.9'
+SITEMAP_PREFIX = '{%s}' % SITEMAP_NAMESPACE
+SITEMAP_NSMAP = {None : SITEMAP_NAMESPACE}
 
 # helper classes
 FieldSet = collections.namedtuple('FieldSet', ['id','label','choices','description','citation'])
@@ -145,18 +141,6 @@ class SearchBadge:
 
     pass
 
-
-# helper functions
-
-def staff_check(user):
-    return user.is_staff
-
-def super_user_check(user):
-    return user.is_superuser
-
-
-# class based views
-
 # ==============================================
 # EmptyFieldsView
 # ==============================================
@@ -167,17 +151,19 @@ class EmptyFieldsView(View):
     def build_search_fields(include_citations=False):
         import django.db.models.fields
 
-        IGNORE_TYPES = set([
+        IGNORE_TYPES = [
             django.db.models.fields.AutoField,
             django.db.models.fields.related.ForeignKey,
             #django.db.models.fields.related.ManyToManyField,
-        ])
-        IGNORE_NAMES = set([
+        ]
+        IGNORE_NAMES = [
             "ver",
             "comment",
             "features",
             "created",
-        ])
+            "is_current",
+            "systemversion",
+        ]
 
         version_fields = [ ]
         for f in SystemVersion._meta.get_fields():
@@ -207,7 +193,7 @@ class EmptyFieldsView(View):
 
         if not request.user.is_authenticated:
             return redirect( settings.LOGIN_URL + '?next=' + reverse('fields') )
-        elif not request.user.is_superuser:
+        elif not request.user.is_superuser and not request.user.is_staff:
             raise Http404()
 
         version_fields, meta_fields = EmptyFieldsView.build_search_fields()
@@ -1066,7 +1052,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
             system = System.objects.get(slug=slug)
 
             # Make sure this user has permissions to edit this page
-            if not request.user.is_superuser:
+            if not request.user.is_superuser and not request.user.is_staff:
                 try:
                     system_acl = SystemACL.objects.get(system=system, user=request.user)
                 except SystemACL.DoesNotExist:
@@ -1084,7 +1070,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
 
         system_form = SystemForm(instance=system)
 
-        # Don't allow non-superusers from editting the system name
+        # Don't allow non-superusers from editing the system name
         # This only really hides it from the UI.
         if request.user.is_superuser:
             system_form.fields['orig_name'].widget = HiddenInput()
@@ -1493,7 +1479,7 @@ class StatsView(View):
 
     template_name = 'core/stats.html'
     default_limit = 10
-    is_superuser = False
+    is_privileged = False
 
     def get_bycountries(self, limit):
         def reduce_countries(mapping, item):
@@ -1613,7 +1599,7 @@ class StatsView(View):
 
         stat_items = [ ]
         for s in values:
-            if field == 'view_count' and self.is_superuser == False:
+            if field == 'view_count' and self.is_privileged == False:
                 value = "#%02d" % (len(stat_items)+1)
             else:
                 value = getattr(s, field)
@@ -1633,7 +1619,7 @@ class StatsView(View):
 
 
     def get(self, request, stats_type=None):
-        self.is_superuser = request.user.is_superuser
+        self.is_privileged = request.user.is_superuser or request.user.is_staff
         stats = []
 
         # Countries
@@ -1762,7 +1748,7 @@ class SystemView(View):
         # if they are logged in, check whether they are allowed to edit
         if not request.user.is_authenticated:
             user_can_edit = False
-        elif request.user.is_superuser:
+        elif request.user.is_superuser or request.user.is_staff:
             user_can_edit = True
         else:
             user_can_edit = SystemACL.objects.filter(system=system, user=request.user).exists()

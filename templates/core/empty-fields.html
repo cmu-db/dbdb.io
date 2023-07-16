@@ -9,52 +9,60 @@ Field Checker
 {% block content %}
 <div class="main">
     <div class="container">
-            <h1>Show Empty Fields</h1>
         <div class="row">
-            <form id="content" method="GET">
-                <label for="formFieldSelect">Field:</label>
-                <select id="formFieldSelect" name="field">
-                    {% for f in fields %}
-                    <option value="{{ f }}" {% if f == field %}selected{% endif %}>{{ f }}</option>
-                    {% endfor %}
-                </select>
+            <div class="col">
+                <h1>Show Empty Fields</h1>
+                Use this form to identify which entries are missing certain fields.
+                We use this because we want to make sure that each database has at least a logo, website, and country of origin.
+                The "Reverse" option allows you to find the entries that do have a field populated.
 
-                <label for="formReverse">Reverse:</label>
-                <input id="formReverse" type="checkbox" name="reverse" value="1" {% if reverse %}checked{% endif %}/>
+                <form id="content" method="GET" class="mt-2">
+                    <label for="formFieldSelect">Field:</label>
+                    <select id="formFieldSelect" name="field">
+                        {% for f in fields %}
+                        <option value="{{ f }}" {% if f == field %}selected{% endif %}>{{ f }}</option>
+                        {% endfor %}
+                    </select>
 
-                <input type="submit" value="Submit">
-            </form>
+                    <label for="formReverse">Reverse:</label>
+                    <input id="formReverse" type="checkbox" name="reverse" value="1" {% if reverse %}checked{% endif %}/>
+
+                    <input type="submit" value="Submit">
+                </form>
+            </div>
         </div>
 
         {% if field %}
         <div class="row border-top mt-4 pt-4">
-            <h2>Matches: {{ versions|length}} / {{ num_systems }} [{{ match_percent }}%]</h2>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">System</th>
-                        <th scope="col">{{ field }}</th>
-                        <th scope="col">Updated</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for version in versions %}
-                    <tr>
-                        <td>
-                            <b><a target="view-{{ version.system.slug}}" href="{% url 'system' version.system.slug %}">{{ version.system.name }}</a></b>
-                            <a target="edit-{{ version.system.slug}}" href="{% url 'system_edit' version.system.slug %}">[EDIT]</a>
-                        </td>
-                        <td>
-                            {% if field == 'wikipedia_url' %}
-                                <a target="wiki-{{ version.system.slug}}" href="http://en.wikipedia.org/wiki/Special:Search?search={{ version.system.name }}&go=Go">[Search]</a>
-                            {% else %}
-                                {{ version.value }}
-                            {% endif %}
-                        </td>
-                        <td>{{ version.created }}</td>
-                {% endfor %}
-                </tbody>
-            </table>
+            <div class="col">
+                <h2>Matches: {{ versions|length}} / {{ num_systems }} [{{ match_percent }}%]</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">System</th>
+                            <th scope="col">{{ field }}</th>
+                            <th scope="col">Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for version in versions %}
+                        <tr>
+                            <td>
+                                <b><a target="view-{{ version.system.slug}}" href="{% url 'system' version.system.slug %}">{{ version.system.name }}</a></b>
+                                <a target="edit-{{ version.system.slug}}" href="{% url 'system_edit' version.system.slug %}">[EDIT]</a>
+                            </td>
+                            <td>
+                                {% if field == 'wikipedia_url' %}
+                                    <a target="wiki-{{ version.system.slug}}" href="http://en.wikipedia.org/wiki/Special:Search?search={{ version.system.name }}&go=Go">[Search]</a>
+                                {% else %}
+                                    {{ version.value }}
+                                {% endif %}
+                            </td>
+                            <td>{{ version.created }}</td>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
         {% endif %}
     </div>
