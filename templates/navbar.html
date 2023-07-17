@@ -15,13 +15,17 @@
                 <li class="nav-item">
                     <a class="nav-link {% if activate == 'recent' %} active{% endif %}" href="{% url 'recent' %}">Recent</a>
                 </li>
-                {% if user.is_authenticated and user.is_superuser %}
-                <li class="nav-item">
-                    <a class="nav-link {% if activate == 'create' %} active{% endif %}" href="{% url 'create_database' %}">Create</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if activate == 'empty' %} active{% endif %}" href="{% url 'empty_fields' %}">EmptyFields</a>
-                </li>
+                {% if user.is_authenticated %}
+                    {% if user.is_superuser %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if activate == 'create' %} active{% endif %}" href="{% url 'create_database' %}">Create</a>
+                        </li>
+                    {% endif %}
+                    {% if user.is_superuser or user.is_staff %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if activate == 'empty' %} active{% endif %}" href="{% url 'empty_fields' %}">EmptyFields</a>
+                        </li>
+                    {% endif %}
                 {% endif %}
                 {% block navbuttons %}{% endblock %}
             </ul>

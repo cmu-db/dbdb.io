@@ -39,7 +39,7 @@ sphinxcontrib-jsmath==1.0.1
 sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.4
 sphinxcontrib-websupport==1.2.2
-sqlparse==0.3.1
+sqlparse==0.4.4
 urllib3==1.26.9
 zipp==3.1.0
 Markdown==3.3.4
@@ -47,7 +47,7 @@ django-markdownify==0.9.2
 numpy==1.*
 pandas==1.1.*
 scikit-learn==0.24.*
-cairosvg==2.5.2
+cairosvg==2.7.0
 gunicorn==20.1.0
 psycopg2-binary==2.9.5
 filelock==3.8.0
