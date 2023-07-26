@@ -22,7 +22,7 @@ MarkupSafe==1.1.1
 psycopg2==2.9.6
 packaging==23.1
 Pillow==10
-Pygments==2.7.4
+Pygments==2.15.0
 PyJWT==1.7.1
 pyparsing==2.4.7
 pyquery==1.4.1
