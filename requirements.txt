@@ -1,7 +1,7 @@
 alabaster==0.7.12
 asgiref==3.5.2
 Babel==2.8.0
-certifi==2020.6.20
+certifi==2023.7.22
 chardet==3.0.4
 cssselect==1.1.0
 Django==4.1.10
@@ -22,7 +22,7 @@ MarkupSafe==1.1.1
 psycopg2==2.9.6
 packaging==23.1
 Pillow==10
-Pygments==2.7.4
+Pygments==2.15.0
 PyJWT==1.7.1
 pyparsing==2.4.7
 pyquery==1.4.1
