@@ -1730,7 +1730,7 @@ class SystemView(View):
         for c in citations:
             offset = None
             try:
-                offset = self.all_citations.index(c.url)
+                offset = self.all_citations.index(c.url) + 1
             except:
                 self.all_citations.append(c.url)
                 offset = len(self.all_citations)
@@ -1788,11 +1788,9 @@ class SystemView(View):
                 "options": sf.options.all(),
             })
 
-        # FIXME
         start_year_citations = self.process_citations(system_version.start_year_citations.all())
-        # system_version.start_year_citations.all()
-        # system_version.end_year_citations.all()
-        # system_version.acquired_by_citations.all()
+        end_year_citations = self.process_citations(system_version.end_year_citations.all())
+        acquired_by_citations = self.process_citations(system_version.acquired_by_citations.all())
 
         # Compatible Systems
         compatible = [
@@ -1834,6 +1832,8 @@ class SystemView(View):
             'sections': sections,
             'citations': self.all_citations,
             'start_year_citations': start_year_citations,
+            'end_year_citations': end_year_citations,
+            'acquired_by_citations': acquired_by_citations,
             'system_version': system_version,
             'user_can_edit': user_can_edit,
             'compatible': compatible,

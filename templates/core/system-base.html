@@ -139,7 +139,7 @@
 
             <div class="border rounded bg-light p-4">
                 {% if system_version.logo %}
-                <div class="text-center mb-4">
+                <div class="text-center mb-3 pb-3 border-bottom">
                     <a href="{{ system_version.logo.url }}"><img class="logo-thumbnail" src="{% if system_version.logo.url.lower|slice:"-3:" == "svg" %}{{ system_version.logo.url }}{% else %}{{ system_version.logo|thumbnail_url:'thumb' }}{% endif %}" style="border:none;" alt="{{ system.name }} Logo" title="{{ system.name }}"></a>
                 </div>
                 {% endif %}
@@ -184,8 +184,8 @@
                 {% if system_version.start_year %}
                     <h5 class="fs-6">
                         Start Year
-                        {% if start_year.citations %}
-                            {% for c in start_year.citations %}
+                        {% if start_year_citations %}
+                            {% for c in start_year_citations %}
                                 <sup><a class="citation" href="#citation{{ c }}">[{{ c }}]</a></sup>
                             {% endfor %}
                         {% endif %}
@@ -196,16 +196,13 @@
                 {% if system_version.end_year %}
                     <h5 class="fs-6">
                         End Year
-                        <a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
+                        {% if end_year_citations %}
+                            {% for c in end_year_citations %}
+                                <sup><a class="citation" href="#citation{{ c }}">[{{ c }}]</a></sup>
+                            {% endfor %}
+                        {% endif %}
                     </h5>
                     <p>{{ system_version.end_year }}</p>
-                    <cite class="hidden">
-                        <ul>
-                            {% for citation in system_version.end_year_citations.all %}
-                            <li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </cite>
                 {% endif %}
 
                 {% if system_version.former_names %}
@@ -216,37 +213,42 @@
                 {% if system_version.acquired_by %}
                     <h5 class="fs-6">
                         Acquired By
-
-                        <a href="javascript:;" class="citations"><i class="fas fa-info-circle" title="Citations"></i></a>
+                        {% if acquired_by_citations %}
+                            {% for c in acquired_by_citations %}
+                                <sup><a class="citation" href="#citation{{ c }}">[{{ c }}]</a></sup>
+                            {% endfor %}
+                        {% endif %}
                     </h5>
                     <p>{{ system_version.acquired_by }}</p>
-                    <cite class="hidden">
-                        <ul>
-                            {% for citation in system_version.acquired_by_citations.all %}
-                            <li><a target="_blank" href="{{ citation.url }}">{{ citation.url }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </cite>
                 {% endif %}
 
                 {% if system_version.project_types.exists %}
                     <h5 class="fs-6">Project Type</h5>
                     <p>
-                        {% for project_type in system_version.project_types.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?type={{ project_type.slug }}" title="View other {{ project_type.name }} systems">{{ project_type.name }}</a>{% endfor %}
+                        {% for project_type in system_version.project_types.all %}
+                            {% if not forloop.first %}, {% endif %}
+                            <a class="card-title" href="{% url 'browse' %}?type={{ project_type.slug }}" title="View other {{ project_type.name }} systems">{{ project_type.name }}</a>
+                        {% endfor %}
                     </p>
                 {% endif %}
 
                 {% if system_version.meta.written_in.exists %}
                     <h5 class="fs-6">Written in</h5>
                     <p>
-                        {% for written_in in system_version.meta.written_in.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?programming={{ written_in.slug }}" title="View other systems that are written in {{ written_in.name }}">{{ written_in.name }}</a>{% endfor %}
+                        {% for written_in in system_version.meta.written_in.all %}
+                            {% if not forloop.first %}, {% endif %}
+                            <a class="card-title" href="{% url 'browse' %}?programming={{ written_in.slug }}" title="View other systems that are written in {{ written_in.name }}">{{ written_in.name }}</a>
+                        {% endfor %}
                     </p>
                 {% endif %}
 
                 {% if system_version.meta.supported_languages.exists %}
                     <h5 class="fs-6">Supported languages</h5>
                     <p>
-                    {% for lang in system_version.meta.supported_languages.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?supported={{ lang.slug }}" title="View other systems that support {{ lang.name }}">{{ lang.name }}</a>{% endfor %}
+                    {% for lang in system_version.meta.supported_languages.all %}
+                        {% if not forloop.first %}, {% endif %}
+                        <a class="card-title" href="{% url 'browse' %}?supported={{ lang.slug }}" title="View other systems that support {{ lang.name }}">{{ lang.name }}</a>
+                    {% endfor %}
                     </p>
                 {% endif %}
 
@@ -260,14 +262,20 @@
                 {% if system_version.meta.embedded.exists %}
                     <h5 class="fs-6">Embeds / Uses</h5>
                     <p>
-                        {% for other in system_version.meta.embedded.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?embeds={{ other.slug }}" title="View other systems that embed {{ other.name }}">{{ other.name }}</a>{% endfor %}
+                        {% for other in system_version.meta.embedded.all %}
+                            {% if not forloop.first %}, {% endif %}
+                            <a class="card-title" href="{% url 'browse' %}?embeds={{ other.slug }}" title="View other systems that embed {{ other.name }}">{{ other.name }}</a>
+                        {% endfor %}
                     </p>
                 {% endif %}
 
                 {% if system_version.meta.inspired_by.exists %}
                     <h5 class="fs-6">Inspired By</h5>
                     <p>
-                        {% for other in system_version.meta.inspired_by.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?inspired={{ other.slug }}" title="View other systems inspired by {{ other.name }}">{{ other.name }}</a>{% endfor %}
+                        {% for other in system_version.meta.inspired_by.all %}
+                            {% if not forloop.first %}, {% endif %}
+                            <a class="card-title" href="{% url 'browse' %}?inspired={{ other.slug }}" title="View other systems inspired by {{ other.name }}">{{ other.name }}</a>
+                        {% endfor %}
                     </p>
                 {% endif %}
 
@@ -298,15 +306,45 @@
                 {% endif %}
 
                 </div>
-            </div>
+        </div>
+        <!-- END: SIDEBAR -->
 
+        <!-- BEGIN: RELATED SYSTEMS -->
+        <div class="col-sm-12 col-md-4 order-3 order-md-3">
+            {% if compatible %}
+            <!-- START: COMPATIBLE -->
+            <div class="card d-none d-md-block systems-extra" >
+                {% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}
             </div>
+            <!-- END: COMPATIBLE -->
+            {% endif %}
+
+            {% if derived %}
+            <!-- START: DERIVED -->
+            <div class="card d-none d-md-block systems-extra" >
+                {% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}
+            </div>
+            <!-- END: DERIVED -->
+            {% endif %}
+
+            {% if embeds %}
+            <!-- START: EMBEDS -->
+            <div class="card d-none d-md-block systems-extra" >
+                {% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}
+            </div>
+            <!-- END: DERIVED -->
+            {% endif %}
+
+            {% if recommendations %}
+            <!-- START: RECOMMENDATIONS -->
+            <div class="card d-none d-md-block systems-extra" >
+                {% include 'core/system-sys-sidebar.html' with title='People Also Viewed' systems=recommendations %}
+            </div>
+            <!-- END: RECOMMENDATIONS -->
+            {% endif %}
         </div>
 
 
-{##}
-
-{##}
 {#            {% if system_version.meta.publications.exists %}#}
 {#            <div class="card">#}
 {#                <div class="card-body">#}
@@ -327,39 +365,6 @@
 {#                </div>#}
 {#                </a>#}
 {#            </div>#}
-{##}
-{#            {% if compatible %}#}
-{#            <!-- START: COMPATIBLE -->#}
-{#            <div class="card d-none d-md-block systems-extra" >#}
-{#                {% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}#}
-{#            </div>#}
-{#            <!-- END: COMPATIBLE -->#}
-{#            {% endif %}#}
-{##}
-{#            {% if derived %}#}
-{#            <!-- START: DERIVED -->#}
-{#            <div class="card d-none d-md-block systems-extra" >#}
-{#                {% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}#}
-{#            </div>#}
-{#            <!-- END: DERIVED -->#}
-{#            {% endif %}#}
-{##}
-{#            {% if embeds %}#}
-{#            <!-- START: EMBEDS -->#}
-{#            <div class="card d-none d-md-block systems-extra" >#}
-{#                {% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}#}
-{#            </div>#}
-{#            <!-- END: DERIVED -->#}
-{#            {% endif %}#}
-{##}
-{#            {% if recommendations %}#}
-{#            <!-- START: RECOMMENDATIONS -->#}
-{#            <div class="card d-none d-md-block systems-extra" >#}
-{#                {% include 'core/system-sys-sidebar.html' with title='People Also Viewed' systems=recommendations %}#}
-{#            </div>#}
-{#            <!-- END: RECOMMENDATIONS -->#}
-{#            {% endif %}#}
-{##}
 {#        </section>#}
         <!-- END: SIDEBAR -->
 
