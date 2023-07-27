@@ -159,11 +159,15 @@ div.results div.version p { margin:0; }
         {% endif %}
 
         <!-- RESULTS -->
-        <div class="card-columns">
-            {% for result in results %}
-            {% include 'core/browse-card.html' %}
-            {% endfor %}
+        <div>
+            {% include 'core/browse-table.html' %}
         </div>
+
+{#        <div class="card-columns">#}
+{#            {% for result in results %}#}
+{#            {% include 'core/browse-card.html' %}#}
+{#            {% endfor %}#}
+{#        </div>#}
         <!-- END: CARD-COLUMNS -->
 
     </div>

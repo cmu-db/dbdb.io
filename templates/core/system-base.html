@@ -148,10 +148,12 @@
                     <h5 class="fs-6">Website</h5>
                     <p><a href="{{ system_version.url }}">{{ system_version.url }}</a></p>
                 {% endif %}
+
                 {% if system_version.source_url %}
                     <h5 class="fs-6">Source Code</h5>
                     <p><a href="{{ system_version.source_url }}">{{ system_version.source_url }}</a></p>
                 {% endif %}
+
                 {% if system_version.tech_docs %}
                     <h5 class="fs-6">Tech Docs</h5>
                     <p><a href="{{ system_version.tech_docs }}">{{ system_version.tech_docs }}</a></p>
@@ -305,7 +307,7 @@
                     <p><a target="wikipedia" href="{{ system_version.wikipedia_url }}">{{ system_version.wikipedia_url }}</a></p>
                 {% endif %}
 
-                </div>
+            </div>
         </div>
         <!-- END: SIDEBAR -->
 

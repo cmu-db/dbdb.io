@@ -758,7 +758,7 @@ class BrowseView(View):
         pagination = self.build_pagination(search_letter)
 
         # Only get the columns we need for the browse page
-        results = results.annotate(name=F('system__name'), slug=F('system__slug')).values('name', 'slug', 'logo', 'created')
+        results = results.annotate(name=F('system__name'), slug=F('system__slug')).values('name', 'slug', 'logo', 'start_year', 'end_year', 'created')
 
         # convert query list to regular list
         results = list( results.order_by('system__name') )
@@ -770,6 +770,8 @@ class BrowseView(View):
         if not has_results:
             search_q = request.GET.get('q', '').strip()
             suggestion = self.do_dym(search_q)
+
+        # FIXME: Otherwise go get more information for them
 
         # get year ranges
         years_start = SystemVersion.objects.filter(is_current=True).filter(start_year__gt=0).aggregate(

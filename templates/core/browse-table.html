@@ -1,0 +1,46 @@
+{% load static %}
+{% load thumbnail %}
+
+<table class="table table-striped table-hover table-bordered" id="sortTable">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Data Model</th>
+            <th>Year</th>
+            <th>Countries</th>
+            <th>Tags</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for result in results %}
+        <tr>
+            <td>
+                {% if result.logo %}
+                    <img class="browse-logo img-fluid" loading="lazy" src="{% if result.logo|lower|slice:"-3:" == "svg" %}/media/{{ result.logo }}{% else %}{{ result.logo|thumbnail_url:'search' }}{% endif %}" alt="{{ result.name }}" />
+                {% else %}
+                    <img class="browse-logo img-fluid" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ result.name }}" />
+                {% endif %}
+            </td>
+            <td><a href="{% url 'system' result.slug %}">{{ result.name }}</a></td>
+            <td></td>
+            <td>{{ result.start_year|default_if_none:"" }}-{{ result.end_year|default_if_none:"" }}</td>
+            <td>
+                {% if result.countries %}
+                    {% for country in result.countries %}
+                        {% if not forloop.first %}, {% endif %}
+                        <i class="{{ country.flag_css }}"></i> {{ country }}
+                    {% endfor %}
+                {% endif %}
+            </td>
+            <td>
+                {% if result.tags %}
+                    {% for tag in result.tags %}
+                        <a class="badge badge-secondary" href="{% url 'browse' %}?tag={{ tag.slug }}">{{ tag.name }}</a>
+                    {% endfor %}
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
