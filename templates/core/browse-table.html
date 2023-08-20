@@ -1,6 +1,13 @@
 {% load static %}
 {% load thumbnail %}
 
+<style>
+    img.browse-logo {
+        max-height: 60px;
+        max-width: 150px;
+    }
+</style>
+
 <table class="table table-striped table-hover table-bordered" id="sortTable">
     <thead>
         <tr>
@@ -19,7 +26,7 @@
                 {% if result.logo %}
                     <img class="browse-logo img-fluid" loading="lazy" src="{% if result.logo|lower|slice:"-3:" == "svg" %}/media/{{ result.logo }}{% else %}{{ result.logo|thumbnail_url:'search' }}{% endif %}" alt="{{ result.name }}" />
                 {% else %}
-                    <img class="browse-logo img-fluid" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ result.name }}" />
+                    <img class="browse-logo img-fluid" loading="lazy" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ result.name }}" />
                 {% endif %}
             </td>
             <td><a href="{% url 'system' result.slug %}">{{ result.name }}</a></td>
@@ -34,8 +41,9 @@
                 {% endif %}
             </td>
             <td>
-                {% if result.tags %}
-                    {% for tag in result.tags %}
+                {% if result.system_tags %}
+                    {% for tag in result.system_tags %}
+                        {{ tag }}
                         <a class="badge badge-secondary" href="{% url 'browse' %}?tag={{ tag.slug }}">{{ tag.name }}</a>
                     {% endfor %}
                 {% endif %}

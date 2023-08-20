@@ -10,6 +10,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.postgres.aggregates import ArrayAgg, JSONBAgg
 from django.contrib.postgres.search import SearchQuery
 from django.db import transaction
 from django.db.models import Q, Count, Max, Min, F
@@ -731,7 +732,7 @@ class BrowseView(View):
     def get(self, request):
         # handle older filter group urls
         if any( filter(lambda k: k.startswith('fg'), request.GET.keys()) ):
-           return self.handle_old_urls(request)
+            return self.handle_old_urls(request)
 
         # Search Query
         search_q = request.GET.get('q', '').strip()
@@ -758,20 +759,27 @@ class BrowseView(View):
         pagination = self.build_pagination(search_letter)
 
         # Only get the columns we need for the browse page
-        results = results.annotate(name=F('system__name'), slug=F('system__slug')).values('name', 'slug', 'logo', 'start_year', 'end_year', 'created')
+        results = results.annotate(name=F('system__name'), slug=F('system__slug'), system_tags=JSONBAgg('tags__name,tags__slug')).\
+            values('id', 'name', 'slug', 'logo', 'start_year', 'end_year', 'system_tags', 'created')
 
         # convert query list to regular list
         results = list( results.order_by('system__name') )
         # check if there are results
         has_results = len(results) > 0
 
-        # If there are no results, do a quick "Did You Mean?" search
         suggestion = None
-        if not has_results:
+
+        # FIXME: Otherwise go get more information for them
+        if results:
+            from pprint import pprint
+            pprint(results)
+            pass
+
+        # If there are no results, do a quick "Did You Mean?" search
+        else:
             search_q = request.GET.get('q', '').strip()
             suggestion = self.do_dym(search_q)
 
-        # FIXME: Otherwise go get more information for them
 
         # get year ranges
         years_start = SystemVersion.objects.filter(is_current=True).filter(start_year__gt=0).aggregate(
