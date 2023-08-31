@@ -452,7 +452,7 @@ class SystemVersion(models.Model):
         blank=True, max_length=500,
         verbose_name="Wikipedia URL",
         help_text="URL of Wikipedia article about this system (if available)")
-    
+
     twitter_handle = models.CharField(
         blank=True, max_length=100,
         help_text="Twitter account for the database (avoid company account if possible)")
@@ -695,6 +695,7 @@ class SystemVersionMetadata(models.Model):
     pass
 
 __all__ = (
+    'CitationUrl',
     'Feature',
     'FeatureOption',
     'License',

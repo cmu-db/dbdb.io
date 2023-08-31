@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 # local imports
 from .models import *
 
-
 # inlines
 
 class FeatureOptionsInlines(admin.StackedInline):
@@ -20,10 +19,15 @@ class SystemACLInlines(admin.StackedInline):
 
 # model admins
 
+
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'is_staff', 'date_joined', 'last_login')
     readonly_fields=('date_joined', 'last_login')
     inlines = [SystemACLInlines]
+
+class CitationUrlAdmin(admin.ModelAdmin):
+    empty_value_display = 'unknown'
+    search_fields = ('url', )
 
 class FeatureAdmin(admin.ModelAdmin):
     inlines = [FeatureOptionsInlines]
@@ -69,15 +73,15 @@ class SystemVisitAdmin(admin.ModelAdmin):
     list_filter = ['created', 'system']
     readonly_fields=('created',)
     ordering = ('-created',)
-    
+
 class LicenseAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'url')
     ordering = ('name',)
-    
+
 class OperatingSystemAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'url')
     ordering = ('name',)
-    
+
 class ProgrammingLanguageAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'url')
     ordering = ('name',)
@@ -87,6 +91,7 @@ class ProgrammingLanguageAdmin(admin.ModelAdmin):
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 
+admin.site.register(CitationUrl, CitationUrlAdmin)
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(FeatureOption, FeatureOptionAdmin)
 admin.site.register(License, LicenseAdmin)
@@ -94,8 +99,6 @@ admin.site.register(OperatingSystem, OperatingSystemAdmin)
 admin.site.register(ProgrammingLanguage, ProgrammingLanguageAdmin)
 admin.site.register(Tag)
 admin.site.register(ProjectType)
-admin.site.register(Publication)
-#admin.site.register(SuggestedSystem)
 admin.site.register(System, SystemAdmin)
 admin.site.register(SystemFeature)
 admin.site.register(SystemVisit, SystemVisitAdmin)
