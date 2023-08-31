@@ -71,6 +71,7 @@ LetterPage = collections.namedtuple('LetterPage', ['id','letter','is_active','is
 Stat = collections.namedtuple('Stat', ['label','items', 'search_field', 'systems', 'count'])
 StatItem = collections.namedtuple('StatItem', ['label','value','slug','url'])
 
+
 # ==============================================
 # FilterChoice
 # ==============================================
@@ -1468,7 +1469,7 @@ class SetupUserView(UserPassesTestMixin, View):
         })
 
     def test_func(self):
-        return super_user_check(self.request.user)
+        return self.request.user.is_superuser
 
     pass
 
