@@ -525,15 +525,19 @@ class SystemVersion(models.Model):
         if not self.logo:
             font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 128)
             name = self.system.name
-            text_size = font.getsize(name)
+            ascent, descent = font.getmetrics()
+            # [width, height]
+            text_size = [font.getmask(name).getbbox()[2], font.getmask(name).getbbox()[3] + descent]
+            # text_size = font.getbbox(name)
             if name.find(" ") != -1:
                 name = name.replace(" ", "\n")
                 # Compute dimension of each line
                 text_size = [0, 0]
                 for line in name.split("\n"):
-                    line_size = font.getsize(line)
-                    text_size[0] = max(text_size[0], line_size[0])
-                    text_size[1] += line_size[1] + 5
+                    width = font.getmask(line).getbbox()[2]
+                    height = font.getmask(line).getbbox()[3] + descent
+                    text_size[0] = max(text_size[0], width)
+                    text_size[1] += height + 5
 
             logo = Image.new('RGBA', text_size)
             text_draw = ImageDraw.Draw(logo)

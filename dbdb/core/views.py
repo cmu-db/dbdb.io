@@ -1246,10 +1246,9 @@ class DatabasesEditView(LoginRequiredMixin, View):
                 db_version.create_twitter_card()
 
             # Update the search index too!
-            ver_search, created = SystemSearchText.objects.update_or_create(
-                system=system,
-                name=system.name,
-                search_text=db_version.generate_searchtext())
+            ver_search, created = SystemSearchText.objects.update_or_create(system=system)
+            ver_search.name = system.name
+            ver_search.search_text = db_version.generate_searchtext()
             ver_search.save()
 
             return redirect(db_version.system.get_absolute_url())
