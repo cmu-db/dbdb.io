@@ -72,6 +72,7 @@ LetterPage = collections.namedtuple('LetterPage', ['id','letter','is_active','is
 Stat = collections.namedtuple('Stat', ['label','items', 'search_field', 'systems', 'count'])
 StatItem = collections.namedtuple('StatItem', ['label','value','slug','url'])
 
+
 # ==============================================
 # FilterChoice
 # ==============================================
@@ -732,7 +733,7 @@ class BrowseView(View):
     def get(self, request):
         # handle older filter group urls
         if any( filter(lambda k: k.startswith('fg'), request.GET.keys()) ):
-            return self.handle_old_urls(request)
+           return self.handle_old_urls(request)
 
         # Search Query
         search_q = request.GET.get('q', '').strip()
@@ -779,7 +780,6 @@ class BrowseView(View):
         else:
             search_q = request.GET.get('q', '').strip()
             suggestion = self.do_dym(search_q)
-
 
         # get year ranges
         years_start = SystemVersion.objects.filter(is_current=True).filter(start_year__gt=0).aggregate(
@@ -1255,10 +1255,9 @@ class DatabasesEditView(LoginRequiredMixin, View):
                 db_version.create_twitter_card()
 
             # Update the search index too!
-            ver_search, created = SystemSearchText.objects.update_or_create(
-                system=system,
-                name=system.name,
-                search_text=db_version.generate_searchtext())
+            ver_search, created = SystemSearchText.objects.update_or_create(system=system)
+            ver_search.name = system.name
+            ver_search.search_text = db_version.generate_searchtext()
             ver_search.save()
 
             return redirect(db_version.system.get_absolute_url())
@@ -1478,7 +1477,7 @@ class SetupUserView(UserPassesTestMixin, View):
         })
 
     def test_func(self):
-        return super_user_check(self.request.user)
+        return self.request.user.is_superuser
 
     pass
 
@@ -1852,7 +1851,6 @@ class SystemView(View):
             'recommendations': recommendations,
             'counter_token': CounterView.build_token('system', pk=system.id),
         })
-
 
     pass
 
