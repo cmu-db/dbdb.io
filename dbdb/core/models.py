@@ -15,7 +15,7 @@ from django.utils import timezone
 # third-party imports
 from easy_thumbnails.fields import ThumbnailerImageField,ThumbnailerField
 from django_countries.fields import CountryField
-
+from anyascii import anyascii
 from dbdb.core.common.searchvector import SearchVector
 
 
@@ -603,10 +603,15 @@ class SystemVersion(models.Model):
             if sf.description: words.append(sf.description)
         words = words + [self.description]
 
-        # We also add the name of the DBMS without common suffixes
-        # For example, people sometimes search for "mongo"
-        suffixes = [ "DB", "SQL" ]
-        for w in [self.system.name]+self.former_names.split(","):
+        # If they are using unicode characters, convert them to ASCII
+        clean_name = anyascii(self.system.name)
+        if self.system.name != clean_name:
+            words.append(clean_name)
+
+        # We also add the name of the DBMS with/without common suffixes
+        # Examples: MongoDB->Mongo, Kuzu->KuzuDB
+        suffixes = ["DB", "SQL"]
+        for w in [clean_name]+self.former_names.split(","):
             for s in suffixes:
                 if w.upper().endswith(s): words.append(w[:-len(s)])
 
