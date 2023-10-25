@@ -591,6 +591,9 @@ class BrowseView(View):
             # Since we can't pass the rank over to the main search (sqs),
             # we can ignore it for now.
             # It doesn't seem to produce reliable results anyway.
+
+            # We include search for the name here to support partial name queries
+            # For example, some people search for "Wired" and we want to show them "WiredTiger" right away
             matches = SystemSearchText.objects \
                 .annotate(search=search_vector) \
                 .filter(Q(name__icontains=search_q) | Q(search=search_query)) \
@@ -1247,7 +1250,6 @@ class DatabasesEditView(LoginRequiredMixin, View):
 
             # Update the search index too!
             ver_search, created = SystemSearchText.objects.update_or_create(system=system)
-            ver_search.name = system.name
             ver_search.search_text = db_version.generate_searchtext()
             ver_search.save()
 

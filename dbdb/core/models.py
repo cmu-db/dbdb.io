@@ -346,7 +346,7 @@ class SystemRecommendation(models.Model):
 # SystemSearchText
 # ==============================================
 class SystemSearchText(models.Model):
-    system = models.ForeignKey('System', models.CASCADE, related_name='search')
+    system = models.OneToOneField(System, on_delete=models.CASCADE, primary_key=True)
     name = models.CharField(max_length=64, blank=False, null=False)
     search_text = models.TextField(default=None, null=True,
                                    help_text="Synthesized text for searching")
