@@ -1,5 +1,6 @@
 # stdlib imports
 import os
+import re
 import uuid
 # django imports
 from django.conf import settings
@@ -586,34 +587,53 @@ class SystemVersion(models.Model):
 
     def generate_searchtext(self):
         words = [self.system.name, self.developer]
-        words = words + [x.name for x in self.tags.all()]
-        words = words + [x.name for x in self.countries]
+        words += [x.name for x in self.tags.all()]
+        words += [x.name for x in self.countries]
         if self.former_names:
-            words = words + self.former_names.split(",")
+            words += self.former_names.split(",")
         if self.acquired_by:
-            words = words + self.acquired_by.split(",")
-        words = words + [x.name for x in self.meta.written_in.all()]
-        words = words + [x.name for x in self.meta.supported_languages.all()]
-        words = words + [x.slug for x in self.meta.supported_languages.all()]
-        words = words + [x.name for x in self.meta.oses.all()]
-        words = words + [x.name for x in self.meta.licenses.all()]
-        words = words + [x.slug for x in self.meta.licenses.all()]
+            words += self.acquired_by.split(",")
+        words += [x.name for x in self.meta.written_in.all()]
+        words += [x.slug for x in self.meta.written_in.all()]
+
+        # It's debatable whether people actually want to do keyword search for the supported languages
+        # From the logs, it looks like people really want to know the language a DBMS was written in
+        # words += [x.name for x in self.meta.supported_languages.all()]
+        # words += [x.slug for x in self.meta.supported_languages.all()]
+
+        words += [x.name for x in self.meta.oses.all()]
+        words += [x.slug for x in self.meta.oses.all()]
+        words += [x.name for x in self.meta.licenses.all()]
+        words += [x.slug for x in self.meta.licenses.all()]
         for sf in SystemFeature.objects.filter(version=self):
-            words = words + [o.value for o in sf.options.all()]
+            words += [o.value for o in sf.options.all()]
             if sf.description: words.append(sf.description)
-        words = words + [self.description]
+        words += [self.description]
+
+        # Automatically add different variations of the name for better searching
+        names = [self.system.name]
+        if self.former_names:
+            names += self.former_names.split(",")
 
         # If they are using unicode characters, convert them to ASCII
         clean_name = anyascii(self.system.name)
-        if self.system.name != clean_name:
+        if self.system.name != clean_name and clean_name not in names:
+            names.append(clean_name)
             words.append(clean_name)
+            # print("Cleaned '%s' -> '%s'" % (self.system.name, clean_name))
 
         # We also add the name of the DBMS with/without common suffixes
         # Examples: MongoDB->Mongo, Kuzu->KuzuDB
-        suffixes = ["DB", "SQL"]
-        for w in [clean_name]+self.former_names.split(","):
+        suffixes = ["DB", "SQL", "BASE", "STORE"]
+        for name in names:
+            has_suffix = False
             for s in suffixes:
-                if w.upper().endswith(s): words.append(w[:-len(s)])
+                if name.upper().endswith(s):
+                    words.append(name[:-len(s)])
+                    has_suffix = True
+            if not has_suffix:
+                # print("Added variations: ", [name + s for s in suffixes])
+                words += [name + s for s in suffixes]
 
         return " ".join([w.replace('\r', '').replace('\n', ' ') for w in words])
 
