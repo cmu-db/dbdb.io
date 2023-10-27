@@ -65,6 +65,8 @@ class Command(BaseCommand):
                         # If yes, then we just need to delete all these existing entries
                         sql = "SELECT * FROM {} WHERE "
 
+                        ## FIXME: Need to handle core_systemfeature_citations differently
+
                         placeholders = ', '.join(['%s'] * len(url_ids[1:]))  # "%s, %s, %s, ... %s"
                         where = 'citationurl_id IN ({})'.format(placeholders)
                         sql = "UPDATE {} SET citationurl_id = {} WHERE ".format(table, url_ids[0])
