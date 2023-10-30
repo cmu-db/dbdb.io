@@ -340,7 +340,7 @@ class BrowseView(View):
                countries_map[code], # name,
                code in querydict.getlist( 'country', empty_set )
             )
-            for code in system_countries.keys()
+            for code in map(str.upper, system_countries.keys())
         ], key=lambda x: x[1]))
         other_filtersgroups.append(fg_country)
 
@@ -537,7 +537,7 @@ class BrowseView(View):
 
         # define static filters
         search_compatible = request.GET.getlist('compatible')
-        search_country = request.GET.getlist('country')
+        search_country = map(str.upper, request.GET.getlist('country'))
         search_derived = request.GET.getlist('derived')
         search_embeds = request.GET.getlist('embeds')
         search_inspired = request.GET.getlist('inspired')
