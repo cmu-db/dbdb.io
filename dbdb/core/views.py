@@ -537,7 +537,7 @@ class BrowseView(View):
 
         # define static filters
         search_compatible = request.GET.getlist('compatible')
-        search_country = map(str.upper, request.GET.getlist('country'))
+        search_country = list(map(str.upper, request.GET.getlist('country')))
         search_derived = request.GET.getlist('derived')
         search_embeds = request.GET.getlist('embeds')
         search_inspired = request.GET.getlist('inspired')
@@ -623,7 +623,7 @@ class BrowseView(View):
             for c in search_country:
                 # TODO: Need a way to propagate error messages for invalid countries
                 if c in countries_map:
-                    search_badges.extend(SearchBadge(request.GET, 'country', 'Country', c, countries_map[c]))
+                    search_badges.append(SearchBadge(request.GET, 'country', 'Country', c, countries_map[c]))
             pass
 
         # search - compatible
