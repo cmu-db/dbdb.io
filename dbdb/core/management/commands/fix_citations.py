@@ -58,16 +58,22 @@ class Command(BaseCommand):
 
             # We will pick the first one as the one to keep
             # And then delete the rest. But we need to go through and update any references to them
-            with transaction.atomic():
+            with (transaction.atomic()):
                 for table in tables:
+                    placeholders = ', '.join(['%s'] * len(url_ids[1:]))  # "%s, %s, %s, ... %s"
                     with connection.cursor() as cursor:
                         # Check whether there is already an entry for the url_id that we want to keep.
                         # If yes, then we just need to delete all these existing entries
-                        sql = "SELECT * FROM {} WHERE "
-
                         ## FIXME: Need to handle core_systemfeature_citations differently
+                        sql = "SELECT id, "
+                        if table == "core_systemfeature_citations"
+                            sql += "systemfeature_id"
+                        else:
+                            sql = "systemversion_id"
+                        sql += " AS other_id, citationurl_id FROM {} WHERE citationurl_id = " + placeholders
 
-                        placeholders = ', '.join(['%s'] * len(url_ids[1:]))  # "%s, %s, %s, ... %s"
+
+
                         where = 'citationurl_id IN ({})'.format(placeholders)
                         sql = "UPDATE {} SET citationurl_id = {} WHERE ".format(table, url_ids[0])
                         cursor.execute(sql+where, tuple(url_ids[1:]))
