@@ -620,7 +620,10 @@ class BrowseView(View):
         # search - country
         if search_country:
             sqs = sqs.filter(countries__in=search_country)
-            search_badges.extend( SearchBadge(request.GET, 'country', 'Country', c, countries_map[c]) for c in search_country )
+            for c in search_country:
+                # TODO: Need a way to propagate error messages for invalid countries
+                if c in countries_map:
+                    search_badges.extend(SearchBadge(request.GET, 'country', 'Country', c, countries_map[c]))
             pass
 
         # search - compatible
@@ -771,8 +774,7 @@ class BrowseView(View):
 
         # If there are no results, do a quick "Did You Mean?" search
         suggestion = None
-        if not has_results:
-            search_q = request.GET.get('q', '').strip()
+        if search_q and not has_results:
             suggestion = self.do_dym(search_q)
 
         # get year ranges
