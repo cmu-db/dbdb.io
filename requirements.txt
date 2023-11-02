@@ -4,7 +4,7 @@ Babel==2.8.0
 certifi==2023.7.22
 chardet==3.0.4
 cssselect==1.1.0
-Django==4.1.10
+Django==4.1.13
 django-autoslug==1.9.8
 django-bootstrap4==22.3
 django-countries==7.4.2
