@@ -25,7 +25,7 @@ from dbdb.core.common.searchvector import SearchVector
 # ==============================================
 class CitationUrl(models.Model):
 
-    url = models.URLField(max_length=500)
+    url = models.URLField(max_length=500, unique=True)
 
     def __str__(self):
         return self.url
