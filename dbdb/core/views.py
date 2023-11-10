@@ -340,7 +340,7 @@ class BrowseView(View):
                countries_map[code], # name,
                code in querydict.getlist( 'country', empty_set )
             )
-            for code in system_countries.keys()
+            for code in map(str.upper, system_countries.keys())
         ], key=lambda x: x[1]))
         other_filtersgroups.append(fg_country)
 
@@ -537,7 +537,7 @@ class BrowseView(View):
 
         # define static filters
         search_compatible = request.GET.getlist('compatible')
-        search_country = request.GET.getlist('country')
+        search_country = list(map(str.upper, request.GET.getlist('country')))
         search_derived = request.GET.getlist('derived')
         search_embeds = request.GET.getlist('embeds')
         search_inspired = request.GET.getlist('inspired')
@@ -620,7 +620,10 @@ class BrowseView(View):
         # search - country
         if search_country:
             sqs = sqs.filter(countries__in=search_country)
-            search_badges.extend( SearchBadge(request.GET, 'country', 'Country', c, countries_map[c]) for c in search_country )
+            for c in search_country:
+                # TODO: Need a way to propagate error messages for invalid countries
+                if c in countries_map:
+                    search_badges.append(SearchBadge(request.GET, 'country', 'Country', c, countries_map[c]))
             pass
 
         # search - compatible
@@ -771,8 +774,7 @@ class BrowseView(View):
 
         # If there are no results, do a quick "Did You Mean?" search
         suggestion = None
-        if not has_results:
-            search_q = request.GET.get('q', '').strip()
+        if search_q and not has_results:
             suggestion = self.do_dym(search_q)
 
         # get year ranges

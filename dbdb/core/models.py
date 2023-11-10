@@ -25,7 +25,7 @@ from dbdb.core.common.searchvector import SearchVector
 # ==============================================
 class CitationUrl(models.Model):
 
-    url = models.URLField(max_length=500)
+    url = models.URLField(max_length=500, unique=True)
 
     def __str__(self):
         return self.url
@@ -606,7 +606,15 @@ class SystemVersion(models.Model):
         words += [x.name for x in self.meta.licenses.all()]
         words += [x.slug for x in self.meta.licenses.all()]
         for sf in SystemFeature.objects.filter(version=self):
-            words += [o.value for o in sf.options.all()]
+            for o in sf.options.all():
+                value = o.value
+                # Special case the data model by adding the word "database" to end of it
+                if sf.feature.slug == "data-model":
+                    value += " database"
+                # Split values by slashes
+                if value.find("/") != -1:
+                    value = " ".join(value.split("/"))
+                words += [o.slug, value]
             if sf.description: words.append(sf.description)
         words += [self.description]
 
