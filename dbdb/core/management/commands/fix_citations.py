@@ -1,7 +1,10 @@
+import sys
+
 from django.db import connection, transaction
 from django.core.management import BaseCommand
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from pprint import pprint
 import logging
 
 from dbdb.core.models import *
@@ -55,30 +58,44 @@ class Command(BaseCommand):
                 url_ids = [row[0] for row in cursor.fetchall()]
             assert len(url_ids) > 1
             LOG.info("Found %d entries for duplicate url '%s'", len(url_ids), url)
+            url_id_to_keep = url_ids[0]
 
             # We will pick the first one as the one to keep
             # And then delete the rest. But we need to go through and update any references to them
             with (transaction.atomic()):
+                placeholders = ', '.join(['%s'] * len(url_ids[1:]))  # "%s, %s, %s, ... %s"
+                where = ' citationurl_id IN ({})'.format(placeholders)
                 for table in tables:
-                    placeholders = ', '.join(['%s'] * len(url_ids[1:]))  # "%s, %s, %s, ... %s"
                     with connection.cursor() as cursor:
                         # Check whether there is already an entry for the url_id that we want to keep.
                         # If yes, then we just need to delete all these existing entries
-                        ## FIXME: Need to handle core_systemfeature_citations differently
-                        sql = "SELECT id, "
-                        if table == "core_systemfeature_citations"
-                            sql += "systemfeature_id"
+                        info_column = None
+                        if table == "core_systemfeature_citations":
+                            info_column = "systemfeature_id"
                         else:
-                            sql = "systemversion_id"
-                        sql += " AS other_id, citationurl_id FROM {} WHERE citationurl_id = " + placeholders
+                            info_column = "systemversion_id"
+                        sql = "SELECT id, {} AS system_info_id, citationurl_id FROM {} WHERE "\
+                            .format(info_column, table)
+                        sql += where
+                        print(sql)
 
+                        cursor.execute(sql, tuple(url_ids[1:]))
+                        table_url_ids = [row[2] for row in cursor.fetchall()]
+                        if not table_url_ids: continue
 
-
-                        where = 'citationurl_id IN ({})'.format(placeholders)
-                        sql = "UPDATE {} SET citationurl_id = {} WHERE ".format(table, url_ids[0])
-                        cursor.execute(sql+where, tuple(url_ids[1:]))
-                        if cursor.rowcount > 0:
-                            LOG.info("Updated {} records in table '{}".format(cursor.rowcount, table))
+                        # Now for every other_id except for the first one (which we want to keep),
+                        # check whether we already have a citationurl_id for the first one
+                        # for info_id in info_ids.keys():
+                        # Delete!
+                        # if url_id_to_keep in info_ids[info_id]:
+                        if url_id_to_keep not in table_url_ids:
+                            sql = "UPDATE {} SET citationurl_id = {} WHERE ".format(table, url_id_to_keep)
+                            sql += "id = (SELECT id FROM {} WHERE ".format(table)
+                            sql += where
+                            sql += " LIMIT 1)"
+                            cursor.execute(sql, tuple(url_ids[1:]))
+                            assert cursor.rowcount > 0
+                            LOG.info("Modified {} records in table '{}".format(cursor.rowcount, table))
 
                 # It is now safe to delete the duplicate entries
                 result, _ = CitationUrl.objects.filter(id__in=url_ids[1:]).delete()
