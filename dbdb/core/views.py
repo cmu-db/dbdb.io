@@ -341,7 +341,7 @@ class BrowseView(View):
                countries_map[code], # name,
                code in querydict.getlist( 'country', empty_set )
             )
-            for code in system_countries.keys()
+            for code in map(str.upper, system_countries.keys())
         ], key=lambda x: x[1]))
         other_filtersgroups.append(fg_country)
 
@@ -538,7 +538,7 @@ class BrowseView(View):
 
         # define static filters
         search_compatible = request.GET.getlist('compatible')
-        search_country = request.GET.getlist('country')
+        search_country = list(map(str.upper, request.GET.getlist('country')))
         search_derived = request.GET.getlist('derived')
         search_embeds = request.GET.getlist('embeds')
         search_inspired = request.GET.getlist('inspired')
@@ -592,6 +592,9 @@ class BrowseView(View):
             # Since we can't pass the rank over to the main search (sqs),
             # we can ignore it for now.
             # It doesn't seem to produce reliable results anyway.
+
+            # We include search for the name here to support partial name queries
+            # For example, some people search for "Wired" and we want to show them "WiredTiger" right away
             matches = SystemSearchText.objects \
                 .annotate(search=search_vector) \
                 .filter(Q(name__icontains=search_q) | Q(search=search_query)) \
@@ -618,7 +621,10 @@ class BrowseView(View):
         # search - country
         if search_country:
             sqs = sqs.filter(countries__in=search_country)
-            search_badges.extend( SearchBadge(request.GET, 'country', 'Country', c, countries_map[c]) for c in search_country )
+            for c in search_country:
+                # TODO: Need a way to propagate error messages for invalid countries
+                if c in countries_map:
+                    search_badges.append(SearchBadge(request.GET, 'country', 'Country', c, countries_map[c]))
             pass
 
         # search - compatible
@@ -771,7 +777,7 @@ class BrowseView(View):
         suggestion = None
 
         # FIXME: Otherwise go get more information for them
-        if results:
+        if search_q and not has_results:
             from pprint import pprint
             pprint(results)
             pass
@@ -1256,7 +1262,6 @@ class DatabasesEditView(LoginRequiredMixin, View):
 
             # Update the search index too!
             ver_search, created = SystemSearchText.objects.update_or_create(system=system)
-            ver_search.name = system.name
             ver_search.search_text = db_version.generate_searchtext()
             ver_search.save()
 

@@ -51,3 +51,4 @@ cairosvg==2.7.0
 gunicorn==20.1.0
 psycopg2-binary==2.9.5
 filelock==3.8.0
+anyascii==0.3.2

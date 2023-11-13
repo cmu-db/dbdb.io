@@ -1,5 +1,6 @@
 # stdlib imports
 import os
+import re
 import uuid
 # django imports
 from django.conf import settings
@@ -15,7 +16,7 @@ from django.utils import timezone
 # third-party imports
 from easy_thumbnails.fields import ThumbnailerImageField,ThumbnailerField
 from django_countries.fields import CountryField
-
+from anyascii import anyascii
 from dbdb.core.common.searchvector import SearchVector
 
 
@@ -24,7 +25,7 @@ from dbdb.core.common.searchvector import SearchVector
 # ==============================================
 class CitationUrl(models.Model):
 
-    url = models.URLField(max_length=500)
+    url = models.URLField(max_length=500, unique=True)
 
     def __str__(self):
         return self.url
@@ -345,7 +346,7 @@ class SystemRecommendation(models.Model):
 # SystemSearchText
 # ==============================================
 class SystemSearchText(models.Model):
-    system = models.ForeignKey('System', models.CASCADE, related_name='search')
+    system = models.OneToOneField(System, on_delete=models.CASCADE, primary_key=True)
     name = models.CharField(max_length=64, blank=False, null=False)
     search_text = models.TextField(default=None, null=True,
                                    help_text="Synthesized text for searching")
@@ -591,29 +592,61 @@ class SystemVersion(models.Model):
 
     def generate_searchtext(self):
         words = [self.system.name, self.developer]
-        words = words + [x.name for x in self.tags.all()]
-        words = words + [x.name for x in self.countries]
+        words += [x.name for x in self.tags.all()]
+        words += [x.name for x in self.countries]
         if self.former_names:
-            words = words + self.former_names.split(",")
+            words += self.former_names.split(",")
         if self.acquired_by:
-            words = words + self.acquired_by.split(",")
-        words = words + [x.name for x in self.meta.written_in.all()]
-        words = words + [x.name for x in self.meta.supported_languages.all()]
-        words = words + [x.slug for x in self.meta.supported_languages.all()]
-        words = words + [x.name for x in self.meta.oses.all()]
-        words = words + [x.name for x in self.meta.licenses.all()]
-        words = words + [x.slug for x in self.meta.licenses.all()]
-        for sf in SystemFeature.objects.filter(version=self):
-            words = words + [o.value for o in sf.options.all()]
-            if sf.description: words.append(sf.description)
-        words = words + [self.description]
+            words += self.acquired_by.split(",")
+        words += [x.name for x in self.meta.written_in.all()]
+        words += [x.slug for x in self.meta.written_in.all()]
 
-        # We also add the name of the DBMS without common suffixes
-        # For example, people sometimes search for "mongo"
-        suffixes = [ "DB", "SQL" ]
-        for w in [self.system.name]+self.former_names.split(","):
+        # It's debatable whether people actually want to do keyword search for the supported languages
+        # From the logs, it looks like people really want to know the language a DBMS was written in
+        # words += [x.name for x in self.meta.supported_languages.all()]
+        # words += [x.slug for x in self.meta.supported_languages.all()]
+
+        words += [x.name for x in self.meta.oses.all()]
+        words += [x.slug for x in self.meta.oses.all()]
+        words += [x.name for x in self.meta.licenses.all()]
+        words += [x.slug for x in self.meta.licenses.all()]
+        for sf in SystemFeature.objects.filter(version=self):
+            for o in sf.options.all():
+                value = o.value
+                # Special case the data model by adding the word "database" to end of it
+                if sf.feature.slug == "data-model":
+                    value += " database"
+                # Split values by slashes
+                if value.find("/") != -1:
+                    value = " ".join(value.split("/"))
+                words += [o.slug, value]
+            if sf.description: words.append(sf.description)
+        words += [self.description]
+
+        # Automatically add different variations of the name for better searching
+        names = [self.system.name]
+        if self.former_names:
+            names += self.former_names.split(",")
+
+        # If they are using unicode characters, convert them to ASCII
+        clean_name = anyascii(self.system.name)
+        if self.system.name != clean_name and clean_name not in names:
+            names.append(clean_name)
+            words.append(clean_name)
+            # print("Cleaned '%s' -> '%s'" % (self.system.name, clean_name))
+
+        # We also add the name of the DBMS with/without common suffixes
+        # Examples: MongoDB->Mongo, Kuzu->KuzuDB
+        suffixes = ["DB", "SQL", "BASE", "STORE"]
+        for name in names:
+            has_suffix = False
             for s in suffixes:
-                if w.upper().endswith(s): words.append(w[:-len(s)])
+                if name.upper().endswith(s):
+                    words.append(name[:-len(s)])
+                    has_suffix = True
+            if not has_suffix:
+                # print("Added variations: ", [name + s for s in suffixes])
+                words += [name + s for s in suffixes]
 
         return " ".join([w.replace('\r', '').replace('\n', ' ') for w in words])
 
