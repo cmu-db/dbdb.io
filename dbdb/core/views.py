@@ -530,8 +530,10 @@ class BrowseView(View):
         }
 
         # define date filters
+        search_start_year = request.GET.get('start-year', '').strip()
         search_start_min = request.GET.get('start-min', '').strip()
         search_start_max = request.GET.get('start-max', '').strip()
+        search_end_year = request.GET.get('end-year', '').strip()
         search_end_min = request.GET.get('end-min', '').strip()
         search_end_max = request.GET.get('end-max', '').strip()
 
@@ -553,8 +555,10 @@ class BrowseView(View):
         search_mapping = {
             'query': search_q,
 
+            'start_year': search_start_year,
             'start_min': search_start_min,
             'start_max': search_start_max,
+            'end_year': search_end_year,
             'end_min': search_end_min,
             'end_max': search_end_max,
 
@@ -604,11 +608,21 @@ class BrowseView(View):
             sqs = sqs.filter(system_id__in=[x['system_id'] for x in matches])
 
         # apply year limits
+        if search_start_year.isdigit():
+            sqs = sqs.filter(start_year=int(search_start_year))
+            search_badges.append(
+                SearchBadge(request.GET, 'start-year', 'Start Year', search_start_year, search_start_year))
+            pass
         if search_start_min.isdigit():
             sqs = sqs.filter(start_year__gte=int(search_start_min))
             pass
         if search_start_max.isdigit():
             sqs = sqs.filter(start_year__lte=int(search_start_max))
+            pass
+        if search_end_year.isdigit():
+            sqs = sqs.filter(end_year=int(search_end_year))
+            search_badges.append(
+                SearchBadge(request.GET, 'end-year', 'End Year', search_end_year, search_end_year))
             pass
         if search_end_min.isdigit():
             sqs = sqs.filter(end_year__gte=int(search_end_min))

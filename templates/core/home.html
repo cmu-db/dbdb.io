@@ -21,7 +21,7 @@
                     &nbsp;
                     <a href="{% url 'stats' %}" class="btn btn-secondary active mt-2" role="button" aria-pressed="true"><i class="far fa-chart-bar"></i> Leaderboards</a>
                     &nbsp;
-                    <a href="{% url 'browse' %}?start-min={% now "Y" %}" class="btn btn-secondary active mt-2" role="button" aria-pressed="true"><i class="fas fa-trophy"></i> New in {% now "Y" %}</a>
+                    <a href="{% url 'browse' %}?start-year={% now "Y" %}" class="btn btn-secondary active mt-2" role="button" aria-pressed="true"><i class="fas fa-trophy"></i> New in {% now "Y" %}</a>
                 </p>
             </form>
         </div>

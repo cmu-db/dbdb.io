@@ -587,7 +587,6 @@ class SystemVersion(models.Model):
 
     def generate_searchtext(self):
         words = [self.system.name, self.developer]
-        words += [x.name for x in self.tags.all()]
         words += [x.name for x in self.countries]
         if self.former_names:
             words += self.former_names.split(",")
@@ -595,6 +594,11 @@ class SystemVersion(models.Model):
             words += self.acquired_by.split(",")
         words += [x.name for x in self.meta.written_in.all()]
         words += [x.slug for x in self.meta.written_in.all()]
+
+        # Add tags with and without hyphens
+        # Example: time-series vs. timeseries
+        for tag in self.tags.all():
+            words += [tag.name, tag.name.replace("-", "")]
 
         # It's debatable whether people actually want to do keyword search for the supported languages
         # From the logs, it looks like people really want to know the language a DBMS was written in
