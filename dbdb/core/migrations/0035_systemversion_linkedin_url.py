@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0032_systemsearchtext_name'),
+        ('core', '0034_alter_citationurl_url'),
     ]
 
     operations = [
