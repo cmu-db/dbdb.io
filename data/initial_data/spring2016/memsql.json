@@ -2,16 +2,16 @@
     "Email": "haibin@cmu.edu",
 
 
-    "Name": "MemSQL",
+    "Name": "SingleStore",
 
 
-    "Description": "MemSQL is a distributed in-memory relational database with high performance on both transactional and analytical workload, well-integrated with Spark & Kafka for real-time analysis.",
+    "Description": "SingleStore is a distributed, cloud-native database that can handle transactional and analytical workloads with a unified engine. It is a high-performance, scalable, modern SQL DBMS and cloud service that supports multiple data models, including structured data, semi-structured data based on JSON, time-series, full text, spatial, and vector data.",
     "Description Citations": [
-        "http://www.memsql.com/"
+        "http://www.singlestore.com/"
     ],
 
 
-    "History": "MemSQL was a Y-combinator graduate, founded in 2011.",
+    "History": "SingleStore was originally founded as MemSQL as a Y-combinator graduate company in 2011. The company rebranded as SingleStore in October 2020.",
     "History Citations": [
         "http://y-combinator.silk.co/page/MemSQL"
     ],
@@ -20,19 +20,18 @@
     "System Architecture Options": [
         "Shared-Nothing"
     ],
-    "System Architecture Description": "MemSQL has a two-tier, clustered architecture. The nodes in upper tier are **aggregators**, which are cluster-aware query routers. One special node called **Master Aggregator** is responsible for clustering monitoring. The nodes in lower tier are **leaves**, which store and process partitioned shards. The aggregator sends extended SQL to leaves to perform distributed query execution. ![](https://www.filepicker.io/api/file/9KGdXi6RQZua6ubrb8qB)",
+    "System Architecture Description": "SingleStore has a two-tier, clustered architecture. The nodes in the upper tier are aggregators, which are cluster-aware query routers. One special node called the Master Aggregator is responsible for cluster monitoring. The nodes in the lower tier are leaves, which store and process partitions (shards). The aggregator sends extended SQL to leaves to perform distributed query execution.",
     "System Architecture Citations": [
-        "http://docs.memsql.com/docs/leaf",
-        "http://docs.memsql.com/docs/aggregator"
+        "https://docs.singlestore.com/db/latest/introduction/distributed-architecture/cluster-components/"
     ],
 
 
     "Query Interface Options": [
         "SQL"
     ],
-    "Query Interface Description": "MemSQL supports a subset of MySQL syntax, plus extensions for distributed SQL, geospatial and JSON queries. MySQL wire protocol is supported. ",
+    "Query Interface Description": "SingleStore supports a subset of MySQL syntax, plus extensions for distributed SQL, vector, geospatial and JSON queries. MySQL wire protocol is supported. It also features the Kai interface which has a high level of compatibility with the Mongo API.",
     "Query Interface Citations": [
-        "http://docs.memsql.com/docs/mysql-features-unsupported-in-memsql"
+        ""
     ],
 
 
@@ -40,9 +39,9 @@
         "Relational",
         "Key/Value"
     ],
-    "Data Model Description": "MemSQL is a distributed relational database. It also supports two-column key/value store.",
+    "Data Model Description": "SingleStore is a multi-model database system. Its primary data model is relational. It also supports semistructured (JSON), vector, time series, geospatial, key-value and full-text models. It supports a SQL interface and also a NoSQL interface called Kai that is largely compatible with the Mongo™ API. Semistructured data access can be done through SQL (using the JSON type) or Kai.",
     "Data Model Citations": [
-        "http://docs.memsql.com/docs/how-memsql-works"
+        ""
     ],
 
 
@@ -50,9 +49,10 @@
         "N-ary Storage Model",
         "Decomposition Storage Model"
     ],
-    "Storage Model Description": "In MemSQL, row segments in rowstore are stored in N-ary storage model in-memory. Column segments in columnstore are stored in decomposition storage model. Clustered columnar indexes are created for columnstore and compression is applied. ",
+    "Storage Model Description": "In SingleStore, tables are broken into million-row chunks called segments. Row segments in rowstore are stored in-memory. Column segments in columnstore are stored on disk and external object storage. Each columnstore partition has an in-memory rowstore segment holding recently updated or inserted data. Columnstore tables are kept sorted by a sort key and several types of compression are applied for columnstore data including value encoded, RLE, and dictionary encoding.",
     "Storage Model Citations": [
-        "http://docs.memsql.com/docs/columnstore"
+        "https://docs.singlestore.com/cloud/create-a-database/columnstore/",
+        "https://docs.singlestore.com/cloud/create-a-database/rowstore/"
     ],
 
 
@@ -60,27 +60,27 @@
         "Disk-oriented",
         "In-Memory"
     ],
-    "Storage Architecture Description": "In MemSQL, rowstore is completely in-memory and columnstore is disk-backed. ",
+    "Storage Architecture Description": "SingleStore features Universal Storage which is an evolution of the columnstore, accommodating transactional workloads that would have traditionally been managed by the rowstore. Universal Storage combines rowstore and columnstore to support both Online Transaction Processing (OLTP) and Hybrid Transactional and Analytical Processing (HTAP) workloads at lower total cost of ownership (TCO). Designed to enhance both parallelism and fault tolerance, databases in SingleStore are divided into partitions, also referred to as shards, that are evenly distributed among the available leaf nodes. Each partition holds a subset of data based on the SHARD KEY defined in the CREATE TABLE statement.",
     "Storage Architecture Citations": [
-        "http://docs.memsql.com/docs/columnstore"
+        "https://docs.singlestore.com/cloud/create-a-database/columnstore/"
     ],
 
 
     "Concurrency Control Options": [
         "Multi-version Concurrency Control (MVCC)"
     ],
-    "Concurrency Control Description": "MemSQL uses multi-version concurrency control. Reads are not blocked, writes acquire row-level locks. ",
+    "Concurrency Control Description": "SingleStore uses multi-version concurrency control (MVCC) and lock-free data structures. Read operations are not blocked, and write operations acquire row-level locks. Row locks are acquired as rows are written to and are held until the transaction that acquired them commits or rolls back, using 2-phase locking to ensure serializability. The distributed query optimizer evenly distributes the processing workload to maximize the efficiency of CPU usage, and query plans are compiled to machine code and cached to expedite subsequent executions.",
     "Concurrency Control Citations": [
-        "http://docs.memsql.com/docs/how-memsql-works"
+        "https://docs.singlestore.com/cloud/query-data/advanced-query-topics/row-locking/"
     ],
 
 
     "Isolation Levels Options": [
         "Read Committed"
     ],
-    "Isolation Levels Description": "MemSQL supports read committed isolation level.",
+    "Isolation Levels Description": "SingleStore supports the 'Read Committed' isolation level, which guarantees that a transaction cannot read any uncommitted data from another transaction.",
     "Isolation Levels Citations": [
-        "http://docs.memsql.com/docs/memsql-faq#section-what-isolation-levels-does-memsql-provide-"
+        "https://docs.singlestore.com/cloud/getting-started-with-singlestoredb-cloud/about-singlestoredb-cloud/singlestoredb-cloud-faqs/durability/"
     ],
 
 
@@ -88,26 +88,26 @@
         "Skip List",
         "Hash Table"
     ],
-    "Indexes Description": "Skip list is the default index type in MemSQL. Skip list is lock free and thus leads extremely fast insert performance, and O(lg(n)) expected lookup/insert/delete performance. Unlike B+ tree, skip list is singly linked, thus reserve scan leads to twice as costly as forward scan. \n Skip list involves more pointer chasing than B+ tree which could potentially lead to more cache misses. In MemSQL, heuristics are applied to organize nearby nodes on the same physical page to mitigate penalties caused by pointer chasing. \n Lock-free hash table is also supported in MemSQL to perform fast exact-match queries. ",
+    "Indexes Description": "SingleStore supports shard key, primary key, columnstore sort key, rowstore key, skiplist, hash, full-text, geospatial and vector indexes.",
     "Indexes Citations": [
         "http://15721.courses.cs.cmu.edu/spring2016/schedule.html#apr-20-2016",
-        "http://docs.memsql.com/docs/indexes"
+        "https://docs.singlestore.com/cloud/create-a-database/understanding-keys-and-indexes-in-singlestore/"
     ],
 
 
     "Foreign Keys Options": [
         "Not Supported"
     ],
-    "Foreign Keys Description": "MemSQL currently supports foreign keys to assist sharding, but referential integrity is not enforced. ",
+    "Foreign Keys Description": "SingleStore currently supports foreign keys to assist sharding, but referential integrity is not enforced. ",
     "Foreign Keys Citations": [
-        "http://docs.memsql.com/docs/mysql-features-unsupported-in-memsql"
+        "https://docs.singlestore.com/cloud/developer-resources/unsupported-mysql-features/"
     ],
 
 
     "Logging Options": [
         "Physical Logging"
     ],
-    "Logging Description": "MemSQL implements write-ahead-logging which records only committed transactions. It uses a transaction buffer pool as back-pressure mechanism so that a worker thread doesn't generate indefinite amount of logs. Replication is implemented based on log recovery. ",
+    "Logging Description": "SingleStore implements transactions via write-ahead logging. Each partition has its own log file.",
     "Logging Citations": [
         "http://www.google.com/patents/US9223805"
     ],
@@ -117,18 +117,18 @@
         "Non-Blocking",
         "Consistent"
     ],
-    "Checkpoints Description": "MemSQL uses multi-version concurrency control and it's natural to create a consistent(non-fuzzy) snapshot without the need to block ongoing transactions. ",
+    "Checkpoints Description": "SingleStore takes a form of checkpoint called a snapshot. Snapshots are performed periodically and they contain a copy of all in-memory rowstore data. To recover the database after a crash or restart, the latest snapshot is read and deserialized into memory, and then the log files are played back from the start time of snapshot creation to the current time.",
     "Checkpoints Citations": [
-        "http://docs.memsql.com/docs/using-durability-and-recovery"
+        ""
     ],
 
 
     "Views Options": [
         "Virtual Views"
     ],
-    "Views Description": "Views in MemSQL is not materialzed and cannot be written into.",
+    "Views Description": "SingleStore supports creating and querying views. Views in SingleStore are not materialized and cannot be written into.",
     "Views Citations": [
-        "http://docs.memsql.com/docs/create-view"
+        "https://docs.singlestore.com/cloud/reference/sql-reference/data-definition-language-ddl/create-view/"
     ],
 
 
@@ -136,18 +136,18 @@
         "Tuple-at-a-Time Model",
         "Vectorized Model"
     ],
-    "Query Execution Description": "MemSQL uses Tuple-at-a-Time Model for rowstore query execution, uses Vectorized Model for columnstore.",
+    "Query Execution Description": "SingleStore uses Tuple-at-a-Time Model for rowstore query execution and a Vectorized Model for columnstore query execution. Plans are compiled to machine code (see Query Compilation).",
     "Query Execution Citations": [
-        "http://docs.memsql.com/4.0/concepts/columnstore/"
+        "https://docs.singlestore.com/cloud/getting-started-with-singlestore-cloud/about-singlestore-cloud/query-execution/"
     ],
 
 
     "Stored Procedures Options": [
         "Not Supported"
     ],
-    "Stored Procedures Description": "Stored procedure is not supported. ",
+    "Stored Procedures Description": "SingleStore supports stored procedures (SPs), user-defined scalar-valued functions (UDFs), user-defined table-valued (TVFs), user-defined aggregate functions (UDAFs). Wasm-based UDFs, TVFs, and UDAFs are also supported, as are external UDFs and TVFs.",
     "Stored Procedures Citations": [
-        "http://docs.memsql.com/docs/mysql-features-unsupported-in-memsql"
+        "https://docs.singlestore.com/cloud/developer-resources/procedural-extensions/"
     ],
 
 
@@ -157,11 +157,9 @@
         "Sort-Merge",
         "Broadcast"
     ],
-    "Joins Description": "Nested loop join, index-nested loop join, merge join and hash join are supported in MemSQL. Joins between two Columnstore tables are often executed as sort merge join. \n For distributed join queries, if two tables are joined with identical shard key, the join will be performed locally; otherwise dataset is broadcast to other nodes via the network. ",
+    "Joins Description": "Nested loop join, index-nested loop join, merge join and hash join are supported in SingleStore. For distributed join queries, if two tables are joined with identical shard key, the join will be performed locally; otherwise the dataset is broadcast or reshuffled to other nodes via the network.",
     "Joins Citations": [
-        "http://docs.memsql.com/4.0/concepts/columnstore/",
-        "http://docs.memsql.com/docs/explain",
-        "http://docs.memsql.com/docs/query-tuning"
+        "https://docs.singlestore.com/cloud/query-data/query-plan-operations/#joins"
     ],
 
 
@@ -169,14 +167,14 @@
         "Code Generation",
         "JIT Compilation"
     ],
-    "Query Compilation Description": "Instead of the traditional interpreter based execution model, MemSQL 5 comes with a new code generation architecture, which compiles a SQL query to LLVM to machine code.\n When the MemSQL server encounters a SQL query, it parses SQL into AST and extracts parameters from the query, which is then transformed into a MemSQL-specific intermediate representation in *MemSQL Plan Language*(MPL). MemSQL then flattens MPL AST into a more compact format as *MemSQL Bytecode*(MBC). Plans in MBC format is then transformed into LLVM Bitcode, which LLVM uses to generate machine code. \n Such code generation architecture enables many low-level optimizations and avoids much less unnecessary work compared to interpreter-based execution. Compiled plans are also cached on disk for future use. ",
+    "Query Compilation Description": "Instead of the traditional interpreter-based execution model, SingleStore comes with a new code generation architecture, which compiles a SQL query to LLVM to machine code. When the SingleStore server encounters a SQL query, it parses SQL into AST and extracts parameters from the query, which is then transformed into a SingleStore-specific intermediate representation in SingleStore Plan Language (MPL). SingleStore then flattens MPL AST into a more compact format as SingleStore Bytecode (MBC). Plans in MBC format are then transformed into LLVM Bitcode, which LLVM uses to generate machine code. Such code generation architecture enables many low-level optimizations and avoids much unnecessary work compared to interpreter-based execution. Compiled plans are also cached on disk for future use.",
     "Query Compilation Citations": [
-        "http://docs.memsql.com/docs/code-generation",
+        "https://docs.singlestore.com/cloud/query-data/advanced-query-topics/code-generation/",
         "http://15721.courses.cs.cmu.edu/spring2016/schedule.html#apr-20-2016"
     ],
 
 
-    "Website": "http://www.memsql.com/",
+    "Website": "http://www.singlestore.com/",
 
 
     "Programming Language": [
@@ -194,7 +192,7 @@
     ],
 
 
-    "Developer": "MemSQL Inc",
+    "Developer": "SingleStore, Inc",
 
 
     "Start Date": "2011-07",
