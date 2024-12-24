@@ -628,7 +628,7 @@ class SystemVersion(models.Model):
             names += self.former_names.split(",")
 
         # If they are using unicode characters, convert them to ASCII
-        clean_name = anyascii(self.system.name)
+        clean_name = re.sub('[^a-zA-Z0-9]', '', anyascii(self.system.name)).strip()
         if self.system.name != clean_name and clean_name not in names:
             names.append(clean_name)
             words.append(clean_name)
