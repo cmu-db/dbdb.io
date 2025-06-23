@@ -28,7 +28,7 @@ pyparsing==2.4.7
 pyquery==1.4.1
 python-dateutil==2.8.1
 pytz==2020.1
-requests==2.27.1
+requests==2.31.0
 six==1.15.0
 snowballstemmer==2.0.0
 Sphinx==3.1.1
