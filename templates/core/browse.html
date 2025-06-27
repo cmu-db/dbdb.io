@@ -2,6 +2,7 @@
 {% load humanize %}
 {% load static %}
 {% load countries %}
+{% load bootstrap4 %}
 
 {% block title %}Browse{% endblock %}
 
@@ -118,7 +119,7 @@ div.results div.version p { margin:0; }
         <div class="input-group input-group-lg">
             <input type="text" class="form-control" placeholder="Search name, keywords, features..." aria-label="Search name, keywords, features..." aria-describedby="search" id="mainsearch-q" name="q" value="{{ query }}">
             <span class="input-group-btn">
-                <button class="btn btn-primary" type="submit" id="search">Search</button>
+                <button class="btn btn-default" type="submit" id="search">Search</button>
             </span>
         </div>
 
@@ -141,7 +142,7 @@ div.results div.version p { margin:0; }
 
             {% if search.query %}
             <!-- query -->
-            for "<em>{{ search.query }}</em>"
+                for <span class="search-keyword">{{ search.query }}</span>
             <!-- /query -->
             {% endif %}
             {% if suggestion %}
@@ -159,15 +160,11 @@ div.results div.version p { margin:0; }
         {% endif %}
 
         <!-- RESULTS -->
-        <div>
-            {% include 'core/browse-table.html' %}
+        <div class="card-columns">
+            {% for result in results %}
+            {% include 'core/browse-card.html' %}
+            {% endfor %}
         </div>
-
-{#        <div class="card-columns">#}
-{#            {% for result in results %}#}
-{#            {% include 'core/browse-card.html' %}#}
-{#            {% endfor %}#}
-{#        </div>#}
         <!-- END: CARD-COLUMNS -->
 
     </div>
