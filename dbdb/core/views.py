@@ -4,6 +4,7 @@ import collections
 import datetime
 import json
 import urllib.parse
+import math
 # django imports
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -15,6 +16,7 @@ from django.contrib.postgres.search import SearchQuery
 from django.db import transaction
 from django.db.models import Q, Count, Max, Min, F
 from django.db.models.expressions import RawSQL
+from django.db.models.functions import JSONObject
 from django.forms import HiddenInput
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
@@ -69,6 +71,7 @@ SITEMAP_NSMAP = {None : SITEMAP_NAMESPACE}
 # helper classes
 FieldSet = collections.namedtuple('FieldSet', ['id','label','choices','description','citation'])
 LetterPage = collections.namedtuple('LetterPage', ['id','letter','is_active','is_disabled'])
+NumPage = collections.namedtuple('NumPage', ['id', 'num', 'is_active', 'is_disabled'])
 Stat = collections.namedtuple('Stat', ['label','items', 'search_field', 'systems', 'count'])
 StatItem = collections.namedtuple('StatItem', ['label','value','slug','url'])
 
@@ -498,6 +501,24 @@ class BrowseView(View):
 
         return pagination
 
+    def build_page_num(self, num, page_nums):
+        pages_set = set(
+            n+1
+            for n in range(page_nums)
+        )
+
+        pagination = list(
+            NumPage(
+                n,
+                n,
+                n == num,
+                n not in pages_set # pages_available
+            )
+            for n in sorted(pages_set)
+        )
+
+        return pagination
+    
     def slug_to_system(self, slugs):
         slugs = { s.strip() for s in slugs }
         systems = System.objects.filter(slug__in=slugs)
@@ -761,6 +782,32 @@ class BrowseView(View):
         # Search Letter
         search_letter = request.GET.get('letter', '').strip().upper()
 
+        # Entries per page
+        CHUNK_SIZE = 100
+
+        # Page
+        page_num = request.GET.get('p', '1')
+        if page_num.isdigit():
+            page_num = int(page_num) 
+            if page_num < 1:
+                page_num = 1
+        else:
+            page_num = 1
+        
+        # Sort
+        sort = request.GET.get('sort', 'system__name-asc')
+        
+        # Sort by and sort direction
+        if '-' in sort:
+            sort_by, direction = sort.split('-')[:2]
+            print('SORT', sort_by, direction)
+            if sort_by not in ['system__name', 'start_year', 'end_year']:
+                sort_by = 'system__name'
+            if direction not in ['asc', 'desc']:
+                direction = 'asc'
+        else:
+            sort_by, direction = ['system__name', 'asc']
+        
         # Perform the search and get back the versions along with a
         # mapping with the search keys
         search_keys = { }
@@ -780,11 +827,28 @@ class BrowseView(View):
         pagination = self.build_pagination(search_letter)
 
         # Only get the columns we need for the browse page
-        results = results.annotate(name=F('system__name'), slug=F('system__slug'), system_tags=JSONBAgg('tags__name,tags__slug')).\
+        results = results.annotate(name=F('system__name'), 
+                                   slug=F('system__slug'), 
+                                   system_tags=JSONBAgg(JSONObject(name=F('tags__name'),
+                                                                   slug=F('tags__slug')))).\
             values('id', 'name', 'slug', 'logo', 'start_year', 'end_year', 'system_tags', 'created')
 
-        # convert query list to regular list
-        results = list( results.order_by('system__name') )
+        # Decides number of pages
+        num_results = len(results)
+
+        num_pages = math.ceil(num_results / CHUNK_SIZE)
+        if page_num > num_pages and num_pages != 0:
+            page_num = num_pages
+
+        # generates pages
+        pages = self.build_page_num(page_num, num_pages)
+
+        # convert query list to regular list and sort
+        if direction == 'asc':
+            results = list( results.order_by(F(sort_by).asc(nulls_last=True))[(page_num-1)*CHUNK_SIZE:page_num*CHUNK_SIZE] )
+        else:
+            results = list( results.order_by(F(sort_by).desc(nulls_last=True))[(page_num-1)*CHUNK_SIZE:page_num*CHUNK_SIZE] )
+        
         # check if there are results
         has_results = len(results) > 0
 
@@ -792,14 +856,17 @@ class BrowseView(View):
 
         # FIXME: Otherwise go get more information for them
         if search_q and not has_results:
-            from pprint import pprint
-            pprint(results)
+            search_q = request.GET.get('q', '').strip()
+            suggestion = self.do_dym(search_q)
+            # from pprint import pprint
+            # pprint(results)
             pass
 
         # If there are no results, do a quick "Did You Mean?" search
         else:
-            search_q = request.GET.get('q', '').strip()
-            suggestion = self.do_dym(search_q)
+            # search_q = request.GET.get('q', '').strip()
+            # suggestion = self.do_dym(search_q)
+            pass
 
         # get year ranges
         years_start = SystemVersion.objects.filter(is_current=True).filter(start_year__gt=0).aggregate(
@@ -818,16 +885,21 @@ class BrowseView(View):
         return render(request, self.template_name, {
             'activate': 'browse', # NAV-LINKS
             'filtergroups': self.build_filter_groups(request.GET),
-
             'has_results': has_results,
             'pagination': pagination,
             'query': search_q,
             'results': results,
+            'num_results' : num_results,
             'years': years,
             'has_search': len(search_keys) != 0,
             'search': search_keys,
             'badges': search_badges,
             'suggestion': suggestion,
+            'sort' : sort,
+            'prev' : page_num-1 if page_num-1 > 0 else 1,
+            'p' : page_num,
+            'next' : page_num+1 if page_num < num_pages else num_pages,
+            'pages' : pages,
         })
 
     def handle_old_urls(self, request):
