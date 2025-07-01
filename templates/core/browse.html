@@ -15,18 +15,18 @@ nav.letters { text-align: center; }
 nav.letters.no-results { display:table; width:100%; vertical-align:center; }
 nav.letters.no-results div.letters { display:table-cell; height: 75vh; text-align: center; vertical-align:middle; }
 
-form.main-search > div.filters > div.filter-group-range { margin-bottom:30px; }
-form.main-search > div.filters > div.filter-group-range > h3 { font-weight:bold; margin-bottom:15px; }
-form.main-search > div.filters > div.filter-group-range > h3 span.years { display:none; font-size:0.85em; font-weight:normal; padding-left:0.5em; }
-form.main-search > div.filters > div.filter-group-range > h3 span.years var { font-style:normal; }
-form.main-search > div.filters > div.filter-group-range > h3 button.btn { float:right; font-size:12px; padding:1px 6px; }
-form.main-search > div.filters > div.filter-group-range > h3 button.btn-apply { background-color:#49AA55; color:#fff; display:none; margin-right:5px; }
-form.main-search > div.filters > div.filter-group-range > h3 button.btn-toggle { background-color:#6c757d; color:#fff; }
-form.main-search > div.filters > div.filter-group-range.active > h3 button.btn-toggle { background-color:#244A64; }
-form.main-search > div.filters > div.filter-group-range.active > h3 span.years { display:inline; }
-form.main-search > div.filters > div.filter-group-range.changed > h3 button.btn-apply { display:inline; }
-form.main-search > div.filters > div.filter-group-range > div.range-container { padding:0 20px; }
-form.main-search > div.filters > div.filter-group-range > div.range-container .noUi-connect { background-color:#007bff; }
+div.filter-group-range { margin-bottom:30px; }
+div.filter-group-range > h3 { font-weight:bold; margin-bottom:15px; }
+div.filter-group-range > h3 span.years { display:none; font-size:0.85em; font-weight:normal; padding-left:0.5em; }
+div.filter-group-range > h3 span.years var { font-style:normal; }
+div.filter-group-range > h3 button.btn { float:right; font-size:12px; padding:1px 6px; }
+div.filter-group-range > h3 button.btn-apply { background-color:#49AA55; color:#fff; display:none; margin-right:5px; }
+div.filter-group-range > h3 button.btn-toggle { background-color:#6c757d; color:#fff; }
+div.filter-group-range.active > h3 button.btn-toggle { background-color:#244A64; }
+div.filter-group-range.active > h3 span.years { display:inline; }
+div.filter-group-range.changed > h3 button.btn-apply { display:inline; }
+div.filter-group-range > div.range-container { padding:0 20px; }
+div.filter-group-range > div.range-container .noUi-connect { background-color:#007bff; }
 
 div.search-badges { margin: 40px auto 40px auto; text-align:center; width: 80%; }
 div.search-badges a.badge { font-size:100%; line-height: 1.5; padding-right: .75em; padding-left: .75em; }
@@ -37,6 +37,10 @@ div.results div.version { margin-bottom:20px; max-width:800px; }
 div.results div.version h3 { font-size:20px; margin:0; }
 div.results div.version cite { color:#006621; font-size:13px; font-style:normal; }
 div.results div.version p { margin:0; }
+
+.btn-secondary.active { background-color: #6eabdb; }
+.btn-secondary:hover { background-color: #9ec7e9; }
+.table-hover tbody tr:hover { background-color: #cee4f7; }
 
 #filter_modal { }
 #filter_modal form.modal-content div.modal-body { align-items:stretch; border-radius:0px; flex-direction:row; flex-wrap:nowrap; display:flex; height:60vh; padding:0; }
@@ -56,7 +60,19 @@ div.results div.version p { margin:0; }
 <div class="search-results">
 <form id="mainsearch" class="main main-search">
 
-    <div class="filters">
+    <div class="search-results">
+
+        <div class="d-flex align-items-center gap-5 m-lg-5">
+            <div class="input-group input-group-lg m-0">
+                <input type="text" class="form-control" placeholder="Search name, keywords, features..." aria-label="Search name, keywords, features..." aria-describedby="search" id="mainsearch-q" name="q" value="{{ query }}">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit" id="search">Search</button>
+                </span>
+            </div>
+            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filter">Advanced Search</button>
+        </div>
+
+        <div class="collapse filters" id="filter">
 
         <h2>Refine by</h2>
 
@@ -88,40 +104,33 @@ div.results div.version p { margin:0; }
             <input type="hidden" name="end-max" for="max" value="{{ search.end_max }}" />
         </div>
 
-        {% for filtergroup in filtergroups %}
-        <div class="filter-group" id="filtergroup_{{ filtergroup.id }}">
+        <div class="row">
+            {% for filtergroup in filtergroups %}
+            <div class="col filter-group" id="filtergroup_{{ filtergroup.id }}">
 
-            <h3>
-                {{ filtergroup.label }}
+                <h3>
+                    {{ filtergroup.label }}
 
-                <a href="javascript:;" class="clear" title="clear selected"><i class="fas fa-eraser"></i> clear </a>
-            </h3>
+                    <a href="javascript:;" class="clear" title="clear selected"><i class="fas fa-eraser"></i> clear </a>
+                </h3>
 
-            <ul>
-                {% for choice in filtergroup.choices %}
-                <li {% if choice.is_hidden %}class="more"{% endif %}><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" {% if choice.checked %}checked="checked"{% endif %}> {{ choice.label }}</label></li>
-                {% endfor %}
+                <ul>
+                    {% for choice in filtergroup.choices %}
+                    <li {% if choice.is_hidden %}class="more"{% endif %}><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" {% if choice.checked %}checked="checked"{% endif %}> {{ choice.label }}</label></li>
+                    {% endfor %}
 
-                {% if filtergroup.has_more %}
-                <li class="see-more">
-                    <a href="javascript:;">Show more</a>
-                </li>
-                {% endif %}
+                    {% if filtergroup.has_more %}
+                    <li class="see-more">
+                        <a href="javascript:;">Show more</a>
+                    </li>
+                    {% endif %}
 
-            </ul>
+                </ul>
 
-        </div>
-        {% endfor %}
+            </div>
+            {% endfor %}
+            </div>
 
-    </div>
-
-    <div class="search-results">
-
-        <div class="input-group input-group-lg">
-            <input type="text" class="form-control" placeholder="Search name, keywords, features..." aria-label="Search name, keywords, features..." aria-describedby="search" id="mainsearch-q" name="q" value="{{ query }}">
-            <span class="input-group-btn">
-                <button class="btn btn-default" type="submit" id="search">Search</button>
-            </span>
         </div>
 
         {% if has_search %}
@@ -161,12 +170,7 @@ div.results div.version p { margin:0; }
         {% endif %}
 
         <!-- RESULTS -->
-         <style>
-            .table-hover tbody tr:hover {
-                background-color: #cee4f7;
-            }
-        </style>
-            {% if pages|length > 0 %}
+        {% if pages|length > 0 %}
         <div>
             <table class="table table-striped table-hover">
                 <thead class="table-dark">
