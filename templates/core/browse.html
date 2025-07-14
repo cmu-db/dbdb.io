@@ -73,64 +73,103 @@ div.results div.version p { margin:0; }
         </div>
 
         <div class="collapse filters" id="filter">
+            <!-- <h2>Refine by</h2>
 
-        <h2>Refine by</h2>
-
-        <div class="filter-group filter-group-range" id="start_year" data-min="{{ years.min_start_year }}" data-max="{{ years.max_start_year }}">
-            <h3>
-                Start Year
-                <span class="years">(<var for="min"></var> &ndash; <var for="max"></var>)</span>
-                <button type="button" class="btn btn-xs btn-toggle"></button>
-                <button type="submit" class="btn btn-xs btn-apply">Apply</button>
-            </h3>
-            <div class="range-container">
-                <div class="range"></div>
-            </div>
-            <input type="hidden" name="start-min" for="min" value="{{ search.start_min }}" />
-            <input type="hidden" name="start-max" for="max" value="{{ search.start_max }}" />
-        </div>
-
-        <div class="filter-group filter-group-range" id="end_year" data-min="{{ years.min_end_year }}" data-max="{{ years.max_end_year }}">
-            <h3>
-                End Year
-                <span class="years">(<var for="min"></var> &ndash; <var for="max"></var>)</span>
-                <button type="button" class="btn btn-xs btn-toggle"></button>
-                <button type="submit" class="btn btn-xs btn-apply">Apply</button>
-            </h3>
-            <div class="range-container">
-                <div class="range"></div>
-            </div>
-            <input type="hidden" name="end-min" for="min" value="{{ search.end_min }}" />
-            <input type="hidden" name="end-max" for="max" value="{{ search.end_max }}" />
-        </div>
-
-        <div class="row">
-            {% for filtergroup in filtergroups %}
-            <div class="col filter-group" id="filtergroup_{{ filtergroup.id }}">
-
+            <div class="filter-group filter-group-range" id="start_year" data-min="{{ years.min_start_year }}" data-max="{{ years.max_start_year }}">
                 <h3>
-                    {{ filtergroup.label }}
-
-                    <a href="javascript:;" class="clear" title="clear selected"><i class="fas fa-eraser"></i> clear </a>
+                    Start Year
+                    <span class="years">(<var for="min"></var> &ndash; <var for="max"></var>)</span>
+                    <button type="button" class="btn btn-xs btn-toggle"></button>
+                    <button type="submit" class="btn btn-xs btn-apply">Apply</button>
                 </h3>
-
-                <ul>
-                    {% for choice in filtergroup.choices %}
-                    <li {% if choice.is_hidden %}class="more"{% endif %}><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" {% if choice.checked %}checked="checked"{% endif %}> {{ choice.label }}</label></li>
-                    {% endfor %}
-
-                    {% if filtergroup.has_more %}
-                    <li class="see-more">
-                        <a href="javascript:;">Show more</a>
-                    </li>
-                    {% endif %}
-
-                </ul>
-
-            </div>
-            {% endfor %}
+                <div class="range-container">
+                    <div class="range"></div>
+                </div>
+                <input type="hidden" name="start-min" for="min" value="{{ search.start_min }}" />
+                <input type="hidden" name="start-max" for="max" value="{{ search.start_max }}" />
             </div>
 
+            <div class="filter-group filter-group-range" id="end_year" data-min="{{ years.min_end_year }}" data-max="{{ years.max_end_year }}">
+                <h3>
+                    End Year
+                    <span class="years">(<var for="min"></var> &ndash; <var for="max"></var>)</span>
+                    <button type="button" class="btn btn-xs btn-toggle"></button>
+                    <button type="submit" class="btn btn-xs btn-apply">Apply</button>
+                </h3>
+                <div class="range-container">
+                    <div class="range"></div>
+                </div>
+                <input type="hidden" name="end-min" for="min" value="{{ search.end_min }}" />
+                <input type="hidden" name="end-max" for="max" value="{{ search.end_max }}" />
+            </div> -->
+            
+            <div class="d-flex mb-3">
+                <div class="form-check me-3">
+                    <input class="form-check-input" type="radio" name="selector" id="match-any" checked>
+                    <label class="form-check-label" for="match-any">Match Any</label>
+                </div>
+                <div class="form-check me-3">
+                    <input class="form-check-input" type="radio" name="selector" id="match-all">
+                    <label class="form-check-label" for="match-any">Match All</label>
+                </div>
+            </div>
+
+            <h2>Search Fields</h2>
+            
+            <div class="row mb-3" hidden id="template">
+                <div class="dropdown col">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="searchfields-dropdown-template" data-bs-toggle="dropdown" aria-expanded="false">
+                        Search Fields
+                    </button>
+                    <ul class="dropdown-menu" style="max-height: 200px; overflow-y: auto;">
+                        {% for filtergroup in filtergroups %}
+                            <li class="dropdown-item" choices="{{ filtergroup }}">{{ filtergroup.label }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="dropdown col">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="searchfields-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Search Fields
+                    </button>
+                    <ul class="dropdown-menu" style="max-height: 200px; overflow-y: auto;">
+                        {% for filtergroup in filtergroups %}
+                            <li class="dropdown-item" choices="{{ filtergroup }}">{{ filtergroup.label }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <button class="btn btn-secondary" type="button" id="add_field">Add Field</button>
+
+
+            <!-- <div class="row">
+                {% for filtergroup in filtergroups %}
+                <div class="col filter-group" id="filtergroup_{{ filtergroup.id }}">
+
+                    <h3>
+                        {{ filtergroup.label }}
+
+                        <a href="javascript:;" class="clear" title="clear selected"><i class="fas fa-eraser"></i> clear </a>
+                    </h3>
+
+                    <ul>
+                        {% for choice in filtergroup.choices %}
+                        <li {% if choice.is_hidden %}class="more"{% endif %}><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" {% if choice.checked %}checked="checked"{% endif %}> {{ choice.label }}</label></li>
+                        {% endfor %}
+
+                        {% if filtergroup.has_more %}
+                        <li class="see-more">
+                            <a href="javascript:;">Show more</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+
+                </div>
+                {% endfor %}
+            </div> -->
         </div>
 
         {% if has_search %}
@@ -160,18 +199,19 @@ div.results div.version p { margin:0; }
             {%  endif %}
         </p>
         {% else %}
-        <nav class="letters {% if not has_results %}no-results{% endif %}" aria-label="Page Navigation">
+        <!-- Getting rid of letters (at least on main browse page, maybe under advanced search) -->
+        <!-- <nav class="letters {% if not has_results %}no-results{% endif %}" aria-label="Page Navigation">
             <div class="letters">
                 {% for page in pagination %}
                 <button type="submit" class="btn {% if page.is_active %}btn-primary active{% else %}btn-secondary{% endif %} {% if page.is_disabled %}disabled{% endif %}" name="letter" value="{{ page.letter }}">{{ page.letter }}</button>
                 {% endfor %}
             </div>
-        </nav>
+        </nav> -->
         {% endif %}
 
         <!-- RESULTS -->
         {% if pages|length > 0 %}
-        <div>
+        <div class="results-table">
             <table class="table table-striped table-hover">
                 <thead class="table-dark">
                     <tr>

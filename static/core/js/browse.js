@@ -182,3 +182,48 @@ $("#mainsearch").find('input[name="q"]').autoComplete({
         $.getJSON('/search/autocomplete/', { q: term }, function(data) { response(data); });
     }
 });
+
+document.addEventListener('click', function(e) {
+    if (e.target.matches('.dropdown-item')) {
+        item = e.target
+        const value = item.getAttribute('data-value');
+        item.parentElement.previousElementSibling.textContent = item.textContent;
+
+        // searchfield_choices = this.getAttribute('choices');
+        // console.log(searchfield_choices);
+
+        const search_row = item.parentElement.parentElement.parentElement;
+        if (search_row.classList.contains('filled')) {
+            const searchfield_div = item.parentElement.parentElement.nextElementSibling;
+            searchfield_div.id = item.textContent;
+            const ul = searchfield_div.children[0];
+            ul.innerHTML = '';
+            const test = document.createElement('li');
+            test.textContent = 'Test ' + item.textContent;
+            ul.appendChild(test);
+
+        } else {
+            search_row.classList.add('filled')
+            const searchfield_div = document.createElement('div');
+            searchfield_div.className = 'col';
+            searchfield_div.id = item.textContent;
+            const ul = document.createElement('ul');
+            const test = document.createElement('li');
+            test.textContent = 'Test ' + item.textContent;
+            ul.appendChild(test);
+            searchfield_div.appendChild(ul);
+            
+            console.log(item.parentElement.parentElement.parentElement);
+            item.parentElement.parentElement.insertAdjacentElement('afterend', searchfield_div);
+        }
+    }
+});
+
+add_new_button = document.getElementById('add_field')
+add_new_button.addEventListener('click', function() {
+    const template = document.getElementById('template');
+    const copy = template.cloneNode(true);
+    copy.hidden = false;
+
+    this.insertAdjacentElement('beforebegin', copy)
+});

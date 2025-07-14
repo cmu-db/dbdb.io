@@ -323,7 +323,7 @@ class BrowseView(View):
             return mapping
 
         other_filtersgroups = []
-
+ 
         # Countries
         def reduce_countries(mapping, item):
             countries = item.countries.split(',')
