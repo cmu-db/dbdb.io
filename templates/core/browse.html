@@ -60,11 +60,6 @@ div.results div.version p { margin:0; }
 <div class="search-results">
 <form id="mainsearch" class="main main-search">
 
-    <script>
-        const URL = "{% url 'browse' %}"
-        const CSRF_TOKEN = "{{ csrf_token }}"
-    </script>
-
     <div class="search-results">
 
         <div class="d-flex align-items-center gap-5 m-lg-5">
@@ -74,7 +69,9 @@ div.results div.version p { margin:0; }
                     <button class="btn btn-default" type="submit" id="search">Search</button>
                 </span>
             </div>
-            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filter">Advanced Search</button>
+            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filter" id="advanced-search-button">
+                Advanced Search
+            </button>
         </div>
 
         <div class="collapse filters p-4" id="filter">
@@ -123,7 +120,7 @@ div.results div.version p { margin:0; }
             
             <div class="filter-group row mb-3" hidden id="template">
                 <div class="dropdown col-3">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="searchfields-dropdown-template" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Search Fields
                     </button>
                     <ul class="dropdown-menu" style="max-height: 200px; overflow-y: auto;">
@@ -136,9 +133,9 @@ div.results div.version p { margin:0; }
 
             {{ filtergroupsjson|json_script:"filterdata" }}
 
-            <div class="filter-group row mb-3">
+            <div class="filter-group row mb-3" id="filter-none">
                 <div class="dropdown col-3">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="searchfields-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Search Fields
                     </button>
                     <ul class="dropdown-menu" style="max-height: 200px; overflow-y: auto;">
@@ -156,13 +153,19 @@ div.results div.version p { margin:0; }
                 Add Field
             </button>
 
-            <button class="d-block btn btn-primary" type="submit" id="advanced-search-submit">
-                Search
-            </button>
+            <div class="d-flex">
+                <button class="d-block btn btn-primary me-3" type="submit" id="advanced-search-submit">
+                    Search
+                </button>
+
+                <button class="d-block btn btn-primary" type="submit" id="advanced-search-clear">
+                    Clear Search
+                </button>
+            </div>
         </div>
 
         {% if has_search %}
-        <div class="search-badges">
+        <!-- <div class="search-badges">
             {% for b in badges %}
             <a class="badge badge-pill badge-info" href="{{ b.get_removal_url }}">
                 <em>{{ b.group_name }}</em>:
@@ -170,7 +173,7 @@ div.results div.version p { margin:0; }
                 <i class="fas fa-times-circle" style="padding-left:2px;"></i>
             </a>
             {% endfor %}
-        </div>
+        </div> -->
         <p class="results-info">
             {% if results %}
             Found {{ num_results|intcomma }} database{% if num_results > 1 %}s{% endif %}

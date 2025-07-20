@@ -130,88 +130,135 @@ function show_refinements() {
     $('#filter_modal').modal('show');
 }
 
-function gatherSearchFields(data) {
-    const search_fields = document.getElementsByClassName('search-field-filled');
-    const selected_choices = Array.from(search_fields).map(search_field => search_field.children[1].children[0]);
-    const filter_keys = Array.from(search_fields).map(search_field => search_field.children[0].children[0].textContent);
-    const filtered_data = data.filter(item => filter_keys.includes(item.label));
+// function gatherSearchFields(data) {
+//     const search_fields = document.getElementsByClassName('search-field-filled');
+//     const selected_choices = Array.from(search_fields).map(search_field => search_field.children[1].children[0]);
+//     const filter_keys = Array.from(search_fields).map(search_field => search_field.children[0].children[0].textContent);
+//     const filtered_data = data.filter(item => filter_keys.includes(item.label));
 
-    const selected_data = filtered_data.map((item, index) => {
-        const select = selected_choices[index]; 
-        const selected_values = Array.from(select.selectedOptions).map(option => option.value);
+//     const selected_data = filtered_data.map((item, index) => {
+//         const select = selected_choices[index]; 
+//         const selected_values = Array.from(select.selectedOptions).map(option => option.value);
 
-        return {
-            ...item, 
-            choices: item.choices.filter(choice => selected_values.includes(choice.label))
-        };
-    });
+//         return {
+//             ...item, 
+//             choices: item.choices.filter(choice => selected_values.includes(choice.label))
+//         };
+//     });
 
-    return selected_data;
+//     return selected_data;
+// }
+
+function add_filter_button() {
+    const template = document.getElementById('template');
+    const copy = template.cloneNode(true);
+    copy.hidden = false;
+    copy.id = 'filter-none'
+
+    this.insertAdjacentElement('beforebegin', copy);
 }
 
-function buildFilterChoices(fg, select) {
+function buildFilterChoices(fg, select, selected_options) {
     let filterchoices = fg.choices
     for (let i = 0; i < filterchoices.length; i++) {
         const option = document.createElement('option');
+
+        if (selected_options.includes(filterchoices[i].id)) {
+            option.selected = true
+        }
+
         option.classList.add('filter-option')
+        option.setAttribute('value', filterchoices[i].id)
         option.textContent = filterchoices[i].label;
         select.appendChild(option);
     }
 }
 
-document.addEventListener('mousedown', function(e) {
-    if (e.target.matches('.filter-option')) {
-        option = e.target;
+function buildFilterGroup(item, selected_options=[]) {
+    item.parentElement.previousElementSibling.textContent = item.textContent;
+
+    const filterdata = JSON.parse(document.getElementById('filterdata').textContent);
+    const filtergroup = filterdata.find(fg => fg.label === item.textContent);
+
+    item.parentElement.parentElement.parentElement.id = 'filter-' + filtergroup.id
+
+    const search_row = item.parentElement.parentElement.parentElement;
+    if (search_row.classList.contains('search-field-filled')) {
+        const searchfield_div = item.parentElement.parentElement.nextElementSibling;
+        searchfield_div.id = item.textContent;
+        const select = searchfield_div.children[0];
+        select.innerHTML = '';
+        select.setAttribute('name', filtergroup.id)
+        select.setAttribute('multiple', '');
+        select.classList.add('form-select');
+
+        buildFilterChoices(filtergroup, select, selected_options);
+
+    } else {
+        search_row.classList.add('search-field-filled');
+        const searchfield_div = document.createElement('div');
+        searchfield_div.className = 'col filter-group';
+        searchfield_div.id = item.textContent;
+        const select = document.createElement('select');
+        select.setAttribute('name', filtergroup.id)
+        select.setAttribute('multiple', '')
+        select.classList.add('form-select');
+
+        buildFilterChoices(filtergroup, select, selected_options);
+
+        searchfield_div.appendChild(select);
+        item.parentElement.parentElement.insertAdjacentElement('afterend', searchfield_div);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const filterdata = JSON.parse(document.getElementById('filterdata').textContent);
+    const params = new URLSearchParams(window.location.search);
+
+    const filters = {};
+    for (const [key, value] of params.entries()) {
+        const filtergroup = filterdata.find(fg => fg.id === key);
+        if (filtergroup) {
+            if (!filters[key]) {
+                filters[key] = []
+            }
+            filters[key].push(value)
+        }
+    }
+
+    for (const [key, values] of Object.entries(filters)) {
+        const filtergroup = filterdata.find(fg => fg.id === key);
+        const item = Array.from(document.getElementById('filter-none').children[0].children[1].children).find(li => li.textContent === filtergroup.label)
+        buildFilterGroup(item, values)
+
+        add_new_button = document.getElementById('add_field')
+        add_filter_button.call(add_new_button)
+    }
+
+    if (Object.keys(filters).length > 0) {
+        const collapse = document.getElementById('filter');
+        collapse.classList.add('show');
     }
 });
 
 document.addEventListener('click', function(e) {
     if (e.target.matches('.dropdown-item')) {
         item = e.target;
-        const value = item.getAttribute('data-value');
+        // const value = item.getAttribute('data-value');
         if (!document.getElementById(item.textContent)) {
-            item.parentElement.previousElementSibling.textContent = item.textContent;
-
-            const filterdata = JSON.parse(document.getElementById('filterdata').textContent);
-            const filtergroup = filterdata.find(fg => fg.label === item.textContent);
-
-            const search_row = item.parentElement.parentElement.parentElement;
-            if (search_row.classList.contains('search-field-filled')) {
-                const searchfield_div = item.parentElement.parentElement.nextElementSibling;
-                searchfield_div.id = item.textContent;
-                const select = searchfield_div.children[0];
-                select.innerHTML = '';
-                select.setAttribute('multiple', '');
-                select.classList.add('form-select');
-
-                buildFilterChoices(filtergroup, select);
-
-            } else {
-                search_row.classList.add('search-field-filled');
-                const searchfield_div = document.createElement('div');
-                searchfield_div.className = 'col filter-group';
-                searchfield_div.id = item.textContent;
-                const select = document.createElement('select');
-                select.setAttribute('multiple', '')
-                select.classList.add('form-select');
-
-                buildFilterChoices(filtergroup, select);
-
-                searchfield_div.appendChild(select);
-                item.parentElement.parentElement.insertAdjacentElement('afterend', searchfield_div);
-            }
+            buildFilterGroup(item)
         }
     }
 });
 
 add_new_button = document.getElementById('add_field')
-add_new_button.addEventListener('click', function() {
-    const template = document.getElementById('template');
-    const copy = template.cloneNode(true);
-    copy.hidden = false;
+add_new_button.addEventListener('click', add_filter_button)
 
-    this.insertAdjacentElement('beforebegin', copy);
-});
+document.getElementById('advanced-search-clear').addEventListener('click', function(e) {
+    e.preventDefault();
+    const url = window.location.origin + window.location.pathname;
+    window.location.href = url;
+})
 
 $(document).ready(function () {
 
@@ -219,27 +266,6 @@ $(document).ready(function () {
     // new YearRange('#end_year');
 
     var $form = $('form.main-search');
-
-    $('#advanced-search-submit').click(function() {
-        var data = JSON.parse(document.getElementById('filterdata').textContent);
-        filtered_data = gatherSearchFields(data);
-
-        $.ajax({
-            url: URL,
-            type: 'POST',
-            contentType: 'application/json',
-            headers: {
-                'X-CSRFToken': CSRF_TOKEN
-            },
-            data: JSON.stringify(filtered_data),
-            success: function (response) {
-                // console.log(response)
-            },
-            error: function(xhr, status, error) {
-                // console.log(response)
-            }
-        });
-    });
 
     $('.filters').on('click', 'li.see-more a', function(){
         // var $clear = $('a.clear', this);
