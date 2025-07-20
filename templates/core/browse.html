@@ -60,6 +60,11 @@ div.results div.version p { margin:0; }
 <div class="search-results">
 <form id="mainsearch" class="main main-search">
 
+    <script>
+        const URL = "{% url 'browse' %}"
+        const CSRF_TOKEN = "{{ csrf_token }}"
+    </script>
+
     <div class="search-results">
 
         <div class="d-flex align-items-center gap-5 m-lg-5">
@@ -72,7 +77,7 @@ div.results div.version p { margin:0; }
             <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filter">Advanced Search</button>
         </div>
 
-        <div class="collapse filters" id="filter">
+        <div class="collapse filters p-4" id="filter">
             <!-- <h2>Refine by</h2>
 
             <div class="filter-group filter-group-range" id="start_year" data-min="{{ years.min_start_year }}" data-max="{{ years.max_start_year }}">
@@ -116,60 +121,44 @@ div.results div.version p { margin:0; }
 
             <h2>Search Fields</h2>
             
-            <div class="row mb-3" hidden id="template">
-                <div class="dropdown col">
+            <div class="filter-group row mb-3" hidden id="template">
+                <div class="dropdown col-3">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="searchfields-dropdown-template" data-bs-toggle="dropdown" aria-expanded="false">
                         Search Fields
                     </button>
                     <ul class="dropdown-menu" style="max-height: 200px; overflow-y: auto;">
                         {% for filtergroup in filtergroups %}
-                            <li class="dropdown-item" choices="{{ filtergroup }}">{{ filtergroup.label }}</li>
+                            <li class="dropdown-item">{{ filtergroup.label }}</li>
                         {% endfor %}
                     </ul>
                 </div>
             </div>
 
-            <div class="row mb-3">
-                <div class="dropdown col">
+            {{ filtergroupsjson|json_script:"filterdata" }}
+
+            <div class="filter-group row mb-3">
+                <div class="dropdown col-3">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="searchfields-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         Search Fields
                     </button>
                     <ul class="dropdown-menu" style="max-height: 200px; overflow-y: auto;">
                         {% for filtergroup in filtergroups %}
-                            <li class="dropdown-item" choices="{{ filtergroup }}">{{ filtergroup.label }}</li>
+                            <li class="dropdown-item">{{ filtergroup.label }}</li>
                         {% endfor %}
                     </ul>
                 </div>
             </div>
 
-            <button class="btn btn-secondary" type="button" id="add_field">Add Field</button>
-
-
-            <!-- <div class="row">
-                {% for filtergroup in filtergroups %}
-                <div class="col filter-group" id="filtergroup_{{ filtergroup.id }}">
-
-                    <h3>
-                        {{ filtergroup.label }}
-
-                        <a href="javascript:;" class="clear" title="clear selected"><i class="fas fa-eraser"></i> clear </a>
-                    </h3>
-
-                    <ul>
-                        {% for choice in filtergroup.choices %}
-                        <li {% if choice.is_hidden %}class="more"{% endif %}><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" {% if choice.checked %}checked="checked"{% endif %}> {{ choice.label }}</label></li>
-                        {% endfor %}
-
-                        {% if filtergroup.has_more %}
-                        <li class="see-more">
-                            <a href="javascript:;">Show more</a>
-                        </li>
-                        {% endif %}
-                    </ul>
-
+            <button class="btn btn-secondary mb-3" type="button" id="add_field">
+                <div class="d-inline-flex justify-content-center align-items-center rounded-circle border" style="width:20px;height:20px;">
+                    <i class="fas fa-plus"></i>
                 </div>
-                {% endfor %}
-            </div> -->
+                Add Field
+            </button>
+
+            <button class="d-block btn btn-primary" type="submit" id="advanced-search-submit">
+                Search
+            </button>
         </div>
 
         {% if has_search %}

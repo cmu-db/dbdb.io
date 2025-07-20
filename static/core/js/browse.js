@@ -130,39 +130,143 @@ function show_refinements() {
     $('#filter_modal').modal('show');
 }
 
+function gatherSearchFields(data) {
+    const search_fields = document.getElementsByClassName('search-field-filled');
+    const selected_choices = Array.from(search_fields).map(search_field => search_field.children[1].children[0]);
+    const filter_keys = Array.from(search_fields).map(search_field => search_field.children[0].children[0].textContent);
+    const filtered_data = data.filter(item => filter_keys.includes(item.label));
+
+    const selected_data = filtered_data.map((item, index) => {
+        const select = selected_choices[index]; 
+        const selected_values = Array.from(select.selectedOptions).map(option => option.value);
+
+        return {
+            ...item, 
+            choices: item.choices.filter(choice => selected_values.includes(choice.label))
+        };
+    });
+
+    return selected_data;
+}
+
+function buildFilterChoices(fg, select) {
+    let filterchoices = fg.choices
+    for (let i = 0; i < filterchoices.length; i++) {
+        const option = document.createElement('option');
+        option.classList.add('filter-option')
+        option.textContent = filterchoices[i].label;
+        select.appendChild(option);
+    }
+}
+
+document.addEventListener('mousedown', function(e) {
+    if (e.target.matches('.filter-option')) {
+        option = e.target;
+    }
+});
+
+document.addEventListener('click', function(e) {
+    if (e.target.matches('.dropdown-item')) {
+        item = e.target;
+        const value = item.getAttribute('data-value');
+        if (!document.getElementById(item.textContent)) {
+            item.parentElement.previousElementSibling.textContent = item.textContent;
+
+            const filterdata = JSON.parse(document.getElementById('filterdata').textContent);
+            const filtergroup = filterdata.find(fg => fg.label === item.textContent);
+
+            const search_row = item.parentElement.parentElement.parentElement;
+            if (search_row.classList.contains('search-field-filled')) {
+                const searchfield_div = item.parentElement.parentElement.nextElementSibling;
+                searchfield_div.id = item.textContent;
+                const select = searchfield_div.children[0];
+                select.innerHTML = '';
+                select.setAttribute('multiple', '');
+                select.classList.add('form-select');
+
+                buildFilterChoices(filtergroup, select);
+
+            } else {
+                search_row.classList.add('search-field-filled');
+                const searchfield_div = document.createElement('div');
+                searchfield_div.className = 'col filter-group';
+                searchfield_div.id = item.textContent;
+                const select = document.createElement('select');
+                select.setAttribute('multiple', '')
+                select.classList.add('form-select');
+
+                buildFilterChoices(filtergroup, select);
+
+                searchfield_div.appendChild(select);
+                item.parentElement.parentElement.insertAdjacentElement('afterend', searchfield_div);
+            }
+        }
+    }
+});
+
+add_new_button = document.getElementById('add_field')
+add_new_button.addEventListener('click', function() {
+    const template = document.getElementById('template');
+    const copy = template.cloneNode(true);
+    copy.hidden = false;
+
+    this.insertAdjacentElement('beforebegin', copy);
+});
+
 $(document).ready(function () {
 
-    new YearRange('#start_year');
-    new YearRange('#end_year');
+    // new YearRange('#start_year');
+    // new YearRange('#end_year');
 
     var $form = $('form.main-search');
 
-    $('.filter-group').each(function(){
-        var $clear = $('a.clear', this);
-        var $filtergroup = $(this);
-        var $seemore = $('li.see-more', this);
+    $('#advanced-search-submit').click(function() {
+        var data = JSON.parse(document.getElementById('filterdata').textContent);
+        filtered_data = gatherSearchFields(data);
 
-        $clear.click(function(){
-            $filtergroup.find(':checked').prop('checked', false);
-            $form.submit();
-        });
-
-        $seemore.find('a').click(function(){
-            var $a = $(this);
-            var $ul = $a.closest('ul');
-            var $more = $ul.find('.more');
-
-            if ( $a.hasClass('active') ) {
-                $more.hide();
-                $a.text('Show more');
-                $a.removeClass('active');
-            }
-            else {
-                $more.show();
-                $a.text('Show less');
-                $a.addClass('active');
+        $.ajax({
+            url: URL,
+            type: 'POST',
+            contentType: 'application/json',
+            headers: {
+                'X-CSRFToken': CSRF_TOKEN
+            },
+            data: JSON.stringify(filtered_data),
+            success: function (response) {
+                // console.log(response)
+            },
+            error: function(xhr, status, error) {
+                // console.log(response)
             }
         });
+    });
+
+    $('.filters').on('click', 'li.see-more a', function(){
+        // var $clear = $('a.clear', this);
+        // var $filtergroup = $(this);
+        // var $seemore = $('li.see-more', this);
+
+        // $clear.click(function(){
+        //     $filtergroup.find(':checked').prop('checked', false);
+        //     $form.submit();
+        // });
+
+        // $seemore.find('a').click(function(){
+        var $a = $(this);
+        var $ul = $a.closest('ul');
+        var $more = $ul.find('.more');
+
+        if ( $a.hasClass('active') ) {
+            $more.hide();
+            $a.text('Show more');
+            $a.removeClass('active');
+        }
+        else {
+            $more.show();
+            $a.text('Show less');
+            $a.addClass('active');
+        }
+        // });
     });
 
     $('.filter-group :checkbox').change(function(){
@@ -183,47 +287,3 @@ $("#mainsearch").find('input[name="q"]').autoComplete({
     }
 });
 
-document.addEventListener('click', function(e) {
-    if (e.target.matches('.dropdown-item')) {
-        item = e.target
-        const value = item.getAttribute('data-value');
-        item.parentElement.previousElementSibling.textContent = item.textContent;
-
-        // searchfield_choices = this.getAttribute('choices');
-        // console.log(searchfield_choices);
-
-        const search_row = item.parentElement.parentElement.parentElement;
-        if (search_row.classList.contains('filled')) {
-            const searchfield_div = item.parentElement.parentElement.nextElementSibling;
-            searchfield_div.id = item.textContent;
-            const ul = searchfield_div.children[0];
-            ul.innerHTML = '';
-            const test = document.createElement('li');
-            test.textContent = 'Test ' + item.textContent;
-            ul.appendChild(test);
-
-        } else {
-            search_row.classList.add('filled')
-            const searchfield_div = document.createElement('div');
-            searchfield_div.className = 'col';
-            searchfield_div.id = item.textContent;
-            const ul = document.createElement('ul');
-            const test = document.createElement('li');
-            test.textContent = 'Test ' + item.textContent;
-            ul.appendChild(test);
-            searchfield_div.appendChild(ul);
-            
-            console.log(item.parentElement.parentElement.parentElement);
-            item.parentElement.parentElement.insertAdjacentElement('afterend', searchfield_div);
-        }
-    }
-});
-
-add_new_button = document.getElementById('add_field')
-add_new_button.addEventListener('click', function() {
-    const template = document.getElementById('template');
-    const copy = template.cloneNode(true);
-    copy.hidden = false;
-
-    this.insertAdjacentElement('beforebegin', copy)
-});

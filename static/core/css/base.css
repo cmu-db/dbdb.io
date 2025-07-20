@@ -178,15 +178,15 @@ span.search-keyword {
 form.main-search { align-content: stretch; align-items: stretch; display: flex; padding:0; }
 div.filters { background-color: #E9ECEF; padding: 10px; }
 div.filters > h2 { color: #767676; font-size: 18px; margin-bottom: 20px; }
-div.filter-group { margin-top: 10px; min-width: 300px; }
+div.filter-group { min-width: 300px; }
 div.filter-group > h3 { color: #000000; font-size: 14px; font-weight: bold; margin-bottom: 5px; }
 div.filter-group > h3 > a { font-size: 12px; font-weight: normal; display: none; }
 div.filter-group > h3 > a:hover { text-decoration:none; }
 div.filter-group > h3:hover > a { display: inline; }
 div.filter-group > ul { list-style-type: none; margin: 5px 0 0 5px; padding: 0; }
-div.filter-group > ul > li { font-size: 12px; padding: 1px 0; }
-div.filter-group > ul > li.more { display:none; }
-div.filter-group > ul > li > label { display:inline; margin:0; }
+div.filter-group > ul > div.row > div.col > li { padding: 1px 0; }
+div.filter-group > ul > div.row > div.col > li.more { display:none; }
+div.filter-group > ul > div.row > div.col > li > label { display:inline; margin:0; }
 form.main-search > div.search-results { flex-grow:1; padding:0px 30px; }
 form.main-search > div.search-results div.input-group-lg { margin:40px auto 40px auto; width:80%; }
 form.main-search > div.search-results div.input-group-lg button.btn { border: 1px solid #ced4da; border-left:none; font-size: 1.25rem; line-height: 1.5; border-radius: 0px 0.3rem 0.3rem 0px; padding: .5rem 1rem; }

@@ -2,6 +2,7 @@
 from functools import reduce
 import collections
 import datetime
+from dataclasses import dataclass, asdict
 import json
 import urllib.parse
 import math
@@ -63,7 +64,7 @@ from dbdb.core.models import SystemRecommendation
 UserModel = get_user_model()
 
 # constants
-FILTERGROUP_VISIBLE_LENGTH = 3
+FILTERGROUP_VISIBLE_LENGTH = 8
 SITEMAP_NAMESPACE = 'https://www.sitemaps.org/schemas/sitemap/0.9'
 SITEMAP_PREFIX = '{%s}' % SITEMAP_NAMESPACE
 SITEMAP_NSMAP = {None : SITEMAP_NAMESPACE}
@@ -79,41 +80,38 @@ StatItem = collections.namedtuple('StatItem', ['label','value','slug','url'])
 # ==============================================
 # FilterChoice
 # ==============================================
-class FilterChoice( collections.namedtuple('FilterChoice', ['id','label','checked']) ):
+# class FilterChoice( collections.namedtuple('FilterChoice', ['id','label','is_hidden']) ):
+#     is_hidden = False
 
-    is_hidden = False
-
-    @property
-    def sort_key(self):
-        return (
-            0 if self.checked else 1,
-            self.label,
-        )
-
-    pass
+@dataclass
+class FilterChoice:
+    id: str
+    label: str
+    is_hidden: bool = False
 
 # ==============================================
 # FilterGroup
 # ==============================================
-class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) ):
+# class FilterGroup( collections.namedtuple('FieldSet', ['id','label','choices']) ):
+#     has_more = False
 
-    has_checked = False
-    has_more = False
+#     def prepare(self):
+#         for i,choice in enumerate(self.choices):
 
-    def prepare(self):
-        #self.choices.sort(key=lambda fc: fc.sort_key)
+#             if i >= FILTERGROUP_VISIBLE_LENGTH:
+#                 choice.is_hidden = True
+#                 # print("BEFORE:", choice)
+#                 choice = choice._replace(is_hidden = True)
+#                 # print("AFTER:", choice)
+#                 self.has_more = True
+#         return
 
-        for i,choice in enumerate(self.choices):
-            self.has_checked = self.has_checked or choice.checked
-
-            if i >= FILTERGROUP_VISIBLE_LENGTH and not choice.checked:
-                choice.is_hidden = True
-                self.has_more = True
-                pass
-            pass
-        return
-
-    pass
+@dataclass
+class FilterGroup:
+    id: str
+    label: str
+    choices: FilterChoice
+    has_more: bool = False
 
 # ==============================================
 # SearchBadge
@@ -302,22 +300,29 @@ class BrowseView(View):
             FilterChoice(
                 all_systems[v[0]].slug,
                 all_systems[v[0]].name,
-                all_systems[v[0]].slug in querydict.getlist(search_field, empty_set)
+                False
             )
             for v in set(values)
             #for sys in System.objects.values_list('id','slug','name', named=True)
-        ], key=lambda x: x[1]))
+        ], key=lambda x: x.label))
         return fg
 
     def build_filter_groups(self, querydict):
         empty_set = set()
+
+        def prepare(fg):
+            for i,choice in enumerate(fg.choices):
+                if i >= FILTERGROUP_VISIBLE_LENGTH:
+                    choice.is_hidden = True
+                    fg.has_more = True
+            return fg
 
         def reduce_feature_options(mapping, option):
             mapping[option.feature_id].choices.append(
                 FilterChoice(
                     option.slug,
                     option.value,
-                    option.slug in querydict.getlist( option.feature__slug, empty_set )
+                    False
                 )
             )
             return mapping
@@ -341,12 +346,12 @@ class BrowseView(View):
         fg_country = FilterGroup('country', 'Country', sorted([
             FilterChoice(
                code,
-               countries_map[code], # name,
-               code in querydict.getlist( 'country', empty_set )
+               countries_map[code], # name
+               False
             )
             for code in map(str.upper, system_countries.keys())
-        ], key=lambda x: x[1]))
-        other_filtersgroups.append(fg_country)
+        ], key=lambda x: x.label))
+        other_filtersgroups.append(prepare(fg_country))
 
         all_systems = dict([
             (sys.id, sys)
@@ -354,95 +359,95 @@ class BrowseView(View):
         ])
 
         # Compatible
-        other_filtersgroups.append(self.build_filter_group_for_field(\
+        other_filtersgroups.append(prepare(self.build_filter_group_for_field(\
             'compatible_with', \
             'compatible', \
             'Compatible With', \
             all_systems, \
             querydict
-        ))
+        )))
 
         # Embedded
-        other_filtersgroups.append(self.build_filter_group_for_field(\
+        other_filtersgroups.append(prepare(self.build_filter_group_for_field(\
             'embedded', \
             'embeds', \
             'Embeds / Uses', \
             all_systems, \
             querydict
-        ))
+        )))
 
         # Derived
-        other_filtersgroups.append(self.build_filter_group_for_field(\
+        other_filtersgroups.append(prepare(self.build_filter_group_for_field(\
             'derived_from', \
             'derived', \
             'Derived From', \
             all_systems, \
             querydict
-        ))
+        )))
 
         # Inspired
-        other_filtersgroups.append(self.build_filter_group_for_field(\
+        other_filtersgroups.append(prepare(self.build_filter_group_for_field(\
             'inspired_by', \
             'inspired', \
             'Inspired By', \
             all_systems, \
             querydict
-        ))
+        )))
 
         # add operating system
         fg_os = FilterGroup('os', 'Operating System', [
             FilterChoice(
                 os.slug,
                 os.name,
-                os.slug in querydict.getlist( 'os', empty_set )
+                False
             )
             for os in OperatingSystem.objects.values_list('id','slug','name', named=True)
         ])
-        other_filtersgroups.append(fg_os)
+        other_filtersgroups.append(prepare(fg_os))
 
         # add programming languages
         fg_programming = FilterGroup('programming', 'Programming Languages', [
             FilterChoice(
                 p.slug,
                 p.name,
-                p.slug in querydict.getlist( 'programming', empty_set )
+                False
             )
             for p in ProgrammingLanguage.objects.values_list('id','slug','name', named=True)
         ])
-        other_filtersgroups.append(fg_programming)
+        other_filtersgroups.append(prepare(fg_programming))
 
         # add tags
         fg_tag = FilterGroup('tag', 'Tags', [
             FilterChoice(
                 t.slug,
                 t.name,
-                t.slug in querydict.getlist( 'tag', empty_set )
+                False
             )
             for t in Tag.objects.values_list('id','slug','name', named=True)
         ])
-        other_filtersgroups.append(fg_tag)
+        other_filtersgroups.append(prepare(fg_tag))
 
         # add project types
         fg_project_type = FilterGroup('type', 'Project Types', [
             FilterChoice(
                 pt.slug,
                 pt.name,
-                pt.slug in querydict.getlist( 'type', empty_set )
+                False
             )
             for pt in ProjectType.objects.values_list('id','slug','name', named=True)
         ])
-        other_filtersgroups.append(fg_project_type)
+        other_filtersgroups.append(prepare(fg_project_type))
 
         # add licenses
         fg_license = FilterGroup('license', 'Licenses', [
             FilterChoice(
                 l.slug,
                 l.name,
-                l.slug in querydict.getlist( 'license', empty_set )
+                False
             )
             for l in License.objects.values_list('id','slug','name', named=True)
         ])
-        other_filtersgroups.append(fg_license)
+        other_filtersgroups.append(prepare(fg_license))
 
         # build from list of features (alphabetical order)
         filtergroups = collections.OrderedDict(
@@ -462,10 +467,6 @@ class BrowseView(View):
 
         filtergroups = other_filtersgroups + list( filtergroups.values() )
 
-        for fg in filtergroups:
-            fg.prepare()
-            pass
-
         return filtergroups
 
     def build_pagination(self, letter):
@@ -474,12 +475,6 @@ class BrowseView(View):
             for i in range( ord('A') , ord('Z')+1 )
         )
         letters_alphabet.add("#")
-        # letters_available = set(
-        #     "#" if not name.upper()[0].isalpha() else name.upper()[0]
-        #     for name in System.objects.all().values_list('name', flat=True)
-        # )
-        # letters_missing = letters_alphabet.difference( letters_available )
-        # letters_all = letters_alphabet.union( letters_available )
 
         pagination = list(
             LetterPage(
@@ -885,6 +880,7 @@ class BrowseView(View):
         return render(request, self.template_name, {
             'activate': 'browse', # NAV-LINKS
             'filtergroups': self.build_filter_groups(request.GET),
+            'filtergroupsjson': [asdict(fg) for fg in self.build_filter_groups(request.GET)],
             'has_results': has_results,
             'pagination': pagination,
             'query': search_q,
@@ -901,6 +897,16 @@ class BrowseView(View):
             'next' : page_num+1 if page_num < num_pages else num_pages,
             'pages' : pages,
         })
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+
+            print("DATA:", data)
+
+            return JsonResponse({'status': 'success', 'recieved_data': data})
+        except:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
 
     def handle_old_urls(self, request):
         query = []
