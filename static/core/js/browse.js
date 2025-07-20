@@ -227,12 +227,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     for (const [key, values] of Object.entries(filters)) {
+        add_filter_button.call(add_new_button)
         const filtergroup = filterdata.find(fg => fg.id === key);
         const item = Array.from(document.getElementById('filter-none').children[0].children[1].children).find(li => li.textContent === filtergroup.label)
         buildFilterGroup(item, values)
 
         add_new_button = document.getElementById('add_field')
-        add_filter_button.call(add_new_button)
     }
 
     if (Object.keys(filters).length > 0) {
@@ -248,6 +248,10 @@ document.addEventListener('click', function(e) {
         if (!document.getElementById(item.textContent)) {
             buildFilterGroup(item)
         }
+    } else if (e.target.matches('.remove')) {
+        item = e.target;
+        row = item.parentElement.parentElement;
+        row.remove()
     }
 });
 

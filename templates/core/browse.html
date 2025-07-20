@@ -128,23 +128,11 @@ div.results div.version p { margin:0; }
                             <li class="dropdown-item">{{ filtergroup.label }}</li>
                         {% endfor %}
                     </ul>
+                    <a href="javascript:;" class="remove" title="remove filter"><i class="fas fa-times"></i> remove </a>
                 </div>
             </div>
 
             {{ filtergroupsjson|json_script:"filterdata" }}
-
-            <div class="filter-group row mb-3" id="filter-none">
-                <div class="dropdown col-3">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Search Fields
-                    </button>
-                    <ul class="dropdown-menu" style="max-height: 200px; overflow-y: auto;">
-                        {% for filtergroup in filtergroups %}
-                            <li class="dropdown-item">{{ filtergroup.label }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
 
             <button class="btn btn-secondary mb-3" type="button" id="add_field">
                 <div class="d-inline-flex justify-content-center align-items-center rounded-circle border" style="width:20px;height:20px;">

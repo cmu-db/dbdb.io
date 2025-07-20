@@ -180,9 +180,9 @@ div.filters { background-color: #E9ECEF; padding: 10px; }
 div.filters > h2 { color: #767676; font-size: 18px; margin-bottom: 20px; }
 div.filter-group { min-width: 300px; }
 div.filter-group > h3 { color: #000000; font-size: 14px; font-weight: bold; margin-bottom: 5px; }
-div.filter-group > h3 > a { font-size: 12px; font-weight: normal; display: none; }
-div.filter-group > h3 > a:hover { text-decoration:none; }
-div.filter-group > h3:hover > a { display: inline; }
+div.filter-group > div > a { font-weight: normal; display: none; }
+div.filter-group > div > a:hover { text-decoration:none; }
+div.filter-group > div:hover > a { display: inline; }
 div.filter-group > ul { list-style-type: none; margin: 5px 0 0 5px; padding: 0; }
 div.filter-group > ul > div.row > div.col > li { padding: 1px 0; }
 div.filter-group > ul > div.row > div.col > li.more { display:none; }
