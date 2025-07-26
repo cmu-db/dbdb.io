@@ -64,15 +64,15 @@ from dbdb.core.models import SystemRecommendation
 UserModel = get_user_model()
 
 # constants
-FILTERGROUP_VISIBLE_LENGTH = 8
+# FILTERGROUP_VISIBLE_LENGTH = 8
 SITEMAP_NAMESPACE = 'https://www.sitemaps.org/schemas/sitemap/0.9'
 SITEMAP_PREFIX = '{%s}' % SITEMAP_NAMESPACE
 SITEMAP_NSMAP = {None : SITEMAP_NAMESPACE}
 
 # helper classes
 FieldSet = collections.namedtuple('FieldSet', ['id','label','choices','description','citation'])
-LetterPage = collections.namedtuple('LetterPage', ['id','letter','is_active','is_disabled'])
-NumPage = collections.namedtuple('NumPage', ['id', 'num', 'is_active', 'is_disabled'])
+# LetterPage = collections.namedtuple('LetterPage', ['id','letter','is_active','is_disabled'])
+# NumPage = collections.namedtuple('NumPage', ['id', 'num', 'is_active', 'is_disabled'])
 Stat = collections.namedtuple('Stat', ['label','items', 'search_field', 'systems', 'count'])
 StatItem = collections.namedtuple('StatItem', ['label','value','slug','url'])
 
@@ -87,7 +87,7 @@ StatItem = collections.namedtuple('StatItem', ['label','value','slug','url'])
 class FilterChoice:
     id: str
     label: str
-    is_hidden: bool = False
+    # is_hidden: bool = False
 
 # ==============================================
 # FilterGroup
@@ -111,7 +111,7 @@ class FilterGroup:
     id: str
     label: str
     choices: FilterChoice
-    has_more: bool = False
+    # has_more: bool = False
 
 # ==============================================
 # SearchBadge
@@ -300,7 +300,7 @@ class BrowseView(View):
             FilterChoice(
                 all_systems[v[0]].slug,
                 all_systems[v[0]].name,
-                False
+                # False
             )
             for v in set(values)
             #for sys in System.objects.values_list('id','slug','name', named=True)
@@ -310,19 +310,19 @@ class BrowseView(View):
     def build_filter_groups(self, querydict):
         empty_set = set()
 
-        def prepare(fg):
-            for i,choice in enumerate(fg.choices):
-                if i >= FILTERGROUP_VISIBLE_LENGTH:
-                    choice.is_hidden = True
-                    fg.has_more = True
-            return fg
+        # def prepare(fg):
+        #     for i,choice in enumerate(fg.choices):
+        #         if i >= FILTERGROUP_VISIBLE_LENGTH:
+        #             choice.is_hidden = True
+        #             fg.has_more = True
+        #     return fg
 
         def reduce_feature_options(mapping, option):
             mapping[option.feature_id].choices.append(
                 FilterChoice(
                     option.slug,
                     option.value,
-                    False
+                    # False
                 )
             )
             return mapping
@@ -347,11 +347,11 @@ class BrowseView(View):
             FilterChoice(
                code,
                countries_map[code], # name
-               False
+            #    False
             )
             for code in map(str.upper, system_countries.keys())
         ], key=lambda x: x.label))
-        other_filtersgroups.append(prepare(fg_country))
+        other_filtersgroups.append(fg_country)
 
         all_systems = dict([
             (sys.id, sys)
@@ -359,95 +359,90 @@ class BrowseView(View):
         ])
 
         # Compatible
-        other_filtersgroups.append(prepare(self.build_filter_group_for_field(\
+        other_filtersgroups.append(self.build_filter_group_for_field(\
             'compatible_with', \
             'compatible', \
             'Compatible With', \
             all_systems, \
             querydict
-        )))
+        ))
 
         # Embedded
-        other_filtersgroups.append(prepare(self.build_filter_group_for_field(\
+        other_filtersgroups.append(self.build_filter_group_for_field(\
             'embedded', \
             'embeds', \
             'Embeds / Uses', \
             all_systems, \
             querydict
-        )))
+        ))
 
         # Derived
-        other_filtersgroups.append(prepare(self.build_filter_group_for_field(\
+        other_filtersgroups.append(self.build_filter_group_for_field(\
             'derived_from', \
             'derived', \
             'Derived From', \
             all_systems, \
             querydict
-        )))
+        ))
 
         # Inspired
-        other_filtersgroups.append(prepare(self.build_filter_group_for_field(\
+        other_filtersgroups.append(self.build_filter_group_for_field(\
             'inspired_by', \
             'inspired', \
             'Inspired By', \
             all_systems, \
             querydict
-        )))
+        ))
 
         # add operating system
         fg_os = FilterGroup('os', 'Operating System', [
             FilterChoice(
                 os.slug,
                 os.name,
-                False
             )
             for os in OperatingSystem.objects.values_list('id','slug','name', named=True)
         ])
-        other_filtersgroups.append(prepare(fg_os))
+        other_filtersgroups.append(fg_os)
 
         # add programming languages
         fg_programming = FilterGroup('programming', 'Programming Languages', [
             FilterChoice(
                 p.slug,
                 p.name,
-                False
             )
             for p in ProgrammingLanguage.objects.values_list('id','slug','name', named=True)
         ])
-        other_filtersgroups.append(prepare(fg_programming))
+        other_filtersgroups.append(fg_programming)
 
         # add tags
         fg_tag = FilterGroup('tag', 'Tags', [
             FilterChoice(
                 t.slug,
                 t.name,
-                False
             )
             for t in Tag.objects.values_list('id','slug','name', named=True)
         ])
-        other_filtersgroups.append(prepare(fg_tag))
+        other_filtersgroups.append(fg_tag)
 
         # add project types
         fg_project_type = FilterGroup('type', 'Project Types', [
             FilterChoice(
                 pt.slug,
                 pt.name,
-                False
             )
             for pt in ProjectType.objects.values_list('id','slug','name', named=True)
         ])
-        other_filtersgroups.append(prepare(fg_project_type))
+        other_filtersgroups.append(fg_project_type)
 
         # add licenses
         fg_license = FilterGroup('license', 'Licenses', [
             FilterChoice(
                 l.slug,
                 l.name,
-                False
             )
             for l in License.objects.values_list('id','slug','name', named=True)
         ])
-        other_filtersgroups.append(prepare(fg_license))
+        other_filtersgroups.append(fg_license)
 
         # build from list of features (alphabetical order)
         filtergroups = collections.OrderedDict(
@@ -469,50 +464,50 @@ class BrowseView(View):
 
         return filtergroups
 
-    def build_pagination(self, letter):
-        letters_alphabet = set(
-            chr(i)
-            for i in range( ord('A') , ord('Z')+1 )
-        )
-        letters_alphabet.add("#")
+    # def build_pagination(self, letter):
+    #     letters_alphabet = set(
+    #         chr(i)
+    #         for i in range( ord('A') , ord('Z')+1 )
+    #     )
+    #     letters_alphabet.add("#")
 
-        pagination = list(
-            LetterPage(
-                l,
-                l,
-                l == letter,
-                l not in letters_alphabet # letters_available
-            )
-            for l in sorted(letters_alphabet)
-        )
-        pagination.append(
-            LetterPage(
-                'ALL',
-                'All',
-                'ALL' == letter,
-                False
-            )
-        )
+    #     pagination = list(
+    #         LetterPage(
+    #             l,
+    #             l,
+    #             l == letter,
+    #             l not in letters_alphabet # letters_available
+    #         )
+    #         for l in sorted(letters_alphabet)
+    #     )
+    #     pagination.append(
+    #         LetterPage(
+    #             'ALL',
+    #             'All',
+    #             'ALL' == letter,
+    #             False
+    #         )
+    #     )
 
-        return pagination
+    #     return pagination
 
-    def build_page_num(self, num, page_nums):
-        pages_set = set(
-            n+1
-            for n in range(page_nums)
-        )
+    # def build_page_num(self, num, page_nums):
+    #     pages_set = set(
+    #         n+1
+    #         for n in range(page_nums)
+    #     )
 
-        pagination = list(
-            NumPage(
-                n,
-                n,
-                n == num,
-                n not in pages_set # pages_available
-            )
-            for n in sorted(pages_set)
-        )
+    #     pagination = list(
+    #         NumPage(
+    #             n,
+    #             n,
+    #             n == num,
+    #             n not in pages_set # pages_available
+    #         )
+    #         for n in sorted(pages_set)
+    #     )
 
-        return pagination
+    #     return pagination
     
     def slug_to_system(self, slugs):
         slugs = { s.strip() for s in slugs }
@@ -594,9 +589,9 @@ class BrowseView(View):
         }
 
         if not any(search_mapping.values()) and not any(search_fg):
-            return (sqs, { }, [])
+            return (sqs, { })
 
-        search_badges = []
+        # search_badges = []
 
         # apply keyword search to name (require all terms)
         if search_q:
@@ -627,8 +622,8 @@ class BrowseView(View):
         # apply year limits
         if search_start_year.isdigit():
             sqs = sqs.filter(start_year=int(search_start_year))
-            search_badges.append(
-                SearchBadge(request.GET, 'start-year', 'Start Year', search_start_year, search_start_year))
+            # search_badges.append(
+            #     SearchBadge(request.GET, 'start-year', 'Start Year', search_start_year, search_start_year))
             pass
         if search_start_min.isdigit():
             sqs = sqs.filter(start_year__gte=int(search_start_min))
@@ -638,8 +633,8 @@ class BrowseView(View):
             pass
         if search_end_year.isdigit():
             sqs = sqs.filter(end_year=int(search_end_year))
-            search_badges.append(
-                SearchBadge(request.GET, 'end-year', 'End Year', search_end_year, search_end_year))
+            # search_badges.append(
+            #     SearchBadge(request.GET, 'end-year', 'End Year', search_end_year, search_end_year))
             pass
         if search_end_min.isdigit():
             sqs = sqs.filter(end_year__gte=int(search_end_min))
@@ -651,10 +646,10 @@ class BrowseView(View):
         # search - country
         if search_country:
             sqs = sqs.filter(countries__in=search_country)
-            for c in search_country:
-                # TODO: Need a way to propagate error messages for invalid countries
-                if c in countries_map:
-                    search_badges.append(SearchBadge(request.GET, 'country', 'Country', c, countries_map[c]))
+            # for c in search_country:
+            #     # TODO: Need a way to propagate error messages for invalid countries
+            #     if c in countries_map:
+            #         search_badges.append(SearchBadge(request.GET, 'country', 'Country', c, countries_map[c]))
             pass
 
         # search - compatible
@@ -662,7 +657,7 @@ class BrowseView(View):
             sqs = sqs.filter(meta__compatible_with__slug__in=search_compatible)
             systems = self.slug_to_system(search_compatible)
             search_mapping['compatible'] = systems.values()
-            search_badges.extend( SearchBadge(request.GET, 'compatible', 'Compatible With', k, v) for k,v in systems.items() )
+            # search_badges.extend( SearchBadge(request.GET, 'compatible', 'Compatible With', k, v) for k,v in systems.items() )
             pass
 
         # search - derived from
@@ -670,7 +665,7 @@ class BrowseView(View):
             sqs = sqs.filter(meta__derived_from__slug__in=search_derived)
             systems = self.slug_to_system(search_derived)
             search_mapping['derived'] = systems.values()
-            search_badges.extend( SearchBadge(request.GET, 'derived', 'Derived From', k, v) for k,v in systems.items() )
+            # search_badges.extend( SearchBadge(request.GET, 'derived', 'Derived From', k, v) for k,v in systems.items() )
             pass
 
         # search - embedded
@@ -678,7 +673,7 @@ class BrowseView(View):
             sqs = sqs.filter(meta__embedded__slug__in=search_embeds)
             systems = self.slug_to_system(search_embeds)
             search_mapping['embeds'] = systems.values()
-            search_badges.extend( SearchBadge(request.GET, 'embeds', 'Embeds / Uses', k, v) for k,v in systems.items() )
+            # search_badges.extend( SearchBadge(request.GET, 'embeds', 'Embeds / Uses', k, v) for k,v in systems.items() )
             pass
 
         # search - inspired by
@@ -686,56 +681,56 @@ class BrowseView(View):
             sqs = sqs.filter(meta__inspired_by__slug__in=search_inspired)
             systems = self.slug_to_system(search_inspired)
             search_mapping['inspired'] = systems.values()
-            search_badges.extend( SearchBadge(request.GET, 'inspired', 'Inspired By', k, v) for k,v in systems.items() )
+            # search_badges.extend( SearchBadge(request.GET, 'inspired', 'Inspired By', k, v) for k,v in systems.items() )
             pass
 
         # search - operating systems
         if search_os:
             sqs = sqs.filter(meta__oses__slug__in=search_os)
             oses = OperatingSystem.objects.filter(slug__in=search_os)
-            search_badges.extend( SearchBadge(request.GET, 'os', 'Operating System', os.slug, os.name) for os in oses )
+            # search_badges.extend( SearchBadge(request.GET, 'os', 'Operating System', os.slug, os.name) for os in oses )
             pass
 
         # search - programming languages
         if search_programming:
             sqs = sqs.filter(meta__written_in__slug__in=search_programming)
             langs = ProgrammingLanguage.objects.filter(slug__in=search_programming)
-            search_badges.extend( SearchBadge(request.GET, 'programming', 'Programming Languages', lang.slug, lang.name) for lang in langs )
+            # search_badges.extend( SearchBadge(request.GET, 'programming', 'Programming Languages', lang.slug, lang.name) for lang in langs )
             pass
 
         # search - supported languages
         if search_supported:
             sqs = sqs.filter(meta__supported_languages__slug__in=search_supported)
             langs = ProgrammingLanguage.objects.filter(slug__in=search_supported)
-            search_badges.extend( SearchBadge(request.GET, 'supported', 'Supported Languages', lang.slug, lang.name) for lang in langs )
+            # search_badges.extend( SearchBadge(request.GET, 'supported', 'Supported Languages', lang.slug, lang.name) for lang in langs )
             pass
 
         # search - tags
         if search_tag:
             sqs = sqs.filter(tags__slug__in=search_tag)
             tags = Tag.objects.filter(slug__in=search_tag)
-            search_badges.extend( SearchBadge(request.GET, 'type', 'Tags', t.slug, t.name) for t in tags )
+            # search_badges.extend( SearchBadge(request.GET, 'type', 'Tags', t.slug, t.name) for t in tags )
             pass
 
         # search - project types
         if search_type:
             sqs = sqs.filter(project_types__slug__in=search_type)
             types = ProjectType.objects.filter(slug__in=search_type)
-            search_badges.extend( SearchBadge(request.GET, 'type', 'Project Types', type.slug, type.name) for type in types )
+            # search_badges.extend( SearchBadge(request.GET, 'type', 'Project Types', type.slug, type.name) for type in types )
             pass
 
         # search - licenses
         if search_license:
             sqs = sqs.filter(meta__licenses__slug__in=search_license)
             licenses = License.objects.filter(slug__in=search_license)
-            search_badges.extend( SearchBadge(request.GET, 'license', 'Licenses', license.slug, license.name) for license in licenses )
+            # search_badges.extend( SearchBadge(request.GET, 'license', 'Licenses', license.slug, license.name) for license in licenses )
             pass
 
         # search - suffixes
         if search_suffix:
             for suffix in search_suffix:
                 sqs = sqs.filter(system__name__icontains=suffix)
-            search_badges.extend(SearchBadge(request.GET, 'suffix', 'Suffix', suffix, suffix) for suffix in search_suffix)
+            # search_badges.extend(SearchBadge(request.GET, 'suffix', 'Suffix', suffix, suffix) for suffix in search_suffix)
             pass
 
         # convert feature option slugs to IDs to do search by filtering
@@ -752,12 +747,12 @@ class BrowseView(View):
             feature_systems_versions = SystemFeature.objects.filter(options__id__in=feature_option_ids).filter(version__is_current=True).values_list("version__id")
             sqs = sqs.filter(id__in=feature_systems_versions)
 
-            search_badges.extend(
-                SearchBadge(request.GET, *row)
-                for row in FeatureOption.objects.filter(id__in=feature_option_ids).values_list('feature__slug','feature__label','slug','value')
-            )
+            # search_badges.extend(
+            #     SearchBadge(request.GET, *row)
+            #     for row in FeatureOption.objects.filter(id__in=feature_option_ids).values_list('feature__slug','feature__label','slug','value')
+            # )
 
-        return (sqs, search_mapping, search_badges)
+        return (sqs, search_mapping)
 
     def do_dym(self, search_q):
         """Did you mean search"""
@@ -773,53 +768,13 @@ class BrowseView(View):
 
         # Search Query
         search_q = request.GET.get('q', '').strip()
-
-        # Search Letter
-        search_letter = request.GET.get('letter', '').strip().upper()
-
-        # Entries per page
-        CHUNK_SIZE = 100
-
-        # Page
-        page_num = request.GET.get('p', '1')
-        if page_num.isdigit():
-            page_num = int(page_num) 
-            if page_num < 1:
-                page_num = 1
-        else:
-            page_num = 1
-        
-        # Sort
-        sort = request.GET.get('sort', 'system__name-asc')
-        
-        # Sort by and sort direction
-        if '-' in sort:
-            sort_by, direction = sort.split('-')[:2]
-            print('SORT', sort_by, direction)
-            if sort_by not in ['system__name', 'start_year', 'end_year']:
-                sort_by = 'system__name'
-            if direction not in ['asc', 'desc']:
-                direction = 'asc'
-        else:
-            sort_by, direction = ['system__name', 'asc']
         
         # Perform the search and get back the versions along with a
         # mapping with the search keys
         search_keys = { }
-        search_badges = { }
         results = SystemVersion.objects.filter(is_current=True)
 
-        if search_letter and search_letter != 'ALL':
-            if search_letter == "#":
-                results = results.filter(system__name__regex=r'^\d')
-            else:
-                results = results.filter(system__name__istartswith=search_letter)
-        else:
-            results, search_keys, search_badges = self.do_search(request, results)
-            search_letter = 'ALL'
-
-        # generate letter pagination
-        pagination = self.build_pagination(search_letter)
+        results, search_keys = self.do_search(request, results)
 
         # Only get the columns we need for the browse page
         results = results.annotate(name=F('system__name'), 
@@ -828,21 +783,9 @@ class BrowseView(View):
                                                                    slug=F('tags__slug')))).\
             values('id', 'name', 'slug', 'logo', 'start_year', 'end_year', 'system_tags', 'created')
 
-        # Decides number of pages
         num_results = len(results)
-
-        num_pages = math.ceil(num_results / CHUNK_SIZE)
-        if page_num > num_pages and num_pages != 0:
-            page_num = num_pages
-
-        # generates pages
-        pages = self.build_page_num(page_num, num_pages)
-
-        # convert query list to regular list and sort
-        if direction == 'asc':
-            results = list( results.order_by(F(sort_by).asc(nulls_last=True))[(page_num-1)*CHUNK_SIZE:page_num*CHUNK_SIZE] )
-        else:
-            results = list( results.order_by(F(sort_by).desc(nulls_last=True))[(page_num-1)*CHUNK_SIZE:page_num*CHUNK_SIZE] )
+        
+        results = list(results.order_by('system__name'))
         
         # check if there are results
         has_results = len(results) > 0
@@ -882,31 +825,14 @@ class BrowseView(View):
             'filtergroups': self.build_filter_groups(request.GET),
             'filtergroupsjson': [asdict(fg) for fg in self.build_filter_groups(request.GET)],
             'has_results': has_results,
-            'pagination': pagination,
             'query': search_q,
             'results': results,
             'num_results' : num_results,
             'years': years,
             'has_search': len(search_keys) != 0,
             'search': search_keys,
-            'badges': search_badges,
-            'suggestion': suggestion,
-            'sort' : sort,
-            'prev' : page_num-1 if page_num-1 > 0 else 1,
-            'p' : page_num,
-            'next' : page_num+1 if page_num < num_pages else num_pages,
-            'pages' : pages,
+            'suggestion': suggestion
         })
-    
-    def post(self, request):
-        try:
-            data = json.loads(request.body)
-
-            print("DATA:", data)
-
-            return JsonResponse({'status': 'success', 'recieved_data': data})
-        except:
-            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
 
     def handle_old_urls(self, request):
         query = []

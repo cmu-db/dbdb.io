@@ -130,25 +130,6 @@ function show_refinements() {
     $('#filter_modal').modal('show');
 }
 
-// function gatherSearchFields(data) {
-//     const search_fields = document.getElementsByClassName('search-field-filled');
-//     const selected_choices = Array.from(search_fields).map(search_field => search_field.children[1].children[0]);
-//     const filter_keys = Array.from(search_fields).map(search_field => search_field.children[0].children[0].textContent);
-//     const filtered_data = data.filter(item => filter_keys.includes(item.label));
-
-//     const selected_data = filtered_data.map((item, index) => {
-//         const select = selected_choices[index]; 
-//         const selected_values = Array.from(select.selectedOptions).map(option => option.value);
-
-//         return {
-//             ...item, 
-//             choices: item.choices.filter(choice => selected_values.includes(choice.label))
-//         };
-//     });
-
-//     return selected_data;
-// }
-
 function add_filter_button() {
     const template = document.getElementById('template');
     const copy = template.cloneNode(true);
@@ -211,6 +192,88 @@ function buildFilterGroup(item, selected_options=[]) {
     }
 }
 
+function populate_table(results) {
+    console.log(results)
+    const table = document.getElementById('results-table');
+    const table_body = document.getElementById('table-body');
+    table_body.remove();
+    const new_table = document.createElement('tbody');
+    new_table.id = 'table-body';
+
+    for (const result of results) {
+        const tr = document.createElement('tr');
+        tr.classList.add('hover');
+        tr.setAttribute('onclick', `window.location.assign('/db/${result.slug}/')`);
+        tr.setAttribute('style', 'cursor: pointer');
+
+        function getThumbnailUrl(path, alias = 'search') {
+            // Thumbnail attributes from dbdb/settings.py
+            const aliases = {
+                search: { width: 200, height: 200 },
+                thumb: { width: 280, height: 250 },
+                homepage: { width: 100, height: 60 },
+                stats: { width: 60, height: 40 },
+                recent: { width: 40, height: 40 },
+                recommendation: { width: 200, height: 50 },
+            };
+
+            if (!path || !aliases[alias]) return `/media/${path}`;
+
+            const { width, height } = aliases[alias];
+            return `/media/${path}.${width}x${height}_q85.png`;
+        }
+
+
+
+        const logo_td = document.createElement('td');
+        const logo = document.createElement('img');
+        logo.setAttribute('alt', `${result.name}`);
+        logo.setAttribute('height', '20px');
+        logo.setAttribute('width', 'auto');
+        if (result.logo) {
+            logo.classList.add(['card-logo', 'card-db-logo']);
+            logo.setAttribute('loading', 'lazy');
+            if (result.logo.slice(-3) === 'svg') {
+                logo.setAttribute('src', `/media/${result.logo}`);
+            } else {
+                logo.setAttribute('src', `${getThumbnailUrl(result.logo, 'search')}`);
+            }
+        } else {
+            logo.classList.add(['card-logo', 'card-default-logo']);
+            logo.setAttribute('src', '/static/core/images/database-nologo.svg');
+        }
+        logo_td.appendChild(logo);
+
+        const name_td = document.createElement('td');
+        name_td.textContent = result.name;
+
+        const start_year_td = document.createElement('td');
+        start_year_td.classList.add('text-right');
+        if (result.start_year) {
+            start_year_td.textContent = result.start_year;
+        } else {
+            start_year_td.textContent = '—';
+        }
+
+        const end_year_td = document.createElement('td');
+        end_year_td.classList.add('text-right');
+        if (result.end_year) {
+            end_year_td.textContent = result.end_year;
+        } else {
+            end_year_td.textContent = '—';
+        }
+
+        tr.appendChild(logo_td);
+        tr.appendChild(name_td);
+        tr.appendChild(start_year_td);
+        tr.appendChild(end_year_td);
+
+        new_table.appendChild(tr);
+    }
+
+    table.appendChild(new_table);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const filterdata = JSON.parse(document.getElementById('filterdata').textContent);
     const params = new URLSearchParams(window.location.search);
@@ -263,6 +326,76 @@ document.getElementById('advanced-search-clear').addEventListener('click', funct
     const url = window.location.origin + window.location.pathname;
     window.location.href = url;
 })
+
+// Table sort events
+document.getElementById('name-sort').addEventListener('click', function() {
+    const results = JSON.parse(document.getElementById('results').textContent);
+    const table = document.getElementById('results-table');
+
+    if (table.sort === 'name-asc') {
+        results.sort((a, b) => b.name.localeCompare(a.name));
+        table.sort = 'name-desc';
+    } else {
+        results.sort((a, b) => a.name.localeCompare(b.name));
+        table.sort = 'name-asc';
+    }
+
+    populate_table(results)
+});
+
+document.getElementById('start-year-sort').addEventListener('click', function() {
+    const results = JSON.parse(document.getElementById('results').textContent);
+    const table = document.getElementById('results-table');
+
+    if (table.sort === 'start_year-desc') {
+        results.sort((a, b) => {
+            if (a.start_year == null && b.start_year == null) return 0;
+            if (a.start_year == null) return 1;
+            if (b.start_year == null) return -1;
+
+            return a.start_year - b.start_year;
+        });
+        table.sort = 'start_year-asc';
+    } else {
+        results.sort((a, b) => {
+            if (a.start_year == null && b.start_year == null) return 0;
+            if (a.start_year == null) return 1;
+            if (b.start_year == null) return -1;
+
+            return b.start_year - a.start_year;
+        });
+        table.sort = 'start_year-desc';
+    }
+
+    populate_table(results)
+});
+
+document.getElementById('end-year-sort').addEventListener('click', function() {
+    const results = JSON.parse(document.getElementById('results').textContent);
+    const table = document.getElementById('results-table');
+
+    if (table.sort === 'end_year-desc') {
+        results.sort((a, b) => {
+            if (a.end_year == null && b.end_year == null) return 0;
+            if (a.end_year == null) return 1;
+            if (b.end_year == null) return -1;
+
+            return a.end_year - b.end_year;
+        });
+        table.sort = 'end_year-asc';
+    } else {
+        results.sort((a, b) => {
+            if (a.end_year == null && b.end_year == null) return 0;
+            if (a.end_year == null) return 1;
+            if (b.end_year == null) return -1;
+
+            return b.end_year - a.end_year;
+        });
+        table.sort = 'end_year-desc';
+    }
+
+    populate_table(results)
+});
 
 $(document).ready(function () {
 

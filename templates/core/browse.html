@@ -153,15 +153,6 @@ div.results div.version p { margin:0; }
         </div>
 
         {% if has_search %}
-        <!-- <div class="search-badges">
-            {% for b in badges %}
-            <a class="badge badge-pill badge-info" href="{{ b.get_removal_url }}">
-                <em>{{ b.group_name }}</em>:
-                <span>{{ b.badge_name }}</span>
-                <i class="fas fa-times-circle" style="padding-left:2px;"></i>
-            </a>
-            {% endfor %}
-        </div> -->
         <p class="results-info">
             {% if results %}
             Found {{ num_results|intcomma }} database{% if num_results > 1 %}s{% endif %}
@@ -179,14 +170,6 @@ div.results div.version p { margin:0; }
             {%  endif %}
         </p>
         {% else %}
-        <!-- Getting rid of letters (at least on main browse page, maybe under advanced search) -->
-        <!-- <nav class="letters {% if not has_results %}no-results{% endif %}" aria-label="Page Navigation">
-            <div class="letters">
-                {% for page in pagination %}
-                <button type="submit" class="btn {% if page.is_active %}btn-primary active{% else %}btn-secondary{% endif %} {% if page.is_disabled %}disabled{% endif %}" name="letter" value="{{ page.letter }}">{{ page.letter }}</button>
-                {% endfor %}
-            </div>
-        </nav> -->
         {% endif %}
     </div>
 
@@ -194,49 +177,36 @@ div.results div.version p { margin:0; }
 
 <div class="search-results">
     <!-- RESULTS -->
-    {% if pages|length > 0 %}
+    {{ results|json_script:"results" }}
     <div class="results-table">
-        <table class="table table-striped table-hover">
+        <table class="table table-striped table-hover" id="results-table" sort="name-asc">
             <thead class="table-dark">
                 <tr>
                     <th></th>
                     <th> 
-                        <button type="submit" class="btn btn-link p-sm-0 text-light font-weight-bold text-decoration-none" color="white" name="sort" value="{% if sort == 'system__name-asc' %}system__name-desc{% else %}system__name-asc{% endif %}">
+                        <button type="button" id="name-sort" class="btn btn-link p-sm-0 text-light font-weight-bold text-decoration-none" color="white" name="sort" value="{% if sort == 'system__name-asc' %}system__name-desc{% else %}system__name-asc{% endif %}">
                             Name {% if sort == 'system__name-desc' %}▾{% elif sort == 'system__name-asc' %}▴{% endif %}
                         </button>
                     </th>
                     <th class="w-25 text-right">
-                        <button type="submit" class="btn btn-link p-sm-0 text-light font-weight-bold text-decoration-none" color="white" name="sort" value="{% if sort == 'start_year-desc' %}start_year-asc{% else %}start_year-desc{% endif %}">
+                        <button type="button" id="start-year-sort" class="btn btn-link p-sm-0 text-light font-weight-bold text-decoration-none" color="white" name="sort" value="{% if sort == 'start_year-desc' %}start_year-asc{% else %}start_year-desc{% endif %}">
                             Start Year {% if sort == 'start_year-desc' %}▾{% elif sort == 'start_year-asc' %}▴{% endif %}
                         </button>
                     </th>
                     <th class="w-25 text-right"> 
-                        <button type="submit" class="btn btn-link p-sm-0 text-light font-weight-bold text-decoration-none" color="white" name="sort" value="{% if sort == 'end_year-desc' %}end_year-asc{% else %}end_year-desc{% endif %}">
+                        <button type="button" id="end-year-sort" class="btn btn-link p-sm-0 text-light font-weight-bold text-decoration-none" color="white" name="sort" value="{% if sort == 'end_year-desc' %}end_year-asc{% else %}end_year-desc{% endif %}">
                             End Year {% if sort == 'end_year-desc' %}▾{% elif sort == 'end_year-asc' %}▴{% endif %}
                         </button>
                     </th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="table-body">
                 {% for result in results %}
                 {% include 'core/browse-card.html' %}
                 {% endfor %}
             </tbody>
         </table>
     </div>
-
-    <!-- PAGE NUMBERS -->
-    <nav class="letters">
-        <div class="letters">
-            <button type="submit" class="btn btn-secondary" name="p" value="{{ prev }}">&lt;</button>
-            {% for n in pages %}
-            <button type="submit" class="btn {% if n.is_active %}btn-primary active{% else %}btn-secondary{% endif %} {% if n.is_disabled %}disabled{% endif %}" name="p" value="{{ n.num }}">{{ n.num }}</button>
-            {% endfor %}
-            <button type="submit" class="btn btn-secondary" name="p" value="{{ next }}">&gt;</button>
-        </div>
-    </nav>
-
-    {% endif %}
 </div>
 
 </div>

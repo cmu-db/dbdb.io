@@ -1,7 +1,7 @@
 {% load static %}
 <!-- {% load thumbnail %} -->
 {% load django_bootstrap5 %}
-<!-- {% with logo=result.logo|thumbnail_url:'search' %} -->
+{% with logo=result.logo|thumbnail_url:'search' %}
 
 <tr class="hover" onclick="window.location.assign('{% url 'system' result.slug %}')" style="cursor: pointer">
     <td>
@@ -28,19 +28,4 @@
     </td>
 </tr>
 
-<!-- <a class="card-title" href="{% url 'system' result.slug %}">
-<div class="card text-center">
-    <div class="card-header">
-        {% if result.logo %}
-        <img class="card-logo card-db-logo" loading="lazy" src="{% if result.logo|lower|slice:"-3:" == "svg" %}/media/{{ result.logo }}{% else %}{{ logo }}{% endif %}" alt="{{ result.name }}" />
-        {% else %}
-        <img class="card-logo card-default-logo" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ result.name }}" />
-        {% endif %}
-    </div>
-    <div class="card-body">
-        <h5>{{ result.name }}</h5>
-        <p class="card-text"><small class="text-muted">Last updated {{ result.created }}</small></p>
-    </div>
-</div>
-</a> -->
-<!-- {% endwith %} -->
+{% endwith %}
