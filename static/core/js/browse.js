@@ -272,20 +272,6 @@ function buildYearFilter(item, selected_years) {
     }
 }
 
-{/* <div class="filter-group filter-group-range" id="start_year" data-min="{{ years.min_start_year }}" data-max="{{ years.max_start_year }}">
-    <h3>
-        Start Year
-        <span class="years">(<var for="min"></var> &ndash; <var for="max"></var>)</span>
-        <button type="button" class="btn btn-xs btn-toggle"></button>
-        <button type="submit" class="btn btn-xs btn-apply">Apply</button>
-    </h3>
-    <div class="range-container">
-        <div class="range"></div>
-    </div>
-    <input type="hidden" name="start-min" for="min" value="{{ search.start_min }}" />
-    <input type="hidden" name="start-max" for="max" value="{{ search.start_max }}" />
-</div> */}
-
 function populate_table(results) {
     const table = document.getElementById('results-table');
     const table_body = document.getElementById('table-body');
