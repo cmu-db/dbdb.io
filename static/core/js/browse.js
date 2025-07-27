@@ -1,5 +1,7 @@
 function YearRange(selector) {
 
+    console.log(selector)
+
     var self = this;
     var $elem = $(selector);
     var $btn_toggle = $elem.find('button.btn-toggle');
@@ -157,32 +159,33 @@ function buildFilterChoices(fg, select, selected_options) {
 
 function buildFilterGroup(item, selected_options=[]) {
     item.parentElement.previousElementSibling.textContent = item.textContent;
-
+    
     const filterdata = JSON.parse(document.getElementById('filterdata').textContent);
     const filtergroup = filterdata.find(fg => fg.label === item.textContent);
 
-    item.parentElement.parentElement.parentElement.id = 'filter-' + filtergroup.id
+    item.parentElement.parentElement.parentElement.id = 'filter-' + filtergroup.id;
 
     const search_row = item.parentElement.parentElement.parentElement;
     if (search_row.classList.contains('search-field-filled')) {
         const searchfield_div = item.parentElement.parentElement.nextElementSibling;
+        searchfield_div.innerHTML = '';
         searchfield_div.id = item.textContent;
-        const select = searchfield_div.children[0];
-        select.innerHTML = '';
-        select.setAttribute('name', filtergroup.id)
+        const select = document.createElement('select');
+        select.setAttribute('name', filtergroup.id);
         select.setAttribute('multiple', '');
         select.classList.add('form-select');
 
         buildFilterChoices(filtergroup, select, selected_options);
 
+        searchfield_div.appendChild(select);
     } else {
         search_row.classList.add('search-field-filled');
         const searchfield_div = document.createElement('div');
         searchfield_div.className = 'col filter-group';
         searchfield_div.id = item.textContent;
         const select = document.createElement('select');
-        select.setAttribute('name', filtergroup.id)
-        select.setAttribute('multiple', '')
+        select.setAttribute('name', filtergroup.id);
+        select.setAttribute('multiple', '');
         select.classList.add('form-select');
 
         buildFilterChoices(filtergroup, select, selected_options);
@@ -192,8 +195,98 @@ function buildFilterGroup(item, selected_options=[]) {
     }
 }
 
+function buildYearSlider(item, searchfield_div, selected_years={}) {
+    const years = JSON.parse(document.getElementById('years').textContent);
+
+    searchfield_div.id = item.textContent;
+    if (item.textContent === 'Start Year') {
+        min_year = years.min_start_year;
+        max_year = years.max_start_year;
+        search_min = selected_years['start-min'] ? selected_years['start-min'] : years.min_start_year;
+        search_max = selected_years['start-max'] ? selected_years['start-max'] : years.max_start_year;
+    } else {
+        min_year = years.min_end_year;
+        max_year = years.max_end_year;
+        search_min = selected_years['end-min'] ? selected_years['end-min'] : years.min_end_year;
+        search_max = selected_years['end-max'] ? selected_years['end-max'] : years.max_end_year;
+    }
+
+    searchfield_div.setAttribute('data-min', min_year);
+    searchfield_div.setAttribute('data-max', max_year);
+    
+    const h3 = document.createElement('h3');
+
+    const span = document.createElement('span');
+    span.className = 'years';
+    const min = document.createElement('var');
+    min.setAttribute('for', 'min');
+    const max = document.createElement('var');
+    max.setAttribute('for', 'max');
+    span.append('(', min, ' - ', max, ')');
+
+    h3.appendChild(span);
+
+    const range_container_div = document.createElement('div');
+    range_container_div.className = 'range-container';
+    const range_div = document.createElement('div');
+    range_div.className = 'range';
+    range_container_div.appendChild(range_div);
+
+    const input_min = document.createElement('input');
+    input_min.setAttribute('type', 'hidden');
+    input_min.setAttribute('name', `${item.textContent.split(' ')[0].toLowerCase()}-min`);
+    input_min.setAttribute('for', 'min');
+    input_min.setAttribute('value', search_min);
+
+    const input_max = document.createElement('input');
+    input_max.setAttribute('type', 'hidden');
+    input_max.setAttribute('name', `${item.textContent.split(' ')[0].toLowerCase()}-max`);
+    input_max.setAttribute('for', 'max');
+    input_max.setAttribute('value', search_max);
+
+    searchfield_div.appendChild(h3);
+    searchfield_div.appendChild(range_container_div);
+    searchfield_div.appendChild(input_min);
+    searchfield_div.appendChild(input_max);
+
+    new YearRange(`#${item.textContent.replace(/ /g, '\\ ')}`);
+}
+
+function buildYearFilter(item, selected_years) {
+    item.parentElement.previousElementSibling.textContent = item.textContent;
+    item.parentElement.parentElement.parentElement.id = 'filter-' + item.textContent;
+
+    const search_row = item.parentElement.parentElement.parentElement;
+    if (search_row.classList.contains('search-field-filled')) {
+        const searchfield_div = item.parentElement.parentElement.nextElementSibling;
+        searchfield_div.innerHTML = '';
+
+        buildYearSlider(item, searchfield_div, selected_years)
+    } else {
+        search_row.classList.add('search-field-filled');
+        const searchfield_div = document.createElement('div');
+        searchfield_div.className = 'col filter-group filter-group-range';
+
+        item.parentElement.parentElement.insertAdjacentElement('afterend', searchfield_div);
+        buildYearSlider(item, searchfield_div, selected_years);
+    }
+}
+
+{/* <div class="filter-group filter-group-range" id="start_year" data-min="{{ years.min_start_year }}" data-max="{{ years.max_start_year }}">
+    <h3>
+        Start Year
+        <span class="years">(<var for="min"></var> &ndash; <var for="max"></var>)</span>
+        <button type="button" class="btn btn-xs btn-toggle"></button>
+        <button type="submit" class="btn btn-xs btn-apply">Apply</button>
+    </h3>
+    <div class="range-container">
+        <div class="range"></div>
+    </div>
+    <input type="hidden" name="start-min" for="min" value="{{ search.start_min }}" />
+    <input type="hidden" name="start-max" for="max" value="{{ search.start_max }}" />
+</div> */}
+
 function populate_table(results) {
-    console.log(results)
     const table = document.getElementById('results-table');
     const table_body = document.getElementById('table-body');
     table_body.remove();
@@ -286,14 +379,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 filters[key] = []
             }
             filters[key].push(value)
-        }
+        } else if (key === 'start-min' || key === 'start-max') {
+            if (!filters['Start Year']) {
+                filters['Start Year'] = {}
+            }
+            filters['Start Year'][key] = value
+        } else if (key === 'end-min' || key === 'end-max') {
+            if (!filters['End Year']) {
+                filters['End Year'] = {}
+            }
+            filters['End Year'][key] = value
+        } 
     }
 
     for (const [key, values] of Object.entries(filters)) {
         add_filter_button.call(add_new_button)
         const filtergroup = filterdata.find(fg => fg.id === key);
-        const item = Array.from(document.getElementById('filter-none').children[0].children[1].children).find(li => li.textContent === filtergroup.label)
-        buildFilterGroup(item, values)
+        if (filtergroup) {
+            const item = Array.from(document.getElementById('filter-none').children[0].children[1].children).find(li => li.textContent === filtergroup.label)
+            buildFilterGroup(item, values)
+        } else {
+            const item = Array.from(document.getElementById('filter-none').children[0].children[1].children).find(li => li.textContent === key)
+            buildYearFilter(item, values)
+        }
 
         add_new_button = document.getElementById('add_field')
     }
@@ -307,9 +415,12 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('click', function(e) {
     if (e.target.matches('.dropdown-item')) {
         item = e.target;
-        // const value = item.getAttribute('data-value');
         if (!document.getElementById(item.textContent)) {
-            buildFilterGroup(item)
+            if (item.textContent === 'Start Year' || item.textContent === 'End Year') {
+                buildYearFilter(item)
+            } else {
+                buildFilterGroup(item)
+            }
         }
     } else if (e.target.matches('.remove')) {
         item = e.target;
@@ -398,23 +509,19 @@ document.getElementById('end-year-sort').addEventListener('click', function() {
 });
 
 $(document).ready(function () {
-
-    // new YearRange('#start_year');
-    // new YearRange('#end_year');
-
     var $form = $('form.main-search');
 
     $('.filters').on('click', 'li.see-more a', function(){
-        // var $clear = $('a.clear', this);
-        // var $filtergroup = $(this);
-        // var $seemore = $('li.see-more', this);
+        var $clear = $('a.clear', this);
+        var $filtergroup = $(this);
+        var $seemore = $('li.see-more', this);
 
-        // $clear.click(function(){
-        //     $filtergroup.find(':checked').prop('checked', false);
-        //     $form.submit();
-        // });
+        $clear.click(function(){
+            $filtergroup.find(':checked').prop('checked', false);
+            $form.submit();
+        });
 
-        // $seemore.find('a').click(function(){
+        $seemore.find('a').click(function(){
         var $a = $(this);
         var $ul = $a.closest('ul');
         var $more = $ul.find('.more');
@@ -429,7 +536,7 @@ $(document).ready(function () {
             $a.text('Show less');
             $a.addClass('active');
         }
-        // });
+        });
     });
 
     $('.filter-group :checkbox').change(function(){

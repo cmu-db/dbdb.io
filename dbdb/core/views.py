@@ -1,5 +1,6 @@
 # stdlib imports
 from functools import reduce
+from operator import and_, or_
 import collections
 import datetime
 from dataclasses import dataclass, asdict
@@ -516,7 +517,7 @@ class BrowseView(View):
     ## DEF
 
 
-    def do_search(self, request, sqs):
+    def do_search(self, request, sqs, search_op):
         has_search = False
 
         countries_map = dict(countries)
@@ -618,6 +619,8 @@ class BrowseView(View):
                 # .order_by("-rank") \
                 # .values('system_id', 'rank')
             sqs = sqs.filter(system_id__in=[x['system_id'] for x in matches])
+        
+        sqs_filters = []
 
         # apply year limits
         if search_start_year.isdigit():
@@ -645,7 +648,8 @@ class BrowseView(View):
 
         # search - country
         if search_country:
-            sqs = sqs.filter(countries__in=search_country)
+            sqs_filters.append(Q(countries__in=search_country))
+            # sqs = sqs.filter(countries__in=search_country)
             # for c in search_country:
             #     # TODO: Need a way to propagate error messages for invalid countries
             #     if c in countries_map:
@@ -654,7 +658,8 @@ class BrowseView(View):
 
         # search - compatible
         if search_compatible:
-            sqs = sqs.filter(meta__compatible_with__slug__in=search_compatible)
+            sqs_filters.append(Q(meta__compatible_with__slug__in=search_compatible))
+            # sqs = sqs.filter(meta__compatible_with__slug__in=search_compatible)
             systems = self.slug_to_system(search_compatible)
             search_mapping['compatible'] = systems.values()
             # search_badges.extend( SearchBadge(request.GET, 'compatible', 'Compatible With', k, v) for k,v in systems.items() )
@@ -662,7 +667,8 @@ class BrowseView(View):
 
         # search - derived from
         if search_derived:
-            sqs = sqs.filter(meta__derived_from__slug__in=search_derived)
+            sqs_filters.append(Q(meta__derived_from__slug__in=search_derived))
+            # sqs = sqs.filter(meta__derived_from__slug__in=search_derived)
             systems = self.slug_to_system(search_derived)
             search_mapping['derived'] = systems.values()
             # search_badges.extend( SearchBadge(request.GET, 'derived', 'Derived From', k, v) for k,v in systems.items() )
@@ -670,7 +676,8 @@ class BrowseView(View):
 
         # search - embedded
         if search_embeds:
-            sqs = sqs.filter(meta__embedded__slug__in=search_embeds)
+            sqs_filters.append(Q(meta__embedded__slug__in=search_embeds))
+            # sqs = sqs.filter(meta__embedded__slug__in=search_embeds)
             systems = self.slug_to_system(search_embeds)
             search_mapping['embeds'] = systems.values()
             # search_badges.extend( SearchBadge(request.GET, 'embeds', 'Embeds / Uses', k, v) for k,v in systems.items() )
@@ -678,7 +685,8 @@ class BrowseView(View):
 
         # search - inspired by
         if search_inspired:
-            sqs = sqs.filter(meta__inspired_by__slug__in=search_inspired)
+            sqs_filters.append(Q(meta__inspired_by__slug__in=search_inspired))
+            # sqs = sqs.filter(meta__inspired_by__slug__in=search_inspired)
             systems = self.slug_to_system(search_inspired)
             search_mapping['inspired'] = systems.values()
             # search_badges.extend( SearchBadge(request.GET, 'inspired', 'Inspired By', k, v) for k,v in systems.items() )
@@ -686,50 +694,57 @@ class BrowseView(View):
 
         # search - operating systems
         if search_os:
-            sqs = sqs.filter(meta__oses__slug__in=search_os)
-            oses = OperatingSystem.objects.filter(slug__in=search_os)
+            sqs_filters.append(Q(meta__oses__slug__in=search_os))
+            # sqs = sqs.filter(meta__oses__slug__in=search_os)
+            # oses = OperatingSystem.objects.filter(slug__in=search_os)
             # search_badges.extend( SearchBadge(request.GET, 'os', 'Operating System', os.slug, os.name) for os in oses )
             pass
 
         # search - programming languages
         if search_programming:
-            sqs = sqs.filter(meta__written_in__slug__in=search_programming)
-            langs = ProgrammingLanguage.objects.filter(slug__in=search_programming)
+            sqs_filters.append(Q(meta__written_in__slug__in=search_programming))
+            # sqs = sqs.filter(meta__written_in__slug__in=search_programming)
+            # langs = ProgrammingLanguage.objects.filter(slug__in=search_programming)
             # search_badges.extend( SearchBadge(request.GET, 'programming', 'Programming Languages', lang.slug, lang.name) for lang in langs )
             pass
 
         # search - supported languages
         if search_supported:
-            sqs = sqs.filter(meta__supported_languages__slug__in=search_supported)
-            langs = ProgrammingLanguage.objects.filter(slug__in=search_supported)
+            sqs_filters.append(Q(meta__supported_languages__slug__in=search_supported))
+            # sqs = sqs.filter(meta__supported_languages__slug__in=search_supported)
+            # langs = ProgrammingLanguage.objects.filter(slug__in=search_supported)
             # search_badges.extend( SearchBadge(request.GET, 'supported', 'Supported Languages', lang.slug, lang.name) for lang in langs )
             pass
 
         # search - tags
         if search_tag:
-            sqs = sqs.filter(tags__slug__in=search_tag)
-            tags = Tag.objects.filter(slug__in=search_tag)
+            sqs_filters.append(Q(tags__slug__in=search_tag))
+            # sqs = sqs.filter(tags__slug__in=search_tag)
+            # tags = Tag.objects.filter(slug__in=search_tag)
             # search_badges.extend( SearchBadge(request.GET, 'type', 'Tags', t.slug, t.name) for t in tags )
             pass
 
         # search - project types
         if search_type:
-            sqs = sqs.filter(project_types__slug__in=search_type)
-            types = ProjectType.objects.filter(slug__in=search_type)
+            sqs_filters.append(Q(project_types__slug__in=search_type))
+            # sqs = sqs.filter(project_types__slug__in=search_type)
+            # types = ProjectType.objects.filter(slug__in=search_type)
             # search_badges.extend( SearchBadge(request.GET, 'type', 'Project Types', type.slug, type.name) for type in types )
             pass
 
         # search - licenses
         if search_license:
-            sqs = sqs.filter(meta__licenses__slug__in=search_license)
-            licenses = License.objects.filter(slug__in=search_license)
+            sqs_filters.append(Q(meta__licenses__slug__in=search_license))
+            # sqs = sqs.filter(meta__licenses__slug__in=search_license)
+            # licenses = License.objects.filter(slug__in=search_license)
             # search_badges.extend( SearchBadge(request.GET, 'license', 'Licenses', license.slug, license.name) for license in licenses )
             pass
 
         # search - suffixes
         if search_suffix:
             for suffix in search_suffix:
-                sqs = sqs.filter(system__name__icontains=suffix)
+                sqs_filters.append(Q(system__name__icontains=suffix))
+                # sqs = sqs.filter(system__name__icontains=suffix)
             # search_badges.extend(SearchBadge(request.GET, 'suffix', 'Suffix', suffix, suffix) for suffix in search_suffix)
             pass
 
@@ -745,12 +760,17 @@ class BrowseView(View):
             # This sucks but we have to do a separate search to get all the current systems
             # that have these features and then use that list to filter the main search query
             feature_systems_versions = SystemFeature.objects.filter(options__id__in=feature_option_ids).filter(version__is_current=True).values_list("version__id")
-            sqs = sqs.filter(id__in=feature_systems_versions)
+            sqs_filters.append(Q(id__in=feature_systems_versions))
 
             # search_badges.extend(
             #     SearchBadge(request.GET, *row)
             #     for row in FeatureOption.objects.filter(id__in=feature_option_ids).values_list('feature__slug','feature__label','slug','value')
             # )
+
+        if any(v for k, v in search_mapping.items() if k not in {'start_year', 'start_min', 'start_max', 'end_year', 'end_min', 'end_max'}):
+            op = and_ if search_op == 'and' else or_
+            query = reduce(op, sqs_filters)
+            sqs = sqs.filter(query)
 
         return (sqs, search_mapping)
 
@@ -768,13 +788,16 @@ class BrowseView(View):
 
         # Search Query
         search_q = request.GET.get('q', '').strip()
+
+        # Search Operator
+        search_op = request.GET.get('search_op', 'or').strip()
         
         # Perform the search and get back the versions along with a
         # mapping with the search keys
         search_keys = { }
         results = SystemVersion.objects.filter(is_current=True)
 
-        results, search_keys = self.do_search(request, results)
+        results, search_keys = self.do_search(request, results, search_op)
 
         # Only get the columns we need for the browse page
         results = results.annotate(name=F('system__name'), 
@@ -820,6 +843,8 @@ class BrowseView(View):
         years.update(years_start)
         years.update(years_end)
 
+        print(search_keys)
+
         return render(request, self.template_name, {
             'activate': 'browse', # NAV-LINKS
             'filtergroups': self.build_filter_groups(request.GET),
@@ -831,7 +856,8 @@ class BrowseView(View):
             'years': years,
             'has_search': len(search_keys) != 0,
             'search': search_keys,
-            'suggestion': suggestion
+            'suggestion': suggestion,
+            'search_op': search_op
         })
 
     def handle_old_urls(self, request):
