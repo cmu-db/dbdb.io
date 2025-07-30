@@ -843,8 +843,6 @@ class BrowseView(View):
         years.update(years_start)
         years.update(years_end)
 
-        print(search_keys)
-
         return render(request, self.template_name, {
             'activate': 'browse', # NAV-LINKS
             'filtergroups': self.build_filter_groups(request.GET),

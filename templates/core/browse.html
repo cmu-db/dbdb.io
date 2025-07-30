@@ -38,6 +38,13 @@ div.results div.version h3 { font-size:20px; margin:0; }
 div.results div.version cite { color:#006621; font-size:13px; font-style:normal; }
 div.results div.version p { margin:0; }
 
+#advanced-search-button { color: #767676; font-size: 18px; text-decoration: none; }
+#advanced-search-button:hover { color: #9ec7e9; text-decoration: underline; }
+
+.bg-active { background-color: #E9ECEF; }
+#filter-container { transition: background-color 0.5s ease; }
+#filter-container.no-transition { transition: none !important; }
+
 .btn-secondary.active { background-color: #6eabdb; }
 .btn-secondary:hover { background-color: #9ec7e9; }
 .table-hover tbody tr:hover { background-color: #cee4f7; }
@@ -57,75 +64,11 @@ div.results div.version p { margin:0; }
 
 
 {% block content %}
-<div class="search-results">
-<form id="mainsearch" class="main main-search">
 
-    <div class="search-results">
-        
-        <div class="d-flex align-items-center gap-5 m-lg-5">
-            <div class="input-group input-group-lg m-0">
-                <input type="text" class="form-control" placeholder="Search name, keywords, features..." aria-label="Search name, keywords, features..." aria-describedby="search" id="mainsearch-q" name="q" value="{{ query }}">
-                <span class="input-group-btn">
-                    <button class="btn btn-default" type="submit" id="search">Search</button>
-                </span>
-            </div>
-            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filter" id="advanced-search-button">
-                Advanced Search
-            </button>
-        </div>
+{{ filtergroupsjson|json_script:"filterdata" }}
+{{ years|json_script:"years" }}
 
-        <div class="collapse filters p-4" id="filter">            
-            <div class="d-flex mb-3">
-                <div class="form-check me-3">
-                    <input class="form-check-input" type="radio" name="search_op" id="match-any" value="or" {% if search_op == 'or' %} checked {% endif %}>
-                    <label class="form-check-label" for="match-any">Match Any</label>
-                </div>
-                <div class="form-check me-3">
-                    <input class="form-check-input" type="radio" name="search_op" id="match-all" value="and" {% if search_op == 'and' %} checked {% endif %}>
-                    <label class="form-check-label" for="match-any">Match All</label>
-                </div>
-            </div>
-
-            <h2>Search Fields</h2>
-            
-            <div class="filter-group row mb-3" hidden id="template">
-                <div class="dropdown col-3">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Search Fields
-                    </button>
-                    <ul class="dropdown-menu" style="max-height: 200px; overflow-y: auto;">
-                        <li class="dropdown-item">Start Year</li>
-                        <li class="dropdown-item">End Year</li>
-                        {% for filtergroup in filtergroups %}
-                            <li class="dropdown-item">{{ filtergroup.label }}</li>
-                        {% endfor %}
-                    </ul>
-                    <a href="javascript:;" class="remove" title="remove filter"><i class="fas fa-times"></i> remove </a>
-                </div>
-            </div>
-
-            {{ filtergroupsjson|json_script:"filterdata" }}
-            {{ years|json_script:"years" }}
-
-            <button class="btn btn-secondary mb-3" type="button" id="add_field">
-                <div class="d-inline-flex justify-content-center align-items-center rounded-circle border" style="width:20px;height:20px;">
-                    <i class="fas fa-plus"></i>
-                </div>
-                Add Field
-            </button>
-
-            <div class="d-flex">
-                <button class="d-block btn btn-primary me-3" type="submit" id="advanced-search-submit">
-                    Search
-                </button>
-
-                <button class="d-block btn btn-primary" type="submit" id="advanced-search-clear">
-                    Clear Search
-                </button>
-            </div>
-        </div>
-
-        {% if has_search %}
+{% if has_search %}
         <p class="results-info">
             {% if results %}
             Found {{ num_results|intcomma }} database{% if num_results > 1 %}s{% endif %}
@@ -142,8 +85,75 @@ div.results div.version p { margin:0; }
                 </BR>Did you mean <a href="{% url 'system' suggestion.slug %}">{{ suggestion.name }}</a>?
             {%  endif %}
         </p>
-        {% else %}
         {% endif %}
+
+<div class="search-results">
+<form id="mainsearch" class="main main-search">
+
+    <div class="search-results">
+        
+        <div class="d-flex flex-column justify-content-center align-items-center mt-lg-5 ms-lg-5 me-lg-5 pb-1">
+            <div class="input-group input-group-lg m-0 w-75">
+                <input type="text" class="form-control" placeholder="Search name, keywords, features..." aria-label="Search name, keywords, features..." aria-describedby="search" id="mainsearch-q" name="q" value="{{ query }}">
+                <button class="btn btn-default" type="submit" id="search">Search</button>
+            </div>
+        </div>
+
+        <div class="d-flex flex-column justify-content-center align-items-center ms-lg-5 me-lg-5 pb-5">
+            <div class="w-75 rounded" id="filter-container">
+                <button class="btn btn-link btn-sm mt-2 align-self-start ps-4" type="button" data-bs-toggle="collapse" data-bs-target="#filter" id="advanced-search-button">
+                    Advanced Search
+                </button>
+                <div class="filters collapse m-0 ps-4 pe-4 pb-4" id="filter">
+                    <div class="d-flex align-items-center mb-3">
+                        <button class="btn btn-secondary me-3" type="button" id="add_field">
+                            <div class="d-inline-flex justify-content-center align-items-center rounded-circle border" style="width:20px;height:20px;">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            Add Field
+                        </button>
+
+                        <div class="form-check me-3">
+                            <input class="form-check-input" type="radio" name="search_op" id="match-any" value="or" {% if search_op == 'or' %} checked {% endif %}>
+                            <label class="form-check-label" for="match-any">Match Any</label>
+                        </div>
+
+                        <div class="form-check me-3">
+                            <input class="form-check-input" type="radio" name="search_op" id="match-all" value="and" {% if search_op == 'and' %} checked {% endif %}>
+                            <label class="form-check-label" for="match-any">Match All</label>
+                        </div>
+                    </div>
+
+                    <h2 class="pb-3">Search Fields</h2>
+                    
+                    <div class="filter-group row mb-3" hidden id="template">
+                        <div class="dropdown col-4">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Search Fields
+                            </button>
+                            <ul class="dropdown-menu" style="max-height: 200px; overflow-y: auto;">
+                                <li class="dropdown-item">Start Year</li>
+                                <li class="dropdown-item">End Year</li>
+                                {% for filtergroup in filtergroups %}
+                                    <li class="dropdown-item">{{ filtergroup.label }}</li>
+                                {% endfor %}
+                            </ul>
+                            <a href="javascript:;" class="remove" title="remove filter"><i class="fas fa-times"></i> remove </a>
+                        </div>
+                    </div>
+
+                    <div class="d-flex" id="advanced-search-btn-container">
+                        <button class="d-block btn btn-primary me-3" type="submit" id="advanced-search-submit">
+                            Search
+                        </button>
+
+                        <button class="d-block btn btn-primary" type="submit" id="advanced-search-clear">
+                            Clear Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 </form>

@@ -136,9 +136,10 @@ function add_filter_button() {
     const template = document.getElementById('template');
     const copy = template.cloneNode(true);
     copy.hidden = false;
-    copy.id = 'filter-none'
+    copy.id = 'filter-none';
+    const button_container = document.getElementById('advanced-search-btn-container');
 
-    this.insertAdjacentElement('beforebegin', copy);
+    button_container.insertAdjacentElement('beforebegin', copy);
 }
 
 function buildFilterChoices(fg, select, selected_options) {
@@ -353,6 +354,27 @@ function populate_table(results) {
     table.appendChild(new_table);
 }
 
+const collapse = document.getElementById('filter');
+const advanced_search_button = document.getElementById('advanced-search-button');
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (collapse.classList.contains('show')) {
+    collapse.parentElement.classList.add('no-transition', 'bg-active');
+
+    void collapse.offsetWidth;
+
+    collapse.parentElement.classList.remove('no-transition');
+  }
+});
+
+advanced_search_button.addEventListener('click', () => {
+    if (advanced_search_button.classList.contains('collapsed')) {
+        collapse.parentElement.classList.remove('bg-active');
+    } else {
+        collapse.parentElement.classList.add('bg-active');
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     const filterdata = JSON.parse(document.getElementById('filterdata').textContent);
     const params = new URLSearchParams(window.location.search);
@@ -415,14 +437,14 @@ document.addEventListener('click', function(e) {
     }
 });
 
-add_new_button = document.getElementById('add_field')
-add_new_button.addEventListener('click', add_filter_button)
+add_new_button = document.getElementById('add_field');
+add_new_button.addEventListener('click', add_filter_button);
 
 document.getElementById('advanced-search-clear').addEventListener('click', function(e) {
     e.preventDefault();
     const url = window.location.origin + window.location.pathname;
     window.location.href = url;
-})
+});
 
 // Table sort events
 document.getElementById('name-sort').addEventListener('click', function() {
