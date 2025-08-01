@@ -189,7 +189,6 @@ function buildFilterGroup(item, selected_options=[]) {
             removeItems: true,
             shouldSort: false,
             duplicateItemsAllowed: false,
-            renderSelectedChoices: 'always',
             maxItemCount: -1,
         });
     } else {
@@ -212,7 +211,6 @@ function buildFilterGroup(item, selected_options=[]) {
             removeItems: true,
             shouldSort: false,
             duplicateItemsAllowed: false,
-            renderSelectedChoices: 'always',
             maxItemCount: -1,
         });
     }
