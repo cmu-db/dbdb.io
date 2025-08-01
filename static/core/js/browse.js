@@ -1,3 +1,7 @@
+console.log(getComputedStyle(document.body).getPropertyValue('--bs-breakpoint-md'));
+console.log(window.innerWidth, window.innerHeight);
+
+
 function YearRange(selector) {
 
     console.log(selector)
@@ -172,6 +176,7 @@ function buildFilterGroup(item, selected_options=[]) {
         searchfield_div.innerHTML = '';
         searchfield_div.id = item.textContent;
         const select = document.createElement('select');
+        select.id = filtergroup.id + '-choices';
         select.setAttribute('name', filtergroup.id);
         select.setAttribute('multiple', '');
         select.classList.add('form-select');
@@ -179,20 +184,37 @@ function buildFilterGroup(item, selected_options=[]) {
         buildFilterChoices(filtergroup, select, selected_options);
 
         searchfield_div.appendChild(select);
+        new Choices(select, {
+            removeItemButton: true,
+            removeItems: true,
+            shouldSort: false,
+            duplicateItemsAllowed: false,
+            renderSelectedChoices: 'always',
+            maxItemCount: -1,
+        });
     } else {
         search_row.classList.add('search-field-filled');
         const searchfield_div = document.createElement('div');
         searchfield_div.className = 'col filter-group';
         searchfield_div.id = item.textContent;
         const select = document.createElement('select');
+        select.id = filtergroup.id + '-choices';
         select.setAttribute('name', filtergroup.id);
         select.setAttribute('multiple', '');
-        select.classList.add('form-select');
+        select.classList.add('choices-multiple');
 
         buildFilterChoices(filtergroup, select, selected_options);
 
         searchfield_div.appendChild(select);
         item.parentElement.parentElement.insertAdjacentElement('afterend', searchfield_div);
+        new Choices(select, {
+            removeItemButton: true,
+            removeItems: true,
+            shouldSort: false,
+            duplicateItemsAllowed: false,
+            renderSelectedChoices: 'always',
+            maxItemCount: -1,
+        });
     }
 }
 
@@ -356,9 +378,12 @@ function populate_table(results) {
 
 const collapse = document.getElementById('filter');
 const advanced_search_button = document.getElementById('advanced-search-button');
+const search_button = document.getElementById('search');
 
 window.addEventListener('DOMContentLoaded', () => {
   if (collapse.classList.contains('show')) {
+    search_button.setAttribute('hidden', '')
+
     collapse.parentElement.classList.add('no-transition', 'bg-active');
 
     void collapse.offsetWidth;
@@ -370,8 +395,10 @@ window.addEventListener('DOMContentLoaded', () => {
 advanced_search_button.addEventListener('click', () => {
     if (advanced_search_button.classList.contains('collapsed')) {
         collapse.parentElement.classList.remove('bg-active');
+        search_button.removeAttribute('hidden')
     } else {
         collapse.parentElement.classList.add('bg-active');
+        search_button.setAttribute('hidden', '')
     }
 });
 
@@ -442,21 +469,34 @@ add_new_button.addEventListener('click', add_filter_button);
 
 document.getElementById('advanced-search-clear').addEventListener('click', function(e) {
     e.preventDefault();
-    const url = window.location.origin + window.location.pathname;
-    window.location.href = url;
+    document.querySelectorAll('.filter-group').forEach(el => {
+        if (el.id !== 'template') {
+            el.remove()
+        }
+    })
 });
 
 // Table sort events
+function updateSortArrows() {
+    document.querySelectorAll('.sort-arrow').forEach(el => {
+        el.style.opacity = '0.2';
+    })
+}
+
 document.getElementById('name-sort').addEventListener('click', function() {
     const results = JSON.parse(document.getElementById('results').textContent);
     const table = document.getElementById('results-table');
 
+    updateSortArrows();
+
     if (table.sort === 'name-asc') {
         results.sort((a, b) => b.name.localeCompare(a.name));
         table.sort = 'name-desc';
+        document.getElementById('name-dec-arrow').style.opacity = '1';
     } else {
         results.sort((a, b) => a.name.localeCompare(b.name));
         table.sort = 'name-asc';
+        document.getElementById('name-asc-arrow').style.opacity = '1';
     }
 
     populate_table(results)
@@ -465,6 +505,8 @@ document.getElementById('name-sort').addEventListener('click', function() {
 document.getElementById('start-year-sort').addEventListener('click', function() {
     const results = JSON.parse(document.getElementById('results').textContent);
     const table = document.getElementById('results-table');
+
+    updateSortArrows();
 
     if (table.sort === 'start_year-desc') {
         results.sort((a, b) => {
@@ -475,6 +517,7 @@ document.getElementById('start-year-sort').addEventListener('click', function() 
             return a.start_year - b.start_year;
         });
         table.sort = 'start_year-asc';
+        document.getElementById('start-asc-arrow').style.opacity = '1';
     } else {
         results.sort((a, b) => {
             if (a.start_year == null && b.start_year == null) return 0;
@@ -484,6 +527,7 @@ document.getElementById('start-year-sort').addEventListener('click', function() 
             return b.start_year - a.start_year;
         });
         table.sort = 'start_year-desc';
+        document.getElementById('start-dec-arrow').style.opacity = '1';
     }
 
     populate_table(results)
@@ -492,6 +536,8 @@ document.getElementById('start-year-sort').addEventListener('click', function() 
 document.getElementById('end-year-sort').addEventListener('click', function() {
     const results = JSON.parse(document.getElementById('results').textContent);
     const table = document.getElementById('results-table');
+
+    updateSortArrows();
 
     if (table.sort === 'end_year-desc') {
         results.sort((a, b) => {
@@ -502,6 +548,7 @@ document.getElementById('end-year-sort').addEventListener('click', function() {
             return a.end_year - b.end_year;
         });
         table.sort = 'end_year-asc';
+        document.getElementById('end-asc-arrow').style.opacity = '1';
     } else {
         results.sort((a, b) => {
             if (a.end_year == null && b.end_year == null) return 0;
@@ -511,6 +558,7 @@ document.getElementById('end-year-sort').addEventListener('click', function() {
             return b.end_year - a.end_year;
         });
         table.sort = 'end_year-desc';
+        document.getElementById('end-dec-arrow').style.opacity = '1';
     }
 
     populate_table(results)
@@ -562,6 +610,6 @@ $("#mainsearch").find('input[name="q"]').autoComplete({
     minChars: 3,
     source: function(term, response) {
         $.getJSON('/search/autocomplete/', { q: term }, function(data) { response(data); });
-    }
+    },
+    onSelect: function(e, term, item) { window.location.href = "/db/" + convertToSlug(term); }
 });
-

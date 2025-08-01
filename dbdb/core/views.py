@@ -767,7 +767,7 @@ class BrowseView(View):
             #     for row in FeatureOption.objects.filter(id__in=feature_option_ids).values_list('feature__slug','feature__label','slug','value')
             # )
 
-        if any(v for k, v in search_mapping.items() if k not in {'start_year', 'start_min', 'start_max', 'end_year', 'end_min', 'end_max'}):
+        if any(v for k, v in search_mapping.items() if k not in {'query', 'start_year', 'start_min', 'start_max', 'end_year', 'end_min', 'end_max'}):
             op = and_ if search_op == 'and' else or_
             query = reduce(op, sqs_filters)
             sqs = sqs.filter(query)
