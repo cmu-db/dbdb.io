@@ -216,13 +216,13 @@ function buildYearSlider(item, searchfield_div, selected_years={}) {
     if (item.textContent === 'Start Year') {
         min_year = years.min_start_year;
         max_year = years.max_start_year;
-        search_min = selected_years['start-min'] ? selected_years['start-min'] : years.min_start_year;
-        search_max = selected_years['start-max'] ? selected_years['start-max'] : years.max_start_year;
+        search_min = /^\d+$/.test(selected_years['start-min']) ? selected_years['start-min'] : years.min_start_year;
+        search_max = /^\d+$/.test(selected_years['start-max']) ? selected_years['start-max'] : years.max_start_year;
     } else {
         min_year = years.min_end_year;
         max_year = years.max_end_year;
-        search_min = selected_years['end-min'] ? selected_years['end-min'] : years.min_end_year;
-        search_max = selected_years['end-max'] ? selected_years['end-max'] : years.max_end_year;
+        search_min = /^\d+$/.test(selected_years['end-min']) ? selected_years['end-min'] : years.min_end_year;
+        search_max = /^\d+$/.test(selected_years['end-max']) ? selected_years['end-max'] : years.max_end_year;
     }
 
     searchfield_div.setAttribute('data-min', min_year);

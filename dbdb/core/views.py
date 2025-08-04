@@ -624,7 +624,6 @@ class BrowseView(View):
         
         sqs_filters = []
 
-        year_parts = []
         # apply year limits
         if search_start_year.isdigit():
             sqs = sqs.filter(start_year=int(search_start_year))
@@ -634,12 +633,15 @@ class BrowseView(View):
         if search_start_min.isdigit():
             sqs = sqs.filter(start_year__gte=int(search_start_min))
 
-            title += f' that started {search_start_min}'
+            title += f' that started in {search_start_min}'
             pass
         if search_start_max.isdigit():
             sqs = sqs.filter(start_year__lte=int(search_start_max))
 
-            title += f'-{search_start_max}'
+            if search_start_min.isdigit():
+                title += f'-{search_start_max}'
+            else:
+                title += f' that started before {search_start_max}'
             pass
         if search_end_year.isdigit():
             sqs = sqs.filter(end_year=int(search_end_year))
@@ -649,15 +651,18 @@ class BrowseView(View):
         if search_end_min.isdigit():
             sqs = sqs.filter(end_year__gte=int(search_end_min))
 
-            if search_start_min and search_start_max:
-                title += f' and ended {search_end_min}'
+            if search_start_min or search_start_max:
+                title += f' and ended in {search_end_min}'
             else:
-                title += f' that ended {search_end_min}'
+                title += f' that ended in {search_end_min}'
             pass
         if search_end_max.isdigit():
             sqs = sqs.filter(end_year__lte=int(search_end_max))
 
-            title += f'-{search_end_max}'
+            if search_end_min.isdigit():
+                title += f'-{search_end_max}'
+            else:
+                title += f' that ended before {search_end_max}'
             pass
         
         search_parts = []
@@ -665,9 +670,10 @@ class BrowseView(View):
         if search_country:
             sqs_filters.append(Q(countries__in=search_country))
 
-            country_names = [countries_map[c] for c in search_country]
+            country_names = [(countries_map.get(c) if countries_map.get(c) else '') for c in search_country]
             search_countries = ' or '.join(country_names) if len(country_names) < 3 else f"{', '.join(country_names[:-1])}, or {country_names[-1]}"
-            search_parts.append(' from ' + search_countries)
+            if search_countries:
+                search_parts.append(' from ' + search_countries)
             # sqs = sqs.filter(countries__in=search_country)
             # for c in search_country:
             #     # TODO: Need a way to propagate error messages for invalid countries
@@ -687,7 +693,8 @@ class BrowseView(View):
             
             system_names = [str(e) for e in search_mapping['compatible']]
             search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
-            search_parts.append(' compatible with ' + search_compatiblewith)
+            if search_compatiblewith:
+                search_parts.append(' compatible with ' + search_compatiblewith)
             pass
 
         # search - derived from
@@ -700,7 +707,8 @@ class BrowseView(View):
 
             system_names = [str(e) for e in search_mapping['derived']]
             search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
-            search_parts.append(' derived from ' + search_compatiblewith)
+            if search_compatiblewith:
+                search_parts.append(' derived from ' + search_compatiblewith)
             pass
 
         # search - embedded
@@ -713,7 +721,8 @@ class BrowseView(View):
 
             system_names = [str(e) for e in search_mapping['embeds']]
             search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
-            search_parts.append(' that use ' + search_compatiblewith)
+            if search_compatiblewith:
+                search_parts.append(' that use ' + search_compatiblewith)
             pass
 
         # search - inspired by
@@ -726,7 +735,8 @@ class BrowseView(View):
 
             system_names = [str(e) for e in search_mapping['inspired']]
             search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
-            search_parts.append(' inspired by ' + search_compatiblewith)
+            if search_compatiblewith:
+                search_parts.append(' inspired by ' + search_compatiblewith)
             pass
 
         # search - operating systems
@@ -738,7 +748,8 @@ class BrowseView(View):
 
             os_names = [str(e) for e in oses]
             search_oses = ' or '.join(os_names) if len(os_names) < 3 else f"{', '.join(os_names[:-1])}, or {os_names[-1]}"
-            search_parts.append(' available for ' + search_oses)
+            if search_oses:
+                search_parts.append(' available for ' + search_oses)
             pass
 
         # search - programming languages
@@ -750,7 +761,8 @@ class BrowseView(View):
             
             languages = [str(e) for e in langs]
             search_langs = ' or '.join(languages) if len(languages) < 3 else f"{', '.join(languages[:-1])}, or {languages[-1]}"
-            search_parts.append(' written in ' + search_langs)
+            if search_langs:
+                search_parts.append(' written in ' + search_langs)
             pass
 
         # search - supported languages
@@ -762,7 +774,8 @@ class BrowseView(View):
             
             languages = [str(e) for e in langs]
             search_langs = ' or '.join(languages) if len(languages) < 3 else f"{', '.join(languages[:-1])}, or {languages[-1]}"
-            search_parts.append(' supporting ' + search_langs)
+            if search_langs:
+                search_parts.append(' supporting ' + search_langs)
             pass
 
         # search - tags
@@ -774,7 +787,8 @@ class BrowseView(View):
 
             tag_names = [str(e) for e in tags]
             search_tags = ' or '.join(tag_names) if len(tag_names) < 3 else f"{', '.join(tag_names[:-1])}, or {tag_names[-1]}"
-            search_parts.append(' tagged with ' + search_tags)
+            if search_tags:
+                search_parts.append(' tagged with ' + search_tags)
             pass
 
         # search - project types
@@ -786,7 +800,8 @@ class BrowseView(View):
 
             type_names = [str(e) for e in types]
             search_types = ' or '.join(type_names) if len(type_names) < 3 else f"{', '.join(type_names[:-1])}, or {type_names[-1]}"
-            search_parts.append(' classified as ' + search_types + ' projects ')
+            if search_types:
+                search_parts.append(' classified as ' + search_types + ' projects ')
             pass
 
         # search - licenses
@@ -798,7 +813,8 @@ class BrowseView(View):
 
             license_names = [str(e) for e in licenses]
             search_licenses = ' or '.join(license_names) if len(license_names) < 3 else f"{', '.join(license_names[:-1])}, or {license_names[-1]}"
-            search_parts.append(' licensed under ' + search_licenses)
+            if search_licenses:
+                search_parts.append(' licensed under ' + search_licenses)
             pass
 
         # search - suffixes
@@ -849,7 +865,9 @@ class BrowseView(View):
         
         title += f' {search_op} '.join(query_parts)
 
-        if len(title) > 60:
+        if title == 'Databases':
+            title = 'Browse'
+        elif len(title) > 60:
             title = title[:60] + '...'
 
         return (sqs, search_mapping, title)
