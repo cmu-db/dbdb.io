@@ -590,7 +590,9 @@ class BrowseView(View):
         }
 
         if not any(search_mapping.values()) and not any(search_fg):
-            return (sqs, { })
+            return (sqs, { }, 'Browse')
+
+        title = 'Databases'
 
         # search_badges = []
 
@@ -622,6 +624,7 @@ class BrowseView(View):
         
         sqs_filters = []
 
+        year_parts = []
         # apply year limits
         if search_start_year.isdigit():
             sqs = sqs.filter(start_year=int(search_start_year))
@@ -630,9 +633,13 @@ class BrowseView(View):
             pass
         if search_start_min.isdigit():
             sqs = sqs.filter(start_year__gte=int(search_start_min))
+
+            title += f' that started {search_start_min}'
             pass
         if search_start_max.isdigit():
             sqs = sqs.filter(start_year__lte=int(search_start_max))
+
+            title += f'-{search_start_max}'
             pass
         if search_end_year.isdigit():
             sqs = sqs.filter(end_year=int(search_end_year))
@@ -641,14 +648,26 @@ class BrowseView(View):
             pass
         if search_end_min.isdigit():
             sqs = sqs.filter(end_year__gte=int(search_end_min))
+
+            if search_start_min and search_start_max:
+                title += f' and ended {search_end_min}'
+            else:
+                title += f' that ended {search_end_min}'
             pass
         if search_end_max.isdigit():
             sqs = sqs.filter(end_year__lte=int(search_end_max))
-            pass
 
+            title += f'-{search_end_max}'
+            pass
+        
+        search_parts = []
         # search - country
         if search_country:
             sqs_filters.append(Q(countries__in=search_country))
+
+            country_names = [countries_map[c] for c in search_country]
+            search_countries = ' or '.join(country_names) if len(country_names) < 3 else f"{', '.join(country_names[:-1])}, or {country_names[-1]}"
+            search_parts.append(' from ' + search_countries)
             # sqs = sqs.filter(countries__in=search_country)
             # for c in search_country:
             #     # TODO: Need a way to propagate error messages for invalid countries
@@ -659,10 +678,16 @@ class BrowseView(View):
         # search - compatible
         if search_compatible:
             sqs_filters.append(Q(meta__compatible_with__slug__in=search_compatible))
+
+            # print(search_mapping)
             # sqs = sqs.filter(meta__compatible_with__slug__in=search_compatible)
             systems = self.slug_to_system(search_compatible)
             search_mapping['compatible'] = systems.values()
             # search_badges.extend( SearchBadge(request.GET, 'compatible', 'Compatible With', k, v) for k,v in systems.items() )
+            
+            system_names = [str(e) for e in search_mapping['compatible']]
+            search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
+            search_parts.append(' compatible with ' + search_compatiblewith)
             pass
 
         # search - derived from
@@ -672,6 +697,10 @@ class BrowseView(View):
             systems = self.slug_to_system(search_derived)
             search_mapping['derived'] = systems.values()
             # search_badges.extend( SearchBadge(request.GET, 'derived', 'Derived From', k, v) for k,v in systems.items() )
+
+            system_names = [str(e) for e in search_mapping['derived']]
+            search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
+            search_parts.append(' derived from ' + search_compatiblewith)
             pass
 
         # search - embedded
@@ -681,6 +710,10 @@ class BrowseView(View):
             systems = self.slug_to_system(search_embeds)
             search_mapping['embeds'] = systems.values()
             # search_badges.extend( SearchBadge(request.GET, 'embeds', 'Embeds / Uses', k, v) for k,v in systems.items() )
+
+            system_names = [str(e) for e in search_mapping['embeds']]
+            search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
+            search_parts.append(' that use ' + search_compatiblewith)
             pass
 
         # search - inspired by
@@ -690,54 +723,82 @@ class BrowseView(View):
             systems = self.slug_to_system(search_inspired)
             search_mapping['inspired'] = systems.values()
             # search_badges.extend( SearchBadge(request.GET, 'inspired', 'Inspired By', k, v) for k,v in systems.items() )
+
+            system_names = [str(e) for e in search_mapping['inspired']]
+            search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
+            search_parts.append(' inspired by ' + search_compatiblewith)
             pass
 
         # search - operating systems
         if search_os:
             sqs_filters.append(Q(meta__oses__slug__in=search_os))
             # sqs = sqs.filter(meta__oses__slug__in=search_os)
-            # oses = OperatingSystem.objects.filter(slug__in=search_os)
+            oses = OperatingSystem.objects.filter(slug__in=search_os)
             # search_badges.extend( SearchBadge(request.GET, 'os', 'Operating System', os.slug, os.name) for os in oses )
+
+            os_names = [str(e) for e in oses]
+            search_oses = ' or '.join(os_names) if len(os_names) < 3 else f"{', '.join(os_names[:-1])}, or {os_names[-1]}"
+            search_parts.append(' available for ' + search_oses)
             pass
 
         # search - programming languages
         if search_programming:
             sqs_filters.append(Q(meta__written_in__slug__in=search_programming))
             # sqs = sqs.filter(meta__written_in__slug__in=search_programming)
-            # langs = ProgrammingLanguage.objects.filter(slug__in=search_programming)
+            langs = ProgrammingLanguage.objects.filter(slug__in=search_programming)
             # search_badges.extend( SearchBadge(request.GET, 'programming', 'Programming Languages', lang.slug, lang.name) for lang in langs )
+            
+            languages = [str(e) for e in langs]
+            search_langs = ' or '.join(languages) if len(languages) < 3 else f"{', '.join(languages[:-1])}, or {languages[-1]}"
+            search_parts.append(' written in ' + search_langs)
             pass
 
         # search - supported languages
         if search_supported:
             sqs_filters.append(Q(meta__supported_languages__slug__in=search_supported))
             # sqs = sqs.filter(meta__supported_languages__slug__in=search_supported)
-            # langs = ProgrammingLanguage.objects.filter(slug__in=search_supported)
+            langs = ProgrammingLanguage.objects.filter(slug__in=search_supported)
             # search_badges.extend( SearchBadge(request.GET, 'supported', 'Supported Languages', lang.slug, lang.name) for lang in langs )
+            
+            languages = [str(e) for e in langs]
+            search_langs = ' or '.join(languages) if len(languages) < 3 else f"{', '.join(languages[:-1])}, or {languages[-1]}"
+            search_parts.append(' supporting ' + search_langs)
             pass
 
         # search - tags
         if search_tag:
             sqs_filters.append(Q(tags__slug__in=search_tag))
             # sqs = sqs.filter(tags__slug__in=search_tag)
-            # tags = Tag.objects.filter(slug__in=search_tag)
+            tags = Tag.objects.filter(slug__in=search_tag)
             # search_badges.extend( SearchBadge(request.GET, 'type', 'Tags', t.slug, t.name) for t in tags )
+
+            tag_names = [str(e) for e in tags]
+            search_tags = ' or '.join(tag_names) if len(tag_names) < 3 else f"{', '.join(tag_names[:-1])}, or {tag_names[-1]}"
+            search_parts.append(' tagged with ' + search_tags)
             pass
 
         # search - project types
         if search_type:
             sqs_filters.append(Q(project_types__slug__in=search_type))
             # sqs = sqs.filter(project_types__slug__in=search_type)
-            # types = ProjectType.objects.filter(slug__in=search_type)
+            types = ProjectType.objects.filter(slug__in=search_type)
             # search_badges.extend( SearchBadge(request.GET, 'type', 'Project Types', type.slug, type.name) for type in types )
+
+            type_names = [str(e) for e in types]
+            search_types = ' or '.join(type_names) if len(type_names) < 3 else f"{', '.join(type_names[:-1])}, or {type_names[-1]}"
+            search_parts.append(' classified as ' + search_types + ' projects ')
             pass
 
         # search - licenses
         if search_license:
             sqs_filters.append(Q(meta__licenses__slug__in=search_license))
             # sqs = sqs.filter(meta__licenses__slug__in=search_license)
-            # licenses = License.objects.filter(slug__in=search_license)
+            licenses = License.objects.filter(slug__in=search_license)
             # search_badges.extend( SearchBadge(request.GET, 'license', 'Licenses', license.slug, license.name) for license in licenses )
+
+            license_names = [str(e) for e in licenses]
+            search_licenses = ' or '.join(license_names) if len(license_names) < 3 else f"{', '.join(license_names[:-1])}, or {license_names[-1]}"
+            search_parts.append(' licensed under ' + search_licenses)
             pass
 
         # search - suffixes
@@ -766,13 +827,32 @@ class BrowseView(View):
             #     SearchBadge(request.GET, *row)
             #     for row in FeatureOption.objects.filter(id__in=feature_option_ids).values_list('feature__slug','feature__label','slug','value')
             # )
-
-        if any(v for k, v in search_mapping.items() if k not in {'query', 'start_year', 'start_min', 'start_max', 'end_year', 'end_min', 'end_max'}):
+        
+        if sqs_filters:
             op = and_ if search_op == 'and' else or_
             query = reduce(op, sqs_filters)
             sqs = sqs.filter(query)
+        
+        # Build Title with features
+        reverse_features_map = {v: k for k, v in features_map.items()}
+        feature_parts = []
+        for key in search_fg:
+            feature_options = ' or '.join(search_fg[key]) if len(search_fg[key]) < 3 else f"{', '.join(list(search_fg[key])[:-1])}, or {list(search_fg[key])[-1]}"
+            feature = reverse_features_map[key].replace('-', ' ').title()
+            feature_parts.append(f'{feature_options} {feature}')
+        
+        query_parts = []
+        if search_parts:
+            query_parts.append(f' {search_op} '.join(search_parts) if len(search_parts) < 3 else f"{', '.join(search_parts[:-1])}, {search_op} {search_parts[-1]}")
+        if feature_parts:
+            query_parts.append(' with ' + f' {search_op} '.join(feature_parts))
+        
+        title += f' {search_op} '.join(query_parts)
 
-        return (sqs, search_mapping)
+        if len(title) > 60:
+            title = title[:60] + '...'
+
+        return (sqs, search_mapping, title)
 
     def do_dym(self, search_q):
         """Did you mean search"""
@@ -797,7 +877,7 @@ class BrowseView(View):
         search_keys = { }
         results = SystemVersion.objects.filter(is_current=True)
 
-        results, search_keys = self.do_search(request, results, search_op)
+        results, search_keys, title = self.do_search(request, results, search_op)
 
         # Only get the columns we need for the browse page
         results = results.annotate(name=F('system__name'), 
@@ -844,6 +924,7 @@ class BrowseView(View):
         years.update(years_end)
 
         return render(request, self.template_name, {
+            'title': title,
             'activate': 'browse', # NAV-LINKS
             'filtergroups': self.build_filter_groups(request.GET),
             'filtergroupsjson': [asdict(fg) for fg in self.build_filter_groups(request.GET)],
@@ -857,7 +938,7 @@ class BrowseView(View):
             'suggestion': suggestion,
             'search_op': search_op
         })
-
+    
     def handle_old_urls(self, request):
         query = []
 

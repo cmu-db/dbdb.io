@@ -1,11 +1,4 @@
-console.log(getComputedStyle(document.body).getPropertyValue('--bs-breakpoint-md'));
-console.log(window.innerWidth, window.innerHeight);
-
-
 function YearRange(selector) {
-
-    console.log(selector)
-
     var self = this;
     var $elem = $(selector);
     var $btn_toggle = $elem.find('button.btn-toggle');
@@ -375,28 +368,28 @@ function populate_table(results) {
 }
 
 const collapse = document.getElementById('filter');
+const collapse_arrow = document.getElementById('advanced-arrow')
 const advanced_search_button = document.getElementById('advanced-search-button');
-const search_button = document.getElementById('search');
 
 window.addEventListener('DOMContentLoaded', () => {
   if (collapse.classList.contains('show')) {
-    search_button.setAttribute('hidden', '')
-
     collapse.parentElement.classList.add('no-transition', 'bg-active');
+    collapse_arrow.classList.add('no-transition', 'open');
 
     void collapse.offsetWidth;
 
     collapse.parentElement.classList.remove('no-transition');
+    collapse_arrow.classList.remove('no-transition');
   }
 });
 
 advanced_search_button.addEventListener('click', () => {
     if (advanced_search_button.classList.contains('collapsed')) {
         collapse.parentElement.classList.remove('bg-active');
-        search_button.removeAttribute('hidden')
+        collapse_arrow.classList.remove('open');
     } else {
         collapse.parentElement.classList.add('bg-active');
-        search_button.setAttribute('hidden', '')
+        collapse_arrow.classList.add('open');
     }
 });
 
@@ -442,6 +435,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (Object.keys(filters).length > 0) {
         const collapse = document.getElementById('filter');
         collapse.classList.add('show');
+        const first_field = document.getElementById('filter-none');
+        first_field.remove()
     }
 });
 

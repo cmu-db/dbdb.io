@@ -4,7 +4,7 @@
 {% load countries %}
 {% load django_bootstrap5 %}
 
-{% block title %}Browse{% endblock %}
+{% block title %}{{title}}{% endblock %}
 
 {% block css %}
 <link rel="stylesheet" type="text/css" href="{% static 'lib/css/nouislider.min.css' %}">
@@ -48,9 +48,12 @@ div.results div.version p { margin:0; }
 
 .is-selected { background-color: #D6D6D6 !important; }
 
+#advanced-arrow { transition: transform 0.3s ease; }
+#advanced-arrow.open { -ms-transform: rotate(-180deg); transform: rotate(-180deg) }
+
 .bg-active { background-color: #E9ECEF; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
 #filter-container { transition: background-color 0.5s ease; }
-#filter-container.no-transition { transition: none !important; }
+.no-transition { transition: none !important; }
 
 .btn-secondary.active { background-color: #6eabdb; }
 .btn-secondary:hover { background-color: #9ec7e9; }
@@ -93,8 +96,8 @@ div.results div.version p { margin:0; }
 
         <div class="d-flex flex-column justify-content-center align-items-center ms-lg-5 me-lg-5 pb-5">
             <div class="col-12 col-lg-9 rounded" id="filter-container">
-                <button class="btn btn-link btn-sm mt-2 align-self-start ps-4" type="button" data-bs-toggle="collapse" data-bs-target="#filter" id="advanced-search-button">
-                    Advanced Search
+                <button class="btn btn-link btn-sm mt-2 align-self-start ps-4" type="button" data-bs-toggle="collapse" data-bs-target="#filter" id="advanced-search-button" style="font-weight: bold;">
+                    Advanced Search <i class="fas fa-chevron-down" id="advanced-arrow"></i>
                 </button>
                 <div class="filters collapse m-0 ps-4 pe-4 pb-4" id="filter">
                     <div class="d-flex align-items-center mb-3">
@@ -121,10 +124,24 @@ div.results div.version p { margin:0; }
                             </div>
                         </div>
                     </div>
-
-                    <h2 class="pb-3">Search Fields</h2>
                     
                     <div class="filter-group row mb-3" hidden id="template">
+                        <div class="dropdown col-12 col-md-5">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Search Fields
+                            </button>
+                            <ul class="dropdown-menu" style="max-height: 200px; overflow-y: auto;">
+                                <li class="dropdown-item">Start Year</li>
+                                <li class="dropdown-item">End Year</li>
+                                {% for filtergroup in filtergroups %}
+                                    <li class="dropdown-item">{{ filtergroup.label }}</li>
+                                {% endfor %}
+                            </ul>
+                            <a href="javascript:;" class="remove" title="remove filter"><i class="fas fa-times"></i> remove </a>
+                        </div>
+                    </div>
+
+                    <div class="filter-group row mb-3" id="filter-none">
                         <div class="dropdown col-12 col-md-5">
                             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Search Fields
