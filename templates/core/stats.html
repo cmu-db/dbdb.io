@@ -34,11 +34,11 @@ a:hover { text-decoration: underline }
             </div>
         </div>
     </div>
-    <div class="d-flex container justify-content-center">
-        <div class="row w-75">
+    <div class="d-flex row container justify-content-center">
+        <div class="row col-lg-10">
             {% for stat in stats %}
             <!-- BEGIN: {{ stat.label|upper }} -->
-            <div class="d-flex col-4 ps-4 pe-4">
+            <div class="d-flex col-md-6 col-lg-4 ps-md-4 pe-md-4">
                 <div class="card w-100 d-md-block mb-4 mx-4 text-center mx-auto">
                     <div class="card-header">
                         <h4>{{ stat.label }}</h4>
