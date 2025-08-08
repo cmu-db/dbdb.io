@@ -1,67 +1,121 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load thumbnail %}
+{% load django_bootstrap5 %}
 
 {% block title %}
 Recent Changes
 {% endblock %}
 
+{% block css %}
+<style>
+a { text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+p.recent-text { font-size: 10pt; margin: 0; }
+
+.version-date-container { background-color: #eaecf0; }
+.version-date { font-size: 10pt; color: #54595d; }
+
+.page-row-bg {
+    background-color: #e0e0e0;
+}
+
+.page-link {
+    border: none;
+    background-color: transparent;
+    color: #6d6e71;
+    font-weight: bold;
+    padding: 10px 15px;
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.page-link:hover {
+    text-decoration: none;
+    color: #0b5ed7	;
+}
+
+.page-link.active {
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    color: black;
+    width: 30px;
+    height: 30px;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="jumbotron col-md-8" style="background-color:#ffffff;">
-
-    <div class="row">
-        <h1 class="offset-md-2">
-            Recent Changes{% if lookup_user %}: {{ lookup_user.username }}{% endif %}
-        </h1>
-    </div>
-
-    <div class="row justify-content-center">
-        <table class="table table-striped table-responsive-sm offset-md-2 changelist">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>System</th>
-<!--                     <th>Version</th> -->
-                    <th>Edited By</th>
-                    <th>Comments</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for version in versions %}
-                <tr>
-                    <td><a href="{{ version.get_absolute_url }}">{{ version.created }}</a></td>
-                    <td>
-                        <a href="{{ version.system.get_absolute_url }}">
-                        {% if version.system.current.logo %}
-                            <img class="logo-recent" src="{% if version.system.current.logo.url.lower|slice:"-3:" == "svg" %}{{ version.system.current.logo.url }}{% else %}{{ version.system.current.logo|thumbnail_url:'thumb' }}{% endif %}" alt="{{ version.system.name }}" />
-                        {% else %}
-                            <img class="logo-recent" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ version.system.name }}" />
-                        {% endif %}
-                        {{ version.system.name }}
-                        </a>
-                    </td>
-<!--                     <td>#{{ version.ver }}</td> -->
-                    <td><a href="{% url 'recent' %}?username={{ version.creator.username }}">{{ version.creator.username }}</a></td>
-                    <td>{{ version.comment }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <div class="text-center pagination">
-            <span class="step-links">
-                {% if versions.has_previous %}<a href="?page=1{% if lookup_user %}&username={{ lookup_user }}{% endif %}">{% endif %}&laquo; first{% if versions.has_previous %}</a>{% endif %}
-                {% if versions.has_previous %}<a href="?page={{ versions.previous_page_number }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}">{% endif %}previous{% if versions.has_previous %}</a>{% endif %}
-
-                <span class="current">
-                    &bullet;
-                    Page {{ versions.number }} of {{ versions.paginator.num_pages }}
-                    &bullet;
-                </span>
-                {% if versions.has_next %}<a href="?page={{ versions.next_page_number }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}">{% endif %}next{% if versions.has_next %}</a>{% endif %}
-                {% if versions.has_next %}<a href="?page={{ versions.paginator.num_pages }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}">{% endif %}last &raquo;{% if versions.has_next %}</a>{% endif %}
-            </span>
+<div class="main">
+    <div class="container">
+        <div class="row justify-content-md-center homepage-header">
+            <div class="col col-md-12 col-sm-12 text-center">
+                {% if revision_list %}
+                <h1 class="d-flex align-items-center justify-content-center">
+                    <a href="{{ system.get_absolute_url }}" class="d-flex align-items-center">
+                    {% if system.current.logo %}
+                        <img class="logo-recent" src="{% if version.system.current.logo.url.lower|slice:"-3:" == "svg" %}{{ system.current.logo.url }}{% else %}{{ system.current.logo|thumbnail_url:'thumb' }}{% endif %}" alt="{{ system.name }}" />
+                    {% else %}
+                        <img class="logo-recent" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ system.name }}" />
+                    {% endif %}
+                    {{ system.name }}
+                    </a>
+                </h1>
+                {% else %}
+                <h1>Recent Changes{% if lookup_user %}: {{ lookup_user.username }}{% endif %}</h1>
+                {% endif %}
+            </div>
         </div>
     </div>
+    {% if not revision_list %}
+    {% include "core/pagination.html" %}
+    {% endif %}
+
+    <div class="d-flex flex-column container align-items-center">
+        <div class="row col-12 col-md-9 col-lg-7 border rounded">
+            <div class="d-flex flex-column p-0">
+                {% for version in versions %}
+                <a href="{{ version.get_absolute_url }}" class="d-flex align-items-center version-date-container border">
+                    {% if revision_list %}
+                    <p class="version-date p-2 m-0 fw-bold">Version #{{ version.ver }}</p>
+                    {% endif %}
+                    <p class="version-date p-2 m-0 fw-bold">{{ version.created }}</p>
+                </a>
+                <div class="container p-3">
+                    <div class="d-flex align-items-center">
+                        <a href="{% url 'recent' %}?username={{ version.creator.username }}" class="d-flex align-items-center">
+                            <i class="fas fa-user" style="color: #54595d;"></i>
+                            <p class="recent-text ps-2">{{ version.creator.username }}</p>
+                        </a>
+                        {% if not revision_list %}
+                        <p class="recent-text ps-1">updated</p>
+                        <a href="{{ version.system.get_absolute_url }}" class="d-flex align-items-center ps-3">
+                            {% if version.system.current.logo %}
+                                <img class="logo-recent" src="{% if version.system.current.logo.url.lower|slice:"-3:" == "svg" %}{{ version.system.current.logo.url }}{% else %}{{ version.system.current.logo|thumbnail_url:'thumb' }}{% endif %}" alt="{{ version.system.name }}" />
+                            {% else %}
+                                <img class="logo-recent" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ version.system.name }}" />
+                            {% endif %}
+                            <p class="recent-text ps-2">{{ version.system.name }}</p>
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div class="pt-2">
+                        <p class="recent-text">{{ version.comment }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {% if not revision_list %}
+    {% include "core/pagination.html" %}
+    {% endif %}
 </div>
 {% endblock %}

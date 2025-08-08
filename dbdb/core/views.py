@@ -1428,7 +1428,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
 # ==============================================
 class DatabaseRevisionList(View):
 
-    template_name = 'core/revision_list.html'
+    template_name = 'core/recent.html'
 
     def get(self, request, slug):
         system = get_object_or_404(System, slug=slug)
@@ -1441,6 +1441,7 @@ class DatabaseRevisionList(View):
             'activate': 'revisions', # NAV-LINKS
             'system': system,
             'versions': versions,
+            'revision_list': True,
         })
 
     @method_decorator(login_required)
@@ -1513,6 +1514,18 @@ class RecentChangesView(View):
         paginator = Paginator(versions, 25)
         try:
             versions = paginator.get_page(page)
+            total_pages = paginator.num_pages
+            current_page = versions.number
+            DISPLAY_PAGES = 7
+            half_window = DISPLAY_PAGES // 2
+
+            start_page = max(current_page - half_window, 1)
+            end_page = start_page + DISPLAY_PAGES - 1
+            if end_page > total_pages:
+                end_page = total_pages
+                start_page = max(end_page - DISPLAY_PAGES + 1, 1)
+            
+            page_range = range(start_page, end_page + 1)
         except PageNotAnInteger:
             versions = paginator.get_page(1)
         except EmptyPage:
@@ -1521,7 +1534,9 @@ class RecentChangesView(View):
         return render(request, self.template_name, context={
             'activate': 'recent', # NAV-LINKS
             'versions': versions,
+            'page_range': page_range,
             'lookup_user': lookup_user,
+            'revision_list': False
         })
 
     pass
