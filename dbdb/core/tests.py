@@ -184,7 +184,7 @@ class AdvancedSearchTestCase(TestCase):
         d = pq(response.content)
         filtergroups = d('div.filter-group')
         # Add two for the year filtergroups
-        # Add nine for country, OS, project type, PL, inspired, derived, embedded compatiable, licenses
+        # Add nine for country, OS, project type, PL, inspired, derived, embedded compatible, licenses
         #pprint(filtergroups)
         self.assertEquals(quantity + 2 + 9, len(filtergroups))
         return
