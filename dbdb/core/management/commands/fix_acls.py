@@ -17,7 +17,7 @@ class Command(BaseCommand):
             if user.username == "developer" or user.is_superuser: continue
 
             systems = set()
-            # Find what systems this user has editted
+            # Find what systems this user has edited
             for ver in SystemVersion.objects.filter(creator=user):
                 if not ver.system in systems:
                     acl = SystemACL(system=ver.system, user=user)
