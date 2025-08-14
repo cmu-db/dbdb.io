@@ -184,12 +184,12 @@ class AdvancedSearchTestCase(TestCase):
         d = pq(response.content)
         filtergroups = d('div.filter-group')
         # Add two for the year filtergroups
-        # Add nine for country, OS, project type, PL, inspired, derived, embedded compatiable, licenses
+        # Add nine for country, OS, project type, PL, inspired, derived, embedded compatible, licenses
         #pprint(filtergroups)
         self.assertEquals(quantity + 2 + 9, len(filtergroups))
         return
 
-    def test_search_with_insuficient_data(self):
+    def test_search_with_insufficient_data(self):
         data = {
             'feature1': ['option1'],
         }
@@ -198,7 +198,7 @@ class AdvancedSearchTestCase(TestCase):
         self.assertContains(response, 'No databases found')
         return
 
-    def test_search_with_suficient_data(self):
+    def test_search_with_sufficient_data(self):
         data = {
             'feature1': ['option3'],
         }
@@ -319,7 +319,7 @@ class HomeTestCase(TestCase):
         self.assertEquals(response.status_code, 200)
         return
 
-    def test_buttons_hiden_when_not_authenticated(self):
+    def test_buttons_hidden_when_not_authenticated(self):
         response = self.client.get(reverse('home'))
         self.assertNotContains(
             response,
@@ -327,7 +327,7 @@ class HomeTestCase(TestCase):
         )
         return
 
-    def test_buttons_hiden_when_not_superuser(self):
+    def test_buttons_hidden_when_not_superuser(self):
         self.client.login(username='testuser', password='testpassword')
         response = self.client.get(reverse('home'))
         self.assertNotContains(
@@ -339,9 +339,9 @@ class HomeTestCase(TestCase):
 
     def test_buttons_shows_when_superuser(self):
         self.client.login(username='admin', password='testpassword')
-        # Load stats insead of home so that we don't get a cached
+        # Load stats instead of home so that we don't get a cached
         # result. Yes we try to override settings of the cache
-        # up aove to disable it but it doesn't work
+        # up above to disable it but it doesn't work
         response = self.client.get(reverse('stats'))
         self.assertContains(
             response,

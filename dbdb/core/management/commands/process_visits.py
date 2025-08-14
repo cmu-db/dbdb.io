@@ -148,7 +148,7 @@ class Command(BaseCommand):
         #sys.exit(1)
 
         self.stdout.write("# of Users: %d" % next_user_idx)
-        self.stdout.write("# of Sytems: %d (total=%d)" % (next_system_idx, system_cnt))
+        self.stdout.write("# of Systems: %d (total=%d)" % (next_system_idx, system_cnt))
 
         data = np.zeros((next_user_idx, next_system_idx))
         for user_idx in all_visits.keys():

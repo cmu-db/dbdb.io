@@ -601,7 +601,7 @@ class SystemVersion(models.Model):
             words += [tag.name, tag.name.replace("-", "")]
 
         # It's debatable whether people actually want to do keyword search for the supported languages
-        # From the logs, it looks like people really want to know the language a DBMS was written in
+        # From the logs, it looks like people really want to know the language in which a DBMS was written
         # words += [x.name for x in self.meta.supported_languages.all()]
         # words += [x.slug for x in self.meta.supported_languages.all()]
 

@@ -10,4 +10,4 @@ Assumes installation within a virtual directory
 3. `./bin/install_xapian.sh 1.4.14`
 
 ## Deployment
-Run `deploy/update_dbdb_app.sh` on the production machine to fetch new changes, run migrations, and restart the wsgi server
+Run `deploy/update_dbdb_app.sh` on the production machine to fetch new changes, run migrations, and restart the wsgi server.

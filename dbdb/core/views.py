@@ -1222,7 +1222,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
                     sf.description = value
                     sf.save()
                     pass
-                elif '_citation'in field_name:
+                elif '_citation' in field_name:
                     sf, _ = SystemFeature.objects.get_or_create(
                         version=db_version,
                         feature=feature
@@ -1234,7 +1234,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
                         sf.citations.add(cit_url)
                         pass
                     pass
-                elif '_choices'in field_name:
+                elif '_choices' in field_name:
                     sf, _ = SystemFeature.objects.get_or_create(
                         version=db_version,
                         feature=feature
