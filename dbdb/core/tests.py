@@ -198,7 +198,7 @@ class AdvancedSearchTestCase(TestCase):
         self.assertContains(response, 'No databases found')
         return
 
-    def test_search_with_suficient_data(self):
+    def test_search_with_sufficient_data(self):
         data = {
             'feature1': ['option3'],
         }
