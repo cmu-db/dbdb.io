@@ -341,7 +341,7 @@ class HomeTestCase(TestCase):
         self.client.login(username='admin', password='testpassword')
         # Load stats insead of home so that we don't get a cached
         # result. Yes we try to override settings of the cache
-        # up aove to disable it but it doesn't work
+        # up above to disable it but it doesn't work
         response = self.client.get(reverse('stats'))
         self.assertContains(
             response,
