@@ -189,7 +189,7 @@ class AdvancedSearchTestCase(TestCase):
         self.assertEquals(quantity + 2 + 9, len(filtergroups))
         return
 
-    def test_search_with_insuficient_data(self):
+    def test_search_with_insufficient_data(self):
         data = {
             'feature1': ['option1'],
         }
