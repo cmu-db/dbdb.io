@@ -18,7 +18,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('system', metavar='S', type=str, nargs='?',
-                    help='System to force twiter card creation')
+                    help='System to force twitter card creation')
         parser.add_argument('--skip-errors', action='store_true',
                             help="Ignore errors and keep processing")
         return
