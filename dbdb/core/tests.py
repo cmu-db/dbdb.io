@@ -319,7 +319,7 @@ class HomeTestCase(TestCase):
         self.assertEquals(response.status_code, 200)
         return
 
-    def test_buttons_hiden_when_not_authenticated(self):
+    def test_buttons_hidden_when_not_authenticated(self):
         response = self.client.get(reverse('home'))
         self.assertNotContains(
             response,
@@ -327,7 +327,7 @@ class HomeTestCase(TestCase):
         )
         return
 
-    def test_buttons_hiden_when_not_superuser(self):
+    def test_buttons_hidden_when_not_superuser(self):
         self.client.login(username='testuser', password='testpassword')
         response = self.client.get(reverse('home'))
         self.assertNotContains(
