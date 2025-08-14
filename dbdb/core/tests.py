@@ -339,7 +339,7 @@ class HomeTestCase(TestCase):
 
     def test_buttons_shows_when_superuser(self):
         self.client.login(username='admin', password='testpassword')
-        # Load stats insead of home so that we don't get a cached
+        # Load stats instead of home so that we don't get a cached
         # result. Yes we try to override settings of the cache
         # up above to disable it but it doesn't work
         response = self.client.get(reverse('stats'))
