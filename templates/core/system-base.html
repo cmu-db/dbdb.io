@@ -4,7 +4,12 @@
 {% load markdownify %}
 
 {% block css %}
-    <link href="{% static 'core/css/system.css' %}" rel="stylesheet">
+<link href="{% static 'core/css/system.css' %}" rel="stylesheet">
+<style>
+div.card-version { background-color: #292B33; color: white; }
+div.card-version a { text-decoration: none; }
+div.card-version a:hover { text-decoration: underline; }
+</style>
 {% endblock %}
 
 {% block twitter %}
@@ -21,7 +26,7 @@
 {% block content %}
     <div class="row">
         <!-- BEGIN: MAIN COL -->
-        <div class="col-sm-12 col-md-8 order-2 order-md-1">
+        <div class="col-sm-12 col-md-8 order-1 order-md-1">
             {% if has_revision %}
                 <div class="alert alert-info d-none d-md-block" style="line-height: 34px;" role="alert">
                     Viewing Revision #{{ system_version.ver }} from {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
@@ -41,15 +46,30 @@
                     You do not have permission to edit this entry
                 </div>
             {% endif %}
+        </div>
 
-            <h1 class="fw-bold">{{ system.name }}</h1>
+        <h1 class="fw-bold order-first">{{ system.name }}</h1>
+
+        <!-- Title and Description div -->
+        <div class="col-sm-12 col-md-8 order-first order-md-1 d-block d-md-none">
             {% if system_version.tags %}
                 {% for tag in system_version.tags.all %}
                     <a class="badge badge-secondary" href="{% url 'browse' %}?tag={{ tag.slug }}">{{ tag.name }}</a>
                 {% endfor %}
             {% endif %}
             <p>{{ system_version.description|markdownify }}</p>
+        </div>
 
+        <div class="col-sm-12 col-md-8 order-3 order-md-1">
+            <div class="d-none d-md-block">
+                {% if system_version.tags %}
+                    {% for tag in system_version.tags.all %}
+                        <a class="badge badge-secondary" href="{% url 'browse' %}?tag={{ tag.slug }}">{{ tag.name }}</a>
+                    {% endfor %}
+                {% endif %}
+                <p>{{ system_version.description|markdownify }}</p>
+            </div>
+            
             {% for sec in sections %}
                 <div id="{{ sec.id }}" class="mb-4">
                     {% if sec.title %}
@@ -72,12 +92,14 @@
             {% endfor %}
 
             {% if citations %}
-            <h3>Citations</h3>
+            <div class="text-wrap text-break">
+                <h3>Citations</h3>
                 <ol>
                     {% for c in citations %}
                         <li id="citation{{ forloop.counter }}"><a href="{{ c }}" target="_cite">{{ c }}</a></li>
                     {% endfor %}
                 </ol>
+            </div>
             {% endif %}
 
             <div class="card card-version d-block d-md-none revision-card">
@@ -129,7 +151,7 @@
         <!-- END: MAIN BODY -->
 
         <!-- START: SIDEBAR -->
-        <div class="col-sm-12 col-md-4 order-1 order-md-2 sidebar">
+        <div class="text-wrap text-break col-sm-12 col-md-4 order-2 order-md-2 sidebar pb-4">
             {% if has_revision %}
             <div class="alert alert-info d-block d-md-none" style="line-height: 34px;" role="alert">
                 <a href="{{ system.get_absolute_url }}" class="btn btn-secondary btn-sm float-right active" role="button" aria-pressed="true">View Current</a>
@@ -137,7 +159,7 @@
             </div>
             {% endif %}
 
-            <div class="border rounded bg-light p-4">
+            <div class="border rounded-0 rounded-top bg-light p-4">
                 {% if system_version.logo %}
                 <div class="text-center mb-3 pb-3 border-bottom">
                     <a href="{{ system_version.logo.url }}"><img class="logo-thumbnail" src="{% if system_version.logo.url.lower|slice:"-3:" == "svg" %}{{ system_version.logo.url }}{% else %}{{ system_version.logo|thumbnail_url:'thumb' }}{% endif %}" style="border:none;" alt="{{ system.name }} Logo" title="{{ system.name }}"></a>
@@ -308,6 +330,18 @@
                 {% endif %}
 
             </div>
+
+            <div class="card card-version d-none d-md-block revision-card rounded-0 rounded-bottom">
+                <a href="{% url 'system_revision' system.slug %}" title="View All Revisions for {{ system.name }}">
+                <div class="card-body">
+                    Revision #{{ system_version.ver }}
+                    &nbsp;|&nbsp;
+                    <time datetime="{{ system_version.created|date:"c" }}">
+                    Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
+                    </time>
+                </div>
+                </a>
+            </div>
         </div>
         <!-- END: SIDEBAR -->
 
@@ -315,7 +349,7 @@
         <div class="col-sm-12 col-md-4 order-3 order-md-3">
             {% if compatible %}
             <!-- START: COMPATIBLE -->
-            <div class="card d-none d-md-block systems-extra" >
+            <div class="card d-md-block systems-extra" >
                 {% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}
             </div>
             <!-- END: COMPATIBLE -->
@@ -323,7 +357,7 @@
 
             {% if derived %}
             <!-- START: DERIVED -->
-            <div class="card d-none d-md-block systems-extra" >
+            <div class="card d-md-block systems-extra" >
                 {% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}
             </div>
             <!-- END: DERIVED -->
@@ -331,7 +365,7 @@
 
             {% if embeds %}
             <!-- START: EMBEDS -->
-            <div class="card d-none d-md-block systems-extra" >
+            <div class="card d-md-block systems-extra" >
                 {% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}
             </div>
             <!-- END: DERIVED -->
@@ -339,7 +373,7 @@
 
             {% if recommendations %}
             <!-- START: RECOMMENDATIONS -->
-            <div class="card d-none d-md-block systems-extra" >
+            <div class="card d-md-block systems-extra" >
                 {% include 'core/system-sys-sidebar.html' with title='People Also Viewed' systems=recommendations %}
             </div>
             <!-- END: RECOMMENDATIONS -->

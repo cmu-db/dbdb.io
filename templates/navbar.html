@@ -15,6 +15,11 @@
                 <li class="nav-item">
                     <a class="nav-link {% if activate == 'recent' %} active{% endif %}" href="{% url 'recent' %}">Recent</a>
                 </li>
+                {% if system %}
+                <li class="nav-item">
+                    <a class="nav-link {% if activate == 'revisions' %} active{% endif %}" href="{% url 'system_revision' slug=system.slug %}">Revision List</a>
+                </li>
+                {% endif %}
                 {% if user.is_authenticated %}
                     {% if user.is_superuser %}
                         <li class="nav-item">
@@ -41,6 +46,37 @@
 {#                </div>#}
             </form>
             {% endif %}
+
+            <ul class="navbar-nav my-2 my-lg-0 ms-4">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {% if user.is_authenticated %}
+                        {{ user.username }}
+                        {% else %}
+                        Accounts
+                        {% endif %}
+                    </a>
+
+                    {% if user.is_authenticated %}
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="#">Profile</a>
+
+                        {% if user.is_staff %}
+                        <a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a>
+                        {% endif %}
+
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                    </div>
+                    {% else %}
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{% url "login" %}">Login</a>
+                        <!-- <div class="dropdown-divider"></div> -->
+                        <!-- <a class="dropdown-item" href="{% url "create_user" %}">Create Account</a> -->
+                    </div>
+                    {% endif %}
+                </li>
+            </ul>
         </div>
     </div>
 </nav>
