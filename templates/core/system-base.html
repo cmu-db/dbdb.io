@@ -73,7 +73,8 @@ div.systems-extra { width: 100%; min-width: 300px; }
                     <a class="badge badge-secondary" href="{% url 'browse' %}?tag={{ tag.slug }}">{{ tag.name }}</a>
                 {% endfor %}
             {% endif %}
-            <p>{{ system_version.description|markdownify }}</p>
+            <p class="d-block d-md-none">{{ system_version.description_mobile_intro|markdownify }}</p>
+            <p class="d-none d-md-block">{{ system_version.description|markdownify }}</p>
         </div>
 
         <!-- START: SIDEBAR -->
@@ -394,3 +395,4 @@ div.systems-extra { width: 100%; min-width: 300px; }
 
 {% block system_script %}{% endblock %}
 {% endblock %}
+
