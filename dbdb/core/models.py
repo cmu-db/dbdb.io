@@ -507,6 +507,12 @@ class SystemVersion(models.Model):
             pass
         return
 
+    def description_mobile_intro(self):
+        return self.description.split("\n")[0]
+
+    def description_mobile_remainder(self):
+        return "\n".join(self.description.split("\n")[1:])
+
     def twitter_handle_url(self):
         return settings.TWITTER_URL + self.twitter_handle.replace('@', '')
 
