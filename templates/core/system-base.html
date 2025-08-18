@@ -5,27 +5,6 @@
 
 {% block css %}
 <link href="{% static 'core/css/system.css' %}" rel="stylesheet">
-<style>
-a { color: #c41230; text-decoration: none; }
-a:hover { color: #c41230; text-decoration: underline; }
-
-div.card-version { background-color: #292B33; }
-div.card-version a { color: white; }
-
-/* SMALL */
-div.sidebar { width: 100%; min-width: 300px; }
-div.systems-extra { width: 100%; min-width: 300px; }
-/* MEDIUM */
-@media (min-width: 768px) {
-    div.sidebar { width: 40%; }
-    div.systems-extra { width: 45%; }
-}
-/* LARGE */
-@media (min-width: 992px) {
-    div.sidebar { width: 30%; }
-    div.systems-extra { width: 20%; }
-}
-</style>
 {% endblock %}
 
 {% block twitter %}
@@ -92,168 +71,170 @@ div.systems-extra { width: 100%; min-width: 300px; }
                 </div>
                 {% endif %}
 
-                {% if system_version.url %}
-                    <h5 class="fs-6">Website</h5>
-                    <p><a href="{{ system_version.url }}">{{ system_version.url }}</a></p>
-                {% endif %}
+                <dl class="row">
+                    {% if system_version.url %}
+                        <dt class="fs-6">Website</dt>
+                        <dd><a href="{{ system_version.url }}">{{ system_version.url }}</a></dd>
+                    {% endif %}
 
-                {% if system_version.source_url %}
-                    <h5 class="fs-6">Source Code</h5>
-                    <p><a href="{{ system_version.source_url }}">{{ system_version.source_url }}</a></p>
-                {% endif %}
+                    {% if system_version.source_url %}
+                        <dt class="fs-6">Source Code</dt>
+                        <dd><a href="{{ system_version.source_url }}">{{ system_version.source_url }}</a></dd>
+                    {% endif %}
 
-                {% if system_version.tech_docs %}
-                    <h5 class="fs-6">Tech Docs</h5>
-                    <p><a href="{{ system_version.tech_docs }}">{{ system_version.tech_docs }}</a></p>
-                {% endif %}
+                    {% if system_version.tech_docs %}
+                        <dt class="fs-6">Tech Docs</dt>
+                        <dd><a href="{{ system_version.tech_docs }}">{{ system_version.tech_docs }}</a></dd>
+                    {% endif %}
 
-                {% if system_version.twitter_handle %}
-                    <h5 class="fs-6">Twitter</h5>
-                    <p><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-twitter" viewBox="0 0 16 16"> <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"/></svg> <a target="twitter" href="{{ system_version.twitter_handle_url }}"> {{ system_version.twitter_handle }}</a></p>
-                {% endif %}
+                    {% if system_version.twitter_handle %}
+                        <dt class="fs-6">Twitter</dt>
+                        <dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-twitter" viewBox="0 0 16 16"> <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"/></svg> <a target="twitter" href="{{ system_version.twitter_handle_url }}"> {{ system_version.twitter_handle }}</a></dd>
+                    {% endif %}
 
-                {% if system_version.developer %}
-                    <h5 class="fs-6">Developer</h5>
-                    <p>{{ system_version.developer }}</p>
-                {% endif %}
+                    {% if system_version.developer %}
+                        <dt class="fs-6">Developer</dt>
+                        <dd>{{ system_version.developer }}</dd>
+                    {% endif %}
 
-                {% if system_version.countries %}
-                <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
-                    <h5 class="fs-6">Country of Origin</h5>
-                    <p>
-                    {% for country in system_version.countries %}
-                    {% if not forloop.first %}, {% endif %}
-                    <a href="{% url 'browse' %}?country={{ country.code }}" title="View other systems from {{ country.name }}">
-                        <i class="{{ country.flag_css }}"></i>
-                        {{ country }}
-                    </a>
-                    {% endfor %}
-                    </p>
-                {% endif %}
-
-                {% if system_version.start_year %}
-                    <h5 class="fs-6">
-                        Start Year
-                        {% if start_year_citations %}
-                            {% for c in start_year_citations %}
-                                <sup><a class="citation" href="#citation{{ c }}">[{{ c }}]</a></sup>
-                            {% endfor %}
-                        {% endif %}
-                    </h5>
-                    <p>{{ system_version.start_year }}</p>
-                {% endif %}
-
-                {% if system_version.end_year %}
-                    <h5 class="fs-6">
-                        End Year
-                        {% if end_year_citations %}
-                            {% for c in end_year_citations %}
-                                <sup><a class="citation" href="#citation{{ c }}">[{{ c }}]</a></sup>
-                            {% endfor %}
-                        {% endif %}
-                    </h5>
-                    <p>{{ system_version.end_year }}</p>
-                {% endif %}
-
-                {% if system_version.former_names %}
-                    <h5 class="fs-6">Former Name</h5>
-                    <p>{{ system_version.former_names }}</p>
-                {% endif %}
-
-                {% if system_version.acquired_by %}
-                    <h5 class="fs-6">
-                        Acquired By
-                        {% if acquired_by_citations %}
-                            {% for c in acquired_by_citations %}
-                                <sup><a class="citation" href="#citation{{ c }}">[{{ c }}]</a></sup>
-                            {% endfor %}
-                        {% endif %}
-                    </h5>
-                    <p>{{ system_version.acquired_by }}</p>
-                {% endif %}
-
-                {% if system_version.project_types.exists %}
-                    <h5 class="fs-6">Project Type</h5>
-                    <p>
-                        {% for project_type in system_version.project_types.all %}
-                            {% if not forloop.first %}, {% endif %}
-                            <a class="card-title" href="{% url 'browse' %}?type={{ project_type.slug }}" title="View other {{ project_type.name }} systems">{{ project_type.name }}</a>
-                        {% endfor %}
-                    </p>
-                {% endif %}
-
-                {% if system_version.meta.written_in.exists %}
-                    <h5 class="fs-6">Written in</h5>
-                    <p>
-                        {% for written_in in system_version.meta.written_in.all %}
-                            {% if not forloop.first %}, {% endif %}
-                            <a class="card-title" href="{% url 'browse' %}?programming={{ written_in.slug }}" title="View other systems that are written in {{ written_in.name }}">{{ written_in.name }}</a>
-                        {% endfor %}
-                    </p>
-                {% endif %}
-
-                {% if system_version.meta.supported_languages.exists %}
-                    <h5 class="fs-6">Supported languages</h5>
-                    <p>
-                    {% for lang in system_version.meta.supported_languages.all %}
+                    {% if system_version.countries %}
+                    <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
+                        <dt class="fs-6">Country of Origin</dt>
+                        <dd>
+                        {% for country in system_version.countries %}
                         {% if not forloop.first %}, {% endif %}
-                        <a class="card-title" href="{% url 'browse' %}?supported={{ lang.slug }}" title="View other systems that support {{ lang.name }}">{{ lang.name }}</a>
-                    {% endfor %}
-                    </p>
-                {% endif %}
-
-                {% if system_version.meta.derived_from.exists %}
-                    <h5 class="fs-6">Derived From</h5>
-                    <p>
-                        {% for other in system_version.meta.derived_from.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?derived={{ other.slug }}" title="View other systems derived from {{ other.name }}">{{ other.name }}</a>{% endfor %}
-                    </p>
-                {% endif %}
-
-                {% if system_version.meta.embedded.exists %}
-                    <h5 class="fs-6">Embeds / Uses</h5>
-                    <p>
-                        {% for other in system_version.meta.embedded.all %}
-                            {% if not forloop.first %}, {% endif %}
-                            <a class="card-title" href="{% url 'browse' %}?embeds={{ other.slug }}" title="View other systems that embed {{ other.name }}">{{ other.name }}</a>
+                        <a href="{% url 'browse' %}?country={{ country.code }}" title="View other systems from {{ country.name }}">
+                            <i class="{{ country.flag_css }}"></i>
+                            {{ country }}
+                        </a>
                         {% endfor %}
-                    </p>
-                {% endif %}
+                        </dd>
+                    {% endif %}
 
-                {% if system_version.meta.inspired_by.exists %}
-                    <h5 class="fs-6">Inspired By</h5>
-                    <p>
-                        {% for other in system_version.meta.inspired_by.all %}
+                    {% if system_version.start_year %}
+                        <dt class="fs-6">
+                            Start Year
+                            {% if start_year_citations %}
+                                {% for c in start_year_citations %}
+                                    <sup><a class="citation" href="#citation{{ c }}">[{{ c }}]</a></sup>
+                                {% endfor %}
+                            {% endif %}
+                        </dt>
+                        <dd>{{ system_version.start_year }}</dd>
+                    {% endif %}
+
+                    {% if system_version.end_year %}
+                        <dt class="fs-6">
+                            End Year
+                            {% if end_year_citations %}
+                                {% for c in end_year_citations %}
+                                    <sup><a class="citation" href="#citation{{ c }}">[{{ c }}]</a></sup>
+                                {% endfor %}
+                            {% endif %}
+                        </dt>
+                        <dd>{{ system_version.end_year }}</dd>
+                    {% endif %}
+
+                    {% if system_version.former_names %}
+                        <dt class="fs-6">Former Name</dt>
+                        <dd>{{ system_version.former_names }}</dd>
+                    {% endif %}
+
+                    {% if system_version.acquired_by %}
+                        <dt class="fs-6">
+                            Acquired By
+                            {% if acquired_by_citations %}
+                                {% for c in acquired_by_citations %}
+                                    <sup><a class="citation" href="#citation{{ c }}">[{{ c }}]</a></sup>
+                                {% endfor %}
+                            {% endif %}
+                        </dt>
+                        <dd>{{ system_version.acquired_by }}</dd>
+                    {% endif %}
+
+                    {% if system_version.project_types.exists %}
+                        <dt class="fs-6">Project Type</dt>
+                        <dd>
+                            {% for project_type in system_version.project_types.all %}
+                                {% if not forloop.first %}, {% endif %}
+                                <a class="card-title" href="{% url 'browse' %}?type={{ project_type.slug }}" title="View other {{ project_type.name }} systems">{{ project_type.name }}</a>
+                            {% endfor %}
+                        </dd>
+                    {% endif %}
+
+                    {% if system_version.meta.written_in.exists %}
+                        <dt class="fs-6">Written in</dt>
+                        <dd>
+                            {% for written_in in system_version.meta.written_in.all %}
+                                {% if not forloop.first %}, {% endif %}
+                                <a class="card-title" href="{% url 'browse' %}?programming={{ written_in.slug }}" title="View other systems that are written in {{ written_in.name }}">{{ written_in.name }}</a>
+                            {% endfor %}
+                        </dd>
+                    {% endif %}
+
+                    {% if system_version.meta.supported_languages.exists %}
+                        <dt class="fs-6">Supported languages</dt>
+                        <dd>
+                        {% for lang in system_version.meta.supported_languages.all %}
                             {% if not forloop.first %}, {% endif %}
-                            <a class="card-title" href="{% url 'browse' %}?inspired={{ other.slug }}" title="View other systems inspired by {{ other.name }}">{{ other.name }}</a>
+                            <a class="card-title" href="{% url 'browse' %}?supported={{ lang.slug }}" title="View other systems that support {{ lang.name }}">{{ lang.name }}</a>
                         {% endfor %}
-                    </p>
-                {% endif %}
+                        </dd>
+                    {% endif %}
 
-                {% if system_version.meta.compatible_with.exists %}
-                    <h5 class="fs-6">Compatible With</h5>
-                    <p>
-                        {% for other in system_version.meta.compatible_with.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?compatible={{ other.slug }}" title="View other systems compatible with {{ other.name }}">{{ other.name }}</a>{% endfor %}
-                    </p>
-                {% endif %}
+                    {% if system_version.meta.derived_from.exists %}
+                        <dt class="fs-6">Derived From</dt>
+                        <dd>
+                            {% for other in system_version.meta.derived_from.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?derived={{ other.slug }}" title="View other systems derived from {{ other.name }}">{{ other.name }}</a>{% endfor %}
+                        </dd>
+                    {% endif %}
 
-                {% if system_version.meta.oses.exists %}
-                    <h5 class="fs-6">Operating Systems</h5>
-                    <p>
-                        {% for os in system_version.meta.oses.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?os={{ os.slug }}" title="View other systems that support {{ os.name }} systems">{{ os.name }}</a>{% endfor %}
-                    </p>
-                {% endif %}
+                    {% if system_version.meta.embedded.exists %}
+                        <dt class="fs-6">Embeds / Uses</dt>
+                        <dd>
+                            {% for other in system_version.meta.embedded.all %}
+                                {% if not forloop.first %}, {% endif %}
+                                <a class="card-title" href="{% url 'browse' %}?embeds={{ other.slug }}" title="View other systems that embed {{ other.name }}">{{ other.name }}</a>
+                            {% endfor %}
+                        </dd>
+                    {% endif %}
 
-                {% if system_version.meta.licenses.exists %}
-                    <h5 class="fs-6">Licenses</h5>
-                    <p>
-                        {% for license in system_version.meta.licenses.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?license={{ license.slug }}" title="View other systems that use {{ license.name }}">{{ license.name }}</a>{% endfor %}
-                    </p>
-                {% endif %}
+                    {% if system_version.meta.inspired_by.exists %}
+                        <dt class="fs-6">Inspired By</dt>
+                        <dd>
+                            {% for other in system_version.meta.inspired_by.all %}
+                                {% if not forloop.first %}, {% endif %}
+                                <a class="card-title" href="{% url 'browse' %}?inspired={{ other.slug }}" title="View other systems inspired by {{ other.name }}">{{ other.name }}</a>
+                            {% endfor %}
+                        </dd>
+                    {% endif %}
 
-                {% if system_version.wikipedia_url %}
-                    <h5 class="fs-6">Wikipedia</h5>
-                    <p><a target="wikipedia" href="{{ system_version.wikipedia_url }}">{{ system_version.wikipedia_url }}</a></p>
-                {% endif %}
+                    {% if system_version.meta.compatible_with.exists %}
+                        <dt class="fs-6">Compatible With</dt>
+                        <dd>
+                            {% for other in system_version.meta.compatible_with.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?compatible={{ other.slug }}" title="View other systems compatible with {{ other.name }}">{{ other.name }}</a>{% endfor %}
+                        </dd>
+                    {% endif %}
+
+                    {% if system_version.meta.oses.exists %}
+                        <dt class="fs-6">Operating Systems</dt>
+                        <dd>
+                            {% for os in system_version.meta.oses.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?os={{ os.slug }}" title="View other systems that support {{ os.name }} systems">{{ os.name }}</a>{% endfor %}
+                        </dd>
+                    {% endif %}
+
+                    {% if system_version.meta.licenses.exists %}
+                        <dt class="fs-6">Licenses</dt>
+                        <dd>
+                            {% for license in system_version.meta.licenses.all %}{% if not forloop.first %}, {% endif %}<a class="card-title" href="{% url 'browse' %}?license={{ license.slug }}" title="View other systems that use {{ license.name }}">{{ license.name }}</a>{% endfor %}
+                        </dd>
+                    {% endif %}
+
+                    {% if system_version.wikipedia_url %}
+                        <dt class="fs-6">Wikipedia</dt>
+                        <dd><a target="wikipedia" href="{{ system_version.wikipedia_url }}">{{ system_version.wikipedia_url }}</a></dd>
+                    {% endif %}
+                </dl>
 
             </div>
 
@@ -293,6 +274,7 @@ div.systems-extra { width: 100%; min-width: 300px; }
                                 {% endfor %}
                             {% endif %}
                         </h3>
+                        <hr>
                     {% endif %}
                     {% if sec.options %}
                         {% for o in sec.options %}
@@ -306,6 +288,7 @@ div.systems-extra { width: 100%; min-width: 300px; }
             {% if citations %}
             <div class="text-wrap text-break">
                 <h3>Citations</h3>
+                <hr>
                 <ol>
                     {% for c in citations %}
                         <li id="citation{{ forloop.counter }}"><a href="{{ c }}" target="_cite">{{ c }}</a></li>

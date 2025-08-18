@@ -10,16 +10,6 @@ Leaderboards
 
 
 {% block css %}
-<style>
-table.table-stats { }
-table.table-stats tbody { }
-table.table-stats tbody tr { }
-table.table-stats tbody tr td.stat-label { text-align:left; }
-table.table-stats tbody tr td.stat-value { text-align:right; }
-
-a { text-decoration: none; }
-a:hover { text-decoration: underline }
-</style>
 <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
 {% endblock %}
 
@@ -47,7 +37,7 @@ a:hover { text-decoration: underline }
                         <tbody>
                             {% for item in stat.items %}
                             <tr>
-                                <td class="stat-label">
+                                <td class="stat-label text-start">
                                 {% if stat.search_field == "country" %}
                                     {% get_country item.label as country %}
                                     <a href="{% url 'browse' %}?country={{ country.code }}" title="View other systems from {{ country.name }}"><i class="{{ country.flag_css }}"></i> {{ country.name }}
@@ -68,7 +58,7 @@ a:hover { text-decoration: underline }
                                     <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}">{{ item.label }}</a>
                                 {% endif %}
                                 </td>
-                                <td class="stat-value">{{ item.value }}</td>
+                                <td class="stat-value text-end">{{ item.value }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
