@@ -46,14 +46,15 @@
         <!-- TITLE AND DESCRIPTION -->
         <h1 class="fw-bold order-first">{{ system.name }}</h1>
 
-        <div class="col-sm-12 col-md-8 order-first order-md-1 d-block d-md-none">
+        <div class="col-sm-12 col-md-8 order-first order-md-1">
             {% if system_version.tags %}
                 {% for tag in system_version.tags.all %}
                     <a class="badge badge-secondary" href="{% url 'browse' %}?tag={{ tag.slug }}">{{ tag.name }}</a>
                 {% endfor %}
             {% endif %}
-            <p class="d-block d-md-none">{{ system_version.description_mobile_intro|markdownify }}</p>
-            <p class="d-none d-md-block">{{ system_version.description|markdownify }}</p>
+            <div class="d-block d-md-none">
+                {{ system_version.description_mobile_intro|markdownify }}
+            </div>
         </div>
 
         <!-- START: SIDEBAR -->
@@ -255,13 +256,11 @@
 
         <!-- START: MAIN BODY -->
         <div>
+            <div class="d-block d-md-none">
+                {{ system_version.description_mobile_remainder|markdownify }}
+            </div>
             <div class="d-none d-md-block">
-                {% if system_version.tags %}
-                    {% for tag in system_version.tags.all %}
-                        <a class="badge badge-secondary" href="{% url 'browse' %}?tag={{ tag.slug }}">{{ tag.name }}</a>
-                    {% endfor %}
-                {% endif %}
-                <p>{{ system_version.description|markdownify }}</p>
+                {{ system_version.description|markdownify }}
             </div>
             
             {% for sec in sections %}

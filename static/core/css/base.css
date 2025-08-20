@@ -1,5 +1,7 @@
 :root {
     --link-color: #c41230;
+    --light-bg-color: #f8f9fa;
+    --dark-gray: #767676;
 }
 
 * {
@@ -22,6 +24,10 @@ a:hover {
     background-color: var(--link-color);
     color: white; 
     text-decoration: underline dotted; 
+}
+
+a:has(img), .version-date-container > a {
+    background-color: inherit !important;
 }
 
 nav.navbar-dark { background-color:#244A64; color: #fff; }
@@ -209,7 +215,7 @@ div.search-badges a.badge em { font-weight: normal; }
 #advanced-arrow { transition: transform 0.3s ease; }
 #advanced-arrow.open { -ms-transform: rotate(-180deg); transform: rotate(-180deg) }
 
-.bg-active { background-color: #E9ECEF; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+.bg-active { background-color: var(--light-bg-color); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
 #filter-container { transition: background-color 0.5s ease; }
 .no-transition { transition: none !important; }
 
@@ -261,7 +267,7 @@ div.filter-group-range > div.range-container .noUi-connect { background-color:#0
 
 form.main-search { align-content: stretch; align-items: stretch; display: flex; padding:0; }
 div.filters { padding: 10px; }
-div.filters > h2 { color: #767676; font-size: 18px; }
+div.filters > h2 { color: var(--dark-gray); font-size: 18px; }
 div.filter-group { min-width: 300px; }
 div.filter-group > h3 { color: #000000; font-size: 14px; font-weight: bold; margin-bottom: 5px; }
 div.filter-group > div > a { font-weight: normal; display: none; }
@@ -322,8 +328,8 @@ form.main-search > div.search-results nav.letters .btn { padding: .2rem .6rem; }
 
 p.recent-text { font-size: 10pt; margin: 0; }
 
-.version-date-container { background-color: #eaecf0; }
-.version-date { font-size: 10pt; color: #54595d; }
+.version-date-container { background-color: var(--light-bg-color); }
+.version-date { font-size: 10pt; color: var(--dark-gray); }
 
 .page-row-bg {
     background-color: #e0e0e0;
@@ -332,7 +338,7 @@ p.recent-text { font-size: 10pt; margin: 0; }
 .page-link {
     border: none;
     background-color: transparent;
-    color: #6d6e71;
+    color: var(--dark-gray);
     font-weight: bold;
     padding: 10px 15px;
     text-decoration: none;
@@ -343,7 +349,7 @@ p.recent-text { font-size: 10pt; margin: 0; }
 
 .page-link:hover {
     text-decoration: none;
-    color: #c41230	;
+    color: var(--link-color)	;
 }
 
 .page-link.active {

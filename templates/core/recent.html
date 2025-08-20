@@ -15,12 +15,12 @@ Recent Changes
                 {% if revision_list %}
                 <h1 class="d-flex align-items-center justify-content-center">
                     <a href="{{ system.get_absolute_url }}" class="d-flex align-items-center">
-                    {% if system.current.logo %}
-                        <img class="logo-recent" src="{% if version.system.current.logo.url.lower|slice:"-3:" == "svg" %}{{ system.current.logo.url }}{% else %}{{ system.current.logo|thumbnail_url:'thumb' }}{% endif %}" alt="{{ system.name }}" />
-                    {% else %}
-                        <img class="logo-recent" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ system.name }}" />
-                    {% endif %}
-                    {{ system.name }}
+                        {% if system.current.logo %}
+                            <img class="logo-recent" src="{% if version.system.current.logo.url.lower|slice:"-3:" == "svg" %}{{ system.current.logo.url }}{% else %}{{ system.current.logo|thumbnail_url:'thumb' }}{% endif %}" alt="{{ system.name }}" />
+                        {% else %}
+                            <img class="logo-recent" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ system.name }}" />
+                        {% endif %}
+                        <a href="{{ system.get_absolute_url }}">{{ system.name }}</a>
                     </a>
                 </h1>
                 {% else %}
@@ -37,12 +37,14 @@ Recent Changes
         <div class="row col-12 col-md-9 col-lg-7 border rounded">
             <div class="d-flex flex-column p-0">
                 {% for version in versions %}
-                <a href="{{ version.get_absolute_url }}" class="d-flex align-items-center version-date-container border">
-                    {% if revision_list %}
-                    <p class="version-date p-2 m-0 fw-bold">Version #{{ version.ver }}</p>
-                    {% endif %}
-                    <p class="version-date p-2 m-0 fw-bold">{{ version.created }}</p>
-                </a>
+                <div class="version-date-container">
+                    <a href="{{ version.get_absolute_url }}" class="d-flex align-items-center border">
+                        {% if revision_list %}
+                        <p class="version-date p-2 m-0 fw-bold">Version #{{ version.ver }}</p>
+                        {% endif %}
+                        <p class="version-date p-2 m-0 fw-bold">{{ version.created }}</p>
+                    </a>
+                </div>
                 <div class="container p-3">
                     <div class="d-flex align-items-center">
                         <a href="{% url 'recent' %}?username={{ version.creator.username }}" class="d-flex align-items-center">
@@ -53,11 +55,13 @@ Recent Changes
                         <p class="recent-text ps-1">updated</p>
                         <a href="{{ version.system.get_absolute_url }}" class="d-flex align-items-center ps-3">
                             {% if version.system.current.logo %}
-                                <img class="logo-recent" src="{% if version.system.current.logo.url.lower|slice:"-3:" == "svg" %}{{ version.system.current.logo.url }}{% else %}{{ version.system.current.logo|thumbnail_url:'thumb' }}{% endif %}" alt="{{ version.system.name }}" />
+                                <img class="logo-recent" src="{% if version.system.current.logo.url.lower|slice:"-3:" == "svg" %}{{ version.system.current.logo.url }}{% else %}{{ version.system.current.logo|thumbnail_url:'thumb' }}{% endif %}" alt="{{ version.system.name }}"/>
                             {% else %}
-                                <img class="logo-recent" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ version.system.name }}" />
+                                <img class="logo-recent" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ version.system.name }}"/>
                             {% endif %}
-                            <p class="recent-text ps-2">{{ version.system.name }}</p>
+                            <a href="{{ version.system.get_absolute_url }}">
+                                <p class="recent-text ps-2 link-hover">{{ version.system.name }}</p>
+                            </a>
                         </a>
                         {% endif %}
                     </div>
