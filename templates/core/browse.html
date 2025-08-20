@@ -10,68 +10,6 @@
 <link rel="stylesheet" type="text/css" href="{% static 'lib/css/nouislider.min.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<style>
-#content { padding:40px 0; }
-
-nav.letters { text-align: center; }
-nav.letters.no-results { display:table; width:100%; vertical-align:center; }
-nav.letters.no-results div.letters { display:table-cell; height: 75vh; text-align: center; vertical-align:middle; }
-
-div.filter-group-range { margin-bottom:30px; }
-div.filter-group-range > h3 { font-weight:bold; margin-bottom:15px; }
-div.filter-group-range > h3 span.years { display:none; font-size:0.85em; font-weight:normal; padding-left:0.5em; }
-div.filter-group-range > h3 span.years var { font-style:normal; }
-div.filter-group-range > h3 button.btn { float:right; font-size:12px; padding:1px 6px; }
-div.filter-group-range > h3 button.btn-apply { background-color:#49AA55; color:#fff; display:none; margin-right:5px; }
-div.filter-group-range > h3 button.btn-toggle { background-color:#6c757d; color:#fff; }
-div.filter-group-range.active > h3 button.btn-toggle { background-color:#244A64; }
-div.filter-group-range.active > h3 span.years { display:inline; }
-div.filter-group-range.changed > h3 button.btn-apply { display:inline; }
-div.filter-group-range > div.range-container { padding:0 20px; }
-div.filter-group-range > div.range-container .noUi-connect { background-color:#007bff; }
-
-div.search-badges { margin: 40px auto 40px auto; text-align:center; width: 80%; }
-div.search-badges a.badge { font-size:100%; line-height: 1.5; padding-right: .75em; padding-left: .75em; }
-div.search-badges a.badge em { font-weight: normal; }
-
-div.results { min-height: 60vh; padding:40px 40px 30px 40px; }
-div.results div.version { margin-bottom:20px; max-width:800px; }
-div.results div.version h3 { font-size:20px; margin:0; }
-div.results div.version cite { color:#006621; font-size:13px; font-style:normal; }
-div.results div.version p { margin:0; }
-
-.form-select { border: none; border-bottom: 1px solid #767676; }
-
-#advanced-search-button { color: #767676; font-size: 18px; text-decoration: none; }
-#advanced-search-button:hover { color: #9ec7e9; text-decoration: underline; }
-
-.is-selected { background-color: #D6D6D6 !important; }
-
-#advanced-arrow { transition: transform 0.3s ease; }
-#advanced-arrow.open { -ms-transform: rotate(-180deg); transform: rotate(-180deg) }
-
-.bg-active { background-color: #E9ECEF; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
-#filter-container { transition: background-color 0.5s ease; }
-.no-transition { transition: none !important; }
-
-.btn-secondary.active { background-color: #6eabdb; }
-.btn-secondary:hover { background-color: #9ec7e9; }
-.table-hover tbody tr:hover { background-color: #cee4f7; }
-
-#mainsearch-q { border: none; }
-
-#filter_modal { }
-#filter_modal form.modal-content div.modal-body { align-items:stretch; border-radius:0px; flex-direction:row; flex-wrap:nowrap; display:flex; height:60vh; padding:0; }
-#filter_modal form.modal-content div.modal-body ul.nav-tabs { display:block; overflow-y:scroll; width:200px; }
-#filter_modal form.modal-content div.modal-body ul.nav-tabs li { border-bottom:1px solid #ddd; display:block; }
-#filter_modal form.modal-content div.modal-body ul.nav-tabs li a { color:#555; display:block; font-size:13px; font-weight:bold; padding:10px 0px 10px 30px; }
-#filter_modal form.modal-content div.modal-body ul.nav-tabs li a.active { background-color:#DDDDDD; }
-#filter_modal form.modal-content div.modal-body ul.nav-tabs li a:hover { color:#0645BA; text-decoration:none; }
-#filter_modal form.modal-content div.modal-body div.tab-content { display:block; flex-grow:1; overflow-y:auto; padding:30px 30px; width:400px; }
-#filter_modal form.modal-content div.modal-body div.tab-content ul.checkbox-list { list-style-type:none; margin:0; padding:0; }
-#filter_modal form.modal-content div.modal-footer { padding:0.5rem 1rem; }
-</style>
 {% endblock %}
 
 {% block content %}
