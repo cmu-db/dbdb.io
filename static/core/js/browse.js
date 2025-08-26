@@ -295,9 +295,7 @@ function populate_table(results) {
 
     for (const result of results) {
         const tr = document.createElement('tr');
-        tr.classList.add('hover');
-        tr.setAttribute('onclick', `window.location.assign('/db/${result.slug}/')`);
-        tr.setAttribute('style', 'cursor: pointer');
+        tr.classList.add('browse-row');
 
         function getThumbnailUrl(path, alias = 'search') {
             // Thumbnail attributes from dbdb/settings.py
@@ -316,7 +314,11 @@ function populate_table(results) {
             return `/media/${path}.${width}x${height}_q85.png`;
         }
 
-
+        const link_td = document.createElement('td');
+        const link = document.createElement('a');
+        link.classList.add('full-row-link');
+        link.setAttribute('href', `/db/${result.slug}/`);
+        link_td.appendChild(link);
 
         const logo_td = document.createElement('td');
         const logo = document.createElement('img');
@@ -356,6 +358,7 @@ function populate_table(results) {
             end_year_td.textContent = '—';
         }
 
+        tr.appendChild(link_td);
         tr.appendChild(logo_td);
         tr.appendChild(name_td);
         tr.appendChild(start_year_td);

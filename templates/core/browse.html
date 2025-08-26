@@ -26,7 +26,7 @@
                 <div class="input-group input-group-lg align-items-center m-0">
                     <i class="fas fa-search ps-4" style="color: #767676;"></i>
                     <input type="text" class="form-control" placeholder="Search name, keywords, features..." aria-label="Search name, keywords, features..." aria-describedby="search" id="mainsearch-q" name="q" value="{{ query }}">
-                    <p class="m-0 ps-4 pe-4 d-none d-sm-block" style="color: #0d6efd;">{% if num_results != 0 %}{{ num_results|intcomma }}{% else %}No{% endif %} result{% if num_results != 1 %}s{% endif %}</p>
+                    <p class="m-0 ps-4 pe-4 d-none d-sm-block num-results">{% if num_results != 0 %}{{ num_results|intcomma }}{% else %}No{% endif %} result{% if num_results != 1 %}s{% endif %}</p>
                     <button class="btn btn-primary" type="submit" id="search">Search</button>
                 </div>
             </div>
@@ -119,6 +119,7 @@
         <table class="table table-striped table-hover align-middle text-nowrap" id="results-table" sort="name-asc">
             <thead class="table-dark">
                 <tr>
+                    <th></th>
                     <th></th>
                     <th> 
                         <button type="button" id="name-sort" class="btn btn-link p-sm-0 text-light font-weight-bold text-decoration-none" color="white">
