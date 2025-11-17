@@ -44,20 +44,20 @@
         </div>
 
         <!-- TITLE AND DESCRIPTION -->
-        <h1 class="fw-bold order-first">{{ system.name }}</h1>
 
         <div class="col-sm-12 col-md-8 order-first order-md-1">
             {% if system_version.tags %}
                 {% for tag in system_version.tags.all %}
-                    <a class="badge badge-secondary" href="{% url 'browse' %}?tag={{ tag.slug }}">{{ tag.name }}</a>
+                    <a class="badge badge-tag" href="{% url 'browse' %}?tag={{ tag.slug }}" title="View Other '{{ tag.name }}' Systems">{{ tag.name }}</a>
                 {% endfor %}
             {% endif %}
             <div class="d-block d-md-none">
+                <h1 class="fw-bold order-first">{{ system.name }}</h1>
                 {{ system_version.description_mobile_intro|markdownify }}
             </div>
         </div>
 
-        <!-- START: SIDEBAR -->
+        <!-- BEGIN: SIDEBAR -->
         <div class="float-md-end text-wrap text-break sidebar pb-4 ms-md-5">
             {% if has_revision %}
             <div class="alert alert-info d-block d-md-none" style="line-height: 34px;" role="alert">
@@ -66,7 +66,7 @@
             </div>
             {% endif %}
 
-            <div class="border rounded-0 rounded-top bg-light p-4">
+            <div class="border rounded bg-light p-4">
                 {% if system_version.logo %}
                 <div class="text-center mb-3 pb-3 border-bottom">
                     <a href="{{ system_version.logo.url }}"><img class="logo-thumbnail" src="{% if system_version.logo.url.lower|slice:"-3:" == "svg" %}{{ system_version.logo.url }}{% else %}{{ system_version.logo|thumbnail_url:'thumb' }}{% endif %}" style="border:none;" alt="{{ system.name }} Logo" title="{{ system.name }}"></a>
@@ -240,79 +240,6 @@
 
             </div>
 
-            <div class="card card-version d-none d-md-block revision-card rounded-0 rounded-bottom">
-                <a href="{% url 'system_revision' system.slug %}" title="View All Revisions for {{ system.name }}">
-                <div class="card-body">
-                    Revision #{{ system_version.ver }}
-                    &nbsp;|&nbsp;
-                    <time datetime="{{ system_version.created|date:"c" }}">
-                    Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
-                    </time>
-                </div>
-                </a>
-            </div>
-        </div>
-        <!-- END: SIDEBAR -->
-
-        <!-- START: MAIN BODY -->
-        <div>
-            <div class="d-block d-md-none">
-                {{ system_version.description_mobile_remainder|markdownify }}
-            </div>
-            <div class="d-none d-md-block">
-                {{ system_version.description|markdownify }}
-            </div>
-            
-            {% for sec in sections %}
-                <div id="{{ sec.id }}" class="mb-4">
-                    {% if sec.title %}
-                        <h3 class="mb-0">
-                            {{ sec.title }}
-                            {% if sec.citations %}
-                                {% for c in sec.citations %}
-                                    <sup><a class="citation" href="#citation{{ c }}">[{{ c }}]</a></sup>
-                                {% endfor %}
-                            {% endif %}
-                        </h3>
-                        <hr>
-                    {% endif %}
-                    {% if sec.options %}
-                        {% for o in sec.options %}
-                        <a class="badge bg-secondary" href="{% url 'browse' %}?{{ sec.id }}={{ o.slug }}">{{ o.value }}</a>
-                        {% endfor %}
-                    {% endif %}
-                    {{ sec.body|markdownify }}
-                </div>
-            {% endfor %}
-
-            {% if citations %}
-            <div class="text-wrap text-break">
-                <h3>Citations</h3>
-                <hr>
-                <ol>
-                    {% for c in citations %}
-                        <li id="citation{{ forloop.counter }}"><a href="{{ c }}" target="_cite">{{ c }}</a></li>
-                    {% endfor %}
-                </ol>
-            </div>
-            {% endif %}
-        </div>
-        <!-- END: MAIN BODY -->
-
-        <div class="card card-version d-block d-md-none revision-card">
-            <a href="{% url 'system_revision' system.slug %}" title="View All Revisions for {{ system.name }}">
-            <div class="card-body">
-                Revision #{{ system_version.ver }}
-                &nbsp;|&nbsp;
-                <time datetime="{{ system_version.created|date:"c" }}">
-                Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
-                </time>
-            </div>
-            </a>
-        </div>
-
-        <!-- BEGIN: RELATED SYSTEMS -->
-        <div class="row">
             {% if compatible %}
             <!-- START: COMPATIBLE -->
             <div class="card d-md-block systems-extra m-md-1 p-0" >
@@ -336,6 +263,67 @@
             </div>
             <!-- END: DERIVED -->
             {% endif %}
+
+
+        </div>
+        <!-- END: SIDEBAR -->
+
+        <!-- START: MAIN BODY -->
+        <div>
+            <h1 class="fw-bold d-none d-md-block">{{ system.name }}</h1>
+
+            <div class="d-block d-md-none">
+                {{ system_version.description_mobile_remainder|markdownify }}
+            </div>
+            <div class="d-none d-md-block">
+                {{ system_version.description|markdownify }}
+            </div>
+            
+            {% for sec in sections %}
+                <div id="{{ sec.id }}" class="mb-4">
+                    {% if sec.title %}
+                        <h3 class="mb-0">{{ sec.title }}{% if sec.citations %}{% for c in sec.citations %}<sup class="ps-1"><a class="citation" href="#citation{{ c }}" title="View Citation">[{{ c }}]</a></sup>{% endfor %}{% endif %}
+                        </h3>
+                        <hr class="mt-1 mb-2" />
+                    {% endif %}
+                    {% if sec.options %}
+                        {% for o in sec.options %}
+                        <a class="badge badge-section" href="{% url 'browse' %}?{{ sec.id }}={{ o.slug }}" title="View Other '{{ o.value }}' Systems">{{ o.value }}</a>
+                        {% endfor %}
+                    {% endif %}
+                    {{ sec.body|markdownify }}
+                </div>
+            {% endfor %}
+
+            {% if citations %}
+            <div class="text-wrap text-break">
+                <h3>Citations</h3>
+                <hr class="mt-1 mb-2" />
+                <ol>
+                    {% for c in citations %}
+                        <li id="citation{{ forloop.counter }}"><a href="{{ c }}" target="_cite">{{ c }} <i class="fas fa-external-link-alt"></i></a></li>
+                    {% endfor %}
+                </ol>
+            </div>
+            {% endif %}
+        </div>
+        <!-- END: MAIN BODY -->
+
+        <div class="card card-version d-block d-md-none revision-card">
+            <a href="{% url 'system_revision' system.slug %}" title="View All Revisions for {{ system.name }}">
+            <div class="card-body">
+                Revision #{{ system_version.ver }}
+                &nbsp;|&nbsp;
+                <time datetime="{{ system_version.created|date:"c" }}">
+                Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
+                </time>
+            </div>
+            </a>
+        </div>
+
+        <!-- BEGIN: RELATED SYSTEMS -->
+        <div class="row">
+
 
             {% if recommendations %}
             <!-- START: RECOMMENDATIONS -->
@@ -368,6 +356,18 @@
 {#                </a>#}
 {#            </div>#}
 {#        </section>#}
+
+<!--           <div class="card card-version d-none d-md-block revision-card rounded-0 rounded-bottom"> -->
+                <a href="{% url 'system_revision' system.slug %}" title="View All Revisions for {{ system.name }}">
+<!--                 <div class="card-body"> -->
+                    Revision #{{ system_version.ver }}
+                    &nbsp;|&nbsp;
+                    <time datetime="{{ system_version.created|date:"c" }}">
+                    Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
+                    </time>
+<!--                 </div> -->
+                </a>
+<!--             </div> -->
 
     </div>
 {% endblock %}

@@ -1941,12 +1941,14 @@ class SystemView(View):
         self.all_citations = []
 
         sections = []
-        sections.append({
-            "id": "history",
-            "title": "History",
-            "body": system_version.history,
-            "citations": self.process_citations(system_version.history_citations.all())
-        })
+
+        if system_version.history:
+            sections.append({
+                "id": "history",
+                "title": "History",
+                "body": system_version.history,
+                "citations": self.process_citations(system_version.history_citations.all())
+            })
 
         for sf in SystemFeature.objects.filter(version=system_version).select_related('feature').order_by('feature__label'):
             if not sf.description and sf.options.count() == 0: continue
