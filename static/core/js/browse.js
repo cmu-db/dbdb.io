@@ -296,6 +296,7 @@ function populate_table(results) {
     for (const result of results) {
         const tr = document.createElement('tr');
         tr.classList.add('browse-row');
+        tr.classList.add('text-muted');
 
         function getThumbnailUrl(path, alias = 'search') {
             // Thumbnail attributes from dbdb/settings.py
@@ -321,6 +322,7 @@ function populate_table(results) {
         link_td.appendChild(link);
 
         const logo_td = document.createElement('td');
+        logo_td.classList.add('text-end');
         const logo = document.createElement('img');
         logo.setAttribute('alt', `${result.name}`);
         logo.setAttribute('height', '20px');
@@ -338,6 +340,9 @@ function populate_table(results) {
             logo.setAttribute('src', '/static/core/images/database-nologo.svg');
         }
         logo_td.appendChild(logo);
+        const name_p = document.createElement("p");
+        name_p.textContent = result.name;
+        logo_td.appendChild(name_p);
 
         const name_td = document.createElement('td');
         name_td.textContent = result.name;

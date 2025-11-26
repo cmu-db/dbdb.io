@@ -38,7 +38,10 @@ a:has(img), .version-date-container > a {
     background-color: inherit !important;
 }
 
-.btn-primary { background-color: var(--link-color) !important; border-color: var(--link-color) !important; }
+.btn-primary {
+  background-color: var(--link-color) !important;
+  border-color: var(--link-color) !important;
+}
 
 nav.navbar-dark { background-color:#244A64; color: #fff; }
 nav.navbar-dark .navbar-brand { margin-right: 2rem; }
@@ -109,6 +112,10 @@ td.homepage-system {
 .homepage-header h1 {
     font-weight: bold;
 }
+.homepage-header input {
+  max-width:700px;
+  margin:0 auto;
+}
 div.homepage-header {
     padding-top: 18px;
     padding-bottom: 18px;
@@ -116,6 +123,8 @@ div.homepage-header {
 div.main {
     padding-top: 1%;
 }
+
+
 
 .homepage-list {
 	margin-right: 0px !important;
@@ -233,6 +242,10 @@ div.search-badges { margin: 40px auto 40px auto; text-align:center; width: 80%; 
 div.search-badges a.badge { font-size:100%; line-height: 1.5; padding-right: .75em; padding-left: .75em; }
 div.search-badges a.badge em { font-weight: normal; }
 
+.badge-tag {
+    text-decoration: none;
+}
+
 #advanced-search-button { color: #767676; font-size: 18px; text-decoration: none; }
 #advanced-search-button:hover { color: var(--link-color); text-decoration: underline; }
 
@@ -308,7 +321,10 @@ div.filter-group > ul { list-style-type: none; margin: 5px 0 0 5px; padding: 0; 
 div.filter-group > ul > div.row > div.col > li { padding: 1px 0; }
 div.filter-group > ul > div.row > div.col > li.more { display:none; }
 div.filter-group > ul > div.row > div.col > li > label { display:inline; margin:0; }
-form.main-search > div.search-results { flex-grow:1; padding:0px 30px; }
+form.main-search > div.search-results {
+    flex-grow:1;
+    /* padding:0px 30px; */
+}
 form.main-search > div.search-results div.input-group-lg { margin:40px auto 40px auto; border: 1px solid #ced4da; border-radius: 0.3rem; }
 form.main-search > div.search-results div.input-group-lg button.btn { border-left: 1px solid #ced4da; font-size: 1.25rem; line-height: 1.5; border-radius: 0px 0.3rem 0.3rem 0px; padding: .5rem 1rem; }
 form.main-search > div.search-results p.results-info { font-size: 1.75rem; margin:30px 0; text-align:center; }

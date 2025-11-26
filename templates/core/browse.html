@@ -21,23 +21,23 @@
 <form id="mainsearch" class="main main-search">
 
     <div class="search-results">
-        <div class="d-flex flex-column justify-content-center align-items-center mt-lg-5 ms-lg-5 me-lg-5 pb-1">
+        <div class="d-flex flex-column justify-content-center align-items-center mt-lg-5 mx-0 mx-lg-3 pb-1">
             <div class="col-12 col-lg-9">
                 <div class="input-group input-group-lg align-items-center m-0">
-                    <i class="fas fa-search ps-4" style="color: #767676;"></i>
-                    <input type="text" class="form-control" placeholder="Search name, keywords, features..." aria-label="Search name, keywords, features..." aria-describedby="search" id="mainsearch-q" name="q" value="{{ query }}">
-                    <p class="m-0 ps-4 pe-4 d-none d-sm-block num-results">{% if num_results != 0 %}{{ num_results|intcomma }}{% else %}No{% endif %} result{% if num_results != 1 %}s{% endif %}</p>
+                    <i class="fas fa-search ps-4 text-muted" ></i>
+                    <input type="text" class="form-control" placeholder="Keywords" aria-label="Search name, keywords, features..." aria-describedby="search" id="mainsearch-q" name="q" value="{{ query }}">
+                    <p class="m-0 px-4 d-none d-sm-block num-results">{% if num_results != 0 %}{{ num_results|intcomma }}{% else %}No{% endif %} result{% if num_results != 1 %}s{% endif %}</p>
                     <button class="btn btn-primary" type="submit" id="search">Search</button>
                 </div>
             </div>
         </div>
 
-        <div class="d-flex flex-column justify-content-center align-items-center ms-lg-5 me-lg-5 pb-5">
+        <div class="d-flex flex-column justify-content-center align-items-center mx-0 mx-lg-3 pb-5">
             <div class="col-12 col-lg-9 rounded" id="filter-container">
                 <button class="btn btn-link btn-sm mt-2 align-self-start ps-4" type="button" data-bs-toggle="collapse" data-bs-target="#filter" id="advanced-search-button" style="font-weight: bold;">
                     Advanced Search <i class="fas fa-chevron-down" id="advanced-arrow"></i>
                 </button>
-                <div class="filters collapse m-0 ps-4 pe-4 pb-4" id="filter">
+                <div class="filters collapse m-0 px-4 pb-4" id="filter">
                     <div class="d-flex align-items-center mb-3">
                         <div class="d-flex flex-column flex-sm-row align-items-sm-center">
                             <div>
@@ -120,7 +120,6 @@
             <thead class="table-dark">
                 <tr>
                     <th></th>
-                    <th></th>
                     <th> 
                         <button type="button" id="name-sort" class="btn btn-link p-sm-0 text-light font-weight-bold text-decoration-none" color="white">
                             <div class="d-flex">
@@ -132,7 +131,10 @@
                             </div>
                         </button>
                     </th>
-                    <th class="w-25 text-right">
+                    <th class="text-end">
+                        Tags
+                    </th>
+                    <th class="text-end">
                         <button type="button" id="start-year-sort" class="btn btn-link p-sm-0 text-light font-weight-bold text-decoration-none" color="white">
                             <div class="d-flex">
                                 Start Year
@@ -143,7 +145,7 @@
                             </div>
                         </button>
                     </th>
-                    <th class="w-25 text-right"> 
+                    <th class="text-end">
                         <button type="button" id="end-year-sort" class="btn btn-link p-sm-0 text-light font-weight-bold text-decoration-none" color="white">
                             <div class="d-flex">
                                 End Year

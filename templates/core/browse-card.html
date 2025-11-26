@@ -5,22 +5,29 @@
 
 <tr class="browse-row">
     <td><a href="{% url 'system' result.slug %}" class="full-row-link"></a></td>
-    <td>
+    <td class="text-start">
         {% if result.logo %}
         <img class="card-logo card-db-logo" loading="lazy" src="{% if result.logo|lower|slice:"-3:" == "svg" %}/media/{{ result.logo }}{% else %}{{ logo }}{% endif %}" alt="{{ result.name }}" height="20px" width="auto"/>
         {% else %}
         <img class="card-logo card-default-logo" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ result.name }}" height="20px" width="auto"/>
         {% endif %}
+        <p>{{ result.name }}</p>
     </td>
-    <td> {{ result.name }} </td>
-    <td class="text-right"> 
+    <td class="text-start">
+        {% for tag in result.system_tags %}
+            {% if tag.name %}
+            <a class="badge badge-tag rounded-pill text-bg-secondary d-block" href="{% url 'browse' %}?tag={{ tag.slug }}" title="View Other '{{ tag.name }}' Systems"><i class="fas fa-tag"></i> {{ tag.name }}</a>
+            {% endif %}
+        {% endfor %}
+    </td>
+    <td class="text-end">
         {% if result.start_year %}
         {{ result.start_year }} 
         {% else %}
         &mdash;
         {% endif %}
     </td>
-    <td class="text-right"> 
+    <td class="text-end">
         {% if result.end_year %}
         {{ result.end_year }}
         {% else %}

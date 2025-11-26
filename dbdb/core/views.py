@@ -834,9 +834,29 @@ class BrowseView(View):
 
         # if there are filter options to search for, apply filter
         if feature_option_ids:
-            # This sucks but we have to do a separate search to get all the current systems
-            # that have these features and then use that list to filter the main search query
-            feature_systems_versions = SystemFeature.objects.filter(options__id__in=feature_option_ids).filter(version__is_current=True).values_list("version__id")
+            # OR Queries (Match Any)
+            # It looks up the feature option ids
+            # in an IN clause to see if a system has any of them. We need to reconfigure this
+            # so that it can support a match on systems that have *all* of the features.
+            if search_op == or_:
+                feature_systems_versions = SystemFeature.objects.filter(options__id__in=feature_option_ids)\
+                                                                .filter(version__is_current=True)\
+                                                                .values_list("version__id", flat=True)\
+                                                                .distinct()
+
+            # AND Queries (Match All)
+            # Create a sub-query for each feature and then take the intersection
+            else:
+                feature_systems_versions = None
+                for option_id in feature_option_ids:
+                    option_filter = SystemFeature.objects.filter(options__id=option_id) \
+                                                         .filter(version__is_current=True) \
+                                                         .values_list("version__id", flat=True) \
+                                                         .distinct()
+                    if feature_systems_versions is None:
+                        feature_systems_versions = option_filter
+                    else:
+                        feature_systems_versions = feature_systems_versions.intersection(option_filter)
             sqs_filters.append(Q(id__in=feature_systems_versions))
 
             # search_badges.extend(
@@ -845,8 +865,7 @@ class BrowseView(View):
             # )
         
         if sqs_filters:
-            op = and_ if search_op == 'and' else or_
-            query = reduce(op, sqs_filters)
+            query = reduce(search_op, sqs_filters)
             sqs = sqs.filter(query)
         
         # Build Title with features
@@ -887,8 +906,9 @@ class BrowseView(View):
         # Search Query
         search_q = request.GET.get('q', '').strip()
 
-        # Search Operator
-        search_op = request.GET.get('search_op', 'or').strip()
+        # Search Operator (AND vs. OR)
+        search_op = request.GET.get('search_op', 'or').lower().strip()
+        search_op = and_ if search_op == 'and' else or_
         
         # Perform the search and get back the versions along with a
         # mapping with the search keys
@@ -904,9 +924,9 @@ class BrowseView(View):
                                                                    slug=F('tags__slug')))).\
             values('id', 'name', 'slug', 'logo', 'start_year', 'end_year', 'system_tags', 'created')
 
-        num_results = len(results)
-        
+        results.query.comment = "BROWSE-SEARCH"
         results = list(results.order_by('system__name'))
+        num_results = len(results)
         
         # check if there are results
         has_results = len(results) > 0
@@ -954,7 +974,7 @@ class BrowseView(View):
             'has_search': len(search_keys) != 0,
             'search': search_keys,
             'suggestion': suggestion,
-            'search_op': search_op
+            'search_op': "and" if search_op == and_ else "or"
         })
     
     def handle_old_urls(self, request):
