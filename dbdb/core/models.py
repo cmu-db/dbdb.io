@@ -16,6 +16,7 @@ from django.utils import timezone
 # third-party imports
 from easy_thumbnails.fields import ThumbnailerImageField,ThumbnailerField
 from django_countries.fields import CountryField
+from colorfield.fields import ColorField
 from anyascii import anyascii
 from dbdb.core.common.searchvector import SearchVector
 
@@ -92,6 +93,7 @@ class Tag(models.Model):
     slug = models.SlugField(unique=True)
     name = models.CharField(max_length=64)
     url = models.URLField(blank=True, max_length=512)
+    icon = models.CharField(max_length=64)
 
     class Meta:
         ordering = ('name',)
@@ -425,6 +427,8 @@ class SystemVersion(models.Model):
 
     logo = ThumbnailerField(
         blank=True, upload_to='logos/')
+    logo_color = ColorField(format="hex",
+        help_text="The color of the logo")
 
     countries = CountryField(
         blank=True, multiple=True,
@@ -715,7 +719,9 @@ class SystemVersionMetadata(models.Model):
 
     def __str__(self):
         system = self.systemversion_set.first()
-        return '{} - {} Meta'.format(system.system.name, system.ver)
+        name = "???" if system is None else system.system.name
+        ver = "???" if system is None else system.ver
+        return '{} - {} Meta'.format(name, ver)
 
     def derived_from_str(self):
         return ', '.join([str(l) for l in self.derived_from.all()])

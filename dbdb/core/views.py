@@ -921,7 +921,8 @@ class BrowseView(View):
         results = results.annotate(name=F('system__name'), 
                                    slug=F('system__slug'), 
                                    system_tags=JSONBAgg(JSONObject(name=F('tags__name'),
-                                                                   slug=F('tags__slug')))).\
+                                                                   slug=F('tags__slug'),
+                                                                   icon=F('tags__icon')))).\
             values('id', 'name', 'slug', 'logo', 'start_year', 'end_year', 'system_tags', 'created')
 
         results.query.comment = "BROWSE-SEARCH"

@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django_bootstrap5',
     'easy_thumbnails',
     'django_countries',
+    'colorfield',
     'captcha',
     'rest_framework', # djangorestframework
     'markdownify.apps.MarkdownifyConfig',

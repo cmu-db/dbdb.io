@@ -87,6 +87,9 @@ class ProgrammingLanguageAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'url')
     ordering = ('name',)
 
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug', 'icon', 'url')
+    ordering = ('name',)
 
 # registrations
 admin.site.unregister(User)
@@ -98,7 +101,7 @@ admin.site.register(FeatureOption, FeatureOptionAdmin)
 admin.site.register(License, LicenseAdmin)
 admin.site.register(OperatingSystem, OperatingSystemAdmin)
 admin.site.register(ProgrammingLanguage, ProgrammingLanguageAdmin)
-admin.site.register(Tag)
+admin.site.register(Tag, TagAdmin)
 admin.site.register(ProjectType)
 admin.site.register(System, SystemAdmin)
 admin.site.register(SystemFeature)
