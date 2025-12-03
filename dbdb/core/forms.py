@@ -16,10 +16,7 @@ from dbdb.core.models import Feature
 from dbdb.core.models import FeatureOption
 from dbdb.core.models import System
 from dbdb.core.models import SystemVersion
-from dbdb.core.models import SystemVersionMetadata
 
-
-# fields
 
 class TagFieldM2M(MultipleChoiceField):
 
@@ -244,6 +241,14 @@ class SystemVersionEditForm(forms.ModelForm):
             'project_types',
             'countries',
             'former_names',
+            'derived_from',
+            'embedded',
+            'inspired_by',
+            'compatible_with',
+            'licenses',
+            'oses',
+            'supported_languages',
+            'written_in',
             'comment'
         ]
 
@@ -297,14 +302,16 @@ class SystemVersionForm(forms.ModelForm):
             'project_types',
             'countries',
             'former_names',
+            'derived_from',
+            'embedded',
+            'inspired_by',
+            'compatible_with',
+            'licenses',
+            'oses',
+            'supported_languages',
+            'written_in',
         ]
 
     pass
 
-class SystemVersionMetadataForm(forms.ModelForm):
 
-    class Meta:
-        model = SystemVersionMetadata
-        exclude = ['system']
-
-    pass
