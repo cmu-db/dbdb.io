@@ -288,15 +288,17 @@ class BrowseView(View):
 
     template_name = 'core/browse.html'
 
-    def build_filter_group_for_field(self, field, search_field, label, all_systems, querydict):
+    def build_filter_group_for_field(self, field, search_field, label, all_systems, querydict, is_meta=True):
         empty_set = set()
 
-        values = SystemVersionMetadata.objects \
-            .filter(systemversion__is_current=True) \
-            .filter(~Q(**{field: None})) \
-            .values_list(field)
-            #.distinct() \
-            #.order_by()
+        if is_meta:
+            values = SystemVersionMetadata.objects.filter(systemversion__is_current=True)
+        else:
+            values = SystemVersion.objects.filter(is_current=True)
+
+        values = values.filter(~Q(**{field: None})).values_list(field)
+                        # .distinct() \
+                        # .order_by()
         fg = FilterGroup(search_field, label, sorted([
             FilterChoice(
                 all_systems[v[0]].slug,
@@ -383,7 +385,8 @@ class BrowseView(View):
             'derived', \
             'Derived From', \
             all_systems, \
-            querydict
+            querydict,
+            is_meta=False
         ))
 
         # Inspired
@@ -699,8 +702,8 @@ class BrowseView(View):
 
         # search - derived from
         if search_derived:
-            sqs_filters.append(Q(meta__derived_from__slug__in=search_derived))
-            # sqs = sqs.filter(meta__derived_from__slug__in=search_derived)
+            sqs_filters.append(Q(derived_from__slug__in=search_derived))
+            # sqs = sqs.filter(derived_from__slug__in=search_derived)
             systems = self.slug_to_system(search_derived)
             search_mapping['derived'] = systems.values()
             # search_badges.extend( SearchBadge(request.GET, 'derived', 'Derived From', k, v) for k,v in systems.items() )
@@ -1828,7 +1831,7 @@ class StatsView(View):
 
         # Derived From
         if stats_type is None or stats_type == "derived":
-            stats.append( self.get_versionmeta_stat('Derived From', 'derived_from', 'derived', labels, slugs, True, self.default_limit) )
+            stats.append( self.get_version_stat('Derived From', 'derived_from', 'derived', labels, slugs, True, self.default_limit) )
 
         # Embeds
         if stats_type is None or stats_type == "embeds":
@@ -1998,7 +2001,7 @@ class SystemView(View):
         derived = [
             ver.system for ver in SystemVersion.objects
                                 .filter(is_current=True)
-                                .filter(meta__derived_from=system)
+                                .filter(derived_from=system)
                                 .order_by("-logo")
                                 .select_related()
         ]

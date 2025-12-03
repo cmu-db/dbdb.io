@@ -467,6 +467,12 @@ class SystemVersion(models.Model):
         verbose_name="LinkedIn URL",
         help_text="URL of LinkedIn profile for main developer backing the system (if available)")
 
+    derived_from = models.ManyToManyField(
+        'System', blank=True,
+        related_name='derived_from_systemsX',
+        verbose_name='Systems Derived From',
+        help_text="Systems that this system's source code is based on")
+
     class Meta:
         ordering = ('-ver',)
         unique_together = ('system','ver')
@@ -670,12 +676,6 @@ class SystemVersion(models.Model):
 # SystemVersionMetadata
 # ==============================================
 class SystemVersionMetadata(models.Model):
-
-    derived_from = models.ManyToManyField(
-        'System', blank=True,
-        related_name='derived_from_systems',
-        verbose_name='Systems Derived From',
-        help_text="Systems that this system's source code is based on")
 
     embedded = models.ManyToManyField(
         'System', blank=True,

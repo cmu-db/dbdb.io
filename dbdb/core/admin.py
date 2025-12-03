@@ -46,6 +46,7 @@ class SystemAdmin(admin.ModelAdmin):
 
 class SystemVersionAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
+    raw_id_fields = ('description_citations', 'start_year_citations', 'end_year_citations', 'history_citations', 'acquired_by_citations')
     list_display = ('system', 'ver', 'creator', 'created')
     list_filter = ['created', 'system']
     readonly_fields=('ver', 'system')

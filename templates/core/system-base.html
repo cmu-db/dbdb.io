@@ -179,11 +179,11 @@
                         </dd>
                     {% endif %}
 
-                    {% if system_version.meta.derived_from.exists %}
+                    {% if system_version.derived_from.exists %}
                         <dt class="fs-6">Derived From</dt>
                         <dd>
                             {% spaceless %}
-                            {% for other in system_version.meta.derived_from.all %}{% if not forloop.first %}, {% endif %}
+                            {% for other in system_version.derived_from.all %}{% if not forloop.first %}, {% endif %}
                                 <a class="card-title" href="{% url 'browse' %}?derived={{ other.slug }}" title="View other systems derived from {{ other.name }}">{{ other.name }}</a>{% endfor %}
                             {% endspaceless %}
                         </dd>
