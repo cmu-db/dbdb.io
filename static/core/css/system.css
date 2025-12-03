@@ -8,10 +8,11 @@
     font-size: 1.3em;
 }
 
-sup {
+h3 > sup {
   font-size: 0.5em;
   top: -1em;
 }
+
 
 .badge-section {
   background-color: var(--light-bg-color);
@@ -26,7 +27,7 @@ sup {
 /* Feature Highlight */
 div:target {
     background-color: #FFFFCC;
-    border: 3px solid #E74C3C;
+    border: 3px solid var(--highlight-color);
 }
 
 div.card h2 a { font-size: 16px; }

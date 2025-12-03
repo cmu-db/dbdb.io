@@ -33,7 +33,7 @@ class Command(BaseCommand):
 
             if logo_img and not os.path.isdir(logo_img):
                 try:
-                    color = extract_color(str(logo_img))
+                    color = extract_color(str(logo_img), exclude_dark=True)
                     ver.logo_color = color_to_hex(color)
                     self.stdout.write("%s -> %s" % (ver.system.name, color_to_hex(color)))
                 except:

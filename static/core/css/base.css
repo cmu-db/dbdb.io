@@ -1,5 +1,6 @@
 :root {
     --link-color: #c41230;
+    --highlight-color: #d64257;
     --red-button-color: #d64257;
     --browse-hover-color: #f7ced5;
     --light-bg-color: #f8f9fa;
@@ -152,8 +153,8 @@ div.main {
 /* LOGOS */
 img.logo-thumbnail {
     width: 100%;
-    max-width: 300px;
-    max-height: 250px;
+/*    max-width: 300px;
+    max-height: 250px;*/
 }
 img.logo-search {
 /*    min-width: 200px;
@@ -212,6 +213,33 @@ span.search-keyword {
     padding: 6px;
 }
 
+.results-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.diagonal-strip {
+    position: relative;
+    overflow: hidden;
+}
+
+.diagonal-strip::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 10%;
+    height: 100%;
+    transform: skewX(-15deg);
+    transform-origin: top left;
+    background-color: var(--strip-color);
+}
+
+.diagonal-strip span {
+    position: relative;
+    z-index: 1;
+}
+
 .search-results div.card { padding: 8px; }
 .search-results div.card:hover { background-color: #ffff99; }
 .search-results div.card .card-header { padding: 20px 0 0 0; background-color: transparent; border-bottom:none; }
@@ -244,6 +272,9 @@ div.search-badges a.badge em { font-weight: normal; }
 
 .badge-tag {
     text-decoration: none;
+}
+.citation {
+    font-weight: normal;
 }
 
 #advanced-search-button { color: #767676; font-size: 18px; text-decoration: none; }

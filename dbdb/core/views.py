@@ -923,7 +923,7 @@ class BrowseView(View):
                                    system_tags=JSONBAgg(JSONObject(name=F('tags__name'),
                                                                    slug=F('tags__slug'),
                                                                    icon=F('tags__icon')))).\
-            values('id', 'name', 'slug', 'logo', 'start_year', 'end_year', 'system_tags', 'created')
+            values('id', 'name', 'slug', 'logo', 'logo_color', 'start_year', 'end_year', 'system_tags', 'created')
 
         results.query.comment = "BROWSE-SEARCH"
         results = list(results.order_by('system__name'))
