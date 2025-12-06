@@ -2,7 +2,6 @@ from PIL import Image
 import io
 from collections import Counter
 from typing import Tuple, Union
-import os
 
 def extract_color(image_path: str, exclude_dark: bool = True,
                   min_saturation: int = 20, top_n: int = 10) -> Tuple[int, int, int]:
@@ -109,22 +108,3 @@ def extract_color(image_path: str, exclude_dark: bool = True,
 def color_to_hex(rgb: Tuple[int, int, int]) -> str:
     """Convert RGB tuple to hex color string."""
     return '#{:02x}{:02x}{:02x}'.format(*rgb)
-
-#
-# # Example usage
-# if __name__ == "__main__":
-#     # Test with an image
-#     image_path = "logo.png"  # Replace with your image path
-#
-#     if os.path.exists(image_path):
-#         prominent_color = extract_prominent_color(image_path)
-#         hex_color = color_to_hex(prominent_color)
-#
-#         print(f"Most prominent color: RGB{prominent_color}")
-#         print(f"Hex: {hex_color}")
-#     else:
-#         print(f"Image file not found: {image_path}")
-#         print("\nTo use this function:")
-#         print("1. Install required packages: pip install Pillow")
-#         print("2. For SVG support: pip install cairosvg")
-#         print("3. Call extract_prominent_color('path/to/your/logo.png')")

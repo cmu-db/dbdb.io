@@ -2,6 +2,8 @@ from django.core.management import BaseCommand
 
 from dbdb.core.models import SystemSearchText
 from dbdb.core.models import SystemVersion
+from dbdb.core.utils.searchtext import generate_searchtext
+
 
 class Command(BaseCommand):
 
@@ -20,15 +22,15 @@ class Command(BaseCommand):
             else:
                 versions = versions.filter(system__name__icontains=keyword)
 
-        for s in versions.order_by("system__name"):
-            sstext, created = SystemSearchText.objects.update_or_create(system=s.system)
+        for ver in versions.order_by("system__name"):
+            sstext, created = SystemSearchText.objects.update_or_create(system=ver.system)
             try:
-                sstext.system = s.system
-                sstext.name = s.system.name
-                sstext.search_text = s.generate_searchtext()
+                sstext.system = ver.system
+                sstext.name = ver.system.name
+                sstext.search_text = generate_searchtext(ver)
                 sstext.save()
-                print("Added search text for %s [id=%d]" % (s.system.name, s.system.id))
+                print(f"Added search text for {ver}")
             except:
-                print("Failed", s.system)
+                print(f"Failed to update search text for {ver}")
                 raise
     pass
