@@ -58,7 +58,8 @@ from dbdb.core.models import SystemVersion
 from dbdb.core.models import SystemACL
 from dbdb.core.models import SystemVisit
 from dbdb.core.models import SystemRecommendation
-
+from dbdb.core.utils.searchtext import generate_searchtext
+from dbdb.core.utils.twitter_card import create_twitter_card
 
 UserModel = get_user_model()
 
@@ -1384,11 +1385,11 @@ class DatabasesEditView(LoginRequiredMixin, View):
 
             # Do this down here to make sure the logo gets uploaded correctly
             if db_version.logo is not None and old_logo != db_version.logo:
-                db_version.create_twitter_card()
+                create_twitter_card(db_version)
 
             # Update the search index too!
             ver_search, created = SystemSearchText.objects.update_or_create(system=system)
-            ver_search.search_text = db_version.generate_searchtext()
+            ver_search.search_text = generate_searchtext(db_version)
             ver_search.save()
 
             return redirect(db_version.system.get_absolute_url())

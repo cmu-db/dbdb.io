@@ -1,6 +1,5 @@
 # stdlib imports
-import os
-import re
+
 import uuid
 # django imports
 from django.conf import settings
@@ -9,6 +8,7 @@ from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from django.db.models import Max
 from django.db.models.signals import post_save
+from django.core.exceptions import ValidationError
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.urls import reverse
@@ -17,7 +17,7 @@ from django.utils import timezone
 from easy_thumbnails.fields import ThumbnailerImageField,ThumbnailerField
 from django_countries.fields import CountryField
 from colorfield.fields import ColorField
-from anyascii import anyascii
+
 from dbdb.core.common.searchvector import SearchVector
 
 
@@ -98,7 +98,6 @@ class Tag(models.Model):
     class Meta:
         ordering = ('name',)
 
-
     def __str__(self):
         return self.name
 
@@ -116,7 +115,6 @@ class License(models.Model):
     class Meta:
         ordering = ('name',)
 
-
     def __str__(self):
         return self.name
 
@@ -133,7 +131,6 @@ class OperatingSystem(models.Model):
 
     class Meta:
         ordering = ('name',)
-
 
     def __str__(self):
         return self.name
@@ -207,7 +204,6 @@ class SuggestedSystem(models.Model):
 
     class Meta:
         ordering = ('name',)
-
 
     def __str__(self):
         return self.name
@@ -283,6 +279,7 @@ class SystemFeature(models.Model):
     options = models.ManyToManyField('FeatureOption', related_name='system_features')
 
     description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
+    system = models.ForeignKey('System', models.CASCADE, default=None)
 
     class Meta:
         unique_together = ('version','feature')
@@ -292,6 +289,13 @@ class SystemFeature(models.Model):
 
     def values_str(self):
         return ', '.join([str(l) for l in self.options.all()])
+
+    def clean(self):
+        super().clean()
+        # Make sure the derived system feature isn't the same as this system
+        if self.system is not None:
+            if self.version.system == self.system:
+                raise ValidationError(f"Cannot set feature's derived system ({self.system} as the same system {self.version.system}")
 
     pass
 
@@ -532,26 +536,6 @@ class SystemVersion(models.Model):
     def project_types_str(self):
         return ', '.join( self.project_types.values_list('name', flat=True) )
 
-    def update_version(self):
-        created = self.id is None
-
-        if created:
-            aggregates = SystemVersion.objects.filter(system=instance.system).aggregate(max_ver=Max('ver'))
-            max_ver = aggregates['max_ver']
-
-            if max_ver is None:
-                instance.ver = 1
-                pass
-            else:
-                SystemVersion.objects.filter(system=instance.system).update(is_current=False)
-                instance.ver = max_ver + 1
-                pass
-
-            instance.system.ver = instance.ver
-            instance.system.save()
-            pass
-        return
-
     def derived_from_str(self):
         return ', '.join([str(l) for l in self.derived_from.all()])
 
@@ -591,143 +575,9 @@ class SystemVersion(models.Model):
     def get_twitter_card_image(self):
         return self.system.slug + ".png"
 
-    def create_twitter_card(self):
-        from PIL import Image, ImageDraw, ImageFont
-        from cairosvg import svg2png
-        import tempfile
 
-        # Create a nicely formatted version of the logo for the twitter card
-        template = os.path.join(settings.BASE_DIR, "static", settings.TWITTER_CARD_TEMPLATE)
-        im1 = Image.open(template).convert("RGBA")
-        new_im = Image.new('RGBA', (im1.width, im1.height))
-        new_im.paste(im1, (0, 0))
 
-        # If there is no logo, then we will create an image of just the name
-        if not self.logo:
-            font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 128)
-            name = self.system.name
-            ascent, descent = font.getmetrics()
-            # [width, height]
-            text_size = [font.getmask(name).getbbox()[2], font.getmask(name).getbbox()[3] + descent]
-            # text_size = font.getbbox(name)
-            if name.find(" ") != -1:
-                name = name.replace(" ", "\n")
-                # Compute dimension of each line
-                text_size = [0, 0]
-                for line in name.split("\n"):
-                    width = font.getmask(line).getbbox()[2]
-                    height = font.getmask(line).getbbox()[3] + descent
-                    text_size[0] = max(text_size[0], width)
-                    text_size[1] += height + 5
 
-            logo = Image.new('RGBA', text_size)
-            text_draw = ImageDraw.Draw(logo)
-            text_draw.text((0, 0), name, font=font, fill=(70,70,70,255))
-
-        # SVG
-        elif self.logo.path.lower().endswith("svg"):
-            temp_name = os.path.join(tempfile.gettempdir(), next(tempfile._get_candidate_names()) + ".png")
-            with open(self.logo.path) as fd:
-                svg2png(bytestring=fd.read(),write_to=temp_name, scale=3)
-            logo = Image.open(temp_name).convert("RGBA")
-
-        # PNG
-        else:
-            logo = Image.open(self.logo).convert("RGBA")
-
-        new_size = (0, 0)
-        if logo.width > logo.height:
-            ratio = (settings.TWITTER_CARD_MAX_WIDTH / float(logo.size[0]))
-            new_size = (settings.TWITTER_CARD_MAX_WIDTH, int((float(logo.size[1]) * float(ratio))))
-        else:
-            ratio = (settings.TWITTER_CARD_MAX_HEIGHT / float(logo.size[1]))
-            new_size = (int((float(logo.size[0]) * float(ratio))), settings.TWITTER_CARD_MAX_HEIGHT)
-
-        # Check if either the new width or height exceed the max dimensions
-        # We have to do this because the dimensions are not square
-        if new_size[0] > settings.TWITTER_CARD_MAX_WIDTH:
-            ratio = (settings.TWITTER_CARD_MAX_WIDTH / float(new_size[0]))
-            new_size = (settings.TWITTER_CARD_MAX_WIDTH, int((float(new_size[1]) * float(ratio))))
-        elif new_size[1] > settings.TWITTER_CARD_MAX_HEIGHT:
-            ratio = (settings.TWITTER_CARD_MAX_HEIGHT / float(new_size[1]))
-            new_size = (int((float(new_size[0]) * float(ratio))), settings.TWITTER_CARD_MAX_HEIGHT)
-
-        # Resize the mofo
-        logo = logo.resize(new_size, Image.Resampling.LANCZOS)
-
-        # Figure out the center of the white part of the card
-        # Assume that the origin is (0,0). We will adjust by the base offset later
-        offset = (settings.TWITTER_CARD_BASE_OFFSET_X + settings.TWITTER_CARD_MARGIN + (settings.TWITTER_CARD_MAX_WIDTH - logo.width) // 2, \
-                  settings.TWITTER_CARD_MARGIN + (settings.TWITTER_CARD_MAX_HEIGHT - logo.height) // 2)
-
-        new_im.paste(logo, offset, logo)
-        card_img = os.path.join(settings.TWITTER_CARD_ROOT, self.get_twitter_card_image())
-        new_im.save(card_img)
-        return card_img
-
-    def generate_searchtext(self):
-        words = [self.system.name, self.developer]
-        words += [x.name for x in self.countries]
-        if self.former_names:
-            words += self.former_names.split(",")
-        if self.acquired_by:
-            words += self.acquired_by.split(",")
-        words += [x.name for x in self.written_in.all()]
-        words += [x.slug for x in self.written_in.all()]
-
-        # Add tags with and without hyphens
-        # Example: time-series vs. timeseries
-        for tag in self.tags.all():
-            words += [tag.name, tag.name.replace("-", "")]
-
-        # It's debatable whether people actually want to do keyword search for the supported languages
-        # From the logs, it looks like people really want to know the language a DBMS was written in
-        # words += [x.name for x in self.supported_languages.all()]
-        # words += [x.slug for x in self.supported_languages.all()]
-
-        words += [x.name for x in self.oses.all()]
-        words += [x.slug for x in self.oses.all()]
-        words += [x.name for x in self.licenses.all()]
-        words += [x.slug for x in self.licenses.all()]
-        for sf in SystemFeature.objects.filter(version=self):
-            for o in sf.options.all():
-                value = o.value
-                # Special case the data model by adding the word "database" to end of it
-                if sf.feature.slug == "data-model":
-                    value += " database"
-                # Split values by slashes
-                if value.find("/") != -1:
-                    value = " ".join(value.split("/"))
-                words += [o.slug, value]
-            if sf.description: words.append(sf.description)
-        words += [self.description]
-
-        # Automatically add different variations of the name for better searching
-        names = [self.system.name]
-        if self.former_names:
-            names += self.former_names.split(",")
-
-        # If they are using unicode characters, convert them to ASCII
-        clean_name = re.sub('[^a-zA-Z0-9]', '', anyascii(self.system.name)).strip()
-        if self.system.name != clean_name and clean_name not in names:
-            names.append(clean_name)
-            words.append(clean_name)
-            # print("Cleaned '%s' -> '%s'" % (self.system.name, clean_name))
-
-        # We also add the name of the DBMS with/without common suffixes
-        # Examples: MongoDB->Mongo, Kuzu->KuzuDB
-        suffixes = ["DB", "SQL", "BASE", "STORE"]
-        for name in names:
-            has_suffix = False
-            for s in suffixes:
-                if name.upper().endswith(s):
-                    words.append(name[:-len(s)])
-                    has_suffix = True
-            if not has_suffix:
-                # print("Added variations: ", [name + s for s in suffixes])
-                words += [name + s for s in suffixes]
-
-        return " ".join([w.replace('\r', '').replace('\n', ' ') for w in words])
 
     pass
 
@@ -752,9 +602,7 @@ __all__ = (
     'SystemVisit',
 )
 
-
 # signal handlers
-
 @receiver(pre_save, sender=SystemVersion)
 def systemversion_pre_save(sender, **kwargs):
     instance = kwargs['instance']
