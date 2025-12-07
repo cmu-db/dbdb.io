@@ -279,7 +279,7 @@ class SystemFeature(models.Model):
     options = models.ManyToManyField('FeatureOption', related_name='system_features')
 
     description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
-    system = models.ForeignKey('System', models.CASCADE, default=None)
+    system = models.ForeignKey('System', models.CASCADE, null=True, default=None)
 
     class Meta:
         unique_together = ('version','feature')
@@ -296,6 +296,10 @@ class SystemFeature(models.Model):
         if self.system is not None:
             if self.version.system == self.system:
                 raise ValidationError(f"Cannot set feature's derived system ({self.system} as the same system {self.version.system}")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()  # runs `clean()`, field validation, unique checks
+        super().save(*args, **kwargs)
 
     pass
 
