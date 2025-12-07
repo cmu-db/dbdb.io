@@ -15,11 +15,11 @@
                 <li class="nav-item">
                     <a class="nav-link {% if activate == 'recent' %} active{% endif %}" href="{% url 'recent' %}">Recent</a>
                 </li>
-                {% if system %}
-                <li class="nav-item">
-                    <a class="nav-link {% if activate == 'revisions' %} active{% endif %}" href="{% url 'system_revision' slug=system.slug %}">Revision List</a>
-                </li>
-                {% endif %}
+<!--                {% if system %}-->
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link {% if activate == 'revisions' %} active{% endif %}" href="{% url 'system_revision' slug=system.slug %}">Revision List</a>-->
+<!--                </li>-->
+<!--                {% endif %}-->
                 {% block navbuttons %}{% endblock %}
             </ul>
             {% if not no_nav_search %}

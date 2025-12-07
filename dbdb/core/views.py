@@ -1155,7 +1155,7 @@ class CreateUserView(View):
 # ==============================================
 class DatabasesEditView(LoginRequiredMixin, View):
 
-    template_name = 'core/databases-edit.html'
+    template_name = 'core/system-edit.html'
 
     def build_features(self, feature_form):
         features = Feature.objects.all()

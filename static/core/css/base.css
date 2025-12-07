@@ -293,7 +293,7 @@ div.search-badges a.badge em { font-weight: normal; }
 .btn-secondary:hover { background-color: var(--red-button-color); }
 tr.browse-row:hover { background-color: var(--browse-hover-color); }
 
-.form-select { border: none; border-bottom: 1px solid #767676; }
+.search-results > .form-select { border: none; border-bottom: 1px solid #767676; }
 
 .num-results { color: var(--link-color) }
 
