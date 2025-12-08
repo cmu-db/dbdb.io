@@ -58,6 +58,7 @@ from dbdb.core.models import SystemVersion
 from dbdb.core.models import SystemACL
 from dbdb.core.models import SystemVisit
 from dbdb.core.models import SystemRecommendation
+from dbdb.core.utils import logos
 from dbdb.core.utils.searchtext import generate_searchtext
 from dbdb.core.utils.twitter_card import create_twitter_card
 
@@ -1286,6 +1287,8 @@ class DatabasesEditView(LoginRequiredMixin, View):
                     )
                     pass
 
+                # If there is already a logo and they do not update it,
+                # then we need to make sure it gets copied over.
                 try:
                     logo = system.current().logo
                 except SystemVersion.DoesNotExist:
@@ -1302,6 +1305,13 @@ class DatabasesEditView(LoginRequiredMixin, View):
 
             if logo and not db_version.logo:
                 db_version.logo = logo
+            # Extract information about the logo that we can use when rendering pages
+            if db_version.logo is not None:
+                logo_w, logo_h = logos.extract_dimensions(db_version.logo)
+                db_version.logo_width = logo_w
+                db_version.logo_height = logo_h
+                db_version.logo_color = logos.color_to_hex(logos.extract_color(db_version.logo))
+
 
             db_version.save()
             system_version_form.save_m2m()
