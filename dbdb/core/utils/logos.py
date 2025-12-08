@@ -1,7 +1,47 @@
-from PIL import Image
 import io
+import xml.etree.ElementTree as ET
+
+from PIL import Image
 from collections import Counter
 from typing import Tuple, Union
+
+def extract_dimensions(path: str) -> tuple[int, int]:
+    """
+    Return (width, height) of an image.
+    Supports JPG, PNG, GIF, and SVG.
+    """
+
+    # --- SVG ---
+    if path.lower().endswith(".svg"):
+        tree = ET.parse(path)
+        root = tree.getroot()
+
+        # SVG width/height may include units (like "100px")
+        def parse_dim(value):
+            if value is None:
+                return None
+            value = value.strip()
+            # strip "px" or other units
+            num = "".join(c for c in value if (c.isdigit() or c == "."))
+            return float(num) if num else None
+
+        w = parse_dim(root.get("width"))
+        h = parse_dim(root.get("height"))
+
+        # If width/height not explicitly set, check viewBox
+        if (w is None or h is None) and root.get("viewBox"):
+            _, _, vb_w, vb_h = map(float, root.get("viewBox").split())
+            w = w or vb_w
+            h = h or vb_h
+
+        if w is None or h is None:
+            raise ValueError("Unable to determine SVG dimensions.")
+
+        return int(w), int(h)
+
+    # --- Raster (JPG/PNG/GIF/etc.) ---
+    with Image.open(path) as img:
+        return img.width, img.height
 
 def extract_color(image_path: str, exclude_dark: bool = True,
                   min_saturation: int = 20, top_n: int = 10) -> Tuple[int, int, int]:

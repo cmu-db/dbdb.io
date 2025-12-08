@@ -152,10 +152,18 @@ div.main {
 
 /* LOGOS */
 img.logo-thumbnail {
-    width: 100%;
-/*    max-width: 300px;
+    border: none;
+/*
     max-height: 250px;*/
 }
+img.logo-normal {
+    width: 100%;
+    max-width: 20rem;
+}
+img.logo-tall {
+    max-height: 20rem;
+}
+
 img.logo-search {
 /*    min-width: 200px;
     max-width: 200px;

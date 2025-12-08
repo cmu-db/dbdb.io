@@ -436,6 +436,8 @@ class SystemVersion(models.Model):
         blank=True, upload_to='logos/')
     logo_color = ColorField(format="hex",
         help_text="The color of the logo")
+    logo_width = models.IntegerField(blank=True, null=True)
+    logo_height = models.IntegerField(blank=True, null=True)
 
     countries = CountryField(
         blank=True, multiple=True,
@@ -578,10 +580,6 @@ class SystemVersion(models.Model):
 
     def get_twitter_card_image(self):
         return self.system.slug + ".png"
-
-
-
-
 
     pass
 
