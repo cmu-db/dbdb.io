@@ -22,7 +22,7 @@
 {% block content %}
     <div class="clearfix">
         <!-- BEGIN: MAIN COL -->
-        <div class="col-sm-12 col-md-8 order-1 order-md-1">
+        <div class="col-12 col-md-8 order-1 order-md-1">
             {% if has_revision %}
                 <div class="alert alert-info d-none d-md-block" style="line-height: 34px;" role="alert">
                     Viewing Revision #{{ system_version.ver }} from {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
@@ -46,20 +46,28 @@
 
         <!-- TITLE AND DESCRIPTION -->
 
-        <div class="col-sm-12 col-md-8 order-first order-md-1">
-            {% if system_version.tags %}
-                {% for tag in system_version.tags.all %}
-                    <a class="badge badge-tag" href="{% url 'browse' %}?tag={{ tag.slug }}" title="View Other '{{ tag.name }}' Systems">{{ tag.name }}</a>
-                {% endfor %}
-            {% endif %}
+        <div class="col-12 col-md-4 order-first order-md-1">
+            <!-- BEGIN:HEADER-MOBILE1 -->
             <div class="d-block d-md-none">
+                {% if user.is_authenticated and user_can_edit %}
+                    <a class="btn btn-primary float-end" href="{% url 'system_edit' system.slug %}" role="button">Edit</a>
+                {% endif %}
                 <h1 class="fw-bold order-first">{{ system.name }}</h1>
+
+                <!-- BEGIN:TAGS -->
+                {% if system_version.tags %}
+                    {% for tag in system_version.tags.all %}
+                        <a class="badge badge-tag" href="{% url 'browse' %}?tag={{ tag.slug }}" title="View Other '{{ tag.name }}' Systems">{{ tag.name }}</a>
+                    {% endfor %}
+                {% endif %}
+                <!-- END:TAGS -->
                 {{ system_version.description_mobile_intro|markdownify }}
             </div>
+            <!-- END:HEADER-MOBILE1 -->
         </div>
 
         <!-- BEGIN: SIDEBAR -->
-        <div class="float-md-end text-wrap text-break sidebar pb-4 ms-md-5">
+        <div class="col-sm-12 col-md-4 float-md-end text-wrap text-break sidebar pb-4 ms-md-5">
             {% if has_revision %}
             <div class="alert alert-info d-block d-md-none" style="line-height: 34px;" role="alert">
                 <a href="{{ system.get_absolute_url }}" class="btn btn-secondary btn-sm float-right active" role="button" aria-pressed="true">View Current</a>
@@ -245,9 +253,10 @@
 
             </div>
 
+            {# BEGIN:RELATED-FULLSCREEN #}
             {% if compatible %}
             <!-- START: COMPATIBLE -->
-            <div class="card d-md-block systems-extra m-md-1 p-0" >
+            <div class="card d-none d-md-block systems-extra p-0" >
                 {% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}
             </div>
             <!-- END: COMPATIBLE -->
@@ -255,7 +264,7 @@
 
             {% if derived %}
             <!-- START: DERIVED -->
-            <div class="card d-md-block systems-extra m-md-1 p-0" >
+            <div class="card d-none d-md-block systems-extra p-0" >
                 {% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}
             </div>
             <!-- END: DERIVED -->
@@ -263,11 +272,12 @@
 
             {% if embeds %}
             <!-- START: EMBEDS -->
-            <div class="card d-md-block systems-extra m-md-1 p-0" >
+            <div class="card d-none d-md-block systems-extra p-0" >
                 {% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}
             </div>
             <!-- END: DERIVED -->
             {% endif %}
+            {# END:RELATED-FULLSCREEN #}
 
 
         </div>
@@ -275,14 +285,21 @@
 
         <!-- START: MAIN BODY -->
         <div>
-            <h1 class="fw-bold d-none d-md-block">{{ system.name }}</h1>
-
+            <!-- BEGIN:HEADER-MOBILE2 -->
             <div class="d-block d-md-none">
                 {{ system_version.description_mobile_remainder|markdownify }}
             </div>
+            <!-- END:HEADER-MOBILE2 -->
+
+            <!-- BEGIN:HEADER-FULL -->
             <div class="d-none d-md-block">
+                {% if user.is_authenticated and user_can_edit %}
+                    <a class="btn btn-primary float-end" href="{% url 'system_edit' system.slug %}" role="button">Edit</a>
+                {% endif %}
+               <h1 class="fw-bold">{{ system.name }}</h1>
                 {{ system_version.description|markdownify }}
             </div>
+            <!-- END:HEADER-FULL -->
             
             {% for sec in sections %}
                 <div id="{{ sec.id }}" class="mb-4">
@@ -328,6 +345,31 @@
         <!-- BEGIN: RELATED SYSTEMS -->
         <div class="row">
 
+            {# BEGIN:RELATED-MOBILE #}
+            {% if compatible %}
+            <!-- START: COMPATIBLE -->
+            <div class="card d-block d-md-none systems-extra p-0" >
+                {% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}
+            </div>
+            <!-- END: COMPATIBLE -->
+            {% endif %}
+
+            {% if derived %}
+            <!-- START: DERIVED -->
+            <div class="card d-block d-md-none systems-extra p-0" >
+                {% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}
+            </div>
+            <!-- END: DERIVED -->
+            {% endif %}
+
+            {% if embeds %}
+            <!-- START: EMBEDS -->
+            <div class="card d-block d-md-none systems-extra p-0" >
+                {% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}
+            </div>
+            <!-- END: DERIVED -->
+            {% endif %}
+            {# END:RELATED-MOBILE #}
 
             {% if recommendations %}
             <!-- START: RECOMMENDATIONS -->

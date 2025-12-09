@@ -5,17 +5,13 @@
     --browse-hover-color: #f7ced5;
     --light-bg-color: #f8f9fa;
     --dark-gray: #767676;
+    --shadow-color: #e30008;
+    --header-color: #dee2e6;
 }
 
 * {
   font-family: 'Open Sans', sans-serif;
 }
-:root {
-  --link-color: #C41230;
-  --shadow-color: #e30008;
-  --header-color: #dee2e6;
-}
-
 
 body {
 	/*font-size: 14px;*/
@@ -194,15 +190,22 @@ img.logo-recommendation {
 /* SMALL */
 div.sidebar { width: 100%; min-width: 300px; }
 div.systems-extra { width: 100%; min-width: 300px; }
+div.sidebar dd {
+    margin-bottom: 0.8rem;
+}
+div.sidebar dl {
+    margin-bottom: -0.8rem;
+}
+
 /* MEDIUM */
 @media (min-width: 768px) {
     div.sidebar { width: 40%; }
-    div.systems-extra { width: 45%; }
+    /* div.systems-extra { width: 45%; } */
 }
 /* LARGE */
 @media (min-width: 992px) {
     div.sidebar { width: 32%; }
-    div.systems-extra { width: 20%; }
+    /* div.systems-extra { width: 20%; } */
 }
 
 div.sidebar .btn-primary { background-color:#417690; border-color:#417690; color:#ffffff; }
@@ -251,6 +254,11 @@ span.search-keyword {
 .search-results div.card { padding: 8px; }
 .search-results div.card:hover { background-color: #ffff99; }
 .search-results div.card .card-header { padding: 20px 0 0 0; background-color: transparent; border-bottom:none; }
+
+.autocomplete-suggestion b {
+    color: var(--highlight-color) !important;
+    background-color: yellow;
+}
 
 .search-results div.card img.card-logo {
     max-height: 125px;
