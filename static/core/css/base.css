@@ -23,6 +23,10 @@ body {
 }
 body > div.jumbotron { margin-bottom:0; }
 
+h1 {
+    font-size: calc(2rem + 1.5vw);
+}
+
 a { 
     color: var(--link-color); 
     text-decoration: none;
