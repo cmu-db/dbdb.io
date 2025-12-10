@@ -1020,12 +1020,12 @@ class CounterView(View):
                 pk = payload['pk']
 
                 # Skip bots
-                user_agent = request.META.get('HTTP_USER_AGENT', '')
+                user_agent = request.headers.get('user-agent', '')
                 if user_agent.lower().find("bot") != -1:
                     return JsonResponse({ 'status':'bot' })
 
                 # And add a SystemVisit entry
-                x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+                x_forwarded_for = request.headers.get('x-forwarded-for')
                 if x_forwarded_for:
                     ip = x_forwarded_for.split(',')[-1].strip()
                 else:

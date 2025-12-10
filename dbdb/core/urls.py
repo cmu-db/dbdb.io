@@ -5,25 +5,25 @@ from django.views.generic.base import RedirectView
 from dbdb.core import views
 
 urlpatterns = [
-    re_path(r'^$', views.HomeView.as_view(), name="home"),
+    path('', views.HomeView.as_view(), name="home"),
 
     re_path(r'^db/(?P<slug>[\w-]+)[/]?$', views.SystemView.as_view(), name='system'),
     re_path(r'^db/(?P<slug>[\w-]+)/edit$', views.DatabasesEditView.as_view(), name='system_edit'),
     re_path(r'^db/(?P<slug>[\w-]+)/revisions/$', views.DatabaseRevisionList.as_view(), name='system_revision'),
     re_path(r'^db/(?P<slug>[\w-]+)/revisions/(?P<ver>\d+)$', views.DatabaseRevisionView.as_view(), name='system_revision_view'),
 
-    re_path(r'^browse$', views.BrowseView.as_view(), name='browse'),
-    re_path(r'^search$', views.BrowseView.as_view(), name='search'),
-    re_path(r'^search/autocomplete/$', views.search_autocomplete, name='search_autocomplete'),
-    re_path(r'^search/advanced$', views.BrowseView.as_view(), name='advanced_search'),
+    path('browse', views.BrowseView.as_view(), name='browse'),
+    path('search', views.BrowseView.as_view(), name='search'),
+    path('search/autocomplete/', views.search_autocomplete, name='search_autocomplete'),
+    path('search/advanced', views.BrowseView.as_view(), name='advanced_search'),
 
-    re_path(r'^create$', views.DatabasesEditView.as_view(), name='create_database'),
-    re_path(r'^recent$', views.RecentChangesView.as_view(), name='recent'),
+    path('create', views.DatabasesEditView.as_view(), name='create_database'),
+    path('recent', views.RecentChangesView.as_view(), name='recent'),
 
     re_path(r'^stats[/]?$', views.StatsView.as_view(), name='stats'),
     re_path(r'^stats(?:/(?P<stats_type>[\w]+))$', views.StatsView.as_view(), name='stats_detailed'),
 
-    re_path(r'^fields$', views.EmptyFieldsView.as_view(), name='empty_fields'),
+    path('fields', views.EmptyFieldsView.as_view(), name='empty_fields'),
 
     path('user/create', views.CreateUserView.as_view(), name='create_user'),
     path('user/create/', RedirectView.as_view(pattern_name='create_user')),
