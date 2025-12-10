@@ -44,8 +44,6 @@
             {% endif %}
         </div>
 
-        <!-- TITLE AND DESCRIPTION -->
-
         <div class="col-12 col-md-4 order-first order-md-1">
             <!-- BEGIN:HEADER-MOBILE1 -->
             <div class="d-block d-md-none">
@@ -57,7 +55,9 @@
                 <!-- BEGIN:TAGS -->
                 {% if system_version.tags %}
                     {% for tag in system_version.tags.all %}
-                        <a class="badge badge-tag" href="{% url 'browse' %}?tag={{ tag.slug }}" title="View Other '{{ tag.name }}' Systems">{{ tag.name }}</a>
+                        <a class="badge badge-tag rounded-pill" href="{% url 'browse' %}?tag={{ tag.slug }}" title="View Other '{{ tag.name }}' Systems">
+                            <i class="fas badge-tag-icon {{ tag.icon }}"></i> {{ tag.name }}
+                        </a>
                     {% endfor %}
                 {% endif %}
                 <!-- END:TAGS -->
@@ -296,7 +296,17 @@
                 {% if user.is_authenticated and user_can_edit %}
                     <a class="btn btn-primary float-end" href="{% url 'system_edit' system.slug %}" role="button">Edit</a>
                 {% endif %}
-               <h1 class="fw-bold">{{ system.name }}</h1>
+                <h1 class="fw-bold">{{ system.name }}</h1>
+                <!-- BEGIN:TAGS -->
+                {% if system_version.tags %}
+                    {% for tag in system_version.tags.all %}
+                        <a class="badge badge-tag rounded-pill" href="{% url 'browse' %}?tag={{ tag.slug }}" title="View Other '{{ tag.name }}' Systems">
+                            <i class="fas badge-tag-icon {{ tag.icon }}"></i> {{ tag.name }}
+                        </a>
+                    {% endfor %}
+                {% endif %}
+                <!-- END:TAGS -->
+
                 {{ system_version.description|markdownify }}
             </div>
             <!-- END:HEADER-FULL -->

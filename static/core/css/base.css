@@ -7,6 +7,9 @@
     --dark-gray: #767676;
     --shadow-color: #e30008;
     --header-color: #dee2e6;
+
+    /* Bootstrap Overrides */
+    --bs-badge-font-size: 2em !important;
 }
 
 * {
@@ -288,7 +291,14 @@ div.search-badges a.badge em { font-weight: normal; }
 
 .badge-tag {
     text-decoration: none;
+    background: rgba(var(--bs-dark-rgb));
+    font-size: 1em;
+    margin-bottom: 1em;
 }
+.badge:hover {
+    text-decoration: none;
+}
+
 .citation {
     font-weight: normal;
 }
