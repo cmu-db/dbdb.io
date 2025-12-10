@@ -17,7 +17,7 @@
         {% spaceless %}
         {% for tag in result.system_tags %}
             {% if tag.name %}
-            <a class="badge badge-tag rounded-pill text-bg-secondary d-block" href="{% url 'browse' %}?tag={{ tag.slug }}" title="View Other '{{ tag.name }}' Systems">
+            <a class="badge badge-tag rounded-pill d-block" href="{% url 'browse' %}?tag={{ tag.slug }}" title="View Other '{{ tag.name }}' Systems">
                 <i class="fas badge-tag-icon {{ tag.icon }}"></i> {{ tag.name }}
             </a>
             {% endif %}

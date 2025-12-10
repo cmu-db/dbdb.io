@@ -87,13 +87,33 @@ class FeatureOption(models.Model):
     #pass
 
 # ==============================================
+# AttributeOption
+# ==============================================
+# class AttributeOption(models.Model):
+#     slug = models.SlugField(unique=True)
+#     name = models.CharField(max_length=64)
+#     url = models.URLField(blank=True, null=True, max_length=512)
+#     description = models.TextField(blank=True, null=True,
+#                                    help_text='This field supports Markdown Syntax')
+#     icon = models.CharField(max_length=64, blank=True, null=True)
+#
+#     class Meta:
+#         ordering = ('name',)
+#
+#     def __str__(self):
+#         return self.name
+#
+#     pass
+
+
+# ==============================================
 # Tag
 # ==============================================
 class Tag(models.Model):
     slug = models.SlugField(unique=True)
     name = models.CharField(max_length=64)
     url = models.URLField(blank=True, max_length=512)
-    icon = models.CharField(max_length=64)
+    icon = models.CharField(max_length=64, blank=True, null=True)
 
     class Meta:
         ordering = ('name',)
