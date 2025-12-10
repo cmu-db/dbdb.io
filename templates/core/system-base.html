@@ -47,8 +47,9 @@
         <div class="col-12 col-md-4 order-first order-md-1">
             <!-- BEGIN:HEADER-MOBILE1 -->
             <div class="d-block d-md-none">
+                {% partialdef title_tags inline %}
                 {% if user.is_authenticated and user_can_edit %}
-                    <a class="btn btn-primary float-end" href="{% url 'system_edit' system.slug %}" role="button">Edit</a>
+                    <a class="btn btn-primary float-end mt-1" href="{% url 'system_edit' system.slug %}" role="button">Edit</a>
                 {% endif %}
                 <h1 class="fw-bold order-first">{{ system.name }}</h1>
 
@@ -61,6 +62,8 @@
                     {% endfor %}
                 {% endif %}
                 <!-- END:TAGS -->
+                {% endpartialdef %}
+
                 {{ system_version.description_mobile_intro|markdownify }}
             </div>
             <!-- END:HEADER-MOBILE1 -->
@@ -253,31 +256,41 @@
 
             </div>
 
-            {# BEGIN:RELATED-FULLSCREEN #}
-            {% if compatible %}
-            <!-- START: COMPATIBLE -->
-            <div class="card d-none d-md-block systems-extra p-0" >
-                {% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}
-            </div>
-            <!-- END: COMPATIBLE -->
-            {% endif %}
+            <div class="d-none d-md-block ">
+                {% partialdef related inline %}
+                {% if compatible %}
+                <!-- START: COMPATIBLE -->
+                <div class="card systems-extra p-0" >
+                    {% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}
+                </div>
+                <!-- END: COMPATIBLE -->
+                {% endif %}
 
-            {% if derived %}
-            <!-- START: DERIVED -->
-            <div class="card d-none d-md-block systems-extra p-0" >
-                {% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}
-            </div>
-            <!-- END: DERIVED -->
-            {% endif %}
+                {% if derived %}
+                <!-- START: DERIVED -->
+                <div class="card systems-extra p-0" >
+                    {% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}
+                </div>
+                <!-- END: DERIVED -->
+                {% endif %}
 
-            {% if embeds %}
-            <!-- START: EMBEDS -->
-            <div class="card d-none d-md-block systems-extra p-0" >
-                {% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}
+                {% if embeds %}
+                <!-- START: EMBEDS -->
+                <div class="card systems-extra p-0" >
+                    {% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}
+                </div>
+                <!-- END: DERIVED -->
+                {% endif %}
+
+                {% if recommendations %}
+                <!-- START: RECOMMENDATIONS -->
+                <div class="card systems-extra p-0" >
+                    {% include 'core/system-sys-sidebar.html' with title='People Also Viewed' systems=recommendations %}
+                </div>
+                <!-- END: RECOMMENDATIONS -->
+                {% endif %}
+                {% endpartialdef %}
             </div>
-            <!-- END: DERIVED -->
-            {% endif %}
-            {# END:RELATED-FULLSCREEN #}
 
 
         </div>
@@ -293,20 +306,7 @@
 
             <!-- BEGIN:HEADER-FULL -->
             <div class="d-none d-md-block">
-                {% if user.is_authenticated and user_can_edit %}
-                    <a class="btn btn-primary float-end" href="{% url 'system_edit' system.slug %}" role="button">Edit</a>
-                {% endif %}
-                <h1 class="fw-bold">{{ system.name }}</h1>
-                <!-- BEGIN:TAGS -->
-                {% if system_version.tags %}
-                    {% for tag in system_version.tags.all %}
-                        <a class="badge badge-tag rounded-pill" href="{% url 'browse' %}?tag={{ tag.slug }}" title="View Other '{{ tag.name }}' Systems">
-                            <i class="fas badge-tag-icon {{ tag.icon }}"></i> {{ tag.name }}
-                        </a>
-                    {% endfor %}
-                {% endif %}
-                <!-- END:TAGS -->
-
+                {% partial title_tags %}
                 {{ system_version.description|markdownify }}
             </div>
             <!-- END:HEADER-FULL -->
@@ -353,41 +353,8 @@
         </div>
 
         <!-- BEGIN: RELATED SYSTEMS -->
-        <div class="row">
-
-            {# BEGIN:RELATED-MOBILE #}
-            {% if compatible %}
-            <!-- START: COMPATIBLE -->
-            <div class="card d-block d-md-none systems-extra p-0" >
-                {% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}
-            </div>
-            <!-- END: COMPATIBLE -->
-            {% endif %}
-
-            {% if derived %}
-            <!-- START: DERIVED -->
-            <div class="card d-block d-md-none systems-extra p-0" >
-                {% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}
-            </div>
-            <!-- END: DERIVED -->
-            {% endif %}
-
-            {% if embeds %}
-            <!-- START: EMBEDS -->
-            <div class="card d-block d-md-none systems-extra p-0" >
-                {% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}
-            </div>
-            <!-- END: DERIVED -->
-            {% endif %}
-            {# END:RELATED-MOBILE #}
-
-            {% if recommendations %}
-            <!-- START: RECOMMENDATIONS -->
-            <div class="card d-md-block systems-extra m-md-1 p-0" >
-                {% include 'core/system-sys-sidebar.html' with title='People Also Viewed' systems=recommendations %}
-            </div>
-            <!-- END: RECOMMENDATIONS -->
-            {% endif %}
+        <div class="row d-md-none">
+            {% partial related %}
         </div>
 
 
