@@ -36,7 +36,7 @@
 
             <ul class="navbar-nav my-2 my-lg-0 ms-lg-4">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         {% if user.is_authenticated %}
                         {{ user.username }}
                         {% else %}
@@ -44,28 +44,26 @@
                         {% endif %}
                     </a>
 
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                     {% if user.is_authenticated %}
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         {% if user.is_superuser %}
-                        <a class="dropdown-item {% if activate == 'create' %} active{% endif %}" href="{% url 'create_database' %}">Add Database</a>
-                        <a class="dropdown-item" href="{% url "create_user" %}">Create Account</a>
+                        <li><a class="dropdown-item {% if activate == 'create' %} active{% endif %}" href="{% url 'create_database' %}">Add Database</a></li>
+                        <li><a class="dropdown-item" href="{% url "create_user" %}">Create Account</a></li>
                         {% endif %}
                         {% if user.is_superuser or user.is_staff %}
-                        <a class="dropdown-item {% if activate == 'empty' %} active{% endif %}" href="{% url 'empty_fields' %}">Empty Fields</a>
+                        <li><a class="dropdown-item {% if activate == 'empty' %} active{% endif %}" href="{% url 'empty_fields' %}">Empty Fields</a></li>
                         {% endif %}
 
                         {% if user.is_staff %}
-                        <a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a>
+                        <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a></li>
                         {% endif %}
 
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
-                    </div>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
                     {% else %}
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="{% url "login" %}">Login</a>
-                    </div>
+                        <li><a class="dropdown-item" href="{% url "login" %}">Login</a></li>
                     {% endif %}
+                    </ul>
                 </li>
             </ul>
         </div>
