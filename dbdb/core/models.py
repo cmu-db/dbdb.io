@@ -491,10 +491,10 @@ class SystemVersion(models.Model):
         blank=True, max_length=100,
         help_text="Twitter account for the database (avoid company account if possible)")
 
-    linkedin_url = models.URLField(
-        blank=True, max_length=500,
-        verbose_name="LinkedIn URL",
-        help_text="URL of LinkedIn profile for main developer backing the system (if available)")
+    linkedin_handle = models.CharField(
+        blank=True, max_length=100,
+        verbose_name="LinkedIn Handle",
+        help_text="LinkedIn profile for main developer backing the system (if available)")
 
     derived_from = models.ManyToManyField(
         'System', blank=True,
@@ -593,7 +593,12 @@ class SystemVersion(models.Model):
         return "\n".join(self.description.split("\n")[1:])
 
     def twitter_handle_url(self):
+        if not self.twitter_handle: return None
         return settings.TWITTER_URL + self.twitter_handle.replace('@', '')
+
+    def linkedin_handle_url(self):
+        if not self.linkedin_handle: return None
+        return settings.LINKEDIN_URL + self.linkedin_handle
 
     def twitter_card_url(self):
         return settings.TWITTER_CARD_URL + self.get_twitter_card_image()
