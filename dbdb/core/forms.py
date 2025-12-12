@@ -47,6 +47,7 @@ class SystemFeaturesForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         try:
+            self.system = kwargs.pop('system')
             features = kwargs.pop('features')
         except KeyError:
             features = []
@@ -66,7 +67,8 @@ class SystemFeaturesForm(forms.Form):
             initial[feature.feature.label] = {
                 'options': o,
                 'description': feature.description,
-                'citations': ','.join(feature.citations.values_list('url', flat=True))
+                'citations': ','.join(feature.citations.values_list('url', flat=True)),
+                'system': feature.system,
             }
             pass
 
@@ -100,9 +102,11 @@ class SystemFeaturesForm(forms.Form):
 
             initial_desc = None
             initial_cit = None
+            initial_sys = None
             if feature.label in initial:
                 initial_desc = initial[feature.label]['description']
                 initial_cit = initial[feature.label]['citations']
+                initial_sys = initial[feature.label]['system']
                 pass
 
             self.fields[feature.label+'_description'] = forms.CharField(
@@ -121,6 +125,17 @@ class SystemFeaturesForm(forms.Form):
                 required=False
             )
 
+            systems = [ (x, x) for x in System.objects.exclude(id=self.system.id).order_by('name') ]
+            systems.insert(0, (None, ""))
+            self.fields[feature.label+'_system'] = forms.ChoiceField(
+                    label='Inherited from System',
+                    help_text="Whether this system inherits the capabilities from another system.",
+                    choices=systems,
+                    initial=initial_sys,
+                    required=False
+                )
+
+            self.fields[feature.label + '_system'].feature_id = feature.id
             self.fields[feature.label+'_choices'].feature_id = feature.id
             self.fields[feature.label+'_description'].feature_id = feature.id
             self.fields[feature.label+'_citation'].feature_id = feature.id

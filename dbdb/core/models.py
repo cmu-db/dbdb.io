@@ -299,7 +299,8 @@ class SystemFeature(models.Model):
     options = models.ManyToManyField('FeatureOption', related_name='system_features')
 
     description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
-    system = models.ForeignKey('System', models.CASCADE, null=True, default=None)
+    system = models.ForeignKey('System', models.CASCADE, null=True, default=None,
+                               help_text="Does this system inherit these features from another system")
 
     class Meta:
         unique_together = ('version','feature')

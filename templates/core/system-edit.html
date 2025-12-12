@@ -49,7 +49,6 @@ Edit {{ system.name }}
             {% bootstrap_field system_version_form.wikipedia_url %}
             {% bootstrap_field system_version_form.twitter_handle placeholder='@account_name' %}
             {% bootstrap_field system_version_form.linkedin_handle placeholder='Without the URL' %}
-
         </div>
 
         <div class="col-lg-6">
@@ -73,8 +72,6 @@ Edit {{ system.name }}
 
             {% bootstrap_field system_version_form.acquired_by %}
             {% bootstrap_field system_version_form.acquired_by_citations %}
-
-
 
         </div>
     </div>
@@ -100,7 +97,6 @@ Edit {{ system.name }}
     </div>
 
     <div class="row border-top pt-4">
-
         <div class="col-md-3">
             {% bootstrap_field system_version_form.licenses form_group_class="form-group multi-select" %}
         </div>
@@ -116,11 +112,9 @@ Edit {{ system.name }}
         <div class="col-md-3">
             {% bootstrap_field system_version_form.written_in form_group_class="form-group multi-select" %}
         </div>
-
     </div>
 
-    <div class="row">
-
+    <div class="row border-top pt-4">
         <div class="col-md-3">
             {% bootstrap_field system_version_form.derived_from form_group_class="form-group multi-select" %}
         </div>
@@ -136,7 +130,6 @@ Edit {{ system.name }}
         <div class="col-md-3">
             {% bootstrap_field system_version_form.compatible_with form_group_class="form-group multi-select" %}
         </div>
-
     </div>
 
     <h2>Features</h2>
@@ -150,6 +143,7 @@ Edit {{ system.name }}
             </h2>
             <div id="{{ featureset.id }}_body" class="accordion-collapse collapse" aria-labelledby="{{ featureset.id }}_header" data-bs-parent="#features">
                 <div class="accordion-body">
+                    {% bootstrap_field featureset.system %}
                     {% bootstrap_field featureset.choices form_group_class="form-group multi-select" %}
                     {% bootstrap_field featureset.description form_group_class="form-group md-textarea" %}
                     {% bootstrap_field featureset.citation %}
