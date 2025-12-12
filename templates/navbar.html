@@ -46,13 +46,12 @@
 
                     {% if user.is_authenticated %}
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="#">Profile</a>
-
                         {% if user.is_superuser %}
-                        <a class="dropdown-item {% if activate == 'create' %} active{% endif %}" href="{% url 'create_database' %}">Create</a>
+                        <a class="dropdown-item {% if activate == 'create' %} active{% endif %}" href="{% url 'create_database' %}">Add Database</a>
+                        <a class="dropdown-item" href="{% url "create_user" %}">Create Account</a>
                         {% endif %}
                         {% if user.is_superuser or user.is_staff %}
-                        <a class="dropdown-item {% if activate == 'empty' %} active{% endif %}" href="{% url 'empty_fields' %}">EmptyFields</a>
+                        <a class="dropdown-item {% if activate == 'empty' %} active{% endif %}" href="{% url 'empty_fields' %}">Empty Fields</a>
                         {% endif %}
 
                         {% if user.is_staff %}
@@ -65,8 +64,6 @@
                     {% else %}
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="{% url "login" %}">Login</a>
-                        <!-- <div class="dropdown-divider"></div> -->
-                        <!-- <a class="dropdown-item" href="{% url "create_user" %}">Create Account</a> -->
                     </div>
                     {% endif %}
                 </li>

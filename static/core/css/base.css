@@ -25,6 +25,7 @@ body > div.jumbotron { margin-bottom:0; }
 
 h1 {
     font-size: calc(2rem + 1.5vw);
+    line-height: 1.0;
 }
 
 a { 
@@ -478,4 +479,9 @@ p.recent-text { font-size: 10pt; margin: 0; }
     height: 30px;
     margin-left: 0.5em;
     margin-right: 0.5em;
+}
+
+/* EDIT FORM */
+.form-label {
+    font-weight: bold;
 }

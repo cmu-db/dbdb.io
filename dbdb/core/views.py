@@ -1237,7 +1237,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
 
         return render(request, self.template_name, {
             'activate': 'create' if system.id is None else 'edit', # NAV-LINKS
-            'system_name': system.name,
+            'system': system,
             'system_form': system_form,
             'system_version_form': SystemVersionForm(instance=system_version),
             # 'system_version_metadata_form': SystemVersionMetadataForm(instance=system_meta),
