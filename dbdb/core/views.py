@@ -1231,7 +1231,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
             system_form.fields['name'].widget = HiddenInput()
             system_form.fields['orig_name'].initial = system.name
 
-        feature_form = SystemFeaturesForm(features=system_features)
+        feature_form = SystemFeaturesForm(system=system, features=system_features)
 
         features = self.build_features(feature_form)
 
