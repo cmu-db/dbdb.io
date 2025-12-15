@@ -299,21 +299,21 @@ class SystemFeature(models.Model):
     options = models.ManyToManyField('FeatureOption', related_name='system_features')
 
     description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
-    system = models.ForeignKey('System', models.CASCADE, null=True, default=None,
+    system = models.ForeignKey('System', models.CASCADE, blank=True, null=True, default=None,
                                help_text="Does this system inherit these features from another system")
 
     class Meta:
         unique_together = ('version','feature')
 
     def __str__(self):
-        return '{} > {}'.format(self.version.system.name, self.feature.label)
+        return '{} > {}'.format(self.version, self.feature.label)
 
     def values_str(self):
         return ', '.join([str(l) for l in self.options.all()])
 
     def clean(self):
         super().clean()
-        # Make sure the derived system feature isn't the same as this system
+        # Make sure the derived system feature is *not* the same as this system
         if self.system is not None:
             if self.version.system == self.system:
                 raise ValidationError(f"Cannot set feature's derived system ({self.system} as the same system {self.version.system}")

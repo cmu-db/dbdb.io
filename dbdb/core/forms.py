@@ -125,13 +125,14 @@ class SystemFeaturesForm(forms.Form):
                 required=False
             )
 
-            systems = [ (x, x) for x in System.objects.exclude(id=self.system.id).order_by('name') ]
+            systems = [ (x.id, x.name) for x in System.objects.exclude(id=self.system.id).order_by('name') ]
             systems.insert(0, (None, ""))
             self.fields[feature.label+'_system'] = forms.ChoiceField(
                     label='Inherited from System',
                     help_text="Whether this system inherits the capabilities from another system.",
                     choices=systems,
-                    initial=initial_sys,
+                    initial=initial_sys.id if initial_sys else None,
+                    widget=forms.Select(attrs={'onchange': f"toggleFields('{feature.label}')"}),
                     required=False
                 )
 
@@ -229,6 +230,12 @@ class SystemVersionEditForm(forms.ModelForm):
         data = self.cleaned_data['twitter_handle']
         if data and data[0] != '@':
             raise ValidationError("Invalid Twitter handle. Expected to start with '@' character")
+        return data
+
+    def clean_linkedin_handle(self):
+        data = self.cleaned_data['linkedin_handle']
+        if data and data.find("/") == -1:
+            raise ValidationError("Invalid LinkedIn handle. Expected format '<type>/<handle>'")
         return data
 
     class Meta:
