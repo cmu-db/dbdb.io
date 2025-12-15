@@ -27,6 +27,15 @@ from dbdb.core.common.searchvector import SearchVector
 class CitationUrl(models.Model):
 
     url = models.URLField(max_length=500, unique=True)
+    created = models.DateTimeField(default=timezone.now)
+    dead = models.BooleanField(default=None, blank=True, null=True)
+    last_checked = models.DateTimeField(default=None, blank=True, null=True)
+    last_modified = models.DateTimeField(default=None, blank=True, null=True)
+    last_title = models.CharField(max_length=250, default=None, blank=True, null=True)
+    last_contenttype = models.CharField(max_length=100, default=None, blank=True, null=True)
+    last_etag = models.CharField(max_length=100, default=None, blank=True, null=True)
+    last_cachecontrol = models.JSONField(default=dict, blank=True, null=True)
+    last_status = models.PositiveIntegerField(default=None, blank=True, null=True)
 
     def __str__(self):
         return self.url
