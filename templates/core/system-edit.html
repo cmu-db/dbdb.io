@@ -178,8 +178,21 @@ Edit {{ system.name }}
 <script src="{% static 'lib/js/tagsinput.js' %}"></script>
 
 <script>
-$(function(){
-    $('textarea[data-role="tagsinput"]').tagsinput();
-});
+    $(function(){
+        $('textarea[data-role="tagsinput"]').tagsinput();
+    });
+    function toggleFields(featureName) {
+            const systemSelect = document.getElementById('id_' + featureName + '_system');
+            const choicesSelect = document.getElementById('id_' + featureName + '_choices');
+            const descriptionTextarea = document.getElementById('id_' + featureName + '_description');
+
+            if (systemSelect.value != '') {
+                choicesSelect.disabled = true;
+                descriptionTextarea.disabled = true;
+            } else {
+                choicesSelect.disabled = false;
+                descriptionTextarea.disabled = false;
+            }
+        }
 </script>
 {% endblock %}

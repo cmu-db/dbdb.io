@@ -1247,25 +1247,27 @@ class DatabasesEditView(LoginRequiredMixin, View):
 
     @transaction.atomic
     def post(self, request, slug=None):
+
+        prev_version = None
         if slug is None:
             if not request.user.is_superuser:
                 raise Http404()
 
             system = System()
-            system_version = SystemVersion(system=system, is_current=True)
+            # system_version = SystemVersion(system=system, is_current=True)
             system_features = SystemFeature.objects.none()
             old_logo = None
             pass
         else:
             system = System.objects.get(slug=slug)
-            system_version = SystemVersion.objects.get(system=system, is_current=True)
-            system_features = system_version.features.all()
-            old_logo = system_version.logo
+            prev_version = SystemVersion.objects.get(system=system, is_current=True)
+            system_features = prev_version.features.all()
+            old_logo = prev_version.logo
             pass
 
         system_form = SystemForm(request.POST, instance=system)
         system_version_form = SystemVersionEditForm(request.POST, request.FILES)
-        feature_form = SystemFeaturesForm(request.POST, features=system_features)
+        feature_form = SystemFeaturesForm(request.POST, system=system, features=system_features)
 
         if system_form.is_valid() and \
             system_version_form.is_valid() and \
@@ -1299,110 +1301,135 @@ class DatabasesEditView(LoginRequiredMixin, View):
                 pass
 
             system.versions.update(is_current=False)
-            db_version = system_version_form.save(commit=False)
-            db_version.creator = request.user
-            db_version.system = system
+            new_version = system_version_form.save(commit=False)
+            new_version.creator = request.user
+            new_version.system = system
 
-            if logo and not db_version.logo:
-                db_version.logo = logo
+            if logo and not new_version.logo:
+                new_version.logo = logo
             # Extract information about the logo that we can use when rendering pages
-            if db_version.logo is not None:
-                logo_w, logo_h = logos.extract_dimensions(db_version.logo)
-                db_version.logo_width = logo_w
-                db_version.logo_height = logo_h
-                db_version.logo_color = logos.color_to_hex(logos.extract_color(db_version.logo))
+            if new_version.logo is not None:
+                logo_w, logo_h = logos.extract_dimensions(new_version.logo.path)
+                new_version.logo_width = logo_w
+                new_version.logo_height = logo_h
+                new_version.logo_color = logos.color_to_hex(logos.extract_color(new_version.logo.path))
 
-
-            db_version.save()
+            new_version.save()
             system_version_form.save_m2m()
 
-            system.ver = db_version.ver
+            system.ver = new_version.ver
             system.modified = timezone.now()
             system.save()
 
-            db_version.description_citations.clear()
+            new_version.description_citations.clear()
             for url in system_version_form.cleaned_data.get('description_citations', []):
-                db_version.description_citations.add(url)
+                new_version.description_citations.add(url)
 
-            db_version.history_citations.clear()
+            new_version.history_citations.clear()
             for url in system_version_form.cleaned_data.get('history_citations', []):
-                db_version.history_citations.add(url)
+                new_version.history_citations.add(url)
 
-            db_version.start_year_citations.clear()
+            new_version.start_year_citations.clear()
             for url in system_version_form.cleaned_data.get('start_year_citations', []):
-                db_version.start_year_citations.add(url)
+                new_version.start_year_citations.add(url)
 
-            db_version.end_year_citations.clear()
+            new_version.end_year_citations.clear()
             for url in system_version_form.cleaned_data.get('end_year_citations', []):
-                db_version.end_year_citations.add(url)
+                new_version.end_year_citations.add(url)
 
             features = {
                 f.label : f
                 for f in Feature.objects.all()
             }
-            for field_name in feature_form.cleaned_data.keys():
-                feature_label = '_'.join( field_name.split('_')[:-1] )
 
-                feature = features[feature_label]
-                value = feature_form.cleaned_data[field_name]
-
-                if '_description' in field_name:
+            feature_cache = {}
+            def get_systemfeature_obj(feature):
+                if not feature in feature_cache:
                     sf, _ = SystemFeature.objects.get_or_create(
-                        version=db_version,
+                        version=new_version,
                         feature=feature
                     )
+                    feature_cache[feature] = sf
+                else:
+                    sf = feature_cache[feature]
+                return sf
 
+            # Old code would create a SystemFeature entry for everything
+            # even if the system doesn't include it. So we need to check
+            # whether they have previous SystemFeatures
+            for f in features.values():
+                sf = None
+
+                # Get the previous version's Feature for this system
+                # TODO: Do we need to do this???
+                prev_sf = None
+                if prev_version is not None:
+                    try:
+                        prev_sf = SystemFeature.objects.get(
+                            version=prev_version,
+                            feature=f
+                        )
+                    except SystemFeature.DoesNotExist:
+                        pass
+
+                # Description
+                field_name = f.label + "_description"
+                value = feature_form.cleaned_data[field_name].strip()
+                if value:
+                    sf = get_systemfeature_obj(f)
                     sf.description = value
-                    sf.save()
-                    pass
-                elif '_citation'in field_name:
-                    sf, _ = SystemFeature.objects.get_or_create(
-                        version=db_version,
-                        feature=feature
-                    )
 
-                    sf.citations.clear()
+                # Citations
+                field_name = f.label + "_citation"
+                value = feature_form.cleaned_data[field_name].strip()
+                if value:
+                    sf = get_systemfeature_obj(f)
                     for url in filter(None, value.split(',')):
                         cit_url, _ = CitationUrl.objects.get_or_create(url=url)
                         sf.citations.add(cit_url)
-                        pass
-                    pass
-                elif '_choices'in field_name:
-                    sf, _ = SystemFeature.objects.get_or_create(
-                        version=db_version,
-                        feature=feature
+
+                # System
+                field_name = f.label + "_system"
+                value = feature_form.cleaned_data[field_name].strip()
+                if value:
+                    sf = get_systemfeature_obj(f)
+                    sf.system = System.objects.get(id=int(value))
+
+                # Options
+                field_name = f.label + "_choices"
+                value = feature_form.cleaned_data[field_name]
+                if isinstance(value, str):
+                    sf = get_systemfeature_obj(f)
+                    sf.options.add(
+                        FeatureOption.objects.get(
+                            feature=f,
+                            value=value
+                        )
                     )
-                    if not value:
-                        pass
-                    elif isinstance(value, str):
+                else:
+                    for v in value:
+                        sf = get_systemfeature_obj(f)
                         sf.options.add(
                             FeatureOption.objects.get(
-                                feature=feature,
-                                value=value
+                                feature=f,
+                                value=v
                             )
                         )
-                    else:
-                        for v in value:
-                            sf.options.add(
-                                FeatureOption.objects.get(
-                                    feature=feature,
-                                    value=v
-                                )
-                            )
-                        pass
-                    pass
-                pass
+
+            for sf in feature_cache.values():
+                print(f"Saving {sf}")
+                sf.save()
 
             # Do this down here to make sure the logo gets uploaded correctly
-            if db_version.logo is not None and old_logo != db_version.logo:
-                create_twitter_card(db_version)
+            if new_version.logo is not None and old_logo != new_version.logo:
+                create_twitter_card(new_version)
 
             # Update the search index too!
             ver_search, created = SystemSearchText.objects.update_or_create(system=system)
-            ver_search.search_text = generate_searchtext(db_version)
+            ver_search.search_text = generate_searchtext(new_version)
             ver_search.save()
 
-            return redirect(db_version.system.get_absolute_url())
+            return redirect(new_version.system.get_absolute_url())
 
         features = self.build_features(feature_form)
 
@@ -1904,13 +1931,27 @@ class SystemView(View):
             })
 
         for sf in SystemFeature.objects.filter(version=system_version).select_related('feature').order_by('feature__label'):
-            if not sf.description and sf.options.count() == 0: continue
+            if not sf.system and not sf.description and sf.options.count() == 0: continue
+
+            # If it is linked to another system, then we will get the options
+            # from that system instead using this ones
+            options = None
+            if sf.system:
+                try:
+                    other_sf = SystemFeature.objects.get(version=sf.system.current(), feature=sf.feature)
+                    options = other_sf.options.all()
+                except SystemFeature.DoesNotExist:
+                    pass
+            if options is None:
+                options = sf.options.all()
+
             sections.append({
                 "id": sf.feature.slug,
                 "title": sf.feature.label,
                 "body": sf.description,
+                "system": sf.system,
                 "citations": self.process_citations(sf.citations.all()),
-                "options": sf.options.all(),
+                "options": options,
             })
 
         start_year_citations = self.process_citations(system_version.start_year_citations.all())

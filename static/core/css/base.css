@@ -28,19 +28,27 @@ h1 {
     line-height: 1.0;
 }
 
-a { 
-    color: var(--link-color); 
-    text-decoration: none;
+main a:has(img), main .version-date-container > a {
+    background-color: inherit !important;
+}
+main a {
+    color: var(--link-color);
+    padding: 1px 1px;
+    border-radius: 3px;
     transition: background-color 0.25s ease, color 0.25s ease;
 }
-a:hover { 
-    background-color: var(--link-color);
-    color: white; 
-    text-decoration: underline dotted; 
+.navbar a:hover {
+    color: var(--link-color);
 }
 
-a:has(img), .version-date-container > a {
-    background-color: inherit !important;
+main a:hover {
+    background-color: var(--link-color);
+    color: white;
+    text-decoration: underline dotted;
+}
+
+main a:hover > img {
+  background-color: inherit !important;
 }
 
 .btn-primary {
@@ -48,6 +56,9 @@ a:has(img), .version-date-container > a {
   border-color: var(--link-color) !important;
 }
 
+/** BEGIN: NAVBAR **/
+
+/*
 nav.navbar-dark { background-color:#244A64; color: #fff; }
 nav.navbar-dark .navbar-brand { margin-right: 2rem; }
 nav.navbar-dark ul.navbar-nav > li.nav-item { margin-right:1rem; }
@@ -55,24 +66,13 @@ nav.navbar-dark ul.navbar-nav > li.nav-item a.btn { border:none;  border-bottom:
 nav.navbar-dark ul.navbar-nav > li.nav-item a.btn:hover { background-color:transparent; border-bottom: solid 2px #fff;}
 
 nav.navbar-dark form.form-search .btn { background-color: #49AA55; }
+*/
 
-a {
-    color: var(--link-color);
-    padding: 1px 1px;
-    border-radius: 3px;
-    transition: background-color 0.25s ease, color 0.25s ease;
-}
-a:hover {
-    background-color: var(--link-color);
-    color: white;
-    text-decoration: underline dotted;
-}
-
-a:hover > img {
-  background-color: inherit !important;
-}
 
 section#content { padding:30px 30px; }
+
+
+/** BEGIN:FOOTER **/
 
 footer {
 	background-color: #292B33;
@@ -299,6 +299,9 @@ div.search-badges a.badge em { font-weight: normal; }
     background: rgba(var(--bs-dark-rgb));
     font-size: 1em;
     margin-bottom: 1em;
+}
+.badge-section {
+    text-decoration: none;
 }
 .badge:hover {
     text-decoration: none;
