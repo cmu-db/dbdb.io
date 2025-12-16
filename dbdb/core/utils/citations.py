@@ -1,11 +1,13 @@
+import asyncio
 import io
 import re
 import logging
 
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 from email.utils import parsedate_to_datetime
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+from pprint import  pprint
 
 from bs4 import BeautifulSoup
 from PyPDF2 import PdfReader
@@ -14,6 +16,14 @@ from django.views.decorators.http import last_modified
 from pptx import Presentation
 from django.db import connection, transaction
 from django.utils import timezone
+
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+
 
 from dbdb.core.models import CitationUrl, System, SystemFeature, SystemVersion
 from dbdb.core.utils.git import get_git_commit_metadata
@@ -53,7 +63,7 @@ class UnsupportedContentTypeError(RuntimeError):
 
 # --- Helpers ---
 
-def _extract_pdf_metadata(url:str, data: bytes, system_name: str | None ) -> tuple[str | None, datetime | None]:
+def _extract_pdf_metadata(url:str, data: bytes, system_name: str | None = None) -> tuple[str | None, datetime | None]:
     """
     Extract title and oldest date (CreationDate or ModDate) from PDF metadata.
 
@@ -95,7 +105,7 @@ def _extract_pdf_metadata(url:str, data: bytes, system_name: str | None ) -> tup
 
     return title, oldest_date
 
-def _extract_ppt_title(url:str, data: bytes) -> str | None:
+def _extract_ppt_title(url:str, data: bytes, system_name: str | None = None) -> str | None:
     prs = Presentation(io.BytesIO(data))
     core = prs.core_properties
     title = None
@@ -129,25 +139,55 @@ def _extract_html_title(
         skip_spamcheck: bool = False,
         request_timeout: int | None = None,
     ) -> str:
-    soup = BeautifulSoup(
-        data.decode(encoding or "utf-8", errors="replace"),
-        "html.parser",
-    )
 
     spam_check = not skip_spamcheck
     for ignore in SPAM_IGNORE_DOMAINS:
         if ignore in url:
             spam_check = False
-    html = soup.get_text(" ")
-    if spam_check and spam.is_spam(html, system_name, timeout=request_timeout):
-        raise SpamPageError(f"HTML page classified as spam for {system_name}")
+
+    title = None
+    html = _get_html_page(url, request_timeout=request_timeout)
+    soup = BeautifulSoup(html, "html.parser")
+
+    if spam_check:
+        # Extract the text from the HTML
+        text_words = soup.get_text(" ")
+        # Make sure there is at least something for us to look
+        # at when we use the spam checker
+        if len(text_words) > 0 and spam.is_spam(text_words, system_name, timeout=request_timeout):
+            raise SpamPageError(f"HTML page classified as spam for {system_name}")
 
     if soup.title and soup.title.string:
-        return soup.title.string.strip()
+        title = soup.title.string.strip()
 
-    # Silently ignore pages without titles
-    return None # ValueError("HTML page has no <title>")
+    return title # ValueError("HTML page has no <title>")
 
+def _get_html_page(url, request_timeout: int | None = None) -> Optional[BeautifulSoup]:
+    options = Options()
+    options.add_argument("--headless")
+
+    driver = webdriver.Firefox(options=options)
+    # driver = webdriver.Chrome()
+
+    driver.get(url)
+    try:
+        # 2. Use WebDriverWait to wait for the title to be present
+        # This ensures the dynamic content has loaded before proceeding
+        WebDriverWait(driver, request_timeout).until(EC.presence_of_element_located((By.TAG_NAME, 'title')))
+        print("Page is ready and element is present!")
+
+        # 3. Get the page source after the wait condition is met
+        html_source = driver.page_source
+
+    except TimeoutException:
+        print("Loading took too much time or element not found!")
+        html_source = None  # Handle the case where the element was not found in time
+
+    finally:
+        # Always close the browser
+        driver.quit()
+
+    return html_source
 
 # --- Main API ---
 
@@ -188,7 +228,7 @@ def fetch_url_metadata(
             "status-code": 200,
             "content-type": None,
             "content-length": None,
-            "dead": False,
+            "status": CitationUrl.Status.VALID,
             "title": title,
             "etag": None,
             "last-modified": last_modified,
@@ -231,10 +271,10 @@ def fetch_url_metadata(
         if status_code == 304:
             return {
                 "url": url,
+                "status": CitationUrl.Status.VALID,
                 "status-code": status_code,
                 "content-type": content_type,
                 "content-length": content_length,
-                "dead": False,
                 "title": None,
                 "etag": etag,
                 "last-modified": last_modified,
@@ -252,6 +292,7 @@ def fetch_url_metadata(
             if len(data) > MAX_DOWNLOAD_BYTES:
                 raise RuntimeError(f"Download exceeds size limit [#bytes={len(data)}]")
         data = bytes(data)
+        assert len(data) > 0, f"Unexpected empty contents for '{url}'"
 
     # --- Content-Type dispatch ---
 
@@ -284,12 +325,14 @@ def fetch_url_metadata(
         if title and title.lower() in IGNORE_TITLES: title = None
         if title and status_code in [403, 404]: title = None
 
+    status = CitationUrl.Status.VALID if status_code >= 200 and status_code < 300 else CitationUrl.Status.DEAD
+    print(f"status={status}")
     return {
         "url": url,
+        "status": status,
         "status-code": status_code,
         "content-type": content_type,
         "content-length": content_length,
-        "dead": not(200 <= status_code < 300),
         "title": title,
         "etag": etag,
         "last-modified": last_modified,
@@ -336,7 +379,6 @@ def merge_citations(merge_to: CitationUrl, merge_from: List[CitationUrl]) -> Cit
                     .format(info_column, table)
                 sql += where
                 LOG.debug(sql)
-
 
                 # Check whether the merge_to URL already exists for a system.
                 # If yes, then we delete it.

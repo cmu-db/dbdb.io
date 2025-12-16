@@ -33,7 +33,6 @@ class CitationUrl(models.Model):
 
     url = models.URLField(max_length=500, unique=True)
     created = models.DateTimeField(default=timezone.now)
-    dead = models.BooleanField(default=None, blank=True, null=True)
     status = models.IntegerField(choices=Status, blank=False, null=False, default=Status.UNKNOWN)
     last_checked = models.DateTimeField(default=None, blank=True, null=True)
     last_modified = models.DateTimeField(default=None, blank=True, null=True)
@@ -42,7 +41,7 @@ class CitationUrl(models.Model):
     last_contentsize = models.PositiveIntegerField(default=None, blank=True, null=True)
     last_etag = models.CharField(max_length=100, default=None, blank=True, null=True)
     last_cachecontrol = models.JSONField(default=dict, blank=True, null=True)
-    last_status = models.PositiveIntegerField(default=None, blank=True, null=True)
+    last_statuscode = models.PositiveIntegerField(default=None, blank=True, null=True)
 
     def __str__(self):
         return f"#{self.id} ('{self.url}')"
