@@ -48,7 +48,7 @@ class Command(BaseCommand):
             fixed_url = None
             if not c.url.lower().startswith("http"):
                 parts = c.url.split(" ")
-                if parts[0].isdigit(): fixed_url = parts[1].strip()
+                if parts[0].isdigit() and len(parts) > 1: fixed_url = parts[1].strip()
                 if parts[0].startswith("ttp:"): fixed_url = 'h' + parts[0]
 
             parts = re.match(r"(http(.*?))[\s]+Section.*", c.url, re.IGNORECASE)
