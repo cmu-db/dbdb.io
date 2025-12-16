@@ -91,9 +91,7 @@ class Command(BaseCommand):
             info = None
             try:
                 # Just grab the first system to use as a hint
-                system_name = systems[0].name
-
-                info = fetch_url_metadata(c.url, system_name=system_name, skip_spamcheck=options["ignore_spam"])
+                info = fetch_url_metadata(c.url, system=systems[0], skip_spamcheck=options["ignore_spam"])
                 c.status = info["status"]
                 c.last_statuscode = info["status-code"]
                 c.last_contenttype = info["content-type"]

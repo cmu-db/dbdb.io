@@ -1,12 +1,17 @@
+import re
+
 from ollama import chat
 
 from pprint import pprint
 
+from dbdb.core.models import System
+
+
 def is_spam(
     html: str,
-    database_name: str,
+    system: System,
     *,
-    model: str = "llama3.2",
+    model: str = "qwen3:8b", # "llama3.2",
     # ollama_url: str = "http://localhost:11434/api/chat",
     timeout: int = 30,
 ) -> bool:
@@ -47,13 +52,19 @@ def is_spam(
     )
 
     user_prompt = [ ]
-
-    if database_name:
-        user_prompt.append(f"The expected topic of this page is the database system '{database_name}'.")
+    first_line = ""
+    if system:
+        # Add the system name and the developers (if they exist).
+        # Adding the developer is useful for when pages talk about a company acquisition
+        # but the name of the company is not the same as the database system (e.g., RedHat's etcd).
+        first_line = f"The expected topic of this page is the database system '{system.name}'"
+        developer = system.current().developer
+        if developer:
+            first_line += f" and/or {system.name}'s developers " + " and ".join(map(str.strip, developer.split(",")))
     else:
-        user_prompt.append(f"The expected topic of this page is about database systems.")
-    user_prompt[0] += "\n\n"
-    user_prompt += [
+        first_line = f"The expected topic of this page is about database systems"
+    user_prompt = [
+        f"{first_line}.\n\n"
         "Determine whether the following HTML page has been taken over by spam, "
         "rather than legitimately discussing this database system.\n\n"
         "HTML CONTENT START\n"
@@ -61,7 +72,7 @@ def is_spam(
         "HTML CONTENT END\n\n"
         "Answer:"
     ]
-    print(f"Invoking '{model}' run spam checker [system={database_name}]")
+    print(f"Invoking '{model}' run spam checker [system={system}]")
 
     payload = [
             {"role": "system", "content": "".join(system_prompt)},
@@ -72,6 +83,9 @@ def is_spam(
     answer = resp.message.content.strip().lower()
     print("-"*100)
     pprint(answer, width=200)
+
+    # Remove <think> from qwen output
+    answer = re.sub(r"<think>.*?</think>", "", answer, flags=re.DOTALL).strip()
 
     if answer not in {"true", "false"}:
         raise ValueError(f"Unexpected LLM response: {answer!r}")
