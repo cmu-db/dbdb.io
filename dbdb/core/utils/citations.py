@@ -63,7 +63,7 @@ class UnsupportedContentTypeError(RuntimeError):
 
 # --- Helpers ---
 
-def _extract_pdf_metadata(url:str, data: bytes, system_name: str | None = None) -> tuple[str | None, datetime | None]:
+def _extract_pdf_metadata(url:str, data: bytes, system: System | None = None) -> tuple[str | None, datetime | None]:
     """
     Extract title and oldest date (CreationDate or ModDate) from PDF metadata.
 
@@ -105,7 +105,7 @@ def _extract_pdf_metadata(url:str, data: bytes, system_name: str | None = None) 
 
     return title, oldest_date
 
-def _extract_ppt_title(url:str, data: bytes, system_name: str | None = None) -> str | None:
+def _extract_ppt_title(url:str, data: bytes, system: System | None = None) -> str | None:
     prs = Presentation(io.BytesIO(data))
     core = prs.core_properties
     title = None
@@ -135,7 +135,7 @@ def _extract_html_title(
         url: str,
         data: bytes,
         encoding: str | None = None,
-        system_name: str | None = None,
+        system: System | None = None,
         skip_spamcheck: bool = False,
         request_timeout: int | None = None,
     ) -> str:
@@ -152,10 +152,12 @@ def _extract_html_title(
     if spam_check:
         # Extract the text from the HTML
         text_words = soup.get_text(" ")
+        text_words = re.sub(r"(?: \n){2,}", " \n", text_words, flags=re.DOTALL)
+
         # Make sure there is at least something for us to look
         # at when we use the spam checker
-        if len(text_words) > 0 and spam.is_spam(text_words, system_name, timeout=request_timeout):
-            raise SpamPageError(f"HTML page classified as spam for {system_name}")
+        if len(text_words) > 0 and spam.is_spam(text_words, system, timeout=request_timeout):
+            raise SpamPageError(f"HTML page classified as spam for {system}")
 
     if soup.title and soup.title.string:
         title = soup.title.string.strip()
@@ -194,7 +196,7 @@ def _get_html_page(url, request_timeout: int | None = None) -> Optional[Beautifu
 def fetch_url_metadata(
     url: str,
     *,
-    system_name: str | None = None,
+    system: System | None = None,
     skip_spamcheck: bool = False,
     request_timeout: int | None = None,
     if_none_match: str | None = None,
@@ -245,6 +247,8 @@ def fetch_url_metadata(
         allow_redirects=True,
     ) as resp:
 
+        title = None
+        status : CitationUrl.Status = CitationUrl.Status.UNKNOWN
         status_code = resp.status_code
         content_type = (
             resp.headers.get("Content-Type", "").split(";")[0].lower() or None
@@ -307,17 +311,20 @@ def fetch_url_metadata(
         title = _extract_ppt_title(url, data)
 
     elif content_type in {"text/html", "application/xhtml+xml"}:
-        title = _extract_html_title(url, data,
-                                    encoding=resp.encoding,
-                                    skip_spamcheck=skip_spamcheck,
-                                    system_name=system_name,
-                                    request_timeout=request_timeout)
+        try:
+            title = _extract_html_title(url, data,
+                                        encoding=resp.encoding,
+                                        skip_spamcheck=skip_spamcheck,
+                                        system=system,
+                                        request_timeout=request_timeout)
+        except SpamPageError:
+            status = CitationUrl.Status.SPAM
 
     else:
         title = None  # allow metadata-only fetches
 
     # Minor cleaning...
-    if title:
+    if title is not None and title:
         title = title.replace("\n", " ")
         title = re.sub(r' {2,}', ' ', title)
         if title and title.strip() == url: title = None
@@ -325,7 +332,8 @@ def fetch_url_metadata(
         if title and title.lower() in IGNORE_TITLES: title = None
         if title and status_code in [403, 404]: title = None
 
-    status = CitationUrl.Status.VALID if status_code >= 200 and status_code < 300 else CitationUrl.Status.DEAD
+    if status == CitationUrl.Status.UNKNOWN:
+        status = CitationUrl.Status.VALID if status_code >= 200 and status_code < 300 else CitationUrl.Status.DEAD
     print(f"status={status}")
     return {
         "url": url,
