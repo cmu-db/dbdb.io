@@ -1,10 +1,9 @@
-import asyncio
 import io
 import re
 import logging
 
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime
 from email.utils import parsedate_to_datetime
 from typing import Dict, Any, List, Optional
 from pprint import  pprint
@@ -12,7 +11,6 @@ from pprint import  pprint
 from bs4 import BeautifulSoup
 from PyPDF2 import PdfReader
 from django.db.models import Q
-from django.views.decorators.http import last_modified
 from pptx import Presentation
 from django.db import connection, transaction
 from django.utils import timezone
@@ -23,7 +21,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-
 
 from dbdb.core.models import CitationUrl, System, SystemFeature, SystemVersion
 from dbdb.core.utils.git import get_git_commit_metadata
