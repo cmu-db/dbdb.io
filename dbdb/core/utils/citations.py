@@ -9,13 +9,15 @@ from typing import Dict, Any, List
 
 from bs4 import BeautifulSoup
 from PyPDF2 import PdfReader
+from django.db.models import Q
 from django.views.decorators.http import last_modified
 from pptx import Presentation
 from django.db import connection, transaction
 from django.utils import timezone
 
-from dbdb.core.models import CitationUrl
+from dbdb.core.models import CitationUrl, System, SystemFeature, SystemVersion
 from dbdb.core.utils.git import get_git_commit_metadata
+from dbdb.core.utils import spam
 
 LOG = logging.getLogger('console')
 
@@ -23,11 +25,6 @@ LOG = logging.getLogger('console')
 
 MAX_DOWNLOAD_BYTES = 20 * 1024 * 1024
 REQUEST_TIMEOUT = 15 # seconds
-
-SPAM_KEYWORDS = {
-    "porn", "xxx", "sex", "escort", "nude", "camgirl",
-    "casino", "bet", "betting", "gambling", "slot", "poker"
-}
 
 SPAM_IGNORE_DOMAINS = {
     "apache.org",
@@ -56,19 +53,7 @@ class UnsupportedContentTypeError(RuntimeError):
 
 # --- Helpers ---
 
-def _is_spam_html(text: str) -> set[str]:
-    """
-    Very conservative keyword-based spam detection.
-    """
-    text = text.lower()
-    found = set()
-    for kw in SPAM_KEYWORDS:
-        if kw in text:
-            found.add(kw)
-    return found
-
-
-def _extract_pdf_metadata(url:str, data: bytes) -> tuple[str | None, datetime | None]:
+def _extract_pdf_metadata(url:str, data: bytes, system_name: str | None ) -> tuple[str | None, datetime | None]:
     """
     Extract title and oldest date (CreationDate or ModDate) from PDF metadata.
 
@@ -119,27 +104,6 @@ def _extract_ppt_title(url:str, data: bytes) -> str | None:
     return title
 
 
-def _extract_html_title(url: str, data: bytes, encoding: str | None, skip_spamcheck: bool = False) -> str:
-    soup = BeautifulSoup(
-        data.decode(encoding or "utf-8", errors="replace"),
-        "html.parser",
-    )
-
-    spam_check = not skip_spamcheck
-    for ignore in SPAM_IGNORE_DOMAINS:
-        if ignore in url:
-            spam_check = False
-    if spam_check:
-        spam_found = _is_spam_html(soup.get_text(" "))
-        if len(spam_found) >= 2:
-            raise SpamPageError(f"HTML page classified as spam: {spam_found}")
-
-    if soup.title and soup.title.string:
-        return soup.title.string.strip()
-
-    # Silently ignore pages without titles
-    return None # ValueError("HTML page has no <title>")
-
 def _parse_cache_control(header: str | None) -> Dict[str, str | bool]:
     """
     Parse Cache-Control header into a structured dict.
@@ -157,12 +121,40 @@ def _parse_cache_control(header: str | None) -> Dict[str, str | bool]:
             directives[part.lower()] = True
     return directives
 
+def _extract_html_title(
+        url: str,
+        data: bytes,
+        encoding: str | None = None,
+        system_name: str | None = None,
+        skip_spamcheck: bool = False,
+        request_timeout: int | None = None,
+    ) -> str:
+    soup = BeautifulSoup(
+        data.decode(encoding or "utf-8", errors="replace"),
+        "html.parser",
+    )
+
+    spam_check = not skip_spamcheck
+    for ignore in SPAM_IGNORE_DOMAINS:
+        if ignore in url:
+            spam_check = False
+    html = soup.get_text(" ")
+    if spam_check and spam.is_spam(html, system_name, timeout=request_timeout):
+        raise SpamPageError(f"HTML page classified as spam for {system_name}")
+
+    if soup.title and soup.title.string:
+        return soup.title.string.strip()
+
+    # Silently ignore pages without titles
+    return None # ValueError("HTML page has no <title>")
+
 
 # --- Main API ---
 
 def fetch_url_metadata(
     url: str,
     *,
+    system_name: str | None = None,
     skip_spamcheck: bool = False,
     request_timeout: int | None = None,
     if_none_match: str | None = None,
@@ -274,7 +266,11 @@ def fetch_url_metadata(
         title = _extract_ppt_title(url, data)
 
     elif content_type in {"text/html", "application/xhtml+xml"}:
-        title = _extract_html_title(url, data, resp.encoding, skip_spamcheck)
+        title = _extract_html_title(url, data,
+                                    encoding=resp.encoding,
+                                    skip_spamcheck=skip_spamcheck,
+                                    system_name=system_name,
+                                    request_timeout=request_timeout)
 
     else:
         title = None  # allow metadata-only fetches
@@ -385,3 +381,32 @@ def merge_citations(merge_to: CitationUrl, merge_from: List[CitationUrl]) -> Cit
         # LOG.info(f"Merged {result} objects into '{merge_to}'")
 
         return merge_to
+
+def get_systems(c: CitationUrl,
+                current_only: bool | None = False) -> List[System]:
+    """
+    Return the list of systems that reference this CitationURL
+    :param citation:
+    :return:
+    """
+
+    # Check the SystemFeatures first
+    # features = SystemFeature.objects.filter(citations__in=[c])
+    features = SystemFeature.objects.filter(citations__in=[c])
+    if current_only:
+        features = features.filter(version__is_current=True)
+    systems = set([sf.version.system for sf in features])
+
+    # Then check SystemVersions
+    versions = SystemVersion.objects.filter(
+        Q(description_citations__in=[c]) |
+        Q(start_year_citations__in=[c]) |
+        Q(end_year_citations__in=[c]) |
+        Q(history_citations__in=[c]) |
+        Q(acquired_by_citations__in=[c])
+    )
+    if current_only:
+        versions = versions.filter(is_current=True)
+    systems.update(v.system for v in versions)
+
+    return list(systems)

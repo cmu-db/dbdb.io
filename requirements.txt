@@ -1,5 +1,7 @@
 alabaster==0.7.12
+annotated-types==0.7.0
 anyascii==0.3.2
+anyio==4.12.0
 asgiref==3.11.0
 Babel==2.8.0
 beautifulsoup4==4.14.3
@@ -27,6 +29,9 @@ docutils==0.16
 easy-thumbnails==2.10.1
 filelock==3.8.0
 gunicorn==20.1.0
+h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
 idna==2.9
 imagesize==1.2.0
 importlib-metadata==1.6.1
@@ -36,12 +41,15 @@ lxml==4.9.4
 Markdown==3.10
 MarkupSafe==1.1.1
 numpy==1.26.4
+ollama==0.6.1
 packaging==23.1
 pandas==2.3.3
 Pillow==10.0.0
 psycopg2==2.9.11
 psycopg2-binary==2.9.5
 pycparser==2.22
+pydantic==2.12.5
+pydantic_core==2.41.5
 Pygments==2.15.0
 PyJWT==1.7.1
 pyparsing==2.4.7
@@ -71,7 +79,8 @@ svglib==1.5.1
 threadpoolctl==3.6.0
 tinycss2==1.4.0
 tokenize_rt==6.2.0
-typing_extensions==4.14.0
+typing-inspection==0.4.2
+typing_extensions==4.15.0
 tzdata==2025.2
 urllib3==1.26.9
 webencodings==0.5.1
