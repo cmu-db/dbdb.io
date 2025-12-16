@@ -9,11 +9,13 @@ from typing import Dict, Any, List
 
 from bs4 import BeautifulSoup
 from PyPDF2 import PdfReader
+from django.views.decorators.http import last_modified
 from pptx import Presentation
 from django.db import connection, transaction
 from django.utils import timezone
 
 from dbdb.core.models import CitationUrl
+from dbdb.core.utils.git import get_git_commit_metadata
 
 LOG = logging.getLogger('console')
 
@@ -177,6 +179,31 @@ def fetch_url_metadata(
 
     if not request_timeout:
         request_timeout = REQUEST_TIMEOUT
+
+    # Special Case: Github Commit
+    m = re.match(
+        r"https://github\.com/(?P<owner>[^/]+)/(?P<repo>[^/.]+)/commit/(?P<commit>[^/.]+)/?$",
+        url,
+    )
+    if m:
+        owner = m.group("owner")
+        repo = m.group("repo")
+        commit_id = m.group("commit")
+        repo_url = f"https://github.com/{owner}/{repo}.git"
+        title, last_modified = get_git_commit_metadata(repo_url, commit_id, timeout=request_timeout)
+        return {
+            "url": url,
+            "status-code": 200,
+            "content-type": None,
+            "content-length": None,
+            "dead": False,
+            "title": title,
+            "etag": None,
+            "last-modified": last_modified,
+            "cache-control": None,
+            "revalidate": None
+        }
+
 
     with requests.get(
         url,
