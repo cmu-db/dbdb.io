@@ -28,7 +28,9 @@ class CustomUserAdmin(UserAdmin):
 @admin.register(CitationUrl)
 class CitationUrlAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
-    search_fields = ('url', )
+    list_display = ('url', 'last_title', 'last_status', 'created', 'last_checked')
+    search_fields = ('url', 'last_title')
+    list_filter = ['dead', 'last_status']
 
 @admin.register(Feature)
 class FeatureAdmin(admin.ModelAdmin):
@@ -57,6 +59,10 @@ class SystemVersionAdmin(admin.ModelAdmin):
     readonly_fields=('ver', 'system')
     ordering = ('-created',)
     exclude = ('system', )
+
+@admin.register(SystemFeature)
+class SystemFeatureAdmin(admin.ModelAdmin):
+    search_fields = ('id',)
 
 @admin.register(SystemACL)
 class SystemACLAdmin(admin.ModelAdmin):
@@ -108,6 +114,4 @@ class TagAdmin(admin.ModelAdmin):
 # registrations
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
-
 admin.site.register(ProjectType)
-admin.site.register(SystemFeature)

@@ -1880,9 +1880,9 @@ class SystemView(View):
         for c in citations:
             offset = None
             try:
-                offset = self.all_citations.index(c.url) + 1
+                offset = self.all_citations.index(c) + 1
             except:
-                self.all_citations.append(c.url)
+                self.all_citations.append(c)
                 offset = len(self.all_citations)
             citation_offsets.append(offset)
         return citation_offsets
@@ -1921,6 +1921,9 @@ class SystemView(View):
         self.all_citations = []
 
         sections = []
+
+        if system_version.description_citations:
+            self.process_citations(system_version.description_citations.all())
 
         if system_version.history:
             sections.append({
