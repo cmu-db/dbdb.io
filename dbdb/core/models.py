@@ -25,10 +25,16 @@ from dbdb.core.common.searchvector import SearchVector
 # CitationUrl
 # ==============================================
 class CitationUrl(models.Model):
+    class Status(models.IntegerChoices):
+        UNKNOWN = 0, "Unknown"
+        VALID = 1, "Valid"
+        DEAD = 2, "Dead"
+        SPAM = 3, "Spam"
 
     url = models.URLField(max_length=500, unique=True)
     created = models.DateTimeField(default=timezone.now)
     dead = models.BooleanField(default=None, blank=True, null=True)
+    status = models.IntegerField(choices=Status, blank=False, null=False, default=Status.UNKNOWN)
     last_checked = models.DateTimeField(default=None, blank=True, null=True)
     last_modified = models.DateTimeField(default=None, blank=True, null=True)
     last_title = models.CharField(max_length=250, default=None, blank=True, null=True)

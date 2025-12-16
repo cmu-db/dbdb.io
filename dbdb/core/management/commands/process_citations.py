@@ -44,6 +44,15 @@ class Command(BaseCommand):
 
         citation_ctr = 0
         for c in citations.order_by("id"):
+            # First get the list of systems that use this citation
+            systems = get_systems(c, current_only=False)
+            self.stdout.write(f"Citation {c} => {systems}")
+
+            # If no system is using this citation, we may want to delete it
+            if len(systems) == 0:
+                self.stdout.write(f"Did not find any systems using Citation {c}. Skipping...")
+                continue
+
             # Check if we have a malformed URL that we need to merge
             fixed_url = None
             if not c.url.lower().startswith("http"):
@@ -81,7 +90,10 @@ class Command(BaseCommand):
             print(f"{citation_ctr}: Citation: {c}")
             info = None
             try:
-                info = fetch_url_metadata(c.url, skip_spamcheck=options["ignore_spam"])
+                # Just grab the first system to use as a hint
+                system_name = systems[0].name
+
+                info = fetch_url_metadata(c.url, system_name=system_name, skip_spamcheck=options["ignore_spam"])
                 c.last_status = info["status-code"]
                 c.last_contenttype = info["content-type"]
                 c.last_contentsize = info["content-length"]
