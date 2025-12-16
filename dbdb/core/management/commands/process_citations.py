@@ -94,31 +94,32 @@ class Command(BaseCommand):
                 system_name = systems[0].name
 
                 info = fetch_url_metadata(c.url, system_name=system_name, skip_spamcheck=options["ignore_spam"])
-                c.last_status = info["status-code"]
+                c.status = info["status"]
+                c.last_statuscode = info["status-code"]
                 c.last_contenttype = info["content-type"]
                 c.last_contentsize = info["content-length"]
                 c.last_cachecontrol = info["cache-control"]
                 c.last_etag = info["etag"]
                 c.last_modified = info["last-modified"]
-                c.dead = info["dead"]
 
                 # Don't overwrite the title if we get a dead page and there is already
                 # an existing title
-                if not(c.dead and c.last_title):
+                if not(c.status == CitationUrl.Status.DEAD and c.last_title):
                     c.last_title = info["title"]
 
             except (TimeoutError,ConnectTimeout,ReadTimeout,ConnectionError,NewConnectionError) as e:
                 self.stdout.write(f"Connection failed: {e}")
-                c.dead = True
+                c.status = CitationUrl.Status.DEAD
                 pass
 
             except SpamPageError as e:
                 self.stdout.write(f"Spam page error: {e}")
+                c.status = CitationUrl.Status.SPAM
                 pass
 
             except:
                 self.stdout.write(f"Failed: {c}")
-                c.dead = True
+                c.status = CitationUrl.Status.DEAD
                 raise
             finally:
                 c.last_checked = timezone.now()

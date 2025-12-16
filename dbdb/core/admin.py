@@ -28,9 +28,9 @@ class CustomUserAdmin(UserAdmin):
 @admin.register(CitationUrl)
 class CitationUrlAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
-    list_display = ('url', 'last_title', 'last_status', 'created', 'last_checked')
+    list_display = ('url', 'status', 'last_title', 'last_statuscode', 'created', 'last_checked')
     search_fields = ('url', 'last_title')
-    list_filter = ['dead', 'last_status']
+    list_filter = ['status', 'last_statuscode']
 
 @admin.register(Feature)
 class FeatureAdmin(admin.ModelAdmin):

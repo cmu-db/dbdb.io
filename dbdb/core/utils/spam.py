@@ -25,6 +25,8 @@ def is_spam(
         True if the page is classified as spam, False otherwise.
     """
 
+    assert len(html) > 0, "Empty HTML contents"
+
     system_prompt = (
         "You are a strict web page classifier.\n"
         "Your task is to decide whether a web page has been taken over by spam.\n\n"
@@ -34,7 +36,7 @@ def is_spam(
         "- Online pharmacies or prescription drug sales\n"
         "- Crypto or financial scams\n"
         "- SEO spam, link farms, or auto-generated keyword pages\n"
-        "- Domain parking pages or ads with no substantive content\n\n"
+        "- Domain parking pages (GoDaddy) or ads with no substantive content\n\n"
         "The page is NOT spam if it primarily discusses technical, educational, or "
         "documentation-related information about the expected topic.\n\n"
         "Ignore HTML tags, navigation menus, cookie banners, and generic ads.\n"
@@ -59,13 +61,17 @@ def is_spam(
         "HTML CONTENT END\n\n"
         "Answer:"
     ]
+    print(f"Invoking '{model}' run spam checker [system={database_name}]")
 
     payload = [
             {"role": "system", "content": "".join(system_prompt)},
             {"role": "user", "content": "".join(user_prompt)},
     ]
+    pprint(payload, width=200)
     resp = chat(model, messages=payload)
     answer = resp.message.content.strip().lower()
+    print("-"*100)
+    pprint(answer, width=200)
 
     if answer not in {"true", "false"}:
         raise ValueError(f"Unexpected LLM response: {answer!r}")
