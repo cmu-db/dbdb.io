@@ -33,6 +33,10 @@ LOG = logging.getLogger('console')
 MAX_DOWNLOAD_BYTES = 20 * 1024 * 1024
 REQUEST_TIMEOUT = 15 # seconds
 
+SKIP_DOMAINS = {
+    "//www.crunchbase.com/", # Recaptcha blocks
+}
+
 SPAM_IGNORE_DOMAINS = {
     "apache.org",
     "//en.wikipedia.org/",
@@ -210,6 +214,22 @@ def fetch_url_metadata(
 
     if not request_timeout:
         request_timeout = REQUEST_TIMEOUT
+
+    # Special Case: Busted Domains
+    if any(s in url for s in SKIP_DOMAINS):
+        LOG.debug(f"Skipping '{url}' because it is from a domain to ignore")
+        return {
+            "url": url,
+            "status-code": None,
+            "content-type": None,
+            "content-length": None,
+            "status": CitationUrl.Status.IGNORE,
+            "title": None,
+            "etag": None,
+            "last-modified": None,
+            "cache-control": None,
+            "revalidate": None
+        }
 
     # Special Case: Github Commit
     m = re.match(

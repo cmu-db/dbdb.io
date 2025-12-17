@@ -30,6 +30,7 @@ class CitationUrl(models.Model):
         VALID = 1, "Valid"
         DEAD = 2, "Dead"
         SPAM = 3, "Spam"
+        IGNORE = 4, "Ignore"
 
     url = models.URLField(max_length=500, unique=True)
     created = models.DateTimeField(default=timezone.now)
