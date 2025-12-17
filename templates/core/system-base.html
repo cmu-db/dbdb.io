@@ -353,10 +353,10 @@
                     {% else %}
                         {{ c.url }}
                     {% endif %}
-                    <i class="fas fa-external-link-alt"></i></a>
-                    {% if c.status == CitationUrl.Status.DEAD %}
+                    <i class="fas fa-external-link-alt"></i></a> id={{ c.id }} / status={{ c.status }}
+                    {% if c.status == Status.DEAD %}
                         <b><i class="fa-solid fa-skull-crossbones"></i> Dead URL</b>
-                    {% elif c.status == CitationUrl.Status.SPAM %}
+                    {% elif c.status == Status.SPAM %}
                         <b><i class="fa-solid fa-toilet"></i> Spam</b>
                     {% endif %}
                     {% if c.last_modified %}

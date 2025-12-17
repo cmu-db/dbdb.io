@@ -1,10 +1,16 @@
 import re
-
 from ollama import chat
-
 from pprint import pprint
-
 from dbdb.core.models import System
+
+class UnexpectedResponseError(RuntimeError):
+    pass
+
+# Sometimes qwen outputs "**not spam**", so we can just treat that as a valid response
+FUNKY_RESPONSES = [
+    '**answer:** not spam',
+    '**not spam**',
+]
 
 
 def is_spam(
@@ -12,6 +18,7 @@ def is_spam(
     system: System,
     *,
     model: str = "qwen3:8b", # "llama3.2",
+    temperature: float = 0.2,
     # ollama_url: str = "http://localhost:11434/api/chat",
     timeout: int = 30,
 ) -> bool:
@@ -43,7 +50,9 @@ def is_spam(
         "- SEO spam, link farms, or auto-generated keyword pages\n"
         "- Domain parking pages (GoDaddy) or ads with no substantive content\n\n"
         "The page is NOT spam if it primarily discusses technical, educational, or "
-        "documentation-related information about the expected topic.\n\n"
+        "documentation-related information about the expected topic. "
+        "If the page contains source code, then you assume it is for the database system and is not spam. "
+        "Do not try to summarize or explain any code.\n\n"
         "Ignore HTML tags, navigation menus, cookie banners, and generic ads.\n"
         "Focus on the semantic intent and dominant topic of the page.\n\n"
         "You must output ONLY one word: true or false.\n"
@@ -68,7 +77,7 @@ def is_spam(
         "Determine whether the following HTML page has been taken over by spam, "
         "rather than legitimately discussing this database system.\n\n"
         "HTML CONTENT START\n"
-        f"{html[:15000]}\n"
+        f"{html[:12000]}\n"
         "HTML CONTENT END\n\n"
         "Answer:"
     ]
@@ -78,8 +87,12 @@ def is_spam(
             {"role": "system", "content": "".join(system_prompt)},
             {"role": "user", "content": "".join(user_prompt)},
     ]
+    options = {
+        "temperature": temperature
+    }
+
     pprint(payload, width=200)
-    resp = chat(model, messages=payload)
+    resp = chat(model, messages=payload, options=options)
     answer = resp.message.content.strip().lower()
     print("-"*100)
     pprint(answer, width=200)
@@ -87,7 +100,10 @@ def is_spam(
     # Remove <think> from qwen output
     answer = re.sub(r"<think>.*?</think>", "", answer, flags=re.DOTALL).strip()
 
+    if any(fr in answer for fr in FUNKY_RESPONSES):
+        return False
+
     if answer not in {"true", "false"}:
-        raise ValueError(f"Unexpected LLM response: {answer!r}")
+        raise UnexpectedResponseError(f"Unexpected LLM response [temperature={temperature}]:\n{answer!r}")
 
     return answer == "true"

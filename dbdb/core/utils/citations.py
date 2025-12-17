@@ -25,6 +25,7 @@ from selenium.common.exceptions import TimeoutException
 from dbdb.core.models import CitationUrl, System, SystemFeature, SystemVersion
 from dbdb.core.utils.git import get_git_commit_metadata
 from dbdb.core.utils import spam
+from dbdb.core.utils.spam import UnexpectedResponseError
 
 LOG = logging.getLogger('console')
 
@@ -35,12 +36,15 @@ REQUEST_TIMEOUT = 15 # seconds
 
 SKIP_DOMAINS = {
     "//www.crunchbase.com/", # Recaptcha blocks
+    "//twitter.com",
+    "//www.bloomberg.com/",
 }
 
 SPAM_IGNORE_DOMAINS = {
-    "apache.org",
+    # "apache.org",
     "//en.wikipedia.org/",
-    "//www.postgresql.org/"
+    "//www.postgresql.org/",
+    "//www.slideshare.net/", # LLM spam checker can't handle it?
 }
 
 IGNORE_TITLES = map(str.lower, [
@@ -142,23 +146,41 @@ def _extract_html_title(
     ) -> str:
 
     spam_check = not skip_spamcheck
-    for ignore in SPAM_IGNORE_DOMAINS:
-        if ignore in url:
-            spam_check = False
+    if any(d in url for d in SPAM_IGNORE_DOMAINS):
+        spam_check = False
 
     title = None
     html = _get_html_page(url, request_timeout=request_timeout)
     soup = BeautifulSoup(html, "html.parser")
 
     if spam_check:
-        # Extract the text from the HTML
+        # Extract the text from the HTML and clean up the newlines and spaces
+        # This is wasted space in our prompt context
         text_words = soup.get_text(" ")
+        text_words = re.sub(r"(?:\t){1,}", " ", text_words, flags=re.DOTALL)
+        text_words = re.sub(r"(?: ){2,}", " ", text_words, flags=re.DOTALL)
         text_words = re.sub(r"(?: \n){2,}", " \n", text_words, flags=re.DOTALL)
+        text_words = re.sub(r"(?:\n \n)", " \n", text_words, flags=re.DOTALL)
 
         # Make sure there is at least something for us to look
         # at when we use the spam checker
-        if len(text_words) > 0 and spam.is_spam(text_words, system, timeout=request_timeout):
-            raise SpamPageError(f"HTML page classified as spam for {system}")
+        if len(text_words) > 0:
+            attempts = 3
+            temperature = 0.2
+            is_spam = None
+            while attempts > 0:
+                attempts -= 1
+                try:
+                    is_spam = spam.is_spam(text_words, system, timeout=request_timeout, temperature=temperature)
+                    break
+                except UnexpectedResponseError as e:
+                    # Ignore if we get a weird LLM response
+                    LOG.error(e)
+                    if attempts == 0: raise e
+                    pass
+                temperature = max(temperature - 0.1, 0.0)
+            if is_spam is not None and is_spam:
+                raise SpamPageError(f"HTML page classified as spam for {system}")
 
     if soup.title and soup.title.string:
         title = soup.title.string.strip()
@@ -255,6 +277,8 @@ def fetch_url_metadata(
             "revalidate": None
         }
 
+    title = None
+    status: CitationUrl.Status = CitationUrl.Status.UNKNOWN
 
     with requests.get(
         url,
@@ -263,15 +287,11 @@ def fetch_url_metadata(
         headers=headers,
         allow_redirects=True,
     ) as resp:
-
-        title = None
-        status : CitationUrl.Status = CitationUrl.Status.UNKNOWN
         status_code = resp.status_code
         content_type = (
             resp.headers.get("Content-Type", "").split(";")[0].lower() or None
         )
         content_length = resp.headers.get("Content-Length", None)
-
         etag = resp.headers.get("ETag")
 
         last_modified_hdr = resp.headers.get("Last-Modified")
@@ -313,32 +333,34 @@ def fetch_url_metadata(
             if len(data) > MAX_DOWNLOAD_BYTES:
                 raise RuntimeError(f"Download exceeds size limit [#bytes={len(data)}]")
         data = bytes(data)
-        assert len(data) > 0, f"Unexpected empty contents for '{url}'"
+        if status_code != 404: assert len(data) > 0, f"Unexpected empty contents for '{url}'"
+    status = CitationUrl.Status.VALID if status_code >= 200 and status_code < 300 else CitationUrl.Status.DEAD
 
     # --- Content-Type dispatch ---
 
-    if content_type == "application/pdf":
-        title, pdf_last_modified = _extract_pdf_metadata(url, data)
-        if pdf_last_modified: last_modified = pdf_last_modified
+    if status_code != 404:
+        # PDF
+        if content_type == "application/pdf":
+            title, pdf_last_modified = _extract_pdf_metadata(url, data)
+            if pdf_last_modified: last_modified = pdf_last_modified
 
-    elif content_type in {
-        "application/vnd.ms-powerpoint",
-        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    }:
-        title = _extract_ppt_title(url, data)
+        # PPTX
+        elif content_type in {
+            "application/vnd.ms-powerpoint",
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        }:
+            title = _extract_ppt_title(url, data)
 
-    elif content_type in {"text/html", "application/xhtml+xml"}:
-        try:
-            title = _extract_html_title(url, data,
-                                        encoding=resp.encoding,
-                                        skip_spamcheck=skip_spamcheck,
-                                        system=system,
-                                        request_timeout=request_timeout)
-        except SpamPageError:
-            status = CitationUrl.Status.SPAM
-
-    else:
-        title = None  # allow metadata-only fetches
+        # HTML
+        elif content_type in {"text/html", "application/xhtml+xml"}:
+            try:
+                title = _extract_html_title(url, data,
+                                            encoding=resp.encoding,
+                                            skip_spamcheck=skip_spamcheck,
+                                            system=system,
+                                            request_timeout=request_timeout)
+            except SpamPageError:
+                status = CitationUrl.Status.SPAM
 
     # Minor cleaning...
     if title is not None and title:
@@ -349,9 +371,6 @@ def fetch_url_metadata(
         if title and title.lower() in IGNORE_TITLES: title = None
         if title and status_code in [403, 404]: title = None
 
-    if status == CitationUrl.Status.UNKNOWN:
-        status = CitationUrl.Status.VALID if status_code >= 200 and status_code < 300 else CitationUrl.Status.DEAD
-    print(f"status={status}")
     return {
         "url": url,
         "status": status,

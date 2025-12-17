@@ -6,7 +6,7 @@ from pprint import pprint
 from django.utils import timezone
 from django.core.management import BaseCommand
 from requests import ConnectTimeout
-from requests.exceptions import ConnectionError, ReadTimeout
+from requests.exceptions import ConnectionError, ReadTimeout, InvalidURL
 from urllib3.exceptions import MaxRetryError, NewConnectionError
 
 from dbdb.core.models import CitationUrl
@@ -113,11 +113,17 @@ class Command(BaseCommand):
             except (TimeoutError,ConnectTimeout,ReadTimeout,ConnectionError,NewConnectionError) as e:
                 self.stdout.write(f"Connection failed: {e}")
                 c.status = CitationUrl.Status.DEAD
+                print("!!!")
                 pass
 
             except SpamPageError as e:
                 self.stdout.write(f"Spam page error: {e}")
                 c.status = CitationUrl.Status.SPAM
+                pass
+
+            except InvalidURL as e:
+                self.stdout.write(f"Invalid URL: {e}")
+                c.status = CitationUrl.Status.IGNORE
                 pass
 
             except:
@@ -127,8 +133,8 @@ class Command(BaseCommand):
             finally:
                 c.last_checked = timezone.now()
                 c.save()
-                print(f"Result: ")
-                pprint(info)
+                print(f"Result: status={c.status}")
+                if info: pprint(info)
                 print()
 
             citation_ctr += 1
