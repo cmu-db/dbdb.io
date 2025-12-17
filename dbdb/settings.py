@@ -1,5 +1,6 @@
 import environ # http://django-environ.readthedocs.io/
 import os
+from django.conf.locale.en import formats
 
 root = environ.Path(__file__) - 2
 env = environ.Env(
@@ -138,8 +139,8 @@ CACHES = {
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'America/New_York'
 USE_L10N = False
-TIME_FORMAT = 'g:i A'
-DATETIME_FORMAT = 'M j, Y g:i A'
+formats.TIME_FORMAT = 'H:i:s'
+formats.DATETIME_FORMAT = "Y-m-d H:i:s"
 
 FIXTURE_DIRS = [
     root.path('data/fixtures')(),

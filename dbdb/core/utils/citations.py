@@ -1,6 +1,7 @@
 import io
 import re
 import logging
+import time
 
 import requests
 from datetime import datetime
@@ -190,6 +191,7 @@ def _extract_html_title(
 def _get_html_page(url, request_timeout: int | None = None) -> Optional[BeautifulSoup]:
     options = Options()
     options.add_argument("--headless")
+    options.set_preference("javascript.enabled", True)
 
     driver = webdriver.Firefox(options=options)
     # driver = webdriver.Chrome()
@@ -198,7 +200,9 @@ def _get_html_page(url, request_timeout: int | None = None) -> Optional[Beautifu
     try:
         # 2. Use WebDriverWait to wait for the title to be present
         # This ensures the dynamic content has loaded before proceeding
-        WebDriverWait(driver, request_timeout).until(EC.presence_of_element_located((By.TAG_NAME, 'title')))
+        wait = WebDriverWait(driver, timeout=request_timeout)
+        time.sleep(20)
+                #.until(EC.presence_of_element_located((By.TAG_NAME, 'title'))))
         print("Page is ready and element is present!")
 
         # 3. Get the page source after the wait condition is met
