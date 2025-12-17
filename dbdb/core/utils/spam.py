@@ -7,9 +7,14 @@ class UnexpectedResponseError(RuntimeError):
     pass
 
 # Sometimes qwen outputs "**not spam**", so we can just treat that as a valid response
-FUNKY_RESPONSES = [
+FUDGEY_RESPONSES_NOT_SPAM = [
     '**answer:** not spam',
     '**not spam**',
+    'answer: false',
+    'answer: not spam',
+]
+FUDGEY_RESPONSES_CORRECT_SUMMARIZE = [
+
 ]
 
 
@@ -19,7 +24,6 @@ def is_spam(
     *,
     model: str = "qwen3:8b", # "llama3.2",
     temperature: float = 0.2,
-    # ollama_url: str = "http://localhost:11434/api/chat",
     timeout: int = 30,
 ) -> bool:
     """
@@ -41,7 +45,10 @@ def is_spam(
 
     system_prompt = (
         "You are a strict web page classifier.\n"
-        "Your task is to decide whether a web page has been taken over by spam.\n\n"
+        "Your task is to decide whether a web page has been taken over by spam.\n"
+        "You must output ONLY one word and no additional text: true or false.\n"
+        "true  = the page is spam\n"
+        "false = the page is not spam\n\n"
         "A page is SPAM if it primarily contains content such as:\n"
         "- Online gambling or betting\n"
         "- Pornography or adult services\n"
@@ -51,14 +58,15 @@ def is_spam(
         "- Domain parking pages (GoDaddy) or ads with no substantive content\n\n"
         "The page is NOT spam if it primarily discusses technical, educational, or "
         "documentation-related information about the expected topic. "
-        "If the page contains source code, then you assume it is for the database system and is not spam. "
-        "Do not try to summarize or explain any code.\n\n"
+        "If the page contains source code, then you assume it is for the database system and is not spam.\n"
+        "Do not try to summarize or explain any code.\n"
+        "Your answer must be in English even if the web page is in a different language.\n\n"
         "Ignore HTML tags, navigation menus, cookie banners, and generic ads.\n"
         "Focus on the semantic intent and dominant topic of the page.\n\n"
-        "You must output ONLY one word: true or false.\n"
-        "true  = the page is spam\n"
-        "false = the page is not spam"
-    )
+        # "You must output ONLY one word and no additional text: true or false.\n"
+        # "true  = the page is spam\n"
+        # "false = the page is not spam"
+    ).strip()
 
     user_prompt = [ ]
     first_line = ""
@@ -72,7 +80,7 @@ def is_spam(
             first_line += f" and/or {system.name}'s developers " + " and ".join(map(str.strip, developer.split(",")))
     else:
         first_line = f"The expected topic of this page is about database systems"
-    user_prompt = [
+    user_prompt = (
         f"{first_line}.\n\n"
         "Determine whether the following HTML page has been taken over by spam, "
         "rather than legitimately discussing this database system.\n\n"
@@ -80,30 +88,80 @@ def is_spam(
         f"{html[:12000]}\n"
         "HTML CONTENT END\n\n"
         "Answer:"
-    ]
+    )
     print(f"Invoking '{model}' run spam checker [system={system}]")
+    answer = _run_prompt(system_prompt, user_prompt, model, temperature)
 
+    if any(fr in answer for fr in FUDGEY_RESPONSES_NOT_SPAM):
+        return False
+    if answer not in {"true", "false"}:
+        # If we don't get definitive answer, check whether at least the response
+        # is a technical summarization of the system. If it is, then we can assume
+        # that it is not spam
+        if _check_response(answer, system, "qwen:14b", temperature):
+            return False
+        raise UnexpectedResponseError(f"Unexpected spam check LLM response [model={model} / temperature={temperature}]:\n{answer!r}")
+
+    return answer == "true"
+
+def _run_prompt(system_prompt: str, user_prompt: str, model: str, temperature: float):
     payload = [
-            {"role": "system", "content": "".join(system_prompt)},
-            {"role": "user", "content": "".join(user_prompt)},
+        {"role": "system", "content": "".join(system_prompt)},
+        {"role": "user", "content": "".join(user_prompt)},
     ]
     options = {
         "temperature": temperature
     }
 
     pprint(payload, width=200)
+    print(f"model={model}")
     resp = chat(model, messages=payload, options=options)
     answer = resp.message.content.strip().lower()
-    print("-"*100)
+    print("-" * 100)
     pprint(answer, width=200)
 
     # Remove <think> from qwen output
     answer = re.sub(r"<think>.*?</think>", "", answer, flags=re.DOTALL).strip()
+    return answer
 
-    if any(fr in answer for fr in FUNKY_RESPONSES):
-        return False
+def _check_response(response: str,
+                    system: System,
+                    model: str = "qwen3:8b",
+                    temperature: float = 0.2,
+                    timeout: int = 30,):
 
+    developer_names = ""
+    if system:
+        if system.current().developer:
+            developer_names = " and ".join(map(str.strip, system.current().developer.split(",")))
+
+    system_prompt = (
+        f"You are a classification and validation model.\n"
+        f"Your task is to determine whether a given text is summarizing the contents of a webpage about a database system.\n"
+        f"You must output ONLY one word and no additional text: true or false.\n"
+        f"true  = the text discusses the database system\n"
+        f"false = the text does not discuss database system\n\n"
+        f"You must evaluate whether the text is a summary of:\n"
+        f"  1. Some technical aspect about the database system, and/or\n"
+        f"  2. The developer or organization responsible for that database system.\n\n"
+        f"Do NOT speculate. Base your judgment only on the provided text.\n"
+        f"Do NOT include explanations or commentary.\n"
+    )
+
+    user_prompt = (
+        f"Database system: {system.name}\n"
+        f"Developer / organization: {developer_names}\n\n"
+        "TEXT START:\n"
+        f"{response}\n"
+        "TEXT END\n\n"
+        "Determine whether the text above is summarizing a webpage about the "
+        "specified database system and/or its developer."
+    )
+
+    answer = _run_prompt(system_prompt, user_prompt, model, temperature)
+    if any(fr in answer for fr in FUDGEY_RESPONSES_CORRECT_SUMMARIZE):
+        return True
     if answer not in {"true", "false"}:
-        raise UnexpectedResponseError(f"Unexpected LLM response [temperature={temperature}]:\n{answer!r}")
+        raise UnexpectedResponseError(f"Unexpected response check LLM response [model={model} / temperature={temperature}]:\n{answer!r}")
 
     return answer == "true"
