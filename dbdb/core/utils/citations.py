@@ -32,7 +32,7 @@ LOG = logging.getLogger('console')
 
 # --- Configuration ---
 
-MAX_DOWNLOAD_BYTES = 20 * 1024 * 1024
+MAX_DOWNLOAD_BYTES = 40 * 1024 * 1024
 REQUEST_TIMEOUT = 15 # seconds
 
 SKIP_DOMAINS = {
@@ -175,7 +175,7 @@ def _extract_html_title(
         if len(text_words) > 0:
             attempts = 3
             temperature = 0.0
-            model = "qwen3:8b"
+            model = "qwen3:14b" # "qwen3:8b"
             is_spam = None
             while attempts > 0:
                 attempts -= 1
@@ -191,7 +191,7 @@ def _extract_html_title(
                     LOG.error(e)
                     if attempts == 0: raise e
                     pass
-                model = "qwen:14b" if attempts % 2 == 0 else "mistral:7b"
+                model = "qwen3:14b" if attempts % 2 == 0 else "mistral:7b"
                 temperature = max(temperature - 0.1, 0.0)
             if is_spam is not None and is_spam:
                 raise SpamPageError(f"HTML page classified as spam for {system}")
