@@ -2010,6 +2010,7 @@ class SystemView(View):
             'embeds': embeds,
             'recommendations': recommendations,
             'counter_token': CounterView.build_token('system', pk=system.id),
+            'Status': CitationUrl.Status,
         })
 
     pass
