@@ -57,6 +57,10 @@ IGNORE_TITLES = map(str.lower, [
     "Redirecting…",
 ])
 
+REMOVE_TEXT = [
+    "There was an error while loading. Please reload this page", # github
+]
+
 # --- Exceptions ---
 
 class SpamPageError(RuntimeError):
@@ -158,6 +162,9 @@ def _extract_html_title(
         # Extract the text from the HTML and clean up the newlines and spaces
         # This is wasted space in our prompt context
         text_words = soup.get_text(" ")
+        for s in REMOVE_TEXT:
+            text_words = text_words.replace(s, "")
+
         text_words = re.sub(r"(?:\t){1,}", " ", text_words, flags=re.DOTALL)
         text_words = re.sub(r"(?: ){2,}", " ", text_words, flags=re.DOTALL)
         text_words = re.sub(r"(?: \n){2,}", " \n", text_words, flags=re.DOTALL)
@@ -167,18 +174,24 @@ def _extract_html_title(
         # at when we use the spam checker
         if len(text_words) > 0:
             attempts = 3
-            temperature = 0.2
+            temperature = 0.0
+            model = "qwen3:8b"
             is_spam = None
             while attempts > 0:
                 attempts -= 1
                 try:
-                    is_spam = spam.is_spam(text_words, system, timeout=request_timeout, temperature=temperature)
+                    is_spam = spam.is_spam(text_words, system,
+                                           timeout=request_timeout,
+                                           temperature=temperature,
+                                           model=model
+                    )
                     break
                 except UnexpectedResponseError as e:
                     # Ignore if we get a weird LLM response
                     LOG.error(e)
                     if attempts == 0: raise e
                     pass
+                model = "qwen:14b" if attempts % 2 == 0 else "mistral:7b"
                 temperature = max(temperature - 0.1, 0.0)
             if is_spam is not None and is_spam:
                 raise SpamPageError(f"HTML page classified as spam for {system}")
@@ -337,12 +350,16 @@ def fetch_url_metadata(
             if len(data) > MAX_DOWNLOAD_BYTES:
                 raise RuntimeError(f"Download exceeds size limit [#bytes={len(data)}]")
         data = bytes(data)
-        if status_code != 404: assert len(data) > 0, f"Unexpected empty contents for '{url}'"
-    status = CitationUrl.Status.VALID if status_code >= 200 and status_code < 300 else CitationUrl.Status.DEAD
+        if status_code != 404 and len(data) == 0:
+            LOG.error(f"Unexpected empty contents for '{url}'")
+            status = CitationUrl.Status.IGNORE
+
+    if status == CitationUrl.Status.UNKNOWN:
+        status = CitationUrl.Status.VALID if status_code >= 200 and status_code < 300 else CitationUrl.Status.DEAD
 
     # --- Content-Type dispatch ---
 
-    if status_code != 404:
+    if status_code != 404 and status != CitationUrl.Status.IGNORE:
         # PDF
         if content_type == "application/pdf":
             title, pdf_last_modified = _extract_pdf_metadata(url, data)
