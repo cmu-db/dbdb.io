@@ -347,12 +347,17 @@
         <ol>
             {% for c in citations %}
                 <li id="citation{{ forloop.counter }}">
+                    <a href="{{ c.url }}" target="_cite">
                     {% if c.last_title %}
-                    <span class="citation-title fst-italic">"{{ c.last_title|escape }}", </span>
+                        <span class="citation-title fst-italic">"{{ c.last_title|escape }}", </span>
+                    {% else %}
+                        {{ c.url }}
                     {% endif %}
-                    <a href="{{ c.url }}" target="_cite">{{ c.url }} <i class="fas fa-external-link-alt"></i></a>
-                    {% if c.dead %}
+                    <i class="fas fa-external-link-alt"></i></a>
+                    {% if c.status == CitationUrl.Status.DEAD %}
                         <b><i class="fa-solid fa-skull-crossbones"></i> Dead URL</b>
+                    {% elif c.status == CitationUrl.Status.SPAM %}
+                        <b><i class="fa-solid fa-toilet"></i> Spam</b>
                     {% endif %}
                     {% if c.last_modified %}
                     <span class="citation-modified text-muted">Last Modified: {{ c.last_modified }}</span>

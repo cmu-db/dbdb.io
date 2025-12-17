@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        citations = CitationUrl.objects.all() # filter(is_current=True)
+        citations = CitationUrl.objects.filter(url__startswith="http")
         if options['citation']:
             keyword = options['citation'].strip()
             if keyword.isdigit():
@@ -43,10 +43,10 @@ class Command(BaseCommand):
             citations = citations.filter(last_checked=None)
 
         citation_ctr = 0
+        max_title = CitationUrl._meta.get_field('last_title').max_length
         for c in citations.order_by("id"):
             # First get the list of systems that use this citation
             systems = get_systems(c, current_only=False)
-            self.stdout.write(f"Citation {c} => {systems}")
 
             # If no system is using this citation, we may want to delete it
             if len(systems) == 0:
@@ -87,7 +87,7 @@ class Command(BaseCommand):
                 self.stdout.write(f"Sleeping for {options['sleep']} seconds...")
                 time.sleep(int(options['sleep']))
 
-            print(f"{citation_ctr}: Citation: {c}")
+            self.stdout.write(f"Citation {c} => {systems}")
             info = None
             try:
                 # Just grab the first system to use as a hint
@@ -104,6 +104,11 @@ class Command(BaseCommand):
                 # an existing title
                 if not(c.status == CitationUrl.Status.DEAD and c.last_title):
                     c.last_title = info["title"]
+                    if c.last_title and len(c.last_title) > max_title:
+                        c.last_title = c.last_title[:max_title]
+
+            except KeyboardInterrupt as e:
+                sys.exit(0)
 
             except (TimeoutError,ConnectTimeout,ReadTimeout,ConnectionError,NewConnectionError) as e:
                 self.stdout.write(f"Connection failed: {e}")
