@@ -355,12 +355,19 @@
                     {% endif %}
                     <i class="fas fa-external-link-alt"></i></a> id={{ c.id }} / status={{ c.status }}
                     {% if c.status == Status.DEAD %}
-                        <b><i class="fa-solid fa-skull-crossbones"></i> Dead URL</b>
+                        <b><i class="fa-solid fa-skull-crossbones"></i>Dead</b>
                     {% elif c.status == Status.SPAM %}
-                        <b><i class="fa-solid fa-toilet"></i> Spam</b>
+                        <b><i class="fa-solid fa-toilet"></i>Spam</b>
                     {% endif %}
                     {% if c.last_modified %}
-                    <span class="citation-modified text-muted">Last Modified: {{ c.last_modified }}</span>
+                    <time id="citation{{ forloop.counter }}-last_modified" datetime="{{ c.last_modified|date:"c" }}">
+                        <span class="citation-modified text-muted px-1 rounded border">Modified: {{ c.last_modified }}</span>
+                    </time>
+                    {% endif %}
+                    {% if c.last_checked %}
+                    <time id="citation{{ forloop.counter }}-accessed" datetime="{{ c.last_checked|date:"c" }}">
+                        <span class="citation-checked text-muted px-1 rounded border">Accessed: {{ c.last_checked }}</span>
+                    </time>
                     {% endif %}
                 </li>
             {% endfor %}
@@ -374,7 +381,7 @@
         <div class="card-body">
             Revision #{{ system_version.ver }}
             &nbsp;|&nbsp;
-            <time datetime="{{ system_version.created|date:"c" }}">
+            <time id="revision" datetime="{{ system_version.created|date:"c" }}">
             Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
             </time>
         </div>
