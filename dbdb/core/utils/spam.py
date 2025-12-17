@@ -50,14 +50,14 @@ def is_spam(
         "true  = the page is spam\n"
         "false = the page is not spam\n\n"
         "A page is SPAM if it primarily contains content such as:\n"
-        "- Online gambling or betting\n"
+        "- Online gambling or betting.\n"
         "- Pornography or adult services\n"
-        "- Online pharmacies or prescription drug sales\n"
-        "- Crypto or financial scams\n"
-        "- SEO spam, link farms, or auto-generated keyword pages\n"
-        "- Domain parking pages (GoDaddy) or ads with no substantive content\n\n"
-        "The page is NOT spam if it primarily discusses technical, educational, or "
-        "documentation-related information about the expected topic. "
+        "- Online pharmacies or prescription drug sales.\n"
+        "- Crypto or financial scams.\n"
+        "- Online education, IT training, certifications.\n"
+        "- SEO spam, link farms, or auto-generated keyword pages.\n"
+        "- Domain parking pages (GoDaddy) or ads with no substantive content.\n\n"
+        "The page is NOT spam if it primarily discusses technical or documentation-related information about the expected topic. "
         "If the page contains source code, then you assume it is for the database system and is not spam.\n"
         "Do not try to summarize or explain any code.\n"
         "Your answer must be in English even if the web page is in a different language.\n\n"
@@ -98,7 +98,7 @@ def is_spam(
         # If we don't get definitive answer, check whether at least the response
         # is a technical summarization of the system. If it is, then we can assume
         # that it is not spam
-        if _check_response(answer, system, "qwen:14b", temperature):
+        if _check_response(answer, system, "qwen3:14b", temperature):
             return False
         raise UnexpectedResponseError(f"Unexpected spam check LLM response [model={model} / temperature={temperature}]:\n{answer!r}")
 
@@ -144,6 +144,7 @@ def _check_response(response: str,
         f"You must evaluate whether the text is a summary of:\n"
         f"  1. Some technical aspect about the database system, and/or\n"
         f"  2. The developer or organization responsible for that database system.\n\n"
+        f"If the page looks like spam or contains information not related to database systems (e.g., gambling, online education, pornography, crypto), then output false.\n"
         f"Do NOT speculate. Base your judgment only on the provided text.\n"
         f"Do NOT include explanations or commentary.\n"
     )
