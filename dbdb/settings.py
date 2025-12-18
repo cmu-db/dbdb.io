@@ -139,8 +139,9 @@ CACHES = {
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'America/New_York'
 USE_L10N = False
-formats.TIME_FORMAT = 'H:i:s'
-formats.DATETIME_FORMAT = "Y-m-d H:i:s"
+formats.DATE_FORMAT = "Y-m-d"
+formats.TIME_FORMAT = "H:i:s"
+formats.DATETIME_FORMAT = f"{formats.DATE_FORMAT} {formats.TIME_FORMAT}"
 
 FIXTURE_DIRS = [
     root.path('data/fixtures')(),

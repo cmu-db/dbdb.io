@@ -3,6 +3,7 @@
 {% load thumbnail %}
 {% load markdownify %}
 {% load citations %}
+{% load links %}
 
 {% block css %}
 <link href="{% static 'core/css/system.css' %}" rel="stylesheet">
@@ -204,8 +205,9 @@
                     <dd>
                         {% spaceless %}
                         {% for other in system_version.derived_from.all %}{% if not forloop.first %}, {% endif %}
-                            <a class="" href="{% url 'browse' %}?derived={{ other.slug }}" title="View other systems derived from {{ other.name }}">{{ other.name }}</a>
-                            <a class="" href="{% url 'system' other.slug %}" title="View {{ other.name }}"><i class="fa-regular fa-circle-right"></i></a>{% endfor %}
+                            {% system_link other %}
+                            {% browse_link "derived" other.slug "Derived From" %}
+                        {% endfor %}
                         {% endspaceless %}
                     </dd>
                 {% endif %}
@@ -215,8 +217,9 @@
                     <dd>
                         {% spaceless %}
                         {% for other in system_version.embedded.all %}{% if not forloop.first %}, {% endif %}
-                            <a class="" href="{% url 'browse' %}?embeds={{ other.slug }}" title="View other systems that embed {{ other.name }}">{{ other.name }}</a>
-                            <a class="" href="{% url 'system' other.slug %}" title="View {{ other.name }}"><i class="fa-regular fa-circle-right"></i></a>{% endfor %}
+                            {% system_link other %}
+                            {% browse_link "embeds" other.slug "Embed" %}
+                        {% endfor %}
                         {% endspaceless %}
                     </dd>
                 {% endif %}
@@ -225,8 +228,9 @@
                     <dt class="fs-6">Inspired By</dt>
                     <dd>
                         {% for other in system_version.inspired_by.all %}{% if not forloop.first %}, {% endif %}
-                            <a class="" href="{% url 'browse' %}?inspired={{ other.slug }}" title="View other systems inspired by {{ other.name }}">{{ other.name }}</a>
-                            <a class="" href="{% url 'system' other.slug %}" title="View {{ other.name }}"><i class="fa-regular fa-circle-right"></i></a>{% endfor %}
+                            {% system_link other %}
+                            {% browse_link "inspired" other.slug "Inspired By" %}
+                        {% endfor %}
                     </dd>
                 {% endif %}
 
@@ -234,8 +238,9 @@
                     <dt class="fs-6">Compatible With</dt>
                     <dd>
                         {% for other in system_version.compatible_with.all %}{% if not forloop.first %}, {% endif %}
-                            <a class="" href="{% url 'browse' %}?compatible={{ other.slug }}" title="View other systems compatible with {{ other.name }}">{{ other.name }}</a>
-                            <a class="" href="{% url 'system' other.slug %}" title="View {{ other.name }}"><i class="fa-regular fa-circle-right"></i></a>{% endfor %}
+                            {% system_link other %}
+                            {% browse_link "compatible" other.slug "Compatible With" %}
+                        {% endfor %}
                     </dd>
                 {% endif %}
 
@@ -330,7 +335,7 @@
                     {% endfor %}
                 {% endif %}
                 {% if sec.system %}
-                    <p class="fw-bold">⮡ Same as <a class="" href="{% url 'system' sec.system.slug %}" title="View {{ sec.system.name }}">{{ sec.system.name }} <i class="fa-regular fa-circle-right"></i></a>
+                    <p class="section-sameas fw-bold">⮡ Same as {% system_link sec.system %}
                 {% endif %}
 
                 {{ sec.body|markdownify }}
@@ -341,7 +346,7 @@
 
     {% if citations %}
     <!-- BEGIN:CITATIONS -->
-    <div class="text-wrap text-break">
+    <div class="citations text-wrap text-break">
         <h3>Citations</h3>
         <hr class="mt-1 mb-2" />
         <ol>
@@ -351,12 +356,12 @@
 
                     {% if c.last_modified %}
                     <time id="citation{{ forloop.counter }}-last_modified" datetime="{{ c.last_modified|date:"c" }}">
-                        <span class="citation-modified text-muted px-1 rounded border">Modified: {{ c.last_modified }}</span>
+                        <span class="citation-timestamp text-muted px-1 rounded border">Modified: {{ c.last_modified|date }}</span>
                     </time>
                     {% endif %}
                     {% if c.last_checked %}
                     <time id="citation{{ forloop.counter }}-accessed" datetime="{{ c.last_checked|date:"c" }}">
-                        <span class="citation-checked text-muted px-1 rounded border">Accessed: {{ c.last_checked }}</span>
+                        <span class="citation-timestamp text-muted px-1 rounded border">Accessed: {{ c.last_checked|date }}</span>
                     </time>
                     {% endif %}
                 </li>

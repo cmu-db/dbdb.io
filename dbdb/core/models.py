@@ -2,6 +2,7 @@
 
 import uuid
 # django imports
+import tldextract
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.indexes import GinIndex
@@ -43,6 +44,13 @@ class CitationUrl(models.Model):
     last_etag = models.CharField(max_length=100, default=None, blank=True, null=True)
     last_cachecontrol = models.JSONField(default=dict, blank=True, null=True)
     last_statuscode = models.PositiveIntegerField(default=None, blank=True, null=True)
+
+    def get_domain(self):
+        if self.url.startswith('http'):
+            extracted = tldextract.extract(self.url)
+            return f"{extracted.domain}.{extracted.suffix}"
+        return None
+
 
     def __str__(self):
         return f"#{self.id} ('{self.url}')"
