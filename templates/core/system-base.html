@@ -138,7 +138,7 @@
                     <dt class="fs-6">
                         Start Year
                         {% if start_year_citations %}
-                            {% for c in start_year_citations %}{% citation_link c %}{% endfor %}
+                            {% for c in start_year_citations %}{% citation_footnote c %}{% endfor %}
                         {% endif %}
                     </dt>
                     <dd>{{ system_version.start_year }}</dd>
@@ -148,7 +148,7 @@
                     <dt class="fs-6">
                         End Year
                         {% if end_year_citations %}
-                            {% for c in end_year_citations %}{% citation_link c %}{% endfor %}
+                            {% for c in end_year_citations %}{% citation_footnote c %}{% endfor %}
                         {% endif %}
                     </dt>
                     <dd>{{ system_version.end_year }}</dd>
@@ -163,7 +163,7 @@
                     <dt class="fs-6">
                         Acquired By
                         {% if acquired_by_citations %}
-                            {% for c in acquired_by_citations %}{% citation_link c %}{% endfor %}
+                            {% for c in acquired_by_citations %}{% citation_footnote c %}{% endfor %}
                         {% endif %}
                     </dt>
                     <dd>{{ system_version.acquired_by }}</dd>
@@ -321,7 +321,7 @@
         {% for sec in sections %}
             <div id="{{ sec.id }}" class="pt-md-2 mb-4">
                 {% if sec.title %}
-                    <h3 class="mb-0">{{ sec.title }}{% if sec.citations %}{% for c in sec.citations %}{% citation_link c %}{% endfor %}{% endif %}                        </h3>
+                    <h3 class="mb-0">{{ sec.title }}{% if sec.citations %}{% for c in sec.citations %}{% citation_footnote c %}{% endfor %}{% endif %}                        </h3>
                     <hr class="mt-1 mb-2" />
                 {% endif %}
                 {% if sec.options %}
@@ -347,18 +347,8 @@
         <ol>
             {% for c in citations %}
                 <li id="citation{{ forloop.counter }}" class="pb-1">
-                    <a href="{{ c.url }}" target="_cite">
-                    {% if c.last_title %}
-                        <span class="citation-title fst-italic">"{{ c.last_title|escape }}", </span>
-                    {% else %}
-                        {{ c.url }}
-                    {% endif %}
-                    <i class="fas fa-external-link-alt"></i></a> id={{ c.id }} / status={{ c.status }}
-                    {% if c.status == Status.DEAD %}
-                        <b><i class="fa-solid fa-skull-crossbones"></i>Dead</b>
-                    {% elif c.status == Status.SPAM %}
-                        <b><i class="fa-solid fa-toilet"></i>Spam</b>
-                    {% endif %}
+                    {% citation_link c %}
+
                     {% if c.last_modified %}
                     <time id="citation{{ forloop.counter }}-last_modified" datetime="{{ c.last_modified|date:"c" }}">
                         <span class="citation-modified text-muted px-1 rounded border">Modified: {{ c.last_modified }}</span>
@@ -402,6 +392,7 @@
             Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
         </time>
     </a>
+
 
 {% endblock %}
 

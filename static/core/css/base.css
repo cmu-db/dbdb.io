@@ -488,3 +488,56 @@ p.recent-text { font-size: 10pt; margin: 0; }
 .form-label {
     font-weight: bold;
 }
+
+/* CITATION BUTTONS */
+.citation-btn-container {
+    display: inline-flex;
+    align-items: stretch;
+    overflow: hidden;
+    border-radius: 0.375rem;
+}
+.citation-btn {
+    border-radius: 0.375rem 0 0 0.375rem;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    background: black;
+}
+
+.citation-btn, .citation-link-container {
+    font-size: 0.8rem !important;
+}
+
+.citation-btn-container.expanded .citation-btn {
+    border-radius: 0.375rem 0 0 0.375rem;
+}
+
+.citation-link-container {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    background-color: var(--dark-gray);
+}
+
+.citation-btn-container.expanded .citation-link-container {
+    max-width: 10rem;
+    opacity: 1;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.citation-expand-link {
+    white-space: nowrap;
+    text-decoration: none;
+    color: #fff;
+    font-weight: 500;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.25rem;
+    transition: background 0.2s ease;
+}
+
+.citation-expand-link:hover {
+    color: #fff;
+}
