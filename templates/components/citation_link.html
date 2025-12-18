@@ -1,22 +1,25 @@
 <a href="{{ c.url }}" target="_cite{{ c.id }}">
     {% if c.last_title %}
-        <span class="citation-title fst-italic">"{{ c.last_title|escape }}", </span>
+        <span class="citation-title">{{ c.last_title|escape }}</span>
     {% else %}
         {{ c.url }}
     {% endif %}
     <i class="fas fa-external-link-alt"></i>
 </a>
-id={{ c.id }} / status={{ c.status }}
+{% if c.get_domain %}
+    <em>{{ c.get_domain }}</em>
+{% endif %}
+<!-- id={{ c.id }} / status={{ c.status }} -->
 {% if c.status == Status.DEAD or c.status == Status.SPAM %}
-<div class="citation-btn-container btn-danger" id="citationBtn{{ c.id }}">
-    <button class="citation-btn btn btn-danger fw-bold border-0 py-0 px-1" type="button">
+<div class="citation-btn-container" id="citationBtn{{ c.id }}">
+    <button class="citation-btn btn  fw-bold border-0 py-0 px-1" type="button">
         {% if c.status == Status.DEAD %}
-            <i class="fa-solid fa-skull-crossbones"></i> Dead
+            <i class="fa-solid fa-skull-crossbones"></i>Dead
         {% elif c.status == Status.SPAM %}
-            <i class="fa-solid fa-poo"></i> Spam
+            <i class="fa-solid fa-poo"></i>Spam
         {% endif %}
     </button>
-    <div class="citation-link-container">
+    <div class="citation-link-container rounded">
         <a href="https://web.archive.org/web/*/{{ c.url }}*" class="citation-expand-link" target="_archive{{ c.id }}">Archived <i class="fas fa-external-link-alt"></i></a>
     </div>
 </div>

@@ -1,7 +1,7 @@
 :root {
     --link-color: #c41230;
-    --highlight-color: #d64257;
-    --red-button-color: #d64257;
+    --link-hover-color: #d64257;
+    --highlight-color: #f2e29f;
     --browse-hover-color: #f7ced5;
     --light-bg-color: #f8f9fa;
     --dark-gray: #767676;
@@ -28,6 +28,14 @@ h1 {
     line-height: 1.0;
 }
 
+
+/********************************************************************
+ * BEGIN:LINKS
+ ********************************************************************/
+a {
+    text-decoration: none;
+}
+
 main a:has(img), main .version-date-container > a {
     background-color: inherit !important;
 }
@@ -37,10 +45,6 @@ main a {
     border-radius: 3px;
     transition: background-color 0.25s ease, color 0.25s ease;
 }
-.navbar a:hover {
-    color: var(--link-color);
-}
-
 main a:hover {
     background-color: var(--link-color);
     color: white;
@@ -51,12 +55,32 @@ main a:hover > img {
   background-color: inherit !important;
 }
 
+.system-link {
+    padding-right: 3px;
+}
+.system-link:active {
+    color: #6d6e71 !important;
+}
+.system-link .icon {
+    transition: transform 0.3s ease;
+    margin-left: -2px;
+}
+.system-link:hover .icon {
+    transform: translateX(5px);
+}
+
+.navbar a:hover {
+    color: var(--link-color);
+}
+
 .btn-primary {
   background-color: var(--link-color) !important;
   border-color: var(--link-color) !important;
 }
 
-/** BEGIN: NAVBAR **/
+/********************************************************************
+ * BEGIN:NAVBAR
+ ********************************************************************/
 
 /*
 nav.navbar-dark { background-color:#244A64; color: #fff; }
@@ -68,11 +92,19 @@ nav.navbar-dark ul.navbar-nav > li.nav-item a.btn:hover { background-color:trans
 nav.navbar-dark form.form-search .btn { background-color: #49AA55; }
 */
 
+/********************************************************************
+ * BEGIN:MAIN-CONTENT
+ ********************************************************************/
+
+div.main {
+    padding-top: 1%;
+}
 
 section#content { padding:30px 30px; }
 
-
-/** BEGIN:FOOTER **/
+/********************************************************************
+ * BEGIN:FOOTER
+ ********************************************************************/
 
 footer {
 	background-color: #292B33;
@@ -90,24 +122,13 @@ div.revision-footer {
 	color: #4F4F4F;
 }
 
-#filter {
-    position: relative;
-    z-index: 1000;
-}
-
-/* Temporarily add bright backgrounds to see what's happening */
-.choices__list--dropdown {
-    z-index: 1001 !important;
-}
-
-.noUi-target {
-    z-index: 999 !important;
-}
+/********************************************************************
+ * BEGIN:HOMEPAGE
+ ********************************************************************/
 
 td.homepage-logo {
 	width: 35%;
 }
-
 td.homepage-system {
 	width: 65%;
 	font-weight: bold;
@@ -125,12 +146,6 @@ div.homepage-header {
     padding-top: 18px;
     padding-bottom: 18px;
 }
-div.main {
-    padding-top: 1%;
-}
-
-
-
 .homepage-list {
 	margin-right: 0px !important;
 	margin-left: 0px !important;
@@ -148,17 +163,20 @@ div.main {
     font-weight: bold;
 }
 
+/********************************************************************
+ * BEGIN:LEADERBOARD
+ ********************************************************************/
 .stat-label > a {
     display:block;
     width:100%;
 }
 
+/********************************************************************
+ * BEGIN:LOGOS
+ ********************************************************************/
 
-/* LOGOS */
 img.logo-thumbnail {
     border: none;
-/*
-    max-height: 250px;*/
 }
 img.logo-normal {
     width: 100%;
@@ -263,10 +281,6 @@ span.search-keyword {
 .search-results div.card:hover { background-color: #ffff99; }
 .search-results div.card .card-header { padding: 20px 0 0 0; background-color: transparent; border-bottom:none; }
 
-.autocomplete-suggestion b {
-    color: var(--highlight-color) !important;
-    background-color: yellow;
-}
 
 .search-results div.card img.card-logo {
     max-height: 125px;
@@ -290,9 +304,27 @@ span.search-keyword {
 
 #mainsearch-q { border: none; }
 
+#filter {
+    position: relative;
+    z-index: 1000;
+}
+
+/* Temporarily add bright backgrounds to see what's happening */
+.choices__list--dropdown {
+    z-index: 1001 !important;
+}
+
+.noUi-target {
+    z-index: 999 !important;
+}
+
 div.search-badges { margin: 40px auto 40px auto; text-align:center; width: 80%; }
 div.search-badges a.badge { font-size:100%; line-height: 1.5; padding-right: .75em; padding-left: .75em; }
 div.search-badges a.badge em { font-weight: normal; }
+
+/********************************************************************
+ * BEGIN:BADGES
+ ********************************************************************/
 
 .badge-tag {
     text-decoration: none;
@@ -307,9 +339,9 @@ div.search-badges a.badge em { font-weight: normal; }
     text-decoration: none;
 }
 
-.citation {
-    font-weight: normal;
-}
+/********************************************************************
+ * BEGIN:BROWSE
+ ********************************************************************/
 
 #advanced-search-button { color: #767676; font-size: 18px; text-decoration: none; }
 #advanced-search-button:hover { color: var(--link-color); text-decoration: underline; }
@@ -324,7 +356,7 @@ div.search-badges a.badge em { font-weight: normal; }
 .no-transition { transition: none !important; }
 
 .btn-secondary.active { background-color: #6eabdb; }
-.btn-secondary:hover { background-color: var(--red-button-color); }
+.btn-secondary:hover { background-color: var(--link-highlight-color); }
 tr.browse-row:hover { background-color: var(--browse-hover-color); }
 
 .search-results > .form-select { border: none; border-bottom: 1px solid #767676; }
@@ -449,8 +481,20 @@ tr.browse-row {
 
 p.recent-text { font-size: 10pt; margin: 0; }
 
+/********************************************************************
+ * BEGIN:SYSTEM-VIEW
+ ********************************************************************/
+
+.section-sameas {
+    font-size: 110%;
+}
+
 .version-date-container { background-color: var(--light-bg-color); }
 .version-date { font-size: 10pt; color: var(--dark-gray); }
+
+/********************************************************************
+ * BEGIN:PAGINATION
+ ********************************************************************/
 
 .page-row-bg {
     background-color: #e0e0e0;
@@ -484,27 +528,46 @@ p.recent-text { font-size: 10pt; margin: 0; }
     margin-right: 0.5em;
 }
 
-/* EDIT FORM */
+/********************************************************************
+ * BEGIN:EDIT-FORM
+ ********************************************************************/
+
 .form-label {
     font-weight: bold;
 }
 
-/* CITATION BUTTONS */
+/********************************************************************
+ * BEGIN:CITATION-BUTTONS
+ ********************************************************************/
+.citation {
+    font-weight: normal;
+}
+.citations li:target {
+    background-color: var(--highlight-color);
+    border: 2px solid var(--link-color);
+    scroll-margin-top: 5rem;
+}
+
+
 .citation-btn-container {
     display: inline-flex;
     align-items: stretch;
     overflow: hidden;
-    border-radius: 0.375rem;
+/*    border-radius: 0.375rem; */
 }
 .citation-btn {
+/*
     border-radius: 0.375rem 0 0 0.375rem;
+    */
     transition: all 0.3s ease;
     white-space: nowrap;
+    /*
     background: black;
+    */
 }
 
 .citation-btn, .citation-link-container {
-    font-size: 0.8rem !important;
+    /* font-size: 0.8rem !important;*/
 }
 
 .citation-btn-container.expanded .citation-btn {
@@ -533,11 +596,23 @@ p.recent-text { font-size: 10pt; margin: 0; }
     text-decoration: none;
     color: #fff;
     font-weight: 500;
-    padding: 0.375rem 0.75rem;
+    /* padding: 0.375rem 0.75rem; */
     border-radius: 0.25rem;
     transition: background 0.2s ease;
 }
 
 .citation-expand-link:hover {
     color: #fff;
+}
+
+.citation-timestamp {
+    background-color: color-mix(in srgb, var(--light-bg-color) 60%, transparent);
+}
+
+/********************************************************************
+ * BEGIN:AUTOCOMPLETE
+ ********************************************************************/
+.autocomplete-suggestion b {
+    color: var(--link-color) !important;
+    background-color: var(--highlight-color);
 }
