@@ -51,6 +51,8 @@ class CitationUrl(models.Model):
             return f"{extracted.domain}.{extracted.suffix}"
         return None
 
+    class Meta:
+        verbose_name = "Citation URL"
 
     def __str__(self):
         return f"#{self.id} ('{self.url}')"
