@@ -23,6 +23,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from tldextract import tldextract
 
 from dbdb.core.models import CitationUrl, System, SystemFeature, SystemVersion
 from dbdb.core.utils.git import get_git_commit_metadata
@@ -40,8 +41,11 @@ SKIP_DOMAINS = {
     "//www.crunchbase.com/", # Recaptcha blocks
     "//twitter.com",
     "//www.bloomberg.com/",
-    "//dl.acm.org/"
-    "//dbdb.io/"
+    "//dl.acm.org/",
+    "//dbdb.io/",
+    "//www.linkedin.com/",
+    "//docs.4d.com/",
+    "//doc.4d.com/",
 }
 
 SPAM_IGNORE_DOMAINS = {
@@ -155,15 +159,14 @@ def _extract_html_title(
         request_timeout: int | None = None,
     ) -> str:
 
-    spam_check = not skip_spamcheck
     if any(d in url for d in SPAM_IGNORE_DOMAINS):
-        spam_check = False
+        skip_spamcheck = True
 
     title = None
     html = _get_html_page(url, request_timeout=request_timeout)
     soup = BeautifulSoup(html, "html.parser")
 
-    if spam_check:
+    if not skip_spamcheck:
         # Extract the text from the HTML and clean up the newlines and spaces
         # This is wasted space in our prompt context
         text_words = soup.get_text(" ")
@@ -220,7 +223,7 @@ def _get_html_page(url, request_timeout: int | None = None) -> Optional[Beautifu
         # 2. Use WebDriverWait to wait for the title to be present
         # This ensures the dynamic content has loaded before proceeding
         wait = WebDriverWait(driver, timeout=request_timeout)
-        time.sleep(20)
+        time.sleep(10)
                 #.until(EC.presence_of_element_located((By.TAG_NAME, 'title'))))
         print("Page is ready and element is present!")
 
@@ -247,6 +250,7 @@ def fetch_url_metadata(
     request_timeout: int | None = None,
     if_none_match: str | None = None,
     if_modified_since: datetime | None = None,
+    allow_redirects: bool = False,
 ) -> Dict[str, Any]:
 
     headers = {"User-Agent": "dbdb.io/1.0"}
@@ -314,9 +318,42 @@ def fetch_url_metadata(
         stream=True,
         timeout=REQUEST_TIMEOUT,
         headers=headers,
-        allow_redirects=True,
+        allow_redirects=allow_redirects,
     ) as resp:
         status_code = resp.status_code
+        print(f"{url}\nstatus_code={status_code}")
+
+        # If we get redirected, then recursively call ourselves
+        # with allowing the redirect so that we can get the new URL
+        if status_code in (301, 302):
+            new_url = resp.headers['Location']
+            if not new_url.startswith("http"):
+                orig_extracted = tldextract.extract(url)
+                new_url = "https://" + orig_extracted.fqdn + new_url
+
+            print(f"Redirect: {new_url}")
+            result = fetch_url_metadata(
+                new_url,
+                system=system,
+                skip_spamcheck=skip_spamcheck,
+                request_timeout=request_timeout,
+                if_none_match=if_none_match,
+                if_modified_since=if_modified_since,
+                allow_redirects=False)
+            if not result: return None
+            if result["status"] != CitationUrl.Status.SPAM:
+                # Only update the URL redirect if the domains are the same.
+                # Otherwise they will redirect to a spam cite and we lose the original URL
+                orig_extracted = tldextract.extract(url)
+                new_extracted = tldextract.extract(new_url)
+                if orig_extracted.domain == new_extracted.domain and \
+                    orig_extracted.suffix == new_extracted.suffix:
+                    print(f"Updating URL: status={result['status']} / {new_url}")
+                    result["url"] = new_url
+            else:
+                result["url"] = url
+            return result
+
         content_type = (
             resp.headers.get("Content-Type", "").split(";")[0].lower() or None
         )

@@ -39,13 +39,13 @@ a {
 main a:has(img), main .version-date-container > a {
     background-color: inherit !important;
 }
-main a {
+main a:not(.homepage-list a) {
     color: var(--link-color);
     padding: 1px 1px;
     border-radius: 3px;
     transition: background-color 0.25s ease, color 0.25s ease;
 }
-main a:hover {
+main a:not(.homepage-list a):hover {
     background-color: var(--link-color);
     color: white;
     text-decoration: underline dotted;

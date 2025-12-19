@@ -91,7 +91,12 @@ class Command(BaseCommand):
             info = None
             try:
                 # Just grab the first system to use as a hint
-                info = fetch_url_metadata(c.url, system=systems[0], skip_spamcheck=options["ignore_spam"])
+                info = fetch_url_metadata(
+                    c.url,
+                    system=systems[0],
+                    skip_spamcheck=options["ignore_spam"],
+                    allow_redirects=False
+                )
                 c.status = info["status"]
                 c.last_statuscode = info["status-code"]
                 c.last_contenttype = info["content-type"]
@@ -99,6 +104,18 @@ class Command(BaseCommand):
                 c.last_cachecontrol = info["cache-control"]
                 c.last_etag = info["etag"]
                 c.last_modified = info["last-modified"]
+
+                # Check if we need to update the URL
+                if "url" in info and c.url != info["url"]:
+                    # Check whether this url already exists
+                    other_c = CitationUrl.objects.filter(url=info["url"])
+                    if other_c.exists():
+                        merge_citations(other_c[0], [c])
+                        c.delete()
+                        continue
+
+                    else:
+                        c.url = info["url"]
 
                 # Don't overwrite the title if we get a dead page and there is already
                 # an existing title
@@ -113,7 +130,6 @@ class Command(BaseCommand):
             except (TimeoutError,ConnectTimeout,ReadTimeout,ConnectionError,NewConnectionError) as e:
                 self.stdout.write(f"Connection failed: {e}")
                 c.status = CitationUrl.Status.DEAD
-                print("!!!")
                 pass
 
             except SpamPageError as e:
@@ -133,7 +149,7 @@ class Command(BaseCommand):
             finally:
                 c.last_checked = timezone.now()
                 c.save()
-                print(f"Result: status={c.status}")
+                print(f"Result: status={c.get_status_display()}")
                 if info: pprint(info)
                 print()
 

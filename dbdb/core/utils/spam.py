@@ -13,6 +13,7 @@ FUDGEY_RESPONSES_NOT_SPAM = [
     'answer: false',
     'answer: not spam',
     '**answer:** false',
+    '**answer:** no',
 ]
 FUDGEY_RESPONSES_CORRECT_SUMMARIZE = [
 
@@ -99,7 +100,7 @@ def is_spam(
         # If we don't get definitive answer, check whether at least the response
         # is a technical summarization of the system. If it is, then we can assume
         # that it is not spam
-        if _check_response(answer, system, "qwen3:14b", temperature):
+        if _check_response(answer, system, "mistral:7b", temperature):
             return False
         raise UnexpectedResponseError(f"Unexpected spam check LLM response [model={model} / temperature={temperature}]:\n{answer!r}")
 
