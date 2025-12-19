@@ -28,8 +28,8 @@ class CustomUserAdmin(UserAdmin):
 @admin.register(CitationUrl)
 class CitationUrlAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
-    list_display = ('url', 'status', 'last_title', 'last_statuscode', 'created', 'last_checked')
-    search_fields = ('url', 'last_title')
+    list_display = ('id', 'url', 'status', 'last_title', 'last_statuscode', 'created', 'last_checked')
+    search_fields = ('id', 'url', 'last_title')
     list_filter = ['status', 'last_checked', 'last_statuscode']
 
 @admin.register(Feature)
