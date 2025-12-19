@@ -1,5 +1,4 @@
 from django import template
-
 from dbdb.core.models import System
 
 register = template.Library()
@@ -12,8 +11,13 @@ def system_link(system: System):
     return {"s": system}
 
 @register.inclusion_tag("components/browse_link.html")
-def browse_link(key: str, value: str, label: str):
+def browse_link(key: str, value: str, tooltip: str, label: str = None):
     """
-    Renders a link for a System
+    Renders a link for a searching something on browse
     """
-    return {"key": key, "value": value, "label": label}
+    return {
+        "key": key,
+        "value": value,
+        "tooltip": tooltip,
+        "label": label,
+    }
