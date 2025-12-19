@@ -174,8 +174,8 @@
                     <dt class="fs-6">Project Type</dt>
                     <dd>
                         {% spaceless %}
-                        {% for project_type in system_version.project_types.all %}{% if not forloop.first %}, {% endif %}
-                            <a class="" href="{% url 'browse' %}?type={{ project_type.slug }}" title="View other {{ project_type.name }} systems">{{ project_type.name }}</a>{% endfor %}
+                        {% for attropt in system_version.project_types.all %}{% if not forloop.first %}, {% endif %}
+                            {% browse_link "type" attropt.slug ": "|add:attropt.name attropt.name %}{% endfor %}
                         {% endspaceless %}
                     </dd>
                 {% endif %}
@@ -184,8 +184,8 @@
                     <dt class="fs-6">Written in</dt>
                     <dd>
                         {% spaceless %}
-                        {% for written_in in system_version.written_in.all %}{% if not forloop.first %}, {% endif %}
-                            <a class="" href="{% url 'browse' %}?programming={{ written_in.slug }}" title="View other systems that are written in {{ written_in.name }}">{{ written_in.name }}</a>{% endfor %}
+                        {% for attropt in system_version.written_in.all %}{% if not forloop.first %}, {% endif %}
+                            {% browse_link "programming" attropt.slug "Written In "|add:attropt.name attropt.name %}{% endfor %}
                         {% endspaceless %}
                     </dd>
                 {% endif %}
@@ -194,8 +194,8 @@
                     <dt class="fs-6">Supported languages</dt>
                     <dd>
                         {% spaceless %}
-                        {% for lang in system_version.supported_languages.all %}{% if not forloop.first %}, {% endif %}
-                            <a class="" href="{% url 'browse' %}?supported={{ lang.slug }}" title="View other systems that support {{ lang.name }}">{{ lang.name }}</a>{% endfor %}
+                        {% for attropt in system_version.supported_languages.all %}{% if not forloop.first %}, {% endif %}
+                            {% browse_link "supported" attropt.slug "Supporting "|add:attropt.name attropt.name %}{% endfor %}
                         {% endspaceless %}
                     </dd>
                 {% endif %}
@@ -206,7 +206,7 @@
                         {% spaceless %}
                         {% for other in system_version.derived_from.all %}{% if not forloop.first %}, {% endif %}
                             {% system_link other %}
-                            {% browse_link "derived" other.slug "Derived From" %}
+                            {% browse_link "derived" other.slug "Derived From "|add:other.name %}
                         {% endfor %}
                         {% endspaceless %}
                     </dd>
@@ -218,7 +218,7 @@
                         {% spaceless %}
                         {% for other in system_version.embedded.all %}{% if not forloop.first %}, {% endif %}
                             {% system_link other %}
-                            {% browse_link "embeds" other.slug "Embed" %}
+                            {% browse_link "embeds" other.slug "Embed "|add:other.name %}
                         {% endfor %}
                         {% endspaceless %}
                     </dd>
@@ -229,7 +229,7 @@
                     <dd>
                         {% for other in system_version.inspired_by.all %}{% if not forloop.first %}, {% endif %}
                             {% system_link other %}
-                            {% browse_link "inspired" other.slug "Inspired By" %}
+                            {% browse_link "inspired" other.slug "Inspired By "|add:other.name %}
                         {% endfor %}
                     </dd>
                 {% endif %}
@@ -239,7 +239,7 @@
                     <dd>
                         {% for other in system_version.compatible_with.all %}{% if not forloop.first %}, {% endif %}
                             {% system_link other %}
-                            {% browse_link "compatible" other.slug "Compatible With" %}
+                            {% browse_link "compatible" other.slug "Compatible With "|add:other.name %}
                         {% endfor %}
                     </dd>
                 {% endif %}
@@ -247,16 +247,16 @@
                 {% if system_version.oses.exists %}
                     <dt class="fs-6">Operating Systems</dt>
                     <dd>
-                        {% for os in system_version.oses.all %}{% if not forloop.first %}, {% endif %}
-                            <a class="" href="{% url 'browse' %}?os={{ os.slug }}" title="View other systems that support {{ os.name }} systems">{{ os.name }}</a>{% endfor %}
+                        {% for attropt in system_version.oses.all %}{% if not forloop.first %}, {% endif %}
+                            {% browse_link "os" attropt.slug "That Support "|add:attropt.name attropt.name %}{% endfor %}
                     </dd>
                 {% endif %}
 
                 {% if system_version.licenses.exists %}
                     <dt class="fs-6">Licenses</dt>
                     <dd>
-                        {% for license in system_version.licenses.all %}{% if not forloop.first %}, {% endif %}
-                            <a class="" href="{% url 'browse' %}?license={{ license.slug }}" title="View other systems that use {{ license.name }}">{{ license.name }}</a>{% endfor %}
+                        {% for attropt in system_version.licenses.all %}{% if not forloop.first %}, {% endif %}
+                            {% browse_link "license" attropt.slug "That Use "|add:attropt.name|add:" License" attropt.name %}{% endfor %}
                     </dd>
                 {% endif %}
 
