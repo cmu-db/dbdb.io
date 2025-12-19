@@ -2,6 +2,7 @@ import io
 import re
 import logging
 import time
+from subprocess import TimeoutExpired
 
 import requests
 from datetime import datetime
@@ -32,13 +33,15 @@ LOG = logging.getLogger('console')
 
 # --- Configuration ---
 
-MAX_DOWNLOAD_BYTES = 40 * 1024 * 1024
+MAX_DOWNLOAD_BYTES = 60 * 1024 * 1024
 REQUEST_TIMEOUT = 15 # seconds
 
 SKIP_DOMAINS = {
     "//www.crunchbase.com/", # Recaptcha blocks
     "//twitter.com",
     "//www.bloomberg.com/",
+    "//dl.acm.org/"
+    "//dbdb.io/"
 }
 
 SPAM_IGNORE_DOMAINS = {
@@ -46,6 +49,7 @@ SPAM_IGNORE_DOMAINS = {
     "//en.wikipedia.org/",
     "//www.postgresql.org/",
     "//www.slideshare.net/", # LLM spam checker can't handle it?
+    "//news.ycombinator.com/",
 }
 
 IGNORE_TITLES = map(str.lower, [
@@ -59,6 +63,7 @@ IGNORE_TITLES = map(str.lower, [
 
 REMOVE_TEXT = [
     "There was an error while loading. Please reload this page", # github
+    " Uh oh! \n",  # github
 ]
 
 # --- Exceptions ---
@@ -162,20 +167,21 @@ def _extract_html_title(
         # Extract the text from the HTML and clean up the newlines and spaces
         # This is wasted space in our prompt context
         text_words = soup.get_text(" ")
-        for s in REMOVE_TEXT:
-            text_words = text_words.replace(s, "")
-
         text_words = re.sub(r"(?:\t){1,}", " ", text_words, flags=re.DOTALL)
         text_words = re.sub(r"(?: ){2,}", " ", text_words, flags=re.DOTALL)
         text_words = re.sub(r"(?: \n){2,}", " \n", text_words, flags=re.DOTALL)
         text_words = re.sub(r"(?:\n \n)", " \n", text_words, flags=re.DOTALL)
+
+        for s in REMOVE_TEXT:
+            text_words = text_words.replace(s, "")
 
         # Make sure there is at least something for us to look
         # at when we use the spam checker
         if len(text_words) > 0:
             attempts = 3
             temperature = 0.0
-            model = "qwen3:14b" # "qwen3:8b"
+            # model = "qwen3:14b" # "qwen3:8b"
+            model = "qwen3:32b"
             is_spam = None
             while attempts > 0:
                 attempts -= 1
@@ -280,19 +286,25 @@ def fetch_url_metadata(
         repo = m.group("repo")
         commit_id = m.group("commit")
         repo_url = f"https://github.com/{owner}/{repo}.git"
-        title, last_modified = get_git_commit_metadata(repo_url, commit_id, timeout=request_timeout)
-        return {
-            "url": url,
-            "status-code": 200,
-            "content-type": None,
-            "content-length": None,
-            "status": CitationUrl.Status.VALID,
-            "title": title,
-            "etag": None,
-            "last-modified": last_modified,
-            "cache-control": None,
-            "revalidate": None
-        }
+        try:
+            # If the Github repo is no longer available, then this will time out
+            # So we'll just treat it like a regular page and record the 404 status-code
+            title, last_modified = get_git_commit_metadata(repo_url, commit_id, timeout=request_timeout)
+            return {
+                "url": url,
+                "status-code": 200,
+                "content-type": None,
+                "content-length": None,
+                "status": CitationUrl.Status.VALID,
+                "title": title,
+                "etag": None,
+                "last-modified": last_modified,
+                "cache-control": None,
+                "revalidate": None
+            }
+        except TimeoutExpired as e:
+            LOG.debug(f"Timeout: {e}")
+            pass
 
     title = None
     status: CitationUrl.Status = CitationUrl.Status.UNKNOWN
