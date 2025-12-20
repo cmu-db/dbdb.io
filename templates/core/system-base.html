@@ -206,8 +206,7 @@
                         {% spaceless %}
                         {% for other in system_version.derived_from.all %}{% if not forloop.first %}, {% endif %}
                             {% system_link other %}
-                            {% browse_link "derived" other.slug "Derived From "|add:other.name %}
-                        {% endfor %}
+                            {% browse_link "derived" other.slug "Derived From "|add:other.name %}{% endfor %}
                         {% endspaceless %}
                     </dd>
                 {% endif %}
@@ -218,8 +217,7 @@
                         {% spaceless %}
                         {% for other in system_version.embedded.all %}{% if not forloop.first %}, {% endif %}
                             {% system_link other %}
-                            {% browse_link "embeds" other.slug "Embed "|add:other.name %}
-                        {% endfor %}
+                            {% browse_link "embeds" other.slug "Embed "|add:other.name %}{% endfor %}
                         {% endspaceless %}
                     </dd>
                 {% endif %}
@@ -229,8 +227,7 @@
                     <dd>
                         {% for other in system_version.inspired_by.all %}{% if not forloop.first %}, {% endif %}
                             {% system_link other %}
-                            {% browse_link "inspired" other.slug "Inspired By "|add:other.name %}
-                        {% endfor %}
+                            {% browse_link "inspired" other.slug "Inspired By "|add:other.name %}{% endfor %}
                     </dd>
                 {% endif %}
 
@@ -239,8 +236,7 @@
                     <dd>
                         {% for other in system_version.compatible_with.all %}{% if not forloop.first %}, {% endif %}
                             {% system_link other %}
-                            {% browse_link "compatible" other.slug "Compatible With "|add:other.name %}
-                        {% endfor %}
+                            {% browse_link "compatible" other.slug "Compatible With "|add:other.name %}{% endfor %}
                     </dd>
                 {% endif %}
 

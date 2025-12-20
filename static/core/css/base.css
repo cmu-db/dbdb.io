@@ -42,11 +42,11 @@ main a:has(img), main .version-date-container > a {
     background-color: inherit !important;
 }
 */
-main a:not(.page-home a):not(.page-stats a) {
+main a:not(.page-home a):not(.page-stats a):not(.badge):not(.btn) {
     padding: 1px 1px;
     border-radius: 3px;
 }
-main a:not(.page-home a):not(.page-stats a):not(img):hover {
+main a:not(.page-home a):not(.page-stats a):not(img):not(.systems-extra a):hover {
     background-color: var(--link-color);
     color: white;
     text-decoration: underline dotted;
