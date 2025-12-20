@@ -1600,6 +1600,7 @@ class HomeView(View):
         num_systems = System.objects.all().count()
 
         return render(request, self.template_name, {
+            'activate': "home",
             'most_recent': most_recent,
             'most_versions': most_versions,
             'most_visits': most_visits,

@@ -6,8 +6,8 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-md-center homepage-header">
+<div class="container homepage-header">
+    <div class="row justify-content-md-center">
         <div class="col col-md-12 col-sm-12 text-center">
             <h1 class="display-3">Database of Databases</h1>
             <p class="lead">Discover and learn about <b>{{ num_systems|intcomma }}</b> database management systems</p>
@@ -26,8 +26,8 @@
         </div>
     </div>
 </div>
-<div class="container">
-    <div class="row homepage-list">
+<div class="container homepage-list">
+    <div class="row">
         <div class="col-md-4 text-center">
             <h3>Most Recent</h3>
             <table class="table table-hover">
