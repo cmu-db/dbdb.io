@@ -40,7 +40,7 @@ Leaderboards
                                 <td class="stat-label text-start">
                                 {% if stat.search_field == "country" %}
                                     {% get_country item.label as country %}
-                                    <a href="{% url 'browse' %}?country={{ country.code }}" title="View other systems from {{ country.name }}"><i class="{{ country.flag_css }}"></i> {{ country.name }}
+                                    <a href="{% url 'browse' %}?country={{ country.code }}" title="View other systems from {{ country.name }}"><i class="{{ country.flag_css }}"></i> {{ country.name }}</a>
                                 {% elif stat.systems %}
                                     <a href="{% if item.url %}
                                     {{ item.url }}
