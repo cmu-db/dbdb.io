@@ -1,9 +1,12 @@
 # stdlib imports
 # django imports
+import json
+
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 from django.forms import widgets
 from django.forms.fields import MultipleChoiceField
 from django.forms.widgets import Textarea
@@ -16,6 +19,7 @@ from dbdb.core.models import Feature
 from dbdb.core.models import FeatureOption
 from dbdb.core.models import System
 from dbdb.core.models import SystemVersion
+from dbdb.core.widgets import CitationUrlListWidget
 
 
 class TagFieldM2M(MultipleChoiceField):
@@ -42,6 +46,58 @@ class TagFieldM2M(MultipleChoiceField):
 
     pass
 # forms
+
+class CitationUrlListField(forms.Field):
+    """
+    A form field that accepts a list of URLs.
+    Each URL is validated individually.
+    """
+    widget = CitationUrlListWidget
+
+    def __init__(self, *args, **kwargs):
+        self.max_urls = kwargs.pop('max_urls', None)
+        super().__init__(*args, **kwargs)
+        self.url_validator = URLValidator()
+
+    def to_python(self, value):
+        """Normalize data to a list of URL strings."""
+        if not value:
+            return []
+
+        if isinstance(value, list):
+            return value
+
+        if isinstance(value, str):
+            try:
+                return json.loads(value)
+            except json.JSONDecodeError:
+                raise ValidationError("Invalid URL list format.")
+
+        return []
+
+    def validate(self, value):
+        """Check if value consists of valid URLs."""
+        super().validate(value)
+
+        if not value and self.required:
+            raise ValidationError("This field is required.")
+
+        if self.max_urls and len(value) > self.max_urls:
+            raise ValidationError(
+                f"You can only enter up to {self.max_urls} URLs."
+            )
+
+        # Validate each URL
+        for url in value:
+            try:
+                self.url_validator(url)
+            except ValidationError:
+                raise ValidationError(f"Invalid URL: {url}")
+
+    def prepare_value(self, value):
+        """Prepare value for display in the widget."""
+        return json.dumps([c.url for c in value])
+
 
 class SystemFeaturesForm(forms.Form):
 
@@ -205,10 +261,15 @@ class SystemForm(forms.ModelForm):
 
 class SystemVersionEditForm(forms.ModelForm):
 
-    description_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
+
+    description_citations = CitationUrlListField(
+        help_text="Citations URLs",
         required=False
     )
+    # description_citations = TagFieldM2M(
+    #     help_text="Separate the urls with commas",
+    #     required=False
+    # )
     history_citations = TagFieldM2M(
         help_text="Separate the urls with commas",
         required=False
@@ -278,10 +339,14 @@ class SystemVersionEditForm(forms.ModelForm):
 
 class SystemVersionForm(forms.ModelForm):
 
-    description_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
+    description_citations = CitationUrlListField(
+        help_text="Citations URLs",
         required=False
     )
+    # description_citations = TagFieldM2M(
+    #     help_text="Separate the urls with commas",
+    #     required=False
+    # )
     history_citations = TagFieldM2M(
         help_text="Separate the urls with commas",
         required=False

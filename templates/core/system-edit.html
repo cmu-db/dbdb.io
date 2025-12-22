@@ -86,14 +86,15 @@ Edit {{ system.name }}
     </div>
 
     <div class="row border-top pt-4">
-        <div class="col-lg-6">
+        <fieldset class="form-group col-lg-6">
             {% bootstrap_field system_version_form.description form_group_class="form-group md-textarea" %}
             {% bootstrap_field system_version_form.description_citations %}
-        </div>
-        <div class="col-lg-6">
+        </fieldset>
+
+        <fieldset class="form-group col-lg-6">
             {% bootstrap_field system_version_form.history form_group_class="form-group md-textarea" %}
             {% bootstrap_field system_version_form.history_citations %}
-        </div>
+        </fieldset>
     </div>
 
     <div class="row border-top pt-4">
