@@ -1,13 +1,15 @@
 import re
 import sys
 import time
+from argparse import ArgumentParser
 from pprint import pprint
 
 from django.utils import timezone
 from django.core.management import BaseCommand
+from django.utils.dateparse import parse_datetime
 from requests import ConnectTimeout
 from requests.exceptions import ConnectionError, ReadTimeout, InvalidURL
-from urllib3.exceptions import MaxRetryError, NewConnectionError
+from urllib3.exceptions import MaxRetryError, NewConnectionError, ReadTimeoutError
 
 from dbdb.core.models import CitationUrl
 from dbdb.core.utils.citations import *
@@ -15,13 +17,17 @@ from dbdb.core.utils.citations import *
 
 class Command(BaseCommand):
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: ArgumentParser):
         parser.add_argument('citation', metavar='C', type=str, nargs='?',
                     help='Citation URL to force process')
         parser.add_argument('--ignore-spam', action='store_true',
                     help="Ignore spam checks")
+        parser.add_argument('--normalize', action='store_true',
+                    help="Normalize URLs to avoid duplicates")
         parser.add_argument('--only-new', action='store_true',
                     help="Only visit citations that have never been checked before")
+        parser.add_argument("--last-checked", metavar='YYYY-MM-DD', required=False, type=parse_datetime,
+                    help="Process URLs there were checked before date",)
         parser.add_argument('--timeout', type=int, default=15,
                     help="How many seconds to wait for each request attempt")
         parser.add_argument('--sleep', type=int, default=5,
@@ -41,6 +47,9 @@ class Command(BaseCommand):
                 citations = citations.filter(url__icontains=keyword)
         if options['only_new']:
             citations = citations.filter(last_checked=None)
+        if options['last_checked']:
+            print(f"Processing URLs last checked before {options['last_checked']}")
+            citations = citations.filter(last_checked__lte=options['last_checked'])
 
         citation_ctr = 0
         max_title = CitationUrl._meta.get_field('last_title').max_length
@@ -53,6 +62,8 @@ class Command(BaseCommand):
                 self.stdout.write(f"Did not find any systems using Citation {c}. Skipping...")
                 continue
 
+            self.stdout.write(f"Citation {c} => {systems}")
+
             # Check if we have a malformed URL that we need to merge
             fixed_url = None
             if not c.url.lower().startswith("http"):
@@ -60,12 +71,22 @@ class Command(BaseCommand):
                 if parts[0].isdigit() and len(parts) > 1: fixed_url = parts[1].strip()
                 if parts[0].startswith("ttp:"): fixed_url = 'h' + parts[0]
 
+            # Hack for bad URLs
             parts = re.match(r"(http(.*?))[\s]+Section.*", c.url, re.IGNORECASE)
             if parts:
                 fixed_url = parts.group(0)
-                print(f"'{c.url} -> {fixed_url}")
+
+            if options['normalize']:
+                fixed_url = normalize_url(fixed_url if fixed_url else c.url)
+                if fixed_url == c.url:
+                    fixed_url = None
+                else:
+                    print(f"'NORMALIZE: {c.url} -> {fixed_url}")
+
 
             if fixed_url:
+                print(f"'FIX: {c.url} -> {fixed_url}")
+
                 # See if this URL already exists. If yes, then we will merge it
                 other_c = CitationUrl.objects.filter(url=fixed_url)
                 if other_c.exists():
@@ -76,7 +97,7 @@ class Command(BaseCommand):
                 else:
                     c.url = fixed_url
                     c.save()
-                    continue
+                    # Continue processing
 
             # Check again whether this is a valid URL
             if not c.url.lower().startswith("http"):
@@ -87,7 +108,6 @@ class Command(BaseCommand):
                 self.stdout.write(f"Sleeping for {options['sleep']} seconds...")
                 time.sleep(int(options['sleep']))
 
-            self.stdout.write(f"Citation {c} => {systems}")
             info = None
             try:
                 # Just grab the first system to use as a hint
@@ -127,7 +147,7 @@ class Command(BaseCommand):
             except KeyboardInterrupt as e:
                 sys.exit(0)
 
-            except (TimeoutError,ConnectTimeout,ReadTimeout,ConnectionError,NewConnectionError) as e:
+            except (TimeoutError,ReadTimeoutError,ConnectTimeout,ReadTimeout,ConnectionError,NewConnectionError) as e:
                 self.stdout.write(f"Connection failed: {e}")
                 c.status = CitationUrl.Status.DEAD
                 pass

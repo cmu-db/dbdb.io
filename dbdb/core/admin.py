@@ -6,8 +6,6 @@ from django.contrib.auth.models import User
 # local imports
 from .models import *
 
-# inlines
-
 class FeatureOptionsInlines(admin.StackedInline):
     model = FeatureOption
     extra = 0
@@ -18,7 +16,6 @@ class SystemACLInlines(admin.StackedInline):
     exclude=('created', 'modified')
 
 # model admins
-
 
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'is_staff', 'date_joined', 'last_login')
