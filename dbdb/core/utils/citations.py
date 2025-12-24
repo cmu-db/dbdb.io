@@ -5,23 +5,30 @@ import time
 from subprocess import TimeoutExpired
 
 import requests
+import posixpath
 from datetime import datetime
 from email.utils import parsedate_to_datetime
 from typing import Dict, Any, List, Optional
-from pprint import  pprint
+from pprint import pprint
 
 from bs4 import BeautifulSoup
 from PyPDF2 import PdfReader
 from django.db.models import Q
 from pptx import Presentation
 from django.db import connection, transaction
-from django.utils import timezone
+
+from urllib.parse import (
+    urlsplit,
+    urlunsplit,
+    parse_qsl,
+    urlencode,
+    unquote,
+    quote,
+)
 
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from tldextract import tldextract
 
@@ -31,6 +38,11 @@ from dbdb.core.utils import spam
 from dbdb.core.utils.spam import UnexpectedResponseError
 
 LOG = logging.getLogger('console')
+LOG.setLevel(logging.DEBUG)
+console = logging.StreamHandler()
+console.setLevel(logging.DEBUG)
+console.setFormatter(logging.Formatter('%(levelname)s - %(message)s'))
+LOG.addHandler(console)
 
 # --- Configuration ---
 
@@ -46,6 +58,8 @@ SKIP_DOMAINS = {
     "//www.linkedin.com/",
     "//docs.4d.com/",
     "//doc.4d.com/",
+    '//git-wip-us.apache.org',
+    '//angel.co/',
 }
 
 SPAM_IGNORE_DOMAINS = {
@@ -82,6 +96,10 @@ class UnsupportedContentTypeError(RuntimeError):
 
 # --- Helpers ---
 
+def _get_fragment(url: str) -> str:
+    parts = urlsplit(url)
+    return parts.fragment
+
 def _extract_pdf_metadata(url:str, data: bytes, system: System | None = None) -> tuple[str | None, datetime | None]:
     """
     Extract title and oldest date (CreationDate or ModDate) from PDF metadata.
@@ -92,7 +110,7 @@ def _extract_pdf_metadata(url:str, data: bytes, system: System | None = None) ->
     """
     reader = PdfReader(io.BytesIO(data))
     meta = reader.metadata
-    print(f"meta: {meta}")
+    LOG.debug(f"meta: {meta}")
 
     # Extract title
     title = None
@@ -225,13 +243,13 @@ def _get_html_page(url, request_timeout: int | None = None) -> Optional[Beautifu
         wait = WebDriverWait(driver, timeout=request_timeout)
         time.sleep(10)
                 #.until(EC.presence_of_element_located((By.TAG_NAME, 'title'))))
-        print("Page is ready and element is present!")
+        LOG.debug("Page is ready and element is present!")
 
         # 3. Get the page source after the wait condition is met
         html_source = driver.page_source
 
     except TimeoutException:
-        print("Loading took too much time or element not found!")
+        LOG.debug("Loading took too much time or element not found!")
         html_source = None  # Handle the case where the element was not found in time
 
     finally:
@@ -251,6 +269,7 @@ def fetch_url_metadata(
     if_none_match: str | None = None,
     if_modified_since: datetime | None = None,
     allow_redirects: bool = False,
+    redirect_ctr: int = 0,
 ) -> Dict[str, Any]:
 
     headers = {"User-Agent": "dbdb.io/1.0"}
@@ -285,7 +304,7 @@ def fetch_url_metadata(
         r"https://github\.com/(?P<owner>[^/]+)/(?P<repo>[^/.]+)/commit/(?P<commit>[^/.]+)/?$",
         url,
     )
-    if m:
+    if m and "#diff-" not in url:
         owner = m.group("owner")
         repo = m.group("repo")
         commit_id = m.group("commit")
@@ -318,10 +337,10 @@ def fetch_url_metadata(
         stream=True,
         timeout=REQUEST_TIMEOUT,
         headers=headers,
-        allow_redirects=allow_redirects,
+        allow_redirects=True if redirect_ctr > 8 else allow_redirects,
     ) as resp:
         status_code = resp.status_code
-        print(f"{url}\nstatus_code={status_code}")
+        LOG.debug(f"{url}\nstatus_code={status_code}")
 
         # If we get redirected, then recursively call ourselves
         # with allowing the redirect so that we can get the new URL
@@ -330,8 +349,16 @@ def fetch_url_metadata(
             if not new_url.startswith("http"):
                 orig_extracted = tldextract.extract(url)
                 new_url = "https://" + orig_extracted.fqdn + new_url
+            # Don't normalize because we may get stuck in an infinite loop
+            # if the server-side adds back the trailing slash
+            normalized_url = normalize_url(new_url)
+            if normalized_url + '/' != new_url: new_url = normalized_url
 
-            print(f"Redirect: {new_url}")
+            # Add back the fragment after normalize the redirect
+            fragment = _get_fragment(url)
+            if fragment: new_url += f"#{fragment}"
+
+            LOG.debug(f"Redirect: {new_url}")
             result = fetch_url_metadata(
                 new_url,
                 system=system,
@@ -339,7 +366,9 @@ def fetch_url_metadata(
                 request_timeout=request_timeout,
                 if_none_match=if_none_match,
                 if_modified_since=if_modified_since,
-                allow_redirects=False)
+                allow_redirects=False,
+                redirect_ctr=redirect_ctr+1,
+            )
             if not result: return None
             if result["status"] != CitationUrl.Status.SPAM:
                 # Only update the URL redirect if the domains are the same.
@@ -348,7 +377,7 @@ def fetch_url_metadata(
                 new_extracted = tldextract.extract(new_url)
                 if orig_extracted.domain == new_extracted.domain and \
                     orig_extracted.suffix == new_extracted.suffix:
-                    print(f"Updating URL: status={result['status']} / {new_url}")
+                    LOG.debug(f"Updating URL: status={result['status']} / {new_url}")
                     result["url"] = new_url
             else:
                 result["url"] = url
@@ -458,11 +487,7 @@ def fetch_url_metadata(
     }
 
 def merge_citations(merge_to: CitationUrl, merge_from: List[CitationUrl]) -> CitationUrl:
-    LOG.setLevel(logging.DEBUG)
-    console = logging.StreamHandler()
-    console.setLevel(logging.DEBUG)
-    console.setFormatter(logging.Formatter('%(levelname)s - %(message)s'))
-    LOG.addHandler(console)
+
 
     LOG.debug(f"Merging {len(merge_from)} citations to {merge_to}")
 
@@ -566,3 +591,62 @@ def get_systems(c: CitationUrl,
     systems.update(v.system for v in versions)
 
     return list(systems)
+
+
+
+def normalize_url(url: str) -> str:
+    """
+    Normalize a URL for comparison/deduplication while preserving fragments.
+    """
+
+    # Hack: Remove any URLs that already link to archive.org
+    m = re.match(r"https://web\.archive\.org/web/.*?/(?P<url>http[s]?:/[/]?.*?)$", url, re.IGNORECASE)
+    if m:
+        url = m.group('url').strip()
+        LOG.debug(f"Removed archive.org prefix: {url}")
+
+    parts = urlsplit(url)
+
+    # 1. Lowercase scheme and hostname
+    scheme = parts.scheme.lower()
+    hostname = parts.hostname.lower() if parts.hostname else ""
+
+    # 2. Remove default ports
+    port = parts.port
+    if port and not (
+        (scheme == "http" and port == 80)
+        or (scheme == "https" and port == 443)
+    ):
+        netloc = f"{hostname}:{port}"
+    else:
+        netloc = hostname
+
+    # Preserve userinfo if present
+    if parts.username:
+        userinfo = parts.username
+        if parts.password:
+            userinfo += f":{parts.password}"
+        netloc = f"{userinfo}@{netloc}"
+
+    # 3. Normalize path
+    path = unquote(parts.path)
+    path = posixpath.normpath(path)
+
+    if not path.startswith("/"):
+        path = "/" + path
+
+    # Remove trailing slash except for root
+    if path != "/" and path.endswith("/"):
+        path = path[:-1]
+
+    # Re-encode path
+    path = quote(path, safe="/~:@")
+
+    # 4. Normalize query (sorted)
+    query_params = parse_qsl(parts.query, keep_blank_values=True)
+    query = urlencode(sorted(query_params), doseq=True)
+
+    # 5. Preserve fragment
+    fragment = parts.fragment
+
+    return urlunsplit((scheme, netloc, path, query, fragment))
