@@ -632,10 +632,12 @@ def normalize_url(url: str) -> str:
     path = unquote(parts.path)
     path = posixpath.normpath(path)
 
-    if not path.startswith("/"):
+    # If there is no path, then this will add a dot. Remove that if we only have a dot
+    if path in {".", "/"}: path = ""
+    # If there is a path and it doesn't start with '/', then add the slash
+    # We will purposely exclude a path for root domain URLs
+    if path and not path.startswith("/"):
         path = "/" + path
-
-    # Remove trailing slash except for root
     if path != "/" and path.endswith("/"):
         path = path[:-1]
 
@@ -649,4 +651,5 @@ def normalize_url(url: str) -> str:
     # 5. Preserve fragment
     fragment = parts.fragment
 
+    LOG.info(f"Normalize: {url}\n+ scheme: {scheme}\n+ netloc: {netloc}\n+ path: {path}\n+ query: {query}\n+ fragment: {fragment}")
     return urlunsplit((scheme, netloc, path, query, fragment))

@@ -33,9 +33,7 @@
             <!-- BEGIN:TAGS -->
             {% if system_version.tags %}
                 {% for tag in system_version.tags.all %}
-                    <a class="badge badge-tag rounded-pill" href="{% url 'browse' %}?tag={{ tag.slug }}" title="View Other '{{ tag.name }}' Systems">
-                        <i class="fas badge-tag-icon {{ tag.icon }}"></i> {{ tag.name }}
-                    </a>
+                    {% tag_link tag %}
                 {% endfor %}
             {% endif %}
             <!-- END:TAGS -->

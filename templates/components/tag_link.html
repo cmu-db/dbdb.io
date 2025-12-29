@@ -1,0 +1,5 @@
+<a class="badge badge-tag rounded-pill"
+   href="{% url 'browse' %}?tag={{ tag.slug }}"
+   title="View Other '{{ tag.name }}' Systems">
+    <i class="fas badge-tag-icon {{ tag.icon }}"></i> {{ tag.name }}
+</a>
