@@ -27,7 +27,7 @@ class CitationUrlAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
     list_display = ('id', 'url', 'status', 'last_title', 'last_statuscode', 'created', 'last_checked')
     search_fields = ('id', 'url', 'last_title')
-    list_filter = ['status', 'last_checked', 'last_statuscode']
+    list_filter = ['status', 'created', 'last_checked', 'last_statuscode']
 
 @admin.register(Feature)
 class FeatureAdmin(admin.ModelAdmin):

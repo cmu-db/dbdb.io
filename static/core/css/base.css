@@ -256,10 +256,17 @@ span.search-keyword {
 }
 
 .diagonal-strip {
+/*
     position: relative;
     overflow: hidden;
+    background-color: var(--strip-color) !important;
+    */
+    background: linear-gradient(90deg,var(--strip-color) 0%, rgba(0, 0, 0, 0) 5%) !important;
+    /*color-mix(in srgb,  60%, transparent)*/
+
 }
 
+/*
 .diagonal-strip::before {
     content: '';
     position: absolute;
@@ -276,6 +283,7 @@ span.search-keyword {
     position: relative;
     z-index: 1;
 }
+*/
 
 .search-results div.card { padding: 8px; }
 .search-results div.card:hover { background-color: #ffff99; }

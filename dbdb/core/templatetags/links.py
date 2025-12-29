@@ -1,5 +1,5 @@
 from django import template
-from dbdb.core.models import System
+from dbdb.core.models import System, Tag
 
 register = template.Library()
 
@@ -21,3 +21,10 @@ def browse_link(key: str, value: str, tooltip: str, label: str = None):
         "tooltip": tooltip,
         "label": label,
     }
+
+@register.inclusion_tag("components/tag_link.html")
+def tag_link(tag: Tag):
+    """
+    Renders a link for a Tag
+    """
+    return {"tag": tag}
