@@ -997,7 +997,6 @@ class CounterView(View):
         })
 
         s = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-        s = s.decode('utf-8')
 
         return s
 
