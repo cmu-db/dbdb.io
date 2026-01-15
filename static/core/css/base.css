@@ -46,7 +46,7 @@ main a:not(.page-home a):not(.page-stats a):not(.badge):not(.btn) {
     padding: 1px 1px;
     border-radius: 3px;
 }
-main a:not(.page-home a):not(.page-stats a):not(img):not(.systems-extra a):hover {
+main a:not(.page-home a):not(.page-stats a):not(img):not(.systems-extra a):not(.logo-thumbnail):hover {
     background-color: var(--link-color);
     color: white;
     text-decoration: underline dotted;
@@ -175,7 +175,7 @@ div.homepage-header {
  * BEGIN:LOGOS
  ********************************************************************/
 
-img.logo-thumbnail {
+.logo-thumbnail img {
     border: none;
 }
 img.logo-normal {

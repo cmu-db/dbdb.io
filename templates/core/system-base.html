@@ -79,8 +79,8 @@
             {% if system_version.logo %}
             {% spaceless %}
             <div class="text-center mb-3 pb-3 border-bottom">
-                <a href="{{ system_version.logo.url }}"><img
-                        class="logo-thumbnail {% if system_version.logo_height > system_version.logo_width %}logo-tall{% else %}logo-normal{% endif %}"
+                <a href="{{ system_version.logo.url }}" class="logo-thumbnail"><img
+                        class="{% if system_version.logo_height > system_version.logo_width %}logo-tall{% else %}logo-normal{% endif %}"
                         src="{% if system_version.logo.url.lower|slice:"-3:" == "svg" %}{{ system_version.logo.url }}{% else %}{{ system_version.logo|thumbnail_url:'thumb' }}{% endif %}"
                         alt="{{ system.name }} Logo"
                         title="{{ system.name }}"></a>
