@@ -895,12 +895,27 @@ class BrowseView(View):
         results, search_keys, title = self.do_search(request, results, search_op)
 
         # Only get the columns we need for the browse page
-        results = results.annotate(name=F('system__name'), 
-                                   slug=F('system__slug'), 
-                                   system_tags=JSONBAgg(JSONObject(name=F('tags__name'),
-                                                                   slug=F('tags__slug'),
-                                                                   icon=F('tags__icon')))).\
-            values('id', 'name', 'slug', 'logo', 'logo_color', 'start_year', 'end_year', 'system_tags', 'created')
+        results = results.annotate(
+            name=F('system__name'),
+            slug=F('system__slug'),
+            system_tags=JSONBAgg(JSONObject(name=F('tags__name'),
+                                            slug=F('tags__slug'),
+                                            icon=F('tags__icon')))
+        )
+        results = results.values(
+                'id',
+                'name',
+                'slug',
+                'url',
+                'source_url',
+                'logo',
+                'logo_color',
+                'start_year',
+                'end_year',
+                'system_tags',
+                'types',
+                'created'
+        )
 
         results.query.comment = "BROWSE-SEARCH"
         results = list(results.order_by('system__name'))

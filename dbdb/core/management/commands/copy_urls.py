@@ -1,3 +1,5 @@
+# dbdb/core/management/commands/copy_urls.py
+
 import logging
 
 from django.core.management import BaseCommand
@@ -5,12 +7,7 @@ from dbdb.core.models import *
 from dbdb.core.utils.citations import normalize_url
 
 # Use Django's default logger for this command
-LOG = logging.getLogger('console')
-LOG.setLevel(logging.DEBUG)
-console = logging.StreamHandler()
-console.setLevel(logging.DEBUG)
-console.setFormatter(logging.Formatter('%(levelname)s - %(message)s'))
-LOG.addHandler(console)
+LOG = logging.getLogger(__name__)
 
 class Command(BaseCommand):
 
@@ -21,7 +18,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         versions = SystemVersion.objects.all()
-        if options['system']:
+        if options.get('system'):
             keyword = options['system']
             if keyword.isdigit():
                 versions = versions.filter(system__id=int(keyword))
@@ -53,5 +50,3 @@ class Command(BaseCommand):
 
         LOG.info(f"Added {total} new CitationUrls for {versions.count()} versions")
         return
-
-    pass
