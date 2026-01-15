@@ -17,8 +17,8 @@
 {{ filtergroupsjson|json_script:"filterdata" }}
 {{ years|json_script:"years" }}
 
-<div class="search-results">
-<form id="mainsearch" class="main main-search">
+<div class="row search-results">
+    <form id="mainsearch" class="main main-search">
 
     <div class="search-results">
         <div class="d-flex flex-column justify-content-center align-items-center mt-lg-5 mx-0 mx-lg-3 pb-1">
@@ -160,7 +160,7 @@
             </thead>
             <tbody id="table-body">
                 {% for result in results %}
-                {% include 'core/browse-card.html' %}
+                {% include 'core/browse-row.html' %}
                 {% endfor %}
             </tbody>
         </table>
@@ -177,7 +177,7 @@
             <!-- /query -->
             {% endif %}
             {% if suggestion %}
-                </BR>Did you mean <a href="{% url 'system' suggestion.slug %}">{{ suggestion.name }}</a>?
+                <p>Did you mean <a href="{% url 'system' suggestion.slug %}">{{ suggestion.name }}</a>?
             {%  endif %}
         </h2>
     </div>

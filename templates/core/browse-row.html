@@ -5,8 +5,8 @@
 {% with logo=result.logo|thumbnail_url:'search' %}
 
 <tr class="browse-row">
-    <td><a href="{% url 'system' result.slug %}" class="full-row-link"></a></td>
-    <td class="text-start diagonal-strip" style="--strip-color: {{ result.logo_color }}">
+    <td class="diagonal-strip" style="width:10rem; --strip-color: {{ result.logo_color }}"><a href="{% url 'system' result.slug %}" class="full-row-link"></a></td>
+    <td class="text-start">
 <!--        {% if result.logo %}-->
 <!--        <img class="card-logo card-db-logo" loading="lazy" src="{% if result.logo|lower|slice:"-3:" == "svg" %}/media/{{ result.logo }}{% else %}{{ logo }}{% endif %}" alt="{{ result.name }}" height="20px" width="auto"/>-->
 <!--        {% else %}-->
