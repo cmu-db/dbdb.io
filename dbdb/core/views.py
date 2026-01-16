@@ -913,7 +913,6 @@ class BrowseView(View):
                 'start_year',
                 'end_year',
                 'system_tags',
-                'types',
                 'created'
         )
 

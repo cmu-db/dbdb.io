@@ -11,7 +11,7 @@
 {% endif %}
 <!-- id={{ c.id }} / status={{ c.status }} -->
 {% if c.status == Status.DEAD or c.status == Status.SPAM %}
-<div class="citation-btn-container" id="citationBtn{{ c.id }}">
+<div class="citation-btn-container" id="citationBtn{{ c.id }}" title="{{ c.get_status_display }} Link - Click for Archive">
     <button class="citation-btn btn  fw-bold border-0 py-0 px-1" type="button">
         {% if c.status == Status.DEAD %}
             <i class="fa-solid fa-skull-crossbones"></i>Dead
