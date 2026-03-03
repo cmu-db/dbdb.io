@@ -42,8 +42,7 @@ import pytz
 
 # project imports
 from dbdb.core.common.searchvector import SearchVector
-from dbdb.core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemVersionMetadataForm, SystemFeaturesForm, \
-    SystemVersionEditForm
+from dbdb.core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemFeaturesForm, SystemVersionEditForm
 from dbdb.core.models import CitationUrl, SystemSearchText
 from dbdb.core.models import Feature
 from dbdb.core.models import FeatureOption
@@ -56,7 +55,6 @@ from dbdb.core.models import System
 from dbdb.core.models import SystemFeature
 from dbdb.core.models import SystemRedirect
 from dbdb.core.models import SystemVersion
-from dbdb.core.models import SystemVersionMetadata
 from dbdb.core.models import SystemACL
 from dbdb.core.models import SystemVisit
 from dbdb.core.models import SystemRecommendation
@@ -183,13 +181,7 @@ class EmptyFieldsView(View):
                 if f.name == "logo": version_fields.append(f.name + "__SVG")
         ## FOR
 
-        meta_fields = [ ]
-        for f in SystemVersionMetadata._meta.get_fields():
-            if not type(f) in IGNORE_TYPES and \
-               not f.name in IGNORE_NAMES:
-                meta_fields.append(f.name)
-
-        return (version_fields, meta_fields)
+        return (version_fields)
     ## DEF
 
     def get(self, request):
@@ -200,7 +192,7 @@ class EmptyFieldsView(View):
         elif not request.user.is_superuser and not request.user.is_staff:
             raise Http404()
 
-        version_fields, meta_fields = EmptyFieldsView.build_search_fields()
+        version_fields = EmptyFieldsView.build_search_fields()
         versions = SystemVersion.objects.filter(is_current=True)
 
         search_field = request.GET.get('field')
@@ -228,14 +220,6 @@ class EmptyFieldsView(View):
                 else:
                     query = Q(**{field_name: ''})
 
-            elif search_field in meta_fields:
-                field = SystemVersionMetadata._meta.get_field(search_field)
-                field_name = "meta__" + search_field
-
-                if type(field) in (django.db.models.fields.PositiveIntegerField, django.db.models.fields.related.ManyToManyField):
-                    query = Q(**{field_name: None})
-                else:
-                    query = Q(**{field_name: ''})
             else:
                 raise Exception("Invalid field '%s'" % search_field)
 
@@ -249,23 +233,16 @@ class EmptyFieldsView(View):
             versions = list( versions.order_by('system__name') )
             for version in versions:
                 version.href = request.build_absolute_uri( version.system.get_absolute_url() )
-                if search_field in meta_fields:
-                    if type(field) == django.db.models.fields.related.ManyToManyField:
-                        method_handle = getattr(version.meta, search_field + "_str")
-                        version.value = method_handle()
-                    else:
-                        version.value = getattr(version.meta, search_field, "XXX")
+                if type(field) == django.db.models.fields.related.ManyToManyField:
+                    method_handle = getattr(version, search_field + "_str")
+                    version.value = method_handle()
                 else:
-                    if type(field) == django.db.models.fields.related.ManyToManyField:
-                        method_handle = getattr(version, search_field + "_str")
-                        version.value = method_handle()
-                    else:
-                        version.value = getattr(version, field_name, None)
+                    version.value = getattr(version, field_name, None)
                 pass
         ## IF
 
         num_systems = System.objects.all().count()
-        fields = sorted(version_fields + meta_fields)
+        fields = sorted(version_fields)
 
         return render(request, self.template_name, {
             'activate': 'empty', # NAV-LINKS
@@ -288,15 +265,11 @@ class BrowseView(View):
 
     template_name = 'core/browse.html'
 
-    def build_filter_group_for_field(self, field, search_field, label, all_systems, querydict, is_meta=True):
+    def build_filter_group_for_field(self, field, search_field, label, all_systems, querydict):
         empty_set = set()
-
-        if is_meta:
-            values = SystemVersionMetadata.objects.filter(systemversion__is_current=True)
-        else:
-            values = SystemVersion.objects.filter(is_current=True)
-
-        values = values.filter(~Q(**{field: None})).values_list(field)
+        values = SystemVersion.objects.filter(is_current=True)\
+                        .filter(~Q(**{field: None}))\
+                        .values_list(field)
                         # .distinct() \
                         # .order_by()
         fg = FilterGroup(search_field, label, sorted([
@@ -385,8 +358,7 @@ class BrowseView(View):
             'derived', \
             'Derived From', \
             all_systems, \
-            querydict,
-            is_meta=False
+            querydict
         ))
 
         # Inspired
@@ -686,10 +658,10 @@ class BrowseView(View):
 
         # search - compatible
         if search_compatible:
-            sqs_filters.append(Q(meta__compatible_with__slug__in=search_compatible))
+            sqs_filters.append(Q(compatible_with__slug__in=search_compatible))
 
             # print(search_mapping)
-            # sqs = sqs.filter(meta__compatible_with__slug__in=search_compatible)
+            # sqs = sqs.filter(compatible_with__slug__in=search_compatible)
             systems = self.slug_to_system(search_compatible)
             search_mapping['compatible'] = systems.values()
             # search_badges.extend( SearchBadge(request.GET, 'compatible', 'Compatible With', k, v) for k,v in systems.items() )
@@ -716,8 +688,8 @@ class BrowseView(View):
 
         # search - embedded
         if search_embeds:
-            sqs_filters.append(Q(meta__embedded__slug__in=search_embeds))
-            # sqs = sqs.filter(meta__embedded__slug__in=search_embeds)
+            sqs_filters.append(Q(embedded__slug__in=search_embeds))
+            # sqs = sqs.filter(embedded__slug__in=search_embeds)
             systems = self.slug_to_system(search_embeds)
             search_mapping['embeds'] = systems.values()
             # search_badges.extend( SearchBadge(request.GET, 'embeds', 'Embeds / Uses', k, v) for k,v in systems.items() )
@@ -730,8 +702,8 @@ class BrowseView(View):
 
         # search - inspired by
         if search_inspired:
-            sqs_filters.append(Q(meta__inspired_by__slug__in=search_inspired))
-            # sqs = sqs.filter(meta__inspired_by__slug__in=search_inspired)
+            sqs_filters.append(Q(inspired_by__slug__in=search_inspired))
+            # sqs = sqs.filter(inspired_by__slug__in=search_inspired)
             systems = self.slug_to_system(search_inspired)
             search_mapping['inspired'] = systems.values()
             # search_badges.extend( SearchBadge(request.GET, 'inspired', 'Inspired By', k, v) for k,v in systems.items() )
@@ -744,8 +716,8 @@ class BrowseView(View):
 
         # search - operating systems
         if search_os:
-            sqs_filters.append(Q(meta__oses__slug__in=search_os))
-            # sqs = sqs.filter(meta__oses__slug__in=search_os)
+            sqs_filters.append(Q(oses__slug__in=search_os))
+            # sqs = sqs.filter(oses__slug__in=search_os)
             oses = OperatingSystem.objects.filter(slug__in=search_os)
             # search_badges.extend( SearchBadge(request.GET, 'os', 'Operating System', os.slug, os.name) for os in oses )
 
@@ -757,8 +729,8 @@ class BrowseView(View):
 
         # search - programming languages
         if search_programming:
-            sqs_filters.append(Q(meta__written_in__slug__in=search_programming))
-            # sqs = sqs.filter(meta__written_in__slug__in=search_programming)
+            sqs_filters.append(Q(written_in__slug__in=search_programming))
+            # sqs = sqs.filter(written_in__slug__in=search_programming)
             langs = ProgrammingLanguage.objects.filter(slug__in=search_programming)
             # search_badges.extend( SearchBadge(request.GET, 'programming', 'Programming Languages', lang.slug, lang.name) for lang in langs )
             
@@ -770,8 +742,8 @@ class BrowseView(View):
 
         # search - supported languages
         if search_supported:
-            sqs_filters.append(Q(meta__supported_languages__slug__in=search_supported))
-            # sqs = sqs.filter(meta__supported_languages__slug__in=search_supported)
+            sqs_filters.append(Q(supported_languages__slug__in=search_supported))
+            # sqs = sqs.filter(supported_languages__slug__in=search_supported)
             langs = ProgrammingLanguage.objects.filter(slug__in=search_supported)
             # search_badges.extend( SearchBadge(request.GET, 'supported', 'Supported Languages', lang.slug, lang.name) for lang in langs )
             
@@ -809,8 +781,8 @@ class BrowseView(View):
 
         # search - licenses
         if search_license:
-            sqs_filters.append(Q(meta__licenses__slug__in=search_license))
-            # sqs = sqs.filter(meta__licenses__slug__in=search_license)
+            sqs_filters.append(Q(licenses__slug__in=search_license))
+            # sqs = sqs.filter(licenses__slug__in=search_license)
             licenses = License.objects.filter(slug__in=search_license)
             # search_badges.extend( SearchBadge(request.GET, 'license', 'Licenses', license.slug, license.name) for license in licenses )
 
@@ -1219,7 +1191,6 @@ class DatabasesEditView(LoginRequiredMixin, View):
             # Create a new empty system for the form
             system = System()
             system_version = SystemVersion(system=system, is_current=True)
-            system_meta = SystemVersionMetadata()
             system_features = SystemFeature.objects.none()
             pass
 
@@ -1245,7 +1216,6 @@ class DatabasesEditView(LoginRequiredMixin, View):
 
             # Load in what we need
             system_version = SystemVersion.objects.get(system=system, is_current=True)
-            system_meta = system_version.meta
             system_features = system_version.features.all()
             pass
 
@@ -1268,9 +1238,8 @@ class DatabasesEditView(LoginRequiredMixin, View):
             'system_name': system.name,
             'system_form': system_form,
             'system_version_form': SystemVersionForm(instance=system_version),
-            'system_version_metadata_form': SystemVersionMetadataForm(instance=system_meta),
+            # 'system_version_metadata_form': SystemVersionMetadataForm(instance=system_meta),
             'feature_form': feature_form,
-
             'features': features,
         })
 
@@ -1282,26 +1251,22 @@ class DatabasesEditView(LoginRequiredMixin, View):
 
             system = System()
             system_version = SystemVersion(system=system, is_current=True)
-            system_meta = SystemVersionMetadata()
             system_features = SystemFeature.objects.none()
             old_logo = None
             pass
         else:
             system = System.objects.get(slug=slug)
             system_version = SystemVersion.objects.get(system=system, is_current=True)
-            system_meta = system_version.meta
             system_features = system_version.features.all()
             old_logo = system_version.logo
             pass
 
         system_form = SystemForm(request.POST, instance=system)
         system_version_form = SystemVersionEditForm(request.POST, request.FILES)
-        system_version_metadata_form = SystemVersionMetadataForm(request.POST)
         feature_form = SystemFeaturesForm(request.POST, features=system_features)
 
         if system_form.is_valid() and \
             system_version_form.is_valid() and \
-            system_version_metadata_form.is_valid() and \
             feature_form.is_valid():
 
             if request.user.is_superuser:
@@ -1339,10 +1304,6 @@ class DatabasesEditView(LoginRequiredMixin, View):
 
             db_version.save()
             system_version_form.save_m2m()
-
-            db_meta = system_version_metadata_form.save()
-            db_version.meta = db_meta
-            db_version.save()
 
             system.ver = db_version.ver
             system.modified = timezone.now()
@@ -1439,9 +1400,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
             'system_name': system.name,
             'system_form': system_form,
             'system_version_form': system_version_form,
-            'system_version_metadata_form': system_version_metadata_form,
             'feature_form': feature_form,
-
             'features': features,
         })
 
@@ -1704,47 +1663,6 @@ class StatsView(View):
 
         return stat
 
-    def get_versionmeta_stat(self, title, field, search_field, labels, slugs, is_systems, limit):
-
-        def reduce_counts(mapping, item):
-            assert not mapping is None
-            if item is not None:
-                mapping[item] = mapping.get(item, 0) + 1
-
-        values = SystemVersionMetadata.objects \
-            .filter(systemversion__is_current=True) \
-            .filter(~Q(**{field: None})) \
-            .values_list('systemversion__system_id', field, named=True)
-
-        counts = { }
-        for v in values:
-            counts[v[1]] = counts.get(v[1], 0) + 1
-        #counts = reduce(reduce_counts, values, { })
-
-        stat_items = [ ]
-
-        if is_systems:
-            stat_items = [
-                StatItem(System.objects.get(id=k), v, slugs[k], None)
-                for k,v in counts.items()
-            ]
-        else:
-            stat_items = [
-                StatItem(labels[k], v, slugs[k], None)
-                for k,v in counts.items()
-            ]
-
-        stat_items.sort(key=lambda i: i.value, reverse=True)
-        stat = Stat(
-            title,
-            stat_items[:limit],
-            search_field,
-            is_systems,
-            len(stat_items)
-        )
-
-        return stat
-
     def get_version_stat(self, title, field, search_field, labels, slugs, is_systems, limit):
 
         def reduce_counts(mapping, item):
@@ -1827,7 +1745,7 @@ class StatsView(View):
 
         # Compatibility
         if stats_type is None or stats_type == "compatible":
-            stats.append( self.get_versionmeta_stat('Compatibility', 'compatible_with', 'compatible', labels, slugs, True, self.default_limit) )
+            stats.append( self.get_version_stat('Compatibility', 'compatible_with', 'compatible', labels, slugs, True, self.default_limit) )
 
         # Derived From
         if stats_type is None or stats_type == "derived":
@@ -1835,7 +1753,7 @@ class StatsView(View):
 
         # Embeds
         if stats_type is None or stats_type == "embeds":
-            stats.append( self.get_versionmeta_stat('Embeds / Uses', 'embedded', 'embeds', labels, slugs, True, self.default_limit ) )
+            stats.append( self.get_version_stat('Embeds / Uses', 'embedded', 'embeds', labels, slugs, True, self.default_limit ) )
 
         # Versions
         if stats_type is None or stats_type == "revisions":
@@ -1850,7 +1768,7 @@ class StatsView(View):
             limit = -1 if stats_type == "license" else self.default_limit
             labels = dict(License.objects.all().values_list('id', 'name'))
             slugs = dict(License.objects.all().values_list('id', 'slug'))
-            stats.append( self.get_versionmeta_stat('License', 'licenses', 'license', labels, slugs, False, limit) )
+            stats.append( self.get_version_stat('License', 'licenses', 'license', labels, slugs, False, limit) )
 
         # Implementation Language
         if stats_type is None or stats_type == "programming":
@@ -1858,7 +1776,7 @@ class StatsView(View):
             all_values = ProgrammingLanguage.objects.all()
             labels = dict(all_values.values_list('id', 'name'))
             slugs = dict(all_values.values_list('id', 'slug'))
-            stats.append( self.get_versionmeta_stat('Implementation', 'written_in', 'programming', labels, slugs, False, limit) )
+            stats.append( self.get_version_stat('Implementation', 'written_in', 'programming', labels, slugs, False, limit) )
 
         # Project Type
         if stats_type is None or stats_type == "project_type":
@@ -1992,7 +1910,7 @@ class SystemView(View):
         compatible = [
             ver.system for ver in SystemVersion.objects
                                 .filter(is_current=True)
-                                .filter(meta__compatible_with=system)
+                                .filter(compatible_with=system)
                                 .order_by("-logo")
                                 .select_related()
         ]
@@ -2010,7 +1928,7 @@ class SystemView(View):
         embeds = [
             ver.system for ver in SystemVersion.objects
                                 .filter(is_current=True)
-                                .filter(meta__embedded=system)
+                                .filter(embedded=system)
                                 .order_by("-logo")
                                 .select_related()
         ]

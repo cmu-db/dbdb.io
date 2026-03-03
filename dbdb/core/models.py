@@ -370,7 +370,6 @@ class SystemVersion(models.Model):
     # Internal Version Meta-data
     system = models.ForeignKey('System', models.CASCADE, related_name='versions')
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT)
-    meta = models.ForeignKey('SystemVersionMetadata', models.SET_NULL, blank=True, null=True)
     ver = models.PositiveIntegerField('Version No.', default=1)
     is_current = models.BooleanField(default=True)
     comment = models.TextField(blank=True)
@@ -469,45 +468,45 @@ class SystemVersion(models.Model):
 
     derived_from = models.ManyToManyField(
         'System', blank=True,
-        related_name='derived_from_systemsX',
+        related_name='derived_from_systems',
         verbose_name='Systems Derived From',
         help_text="Systems that this system's source code is based on")
 
     embedded = models.ManyToManyField(
         'System', blank=True,
-        related_name='embedded_systemsX',
+        related_name='embedded_systems',
         verbose_name='Systems Embedded',
         help_text="Systems that this system uses on the inside (e.g., storage manager)")
 
     inspired_by = models.ManyToManyField(
         'System', blank=True,
-        related_name='inspired_by_systemsX',
+        related_name='inspired_by_systems',
         verbose_name='Systems Inspired By',
         help_text="Systems used for inspiration in its design but did not rely on source code")
 
     compatible_with = models.ManyToManyField(
         'System', blank=True,
-        related_name='compatible_with_systemsX',
+        related_name='compatible_with_systems',
         verbose_name='Systems Compatible With',
         help_text="Other systems that this system is compatible with (e.g., wire protocol, file formats).")
 
     licenses = models.ManyToManyField(
         'License', blank=True,
-        related_name='systems_licensesX')
+        related_name='systems_licenses')
 
     oses = models.ManyToManyField(
         'OperatingSystem', blank=True,
-        related_name='systems_osesX',
+        related_name='systems_oses',
         verbose_name='Operating Systems')
 
     supported_languages = models.ManyToManyField(
         'ProgrammingLanguage', blank=True,
-        related_name='systems_supportedX',
+        related_name='systems_supported',
         verbose_name='Supported Languages')
 
     written_in = models.ManyToManyField(
         'ProgrammingLanguage', blank=True,
-        related_name='systems_writtenX')
+        related_name='systems_written')
 
     class Meta:
         ordering = ('-ver',)
@@ -732,91 +731,6 @@ class SystemVersion(models.Model):
 
     pass
 
-# ==============================================
-# SystemVersionMetadata
-# ==============================================
-class SystemVersionMetadata(models.Model):
-
-    derived_from = models.ManyToManyField(
-        'System', blank=True,
-        related_name='derived_from_systems',
-        verbose_name='Systems Derived From',
-        help_text="Systems that this system's source code is based on")
-
-    embedded = models.ManyToManyField(
-        'System', blank=True,
-        related_name='embedded_systems',
-        verbose_name='Systems Embedded',
-        help_text="Systems that this system uses on the inside (e.g., storage manager)")
-
-    inspired_by = models.ManyToManyField(
-        'System', blank=True,
-        related_name='inspired_by_systems',
-        verbose_name='Systems Inspired By',
-        help_text="Systems used for inspiration in its design but did not rely on source code")
-
-    compatible_with = models.ManyToManyField(
-        'System', blank=True,
-        related_name='compatible_with_systems',
-        verbose_name='Systems Compatible With',
-        help_text="Other systems that this system is compatible with (e.g., wire protocol, file formats).")
-
-    licenses = models.ManyToManyField(
-        'License', blank=True,
-        related_name='systems_licenses')
-
-    oses = models.ManyToManyField(
-        'OperatingSystem', blank=True,
-        related_name='systems_oses',
-        verbose_name='Operating Systems')
-
-    publications = models.ManyToManyField(
-        'Publication', blank=True,
-        related_name='systems_publications')
-
-    supported_languages = models.ManyToManyField(
-        'ProgrammingLanguage', blank=True,
-        related_name='systems_supported',
-        verbose_name='Supported Languages')
-
-    written_in = models.ManyToManyField(
-        'ProgrammingLanguage', blank=True,
-        related_name='systems_written')
-
-    def __str__(self):
-        system = self.systemversion_set.first()
-        name = "???" if system is None else system.system.name
-        ver = "???" if system is None else system.ver
-        return '{} - {} Meta'.format(name, ver)
-
-    def derived_from_str(self):
-        return ', '.join([str(l) for l in self.derived_from.all()])
-
-    def embedded_str(self):
-        return ', '.join([str(l) for l in self.embedded.all()])
-
-    def compatible_with_str(self):
-        return ', '.join([str(l) for l in self.compatible_with.all()])
-
-    def inspired_by_str(self):
-        return ', '.join([str(l) for l in self.inspired_by.all()])
-
-    def licenses_str(self):
-        return ', '.join([str(l) for l in self.licenses.all()])
-
-    def oses_str(self):
-        return ', '.join([str(l) for l in self.oses.all()])
-
-    def publications_str(self):
-        return ', '.join([str(l) for l in self.publications.all()])
-
-    def supported_languages_str(self):
-        return ', '.join([str(l) for l in self.supported_languages.all()])
-
-    def written_in_str(self):
-        return ', '.join([str(l) for l in self.written_in.all()])
-
-    pass
 
 __all__ = (
     'CitationUrl',
@@ -836,7 +750,6 @@ __all__ = (
     'SystemRecommendation',
     'SystemSearchText',
     'SystemVisit',
-    'SystemVersionMetadata',
 )
 
 
