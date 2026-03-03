@@ -473,6 +473,42 @@ class SystemVersion(models.Model):
         verbose_name='Systems Derived From',
         help_text="Systems that this system's source code is based on")
 
+    embedded = models.ManyToManyField(
+        'System', blank=True,
+        related_name='embedded_systemsX',
+        verbose_name='Systems Embedded',
+        help_text="Systems that this system uses on the inside (e.g., storage manager)")
+
+    inspired_by = models.ManyToManyField(
+        'System', blank=True,
+        related_name='inspired_by_systemsX',
+        verbose_name='Systems Inspired By',
+        help_text="Systems used for inspiration in its design but did not rely on source code")
+
+    compatible_with = models.ManyToManyField(
+        'System', blank=True,
+        related_name='compatible_with_systemsX',
+        verbose_name='Systems Compatible With',
+        help_text="Other systems that this system is compatible with (e.g., wire protocol, file formats).")
+
+    licenses = models.ManyToManyField(
+        'License', blank=True,
+        related_name='systems_licensesX')
+
+    oses = models.ManyToManyField(
+        'OperatingSystem', blank=True,
+        related_name='systems_osesX',
+        verbose_name='Operating Systems')
+
+    supported_languages = models.ManyToManyField(
+        'ProgrammingLanguage', blank=True,
+        related_name='systems_supportedX',
+        verbose_name='Supported Languages')
+
+    written_in = models.ManyToManyField(
+        'ProgrammingLanguage', blank=True,
+        related_name='systems_writtenX')
+
     class Meta:
         ordering = ('-ver',)
         unique_together = ('system','ver')
@@ -516,6 +552,30 @@ class SystemVersion(models.Model):
             instance.system.save()
             pass
         return
+
+    def derived_from_str(self):
+        return ', '.join([str(l) for l in self.derived_from.all()])
+
+    def embedded_str(self):
+        return ', '.join([str(l) for l in self.embedded.all()])
+
+    def compatible_with_str(self):
+        return ', '.join([str(l) for l in self.compatible_with.all()])
+
+    def inspired_by_str(self):
+        return ', '.join([str(l) for l in self.inspired_by.all()])
+
+    def licenses_str(self):
+        return ', '.join([str(l) for l in self.licenses.all()])
+
+    def oses_str(self):
+        return ', '.join([str(l) for l in self.oses.all()])
+
+    def supported_languages_str(self):
+        return ', '.join([str(l) for l in self.supported_languages.all()])
+
+    def written_in_str(self):
+        return ', '.join([str(l) for l in self.written_in.all()])
 
     def description_mobile_intro(self):
         return self.description.split("\n")[0]
@@ -613,8 +673,8 @@ class SystemVersion(models.Model):
             words += self.former_names.split(",")
         if self.acquired_by:
             words += self.acquired_by.split(",")
-        words += [x.name for x in self.meta.written_in.all()]
-        words += [x.slug for x in self.meta.written_in.all()]
+        words += [x.name for x in self.written_in.all()]
+        words += [x.slug for x in self.written_in.all()]
 
         # Add tags with and without hyphens
         # Example: time-series vs. timeseries
@@ -623,13 +683,13 @@ class SystemVersion(models.Model):
 
         # It's debatable whether people actually want to do keyword search for the supported languages
         # From the logs, it looks like people really want to know the language a DBMS was written in
-        # words += [x.name for x in self.meta.supported_languages.all()]
-        # words += [x.slug for x in self.meta.supported_languages.all()]
+        # words += [x.name for x in self.supported_languages.all()]
+        # words += [x.slug for x in self.supported_languages.all()]
 
-        words += [x.name for x in self.meta.oses.all()]
-        words += [x.slug for x in self.meta.oses.all()]
-        words += [x.name for x in self.meta.licenses.all()]
-        words += [x.slug for x in self.meta.licenses.all()]
+        words += [x.name for x in self.oses.all()]
+        words += [x.slug for x in self.oses.all()]
+        words += [x.name for x in self.licenses.all()]
+        words += [x.slug for x in self.licenses.all()]
         for sf in SystemFeature.objects.filter(version=self):
             for o in sf.options.all():
                 value = o.value
@@ -676,6 +736,12 @@ class SystemVersion(models.Model):
 # SystemVersionMetadata
 # ==============================================
 class SystemVersionMetadata(models.Model):
+
+    derived_from = models.ManyToManyField(
+        'System', blank=True,
+        related_name='derived_from_systems',
+        verbose_name='Systems Derived From',
+        help_text="Systems that this system's source code is based on")
 
     embedded = models.ManyToManyField(
         'System', blank=True,
