@@ -64,6 +64,7 @@ main a:not(.page-home a):not(.page-stats a):not(img):not(.systems-extra a):not(.
 .system-link .icon {
     transition: transform 0.3s ease;
     margin-left: -2px;
+    padding-right: 2px;
 }
 .system-link:hover .icon {
     transform: translateX(5px);

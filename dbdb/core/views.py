@@ -671,7 +671,7 @@ class BrowseView(View):
             system_names = [str(e) for e in search_mapping['compatible']]
             search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
             if search_compatiblewith:
-                search_parts.append(' compatible with ' + search_compatiblewith)
+                search_parts.append(' Compatible With ' + search_compatiblewith)
             pass
 
         # search - derived from
@@ -685,7 +685,7 @@ class BrowseView(View):
             system_names = [str(e) for e in search_mapping['derived']]
             search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
             if search_compatiblewith:
-                search_parts.append(' derived from ' + search_compatiblewith)
+                search_parts.append(' Derived From ' + search_compatiblewith)
             pass
 
         # search - embedded
@@ -699,7 +699,7 @@ class BrowseView(View):
             system_names = [str(e) for e in search_mapping['embeds']]
             search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
             if search_compatiblewith:
-                search_parts.append(' that use ' + search_compatiblewith)
+                search_parts.append(' Using ' + search_compatiblewith)
             pass
 
         # search - inspired by
@@ -726,7 +726,7 @@ class BrowseView(View):
             os_names = [str(e) for e in oses]
             search_oses = ' or '.join(os_names) if len(os_names) < 3 else f"{', '.join(os_names[:-1])}, or {os_names[-1]}"
             if search_oses:
-                search_parts.append(' available for ' + search_oses)
+                search_parts.append(' Available for ' + search_oses)
             pass
 
         # search - programming languages
@@ -739,7 +739,7 @@ class BrowseView(View):
             languages = [str(e) for e in langs]
             search_langs = ' or '.join(languages) if len(languages) < 3 else f"{', '.join(languages[:-1])}, or {languages[-1]}"
             if search_langs:
-                search_parts.append(' written in ' + search_langs)
+                search_parts.append(' Written in ' + search_langs)
             pass
 
         # search - supported languages
@@ -765,7 +765,7 @@ class BrowseView(View):
             tag_names = [str(e) for e in tags]
             search_tags = ' or '.join(tag_names) if len(tag_names) < 3 else f"{', '.join(tag_names[:-1])}, or {tag_names[-1]}"
             if search_tags:
-                search_parts.append(' tagged with ' + search_tags)
+                search_parts.append(' Tagged with ' + search_tags)
             pass
 
         # search - project types
@@ -778,7 +778,7 @@ class BrowseView(View):
             type_names = [str(e) for e in types]
             search_types = ' or '.join(type_names) if len(type_names) < 3 else f"{', '.join(type_names[:-1])}, or {type_names[-1]}"
             if search_types:
-                search_parts.append(' classified as ' + search_types + ' projects ')
+                search_parts.append(' Classified as ' + search_types + ' Projects ')
             pass
 
         # search - licenses
@@ -791,7 +791,7 @@ class BrowseView(View):
             license_names = [str(e) for e in licenses]
             search_licenses = ' or '.join(license_names) if len(license_names) < 3 else f"{', '.join(license_names[:-1])}, or {license_names[-1]}"
             if search_licenses:
-                search_parts.append(' licensed under ' + search_licenses)
+                search_parts.append(' Licensed Under ' + search_licenses)
             pass
 
         # search - suffixes

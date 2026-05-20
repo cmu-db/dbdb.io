@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0041_remove_systemversion_meta_and_more'),
+        ('core', '0040_remove_systemversion_meta_and_more'),
     ]
 
     operations = [
