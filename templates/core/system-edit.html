@@ -185,14 +185,14 @@ Edit {{ system.name }}
     function toggleFields(featureName) {
             const systemSelect = document.getElementById('id_' + featureName + '_system');
             const choicesSelect = document.getElementById('id_' + featureName + '_choices');
-            const descriptionTextarea = document.getElementById('id_' + featureName + '_description');
+            {#const descriptionTextarea = document.getElementById('id_' + featureName + '_description');#}
 
             if (systemSelect.value != '') {
                 choicesSelect.disabled = true;
-                descriptionTextarea.disabled = true;
+                {#descriptionTextarea.disabled = true;#}
             } else {
                 choicesSelect.disabled = false;
-                descriptionTextarea.disabled = false;
+                {#descriptionTextarea.disabled = false;#}
             }
         }
 </script>

@@ -2,6 +2,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
+from django.utils.html import format_html
 
 # local imports
 from .models import *
@@ -105,8 +106,17 @@ class ProgrammingLanguageAdmin(admin.ModelAdmin):
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'icon', 'url')
+    list_display = ('name', 'slug', 'icon_display', 'url')
     ordering = ('name',)
+
+    class Media:
+        css = {'all': ('//use.fontawesome.com/releases/v7.1.0/css/all.css',)}
+
+    @admin.display(description='icon')
+    def icon_display(self, obj):
+        if not obj.icon:
+            return ''
+        return format_html('<i class="{}"></i> <tt>{}</tt>', obj.icon, obj.icon)
 
 # registrations
 admin.site.unregister(User)
