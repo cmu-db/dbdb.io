@@ -1371,6 +1371,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
             # even if the system doesn't include it. So we need to check
             # whether they have previous SystemFeatures
             for f in features.values():
+                field_prefix = f.get_sanitized_label()
                 sf = None
 
                 # Get the previous version's Feature for this system
@@ -1386,30 +1387,28 @@ class DatabasesEditView(LoginRequiredMixin, View):
                         pass
 
                 # Description
-                field_name = f.label + "_description"
+                field_name = field_prefix + "_description"
                 value = feature_form.cleaned_data[field_name].strip()
                 if value:
                     sf = get_systemfeature_obj(f)
                     sf.description = value
 
                 # Citations
-                field_name = f.label + "_citation"
-                value = feature_form.cleaned_data[field_name].strip()
+                field_name = field_prefix + "_citations"
+                value = feature_form.cleaned_data[field_name]
                 if value:
                     sf = get_systemfeature_obj(f)
-                    for url in filter(None, value.split(',')):
-                        cit_url, _ = CitationUrl.objects.get_or_create(url=url)
-                        sf.citations.add(cit_url)
+                    sf.citations.set(value)
 
                 # System
-                field_name = f.label + "_system"
+                field_name = field_prefix + "_system"
                 value = feature_form.cleaned_data[field_name].strip()
                 if value:
                     sf = get_systemfeature_obj(f)
                     sf.system = System.objects.get(id=int(value))
 
                 # Options
-                field_name = f.label + "_choices"
+                field_name = field_prefix + "_choices"
                 value = feature_form.cleaned_data[field_name]
                 if isinstance(value, str):
                     sf = get_systemfeature_obj(f)

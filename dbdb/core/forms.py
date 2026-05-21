@@ -24,31 +24,6 @@ from dbdb.core.utils import citations
 from dbdb.core.widgets import CitationUrlListWidget
 
 
-class TagFieldM2M(forms.MultipleChoiceField):
-
-    widget = forms.TextInput(attrs={'data-role': 'tagsinput', 'placeholder': ''})
-
-    def prepare_value(self, value):
-        try:
-            return ','.join([x.url for x in value])
-        except (AttributeError, TypeError):
-            if value is not None:
-                return value.split(',')
-            return ''
-
-    def clean(self, value):
-        urls = []
-        if value:
-            urls = map(str.strip, value.split(','))
-        url_objs = []
-        for url in urls:
-            cit_url, _ = CitationUrl.objects.get_or_create(url=url)
-            url_objs.append(cit_url)
-        return url_objs
-
-    pass
-# forms
-
 class CitationUrlListField(forms.Field):
     """
     A form field that accepts a list of URLs.
@@ -143,11 +118,12 @@ class SystemFeaturesForm(forms.Form):
 
         self.features = []
         for feature in features:
+            field_prefix = feature.get_sanitized_label()
             initial_value = None
             if feature.multivalued:
                 if feature.label in initial:
                     initial_value = initial[feature.label]['options']
-                self.fields[feature.label+'_choices'] = forms.MultipleChoiceField(
+                self.fields[f'{field_prefix}_choices'] = forms.MultipleChoiceField(
                     choices=(
                         (x, x) for x in FeatureOption.objects.filter(feature=feature).order_by('value')
                     ),
@@ -158,7 +134,7 @@ class SystemFeaturesForm(forms.Form):
             else:
                 if feature.label in initial:
                     initial_value = initial[feature.label]['options']
-                self.fields[feature.label+'_choices'] = forms.ChoiceField(
+                self.fields[f'{field_prefix}_choices'] = forms.ChoiceField(
                     choices=(
                         (x, x) for x in FeatureOption.objects.filter(feature=feature).order_by('value')
                     ),
@@ -176,7 +152,7 @@ class SystemFeaturesForm(forms.Form):
                 initial_sys = initial[feature.label]['system']
                 pass
 
-            self.fields[feature.label+'_description'] = forms.CharField(
+            self.fields[f'{field_prefix}_description'] = forms.CharField(
                 label='Description',
                 help_text="This field supports Markdown Syntax",
                 widget=widgets.Textarea(),
@@ -184,7 +160,7 @@ class SystemFeaturesForm(forms.Form):
                 required=False
             )
 
-            self.fields[feature.label+'_citations'] = CitationUrlListField(
+            self.fields[f'{field_prefix}_citations'] = CitationUrlListField(
                 label='Citations',
                 help_text="Citations URLs",
                 initial=initial_cit,
@@ -193,7 +169,7 @@ class SystemFeaturesForm(forms.Form):
 
             systems = [ (x.id, x.name) for x in System.objects.exclude(id=self.system.id).order_by('name') ]
             systems.insert(0, (None, ""))
-            self.fields[feature.label+'_system'] = forms.ChoiceField(
+            self.fields[f'{field_prefix}_system'] = forms.ChoiceField(
                     label='Inherited from System',
                     help_text="Whether this system inherits the capabilities from another system.",
                     choices=systems,
@@ -202,10 +178,10 @@ class SystemFeaturesForm(forms.Form):
                     required=False
                 )
 
-            self.fields[feature.label + '_system'].feature_id = feature.id
-            self.fields[feature.label+'_choices'].feature_id = feature.id
-            self.fields[feature.label+'_description'].feature_id = feature.id
-            self.fields[feature.label+'_citations'].feature_id = feature.id
+            self.fields[f'{field_prefix}_system'].feature_id = feature.id
+            self.fields[f'{field_prefix}_choices'].feature_id = feature.id
+            self.fields[f'{field_prefix}_description'].feature_id = feature.id
+            self.fields[f'{field_prefix}_citations'].feature_id = feature.id
             pass
         return
 

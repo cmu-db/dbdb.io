@@ -75,6 +75,9 @@ class Feature(models.Model):
     def __str__(self):
         return self.label
 
+    def get_sanitized_label(self):
+        return self.slug.lower().replace("-", "_")
+
     pass
 
 # ==============================================
