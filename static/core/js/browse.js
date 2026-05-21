@@ -15,7 +15,6 @@ function YearRange(selector) {
     var selected_min = $input_min.val() ? parseInt( $input_min.val() , 10 ) : '';
     var selected_max = $input_max.val() ? parseInt( $input_max.val() , 10 ) : '';
 
-
     self.update = function update(values, handle) {
         if ( ! $elem.hasClass('active') ) return;
 
@@ -24,13 +23,11 @@ function YearRange(selector) {
         if ( handle == 0 ) {
             $input_min.val(val);
             $var_min.text(val);
-
             if (val != selected_min) $elem.addClass('changed');
         }
         else if ( handle == 1 ) {
             $input_max.val(val);
             $var_max.text(val);
-
             if (val != selected_max) $elem.addClass('changed');
         }
     };
@@ -42,7 +39,6 @@ function YearRange(selector) {
         else {
             self.enable();
         }
-
         $elem.addClass('changed');
     };
 
@@ -50,10 +46,8 @@ function YearRange(selector) {
         $elem.addClass('active');
         $range.show();
         $btn_toggle.text('Enabled');
-
         $input_min.prop('disabled', false);
         $input_max.prop('disabled', false);
-
         var values = range.noUiSlider.get();
         self.update(values, 0);
         self.update(values, 1);
@@ -63,10 +57,8 @@ function YearRange(selector) {
         $elem.removeClass('active');
         $range.hide();
         $btn_toggle.text('Enable');
-
         $input_min.prop('disabled', true);
         $input_max.prop('disabled', true);
-
         $input_min.val('');
         $input_max.val('');
     };
@@ -80,11 +72,7 @@ function YearRange(selector) {
             connect: true,
             start: [selected_min ? selected_min : min, selected_max ? selected_max : max],
             step: 1,
-
-            range: {
-                'min': min,
-                'max': max
-            }
+            range: { 'min': min, 'max': max }
         });
 
         range.noUiSlider.on('update', self.update);
@@ -99,34 +87,8 @@ function YearRange(selector) {
         }
 
         $btn_toggle.click(self.toggle);
-
     };
     self.init();
-}
-
-function apply_refinements() {
-
-    $('#filter_modal').modal('hide');
-
-    var $refinements = $('#refinements');
-
-    $refinements.empty();
-
-    $(':checked', '#filter_modal').each(function(){
-        var $this = $(this);
-        var $that = $('<input type="hidden" />');
-
-        $refinements.append($that);
-        $that.attr('name', $this.attr('name'));
-        $that.val( $this.val() );
-    });
-
-    $('form.main-search').submit();
-
-}
-
-function show_refinements() {
-    $('#filter_modal').modal('show');
 }
 
 function add_filter_button() {
@@ -135,21 +97,18 @@ function add_filter_button() {
     copy.hidden = false;
     copy.id = 'filter-none';
     const button_container = document.getElementById('advanced-search-btn-container');
-
     button_container.insertAdjacentElement('beforebegin', copy);
 }
 
 function buildFilterChoices(fg, select, selected_options) {
-    let filterchoices = fg.choices
+    let filterchoices = fg.choices;
     for (let i = 0; i < filterchoices.length; i++) {
         const option = document.createElement('option');
-
         if (selected_options.includes(filterchoices[i].id)) {
-            option.selected = true
+            option.selected = true;
         }
-
-        option.classList.add('filter-option')
-        option.setAttribute('value', filterchoices[i].id)
+        option.classList.add('filter-option');
+        option.setAttribute('value', filterchoices[i].id);
         option.textContent = filterchoices[i].label;
         select.appendChild(option);
     }
@@ -157,7 +116,7 @@ function buildFilterChoices(fg, select, selected_options) {
 
 function buildFilterGroup(item, selected_options=[]) {
     item.parentElement.previousElementSibling.textContent = item.textContent;
-    
+
     const filterdata = JSON.parse(document.getElementById('filterdata').textContent);
     const filtergroup = filterdata.find(fg => fg.label === item.textContent);
 
@@ -227,9 +186,8 @@ function buildYearSlider(item, searchfield_div, selected_years={}) {
 
     searchfield_div.setAttribute('data-min', min_year);
     searchfield_div.setAttribute('data-max', max_year);
-    
-    const h3 = document.createElement('h3');
 
+    const h3 = document.createElement('h3');
     const span = document.createElement('span');
     span.className = 'years';
     const min = document.createElement('var');
@@ -237,7 +195,6 @@ function buildYearSlider(item, searchfield_div, selected_years={}) {
     const max = document.createElement('var');
     max.setAttribute('for', 'max');
     span.append('(', min, ' - ', max, ')');
-
     h3.appendChild(span);
 
     const range_container_div = document.createElement('div');
@@ -274,121 +231,30 @@ function buildYearFilter(item, selected_years) {
     if (search_row.classList.contains('search-field-filled')) {
         const searchfield_div = item.parentElement.parentElement.nextElementSibling;
         searchfield_div.innerHTML = '';
-
-        buildYearSlider(item, searchfield_div, selected_years)
+        buildYearSlider(item, searchfield_div, selected_years);
     } else {
         search_row.classList.add('search-field-filled');
         const searchfield_div = document.createElement('div');
         searchfield_div.className = 'col filter-group filter-group-range';
-
         item.parentElement.parentElement.insertAdjacentElement('afterend', searchfield_div);
         buildYearSlider(item, searchfield_div, selected_years);
     }
 }
 
-function populate_table(results) {
-    const table = document.getElementById('results-table');
-    const table_body = document.getElementById('table-body');
-    table_body.remove();
-    const new_table = document.createElement('tbody');
-    new_table.id = 'table-body';
-
-    for (const result of results) {
-        const tr = document.createElement('tr');
-        tr.classList.add('browse-row');
-        tr.classList.add('text-muted');
-
-        function getThumbnailUrl(path, alias = 'search') {
-            // Thumbnail attributes from dbdb/settings.py
-            const aliases = {
-                search: { width: 200, height: 200 },
-                thumb: { width: 280, height: 250 },
-                homepage: { width: 100, height: 60 },
-                stats: { width: 60, height: 40 },
-                recent: { width: 40, height: 40 },
-                recommendation: { width: 200, height: 50 },
-            };
-
-            if (!path || !aliases[alias]) return `/media/${path}`;
-
-            const { width, height } = aliases[alias];
-            return `/media/${path}.${width}x${height}_q85.png`;
-        }
-
-        const link_td = document.createElement('td');
-        const link = document.createElement('a');
-        link.classList.add('full-row-link');
-        link.setAttribute('href', `/db/${result.slug}/`);
-        link_td.appendChild(link);
-
-        const logo_td = document.createElement('td');
-        logo_td.classList.add('text-end');
-        const logo = document.createElement('img');
-        logo.setAttribute('alt', `${result.name}`);
-        logo.setAttribute('height', '20px');
-        logo.setAttribute('width', 'auto');
-        if (result.logo) {
-            logo.classList.add(['card-logo', 'card-db-logo']);
-            logo.setAttribute('loading', 'lazy');
-            if (result.logo.slice(-3) === 'svg') {
-                logo.setAttribute('src', `/media/${result.logo}`);
-            } else {
-                logo.setAttribute('src', `${getThumbnailUrl(result.logo, 'search')}`);
-            }
-        } else {
-            logo.classList.add(['card-logo', 'card-default-logo']);
-            logo.setAttribute('src', '/static/core/images/database-nologo.svg');
-        }
-        logo_td.appendChild(logo);
-        const name_p = document.createElement("p");
-        name_p.textContent = result.name;
-        logo_td.appendChild(name_p);
-
-        const name_td = document.createElement('td');
-        name_td.textContent = result.name;
-
-        const start_year_td = document.createElement('td');
-        start_year_td.classList.add('text-right');
-        if (result.start_year) {
-            start_year_td.textContent = result.start_year;
-        } else {
-            start_year_td.textContent = '—';
-        }
-
-        const end_year_td = document.createElement('td');
-        end_year_td.classList.add('text-right');
-        if (result.end_year) {
-            end_year_td.textContent = result.end_year;
-        } else {
-            end_year_td.textContent = '—';
-        }
-
-        tr.appendChild(link_td);
-        tr.appendChild(logo_td);
-        tr.appendChild(name_td);
-        tr.appendChild(start_year_td);
-        tr.appendChild(end_year_td);
-
-        new_table.appendChild(tr);
-    }
-
-    table.appendChild(new_table);
-}
+// ── Advanced search panel ────────────────────────────────────────────────────
 
 const collapse = document.getElementById('filter');
-const collapse_arrow = document.getElementById('advanced-arrow')
+const collapse_arrow = document.getElementById('advanced-arrow');
 const advanced_search_button = document.getElementById('advanced-search-button');
 
 window.addEventListener('DOMContentLoaded', () => {
-  if (collapse.classList.contains('show')) {
-    collapse.parentElement.classList.add('no-transition', 'bg-active');
-    collapse_arrow.classList.add('no-transition', 'open');
-
-    void collapse.offsetWidth;
-
-    collapse.parentElement.classList.remove('no-transition');
-    collapse_arrow.classList.remove('no-transition');
-  }
+    if (collapse.classList.contains('show')) {
+        collapse.parentElement.classList.add('no-transition', 'bg-active');
+        collapse_arrow.classList.add('no-transition', 'open');
+        void collapse.offsetWidth;
+        collapse.parentElement.classList.remove('no-transition');
+        collapse_arrow.classList.remove('no-transition');
+    }
 });
 
 advanced_search_button.addEventListener('click', () => {
@@ -409,59 +275,51 @@ document.addEventListener('DOMContentLoaded', function() {
     for (const [key, value] of params.entries()) {
         const filtergroup = filterdata.find(fg => fg.id === key);
         if (filtergroup) {
-            if (!filters[key]) {
-                filters[key] = []
-            }
-            filters[key].push(value)
+            if (!filters[key]) filters[key] = [];
+            filters[key].push(value);
         } else if (key === 'start-min' || key === 'start-max') {
-            if (!filters['Start Year']) {
-                filters['Start Year'] = {}
-            }
-            filters['Start Year'][key] = value
+            if (!filters['Start Year']) filters['Start Year'] = {};
+            filters['Start Year'][key] = value;
         } else if (key === 'end-min' || key === 'end-max') {
-            if (!filters['End Year']) {
-                filters['End Year'] = {}
-            }
-            filters['End Year'][key] = value
-        } 
+            if (!filters['End Year']) filters['End Year'] = {};
+            filters['End Year'][key] = value;
+        }
     }
 
     for (const [key, values] of Object.entries(filters)) {
-        add_filter_button.call(add_new_button)
+        add_filter_button.call(add_new_button);
         const filtergroup = filterdata.find(fg => fg.id === key);
         if (filtergroup) {
-            const item = Array.from(document.getElementById('filter-none').children[0].children[1].children).find(li => li.textContent === filtergroup.label)
-            buildFilterGroup(item, values)
+            const item = Array.from(document.getElementById('filter-none').children[0].children[1].children).find(li => li.textContent === filtergroup.label);
+            buildFilterGroup(item, values);
         } else {
-            const item = Array.from(document.getElementById('filter-none').children[0].children[1].children).find(li => li.textContent === key)
-            buildYearFilter(item, values)
+            const item = Array.from(document.getElementById('filter-none').children[0].children[1].children).find(li => li.textContent === key);
+            buildYearFilter(item, values);
         }
-
-        add_new_button = document.getElementById('add_field')
+        add_new_button = document.getElementById('add_field');
     }
 
     if (Object.keys(filters).length > 0) {
         const collapse = document.getElementById('filter');
         collapse.classList.add('show');
         const first_field = document.getElementById('filter-none');
-        first_field.remove()
+        first_field.remove();
     }
 });
 
 document.addEventListener('click', function(e) {
     if (e.target.matches('.dropdown-item')) {
-        item = e.target;
+        const item = e.target;
         if (!document.getElementById(item.textContent)) {
             if (item.textContent === 'Start Year' || item.textContent === 'End Year') {
-                buildYearFilter(item)
+                buildYearFilter(item);
             } else {
-                buildFilterGroup(item)
+                buildFilterGroup(item);
             }
         }
     } else if (e.target.matches('.remove')) {
-        item = e.target;
-        row = item.parentElement.parentElement;
-        row.remove()
+        const row = e.target.parentElement.parentElement;
+        row.remove();
     }
 });
 
@@ -471,142 +329,84 @@ add_new_button.addEventListener('click', add_filter_button);
 document.getElementById('advanced-search-clear').addEventListener('click', function(e) {
     e.preventDefault();
     document.querySelectorAll('.filter-group').forEach(el => {
-        if (el.id !== 'template') {
-            el.remove()
-        }
-    })
+        if (el.id !== 'template') el.remove();
+    });
 });
 
-// Table sort events
-function updateSortArrows() {
-    document.querySelectorAll('.sort-arrow').forEach(el => {
-        el.style.opacity = '0.2';
-    })
+// ── Table sort ───────────────────────────────────────────────────────────────
+
+const sortState = { column: 'name', order: 'asc' };
+
+const arrowIds = {
+    name:      { asc: 'name-asc-arrow',  desc: 'name-dec-arrow'  },
+    startYear: { asc: 'start-asc-arrow', desc: 'start-dec-arrow' },
+    endYear:   { asc: 'end-asc-arrow',   desc: 'end-dec-arrow'   },
+};
+
+function updateSortArrows(column, order) {
+    document.querySelectorAll('.sort-arrow').forEach(el => { el.style.opacity = '0.2'; });
+    const id = arrowIds[column][order === 'asc' ? 'asc' : 'desc'];
+    document.getElementById(id).style.opacity = '1';
 }
 
-document.getElementById('name-sort').addEventListener('click', function() {
-    const results = JSON.parse(document.getElementById('results').textContent);
-    const table = document.getElementById('results-table');
+function sortTableBy(column, order) {
+    const tbody = document.getElementById('table-body');
+    if (!tbody) return;
+    const rows = Array.from(tbody.querySelectorAll('tr.browse-row'));
 
-    updateSortArrows();
-
-    if (table.sort === 'name-asc') {
-        results.sort((a, b) => b.name.localeCompare(a.name));
-        table.sort = 'name-desc';
-        document.getElementById('name-dec-arrow').style.opacity = '1';
-    } else {
-        results.sort((a, b) => a.name.localeCompare(b.name));
-        table.sort = 'name-asc';
-        document.getElementById('name-asc-arrow').style.opacity = '1';
-    }
-
-    populate_table(results)
-});
-
-document.getElementById('start-year-sort').addEventListener('click', function() {
-    const results = JSON.parse(document.getElementById('results').textContent);
-    const table = document.getElementById('results-table');
-
-    updateSortArrows();
-
-    if (table.sort === 'start_year-desc') {
-        results.sort((a, b) => {
-            if (a.start_year == null && b.start_year == null) return 0;
-            if (a.start_year == null) return 1;
-            if (b.start_year == null) return -1;
-
-            return a.start_year - b.start_year;
-        });
-        table.sort = 'start_year-asc';
-        document.getElementById('start-asc-arrow').style.opacity = '1';
-    } else {
-        results.sort((a, b) => {
-            if (a.start_year == null && b.start_year == null) return 0;
-            if (a.start_year == null) return 1;
-            if (b.start_year == null) return -1;
-
-            return b.start_year - a.start_year;
-        });
-        table.sort = 'start_year-desc';
-        document.getElementById('start-dec-arrow').style.opacity = '1';
-    }
-
-    populate_table(results)
-});
-
-document.getElementById('end-year-sort').addEventListener('click', function() {
-    const results = JSON.parse(document.getElementById('results').textContent);
-    const table = document.getElementById('results-table');
-
-    updateSortArrows();
-
-    if (table.sort === 'end_year-desc') {
-        results.sort((a, b) => {
-            if (a.end_year == null && b.end_year == null) return 0;
-            if (a.end_year == null) return 1;
-            if (b.end_year == null) return -1;
-
-            return a.end_year - b.end_year;
-        });
-        table.sort = 'end_year-asc';
-        document.getElementById('end-asc-arrow').style.opacity = '1';
-    } else {
-        results.sort((a, b) => {
-            if (a.end_year == null && b.end_year == null) return 0;
-            if (a.end_year == null) return 1;
-            if (b.end_year == null) return -1;
-
-            return b.end_year - a.end_year;
-        });
-        table.sort = 'end_year-desc';
-        document.getElementById('end-dec-arrow').style.opacity = '1';
-    }
-
-    populate_table(results)
-});
-
-$(document).ready(function () {
-    var $form = $('form.main-search');
-
-    $('.filters').on('click', 'li.see-more a', function(){
-        var $clear = $('a.clear', this);
-        var $filtergroup = $(this);
-        var $seemore = $('li.see-more', this);
-
-        $clear.click(function(){
-            $filtergroup.find(':checked').prop('checked', false);
-            $form.submit();
-        });
-
-        $seemore.find('a').click(function(){
-        var $a = $(this);
-        var $ul = $a.closest('ul');
-        var $more = $ul.find('.more');
-
-        if ( $a.hasClass('active') ) {
-            $more.hide();
-            $a.text('Show more');
-            $a.removeClass('active');
+    rows.sort((a, b) => {
+        if (column === 'name') {
+            const aVal = a.dataset.name || '';
+            const bVal = b.dataset.name || '';
+            return order === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
         }
-        else {
-            $more.show();
-            $a.text('Show less');
-            $a.addClass('active');
+        const aRaw = a.dataset[column];
+        const bRaw = b.dataset[column];
+        const aVal = aRaw ? parseInt(aRaw) : null;
+        const bVal = bRaw ? parseInt(bRaw) : null;
+        if (aVal === null && bVal === null) return 0;
+        if (aVal === null) return 1;
+        if (bVal === null) return -1;
+        return order === 'asc' ? aVal - bVal : bVal - aVal;
+    });
+
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+function handleSortClick(column) {
+    const newOrder = (sortState.column === column && sortState.order === 'asc') ? 'desc' : 'asc';
+    sortState.column = column;
+    sortState.order = newOrder;
+    updateSortArrows(column, newOrder);
+    sortTableBy(column, newOrder);
+}
+
+const nameSortBtn = document.getElementById('name-sort');
+const startSortBtn = document.getElementById('start-year-sort');
+const endSortBtn = document.getElementById('end-year-sort');
+
+if (nameSortBtn)  nameSortBtn.addEventListener('click',  () => handleSortClick('name'));
+if (startSortBtn) startSortBtn.addEventListener('click', () => handleSortClick('startYear'));
+if (endSortBtn)   endSortBtn.addEventListener('click',   () => handleSortClick('endYear'));
+
+// ── Row click navigation ─────────────────────────────────────────────────────
+
+const tableBody = document.getElementById('table-body');
+if (tableBody) {
+    tableBody.addEventListener('click', function(e) {
+        if (e.target.closest('a')) return;
+        const row = e.target.closest('tr.browse-row');
+        if (!row || !row.dataset.href) return;
+        if (e.ctrlKey || e.metaKey || e.shiftKey) {
+            window.open(row.dataset.href, '_blank');
+        } else {
+            window.location.href = row.dataset.href;
         }
-        });
     });
+}
 
-    $('.filter-group :checkbox').change(function(){
-        $form.submit();
-    });
+// ── Browse page search autocomplete ─────────────────────────────────────────
 
-    $('#filter_modal').modal({
-        show: false
-    });
-
-});
-
-// Browse Page Search Box
 $("#mainsearch").find('input[name="q"]').autoComplete({
     minChars: 3,
     source: function(term, response) {

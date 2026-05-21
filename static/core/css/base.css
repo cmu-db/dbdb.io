@@ -419,15 +419,21 @@ form.main-search > div.search-results nav.letters { margin:30px 0 30px 0; }
 form.main-search > div.search-results nav.letters .btn { padding: .2rem .6rem; }
 
 tr.browse-row {
-    position: relative;
+    cursor: pointer;
 }
-.full-row-link::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+
+.browse-logo-cell {
+    width: 2.5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.25rem;
+}
+.browse-logo {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+.browse-logo-placeholder {
+    opacity: 0.25;
 }
 
 #filter_modal form.modal-content div.modal-body { align-items:stretch; border-radius:0px; flex-direction:row; flex-wrap:nowrap; display:flex; height:60vh; padding:0; }

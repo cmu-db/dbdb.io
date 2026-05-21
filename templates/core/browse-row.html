@@ -1,41 +1,35 @@
 {% load static %}
 {% load links %}
-{% load django_bootstrap5 %}
 {% load thumbnail %}
-{% with logo=result.logo|thumbnail_url:'search' %}
+{% with logo=result.logo|thumbnail_url:'recent' %}
 
-<tr class="browse-row">
-    <td class="diagonal-strip" style="width:10rem; --strip-color: {{ result.logo_color }}"><a href="{% url 'system' result.slug %}" class="full-row-link"></a></td>
-    <td class="text-start">
-<!--        {% if result.logo %}-->
-<!--        <img class="card-logo card-db-logo" loading="lazy" src="{% if result.logo|lower|slice:"-3:" == "svg" %}/media/{{ result.logo }}{% else %}{{ logo }}{% endif %}" alt="{{ result.name }}" height="20px" width="auto"/>-->
-<!--        {% else %}-->
-<!--        <img class="card-logo card-default-logo" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ result.name }}" height="20px" width="auto"/>-->
-<!--        {% endif %}-->
-        <span class="fw-bold">{{ result.name }}</span>
+<tr class="browse-row"
+    data-href="{% url 'system' result.slug %}"
+    data-name="{{ result.name }}"
+    data-start-year="{{ result.start_year|default:'' }}"
+    data-end-year="{{ result.end_year|default:'' }}">
+    <td class="browse-logo-cell text-center">
+        {% if result.logo %}
+        <img class="browse-logo" loading="lazy"
+             src="{% if result.logo|lower|slice:"-3:" == "svg" %}/media/{{ result.logo }}{% else %}{{ logo }}{% endif %}"
+             alt="{{ result.name }}">
+        {% else %}
+        <img class="browse-logo browse-logo-placeholder" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ result.name }}">
+        {% endif %}
     </td>
-    <td class="text-start">
-        {% spaceless %}
+    <td class="fw-semibold text-nowrap">{{ result.name }}</td>
+    <td>
+        <div class="d-flex flex-wrap gap-1">
         {% for tag in result.system_tags %}
-            {% if tag.name %}
-                {% tag_link tag %}
-            {% endif %}
+            {% if tag.name %}{% tag_link tag %}{% endif %}
         {% endfor %}
-        {% endspaceless %}
+        </div>
     </td>
-    <td class="text-end">
-        {% if result.start_year %}
-        {{ result.start_year }} 
-        {% else %}
-        &mdash;
-        {% endif %}
+    <td class="text-end text-nowrap d-none d-md-table-cell">
+        {% if result.start_year %}{{ result.start_year }}{% else %}&mdash;{% endif %}
     </td>
-    <td class="text-end">
-        {% if result.end_year %}
-        {{ result.end_year }}
-        {% else %}
-        &mdash;
-        {% endif %}
+    <td class="text-end text-nowrap d-none d-md-table-cell">
+        {% if result.end_year %}{{ result.end_year }}{% else %}&mdash;{% endif %}
     </td>
 </tr>
 
