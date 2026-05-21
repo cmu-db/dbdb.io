@@ -1167,7 +1167,7 @@ class CreateUserView(View):
 # ==============================================
 # DatabasesEditView
 # ==============================================
-class DatabasesEditView(LoginRequiredMixin, View):
+class SystemEditView(LoginRequiredMixin, View):
 
     template_name = 'core/system-edit.html'
 
@@ -1459,7 +1459,7 @@ class DatabasesEditView(LoginRequiredMixin, View):
 # ==============================================
 # DatabaseRevisionList
 # ==============================================
-class DatabaseRevisionList(View):
+class SystemRevisionList(View):
 
     template_name = 'core/recent.html'
 
@@ -1498,7 +1498,7 @@ class DatabaseRevisionList(View):
 # ==============================================
 # DatabaseRevisionView
 # ==============================================
-class DatabaseRevisionView(View):
+class SystemRevisionView(View):
 
     template_name = 'core/system-revision.html'
 

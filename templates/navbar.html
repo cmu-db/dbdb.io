@@ -45,7 +45,7 @@
 
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                         {% if user.is_superuser %}
-                        <li><a class="dropdown-item {% if activate == 'create' %} active{% endif %}" href="{% url 'create_database' %}">Add Database</a></li>
+                        <li><a class="dropdown-item {% if activate == 'create' %} active{% endif %}" href="{% url 'create_system' %}">Add System</a></li>
                         <li><a class="dropdown-item" href="{% url "create_user" %}">Create Account</a></li>
                         {% endif %}
                         {% if user.is_superuser or user.is_staff %}

@@ -8,16 +8,16 @@ urlpatterns = [
     path('', views.HomeView.as_view(), name="home"),
 
     re_path(r'^db/(?P<slug>[\w-]+)[/]?$', views.SystemView.as_view(), name='system'),
-    re_path(r'^db/(?P<slug>[\w-]+)/edit$', views.DatabasesEditView.as_view(), name='system_edit'),
-    re_path(r'^db/(?P<slug>[\w-]+)/revisions/$', views.DatabaseRevisionList.as_view(), name='system_revision'),
-    re_path(r'^db/(?P<slug>[\w-]+)/revisions/(?P<ver>\d+)$', views.DatabaseRevisionView.as_view(), name='system_revision_view'),
+    re_path(r'^db/(?P<slug>[\w-]+)/edit$', views.SystemEditView.as_view(), name='system_edit'),
+    re_path(r'^db/(?P<slug>[\w-]+)/revisions/$', views.SystemRevisionList.as_view(), name='system_revision'),
+    re_path(r'^db/(?P<slug>[\w-]+)/revisions/(?P<ver>\d+)$', views.SystemRevisionView.as_view(), name='system_revision_view'),
 
     path('browse', views.BrowseView.as_view(), name='browse'),
     path('search', views.BrowseView.as_view(), name='search'),
     path('search/autocomplete/', views.search_autocomplete, name='search_autocomplete'),
     path('search/advanced', views.BrowseView.as_view(), name='advanced_search'),
 
-    path('create', views.DatabasesEditView.as_view(), name='create_database'),
+    path('create', views.SystemEditView.as_view(), name='create_system'),
     path('recent', views.RecentChangesView.as_view(), name='recent'),
 
     re_path(r'^stats[/]?$', views.StatsView.as_view(), name='stats'),

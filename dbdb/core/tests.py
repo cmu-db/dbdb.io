@@ -247,9 +247,9 @@ class AdvancedSearchTestCase(TestCase):
     pass
 
 # ==============================================
-# CreateDatabaseTestCase
+# CreateSystemTestCase
 # ==============================================
-class CreateDatabaseTestCase(TestCase):
+class CreateSystemTestCase(TestCase):
 
     fixtures = [
         'adminuser.json',
@@ -258,25 +258,25 @@ class CreateDatabaseTestCase(TestCase):
     ]
 
     def test_cant_access_not_authenticated(self):
-        response = self.client.get(reverse('create_database'))
+        response = self.client.get(reverse('create_system'))
         self.assertEquals(response.status_code, 302)
         return
 
     def test_cant_access_not_superuser(self):
         self.client.login(username='testuser', password='testpassword')
-        response = self.client.get(reverse('create_database'))
+        response = self.client.get(reverse('create_system'))
         self.assertEquals(response.status_code, 404)
         self.client.logout()
         return
 
     def test_can_access_as_superuser(self):
         self.client.login(username='admin', password='testpassword')
-        response = self.client.get(reverse('create_database'))
+        response = self.client.get(reverse('create_system'))
         self.assertEquals(response.status_code, 200)
         self.client.logout()
         return
 
-    def test_can_create_database(self):
+    def test_can_create_system(self):
         self.client.login(username='admin', password='testpassword')
         data = {
             'name': 'TestDB',
@@ -299,7 +299,7 @@ class CreateDatabaseTestCase(TestCase):
             'action': 'save',
             'comment': '',
         }
-        response = self.client.post(reverse('create_database'), data=data)
+        response = self.client.post(reverse('create_system'), data=data)
         self.assertRedirects(response, reverse('system', kwargs={'slug': 'testdb'}))
         return
     pass
