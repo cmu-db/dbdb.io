@@ -8,8 +8,9 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.forms import widgets
-from django.forms.fields import MultipleChoiceField
-from django.forms.widgets import Textarea
+# from django.forms.fields import MultipleChoiceField
+# from django.forms.widgets import Textarea
+
 # third-party imports
 from captcha.fields import ReCaptchaField
 from captcha.widgets import ReCaptchaV2Invisible
@@ -19,10 +20,11 @@ from dbdb.core.models import Feature
 from dbdb.core.models import FeatureOption
 from dbdb.core.models import System
 from dbdb.core.models import SystemVersion
+from dbdb.core.utils import citations
 from dbdb.core.widgets import CitationUrlListWidget
 
 
-class TagFieldM2M(MultipleChoiceField):
+class TagFieldM2M(forms.MultipleChoiceField):
 
     widget = forms.TextInput(attrs={'data-role': 'tagsinput', 'placeholder': ''})
 
@@ -97,6 +99,13 @@ class CitationUrlListField(forms.Field):
     def prepare_value(self, value):
         """Prepare value for display in the widget."""
         return json.dumps([c.url for c in value])
+
+    def clean(self, value):
+        url_objs = []
+        for url in map(citations.normalize_url, value):
+            cit_url, _ = CitationUrl.objects.get_or_create(url=url)
+            url_objs.append(cit_url)
+        return url_objs
 
 
 class SystemFeaturesForm(forms.Form):
