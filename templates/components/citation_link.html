@@ -1,11 +1,21 @@
-<a href="{{ c.url }}" target="_cite{{ c.id }}">
+{% spaceless %}
+{% if c.status != Status.SPAM %}
+    <a href="{{ c.url }}" target="_cite{{ c.id }}">
+{% else %}
+    <span class="text-muted text-decoration-line-through me-1">
+{% endif %}
     {% if c.last_title %}
         <span class="citation-title">{{ c.last_title|escape }}</span>
     {% else %}
         {{ c.url }}
     {% endif %}
-    <i class="fas fa-external-link-alt"></i>
-</a>
+{% if c.status != Status.SPAM %}
+        <i class="fas fa-external-link-alt"></i>
+    </a>
+{% else %}
+    </span>
+{% endif %}
+{% endspaceless %}
 {% if c.get_domain %}
     <em>{{ c.get_domain }}</em>
 {% endif %}

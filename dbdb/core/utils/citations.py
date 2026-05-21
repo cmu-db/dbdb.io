@@ -41,7 +41,7 @@ LOG = logging.getLogger('console')
 LOG.setLevel(logging.DEBUG)
 console = logging.StreamHandler()
 console.setLevel(logging.DEBUG)
-console.setFormatter(logging.Formatter('%(levelname)s - %(message)s'))
+console.setFormatter(logging.Formatter('%(asctime)s %(filename)s:%(lineno)d %(levelname)s - %(message)s'))
 LOG.addHandler(console)
 
 # --- Configuration ---
@@ -60,6 +60,7 @@ SKIP_DOMAINS = {
     "//doc.4d.com/",
     '//git-wip-us.apache.org',
     '//angel.co/',
+    '//www.cnet.com/', # HTML never renders?
 }
 
 SPAM_IGNORE_DOMAINS = {
@@ -228,7 +229,10 @@ def _extract_html_title(
 
     return title # ValueError("HTML page has no <title>")
 
-def _get_html_page(url, request_timeout: int | None = None) -> Optional[BeautifulSoup]:
+def _get_html_page(
+        url,
+        render_wait: float = 10,
+        request_timeout: int | None = None) -> Optional[BeautifulSoup]:
     options = Options()
     options.add_argument("--headless")
     options.set_preference("javascript.enabled", True)
@@ -240,9 +244,10 @@ def _get_html_page(url, request_timeout: int | None = None) -> Optional[Beautifu
     try:
         # 2. Use WebDriverWait to wait for the title to be present
         # This ensures the dynamic content has loaded before proceeding
-        wait = WebDriverWait(driver, timeout=request_timeout)
-        time.sleep(10)
+        LOG.debug(f"Waiting {render_wait} seconds for HTML page to render")
+        # wait = WebDriverWait(driver, timeout=request_timeout)
                 #.until(EC.presence_of_element_located((By.TAG_NAME, 'title'))))
+        time.sleep(render_wait)
         LOG.debug("Page is ready and element is present!")
 
         # 3. Get the page source after the wait condition is met
