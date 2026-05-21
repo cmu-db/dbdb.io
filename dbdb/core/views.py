@@ -1892,7 +1892,7 @@ class SitemapView(View):
 # ==============================================
 class SystemView(View):
 
-    template_name = 'core/system.html'
+    template_name = 'core/system-view.html'
 
     def process_citations(self, citations):
         citation_offsets = [ ]

@@ -599,7 +599,7 @@ def normalize_url(url: str) -> str:
     Normalize a URL for comparison/deduplication while preserving fragments.
     """
 
-    # Hack: Remove any URLs that already link to archive.org
+    # HACK: Remove any URLs that already link to archive.org
     m = re.match(r"https://web\.archive\.org/web/.*?/(?P<url>http[s]?:/[/]?.*?)$", url, re.IGNORECASE)
     if m:
         url = m.group('url').strip()
@@ -627,6 +627,9 @@ def normalize_url(url: str) -> str:
         if parts.password:
             userinfo += f":{parts.password}"
         netloc = f"{userinfo}@{netloc}"
+    # HACK: We sometimes got two dots at the end of a netloc?
+    if netloc.endswith(".."):
+        netloc = netloc[:-2]
 
     # 3. Normalize path
     path = unquote(parts.path)
