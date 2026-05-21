@@ -1,40 +1,35 @@
 import io
-import re
 import logging
-import time
-from subprocess import TimeoutExpired
-
-import requests
 import posixpath
+import re
+import time
 from datetime import datetime
 from email.utils import parsedate_to_datetime
-from typing import Dict, Any, List, Optional
-from pprint import pprint
-
-from bs4 import BeautifulSoup
-from PyPDF2 import PdfReader
-from django.db.models import Q
-from pptx import Presentation
-from django.db import connection, transaction
-
+from subprocess import TimeoutExpired
+from typing import Any
 from urllib.parse import (
+    parse_qsl,
+    quote,
+    unquote,
+    urlencode,
     urlsplit,
     urlunsplit,
-    parse_qsl,
-    urlencode,
-    unquote,
-    quote,
 )
 
+import requests
+from bs4 import BeautifulSoup
+from django.db import connection, transaction
+from django.db.models import Q
+from pptx import Presentation
+from PyPDF2 import PdfReader
 from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.firefox.options import Options
 from tldextract import tldextract
 
 from dbdb.core.models import CitationUrl, System, SystemFeature, SystemVersion
-from dbdb.core.utils.git import get_git_commit_metadata
 from dbdb.core.utils import spam
+from dbdb.core.utils.git import get_git_commit_metadata
 from dbdb.core.utils.spam import UnexpectedResponseError
 
 LOG = logging.getLogger('console')
@@ -152,7 +147,7 @@ def _extract_ppt_title(url:str, data: bytes, system: System | None = None) -> st
     return title
 
 
-def _parse_cache_control(header: str | None) -> Dict[str, str | bool]:
+def _parse_cache_control(header: str | None) -> dict[str, str | bool]:
     """
     Parse Cache-Control header into a structured dict.
     """
@@ -232,7 +227,7 @@ def _extract_html_title(
 def _get_html_page(
         url,
         render_wait: float = 10,
-        request_timeout: int | None = None) -> Optional[BeautifulSoup]:
+        request_timeout: int | None = None) -> BeautifulSoup | None:
     options = Options()
     options.add_argument("--headless")
     options.set_preference("javascript.enabled", True)
@@ -275,7 +270,7 @@ def fetch_url_metadata(
     if_modified_since: datetime | None = None,
     allow_redirects: bool = False,
     redirect_ctr: int = 0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
 
     headers = {"User-Agent": "dbdb.io/1.0"}
     if if_none_match:
@@ -491,7 +486,7 @@ def fetch_url_metadata(
         },
     }
 
-def merge_citations(merge_to: CitationUrl, merge_from: List[CitationUrl]) -> CitationUrl:
+def merge_citations(merge_to: CitationUrl, merge_from: list[CitationUrl]) -> CitationUrl:
 
 
     LOG.debug(f"Merging {len(merge_from)} citations to {merge_to}")
@@ -510,7 +505,7 @@ def merge_citations(merge_to: CitationUrl, merge_from: List[CitationUrl]) -> Cit
     with (transaction.atomic()):
         url_ids = [c.id for c in merge_from] + [merge_to.id]
         placeholders = ', '.join(['%s'] * len(url_ids))  # "%s, %s, %s, ... %s"
-        where = ' citationurl_id IN ({})'.format(placeholders)
+        where = f' citationurl_id IN ({placeholders})'
         for table in tables:
             with connection.cursor() as cursor:
                 # Check whether there is already an entry for the url_id that we want to keep.
@@ -519,8 +514,8 @@ def merge_citations(merge_to: CitationUrl, merge_from: List[CitationUrl]) -> Cit
                     info_column = "systemfeature_id"
                 else:
                     info_column = "systemversion_id"
-                sql = "SELECT id, {} AS system_info_id, citationurl_id FROM {} WHERE " \
-                    .format(info_column, table)
+                sql = f"SELECT id, {info_column} AS system_info_id, citationurl_id FROM {table} WHERE " \
+                    
                 sql += where
                 LOG.debug(sql)
 
@@ -548,19 +543,19 @@ def merge_citations(merge_to: CitationUrl, merge_from: List[CitationUrl]) -> Cit
                 # LOG.debug(f" +ToUpdate: {to_update}")
 
                 for p in to_update:
-                    sql = "UPDATE {} SET citationurl_id = {} WHERE citationurl_id = {} AND {} = {};"\
-                            .format(table, merge_to.id, p[1], info_column, p[0])
+                    sql = f"UPDATE {table} SET citationurl_id = {merge_to.id} WHERE citationurl_id = {p[1]} AND {info_column} = {p[0]};"\
+                            
                     # LOG.debug(sql)
                     cursor.execute(sql)
                     assert cursor.rowcount > 0
-                    LOG.info("Modified {} records in table '{}".format(cursor.rowcount, table))
+                    LOG.info(f"Modified {cursor.rowcount} records in table '{table}")
                 for p in to_delete:
-                    sql = "DELETE FROM {} WHERE citationurl_id = {} AND {} = {};" \
-                            .format(table, p[1], info_column, p[0])
+                    sql = f"DELETE FROM {table} WHERE citationurl_id = {p[1]} AND {info_column} = {p[0]};" \
+                            
                     # LOG.debug(sql)
                     cursor.execute(sql)
                     assert cursor.rowcount > 0
-                    LOG.info("Deleted {} records in table '{}".format(cursor.rowcount, table))
+                    LOG.info(f"Deleted {cursor.rowcount} records in table '{table}")
 
         # It is now safe to delete the duplicate entries
         # result, _ = CitationUrl.objects.filter(id__in=[c.id for c in merge_from]).delete()
@@ -569,7 +564,7 @@ def merge_citations(merge_to: CitationUrl, merge_from: List[CitationUrl]) -> Cit
         return merge_to
 
 def get_systems(c: CitationUrl,
-                current_only: bool | None = False) -> List[System]:
+                current_only: bool | None = False) -> list[System]:
     """
     Return the list of systems that reference this CitationURL
     :param citation:

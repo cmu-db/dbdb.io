@@ -1,28 +1,13 @@
 # stdlib imports
-import glob
-import gzip
-import re
-import os
-import sys
-import operator
-import dateutil.parser
-from pprint import pprint
 
 # django imports
-from django.core.management import BaseCommand
-from django.conf import settings
-from django.db import connection
-from django.db.models import Q, Count
-
-from dbdb.core.models import System
-from dbdb.core.models import SystemFeature
-from dbdb.core.models import SystemVersion
-from dbdb.core.models import SystemVisit
-from dbdb.core.models import SystemRecommendation
-
 import numpy as np
-import pandas as pd
+from django.core.management import BaseCommand
+from django.db import connection
+from django.db.models import Count, Q
 from sklearn.metrics import mean_squared_error
+
+from dbdb.core.models import System, SystemRecommendation, SystemVisit
 
 
 class Command(BaseCommand):
@@ -118,9 +103,9 @@ class Command(BaseCommand):
 
             for v in visits:
                 # Skip anything that did not have enough total visits
-                if not v.system.id in visits_per_system: continue
+                if v.system.id not in visits_per_system: continue
 
-                if not v.system.id in system_idx_xref:
+                if v.system.id not in system_idx_xref:
                     system_idx_xref[v.system.id] = next_system_idx
                     idx_system_xref[next_system_idx] = v.system.id
                     next_system_idx += 1
@@ -158,7 +143,7 @@ class Command(BaseCommand):
         sparsity = float(len(data.nonzero()[0]))
         sparsity /= (data.shape[0] * data.shape[1])
         sparsity *= 100
-        self.stdout.write('Sparsity: {:4.2f}%'.format(sparsity))
+        self.stdout.write(f'Sparsity: {sparsity:4.2f}%')
 
         train_data, test_data = self.train_test_split(data)
 
@@ -202,7 +187,7 @@ class Command(BaseCommand):
                 left = ""
                 if i < len(before_output): left = before_output[i]
                 if i < len(new_output): right = new_output[i]
-                output_buffer += '  {0:30}  {1}\n'.format(left, right)
+                output_buffer += f'  {left:30}  {right}\n'
             ## FOR
             output[system.name] = output_buffer
         ## FOR

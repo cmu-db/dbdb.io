@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 def fix(apps, schema_editor):
-    from django_countries.fields import Country
     SystemVersion = apps.get_model('core', 'SystemVersion')
 
     for sv in SystemVersion.objects.all():

@@ -1,17 +1,14 @@
 # stdlib imports
 import os
-import sys
+
+from django.conf import settings
 
 # django imports
 from django.core.management import BaseCommand
-from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.db.models import Q
 
-from dbdb.core.models import System
-from dbdb.core.models import SystemFeature
 from dbdb.core.models import SystemVersion
 from dbdb.core.utils.twitter_card import create_twitter_card
+
 
 class Command(BaseCommand):
 

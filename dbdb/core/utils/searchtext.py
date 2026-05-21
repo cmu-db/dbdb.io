@@ -1,8 +1,9 @@
-import os
 import re
+
 from anyascii import anyascii
 
-from dbdb.core.models import SystemVersion, SystemFeature
+from dbdb.core.models import SystemFeature, SystemVersion
+
 
 def generate_searchtext(ver : SystemVersion):
     words = [ver.system.name, ver.developer]

@@ -1,7 +1,6 @@
 from django.core.management import BaseCommand
 
-from dbdb.core.models import SystemSearchText
-from dbdb.core.models import SystemVersion
+from dbdb.core.models import SystemSearchText, SystemVersion
 from dbdb.core.utils.searchtext import generate_searchtext
 
 

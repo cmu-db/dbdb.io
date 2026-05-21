@@ -1,4 +1,5 @@
 from django import template
+
 from dbdb.core.models import System, Tag
 
 register = template.Library()

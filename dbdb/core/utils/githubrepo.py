@@ -1,8 +1,9 @@
-from github import Github, Auth
-from typing import Dict, Optional
 import re
 
-def get_metadata(repo_url: str, token: Optional[str] = None) -> Dict:
+from github import Auth, Github
+
+
+def get_metadata(repo_url: str, token: str | None = None) -> dict:
     """
     Retrieve metadata about a GitHub repository using PyGithub (official GitHub API library).
 

@@ -1,63 +1,69 @@
 # stdlib imports
-from functools import reduce
-from operator import and_, or_
 import collections
 import datetime
-from dataclasses import dataclass, asdict
 import json
 import urllib.parse
-import math
+from dataclasses import asdict, dataclass
+from functools import reduce
+from operator import and_, or_
+
+import jwt
+import pytz
+
 # django imports
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.mixins import UserPassesTestMixin
-from django.contrib.postgres.aggregates import ArrayAgg, JSONBAgg
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.postgres.aggregates import JSONBAgg
 from django.contrib.postgres.search import SearchQuery
 from django.db import transaction
-from django.db.models import Q, Count, Max, Min, F, Case, IntegerField, Value, When
+from django.db.models import Case, Count, F, IntegerField, Max, Min, Q, Value, When
 from django.db.models.expressions import RawSQL
 from django.db.models.functions import JSONObject
 from django.forms import HiddenInput
-from django.http import HttpResponse
-from django.http import HttpResponseForbidden
-from django.http import JsonResponse
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.http.response import Http404
-from django.shortcuts import get_object_or_404
-from django.shortcuts import redirect
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.text import slugify
 from django.views import View
-from django.views.decorators.cache import never_cache, cache_control
+from django.views.decorators.cache import cache_control
 from django.views.decorators.csrf import csrf_exempt
+
 # third-party imports
 from django_countries import countries
 from lxml import etree
-import jwt
-import pytz
 
 # project imports
 from dbdb.core.common.searchvector import SearchVector
-from dbdb.core.forms import CreateUserForm, SystemForm, SystemVersionForm, SystemFeaturesForm, SystemVersionEditForm
-from dbdb.core.models import CitationUrl, SystemSearchText
-from dbdb.core.models import Feature
-from dbdb.core.models import FeatureOption
-from dbdb.core.models import License
-from dbdb.core.models import OperatingSystem
-from dbdb.core.models import ProgrammingLanguage
-from dbdb.core.models import Tag
-from dbdb.core.models import ProjectType
-from dbdb.core.models import System
-from dbdb.core.models import SystemFeature
-from dbdb.core.models import SystemRedirect
-from dbdb.core.models import SystemVersion
-from dbdb.core.models import SystemACL
-from dbdb.core.models import SystemVisit
-from dbdb.core.models import SystemRecommendation
+from dbdb.core.forms import (
+    CreateUserForm,
+    SystemFeaturesForm,
+    SystemForm,
+    SystemVersionEditForm,
+    SystemVersionForm,
+)
+from dbdb.core.models import (
+    CitationUrl,
+    Feature,
+    FeatureOption,
+    License,
+    OperatingSystem,
+    ProgrammingLanguage,
+    ProjectType,
+    System,
+    SystemACL,
+    SystemFeature,
+    SystemRecommendation,
+    SystemRedirect,
+    SystemSearchText,
+    SystemVersion,
+    SystemVisit,
+    Tag,
+)
 from dbdb.core.utils import logos
 from dbdb.core.utils.searchtext import generate_searchtext
 from dbdb.core.utils.twitter_card import create_twitter_card
@@ -174,8 +180,8 @@ class EmptyFieldsView(View):
             if f.name.endswith("_citations") and not include_citations:
                 continue
 
-            if not type(f) in IGNORE_TYPES and \
-               not f.name in IGNORE_NAMES:
+            if type(f) not in IGNORE_TYPES and \
+               f.name not in IGNORE_NAMES:
                 version_fields.append(f.name)
 
                 # SPECIAL!
@@ -1006,7 +1012,7 @@ class CounterView(View):
         payload = dict(kwargs)
         payload.update( {
             #'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=15), # +15 seconds ## disabled expatriation to allow caching
-            'iss': 'counter:{}'.format(origin),
+            'iss': f'counter:{origin}',
             'nbf': datetime.datetime.utcnow(),
         })
 
@@ -1109,7 +1115,7 @@ class CreateUserView(View):
 
             'expired_token': expired_token,
             'form': form,
-            'recaptcha_key': getattr(settings, 'RECAPTCHA_PUBLIC_KEY'),
+            'recaptcha_key': settings.RECAPTCHA_PUBLIC_KEY,
         })
 
     def post(self, request, *args, **kwargs):
@@ -1159,7 +1165,7 @@ class CreateUserView(View):
 
         return render(request, self.template_name, {
             'form': form,
-            'recaptcha_key': getattr(settings, 'RECAPTCHA_PUBLIC_KEY'),
+            'recaptcha_key': settings.RECAPTCHA_PUBLIC_KEY,
         })
 
     pass
@@ -1177,7 +1183,7 @@ class SystemEditView(LoginRequiredMixin, View):
             (
                 f.id,
                 {
-                    'id': 'feature_{}'.format(f.id),
+                    'id': f'feature_{f.id}',
                     'label': f.label,
                     'choices': None,
                     'description': None,
@@ -1225,7 +1231,7 @@ class SystemEditView(LoginRequiredMixin, View):
                 except SystemACL.DoesNotExist:
                     base_url = reverse('system', args=[slug])
                     query_string =  urllib.parse.urlencode({'noperms': 1})
-                    url = '{}?{}'.format(base_url, query_string)
+                    url = f'{base_url}?{query_string}'
                     return redirect(url)
             ## IF
 
@@ -1357,7 +1363,7 @@ class SystemEditView(LoginRequiredMixin, View):
 
             feature_cache = {}
             def get_systemfeature_obj(feature):
-                if not feature in feature_cache:
+                if feature not in feature_cache:
                     sf, _ = SystemFeature.objects.get_or_create(
                         version=new_version,
                         feature=feature
@@ -1530,7 +1536,7 @@ class RecentChangesView(View):
         lookup_user = None
 
         # Try to get the versions for the given username
-        if not username is None:
+        if username is not None:
             User = get_user_model()
             try:
                 lookup_user = User.objects.get(username=username)
@@ -1717,7 +1723,7 @@ class StatsView(View):
     def get_version_stat(self, title, field, search_field, labels, slugs, is_systems, limit):
 
         def reduce_counts(mapping, item):
-            assert not mapping is None
+            assert mapping is not None
             if item is not None:
                 mapping[item] = mapping.get(item, 0) + 1
 

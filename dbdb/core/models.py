@@ -1,23 +1,23 @@
 # stdlib imports
 
 import uuid
+
 # django imports
 import tldextract
+from colorfield.fields import ColorField
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.postgres.indexes import GinIndex
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Max
-from django.db.models.signals import post_save
-from django.core.exceptions import ValidationError
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
-# third-party imports
-from easy_thumbnails.fields import ThumbnailerImageField,ThumbnailerField
 from django_countries.fields import CountryField
-from colorfield.fields import ColorField
+
+# third-party imports
+from easy_thumbnails.fields import ThumbnailerField
 
 from dbdb.core.common.searchvector import SearchVector
 
@@ -335,7 +335,7 @@ class SystemFeature(models.Model):
         unique_together = ('version','feature')
 
     def __str__(self):
-        return '{} > {}'.format(self.version, self.feature.label)
+        return f'{self.version} > {self.feature.label}'
 
     def values_str(self):
         return ', '.join([str(l) for l in self.options.all()])
@@ -581,7 +581,7 @@ class SystemVersion(models.Model):
         ))
 
     def __str__(self):
-        return '{} - Ver#{}'.format(self.system.name, self.ver)
+        return f'{self.system.name} - Ver#{self.ver}'
 
     def get_absolute_url(self):
         return reverse('system_revision_view', args=[self.system.slug, self.ver])

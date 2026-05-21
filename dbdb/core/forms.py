@@ -2,24 +2,19 @@
 # django imports
 import json
 
+# from django.forms.fields import MultipleChoiceField
+# from django.forms.widgets import Textarea
+# third-party imports
+from captcha.fields import ReCaptchaField
+from captcha.widgets import ReCaptchaV2Invisible
 from django import forms
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.forms import widgets
-# from django.forms.fields import MultipleChoiceField
-# from django.forms.widgets import Textarea
 
-# third-party imports
-from captcha.fields import ReCaptchaField
-from captcha.widgets import ReCaptchaV2Invisible
 # project imports
-from dbdb.core.models import CitationUrl
-from dbdb.core.models import Feature
-from dbdb.core.models import FeatureOption
-from dbdb.core.models import System
-from dbdb.core.models import SystemVersion
+from dbdb.core.models import CitationUrl, Feature, FeatureOption, System, SystemVersion
 from dbdb.core.utils import citations
 from dbdb.core.widgets import CitationUrlListWidget
 
@@ -94,7 +89,7 @@ class SystemFeaturesForm(forms.Form):
         except KeyError:
             features = []
 
-        super(SystemFeaturesForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         initial = {}
 
@@ -206,7 +201,7 @@ class CreateUserForm(forms.ModelForm):
     )
 
     def __init__(self, *args, **kwargs):
-        super(CreateUserForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.initial_email = None
 

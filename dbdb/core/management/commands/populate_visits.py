@@ -1,22 +1,17 @@
 # stdlib imports
 import glob
 import gzip
-import re
 import os
+import re
 import sys
+
 import dateutil.parser
 
 # django imports
 from django.core.management import BaseCommand
 from django.db.models import Q
-from django.conf import settings
-from django.contrib.auth import get_user_model
 
-from dbdb.core.models import System
-from dbdb.core.models import SystemFeature
-from dbdb.core.models import SystemVersion
-from dbdb.core.models import SystemVisit
-
+from dbdb.core.models import System, SystemVersion, SystemVisit
 
 MANUAL_FIXES = {
     "firstsql": "firstsqlj",

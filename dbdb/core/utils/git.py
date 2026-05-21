@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import subprocess
 import tempfile
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Tuple
 
 
 def get_git_commit_metadata(
@@ -12,7 +11,7 @@ def get_git_commit_metadata(
     commit_id: str,
     *,
     timeout: int = 30,
-) -> Tuple[str, datetime]:
+) -> tuple[str, datetime]:
     """
     Return the commit message and commit timestamp for a commit
     from any Git repository reachable via HTTPS.
@@ -85,6 +84,6 @@ def get_git_commit_metadata(
             commit_id,
         ]).rstrip()
 
-        timestamp = datetime.fromisoformat(timestamp_str).astimezone(timezone.utc)
+        timestamp = datetime.fromisoformat(timestamp_str).astimezone(UTC)
 
         return message, timestamp

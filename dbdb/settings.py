@@ -1,5 +1,6 @@
-import environ # http://django-environ.readthedocs.io/
 import os
+
+import environ  # http://django-environ.readthedocs.io/
 from django.conf.locale.en import formats
 
 root = environ.Path(__file__) - 2

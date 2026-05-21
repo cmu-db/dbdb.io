@@ -1,14 +1,15 @@
 # stdlib imports
 import os
-import sys
+
+from django.conf import settings
 
 # django imports
 from django.core.management import BaseCommand
-from django.conf import settings
 
-from dbdb.core.utils import *
 from dbdb.core.models import SystemVersion
+from dbdb.core.utils import *
 from dbdb.core.utils import logos
+
 
 class Command(BaseCommand):
 

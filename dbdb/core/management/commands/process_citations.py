@@ -4,12 +4,12 @@ import time
 from argparse import ArgumentParser
 from pprint import pprint
 
-from django.utils import timezone
 from django.core.management import BaseCommand
+from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from requests import ConnectTimeout
-from requests.exceptions import ConnectionError, ReadTimeout, InvalidURL
-from urllib3.exceptions import MaxRetryError, NewConnectionError, ReadTimeoutError
+from requests.exceptions import ConnectionError, InvalidURL, ReadTimeout
+from urllib3.exceptions import NewConnectionError, ReadTimeoutError
 
 from dbdb.core.models import CitationUrl
 from dbdb.core.utils.citations import *
@@ -144,7 +144,7 @@ class Command(BaseCommand):
                     if c.last_title and len(c.last_title) > max_title:
                         c.last_title = c.last_title[:max_title]
 
-            except KeyboardInterrupt as e:
+            except KeyboardInterrupt:
                 sys.exit(0)
 
             except (TimeoutError,ReadTimeoutError,ConnectTimeout,ReadTimeout,ConnectionError,NewConnectionError) as e:

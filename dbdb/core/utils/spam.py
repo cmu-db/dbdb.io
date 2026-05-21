@@ -1,7 +1,10 @@
 import re
-from ollama import chat
 from pprint import pprint
+
+from ollama import chat
+
 from dbdb.core.models import System
+
 
 class UnexpectedResponseError(RuntimeError):
     pass
@@ -81,7 +84,7 @@ def is_spam(
         if developer:
             first_line += f" and/or {system.name}'s developers " + " and ".join(map(str.strip, developer.split(",")))
     else:
-        first_line = f"The expected topic of this page is about database systems"
+        first_line = "The expected topic of this page is about database systems"
     user_prompt = (
         f"{first_line}.\n\n"
         "Determine whether the following HTML page has been taken over by spam, "
@@ -138,17 +141,17 @@ def _check_response(response: str,
             developer_names = " and ".join(map(str.strip, system.current().developer.split(",")))
 
     system_prompt = (
-        f"You are a classification and validation model.\n"
-        f"Your task is to determine whether a given text is summarizing the contents of a webpage about a database system.\n"
-        f"You must output ONLY one word and no additional text: true or false.\n"
-        f"true  = the text discusses the database system\n"
-        f"false = the text does not discuss database system\n\n"
-        f"You must evaluate whether the text is a summary of:\n"
-        f"  1. Some technical aspect about the database system, and/or\n"
-        f"  2. The developer or organization responsible for that database system.\n\n"
-        f"If the page looks like spam or contains information not related to database systems (e.g., gambling, online education, pornography, crypto), then output false.\n"
-        f"Do NOT speculate. Base your judgment only on the provided text.\n"
-        f"Do NOT include explanations or commentary.\n"
+        "You are a classification and validation model.\n"
+        "Your task is to determine whether a given text is summarizing the contents of a webpage about a database system.\n"
+        "You must output ONLY one word and no additional text: true or false.\n"
+        "true  = the text discusses the database system\n"
+        "false = the text does not discuss database system\n\n"
+        "You must evaluate whether the text is a summary of:\n"
+        "  1. Some technical aspect about the database system, and/or\n"
+        "  2. The developer or organization responsible for that database system.\n\n"
+        "If the page looks like spam or contains information not related to database systems (e.g., gambling, online education, pornography, crypto), then output false.\n"
+        "Do NOT speculate. Base your judgment only on the provided text.\n"
+        "Do NOT include explanations or commentary.\n"
     )
 
     user_prompt = (

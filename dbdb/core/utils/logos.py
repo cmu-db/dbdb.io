@@ -1,9 +1,9 @@
 import io
 import xml.etree.ElementTree as ET
+from collections import Counter
 
 from PIL import Image
-from collections import Counter
-from typing import Tuple, Union
+
 
 def extract_dimensions(path: str) -> tuple[int, int]:
     """
@@ -44,7 +44,7 @@ def extract_dimensions(path: str) -> tuple[int, int]:
         return img.width, img.height
 
 def extract_color(image_path: str, exclude_dark: bool = True,
-                  min_saturation: int = 20, top_n: int = 10) -> Tuple[int, int, int]:
+                  min_saturation: int = 20, top_n: int = 10) -> tuple[int, int, int]:
     """
     Extract the most prominent color from an image (logo).
 
@@ -145,6 +145,6 @@ def extract_color(image_path: str, exclude_dark: bool = True,
     return best_color if best_color else top_colors[0][0]
 
 
-def color_to_hex(rgb: Tuple[int, int, int]) -> str:
+def color_to_hex(rgb: tuple[int, int, int]) -> str:
     """Convert RGB tuple to hex color string."""
     return '#{:02x}{:02x}{:02x}'.format(*rgb)

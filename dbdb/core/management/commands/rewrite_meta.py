@@ -1,7 +1,7 @@
 from django.core.management import BaseCommand
 
-from dbdb.core.models import SystemSearchText
 from dbdb.core.models import SystemVersion
+
 
 class Command(BaseCommand):
 

@@ -1,13 +1,13 @@
 # django imports
-from django.conf import settings
-
-import tempfile
 import os
+import tempfile
 
-from PIL import Image, ImageDraw, ImageFont
 from cairosvg import svg2png
+from django.conf import settings
+from PIL import Image, ImageDraw, ImageFont
 
 from dbdb.core.models import SystemVersion
+
 
 def create_twitter_card(ver : SystemVersion):
 
@@ -53,19 +53,19 @@ def create_twitter_card(ver : SystemVersion):
     new_size = (0, 0)
     if logo.width > logo.height:
         ratio = (settings.TWITTER_CARD_MAX_WIDTH / float(logo.size[0]))
-        new_size = (settings.TWITTER_CARD_MAX_WIDTH, int((float(logo.size[1]) * float(ratio))))
+        new_size = (settings.TWITTER_CARD_MAX_WIDTH, int(float(logo.size[1]) * float(ratio)))
     else:
         ratio = (settings.TWITTER_CARD_MAX_HEIGHT / float(logo.size[1]))
-        new_size = (int((float(logo.size[0]) * float(ratio))), settings.TWITTER_CARD_MAX_HEIGHT)
+        new_size = (int(float(logo.size[0]) * float(ratio)), settings.TWITTER_CARD_MAX_HEIGHT)
 
     # Check if either the new width or height exceed the max dimensions
     # We have to do this because the dimensions are not square
     if new_size[0] > settings.TWITTER_CARD_MAX_WIDTH:
         ratio = (settings.TWITTER_CARD_MAX_WIDTH / float(new_size[0]))
-        new_size = (settings.TWITTER_CARD_MAX_WIDTH, int((float(new_size[1]) * float(ratio))))
+        new_size = (settings.TWITTER_CARD_MAX_WIDTH, int(float(new_size[1]) * float(ratio)))
     elif new_size[1] > settings.TWITTER_CARD_MAX_HEIGHT:
         ratio = (settings.TWITTER_CARD_MAX_HEIGHT / float(new_size[1]))
-        new_size = (int((float(new_size[0]) * float(ratio))), settings.TWITTER_CARD_MAX_HEIGHT)
+        new_size = (int(float(new_size[0]) * float(ratio)), settings.TWITTER_CARD_MAX_HEIGHT)
 
     # Resize the mofo
     logo = logo.resize(new_size, Image.Resampling.LANCZOS)

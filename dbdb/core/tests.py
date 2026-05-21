@@ -1,23 +1,17 @@
 # stdlib imports
-from pprint import pprint
-import tempfile
 # django imports
+import environ
 from django.contrib.auth import get_user
-from django.core import management
-from django.test import Client
-from django.test import TestCase
-from django.test import override_settings
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
+
 # third-party imports
 from haystack.query import SearchQuerySet
 from pyquery import PyQuery as pq
-import environ
-# local imports
-from .models import Feature
-from .models import System
-from .models import SystemVisit
-from .views import CounterView
 
+# local imports
+from .models import Feature, System, SystemVisit
+from .views import CounterView
 
 root = environ.Path(__file__) - 2
 
@@ -43,7 +37,7 @@ class SearchTestCase(TestCase):
         """Make sure we are setting up haystack correctly."""
         sqs = SearchQuerySet()
         num_results = len(sqs)
-        self.assertEquals(num_results, 2)
+        self.assertEqual(num_results, 2)
 
         expected = ["SQLite", "XXX"]
         for i in range(num_results):
@@ -100,12 +94,12 @@ class AutoCompleteTestCase(TestCase):
         query = {'q': "YYY"}
         response = self.client.get(reverse('search_autocomplete'), data=query)
         #pprint(response.json())
-        self.assertEquals(len(response.json()), 0)
+        self.assertEqual(len(response.json()), 0)
         return
 
     def test_autocom_no_parameters(self):
         response = self.client.get(reverse('search_autocomplete'))
-        self.assertEquals(len(response.json()), 0)
+        self.assertEqual(len(response.json()), 0)
         return
     pass
 
@@ -129,13 +123,13 @@ class SystemViewTestCase(TestCase):
 
         data = {"token": CounterView.build_token('system', pk=system.id)}
         response = self.client.post(reverse('counter'), data)
-        result = response.json();
+        result = response.json()
         self.assertTrue("status" in result)
-        self.assertEquals(result["status"], "ok")
+        self.assertEqual(result["status"], "ok")
 
         # Check that we got added a SystemVisit
         new_visits = SystemVisit.objects.filter(system=system).count()
-        self.assertEquals(new_visits, orig_visits+1)
+        self.assertEqual(new_visits, orig_visits+1)
 
         return
 
@@ -148,14 +142,14 @@ class SystemViewTestCase(TestCase):
 
         data = {"token": CounterView.build_token('system', pk=system.id)}
         response = c.post(reverse('counter'), data)
-        result = response.json();
+        result = response.json()
         self.assertTrue("status" in result)
-        self.assertEquals(result["status"], "bot")
+        self.assertEqual(result["status"], "bot")
 
         # Make sure count is the same
         system = System.objects.get(name=target)
         new_count = system.view_count
-        self.assertEquals(new_count, orig_count)
+        self.assertEqual(new_count, orig_count)
         return
 
 
@@ -175,7 +169,7 @@ class AdvancedSearchTestCase(TestCase):
 
     def test_can_access_browse(self):
         response = self.client.get(reverse('browse'))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         return
 
     def test_inputs_quantity(self):
@@ -186,7 +180,7 @@ class AdvancedSearchTestCase(TestCase):
         # Add two for the year filtergroups
         # Add nine for country, OS, project type, PL, inspired, derived, embedded compatiable, licenses
         #pprint(filtergroups)
-        self.assertEquals(quantity + 2 + 9, len(filtergroups))
+        self.assertEqual(quantity + 2 + 9, len(filtergroups))
         return
 
     def test_search_with_insuficient_data(self):
@@ -259,20 +253,20 @@ class CreateSystemTestCase(TestCase):
 
     def test_cant_access_not_authenticated(self):
         response = self.client.get(reverse('create_system'))
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         return
 
     def test_cant_access_not_superuser(self):
         self.client.login(username='testuser', password='testpassword')
         response = self.client.get(reverse('create_system'))
-        self.assertEquals(response.status_code, 404)
+        self.assertEqual(response.status_code, 404)
         self.client.logout()
         return
 
     def test_can_access_as_superuser(self):
         self.client.login(username='admin', password='testpassword')
         response = self.client.get(reverse('create_system'))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.client.logout()
         return
 
@@ -316,7 +310,7 @@ class HomeTestCase(TestCase):
 
     def test_can_access_home(self):
         response = self.client.get(reverse('home'))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         return
 
     def test_buttons_hiden_when_not_authenticated(self):
@@ -360,7 +354,7 @@ class LoginTestCase(TestCase):
 
     def test_login_page_available(self):
         response = self.client.get(reverse('login'))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         return
 
     def test_can_login_with_right_data(self):
@@ -380,7 +374,7 @@ class LoginTestCase(TestCase):
             'password': 'testpassword'
         }
         response = self.client.post(reverse('login'), data=data)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
             'Please enter a correct username and password. Note that both fields may be case-sensitive.'

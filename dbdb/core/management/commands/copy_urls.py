@@ -3,6 +3,7 @@
 import logging
 
 from django.core.management import BaseCommand
+
 from dbdb.core.models import *
 from dbdb.core.utils.citations import normalize_url
 

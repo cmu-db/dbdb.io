@@ -1,6 +1,7 @@
 # django imports
-from django.urls import re_path, path
+from django.urls import path, re_path
 from django.views.generic.base import RedirectView
+
 # project imports
 from dbdb.core import views
 

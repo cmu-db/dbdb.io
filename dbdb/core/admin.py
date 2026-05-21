@@ -7,6 +7,7 @@ from django.utils.html import format_html
 # local imports
 from .models import *
 
+
 class FeatureOptionsInlines(admin.StackedInline):
     model = FeatureOption
     extra = 0
