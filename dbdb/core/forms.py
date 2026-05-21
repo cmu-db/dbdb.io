@@ -98,7 +98,9 @@ class CitationUrlListField(forms.Field):
 
     def prepare_value(self, value):
         """Prepare value for display in the widget."""
-        return json.dumps([c.url for c in value])
+        if value is not None:
+            return json.dumps([c.url for c in value])
+        return []
 
     def clean(self, value):
         url_objs = []
@@ -132,7 +134,7 @@ class SystemFeaturesForm(forms.Form):
             initial[feature.feature.label] = {
                 'options': o,
                 'description': feature.description,
-                'citations': ','.join(feature.citations.values_list('url', flat=True)),
+                'citations': [c for c in feature.citations.all()],
                 'system': feature.system,
             }
             pass
@@ -182,10 +184,9 @@ class SystemFeaturesForm(forms.Form):
                 required=False
             )
 
-            self.fields[feature.label+'_citation'] = forms.CharField(
+            self.fields[feature.label+'_citations'] = CitationUrlListField(
                 label='Citations',
-                help_text="Separate the urls with commas",
-                widget=widgets.TextInput(attrs={'data-role': 'tagsinput', 'placeholder': ''}),
+                help_text="Citations URLs",
                 initial=initial_cit,
                 required=False
             )
@@ -204,7 +205,7 @@ class SystemFeaturesForm(forms.Form):
             self.fields[feature.label + '_system'].feature_id = feature.id
             self.fields[feature.label+'_choices'].feature_id = feature.id
             self.fields[feature.label+'_description'].feature_id = feature.id
-            self.fields[feature.label+'_citation'].feature_id = feature.id
+            self.fields[feature.label+'_citations'].feature_id = feature.id
             pass
         return
 
@@ -275,27 +276,23 @@ class SystemVersionEditForm(forms.ModelForm):
         help_text="Citations URLs",
         required=False
     )
-    # description_citations = TagFieldM2M(
-    #     help_text="Separate the urls with commas",
-    #     required=False
-    # )
-    history_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
+    history_citations = CitationUrlListField(
+        help_text="Citations URLs",
         required=False
     )
-    start_year_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
+    start_year_citations = CitationUrlListField(
+        help_text="Citations URLs",
         required=False
     )
-    end_year_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
+    end_year_citations = CitationUrlListField(
+        help_text="Citations URLs",
         required=False
     )
-    acquired_by_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
+    acquired_by_citations = CitationUrlListField(
+        help_text="Citations URLs",
         required=False
     )
-    
+
     def clean_twitter_handle(self):
         data = self.cleaned_data['twitter_handle']
         if data and data[0] != '@':
@@ -352,24 +349,20 @@ class SystemVersionForm(forms.ModelForm):
         help_text="Citations URLs",
         required=False
     )
-    # description_citations = TagFieldM2M(
-    #     help_text="Separate the urls with commas",
-    #     required=False
-    # )
-    history_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
+    history_citations = CitationUrlListField(
+        help_text="Citations URLs",
         required=False
     )
-    start_year_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
+    start_year_citations = CitationUrlListField(
+        help_text="Citations URLs",
         required=False
     )
-    end_year_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
+    end_year_citations = CitationUrlListField(
+        help_text="Citations URLs",
         required=False
     )
-    acquired_by_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
+    acquired_by_citations = CitationUrlListField(
+        help_text="Citations URLs",
         required=False
     )
 
