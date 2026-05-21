@@ -7,7 +7,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('system', metavar='S', type=str, nargs='?',
-                    help='System to force search text genration')
+                    help='System to force rewriting SystemVersionMeta information')
         return
 
     def print_copy(self, label, objects):
