@@ -338,8 +338,8 @@ div.search-badges a.badge em { font-weight: normal; }
 .badge-tag {
     text-decoration: none;
     background: rgba(var(--bs-dark-rgb));
-    font-size: 1em;
-    margin-bottom: 1em;
+    font-size: 0.75em;
+    margin-bottom: 0.25em;
 }
 .badge-section {
     text-decoration: none;

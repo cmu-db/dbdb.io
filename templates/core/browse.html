@@ -114,8 +114,8 @@
                             </span>
                         </button>
                     </th>
-                    <th>Tags</th>
-                    <th class="text-end d-none d-md-table-cell">
+                    <th class="d-none d-md-table-cell">Tags</th>
+                    <th class="text-end">
                         <button type="button" id="start-year-sort" class="btn btn-link p-0 text-light fw-bold text-decoration-none">
                             <span class="d-flex align-items-center gap-1">
                                 Start Year
@@ -126,7 +126,7 @@
                             </span>
                         </button>
                     </th>
-                    <th class="text-end d-none d-md-table-cell">
+                    <th class="text-end">
                         <button type="button" id="end-year-sort" class="btn btn-link p-0 text-light fw-bold text-decoration-none">
                             <span class="d-flex align-items-center gap-1">
                                 End Year
@@ -170,5 +170,5 @@
 {% block scripts %}
 <script type="text/javascript" src="{% static 'lib/js/nouislider.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-<script type="text/javascript" src="{% static 'core/js/browse.js' %}"></script>
+<script type="text/javascript" src="{% static 'core/js/browse.js' %}?v=2"></script>
 {% endblock %}

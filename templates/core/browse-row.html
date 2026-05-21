@@ -17,18 +17,25 @@
         <img class="browse-logo browse-logo-placeholder" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ result.name }}">
         {% endif %}
     </td>
-    <td class="fw-semibold text-nowrap">{{ result.name }}</td>
     <td>
+        <div class="fw-semibold">{{ result.name }}</div>
+        <div class="d-flex d-md-none flex-wrap gap-1 mt-1">
+        {% for tag in result.system_tags %}
+            {% if tag.name %}{% tag_link tag %}{% endif %}
+        {% endfor %}
+        </div>
+    </td>
+    <td class="d-none d-md-table-cell">
         <div class="d-flex flex-wrap gap-1">
         {% for tag in result.system_tags %}
             {% if tag.name %}{% tag_link tag %}{% endif %}
         {% endfor %}
         </div>
     </td>
-    <td class="text-end text-nowrap d-none d-md-table-cell">
+    <td class="text-end text-nowrap">
         {% if result.start_year %}{{ result.start_year }}{% else %}&mdash;{% endif %}
     </td>
-    <td class="text-end text-nowrap d-none d-md-table-cell">
+    <td class="text-end text-nowrap">
         {% if result.end_year %}{{ result.end_year }}{% else %}&mdash;{% endif %}
     </td>
 </tr>
