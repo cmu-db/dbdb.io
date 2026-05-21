@@ -32,6 +32,9 @@ class Command(BaseCommand):
         for ver in versions.order_by("system__name", "id"):
             logo_img = os.path.join(settings.MEDIA_ROOT, ver.logo.name)
             if not logo_img or os.path.isdir(logo_img): continue
+            if not os.path.exists(logo_img):
+                self.stderr.write(f"MISSING: {ver} -> {logo_img}")
+                continue
 
             logo_color, logo_width, logo_height = None, None, None
             if logo_img not in cache:

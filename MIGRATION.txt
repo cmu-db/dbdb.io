@@ -1,0 +1,9 @@
+1. Apply up to the commit where we add SystemVersionMeta fields into SystemVersion.
+2. Run `./manage.py rewrite_meta` to make sure the data is coped into SystemVersion.
+3. Apply the rest of the commits.
+4. Apply migrations. May need to drop the superflous index:
+   ```
+   DROP INDEX core_systemfeature_system_id_717491a7;
+   ```
+5. Run the copy urls management tool to put all the one-off URLs from SystemVersion into CitationURLs.
+5. Run the generate search text + extract logo info management tools.

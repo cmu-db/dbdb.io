@@ -16,7 +16,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.postgres.aggregates import ArrayAgg, JSONBAgg
 from django.contrib.postgres.search import SearchQuery
 from django.db import transaction
-from django.db.models import Q, Count, Max, Min, F
+from django.db.models import Q, Count, Max, Min, F, Case, IntegerField, Value, When
 from django.db.models.expressions import RawSQL
 from django.db.models.functions import JSONObject
 from django.forms import HiddenInput
@@ -2036,8 +2036,13 @@ class SystemView(View):
 def search_autocomplete(request):
     search_q = request.GET.get('q', '').strip()
     if search_q:
-        sqs = System.objects.filter(name__icontains=search_q).order_by('name')
-        sqs = sqs.values('name')[:6]
+        sqs = System.objects.filter(name__icontains=search_q).annotate(
+            exact_match=Case(
+                When(name__iexact=search_q, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            )).order_by('exact_match', 'name')
+        sqs = sqs.values('name')[:8]
         suggestions = [system["name"] for system in sqs]
     else:
         suggestions = [ ]
