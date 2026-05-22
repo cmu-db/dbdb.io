@@ -2,10 +2,29 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
+from django.contrib.admin.widgets import AutocompleteSelect
 from django.utils.html import format_html
 
 # local imports
 from .models import *
+
+
+class CitationUrlAutocompleteMixin:
+    """Replaces the default select widget with an incremental-search autocomplete
+    for every ForeignKey field that points to CitationUrl.
+
+    Requires CitationUrlAdmin to be registered with search_fields set (it is).
+    Mix in before ModelAdmin in the MRO:  class MyAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin).
+    """
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.related_model is CitationUrl:
+            kwargs['widget'] = AutocompleteSelect(
+                db_field,
+                self.admin_site,
+                using=kwargs.get('using'),
+            )
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class FeatureOptionsInlines(admin.StackedInline):
@@ -95,7 +114,7 @@ class SystemVisitAdmin(admin.ModelAdmin):
     ordering = ('-created',)
 
 @admin.register(Organization)
-class OrganizationAdmin(admin.ModelAdmin):
+class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
     list_display = ('name', 'slug', 'url', 'linkedin_url', 'created', 'modified')
     list_filter = ['created', 'modified']
     search_fields = ('name',)
