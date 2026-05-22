@@ -285,7 +285,15 @@
             <div class="card systems-extra p-0" >
                 {% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}
             </div>
-            <!-- END: DERIVED -->
+            <!-- END: EMBEDS -->
+            {% endif %}
+
+            {% if hosted_by %}
+            <!-- START: HOSTED BY -->
+            <div class="card systems-extra p-0">
+                {% include 'core/system-sys-sidebar.html' with title='Hosted By' systems=hosted_by limit=3 %}
+            </div>
+            <!-- END: HOSTED BY -->
             {% endif %}
 
             {% if recommendations %}

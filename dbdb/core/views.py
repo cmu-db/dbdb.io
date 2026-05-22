@@ -2016,6 +2016,15 @@ class SystemView(View):
                                 .select_related()
         ]
 
+        # Systems that host this system as a DBaaS
+        hosted_by = [
+            ver.system for ver in SystemVersion.objects
+                                .filter(is_current=True)
+                                .filter(hosted_services=system)
+                                .order_by("-logo")
+                                .select_related()
+        ]
+
         # Recommendations
         recommendations = [
             rec.recommendation for rec in SystemRecommendation.objects
@@ -2036,6 +2045,7 @@ class SystemView(View):
             'compatible': compatible,
             'derived': derived,
             'embeds': embeds,
+            'hosted_by': hosted_by,
             'recommendations': recommendations,
             'counter_token': CounterView.build_token('system', pk=system.id),
             'Status': CitationUrl.Status,
