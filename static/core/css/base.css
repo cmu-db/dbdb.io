@@ -213,6 +213,11 @@ img.logo-recommendation {
     max-height: 50px;
     object-fit: scale-down;
 }
+img.logo-hosted {
+    max-height: 52px;
+    max-width: 100%;
+    object-fit: contain;
+}
 
 /* SMALL */
 div.sidebar { width: 100%; min-width: 300px; }

@@ -31,7 +31,7 @@ Edit {{ system.name }}
     {% bootstrap_form_errors system_version_form type='all' %}
     {% bootstrap_form system_form %}
 
-    <div class="row">
+    <div class="row border-2 border-bottom">
         <div class="col-lg-6">
             {% bootstrap_field system_version_form.logo %}
         </div>
@@ -40,7 +40,7 @@ Edit {{ system.name }}
         </div>
     </div>
 
-    <div class="row border-top pt-4">
+    <div class="row border-2 border-bottom pt-4">
         <div class="col-lg-6">
             {% bootstrap_field system_version_form.url %}
             {% bootstrap_field system_version_form.developer %}
@@ -76,7 +76,7 @@ Edit {{ system.name }}
         </div>
     </div>
 
-    <div class="row border-top pt-4">
+    <div class="row border-2 border-bottom pt-4">
         <div class="col-lg-6">
             {% bootstrap_field system_version_form.project_types form_group_class="form-group multi-select" %}
         </div>
@@ -85,7 +85,7 @@ Edit {{ system.name }}
         </div>
     </div>
 
-    <div class="row border-top pt-4">
+    <div class="row border-2 border-bottom pt-4">
         <fieldset class="form-group col-lg-6">
             {% bootstrap_field system_version_form.description form_group_class="form-group md-textarea" %}
             {% bootstrap_field system_version_form.description_citations %}
@@ -97,7 +97,7 @@ Edit {{ system.name }}
         </fieldset>
     </div>
 
-    <div class="row border-top pt-4">
+    <div class="row border-2 border-bottom pt-4">
         <div class="col-md-3">
             {% bootstrap_field system_version_form.licenses form_group_class="form-group multi-select" %}
         </div>
@@ -115,7 +115,7 @@ Edit {{ system.name }}
         </div>
     </div>
 
-    <div class="row border-top pt-4">
+    <div class="row border-2 border-bottom pt-4">
         <div class="col-md-3">
             {% bootstrap_field system_version_form.derived_from form_group_class="form-group multi-select" %}
         </div>
@@ -133,7 +133,13 @@ Edit {{ system.name }}
         </div>
     </div>
 
-    <h2>Features</h2>
+    <div class="row border-2 border-bottom pt-4">
+        <div class="col-md-6">
+            {% bootstrap_field system_version_form.hosted_services form_group_class="form-group multi-select" %}
+        </div>
+    </div>
+
+    <h2 class="pt-4">Features</h2>
     <div class="accordion" id="features">
         {% for featureset in features.values %}
         <div class="accordion-item" id="{{ featureset.id }}">

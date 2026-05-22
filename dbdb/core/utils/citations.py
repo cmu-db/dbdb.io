@@ -612,7 +612,12 @@ def normalize_url(url: str) -> str:
     hostname = parts.hostname.lower() if parts.hostname else ""
 
     # 2. Remove default ports
-    port = parts.port
+    try:
+        port = parts.port
+    except ValueError:
+        port = 443 if scheme == "https" else 80
+    except:
+        raise
     if port and not (
         (scheme == "http" and port == 80)
         or (scheme == "https" and port == 443)

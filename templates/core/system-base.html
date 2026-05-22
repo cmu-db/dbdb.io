@@ -317,6 +317,39 @@
         </div>
         <!-- END:HEADER-FULL -->
 
+        {% if system_version.hosted_services.exists %}
+        <!-- BEGIN:HOSTED -->
+        <div id="hosted-services" class="pt-md-2 mb-4">
+            <h3 class="mb-0">Hosted Systems</h3>
+            <hr class="mt-1 mb-2" />
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+                {% for hosted_sys in system_version.hosted_services.all %}
+                <div class="col">
+                    <div class="card h-100 text-center border shadow-sm">
+                        <a href="{{ hosted_sys.get_absolute_url }}" class="text-decoration-none">
+                            <div class="card-body d-flex flex-column align-items-center justify-content-center p-3">
+                                {% with hosted_ver=hosted_sys.current %}
+                                {% if hosted_ver.logo %}
+                                <img src="{% if hosted_ver.logo.url|lower|slice:"-3:" == "svg" %}{{ hosted_ver.logo.url }}{% else %}{{ hosted_ver.logo|thumbnail_url:'thumb' }}{% endif %}"
+                                     class="img-fluid logo-hosted mb-2"
+                                     alt="{{ hosted_sys.name }}">
+                                {% else %}
+                                <img src="{% static 'core/images/database-nologo-icon.svg' %}"
+                                     class="img-fluid logo-hosted mb-2"
+                                     alt="{{ hosted_sys.name }}">
+                                {% endif %}
+                                {% endwith %}
+                                <span class="small fw-semibold text-body">{{ hosted_sys.name }}</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <!-- END:HOSTED -->
+        {% endif %}
+
         {% for sec in sections %}
             <div id="{{ sec.id }}" class="pt-md-2 mb-4">
                 {% if sec.title %}

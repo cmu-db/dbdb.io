@@ -1335,6 +1335,7 @@ class SystemEditView(LoginRequiredMixin, View):
 
             new_version.save()
             system_version_form.save_m2m()
+            new_version.hosted_services.remove(system)
 
             system.ver = new_version.ver
             system.modified = timezone.now()
@@ -1355,6 +1356,9 @@ class SystemEditView(LoginRequiredMixin, View):
             new_version.end_year_citations.clear()
             for url in system_version_form.cleaned_data.get('end_year_citations', []):
                 new_version.end_year_citations.add(url)
+
+            # I don't know why we need to do this twice?
+            new_version.save()
 
             features = {
                 f.label : f

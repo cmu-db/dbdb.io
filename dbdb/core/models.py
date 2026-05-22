@@ -550,6 +550,12 @@ class SystemVersion(models.Model):
         verbose_name='Systems Compatible With',
         help_text="Other systems that this system is compatible with (e.g., wire protocol, file formats).")
 
+    hosted_services = models.ManyToManyField(
+        'System', blank=True,
+        related_name='hosted_by_systems',
+        verbose_name='Hosted DBaaS Services',
+        help_text="Other DBMS systems that this system offers as a managed hosted DBaaS service (e.g., Amazon RDS hosting PostgreSQL). Do not include this system itself.")
+
     licenses = models.ManyToManyField(
         'License', blank=True,
         related_name='systems_licenses')
