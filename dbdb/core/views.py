@@ -377,6 +377,15 @@ class BrowseView(View):
             querydict
         ))
 
+        # Hosted By
+        other_filtersgroups.append(self.build_filter_group_for_field(\
+            'hosted_services', \
+            'hosted_by', \
+            'Hosted By', \
+            all_systems, \
+            querydict
+        ))
+
         # add operating system
         fg_os = FilterGroup('os', 'Operating System', [
             FilterChoice(
@@ -537,6 +546,7 @@ class BrowseView(View):
         search_country = list(map(str.upper, request.GET.getlist('country')))
         search_derived = request.GET.getlist('derived')
         search_embeds = request.GET.getlist('embeds')
+        search_hosted_by = request.GET.getlist('hosted_by')
         search_inspired = request.GET.getlist('inspired')
         search_os = request.GET.getlist('os')
         search_programming = request.GET.getlist('programming')
@@ -561,6 +571,7 @@ class BrowseView(View):
             'country': search_country,
             'derived': search_derived,
             'embeds': search_embeds,
+            'hosted_by': search_hosted_by,
             'inspired': search_inspired,
             'os': search_os,
             'programming': search_programming,
@@ -705,6 +716,18 @@ class BrowseView(View):
             search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
             if search_compatiblewith:
                 search_parts.append(' Using ' + search_compatiblewith)
+            pass
+
+        # search - hosted by
+        if search_hosted_by:
+            sqs_filters.append(Q(hosted_services__slug__in=search_hosted_by))
+            systems = self.slug_to_system(search_hosted_by)
+            search_mapping['hosted_by'] = systems.values()
+
+            system_names = [str(e) for e in search_mapping['hosted_by']]
+            search_hostedby = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
+            if search_hostedby:
+                search_parts.append(' Hosting ' + search_hostedby)
             pass
 
         # search - inspired by
@@ -1820,6 +1843,10 @@ class StatsView(View):
         # Embeds
         if stats_type is None or stats_type == "embeds":
             stats.append( self.get_version_stat('Embeds / Uses', 'embedded', 'embeds', labels, slugs, True, self.default_limit ) )
+
+        # Hosted By
+        if stats_type is None or stats_type == "hosted_by":
+            stats.append( self.get_version_stat('Hosted By', 'hosted_services', 'hosted_by', labels, slugs, True, self.default_limit) )
 
         # Versions
         if stats_type is None or stats_type == "revisions":
