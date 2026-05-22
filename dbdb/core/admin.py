@@ -94,6 +94,14 @@ class SystemVisitAdmin(admin.ModelAdmin):
     readonly_fields=('created',)
     ordering = ('-created',)
 
+@admin.register(Organization)
+class OrganizationAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug', 'url', 'linkedin_url', 'created', 'modified')
+    list_filter = ['created', 'modified']
+    search_fields = ('name',)
+    readonly_fields = ('created', 'modified')
+    ordering = ('name',)
+
 @admin.register(License)
 class LicenseAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'url')

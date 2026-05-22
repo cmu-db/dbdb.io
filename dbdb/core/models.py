@@ -221,25 +221,6 @@ class ProjectType(models.Model):
     pass
 
 # ==============================================
-# Publication
-# ==============================================
-class Publication(models.Model):
-
-    title = models.CharField(max_length=250)
-    authors = models.CharField(blank=True, max_length=250)
-    year = models.PositiveIntegerField(blank=True, null=True)
-    number = models.IntegerField(default=1, null=True)
-    url = models.URLField(blank=True, max_length=500)
-
-    bibtex = models.TextField(blank=True)
-    cite = models.TextField(blank=True)
-
-    def __str__(self):
-        return self.title
-
-    pass
-
-# ==============================================
 # SuggestedSystem
 # ==============================================
 class SuggestedSystem(models.Model):
@@ -250,6 +231,37 @@ class SuggestedSystem(models.Model):
     approved = models.BooleanField()
     secret_key = models.UUIDField(max_length=36, default=uuid.uuid4)
     url = models.URLField(blank=True, max_length=500)
+
+    class Meta:
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+    pass
+
+# ==============================================
+# Organization
+# ==============================================
+class Organization(models.Model):
+
+    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=200, unique=True)
+    url = models.ForeignKey(
+        'CitationUrl', models.SET_NULL,
+        blank=True, null=True,
+        related_name='org_urls',
+        help_text="URL of the organization's main website")
+    linkedin_url = models.ForeignKey(
+        'CitationUrl', models.SET_NULL,
+        blank=True, null=True,
+        related_name='org_linkedin_urls',
+        help_text="URL of the organization's LinkedIn page")
+    description = models.TextField(
+        blank=True,
+        help_text="This field supports Markdown Syntax")
+    created = models.DateTimeField(default=timezone.now)
+    modified = models.DateTimeField(default=timezone.now)
 
     class Meta:
         ordering = ('name',)
@@ -482,6 +494,12 @@ class SystemVersion(models.Model):
         blank=True, max_length=500,
         help_text="The original organization that developed the DBMS.")
 
+    developer_orgs = models.ManyToManyField(
+        'Organization', blank=True,
+        related_name='developed_systems',
+        verbose_name='Developer Organizations',
+        help_text="Organizations that developed this DBMS (structured alternative to the developer text field)")
+
     logo = ThumbnailerField(
         blank=True, upload_to='logos/')
     logo_color = ColorField(format="hex",
@@ -654,7 +672,7 @@ __all__ = (
     'ProgrammingLanguage',
     'Tag',
     'ProjectType',
-    'Publication',
+    'Organization',
     'SuggestedSystem',
     'System',
     'SystemFeature',
