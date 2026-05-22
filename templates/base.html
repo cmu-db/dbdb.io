@@ -44,29 +44,20 @@
 
 {% include "navbar.html" %}
 
-<main class="container pb-5 pt-3 page-{{ activate }}">
+<main class="container pb-4 pt-3 page-{{ activate }}">
     {% block content %}{% endblock %}
 </main>
 
-<footer class="pt-4 mt-auto">
+<!-- BEGIN:FOOTER -->
+<footer class="mt-auto pt-1 border-top">
+    <div class="container align-top d-md-none border-bottom">
+        {% block footer %}{% endblock %}
+    </div>
     <div class="container align-top">
-        <div class="row d-flex align-items-center ">
-            <div class="col-md-7 col-lg-8 footer-text">
-                <p class="text-sm-center text-md-start">
-                    Copyright &copy; {% now "Y" %}
-                    &bullet;
-                    <a target="_blank" href="https://db.cs.cmu.edu">Carnegie Mellon Database Group</a>
-                </p>
-            </div>
-            <div class="col-md-5 col-lg-4">
-                <div class="text-sm-center text-md-end footer-text">
-                    <a href="mailto:mail@dbdb.io" class="btn-floating btn-sm rgba-white-slight p-2"><i class="fa fa-envelope"></i> Contact</a>
-                    <a href="https://github.com/cmu-db/dbdb.io" class="btn-floating btn-sm p-2"><i class="fab fa-github"></i> Github</a>
-                </div>
-            </div>
-        </div>
+        {% include "footer.html" %}
     </div>
 </footer>
+<!-- END:FOOTER -->
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 

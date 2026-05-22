@@ -1463,6 +1463,69 @@ class SystemEditView(LoginRequiredMixin, View):
     pass
 
 # ==============================================
+# RecentChangesView
+# ==============================================
+class RecentChangesView(View):
+    template_name = "core/recent.html"
+
+    def get(self, request):
+        from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+
+        page = request.GET.get("page", 1)
+        username = request.GET.get("username", None)
+        versions = None
+        lookup_user = None
+
+        # Try to get the versions for the given username
+        if username is not None:
+            User = get_user_model()
+            try:
+                lookup_user = User.objects.get(username=username)
+                versions = SystemVersion.objects.filter(creator=lookup_user)
+            except:
+                lookup_user = None
+                pass
+        if versions is None:
+            versions = SystemVersion.objects.all()
+
+        # Sort by timestamps
+        versions = versions.order_by("-created")
+
+        paginator = Paginator(versions, 25)
+        try:
+            versions = paginator.get_page(page)
+            total_pages = paginator.num_pages
+            current_page = versions.number
+            DISPLAY_PAGES = 7
+            half_window = DISPLAY_PAGES // 2
+
+            start_page = max(current_page - half_window, 1)
+            end_page = start_page + DISPLAY_PAGES - 1
+            if end_page > total_pages:
+                end_page = total_pages
+                start_page = max(end_page - DISPLAY_PAGES + 1, 1)
+
+            page_range = range(start_page, end_page + 1)
+        except PageNotAnInteger:
+            versions = paginator.get_page(1)
+        except EmptyPage:
+            versions = paginator.get_page(paginator.num_pages)
+
+        return render(
+            request,
+            self.template_name,
+            context={
+                "activate": "recent",  # NAV-LINKS
+                "versions": versions,
+                "page_range": page_range,
+                "lookup_user": lookup_user,
+                "revision_list": False,
+            },
+        )
+
+    pass
+
+# ==============================================
 # DatabaseRevisionList
 # ==============================================
 class SystemRevisionList(View):
@@ -1521,64 +1584,7 @@ class SystemRevisionView(View):
 
     pass
 
-# ==============================================
-# RecentChangesView
-# ==============================================
-class RecentChangesView(View):
 
-    template_name = 'core/recent.html'
-
-    def get(self, request):
-        from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-        page = request.GET.get('page', 1)
-        username = request.GET.get('username', None)
-        versions = None
-        lookup_user = None
-
-        # Try to get the versions for the given username
-        if username is not None:
-            User = get_user_model()
-            try:
-                lookup_user = User.objects.get(username=username)
-                versions = SystemVersion.objects.filter(creator=lookup_user)
-            except:
-                lookup_user = None
-                pass
-        if versions is None:
-            versions = SystemVersion.objects.all()
-
-        # Sort by timestamps
-        versions = versions.order_by('-created')
-
-        paginator = Paginator(versions, 25)
-        try:
-            versions = paginator.get_page(page)
-            total_pages = paginator.num_pages
-            current_page = versions.number
-            DISPLAY_PAGES = 7
-            half_window = DISPLAY_PAGES // 2
-
-            start_page = max(current_page - half_window, 1)
-            end_page = start_page + DISPLAY_PAGES - 1
-            if end_page > total_pages:
-                end_page = total_pages
-                start_page = max(end_page - DISPLAY_PAGES + 1, 1)
-            
-            page_range = range(start_page, end_page + 1)
-        except PageNotAnInteger:
-            versions = paginator.get_page(1)
-        except EmptyPage:
-            versions = paginator.get_page(paginator.num_pages)
-
-        return render(request, self.template_name, context={
-            'activate': 'recent', # NAV-LINKS
-            'versions': versions,
-            'page_range': page_range,
-            'lookup_user': lookup_user,
-            'revision_list': False
-        })
-
-    pass
 
 # ==============================================
 # HomeView

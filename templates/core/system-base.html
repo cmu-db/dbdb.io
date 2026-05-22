@@ -91,27 +91,27 @@
             <dl class="row">
                 {% if system_version.url %}
                     <dt class="fs-6">Website</dt>
-                    <dd><a href="{{ system_version.url }}">{{ system_version.url }}</a></dd>
+                    <dd><a href="{{ system_version.url }}" target="_{{ system.slug }}">{{ system_version.url }}</a></dd>
                 {% endif %}
 
                 {% if system_version.source_url %}
                     <dt class="fs-6">Source Code</dt>
-                    <dd><a href="{{ system_version.source_url }}">{{ system_version.source_url }}</a></dd>
+                    <dd><a href="{{ system_version.source_url }}" target="_{{ system.slug }}">{{ system_version.source_url }}</a></dd>
                 {% endif %}
 
                 {% if system_version.tech_docs %}
                     <dt class="fs-6">Tech Docs</dt>
-                    <dd><a href="{{ system_version.tech_docs }}">{{ system_version.tech_docs }}</a></dd>
+                    <dd><a href="{{ system_version.tech_docs }}" target="_{{ system.slug }}">{{ system_version.tech_docs }}</a></dd>
                 {% endif %}
 
                 {% if system_version.twitter_handle %}
                     <dt class="fs-6">Twitter</dt>
-                    <dd><i class="fa-brands fa-twitter"></i> <a target="_twitter" href="{{ system_version.twitter_handle_url }}"> {{ system_version.twitter_handle }}</a></dd>
+                    <dd><i class="fa-brands fa-twitter"></i> <a target="_twitter" href="{{ system_version.twitter_handle_url }}" target="_{{ system.slug }}"> {{ system_version.twitter_handle }}</a></dd>
                 {% endif %}
 
                 {% if system_version.linkedin_handle %}
                     <dt class="fs-6">LinkedIn</dt>
-                    <dd><i class="fa-brands fa-linkedin"></i> <a target="_linkedin" href="{{ system_version.linkedin_handle_url }}"> {{ system_version.linkedin_handle }}</a></dd>
+                    <dd><i class="fa-brands fa-linkedin"></i> <a target="_linkedin" href="{{ system_version.linkedin_handle_url }}" target="_{{ system.slug }}"> {{ system_version.linkedin_handle }}</a></dd>
                 {% endif %}
 
                 {% if system_version.developer %}
@@ -256,7 +256,7 @@
 
                 {% if system_version.wikipedia_url %}
                     <dt class="fs-6">Wikipedia</dt>
-                    <dd><a target="wikipedia" href="{{ system_version.wikipedia_url }}">{{ system_version.wikipedia_url }}</a></dd>
+                    <dd><a href="{{ system_version.wikipedia_url }}" target="_{{ system.slug }}">{{ system_version.wikipedia_url }}</a></dd>
                 {% endif %}
             </dl>
 
@@ -365,18 +365,6 @@
     <!-- END:CITATIONS -->
     {% endif %}
 
-    <div class="card card-version d-block d-md-none revision-card">
-        <a href="{% url 'system_revision' system.slug %}" title="View All Revisions for {{ system.name }}">
-        <div class="card-body">
-            Revision #{{ system_version.ver }}
-            &nbsp;|&nbsp;
-            <time id="revision" datetime="{{ system_version.created|date:"c" }}">
-            Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
-            </time>
-        </div>
-        </a>
-    </div>
-
     <!-- BEGIN:RELATED-MOBILE -->
     <div class="row d-md-none">
         {% partial related %}
@@ -384,15 +372,29 @@
     <!-- END:RELATED-MOBILE -->
 
 
+    <!-- BEGIN:REVISION -->
+    <div class="text-end border-3 border-top d-none d-md-block">
+        <a href="{% url 'system_revision' system.slug %}" title="View All Revisions for {{ system.name }}">
+            <time datetime="{{ system_version.created|date:"c" }}">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
+            </time>
+            |
+            Revision #{{ system_version.ver }}
+        </a>
+    </div>
+    <!-- END:REVISION -->
+{% endblock %}
+
+{% block footer %}
     <a href="{% url 'system_revision' system.slug %}" title="View All Revisions for {{ system.name }}">
-        Revision #{{ system_version.ver }}
-        &nbsp;|&nbsp;
         <time datetime="{{ system_version.created|date:"c" }}">
+            <i class="fa-solid fa-clock-rotate-left"></i>
             Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
         </time>
+        |
+        Revision #{{ system_version.ver }}
     </a>
-
-
 {% endblock %}
 
 {% block scripts %}

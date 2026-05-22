@@ -255,6 +255,19 @@ span.search-keyword {
     border-collapse: separate;
     border-spacing: 0;
 }
+.results-logo {
+    width: 2.5rem;
+}
+.results-tags {
+
+}
+.results-startyear, .results-endyear {
+    min-width: 15%;
+}
+.sort-arrow {
+    font-size: 0.65rem;
+    opacity: 0.2;
+}
 
 .diagonal-strip {
 /*
