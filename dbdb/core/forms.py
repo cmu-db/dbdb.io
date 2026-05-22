@@ -240,8 +240,7 @@ class SystemForm(forms.ModelForm):
 
     pass
 
-class SystemVersionEditForm(forms.ModelForm):
-
+class SystemVersionForm(forms.ModelForm):
 
     description_citations = CitationUrlListField(
         help_text="Citations URLs",
@@ -310,68 +309,7 @@ class SystemVersionEditForm(forms.ModelForm):
             'oses',
             'supported_languages',
             'written_in',
-            'comment'
-        ]
-
-    pass
-
-class SystemVersionForm(forms.ModelForm):
-
-    description_citations = CitationUrlListField(
-        help_text="Citations URLs",
-        required=False
-    )
-    history_citations = CitationUrlListField(
-        help_text="Citations URLs",
-        required=False
-    )
-    start_year_citations = CitationUrlListField(
-        help_text="Citations URLs",
-        required=False
-    )
-    end_year_citations = CitationUrlListField(
-        help_text="Citations URLs",
-        required=False
-    )
-    acquired_by_citations = CitationUrlListField(
-        help_text="Citations URLs",
-        required=False
-    )
-
-    class Meta:
-        model = SystemVersion
-        fields = [
-            'logo',
-            'description',
-            'description_citations',
-            'history',
-            'history_citations',
-            'url',
-            'source_url',
-            'tech_docs',
-            'wikipedia_url',
-            'twitter_handle',
-            'linkedin_handle',
-            'developer',
-            'start_year',
-            'start_year_citations',
-            'end_year',
-            'end_year_citations',
-            'acquired_by',
-            'acquired_by_citations',
-            'tags',
-            'project_types',
-            'countries',
-            'former_names',
-            'derived_from',
-            'embedded',
-            'inspired_by',
-            'compatible_with',
-            'hosted_services',
-            'licenses',
-            'oses',
-            'supported_languages',
-            'written_in',
+            'comment',
         ]
 
     pass

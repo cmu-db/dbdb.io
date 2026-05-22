@@ -18,7 +18,7 @@ Edit {{ system.name }}
 
 {% block content %}
     <h1 class="fw-bold order-first mb-3">
-        {% if system %}
+        {% if system.slug %}
         <a href="{% url 'system' system.slug %}">{{ system.name }}</a> > Edit
         {% else %}
         Add Database

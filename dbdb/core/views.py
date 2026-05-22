@@ -43,7 +43,6 @@ from dbdb.core.forms import (
     CreateUserForm,
     SystemFeaturesForm,
     SystemForm,
-    SystemVersionEditForm,
     SystemVersionForm,
 )
 from dbdb.core.models import (
@@ -1285,7 +1284,7 @@ class SystemEditView(LoginRequiredMixin, View):
             pass
 
         system_form = SystemForm(request.POST, instance=system)
-        system_version_form = SystemVersionEditForm(request.POST, request.FILES)
+        system_version_form = SystemVersionForm(request.POST, request.FILES)
         feature_form = SystemFeaturesForm(request.POST, system=system, features=system_features)
 
         if system_form.is_valid() and \
@@ -1324,6 +1323,10 @@ class SystemEditView(LoginRequiredMixin, View):
             new_version.creator = request.user
             new_version.system = system
 
+            new_version.save()
+            system_version_form.save_m2m()
+            new_version.hosted_services.remove(system)
+
             if logo and not new_version.logo:
                 new_version.logo = logo
             # Extract information about the logo that we can use when rendering pages
@@ -1332,10 +1335,6 @@ class SystemEditView(LoginRequiredMixin, View):
                 new_version.logo_width = logo_w
                 new_version.logo_height = logo_h
                 new_version.logo_color = logos.color_to_hex(logos.extract_color(new_version.logo.path))
-
-            new_version.save()
-            system_version_form.save_m2m()
-            new_version.hosted_services.remove(system)
 
             system.ver = new_version.ver
             system.modified = timezone.now()
