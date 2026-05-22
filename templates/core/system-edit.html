@@ -12,6 +12,10 @@ Edit {{ system.name }}
 <style>
 .md-textarea textarea { height:8em; resize:vertical; }
 .multi-select select { font-size:0.85em; }
+.edit-savebox { position: static; width: 100%; margin-top: 2rem; }
+@media (min-width: 768px) {
+    .edit-savebox { position: fixed; top: 5.5rem; right: 2rem; width: 20rem; margin-top: 0; }
+}
 </style>
 {% endblock %}
 
@@ -21,11 +25,11 @@ Edit {{ system.name }}
         {% if system.slug %}
         <a href="{% url 'system' system.slug %}">{{ system.name }}</a> > Edit
         {% else %}
-        Add Database
+        Add Database System
         {% endif %}
     </h1>
 
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" id="edit-form">
 
     {% bootstrap_form_errors system_form type='all' %}
     {% bootstrap_form_errors system_version_form type='all' %}
@@ -160,21 +164,25 @@ Edit {{ system.name }}
         {% endfor %}
     </div>
 
-    <div class="col-md-3">
-        <div class="sidebar sticky-top">
-            <div class="buttons">
-                <button type="submit" class="btn btn-primary" name="action" value="save">Save</button>
-                <button type="submit" class="btn btn-default" name="action" value="cancel">Cancel</button>
-            </div>
-
-            <hr />
-
-            <div class="form-group">
-                <label for="id_comment">Revision Comment</label>
-                <textarea name="comment" required rows="4" class="form-control" placeholder="Comment" title="This field support Markdown Syntax" id="id_comment"></textarea>
+    <!-- BEGIN: SAVEBOX -->
+    <div class="edit-savebox card shadow p-3">
+        <div class="form-group mb-3">
+            <label for="id_comment" class="form-label fw-bold">Revision Comment</label>
+            <textarea name="comment" rows="4" class="form-control" placeholder="Describe your changes…" id="id_comment"></textarea>
+            <div id="comment-error" class="alert alert-danger py-2 mt-2 small d-none" role="alert">
+                Please enter a revision comment before saving.
             </div>
         </div>
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary" name="action" value="save" id="btn-save">
+                <i class="fa-solid fa-floppy-disk me-1"></i> Save
+            </button>
+            <button type="submit" class="btn btn-outline-secondary" name="action" value="cancel" id="btn-cancel">
+                Cancel
+            </button>
+        </div>
     </div>
+    <!-- END: SAVEBOX -->
 
 {% csrf_token %}
 </form>
@@ -201,5 +209,53 @@ Edit {{ system.name }}
                 {#descriptionTextarea.disabled = false;#}
             }
         }
+</script>
+
+<script>
+(function () {
+    const form      = document.getElementById('edit-form');
+    const commentEl = document.getElementById('id_comment');
+    const errorEl   = document.getElementById('comment-error');
+    const saveBtn   = document.getElementById('btn-save');
+    const cancelBtn = document.getElementById('btn-cancel');
+
+    // --- Dirty-form guard ---
+    let isDirty = false;
+    let submitting = false;
+
+    form.addEventListener('input', () => { isDirty = true; });
+    form.addEventListener('change', () => { isDirty = true; });
+
+    window.addEventListener('beforeunload', (e) => {
+        if (isDirty && !submitting) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    // Cancel clears the dirty flag so navigation goes through cleanly.
+    cancelBtn.addEventListener('click', () => { submitting = true; });
+
+    // --- Comment validation on Save ---
+    saveBtn.addEventListener('click', (e) => {
+        if (commentEl.value.trim() === '') {
+            e.preventDefault();
+            errorEl.classList.remove('d-none');
+            commentEl.classList.add('is-invalid');
+            commentEl.focus();
+        } else {
+            errorEl.classList.add('d-none');
+            commentEl.classList.remove('is-invalid');
+            submitting = true;
+        }
+    });
+
+    commentEl.addEventListener('input', () => {
+        if (commentEl.value.trim() !== '') {
+            errorEl.classList.add('d-none');
+            commentEl.classList.remove('is-invalid');
+        }
+    });
+})();
 </script>
 {% endblock %}
