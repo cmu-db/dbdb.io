@@ -1040,9 +1040,7 @@ class CounterView(View):
             'iss': f'counter:{origin}',
             'nbf': datetime.datetime.utcnow(),
         })
-
         s = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-
         return s
 
     def post(self, request):
@@ -1050,7 +1048,6 @@ class CounterView(View):
 
         if not token:
             return JsonResponse({ 'status':'missing token'}, status=400)
-
         try:
             payload = jwt.decode(
                 token.encode('utf-8'),
@@ -2051,7 +2048,17 @@ class SystemView(View):
 
         start_year_citations = self.process_citations(system_version.start_year_citations.all())
         end_year_citations = self.process_citations(system_version.end_year_citations.all())
-        acquired_by_citations = self.process_citations(system_version.acquired_by_citations.all())
+
+        acquisitions = [
+            {
+                'organization': acq.organization,
+                'year': acq.year,
+                'citations': self.process_citations([acq.citation] if acq.citation else []),
+            }
+            for acq in system_version.acquisitions
+                .select_related('organization', 'citation')
+                .order_by('year', 'organization__name')
+        ]
 
         # Compatible Systems
         compatible = [
@@ -2103,7 +2110,7 @@ class SystemView(View):
             'citations': self.all_citations,
             'start_year_citations': start_year_citations,
             'end_year_citations': end_year_citations,
-            'acquired_by_citations': acquired_by_citations,
+            'acquisitions': acquisitions,
             'system_version': system_version,
             'user_can_edit': user_can_edit,
             'compatible': compatible,

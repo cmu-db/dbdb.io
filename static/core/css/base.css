@@ -634,3 +634,9 @@ p.recent-text { font-size: 10pt; margin: 0; }
     color: var(--link-color) !important;
     background-color: var(--highlight-color);
 }
+
+/********************************************************************
+ * BEGIN:SYSTEM-SIDEBAR
+ ********************************************************************/
+.alert-revision { line-height: 34px; }
+.acquisition-year { width: 4rem; }

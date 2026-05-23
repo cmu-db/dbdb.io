@@ -40,7 +40,7 @@
 
             <!-- BEGIN:REVISION -->
             {% if has_revision %}
-            <div class="alert alert-info d-none d-md-block" style="line-height: 34px;" role="alert">
+            <div class="alert alert-info d-none d-md-block" class="alert-revision" role="alert">
                 Viewing Revision #{{ system_version.ver }} from {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
                 <a href="{{ system.get_absolute_url }}" class="btn btn-secondary btn-sm float-end ms-2" role="button" aria-pressed="true">View Current</a>
                 {% if not system_version.is_current and user.is_authenticated %}
@@ -69,7 +69,7 @@
     <!-- BEGIN: SIDEBAR -->
     <div class="col-sm-12 col-md-4 float-md-end text-wrap text-break sidebar pb-4 ms-md-5">
         {% if has_revision %}
-        <div class="alert alert-info d-block d-md-none" style="line-height: 34px;" role="alert">
+        <div class="alert alert-info d-block d-md-none" class="alert-revision" role="alert">
             <a href="{{ system.get_absolute_url }}" class="btn btn-secondary btn-sm float-right active" role="button" aria-pressed="true">View Current</a>
             Viewing Revision #{{ system_version.ver }} from {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
         </div>
@@ -158,13 +158,24 @@
                     <dd>{{ system_version.former_names }}</dd>
                 {% endif %}
 
-                {% if system_version.acquired_by %}
-                    <dt class="fs-6">
-                        Acquired By
-                        {% if acquired_by_citations %}
-                            {% for c in acquired_by_citations %}{% citation_footnote c %}{% endfor %}
-                        {% endif %}
-                    </dt>
+                {% if acquisitions %}
+                    <dt class="fs-6">Acquired By</dt>
+                    <dd>
+                        <table class="table table-sm table-borderless mb-0">
+                            <tbody>
+                            {% for acq in acquisitions %}
+                            <tr>
+                                <td class="ps-0 text-muted acquisition-year">{% if acq.year %}{{ acq.year }}{% else %}&mdash;{% endif %}</td>
+                                <td class="ps-0">
+                                    {{ acq.organization.name }}{% for c in acq.citations %}{% citation_footnote c %}{% endfor %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </dd>
+                {% elif system_version.acquired_by %}
+                    <dt class="fs-6">Acquired By</dt>
                     <dd>{{ system_version.acquired_by }}</dd>
                 {% endif %}
 
