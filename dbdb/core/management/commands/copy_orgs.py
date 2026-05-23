@@ -4,7 +4,7 @@ import re
 from django.core.management import BaseCommand
 from django.utils.text import slugify
 
-from dbdb.core.models import Organization, SystemVersion
+from dbdb.core.models import Acquisition, Organization, SystemVersion
 
 LOG = logging.getLogger(__name__)
 
@@ -25,6 +25,9 @@ _SKIP_URLS = frozenset(map(str.lower, [
     'Wakanda.io',
     'ZippyDB.com'
 ]))
+
+# Finds a plausible 4-digit year (1900–2099) inside a URL path.
+_YEAR_RE = re.compile(r'\b(19\d{2}|20\d{2})\b')
 
 # Matches strings that look like URLs rather than organization names.
 _URL_RE = re.compile(
@@ -99,6 +102,14 @@ def _get_or_create_org(name):
     return org
 
 
+def _extract_year_from_url(url):
+    """Return the first plausible acquisition year found in a URL, or None."""
+    if not url:
+        return None
+    m = _YEAR_RE.search(url)
+    return int(m.group(1)) if m else None
+
+
 def _process_field(ver, field_value, field_name):
     """Return list of Organization instances parsed from field_value, printing errors."""
     orgs = []
@@ -125,7 +136,12 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        versions = SystemVersion.objects.select_related('system').order_by('system__name', 'ver')
+        versions = (
+            SystemVersion.objects
+            .select_related('system')
+            .prefetch_related('acquired_by_citations')
+            .order_by('system__name', 'ver')
+        )
         if options.get('system'):
             keyword = options['system']
             if keyword.isdigit():
@@ -148,8 +164,20 @@ class Command(BaseCommand):
                 orgs = _process_field(ver, ver.acquired_by, 'acquired_by')
                 created_total += len(orgs)
 
+                citation = ver.acquired_by_citations.first()
+                year = _extract_year_from_url(citation.url if citation else None)
+                for org in orgs:
+                    acq, created = Acquisition.objects.get_or_create(
+                        version=ver,
+                        organization=org,
+                        defaults={'year': year, 'citation': citation},
+                    )
+                    if created:
+                        linked_total += 1
+                        LOG.info(f"Created Acquisition: {acq}")
+
         self.stdout.write(self.style.SUCCESS(
             f"Done. Processed {versions.count()} versions, "
             f"created/found {created_total} organizations, "
-            f"linked {linked_total} developer org relationships."
+            f"linked {linked_total} developer org and acquisition relationships."
         ))

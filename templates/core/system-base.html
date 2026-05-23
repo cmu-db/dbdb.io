@@ -59,7 +59,6 @@
             </div>
             {% endif %}
             <!-- END:REVISION -->
-
             {% endpartialdef %}
 
             {{ system_version.description_mobile_intro|markdownify }}
@@ -114,7 +113,10 @@
                     <dd><i class="fa-brands fa-linkedin"></i> <a target="_linkedin" href="{{ system_version.linkedin_handle_url }}" target="_{{ system.slug }}"> {{ system_version.linkedin_handle }}</a></dd>
                 {% endif %}
 
-                {% if system_version.developer %}
+                {% if system_version.developer_orgs.all %}
+                    <dt class="fs-6">Developer</dt>
+                    <dd>{% for org in system_version.developer_orgs.all %}{% if not forloop.first %}, {% endif %}{% if org.url %}<a href="{{ org.url }}" target="_blank">{{ org.name }}</a>{% else %}{{ org.name }}{% endif %}{% endfor %}</dd>
+                {% elif system_version.developer %}
                     <dt class="fs-6">Developer</dt>
                     <dd>{{ system_version.developer }}</dd>
                 {% endif %}
