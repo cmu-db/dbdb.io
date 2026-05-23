@@ -74,8 +74,39 @@ Edit {{ system.name }}
                 </div>
             </div>
 
-            {% bootstrap_field system_version_form.acquired_by %}
-            {% bootstrap_field system_version_form.acquired_by_citations %}
+            <!-- BEGIN: ACQUISITIONS -->
+            <div class="mb-3">
+                <label class="form-label fw-bold">Acquisitions</label>
+                {{ acquisition_formset.management_form }}
+                <div id="acquisition-rows">
+                {% for form in acquisition_formset %}
+                <div class="acquisition-row row g-2 mb-2 align-items-center">
+                    <div class="col-md-5">{{ form.organization }}</div>
+                    <div class="col-md-2">{{ form.year }}</div>
+                    <div class="col-md-4">{{ form.citation_url }}</div>
+                    <div class="col-md-1 text-center">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeAcquisitionRow(this)" title="Remove">×</button>
+                        <span class="d-none">{{ form.DELETE }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+                <template id="acquisition-row-template">
+                    <div class="acquisition-row row g-2 mb-2 align-items-center">
+                        <div class="col-md-5"><input type="text"   name="acquisitions-__prefix__-organization"  class="form-control" placeholder="Organization name" id="id_acquisitions-__prefix__-organization"></div>
+                        <div class="col-md-2"><input type="number" name="acquisitions-__prefix__-year"          class="form-control" placeholder="Year"              id="id_acquisitions-__prefix__-year"></div>
+                        <div class="col-md-4"><input type="url"    name="acquisitions-__prefix__-citation_url"  class="form-control" placeholder="https://…"         id="id_acquisitions-__prefix__-citation_url"></div>
+                        <div class="col-md-1 text-center">
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeAcquisitionRow(this)" title="Remove">×</button>
+                            <span class="d-none"><input type="checkbox" name="acquisitions-__prefix__-DELETE" id="id_acquisitions-__prefix__-DELETE"></span>
+                        </div>
+                    </div>
+                </template>
+                <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="addAcquisitionRow()">
+                    + Add Acquisition
+                </button>
+            </div>
+            <!-- END: ACQUISITIONS -->
 
         </div>
     </div>
@@ -196,6 +227,39 @@ Edit {{ system.name }}
     $(function(){
         $('textarea[data-role="tagsinput"]').tagsinput();
     });
+    // --- Acquisition rows ---
+    function initOrgAutocomplete(input) {
+        $(input).autoComplete({
+            minChars: 1,
+            source: function(term, response) {
+                $.getJSON('/api/organizations/autocomplete/', { q: term }, function(data) { response(data); });
+            }
+        });
+    }
+
+    function addAcquisitionRow() {
+        const template = document.getElementById('acquisition-row-template');
+        const totalInput = document.querySelector('input[name="acquisitions-TOTAL_FORMS"]');
+        const idx = parseInt(totalInput.value);
+        const clone = template.content.cloneNode(true);
+        const row = clone.querySelector('.acquisition-row');
+        row.innerHTML = row.innerHTML.replaceAll('__prefix__', idx);
+        document.getElementById('acquisition-rows').appendChild(clone);
+        totalInput.value = idx + 1;
+        initOrgAutocomplete(document.getElementById('id_acquisitions-' + idx + '-organization'));
+    }
+
+    function removeAcquisitionRow(btn) {
+        const row = btn.closest('.acquisition-row');
+        const del = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+        if (del) del.checked = true;
+        row.style.display = 'none';
+    }
+
+    $(function() {
+        $('#acquisition-rows input[name$="-organization"]').each(function() { initOrgAutocomplete(this); });
+    });
+
     function toggleFields(featureName) {
             const systemSelect = document.getElementById('id_' + featureName + '_system');
             const choicesSelect = document.getElementById('id_' + featureName + '_choices');

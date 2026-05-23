@@ -311,6 +311,36 @@ class System(models.Model):
     pass
 
 # ==============================================
+# Acquisition
+# ==============================================
+class Acquisition(models.Model):
+    version = models.ForeignKey(
+        'SystemVersion', models.CASCADE,
+        related_name='acquisitions')
+    organization = models.ForeignKey(
+        'Organization', models.PROTECT,
+        related_name='acquisitions',
+        help_text="The organization that acquired this system")
+    year = models.PositiveIntegerField(
+        blank=True, null=True,
+        help_text="Year the acquisition was completed")
+    citation = models.ForeignKey(
+        'CitationUrl', models.SET_NULL,
+        blank=True, null=True,
+        related_name='acquisitions',
+        help_text="Source documenting this acquisition")
+
+    class Meta:
+        ordering = ('year', 'organization__name')
+        unique_together = ('version', 'organization')
+
+    def __str__(self):
+        year_str = f" ({self.year})" if self.year else ""
+        return f"{self.version.system} acquired by {self.organization}{year_str}"
+
+    pass
+
+# ==============================================
 # SystemACL
 # ==============================================
 class SystemACL(models.Model):

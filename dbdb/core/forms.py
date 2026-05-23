@@ -11,7 +11,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
-from django.forms import widgets
+from django.forms import formset_factory, widgets
 
 # project imports
 from dbdb.core.models import CitationUrl, Feature, FeatureOption, System, SystemVersion
@@ -314,4 +314,24 @@ class SystemVersionForm(forms.ModelForm):
 
     pass
 
+
+class AcquisitionForm(forms.Form):
+    organization = forms.CharField(
+        max_length=200, required=False,
+        label='Acquired By',
+        widget=forms.TextInput(attrs={'placeholder': 'Organization name', 'class': 'form-control'}))
+    year = forms.IntegerField(
+        required=False, min_value=1800, max_value=2200,
+        label='Year',
+        widget=forms.NumberInput(attrs={'placeholder': 'Year', 'class': 'form-control'}))
+    citation_url = forms.URLField(
+        max_length=500, required=False,
+        label='Citation URL',
+        widget=forms.URLInput(attrs={'placeholder': 'https://…', 'class': 'form-control'}))
+
+    def has_data(self):
+        return bool(self.cleaned_data.get('organization'))
+
+
+AcquisitionFormSet = formset_factory(AcquisitionForm, extra=0, can_delete=True)
 

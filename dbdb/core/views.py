@@ -40,17 +40,20 @@ from lxml import etree
 # project imports
 from dbdb.core.common.searchvector import SearchVector
 from dbdb.core.forms import (
+    AcquisitionFormSet,
     CreateUserForm,
     SystemFeaturesForm,
     SystemForm,
     SystemVersionForm,
 )
 from dbdb.core.models import (
+    Acquisition,
     CitationUrl,
     Feature,
     FeatureOption,
     License,
     OperatingSystem,
+    Organization,
     ProgrammingLanguage,
     ProjectType,
     System,
@@ -1276,14 +1279,24 @@ class SystemEditView(LoginRequiredMixin, View):
 
         features = self.build_features(feature_form)
 
+        acquisitions_initial = [
+            {
+                'organization': acq.organization.name,
+                'year': acq.year,
+                'citation_url': acq.citation.url if acq.citation else '',
+            }
+            for acq in system_version.acquisitions.select_related('organization', 'citation').all()
+        ] if system_version.pk else []
+        acquisition_formset = AcquisitionFormSet(initial=acquisitions_initial, prefix='acquisitions')
+
         return render(request, self.template_name, {
             'activate': 'create' if system.id is None else 'edit', # NAV-LINKS
             'system': system,
             'system_form': system_form,
             'system_version_form': SystemVersionForm(instance=system_version),
-            # 'system_version_metadata_form': SystemVersionMetadataForm(instance=system_meta),
             'feature_form': feature_form,
             'features': features,
+            'acquisition_formset': acquisition_formset,
         })
 
     @transaction.atomic
@@ -1309,10 +1322,12 @@ class SystemEditView(LoginRequiredMixin, View):
         system_form = SystemForm(request.POST, instance=system)
         system_version_form = SystemVersionForm(request.POST, request.FILES)
         feature_form = SystemFeaturesForm(request.POST, system=system, features=system_features)
+        acquisition_formset = AcquisitionFormSet(request.POST, prefix='acquisitions')
 
         if system_form.is_valid() and \
             system_version_form.is_valid() and \
-            feature_form.is_valid():
+            feature_form.is_valid() and \
+            acquisition_formset.is_valid():
 
             if request.user.is_superuser:
                 original_system_slug = system.slug
@@ -1473,6 +1488,27 @@ class SystemEditView(LoginRequiredMixin, View):
             ver_search.search_text = generate_searchtext(new_version)
             ver_search.save()
 
+            # Save acquisitions
+            for form in acquisition_formset:
+                if not form.has_changed() or form.cleaned_data.get('DELETE'):
+                    continue
+                if not form.cleaned_data.get('organization', '').strip():
+                    continue
+                org_name = form.cleaned_data['organization'].strip()
+                org_slug = slugify(org_name)[:50]
+                org, _ = Organization.objects.get_or_create(
+                    name=org_name, defaults={'slug': org_slug}
+                )
+                citation = None
+                citation_url_str = form.cleaned_data.get('citation_url', '').strip()
+                if citation_url_str:
+                    citation, _ = CitationUrl.objects.get_or_create(url=citation_url_str)
+                Acquisition.objects.get_or_create(
+                    version=new_version,
+                    organization=org,
+                    defaults={'year': form.cleaned_data.get('year'), 'citation': citation},
+                )
+
             return redirect(new_version.system.get_absolute_url())
 
         features = self.build_features(feature_form)
@@ -1484,6 +1520,7 @@ class SystemEditView(LoginRequiredMixin, View):
             'system_version_form': system_version_form,
             'feature_form': feature_form,
             'features': features,
+            'acquisition_formset': acquisition_formset,
         })
 
     pass
@@ -2060,7 +2097,7 @@ class SystemView(View):
                                 .select_related()
         ]
         return render(request, self.template_name, {
-            'activate': 'system', # NAV-LINKS
+            'activate': 'system',  # NAV-LINKS
             'system': system,
             'sections': sections,
             'citations': self.all_citations,
@@ -2084,7 +2121,18 @@ class SystemView(View):
 # ==============================================
 # System Name AutoComplete
 # ==============================================
-def search_autocomplete(request):
+def organization_autocomplete(request):
+    q = request.GET.get('q', '').strip()
+    names = (
+        Organization.objects
+        .filter(name__icontains=q)
+        .order_by('name')
+        .values_list('name', flat=True)[:12]
+    ) if q else []
+    return JsonResponse(list(names), safe=False)
+
+
+def system_autocomplete(request):
     search_q = request.GET.get('q', '').strip()
     if search_q:
         sqs = System.objects.filter(name__icontains=search_q).annotate(

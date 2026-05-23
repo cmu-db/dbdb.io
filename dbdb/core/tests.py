@@ -85,20 +85,20 @@ class AutoCompleteTestCase(TestCase):
         for i in range(1, len(target)):
             query = {'q': target[:i+1]}
             #pprint(query)
-            response = self.client.get(reverse('search_autocomplete'), data=query)
+            response = self.client.get(reverse('system_autocomplete'), data=query)
             #pprint(response.json())
             self.assertContains(response, 'SQLite', html=False)
         return
 
     def test_autocom_invalid_parameters(self):
         query = {'q': "YYY"}
-        response = self.client.get(reverse('search_autocomplete'), data=query)
+        response = self.client.get(reverse('system_autocomplete'), data=query)
         #pprint(response.json())
         self.assertEqual(len(response.json()), 0)
         return
 
     def test_autocom_no_parameters(self):
-        response = self.client.get(reverse('search_autocomplete'))
+        response = self.client.get(reverse('system_autocomplete'))
         self.assertEqual(len(response.json()), 0)
         return
     pass
