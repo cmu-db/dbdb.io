@@ -258,11 +258,6 @@ class SystemVersionForm(forms.ModelForm):
         help_text="Citations URLs",
         required=False
     )
-    acquired_by_citations = CitationUrlListField(
-        help_text="Citations URLs",
-        required=False
-    )
-
     def clean_twitter_handle(self):
         data = self.cleaned_data['twitter_handle']
         if data and data[0] != '@':
@@ -289,13 +284,10 @@ class SystemVersionForm(forms.ModelForm):
             'wikipedia_url',
             'twitter_handle',
             'linkedin_handle',
-            'developer',
             'start_year',
             'start_year_citations',
             'end_year',
             'end_year_citations',
-            'acquired_by',
-            'acquired_by_citations',
             'tags',
             'project_types',
             'countries',

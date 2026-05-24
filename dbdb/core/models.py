@@ -502,13 +502,6 @@ class SystemVersion(models.Model):
         'CitationUrl', blank=True,
         related_name='version_histories')
 
-    acquired_by = models.CharField(
-        blank=True, max_length=32,
-        help_text="Name of the company that first acquired the DBMS")
-    acquired_by_citations = models.ManyToManyField(
-        'CitationUrl', blank=True,
-        related_name='version_acquired_bys')
-
     # General Information Fields
     tags = models.ManyToManyField(
         'Tag', blank=True,
@@ -519,10 +512,6 @@ class SystemVersion(models.Model):
         'ProjectType', blank=True,
         related_name='project_types',
         verbose_name='Project Type')
-
-    developer = models.CharField(
-        blank=True, max_length=500,
-        help_text="The original organization that developed the DBMS.")
 
     developer_orgs = models.ManyToManyField(
         'Organization', blank=True,

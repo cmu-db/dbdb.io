@@ -493,7 +493,6 @@ def merge_citations(merge_to: CitationUrl, merge_from: list[CitationUrl]) -> Cit
 
     tables = [
         "core_systemfeature_citations",
-        "core_systemversion_acquired_by_citations",
         "core_systemversion_description_citations",
         "core_systemversion_end_year_citations",
         "core_systemversion_history_citations",
@@ -583,8 +582,7 @@ def get_systems(c: CitationUrl,
         Q(description_citations__in=[c]) |
         Q(start_year_citations__in=[c]) |
         Q(end_year_citations__in=[c]) |
-        Q(history_citations__in=[c]) |
-        Q(acquired_by_citations__in=[c])
+        Q(history_citations__in=[c])
     )
     if current_only:
         versions = versions.filter(is_current=True)
