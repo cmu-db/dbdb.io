@@ -1041,6 +1041,8 @@ class CounterView(View):
             'nbf': datetime.datetime.utcnow(),
         })
         s = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+        if isinstance(s, bytes):
+            s = s.decode('utf-8')
         return s
 
     def post(self, request):
@@ -1050,7 +1052,7 @@ class CounterView(View):
             return JsonResponse({ 'status':'missing token'}, status=400)
         try:
             payload = jwt.decode(
-                token.encode('utf-8'),
+                token,
                 settings.SECRET_KEY,
                 algorithms=['HS256']
             )
@@ -1084,6 +1086,8 @@ class CounterView(View):
             pass
         except jwt.ExpiredSignatureError:
             return JsonResponse({ 'status':'expired counter' }, status=400)
+        except jwt.DecodeError:
+            return JsonResponse({ 'status':'invalid token' }, status=400)
 
         return JsonResponse({ 'status':'ok' })
 
