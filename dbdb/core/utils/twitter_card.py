@@ -43,7 +43,7 @@ def create_twitter_card(ver : SystemVersion):
     elif ver.logo.path.lower().endswith("svg"):
         temp_name = os.path.join(tempfile.gettempdir(), next(tempfile._get_candidate_names()) + ".png")
         with open(ver.logo.path) as fd:
-            svg2png(bytestring=fd.read(), write_to=temp_name, scale=3)
+            svg2png(bytestring=fd.read(), write_to=temp_name, scale=3, unsafe=True)
         logo = Image.open(temp_name).convert("RGBA")
 
     # PNG
