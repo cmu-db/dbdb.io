@@ -1,6 +1,10 @@
+import logging
+
 from django.core.management import BaseCommand
 
 from dbdb.core.models import SystemVersion
+
+LOG = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -12,9 +16,9 @@ class Command(BaseCommand):
 
     def print_copy(self, label, objects):
         if objects is not None and objects.count() > 0:
-            self.stdout.write(f"  {label}: " + ",".join(map(str, objects)))
+            LOG.info(f"  {label}: " + ",".join(map(str, objects)))
         else:
-            self.stdout.write(f'  {label}?: {objects}')
+            LOG.info(f'  {label}?: {objects}')
 
     def handle(self, *args, **options):
 
@@ -31,7 +35,7 @@ class Command(BaseCommand):
             if ver.meta is None: continue
 
             try:
-                self.stdout.write(f"Copying meta data for {ver} [id={ver.system.id}]")
+                LOG.info(f"Copying meta data for {ver} [id={ver.system.id}]")
 
                 ver.derived_from.clear()
                 for x in ver.meta.derived_from.all(): ver.derived_from.add(x)
@@ -67,6 +71,6 @@ class Command(BaseCommand):
 
                 ver.save()
             except:
-                self.stdout.write(f"Failed: {ver}")
+                LOG.error(f"Failed: {ver}")
                 raise
     pass

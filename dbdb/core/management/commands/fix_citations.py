@@ -6,16 +6,11 @@ from django.db import connection, transaction
 
 from dbdb.core.models import *
 
-LOG = logging.getLogger('console')
+LOG = logging.getLogger(__name__)
 
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        LOG.setLevel(logging.DEBUG)
-        console = logging.StreamHandler()
-        console.setLevel(logging.DEBUG)
-        console.setFormatter(logging.Formatter('%(levelname)s - %(message)s'))
-        LOG.addHandler(console)
 
         # I used SQL to clean up a bunch of malformed citation urls
         # But then this created a bunch of duplicates and there are other parts of the code

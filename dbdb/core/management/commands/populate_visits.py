@@ -1,6 +1,7 @@
 # stdlib imports
 import glob
 import gzip
+import logging
 import os
 import re
 import sys
@@ -12,6 +13,8 @@ from django.core.management import BaseCommand
 from django.db.models import Q
 
 from dbdb.core.models import System, SystemVersion, SystemVisit
+
+LOG = logging.getLogger(__name__)
 
 MANUAL_FIXES = {
     "firstsql": "firstsqlj",
@@ -66,7 +69,7 @@ class Command(BaseCommand):
         assert os.path.exists(log_dir)
 
         for x in glob.glob(os.path.join(log_dir, "*.gz")):
-            self.stdout.write(x)
+            LOG.info(x)
             with gzip.open(x, 'r') as fd:
                 for line in fd:
                     if not line: continue
@@ -74,7 +77,7 @@ class Command(BaseCommand):
 
                     m = APACHE_REGEX.match(line)
                     if not m:
-                        self.stdout.write(line)
+                        LOG.warning(line)
                         continue
                         #sys.exit(1)
 
@@ -135,7 +138,7 @@ class Command(BaseCommand):
                             #pass
                         pass
                     if not system:
-                        self.stdout.write("Bad Slug: %s (orig=%s)" % (keyword, orig_keyword))
+                        LOG.warning("Bad Slug: %s (orig=%s)" % (keyword, orig_keyword))
                         sys.exit(1)
                         #self.stdout.write("MISSING: slug = " + keyword)
 

@@ -1,4 +1,5 @@
 # stdlib imports
+import logging
 import os
 
 from django.conf import settings
@@ -9,6 +10,8 @@ from django.core.management import BaseCommand
 from dbdb.core.models import SystemVersion
 from dbdb.core.utils import *
 from dbdb.core.utils import logos
+
+LOG = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -34,7 +37,7 @@ class Command(BaseCommand):
             logo_img = os.path.join(settings.MEDIA_ROOT, ver.logo.name)
             if not logo_img or os.path.isdir(logo_img): continue
             if not os.path.exists(logo_img):
-                self.stderr.write(f"MISSING: {ver} -> {logo_img}")
+                LOG.warning(f"MISSING: {ver} -> {logo_img}")
                 continue
 
             logo_color, logo_width, logo_height = None, None, None
@@ -45,7 +48,7 @@ class Command(BaseCommand):
                     logo_width, logo_height = logos.extract_dimensions(str(logo_img))
                     cache[logo_img] = (logo_color, logo_width, logo_height)
                 except:
-                    self.stderr.write(f"FAIL: {ver} -> {logo_img}")
+                    LOG.error(f"FAIL: {ver} -> {logo_img}")
                     if not options['skip_errors']: raise
                     continue
             else:
@@ -55,7 +58,7 @@ class Command(BaseCommand):
             ver.logo_width = logo_width
             ver.logo_height = logo_height
             ver.save()
-            self.stdout.write(f"{ver} -> {ver.logo_color} [{ver.logo_width}x{ver.logo_height}]")
+            LOG.info(f"{ver} -> {ver.logo_color} [{ver.logo_width}x{ver.logo_height}]")
 
         # FOR
         return

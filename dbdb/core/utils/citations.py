@@ -32,12 +32,7 @@ from dbdb.core.utils import spam
 from dbdb.core.utils.git import get_git_commit_metadata
 from dbdb.core.utils.spam import UnexpectedResponseError
 
-LOG = logging.getLogger('console')
-LOG.setLevel(logging.DEBUG)
-console = logging.StreamHandler()
-console.setLevel(logging.DEBUG)
-console.setFormatter(logging.Formatter('%(asctime)s %(filename)s:%(lineno)d %(levelname)s - %(message)s'))
-LOG.addHandler(console)
+LOG = logging.getLogger(__name__)
 
 # --- Configuration ---
 

@@ -1,8 +1,9 @@
+import logging
 import re
 import sys
 import time
 from argparse import ArgumentParser
-from pprint import pprint
+from pprint import pformat
 
 from django.core.management import BaseCommand
 from django.utils import timezone
@@ -13,6 +14,8 @@ from urllib3.exceptions import NewConnectionError, ReadTimeoutError
 
 from dbdb.core.models import CitationUrl
 from dbdb.core.utils.citations import *
+
+LOG = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -48,7 +51,7 @@ class Command(BaseCommand):
         if options['only_new']:
             citations = citations.filter(last_checked=None)
         if options['last_checked']:
-            print(f"Processing URLs last checked before {options['last_checked']}")
+            LOG.info(f"Processing URLs last checked before {options['last_checked']}")
             citations = citations.filter(last_checked__lte=options['last_checked'])
 
         citation_ctr = 0
@@ -59,10 +62,10 @@ class Command(BaseCommand):
 
             # If no system is using this citation, we may want to delete it
             if len(systems) == 0:
-                self.stdout.write(f"Did not find any systems using Citation {c}. Skipping...")
+                LOG.info(f"Did not find any systems using Citation {c}. Skipping...")
                 continue
 
-            self.stdout.write(f"Citation {c} => {systems}")
+            LOG.info(f"Citation {c} => {systems}")
 
             # Check if we have a malformed URL that we need to merge
             fixed_url = None
@@ -81,11 +84,10 @@ class Command(BaseCommand):
                 if fixed_url == c.url:
                     fixed_url = None
                 else:
-                    print(f"'NORMALIZE: {c.url} -> {fixed_url}")
-
+                    LOG.info(f"NORMALIZE: {c.url} -> {fixed_url}")
 
             if fixed_url:
-                print(f"'FIX: {c.url} -> {fixed_url}")
+                LOG.info(f"FIX: {c.url} -> {fixed_url}")
 
                 # See if this URL already exists. If yes, then we will merge it
                 other_c = CitationUrl.objects.filter(url=fixed_url)
@@ -101,11 +103,11 @@ class Command(BaseCommand):
 
             # Check again whether this is a valid URL
             if not c.url.lower().startswith("http"):
-                print(f"SKIP: {c}")
+                LOG.info(f"SKIP: {c}")
                 continue
 
             if citation_ctr > 0 and 'sleep' in options and int(options['sleep']) > 0:
-                self.stdout.write(f"Sleeping for {options['sleep']} seconds...")
+                LOG.info(f"Sleeping for {options['sleep']} seconds...")
                 time.sleep(int(options['sleep']))
 
             info = None
@@ -148,30 +150,29 @@ class Command(BaseCommand):
                 sys.exit(0)
 
             except (TimeoutError,ReadTimeoutError,ConnectTimeout,ReadTimeout,ConnectionError,NewConnectionError) as e:
-                self.stdout.write(f"Connection failed: {e}")
+                LOG.warning(f"Connection failed: {e}")
                 c.status = CitationUrl.Status.DEAD
                 pass
 
             except SpamPageError as e:
-                self.stdout.write(f"Spam page error: {e}")
+                LOG.warning(f"Spam page error: {e}")
                 c.status = CitationUrl.Status.SPAM
                 pass
 
             except InvalidURL as e:
-                self.stdout.write(f"Invalid URL: {e}")
+                LOG.warning(f"Invalid URL: {e}")
                 c.status = CitationUrl.Status.IGNORE
                 pass
 
             except:
-                self.stdout.write(f"Failed: {c}")
+                LOG.error(f"Failed: {c}")
                 c.status = CitationUrl.Status.DEAD
                 raise
             finally:
                 c.last_checked = timezone.now()
                 c.save()
-                print(f"Result: status={c.get_status_display()}")
-                if info: pprint(info)
-                print()
+                LOG.info(f"Result: status={c.get_status_display()}")
+                if info: LOG.debug(pformat(info))
 
             citation_ctr += 1
             if 'limit' in options and options['limit']:

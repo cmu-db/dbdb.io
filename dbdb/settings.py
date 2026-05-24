@@ -79,27 +79,37 @@ LOGIN_URL = '/login/'
 ROOT_URLCONF = 'dbdb.urls'
 WSGI_APPLICATION = 'dbdb.wsgi.application'
 
-# Uncommenting this will enable query logging to stdout
 LOGGING = {
-   'version': 1,
-   'filters': {
-       'require_debug_true': {
-           '()': 'django.utils.log.RequireDebugTrue',
-       }
-   },
-   'handlers': {
-       'console': {
-           'level': 'DEBUG',
-           'filters': ['require_debug_true'],
-           'class': 'logging.StreamHandler',
-       }
-   },
-   'loggers': {
-       # 'django.db.backends': {
-       #     'level': 'DEBUG',
-       #     'handlers': ['console'],
-       # }
-   }
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s %(filename)s:%(lineno)d %(levelname)s - %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+    'loggers': {
+        'dbdb': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        # Uncomment to enable SQL query logging:
+        # 'django.db.backends': {
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        #     'propagate': False,
+        # },
+    },
 }
 
 

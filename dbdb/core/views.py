@@ -1880,7 +1880,7 @@ class StatsView(View):
 
         # Hosted By
         if stats_type is None or stats_type == "hosted_by":
-            stats.append( self.get_version_stat('Hosted By', 'hosted_services', 'hosted_by', labels, slugs, True, self.default_limit) )
+            stats.append( self.get_version_stat('Hosted Offerings', 'hosted_services', 'hosted_by', labels, slugs, True, self.default_limit) )
 
         # Versions
         if stats_type is None or stats_type == "revisions":

@@ -1,4 +1,5 @@
 # stdlib imports
+import logging
 
 # django imports
 import numpy as np
@@ -8,6 +9,8 @@ from django.db.models import Count, Q
 from sklearn.metrics import mean_squared_error
 
 from dbdb.core.models import System, SystemRecommendation, SystemVisit
+
+LOG = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -35,12 +38,12 @@ class Command(BaseCommand):
                     .distinct() \
                     .order_by("name")
 
-        self.stdout.write("No Recommendations [%d]" % systems.count())
+        LOG.info("No Recommendations [%d]" % systems.count())
         for system in systems:
             num_visits = SystemVisit.objects.filter(system=system)
             if options['ignore']:
                 num_visits = num_visits.filter(~Q(ip_address__in=options['ignore']))
-            self.stdout.write(" + %s [num_visits=%d]" % (system.name, num_visits.count()))
+            LOG.info(" + %s [num_visits=%d]" % (system.name, num_visits.count()))
 
         return
 
@@ -122,8 +125,8 @@ class Command(BaseCommand):
                 user_info[next_user_idx] = (ip, ua)
                 next_user_idx += 1
         ## FOR
-        print("visits_per_system:", len(visits_per_system))
-        print("idx_system_xref:", len(idx_system_xref))
+        LOG.info("visits_per_system: %d", len(visits_per_system))
+        LOG.info("idx_system_xref: %d", len(idx_system_xref))
         assert len(visits_per_system) == len(idx_system_xref)
         system_cnt = System.objects.all().count()
         #sys.exit(1)
@@ -132,26 +135,26 @@ class Command(BaseCommand):
             #self.stdout.write(user_info[user_idx], "=>", len(all_visits[user_idx]))
         #sys.exit(1)
 
-        self.stdout.write("# of Users: %d" % next_user_idx)
-        self.stdout.write("# of Sytems: %d (total=%d)" % (next_system_idx, system_cnt))
+        LOG.info("# of Users: %d" % next_user_idx)
+        LOG.info("# of Sytems: %d (total=%d)" % (next_system_idx, system_cnt))
 
         data = np.zeros((next_user_idx, next_system_idx))
         for user_idx in all_visits.keys():
             for system_idx in all_visits[user_idx]:
                 data[user_idx, system_idx] += 1
-        self.stdout.write(str(data))
+        LOG.info(str(data))
         sparsity = float(len(data.nonzero()[0]))
         sparsity /= (data.shape[0] * data.shape[1])
         sparsity *= 100
-        self.stdout.write(f'Sparsity: {sparsity:4.2f}%')
+        LOG.info(f'Sparsity: {sparsity:4.2f}%')
 
         train_data, test_data = self.train_test_split(data)
 
         similarity = self.compute_similarity(train_data)
-        self.stdout.write(str(similarity[:4, :4]))
+        LOG.info(str(similarity[:4, :4]))
         pred = data.dot(similarity) / np.array([np.abs(similarity).sum(axis=1)])
 
-        self.stdout.write('MSE: ' + str(self.get_mse(pred, test_data)))
+        LOG.info('MSE: ' + str(self.get_mse(pred, test_data)))
 
         #self.stdout.write("# of IPs: %s" % len(ip_addresses))
 
