@@ -88,19 +88,19 @@
             {% endif %}
 
             <dl class="row">
-                {% if system_version.url %}
+                {% if system_version.system_url %}
                     <dt class="fs-6">Website</dt>
-                    <dd><a href="{{ system_version.url }}" target="_{{ system.slug }}">{{ system_version.url }}</a></dd>
+                    <dd><a href="{{ system_version.system_url.url }}" target="_{{ system.slug }}">{{ system_version.system_url.url }}</a></dd>
                 {% endif %}
 
-                {% if system_version.source_url %}
+                {% if system_version.sourcerepo_url %}
                     <dt class="fs-6">Source Code</dt>
-                    <dd><a href="{{ system_version.source_url }}" target="_{{ system.slug }}">{{ system_version.source_url }}</a></dd>
+                    <dd><a href="{{ system_version.sourcerepo_url.url }}" target="_{{ system.slug }}">{{ system_version.sourcerepo_url.url }}</a></dd>
                 {% endif %}
 
-                {% if system_version.tech_docs %}
+                {% if system_version.docs_url %}
                     <dt class="fs-6">Tech Docs</dt>
-                    <dd><a href="{{ system_version.tech_docs }}" target="_{{ system.slug }}">{{ system_version.tech_docs }}</a></dd>
+                    <dd><a href="{{ system_version.docs_url.url }}" target="_{{ system.slug }}">{{ system_version.docs_url.url }}</a></dd>
                 {% endif %}
 
                 {% if system_version.twitter_handle %}
@@ -267,9 +267,9 @@
                     </dd>
                 {% endif %}
 
-                {% if system_version.wikipedia_url %}
+                {% if system_version.wikipedia_new_url %}
                     <dt class="fs-6">Wikipedia</dt>
-                    <dd><a href="{{ system_version.wikipedia_url }}" target="_{{ system.slug }}">{{ system_version.wikipedia_url }}</a></dd>
+                    <dd><a href="{{ system_version.wikipedia_new_url.url }}" target="_{{ system.slug }}">{{ system_version.wikipedia_new_url.url }}</a></dd>
                 {% endif %}
             </dl>
 

@@ -1303,7 +1303,12 @@ class SystemEditView(LoginRequiredMixin, View):
             'activate': 'create' if system.id is None else 'edit', # NAV-LINKS
             'system': system,
             'system_form': system_form,
-            'system_version_form': SystemVersionForm(instance=system_version),
+            'system_version_form': SystemVersionForm(instance=system_version, initial={
+                'system_url':       system_version.system_url.url       if system_version.system_url       else '',
+                'docs_url':         system_version.docs_url.url         if system_version.docs_url         else '',
+                'sourcerepo_url':   system_version.sourcerepo_url.url   if system_version.sourcerepo_url   else '',
+                'wikipedia_new_url':system_version.wikipedia_new_url.url if system_version.wikipedia_new_url else '',
+            }),
             'feature_form': feature_form,
             'features': features,
             'acquisition_formset': acquisition_formset,
@@ -1373,6 +1378,18 @@ class SystemEditView(LoginRequiredMixin, View):
             new_version = system_version_form.save(commit=False)
             new_version.creator = request.user
             new_version.system = system
+
+            # Resolve CitationUrl FK fields from URL inputs
+            for fk_field in ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_new_url'):
+                url_str = (system_version_form.cleaned_data.get(fk_field) or '').strip()
+                if url_str:
+                    citation, _ = CitationUrl.objects.get_or_create(
+                        url=url_str,
+                        defaults={'status': CitationUrl.Status.UNKNOWN},
+                    )
+                    setattr(new_version, fk_field, citation)
+                else:
+                    setattr(new_version, fk_field, None)
 
             new_version.save()
             system_version_form.save_m2m()

@@ -258,6 +258,21 @@ class SystemVersionForm(forms.ModelForm):
         help_text="Citations URLs",
         required=False
     )
+
+    # CitationUrl FK fields — rendered as URL inputs; view handles get_or_create
+    system_url = forms.URLField(
+        required=False, label='Website URL',
+        widget=forms.URLInput(attrs={'class': 'form-control'}))
+    docs_url = forms.URLField(
+        required=False, label='Tech Docs URL',
+        widget=forms.URLInput(attrs={'class': 'form-control'}))
+    sourcerepo_url = forms.URLField(
+        required=False, label='Source Code URL',
+        widget=forms.URLInput(attrs={'class': 'form-control'}))
+    wikipedia_new_url = forms.URLField(
+        required=False, label='Wikipedia URL',
+        widget=forms.URLInput(attrs={'class': 'form-control'}))
+
     def clean_twitter_handle(self):
         data = self.cleaned_data['twitter_handle']
         if data and data[0] != '@':
@@ -278,10 +293,6 @@ class SystemVersionForm(forms.ModelForm):
             'description_citations',
             'history',
             'history_citations',
-            'url',
-            'source_url',
-            'tech_docs',
-            'wikipedia_url',
             'twitter_handle',
             'linkedin_handle',
             'start_year',
