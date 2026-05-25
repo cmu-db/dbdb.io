@@ -624,13 +624,13 @@ class BrowseView(View):
         # apply year limits
         if search_start_year.isdigit():
             sqs = sqs.filter(start_year=int(search_start_year))
+            title += f' Started in {search_start_year}'
             # search_badges.append(
             #     SearchBadge(request.GET, 'start-year', 'Start Year', search_start_year, search_start_year))
             pass
         if search_start_min.isdigit():
             sqs = sqs.filter(start_year__gte=int(search_start_min))
-
-            title += f' that started in {search_start_min}'
+            title += f' Started in {search_start_min}'
             pass
         if search_start_max.isdigit():
             sqs = sqs.filter(start_year__lte=int(search_start_max))
@@ -638,10 +638,11 @@ class BrowseView(View):
             if search_start_min.isdigit():
                 title += f'-{search_start_max}'
             else:
-                title += f' that started before {search_start_max}'
+                title += f' Started Before {search_start_max}'
             pass
         if search_end_year.isdigit():
             sqs = sqs.filter(end_year=int(search_end_year))
+            title += f' Ended in {search_end_year}'
             # search_badges.append(
             #     SearchBadge(request.GET, 'end-year', 'End Year', search_end_year, search_end_year))
             pass
@@ -649,9 +650,9 @@ class BrowseView(View):
             sqs = sqs.filter(end_year__gte=int(search_end_min))
 
             if search_start_min or search_start_max:
-                title += f' and ended in {search_end_min}'
+                title += f' and Ended in {search_end_min}'
             else:
-                title += f' that ended in {search_end_min}'
+                title += f' Ended in {search_end_min}'
             pass
         if search_end_max.isdigit():
             sqs = sqs.filter(end_year__lte=int(search_end_max))
@@ -659,7 +660,7 @@ class BrowseView(View):
             if search_end_min.isdigit():
                 title += f'-{search_end_max}'
             else:
-                title += f' that ended before {search_end_max}'
+                title += f' Ended Before {search_end_max}'
             pass
         
         search_parts = []
@@ -745,7 +746,7 @@ class BrowseView(View):
             system_names = [str(e) for e in search_mapping['inspired']]
             search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
             if search_compatiblewith:
-                search_parts.append(' inspired by ' + search_compatiblewith)
+                search_parts.append(' Inspired By ' + search_compatiblewith)
             pass
 
         # search - operating systems
@@ -784,7 +785,7 @@ class BrowseView(View):
             languages = [str(e) for e in langs]
             search_langs = ' or '.join(languages) if len(languages) < 3 else f"{', '.join(languages[:-1])}, or {languages[-1]}"
             if search_langs:
-                search_parts.append(' supporting ' + search_langs)
+                search_parts.append(' Supporting ' + search_langs)
             pass
 
         # search - tags
@@ -985,11 +986,12 @@ class BrowseView(View):
         years.update(years_start)
         years.update(years_end)
 
+        filter_groups = self.build_filter_groups(request.GET)
         return render(request, self.template_name, {
             'title': title,
             'activate': 'browse', # NAV-LINKS
-            'filtergroups': self.build_filter_groups(request.GET),
-            'filtergroupsjson': [asdict(fg) for fg in self.build_filter_groups(request.GET)],
+            'filtergroups': filter_groups,
+            'filtergroupsjson': [asdict(fg) for fg in filter_groups],
             'has_results': has_results,
             'query': search_q,
             'results': results,
