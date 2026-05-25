@@ -6,12 +6,12 @@ from dbdb.core.models import SystemFeature, SystemVersion
 
 
 def generate_searchtext(ver : SystemVersion):
-    words = [ver.system.name, ver.developer]
+    words = [ver.system.name]
+    words += [org.name for org in ver.developer_orgs.all()]
     words += [x.name for x in ver.countries]
     if ver.former_names:
         words += ver.former_names.split(",")
-    if ver.acquired_by:
-        words += ver.acquired_by.split(",")
+    words += [acq.organization.name for acq in ver.acquisitions.select_related('organization').all()]
     words += [x.name for x in ver.written_in.all()]
     words += [x.slug for x in ver.written_in.all()]
 

@@ -327,3 +327,13 @@ class AcquisitionForm(forms.Form):
 
 AcquisitionFormSet = formset_factory(AcquisitionForm, extra=0, can_delete=True)
 
+
+class DeveloperOrgForm(forms.Form):
+    organization = forms.CharField(
+        max_length=200, required=False,
+        label='Developer Organization',
+        widget=forms.TextInput(attrs={'placeholder': 'Organization name', 'class': 'form-control'}))
+
+
+DeveloperOrgFormSet = formset_factory(DeveloperOrgForm, extra=0, can_delete=True)
+

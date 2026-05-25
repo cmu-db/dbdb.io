@@ -47,7 +47,6 @@ Edit {{ system.name }}
     <div class="row border-2 border-bottom pt-4">
         <div class="col-lg-6">
             {% bootstrap_field system_version_form.url %}
-            {% bootstrap_field system_version_form.developer %}
             {% bootstrap_field system_version_form.source_url %}
             {% bootstrap_field system_version_form.tech_docs %}
             {% bootstrap_field system_version_form.wikipedia_url %}
@@ -73,6 +72,36 @@ Edit {{ system.name }}
                     {% bootstrap_field system_version_form.former_names %}
                 </div>
             </div>
+
+            <!-- BEGIN: DEVELOPER ORGANIZATIONS -->
+            <div class="mb-3">
+                <label class="form-label fw-bold">Developer Organizations</label>
+                {{ developer_org_formset.management_form }}
+                <div id="developer-org-rows">
+                {% for form in developer_org_formset %}
+                <div class="developer-org-row row g-2 mb-2 align-items-center">
+                    <div class="col-md-11">{{ form.organization }}</div>
+                    <div class="col-md-1 text-center">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeDeveloperOrgRow(this)" title="Remove">×</button>
+                        <span class="d-none">{{ form.DELETE }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+                <template id="developer-org-row-template">
+                    <div class="developer-org-row row g-2 mb-2 align-items-center">
+                        <div class="col-md-11"><input type="text" name="developer_orgs-__prefix__-organization" class="form-control" placeholder="Organization name" id="id_developer_orgs-__prefix__-organization"></div>
+                        <div class="col-md-1 text-center">
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeDeveloperOrgRow(this)" title="Remove">×</button>
+                            <span class="d-none"><input type="checkbox" name="developer_orgs-__prefix__-DELETE" id="id_developer_orgs-__prefix__-DELETE"></span>
+                        </div>
+                    </div>
+                </template>
+                <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="addDeveloperOrgRow()">
+                    + Add Developer Organization
+                </button>
+            </div>
+            <!-- END: DEVELOPER ORGANIZATIONS -->
 
             <!-- BEGIN: ACQUISITIONS -->
             <div class="mb-3">
@@ -227,7 +256,7 @@ Edit {{ system.name }}
     $(function(){
         $('textarea[data-role="tagsinput"]').tagsinput();
     });
-    // --- Acquisition rows ---
+    // --- Org autocomplete (shared) ---
     function initOrgAutocomplete(input) {
         $(input).autoComplete({
             minChars: 1,
@@ -237,6 +266,31 @@ Edit {{ system.name }}
         });
     }
 
+    // --- Developer Organization rows ---
+    function addDeveloperOrgRow() {
+        const template = document.getElementById('developer-org-row-template');
+        const totalInput = document.querySelector('input[name="developer_orgs-TOTAL_FORMS"]');
+        const idx = parseInt(totalInput.value);
+        const clone = template.content.cloneNode(true);
+        const row = clone.querySelector('.developer-org-row');
+        row.innerHTML = row.innerHTML.replaceAll('__prefix__', idx);
+        document.getElementById('developer-org-rows').appendChild(clone);
+        totalInput.value = idx + 1;
+        initOrgAutocomplete(document.getElementById('id_developer_orgs-' + idx + '-organization'));
+    }
+
+    function removeDeveloperOrgRow(btn) {
+        const row = btn.closest('.developer-org-row');
+        const del = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+        if (del) del.checked = true;
+        row.style.display = 'none';
+    }
+
+    $(function() {
+        $('#developer-org-rows input[name$="-organization"]').each(function() { initOrgAutocomplete(this); });
+    });
+
+    // --- Acquisition rows ---
     function addAcquisitionRow() {
         const template = document.getElementById('acquisition-row-template');
         const totalInput = document.querySelector('input[name="acquisitions-TOTAL_FORMS"]');

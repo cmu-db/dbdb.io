@@ -42,6 +42,7 @@ from dbdb.core.common.searchvector import SearchVector
 from dbdb.core.forms import (
     AcquisitionFormSet,
     CreateUserForm,
+    DeveloperOrgFormSet,
     SystemFeaturesForm,
     SystemForm,
     SystemVersionForm,
@@ -1290,6 +1291,12 @@ class SystemEditView(LoginRequiredMixin, View):
         ] if system_version.pk else []
         acquisition_formset = AcquisitionFormSet(initial=acquisitions_initial, prefix='acquisitions')
 
+        developer_org_initial = [
+            {'organization': org.name}
+            for org in system_version.developer_orgs.all()
+        ] if system_version.pk else []
+        developer_org_formset = DeveloperOrgFormSet(initial=developer_org_initial, prefix='developer_orgs')
+
         return render(request, self.template_name, {
             'activate': 'create' if system.id is None else 'edit', # NAV-LINKS
             'system': system,
@@ -1298,6 +1305,7 @@ class SystemEditView(LoginRequiredMixin, View):
             'feature_form': feature_form,
             'features': features,
             'acquisition_formset': acquisition_formset,
+            'developer_org_formset': developer_org_formset,
         })
 
     @transaction.atomic
@@ -1324,11 +1332,13 @@ class SystemEditView(LoginRequiredMixin, View):
         system_version_form = SystemVersionForm(request.POST, request.FILES)
         feature_form = SystemFeaturesForm(request.POST, system=system, features=system_features)
         acquisition_formset = AcquisitionFormSet(request.POST, prefix='acquisitions')
+        developer_org_formset = DeveloperOrgFormSet(request.POST, prefix='developer_orgs')
 
         if system_form.is_valid() and \
             system_version_form.is_valid() and \
             feature_form.is_valid() and \
-            acquisition_formset.is_valid():
+            acquisition_formset.is_valid() and \
+            developer_org_formset.is_valid():
 
             if request.user.is_superuser:
                 original_system_slug = system.slug
@@ -1510,6 +1520,20 @@ class SystemEditView(LoginRequiredMixin, View):
                     defaults={'year': form.cleaned_data.get('year'), 'citation': citation},
                 )
 
+            # Save developer organizations
+            developer_orgs = []
+            for form in developer_org_formset:
+                if not form.has_changed() or form.cleaned_data.get('DELETE'):
+                    continue
+                org_name = form.cleaned_data.get('organization', '').strip()
+                if not org_name:
+                    continue
+                org, _ = Organization.objects.get_or_create(
+                    name=org_name, defaults={'slug': slugify(org_name)[:50]}
+                )
+                developer_orgs.append(org)
+            new_version.developer_orgs.set(developer_orgs)
+
             return redirect(new_version.system.get_absolute_url())
 
         features = self.build_features(feature_form)
@@ -1522,6 +1546,7 @@ class SystemEditView(LoginRequiredMixin, View):
             'feature_form': feature_form,
             'features': features,
             'acquisition_formset': acquisition_formset,
+            'developer_org_formset': developer_org_formset,
         })
 
     pass
