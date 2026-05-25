@@ -269,7 +269,7 @@ class SystemVersionForm(forms.ModelForm):
     sourcerepo_url = forms.URLField(
         required=False, label='Source Code URL',
         widget=forms.URLInput(attrs={'class': 'form-control'}))
-    wikipedia_new_url = forms.URLField(
+    wikipedia_url = forms.URLField(
         required=False, label='Wikipedia URL',
         widget=forms.URLInput(attrs={'class': 'form-control'}))
 

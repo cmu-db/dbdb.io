@@ -5,5 +5,7 @@
    ```
    DROP INDEX core_systemfeature_system_id_717491a7;
    ```
-5. Run the copy urls management tool to put all the one-off URLs from SystemVersion into CitationURLs.
 5. Run the generate search text + extract logo info management tools.
+6. Run the copy urls management tool to put all the one-off URLs from SystemVersion into CitationURLs. Be sure to copy the crawl status table to get the latest information about each URL.
+7. Run copy_orgs management tool to move organization + acquistion information into new models.
+8. Apply migrations to drop the old SystemVersion URL fields.

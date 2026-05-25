@@ -535,26 +535,6 @@ class SystemVersion(models.Model):
         blank=True, max_length=100,
         help_text="Previous names of the system")
 
-    # URLs (legacy plain-text fields kept for migration; prefer the CitationUrl FKs below)
-    url = models.URLField(
-        blank=True, max_length=500,
-        help_text="URL of the DBMS company or project")
-
-    tech_docs = models.URLField(
-        blank=True, max_length=500,
-        help_text="URL of the where to find technical documentation about the DBMS")
-
-    source_url = models.URLField(
-        blank=True, max_length=500,
-        verbose_name="Source Code URL",
-        help_text="URL of where to download source code (if available)")
-
-    wikipedia_url = models.URLField(
-        blank=True, max_length=500,
-        verbose_name="Wikipedia URL",
-        help_text="URL of Wikipedia article about this system (if available)")
-
-    # CitationUrl FK equivalents of the plain URL fields above
     system_url = models.ForeignKey(
         'CitationUrl', blank=True, null=True,
         on_delete=models.SET_NULL,
@@ -573,7 +553,7 @@ class SystemVersion(models.Model):
         related_name='version_sourcerepo_urls',
         verbose_name="Source Code URL")
 
-    wikipedia_new_url = models.ForeignKey(
+    wikipedia_url = models.ForeignKey(
         'CitationUrl', blank=True, null=True,
         on_delete=models.SET_NULL,
         related_name='version_wikipedia_urls',
