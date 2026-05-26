@@ -186,7 +186,7 @@
                     <dd>
                         {% spaceless %}
                         {% for attropt in system_version.attr_project_types.all %}{% if not forloop.first %}, {% endif %}
-                            {% browse_link "type" attropt.slug ": "|add:attropt.name attropt.name %}{% endfor %}
+                            {% browse_link "project-type" attropt.slug ": "|add:attropt.name attropt.name %}{% endfor %}
                         {% endspaceless %}
                     </dd>
                 {% endif %}
@@ -196,7 +196,7 @@
                     <dd>
                         {% spaceless %}
                         {% for attropt in system_version.attr_written_in.all %}{% if not forloop.first %}, {% endif %}
-                            {% browse_link "programming" attropt.slug "Written In "|add:attropt.name attropt.name %}{% endfor %}
+                            {% browse_link "programming-language" attropt.slug "Written In "|add:attropt.name attropt.name %}{% endfor %}
                         {% endspaceless %}
                     </dd>
                 {% endif %}
@@ -206,7 +206,7 @@
                     <dd>
                         {% spaceless %}
                         {% for attropt in system_version.attr_supported_languages.all %}{% if not forloop.first %}, {% endif %}
-                            {% browse_link "supported" attropt.slug "Supporting "|add:attropt.name attropt.name %}{% endfor %}
+                            {% browse_link "programming-language" attropt.slug "Supporting "|add:attropt.name attropt.name %}{% endfor %}
                         {% endspaceless %}
                     </dd>
                 {% endif %}

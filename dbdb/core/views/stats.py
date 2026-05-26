@@ -179,12 +179,12 @@ class StatsView(View):
         # Implementation Language
         if stats_type is None or stats_type == "programming":
             limit = -1 if stats_type == "programming" else self.default_limit
-            stats.append(self.get_attributeoption_stat('Implementation', 'programming-language', 'system_written_in', 'programming', limit))
+            stats.append(self.get_attributeoption_stat('Implementation', 'programming-language', 'system_written_in', 'programming-language', limit))
 
         # Project Type
         if stats_type is None or stats_type == "project_type":
             limit = -1 if stats_type == "project_type" else self.default_limit
-            stats.append(self.get_attributeoption_stat('Project Type', 'project-type', 'system_project_types', 'type', limit))
+            stats.append(self.get_attributeoption_stat('Project Type', 'project-type', 'system_project_types', 'project-type', limit))
 
         return render(request, self.template_name, context={
             'activate': 'stats', # NAV-LINKS
