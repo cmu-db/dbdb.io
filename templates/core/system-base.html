@@ -428,6 +428,7 @@
 
     <!-- BEGIN:REVISION -->
     <div class="text-end border-3 border-top d-none d-md-block">
+        {% partialdef revision inline %}
         <a href="{% url 'system_revision' system.slug %}" title="View All Revisions for {{ system.name }}">
             <time datetime="{{ system_version.created|date:"c" }}">
                 <i class="fa-solid fa-clock-rotate-left"></i>
@@ -436,19 +437,13 @@
             |
             Revision #{{ system_version.ver }}
         </a>
+        {% endpartialdef %}
     </div>
     <!-- END:REVISION -->
 {% endblock %}
 
 {% block footer %}
-    <a href="{% url 'system_revision' system.slug %}" title="View All Revisions for {{ system.name }}">
-        <time datetime="{{ system_version.created|date:"c" }}">
-            <i class="fa-solid fa-clock-rotate-left"></i>
-            Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
-        </time>
-        |
-        Revision #{{ system_version.ver }}
-    </a>
+    {% partial revision %}
 {% endblock %}
 
 {% block scripts %}
