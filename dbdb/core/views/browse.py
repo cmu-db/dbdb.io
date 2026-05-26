@@ -487,9 +487,9 @@ class BrowseView(View):
         results = results.annotate(
             name=F('system__name'),
             slug=F('system__slug'),
-            system_tags=JSONBAgg(JSONObject(name=F('attr_tags__name'),
-                                            slug=F('attr_tags__slug'),
-                                            icon=F('attr_tags__icon')))
+            system_tags=JSONBAgg(JSONObject(name=F('tags__name'),
+                                            slug=F('tags__slug'),
+                                            icon=F('tags__icon')))
         )
         results = results.values(
                 'id',

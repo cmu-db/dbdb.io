@@ -137,36 +137,6 @@ class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
     readonly_fields = ('created', 'modified')
     ordering = ('name',)
 
-@admin.register(License)
-class LicenseAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'url')
-    ordering = ('name',)
-
-@admin.register(OperatingSystem)
-class OperatingSystemAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'url')
-    ordering = ('name',)
-
-@admin.register(ProgrammingLanguage)
-class ProgrammingLanguageAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'url')
-    ordering = ('name',)
-
-@admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'icon_display', 'url')
-    ordering = ('name',)
-
-    class Media:
-        css = {'all': ('//use.fontawesome.com/releases/v7.1.0/css/all.css',)}
-
-    @admin.display(description='icon')
-    def icon_display(self, obj):
-        if not obj.icon:
-            return ''
-        return format_html('<i class="{}"></i> <tt>{}</tt>', obj.icon, obj.icon)
-
-
 class AttributeOptionInline(admin.TabularInline):
     model = AttributeOption
     extra = 0
@@ -176,7 +146,7 @@ class AttributeOptionInline(admin.TabularInline):
 
 @admin.register(Attribute)
 class AttributeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'option_count', 'created', 'modified')
+    list_display = ('name', 'slug', 'option_count', 'modified')
     search_fields = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
     readonly_fields = ('created', 'modified')
@@ -189,14 +159,22 @@ class AttributeAdmin(admin.ModelAdmin):
 
 @admin.register(AttributeOption)
 class AttributeOptionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'attribute', 'url', 'created', 'modified')
+    list_display = ('name', 'slug', 'attribute', 'icon_display', 'url', 'modified')
     list_filter = ('attribute',)
     search_fields = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
     readonly_fields = ('created', 'modified')
     ordering = ('attribute__name', 'name')
 
+    class Media:
+        css = {'all': ('//use.fontawesome.com/releases/v7.1.0/css/all.css',)}
+
+    @admin.display(description='icon')
+    def icon_display(self, obj):
+        if not obj.icon:
+            return ''
+        return format_html('<i class="{}"></i> <tt>{}</tt>', obj.icon, obj.icon)
+
 # registrations
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
-admin.site.register(ProjectType)

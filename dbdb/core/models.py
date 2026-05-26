@@ -108,7 +108,7 @@ class Attribute(models.Model):
     sv_field = models.CharField(
         max_length=64, blank=True,
         verbose_name='SystemVersion field',
-        help_text="Name of the SystemVersion M2M field (e.g. 'attr_tags'). "
+        help_text="Name of the SystemVersion M2M field (e.g. 'tags'). "
                   "Used to build browse filters automatically.")
     search_text = models.CharField(
         max_length=200, blank=True,
@@ -148,90 +148,6 @@ class AttributeOption(models.Model):
     pass
 
 
-# ==============================================
-# Tag
-# ==============================================
-class Tag(models.Model):
-    slug = models.SlugField(unique=True)
-    name = models.CharField(max_length=64)
-    url = models.URLField(blank=True, max_length=512)
-    icon = models.CharField(max_length=64, blank=True, null=True)
-
-    class Meta:
-        ordering = ('name',)
-
-    def __str__(self):
-        return self.name
-
-    pass
-
-# ==============================================
-# License
-# ==============================================
-class License(models.Model):
-
-    slug = models.SlugField(unique=True)
-    name = models.CharField(max_length=64)
-    url = models.URLField(blank=True, max_length=512)
-
-    class Meta:
-        ordering = ('name',)
-
-    def __str__(self):
-        return self.name
-
-    pass
-
-# ==============================================
-# OperatingSystem
-# ==============================================
-class OperatingSystem(models.Model):
-
-    slug = models.SlugField(unique=True)
-    name = models.CharField(max_length=100)
-    url = models.URLField(blank=True, max_length=500)
-
-    class Meta:
-        ordering = ('name',)
-
-    def __str__(self):
-        return self.name
-
-    pass
-
-# ==============================================
-# ProgrammingLanguage
-# ==============================================
-class ProgrammingLanguage(models.Model):
-
-    slug = models.SlugField(unique=True)
-    name = models.CharField(max_length=100)
-    url = models.URLField(blank=True, max_length=500)
-
-    class Meta:
-        ordering = ('name',)
-
-    def __str__(self):
-        return self.name
-
-    pass
-
-# ==============================================
-# ProjectType
-# ==============================================
-class ProjectType(models.Model):
-
-    slug = models.SlugField(unique=True)
-    name = models.CharField(max_length=32)
-    description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
-
-    class Meta:
-        ordering = ('name',)
-
-    def __str__(self):
-        return self.name
-
-    pass
 
 # ==============================================
 # SuggestedSystem
@@ -516,16 +432,6 @@ class SystemVersion(models.Model):
         related_name='version_histories')
 
     # General Information Fields
-    tags = models.ManyToManyField(
-        'Tag', blank=True,
-        related_name='tags',
-        verbose_name='Tag')
-
-    project_types = models.ManyToManyField(
-        'ProjectType', blank=True,
-        related_name='project_types',
-        verbose_name='Project Type')
-
     developer_orgs = models.ManyToManyField(
         'Organization', blank=True,
         related_name='developed_systems',
@@ -611,57 +517,37 @@ class SystemVersion(models.Model):
         verbose_name='Hosted DBaaS Services',
         help_text="Other DBMS systems that this system offers as a managed hosted DBaaS service (e.g., Amazon RDS hosting PostgreSQL). Do not include this system itself.")
 
-    licenses = models.ManyToManyField(
-        'License', blank=True,
-        related_name='systems_licenses')
-
-    oses = models.ManyToManyField(
-        'OperatingSystem', blank=True,
-        related_name='systems_oses',
-        verbose_name='Operating Systems')
-
-    supported_languages = models.ManyToManyField(
-        'ProgrammingLanguage', blank=True,
-        related_name='systems_supported',
-        verbose_name='Supported Languages')
-
-    written_in = models.ManyToManyField(
-        'ProgrammingLanguage', blank=True,
-        related_name='systems_written')
-
-    # --- AttributeOption-backed fields (replaces Tag/License/OS/ProgrammingLanguage/ProjectType) ---
-    # Run: manage.py migrate (0059), then manage.py migrate_attributes, then manage.py migrate (0060)
-    attr_tags = models.ManyToManyField(
+    tags = models.ManyToManyField(
         'AttributeOption', blank=True,
         limit_choices_to={'attribute__slug': 'tag'},
         related_name='system_tags',
         verbose_name='Tags')
 
-    attr_project_types = models.ManyToManyField(
+    project_types = models.ManyToManyField(
         'AttributeOption', blank=True,
         limit_choices_to={'attribute__slug': 'project-type'},
         related_name='system_project_types',
         verbose_name='Project Types')
 
-    attr_licenses = models.ManyToManyField(
+    licenses = models.ManyToManyField(
         'AttributeOption', blank=True,
         limit_choices_to={'attribute__slug': 'license'},
         related_name='system_licenses',
         verbose_name='Licenses')
 
-    attr_oses = models.ManyToManyField(
+    oses = models.ManyToManyField(
         'AttributeOption', blank=True,
         limit_choices_to={'attribute__slug': 'os'},
         related_name='system_oses',
         verbose_name='Operating Systems')
 
-    attr_supported_languages = models.ManyToManyField(
+    supported_languages = models.ManyToManyField(
         'AttributeOption', blank=True,
         limit_choices_to={'attribute__slug': 'programming-language'},
         related_name='system_supported_languages',
         verbose_name='Supported Languages')
 
-    attr_written_in = models.ManyToManyField(
+    written_in = models.ManyToManyField(
         'AttributeOption', blank=True,
         limit_choices_to={'attribute__slug': 'programming-language'},
         related_name='system_written_in',
@@ -770,11 +656,6 @@ __all__ = (
     'CitationUrl',
     'Feature',
     'FeatureOption',
-    'License',
-    'OperatingSystem',
-    'ProgrammingLanguage',
-    'Tag',
-    'ProjectType',
     'Organization',
     'SuggestedSystem',
     'System',

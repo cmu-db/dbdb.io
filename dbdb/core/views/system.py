@@ -83,8 +83,8 @@ class SystemView(View):
         system_version = (
             SystemVersion.objects
             .prefetch_related(
-                'attr_tags', 'attr_oses', 'attr_licenses',
-                'attr_project_types', 'attr_supported_languages', 'attr_written_in',
+                'tags', 'oses', 'licenses',
+                'project_types', 'supported_languages', 'written_in',
             )
             .get(system=system, is_current=True)
         )
