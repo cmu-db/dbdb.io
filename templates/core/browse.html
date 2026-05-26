@@ -34,7 +34,7 @@
         <!-- END:SEARCH-BOX -->
 
         <!-- BEGIN:ADVANCED-SEARCH -->
-        <div class="d-flex flex-column justify-content-center align-items-center mx-0 mx-lg-3 pb-3">
+        <div class="d-flex flex-column justify-content-center align-items-center mx-0 mx-lg-3 pb-2">
             <div class="col-12 col-lg-9 rounded search-panel" id="filter-container">
                 <button class="btn btn-link btn-sm mt-2 align-self-start ps-4 fw-bold search-button" type="button"
                         data-bs-toggle="collapse" data-bs-target="#filter" id="advanced-search-button">
@@ -98,60 +98,60 @@
         </div>
         <!-- END:ADVANCED-SEARCH -->
 
-    <!-- BEGIN:COLUMNS-PANEL -->
-    <div class="d-flex flex-column justify-content-center align-items-center mx-0 mx-lg-3 pb-3">
-        <div class="col-12 col-lg-9 rounded search-panel" id="columns-container">
-            <button class="btn btn-link btn-sm mt-2 align-self-start ps-4 fw-bold search-button" type="button"
-                    data-bs-toggle="collapse" data-bs-target="#columns-panel"
-                    id="columns-button">
-                    Columns <i class="fas fa-chevron-down" id="columns-arrow"></i>
-            </button>
+        <!-- BEGIN:COLUMNS-PANEL -->
+        <div class="d-flex flex-column justify-content-center align-items-center mx-0 mx-lg-3 pb-2">
+            <div class="col-12 col-lg-9 rounded search-panel" id="columns-container">
+                <button class="btn btn-link btn-sm mt-2 align-self-start ps-4 fw-bold search-button" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#columns-panel"
+                        id="columns-button">
+                        Columns <i class="fas fa-chevron-down" id="columns-arrow"></i>
+                </button>
 
-            <div class="collapse px-4 pb-3 {% if request.GET.cols %}show{% endif %}" id="columns-panel">
-                <div class="row g-3 mb-3">
-                    <div class="col-12 col-md-2">
-                        <strong class="d-block mb-1 text-muted small text-uppercase">General</strong>
-                        {% for col in available_builtin %}
-                        <div class="form-check">
-                            <input class="form-check-input col-checkbox" type="checkbox"
-                                   value="{{ col.col_id }}" id="col-{{ col.col_id }}"
-                                   {% if col.col_id in active_col_ids %}checked{% endif %}>
-                            <label class="form-check-label small" for="col-{{ col.col_id }}">{{ col.label }}</label>
+                <div class="collapse px-4 pb-3 {% if request.GET.cols %}show{% endif %}" id="columns-panel">
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-2">
+                            <strong class="d-block mb-1 text-muted small text-uppercase">General</strong>
+                            {% for col in available_builtin %}
+                            <div class="form-check">
+                                <input class="form-check-input col-checkbox" type="checkbox"
+                                       value="{{ col.col_id }}" id="col-{{ col.col_id }}"
+                                       {% if col.col_id in active_col_ids %}checked{% endif %}>
+                                <label class="form-check-label small" for="col-{{ col.col_id }}">{{ col.label }}</label>
+                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
+                        <div class="col-12 col-md-7">
+                            <strong class="d-block mb-1 text-muted small text-uppercase">Features</strong>
+                            <div style="columns: 2; column-gap: 1.5rem;">
+                            {% for col in available_features %}
+                            <div class="form-check" style="break-inside: avoid;">
+                                <input class="form-check-input col-checkbox" type="checkbox"
+                                       value="{{ col.col_id }}" id="col-{{ col.col_id }}"
+                                       {% if col.col_id in active_col_ids %}checked{% endif %}>
+                                <label class="form-check-label small" for="col-{{ col.col_id }}">{{ col.label }}</label>
+                            </div>
+                            {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <strong class="d-block mb-1 text-muted small text-uppercase">Attributes</strong>
+                            {% for col in available_attributes %}
+                            <div class="form-check">
+                                <input class="form-check-input col-checkbox" type="checkbox"
+                                       value="{{ col.col_id }}" id="col-{{ col.col_id }}"
+                                       {% if col.col_id in active_col_ids %}checked{% endif %}>
+                                <label class="form-check-label small" for="col-{{ col.col_id }}">{{ col.label }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
-                    <div class="col-12 col-md-7">
-                        <strong class="d-block mb-1 text-muted small text-uppercase">Features</strong>
-                        <div style="columns: 2; column-gap: 1.5rem;">
-                        {% for col in available_features %}
-                        <div class="form-check" style="break-inside: avoid;">
-                            <input class="form-check-input col-checkbox" type="checkbox"
-                                   value="{{ col.col_id }}" id="col-{{ col.col_id }}"
-                                   {% if col.col_id in active_col_ids %}checked{% endif %}>
-                            <label class="form-check-label small" for="col-{{ col.col_id }}">{{ col.label }}</label>
-                        </div>
-                        {% endfor %}
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-3">
-                        <strong class="d-block mb-1 text-muted small text-uppercase">Attributes</strong>
-                        {% for col in available_attributes %}
-                        <div class="form-check">
-                            <input class="form-check-input col-checkbox" type="checkbox"
-                                   value="{{ col.col_id }}" id="col-{{ col.col_id }}"
-                                   {% if col.col_id in active_col_ids %}checked{% endif %}>
-                            <label class="form-check-label small" for="col-{{ col.col_id }}">{{ col.label }}</label>
-                        </div>
-                        {% endfor %}
-                    </div>
+                    <button type="button" class="btn btn-primary btn-sm" id="apply-columns">Apply</button>
                 </div>
-                <button type="button" class="btn btn-primary btn-sm" id="apply-columns">Apply</button>
             </div>
         </div>
-    </div>
-    <!-- END:COLUMNS-PANEL -->
+        <!-- END:COLUMNS-PANEL -->
 
-    </form>
+        </form>
     </div>
 
 <div class="d-flex search-results justify-content-center">

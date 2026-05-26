@@ -241,54 +241,39 @@ function buildYearFilter(item, selected_years) {
     }
 }
 
-// ── Advanced search panel ────────────────────────────────────────────────────
+// ── Collapsible panels (Advanced Search + Columns) ───────────────────────────
 
-const collapse = document.getElementById('filter');
-const collapse_arrow = document.getElementById('advanced-arrow');
-const advanced_search_button = document.getElementById('advanced-search-button');
+function initCollapsiblePanel(panelId, buttonId, arrowId) {
+    const panel  = document.getElementById(panelId);
+    const button = document.getElementById(buttonId);
+    const arrow  = document.getElementById(arrowId);
+    if (!panel || !button || !arrow) return;
 
-window.addEventListener('DOMContentLoaded', () => {
-    if (collapse.classList.contains('show')) {
-        collapse.parentElement.classList.add('no-transition', 'bg-active');
-        collapse_arrow.classList.add('no-transition', 'open');
-        void collapse.offsetWidth;
-        collapse.parentElement.classList.remove('no-transition');
-        collapse_arrow.classList.remove('no-transition');
-    }
-});
-
-advanced_search_button.addEventListener('click', () => {
-    if (advanced_search_button.classList.contains('collapsed')) {
-        collapse.parentElement.classList.remove('bg-active');
-        collapse_arrow.classList.remove('open');
-    } else {
-        collapse.parentElement.classList.add('bg-active');
-        collapse_arrow.classList.add('open');
-    }
-});
-
-// ── Columns panel ────────────────────────────────────────────────────────────
-
-const colsPanel = document.getElementById('columns-panel');
-const colsArrow = document.getElementById('columns-arrow');
-const colsButton = document.getElementById('columns-button');
-
-if (colsButton) {
+    // Sync bg-active / open classes on page load without animation
     window.addEventListener('DOMContentLoaded', () => {
-        if (colsPanel.classList.contains('show')) {
-            colsArrow.classList.add('open');
-            colsPanel.classList.add('bg-active');
+        if (panel.classList.contains('show')) {
+            panel.parentElement.classList.add('no-transition', 'bg-active');
+            arrow.classList.add('no-transition', 'open');
+            void panel.offsetWidth; // force reflow to flush no-transition
+            panel.parentElement.classList.remove('no-transition');
+            arrow.classList.remove('no-transition');
         }
     });
-    colsButton.addEventListener('click', () => {
-        if (colsButton.classList.contains('collapsed')) {
-            colsArrow.classList.remove('open');
-        } else {
-            colsArrow.classList.add('open');
 
+    // Keep bg-active / open in sync as Bootstrap toggles the panel
+    button.addEventListener('click', () => {
+        if (button.classList.contains('collapsed')) {
+            panel.parentElement.classList.remove('bg-active');
+            arrow.classList.remove('open');
+        } else {
+            panel.parentElement.classList.add('bg-active');
+            arrow.classList.add('open');
         }
     });
 }
+
+initCollapsiblePanel('filter',        'advanced-search-button', 'advanced-arrow');
+initCollapsiblePanel('columns-panel', 'columns-button',         'columns-arrow');
 
 const applyColsBtn = document.getElementById('apply-columns');
 if (applyColsBtn) {
