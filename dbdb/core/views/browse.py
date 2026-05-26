@@ -28,6 +28,17 @@ from dbdb.core.models import (
 from dbdb.core.utils.filters import FilterChoice, FilterGroup
 
 
+ColumnDef = collections.namedtuple('ColumnDef', ['col_id', 'label', 'col_type'])
+
+DEFAULT_COLS = ['data-model', 'start-year', 'tags']
+
+_BUILTIN_COLUMNS = [
+    ColumnDef('tags',       'Tags',       'builtin'),
+    ColumnDef('start-year', 'Start Year', 'builtin'),
+    ColumnDef('end-year',   'End Year',   'builtin'),
+]
+
+
 # ==============================================
 # BrowseView
 # ==============================================
@@ -461,6 +472,26 @@ class BrowseView(View):
 
         return (sqs, search_mapping, title)
 
+    def get_available_columns(self):
+        cols = list(_BUILTIN_COLUMNS)
+        for feature in Feature.objects.all().order_by('label'):
+            cols.append(ColumnDef(feature.slug, feature.label, 'feature'))
+        for attr in Attribute.objects.filter(sv_field__gt='').exclude(slug='tag').order_by('name'):
+            cols.append(ColumnDef(attr.slug, attr.name, 'attribute'))
+        return cols
+
+    def get_active_columns(self, request, available_cols, extra_slugs=()):
+        available_map = {c.col_id: c for c in available_cols}
+        cols_param = request.GET.get('cols', '').strip()
+        if cols_param:
+            selected_ids = [c.strip() for c in cols_param.split(',') if c.strip() in available_map]
+        else:
+            selected_ids = list(DEFAULT_COLS)
+        for slug in extra_slugs:
+            if slug in available_map and slug not in selected_ids:
+                selected_ids.append(slug)
+        return [available_map[c] for c in selected_ids if c in available_map]
+
     def do_dym(self, search_q):
         """Did you mean search"""
         matches = System.objects.annotate(rank=RawSQL("name <-> %s", [search_q])).order_by("rank").values("id", "name", "slug")[:1]
@@ -478,76 +509,125 @@ class BrowseView(View):
         search_op = request.GET.get('search_op', 'or').lower().strip()
         search_op = and_ if search_op == 'and' else or_
 
-        search_keys = { }
-        results = SystemVersion.objects.filter(is_current=True)
+        # Determine active columns (before search so we can auto-add searched ones)
+        available_columns = self.get_available_columns()
+        feature_slugs_set = set(Feature.objects.values_list('slug', flat=True))
+        attr_slugs_set = set(
+            Attribute.objects.filter(sv_field__gt='').exclude(slug='tag').values_list('slug', flat=True)
+        )
+        searched_slugs = [k for k in request.GET.keys() if k in feature_slugs_set or k in attr_slugs_set]
+        active_columns = self.get_active_columns(request, available_columns, searched_slugs)
+        active_col_ids = [c.col_id for c in active_columns]
 
+        results = SystemVersion.objects.filter(is_current=True)
         results, search_keys, title = self.do_search(request, results, search_op)
 
-        # Only get the columns we need for the browse page
+        # Base annotations (always)
         results = results.annotate(
             name=F('system__name'),
             slug=F('system__slug'),
-            system_tags=JSONBAgg(JSONObject(name=F('tags__name'),
-                                            slug=F('tags__slug'),
-                                            icon=F('tags__icon')))
+            system_tags=JSONBAgg(JSONObject(name=F('tags__name'), slug=F('tags__slug'), icon=F('tags__icon')))
         )
-        results = results.values(
-                'id',
-                'name',
-                'slug',
-                'logo',
-                'logo_color',
-                'start_year',
-                'end_year',
-                'system_tags',
-                'created'
-        )
+
+        # Attribute column annotations (inline)
+        attr_by_slug = {a.slug: a for a in Attribute.objects.filter(sv_field__gt='').exclude(slug='tag')}
+        attr_cols = [c for c in active_columns if c.col_type == 'attribute']
+        for col in attr_cols:
+            attr = attr_by_slug[col.col_id]
+            sv_f = attr.sv_field
+            key = 'col_' + col.col_id.replace('-', '_')
+            results = results.annotate(**{key: JSONBAgg(
+                JSONObject(name=F(f'{sv_f}__name'), slug=F(f'{sv_f}__slug')),
+                filter=Q(**{f'{sv_f}__isnull': False}),
+                distinct=True,
+            )})
+
+        value_fields = ['id', 'name', 'slug', 'logo', 'logo_color', 'start_year', 'end_year', 'system_tags', 'created']
+        for col in attr_cols:
+            value_fields.append('col_' + col.col_id.replace('-', '_'))
 
         results.query.comment = "BROWSE-SEARCH"
-        results = list(results.order_by('system__name'))
+        results = list(results.values(*value_fields).order_by('system__name'))
         num_results = len(results)
 
-        # check if there are results
+        # Feature column data — bulk fetch and merge (post-query)
+        feature_cols = [c for c in active_columns if c.col_type == 'feature']
+        if feature_cols:
+            sv_ids = [r['id'] for r in results]
+            feat_data = collections.defaultdict(lambda: collections.defaultdict(list))
+            sf_rows = (
+                SystemFeature.objects
+                .filter(
+                    version_id__in=sv_ids,
+                    feature__slug__in=[c.col_id for c in feature_cols],
+                    options__isnull=False,
+                )
+                .values('version_id', 'feature__slug', 'options__value', 'options__slug')
+                .distinct()
+            )
+            for row in sf_rows:
+                feat_data[row['version_id']][row['feature__slug']].append({
+                    'value': row['options__value'],
+                    'slug':  row['options__slug'],
+                })
+            for r in results:
+                for col in feature_cols:
+                    key = 'col_' + col.col_id.replace('-', '_')
+                    r[key] = feat_data[r['id']].get(col.col_id, [])
+
+        # Build col_values list for each result (one entry per active column)
+        for r in results:
+            col_values = []
+            for col in active_columns:
+                if col.col_id == 'tags':
+                    col_values.append({'type': 'tags', 'data': r['system_tags'] or []})
+                elif col.col_id == 'start-year':
+                    col_values.append({'type': 'year', 'data': r.get('start_year') or ''})
+                elif col.col_id == 'end-year':
+                    col_values.append({'type': 'year', 'data': r.get('end_year') or ''})
+                elif col.col_type == 'feature':
+                    key = 'col_' + col.col_id.replace('-', '_')
+                    col_values.append({'type': 'feature_opts', 'data': r.get(key) or []})
+                elif col.col_type == 'attribute':
+                    key = 'col_' + col.col_id.replace('-', '_')
+                    col_values.append({'type': 'attr_opts', 'data': r.get(key) or []})
+            r['col_values'] = col_values
+
         has_results = len(results) > 0
-
         suggestion = None
-
         if search_q and not has_results:
-            search_q = request.GET.get('q', '').strip()
             suggestion = self.do_dym(search_q)
-            pass
-        else:
-            pass
 
         # get year ranges
-        years_start = SystemVersion.objects.filter(is_current=True).filter(start_year__gt=0).aggregate(
-            min_start_year=Min('start_year'),
-            max_start_year=Max('start_year')
+        years_start = SystemVersion.objects.filter(is_current=True, start_year__gt=0).aggregate(
+            min_start_year=Min('start_year'), max_start_year=Max('start_year')
         )
-        years_end = SystemVersion.objects.filter(is_current=True).filter(end_year__gt=0).aggregate(
-            min_end_year=Min('end_year'),
-            max_end_year=Max('end_year')
+        years_end = SystemVersion.objects.filter(is_current=True, end_year__gt=0).aggregate(
+            min_end_year=Min('end_year'), max_end_year=Max('end_year')
         )
-
-        years = {}
-        years.update(years_start)
-        years.update(years_end)
+        years = {**years_start, **years_end}
 
         filter_groups = self.build_filter_groups(request.GET)
         return render(request, self.template_name, {
             'title': title,
-            'activate': 'browse', # NAV-LINKS
+            'activate': 'browse',
             'filtergroups': filter_groups,
             'filtergroupsjson': [asdict(fg) for fg in filter_groups],
             'has_results': has_results,
             'query': search_q,
             'results': results,
-            'num_results' : num_results,
+            'num_results': num_results,
             'years': years,
             'has_search': len(search_keys) != 0,
             'search': search_keys,
             'suggestion': suggestion,
-            'search_op': "and" if search_op == and_ else "or"
+            'search_op': "and" if search_op == and_ else "or",
+            'active_columns': active_columns,
+            'active_col_ids': active_col_ids,
+            'available_builtin':    [c for c in available_columns if c.col_type == 'builtin'],
+            'available_features':   [c for c in available_columns if c.col_type == 'feature'],
+            'available_attributes': [c for c in available_columns if c.col_type == 'attribute'],
+            'cols_param': ','.join(active_col_ids),
         })
 
     def handle_old_urls(self, request):

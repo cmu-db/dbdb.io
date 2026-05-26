@@ -25,19 +25,29 @@
         {% endfor %}
         </div>
     </td>
-    <td class="d-none d-md-table-cell">
-        <div class="d-flex flex-wrap gap-1">
-        {% for tag in result.system_tags %}
-            {% if tag.name %}{% tag_link tag %}{% endif %}
-        {% endfor %}
-        </div>
-    </td>
-    <td class="text-end text-nowrap">
-        {% if result.start_year %}{{ result.start_year }}{% else %}&mdash;{% endif %}
-    </td>
-    <td class="text-end text-nowrap">
-        {% if result.end_year %}{{ result.end_year }}{% else %}&mdash;{% endif %}
-    </td>
+    {% for col_val in result.col_values %}
+        {% if col_val.type == 'tags' %}
+        <td class="d-none d-md-table-cell">
+            <div class="d-flex flex-wrap gap-1">
+            {% for tag in col_val.data %}
+                {% if tag.name %}{% tag_link tag %}{% endif %}
+            {% endfor %}
+            </div>
+        </td>
+        {% elif col_val.type == 'year' %}
+        <td class="text-nowrap">
+            {% if col_val.data %}{{ col_val.data }}{% else %}&mdash;{% endif %}
+        </td>
+        {% elif col_val.type == 'feature_opts' %}
+        <td>
+            {% for opt in col_val.data %}{% if not forloop.first %}, {% endif %}{{ opt.value }}{% empty %}&mdash;{% endfor %}
+        </td>
+        {% elif col_val.type == 'attr_opts' %}
+        <td>
+            {% for opt in col_val.data %}{% if not forloop.first %}, {% endif %}{{ opt.name }}{% empty %}&mdash;{% endfor %}
+        </td>
+        {% endif %}
+    {% endfor %}
 </tr>
 
 {% endwith %}

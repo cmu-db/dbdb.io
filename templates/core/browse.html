@@ -31,9 +31,12 @@
             </div>
         </div>
 
+
+        <!-- BEGIN:ADVANCED-SEARCH -->
         <div class="d-flex flex-column justify-content-center align-items-center mx-0 mx-lg-3 pb-3">
             <div class="col-12 col-lg-9 rounded" id="filter-container">
-                <button class="btn btn-link btn-sm mt-2 align-self-start ps-4" type="button" data-bs-toggle="collapse" data-bs-target="#filter" id="advanced-search-button" style="font-weight: bold;">
+                <button class="btn btn-link btn-sm mt-2 align-self-start ps-4 fw-bold search-button" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#filter" id="advanced-search-button">
                     Advanced Search <i class="fas fa-chevron-down" id="advanced-arrow"></i>
                 </button>
                 <div class="filters collapse m-0 px-4 pb-3" id="filter">
@@ -92,9 +95,62 @@
                 </div>
             </div>
         </div>
+        <!-- END:ADVANCED-SEARCH -->
     </div>
 
-</form>
+    </form>
+
+    {# ── Columns panel ──────────────────────────────────────────────────────── #}
+    <div class="d-flex flex-column justify-content-center align-items-center mx-0 mx-lg-3 pb-3">
+        <div class="col-12 col-lg-9 rounded" id="columns-container">
+            <button class="btn btn-link btn-sm mt-2 align-self-start ps-4 fw-bold search-button" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#columns-panel"
+                    id="columns-button">
+                    Columns <i class="fas fa-chevron-down" id="columns-arrow"></i>
+            </button>
+
+            <div class="collapse px-4 pb-3 {% if request.GET.cols %}show{% endif %}" id="columns-panel">
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-2">
+                        <strong class="d-block mb-1 text-muted small text-uppercase">General</strong>
+                        {% for col in available_builtin %}
+                        <div class="form-check">
+                            <input class="form-check-input col-checkbox" type="checkbox"
+                                   value="{{ col.col_id }}" id="col-{{ col.col_id }}"
+                                   {% if col.col_id in active_col_ids %}checked{% endif %}>
+                            <label class="form-check-label small" for="col-{{ col.col_id }}">{{ col.label }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-12 col-md-7">
+                        <strong class="d-block mb-1 text-muted small text-uppercase">Features</strong>
+                        <div style="columns: 2; column-gap: 1.5rem;">
+                        {% for col in available_features %}
+                        <div class="form-check" style="break-inside: avoid;">
+                            <input class="form-check-input col-checkbox" type="checkbox"
+                                   value="{{ col.col_id }}" id="col-{{ col.col_id }}"
+                                   {% if col.col_id in active_col_ids %}checked{% endif %}>
+                            <label class="form-check-label small" for="col-{{ col.col_id }}">{{ col.label }}</label>
+                        </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <strong class="d-block mb-1 text-muted small text-uppercase">Attributes</strong>
+                        {% for col in available_attributes %}
+                        <div class="form-check">
+                            <input class="form-check-input col-checkbox" type="checkbox"
+                                   value="{{ col.col_id }}" id="col-{{ col.col_id }}"
+                                   {% if col.col_id in active_col_ids %}checked{% endif %}>
+                            <label class="form-check-label small" for="col-{{ col.col_id }}">{{ col.label }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" id="apply-columns">Apply</button>
+            </div>
+        </div>
+    </div>
 
 <div class="d-flex search-results justify-content-center">
     {% if results %}
@@ -114,29 +170,37 @@
                             </span>
                         </button>
                     </th>
-                    <th class="results-tags d-none d-md-table-cell">Tags</th>
-                    <th class="results-startyear text-end">
-                        <button type="button" id="start-year-sort" class="btn btn-link p-0 text-light fw-bold text-decoration-none">
-                            <span class="d-flex align-items-center gap-1">
-                                Start Year
-                                <span class="d-flex flex-column lh-1">
-                                    <i id="start-asc-arrow" class="fas fa-caret-up sort-arrow"></i>
-                                    <i id="start-dec-arrow" class="fas fa-caret-down sort-arrow" ></i>
+                    {% for col in active_columns %}
+                        {% if col.col_id == 'tags' %}
+                        <th class="results-tags d-none d-md-table-cell">Tags</th>
+                        {% elif col.col_id == 'start-year' %}
+                        <th class="results-startyear">
+                            <button type="button" id="start-year-sort" class="btn btn-link p-0 text-light fw-bold text-decoration-none">
+                                <span class="d-flex align-items-center gap-1">
+                                    Start Year
+                                    <span class="d-flex flex-column lh-1">
+                                        <i id="start-asc-arrow" class="fas fa-caret-up sort-arrow"></i>
+                                        <i id="start-dec-arrow" class="fas fa-caret-down sort-arrow"></i>
+                                    </span>
                                 </span>
-                            </span>
-                        </button>
-                    </th>
-                    <th class="results-endyear text-end">
-                        <button type="button" id="end-year-sort" class="btn btn-link p-0 text-light fw-bold text-decoration-none">
-                            <span class="d-flex align-items-center gap-1">
-                                End Year
-                                <span class="d-flex flex-column lh-1">
-                                    <i id="end-asc-arrow" class="fas fa-caret-up sort-arrow" ></i>
-                                    <i id="end-dec-arrow" class="fas fa-caret-down sort-arrow" ></i>
+                            </button>
+                        </th>
+                        {% elif col.col_id == 'end-year' %}
+                        <th class="results-endyear">
+                            <button type="button" id="end-year-sort" class="btn btn-link p-0 text-light fw-bold text-decoration-none">
+                                <span class="d-flex align-items-center gap-1">
+                                    End Year
+                                    <span class="d-flex flex-column lh-1">
+                                        <i id="end-asc-arrow" class="fas fa-caret-up sort-arrow"></i>
+                                        <i id="end-dec-arrow" class="fas fa-caret-down sort-arrow"></i>
+                                    </span>
                                 </span>
-                            </span>
-                        </button>
-                    </th>
+                            </button>
+                        </th>
+                        {% else %}
+                        <th>{{ col.label }}</th>
+                        {% endif %}
+                    {% endfor %}
                 </tr>
             </thead>
             <tbody id="table-body">
@@ -170,5 +234,5 @@
 {% block scripts %}
 <script type="text/javascript" src="{% static 'lib/js/nouislider.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-<script type="text/javascript" src="{% static 'core/js/browse.js' %}?v=2"></script>
+<script type="text/javascript" src="{% static 'core/js/browse.js' %}?v=3"></script>
 {% endblock %}

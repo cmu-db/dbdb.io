@@ -267,6 +267,60 @@ advanced_search_button.addEventListener('click', () => {
     }
 });
 
+// ── Columns panel ────────────────────────────────────────────────────────────
+
+const colsPanel = document.getElementById('columns-panel');
+const colsArrow = document.getElementById('columns-arrow');
+const colsButton = document.getElementById('columns-button');
+
+if (colsButton) {
+    window.addEventListener('DOMContentLoaded', () => {
+        if (colsPanel.classList.contains('show')) {
+            colsArrow.classList.add('open');
+        }
+    });
+    colsButton.addEventListener('click', () => {
+        if (colsButton.classList.contains('collapsed')) {
+            colsArrow.classList.remove('open');
+        } else {
+            colsArrow.classList.add('open');
+        }
+    });
+}
+
+const applyColsBtn = document.getElementById('apply-columns');
+if (applyColsBtn) {
+    applyColsBtn.addEventListener('click', function () {
+        const checked = Array.from(document.querySelectorAll('.col-checkbox:checked')).map(cb => cb.value);
+        const params = new URLSearchParams(window.location.search);
+        params.delete('cols');
+        if (checked.length > 0) {
+            params.set('cols', checked.join(','));
+        }
+        window.location.search = params.toString();
+    });
+}
+
+// Preserve col selection when the search form is submitted
+const mainSearchForm = document.getElementById('mainsearch');
+if (mainSearchForm) {
+    mainSearchForm.addEventListener('submit', function () {
+        const checked = Array.from(document.querySelectorAll('.col-checkbox:checked')).map(cb => cb.value);
+        let input = this.querySelector('input[name="cols"]');
+        if (checked.length > 0) {
+            if (!input) {
+                input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'cols';
+                this.appendChild(input);
+            }
+            input.value = checked.join(',');
+        } else if (input) {
+            input.remove();
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const filterdata = JSON.parse(document.getElementById('filterdata').textContent);
     const params = new URLSearchParams(window.location.search);

@@ -370,8 +370,8 @@ div.search-badges a.badge em { font-weight: normal; }
  * BEGIN:BROWSE
  ********************************************************************/
 
-#advanced-search-button { color: #767676; font-size: 18px; text-decoration: none; }
-#advanced-search-button:hover { color: var(--link-color); text-decoration: underline; }
+.search-button { color: #767676; font-size: 18px; text-decoration: none; }
+.search-button:hover { color: var(--link-color); text-decoration: underline; }
 
 .is-selected { background-color: #D6D6D6 !important; }
 
