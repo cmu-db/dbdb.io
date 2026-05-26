@@ -39,21 +39,21 @@ class CitationUrlListWidget(Widget):
             <div class="mb-2">
                 <select id="{widget_id}_select" 
                         class="form-select" 
-                        size="3" 
-                        style="height: 120px; overflow-y: auto;">
+                        size="2"
+                        style="height: 4rem; overflow-y: auto;">
                     {options_html}
                 </select>
             </div>
             <div class="btn-group" role="group">
                 <button type="button" 
-                        class="btn btn-primary btn-sm" 
+                        class="btn btn-sm btn-outline-secondary mt-1" 
                         onclick="addURL_{widget_id}()">
-                    Add URL
+                    + Add URL
                 </button>
                 <button type="button" 
-                        class="btn btn-danger btn-sm" 
+                        class="btn btn-sm btn-outline-secondary mt-1" 
                         onclick="removeURL_{widget_id}()">
-                    Remove
+                    - Remove URL
                 </button>
             </div>
             <input type="hidden" 

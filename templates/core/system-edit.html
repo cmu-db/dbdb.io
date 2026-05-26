@@ -67,12 +67,12 @@ Edit {{ system.name }}
             {% bootstrap_field system_version_form.start_year_citations %}
             {% bootstrap_field system_version_form.end_year_citations %}
 
-            <div class="row">
-                <div class="col-md-6">
-                    {% bootstrap_field system_version_form.former_names %}
-                </div>
-            </div>
 
+            {% bootstrap_field system_version_form.former_names %}
+        </div>
+    </div>
+    <div class="row border-2 border-bottom pt-4">
+        <div class="col-lg-6">
             <!-- BEGIN: DEVELOPER ORGANIZATIONS -->
             <div class="mb-3">
                 <label class="form-label fw-bold">Developer Organizations</label>
@@ -98,11 +98,13 @@ Edit {{ system.name }}
                     </div>
                 </template>
                 <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="addDeveloperOrgRow()">
-                    + Add Developer Organization
+                    + Add Organization
                 </button>
             </div>
             <!-- END: DEVELOPER ORGANIZATIONS -->
+        </div>
 
+        <div class="col-lg-6">
             <!-- BEGIN: ACQUISITIONS -->
             <div class="mb-3">
                 <label class="form-label fw-bold">Acquisitions</label>
