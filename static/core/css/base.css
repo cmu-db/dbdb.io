@@ -379,7 +379,7 @@ div.search-badges a.badge em { font-weight: normal; }
 #advanced-arrow.open { -ms-transform: rotate(-180deg); transform: rotate(-180deg) }
 
 .bg-active { background-color: var(--light-bg-color); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
-#filter-container { transition: background-color 0.5s ease; }
+.search-panel { transition: background-color 0.5s ease; }
 .no-transition { transition: none !important; }
 
 .btn-secondary.active { background-color: #6eabdb; }

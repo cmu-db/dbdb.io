@@ -277,6 +277,7 @@ if (colsButton) {
     window.addEventListener('DOMContentLoaded', () => {
         if (colsPanel.classList.contains('show')) {
             colsArrow.classList.add('open');
+            colsPanel.classList.add('bg-active');
         }
     });
     colsButton.addEventListener('click', () => {
@@ -284,6 +285,7 @@ if (colsButton) {
             colsArrow.classList.remove('open');
         } else {
             colsArrow.classList.add('open');
+
         }
     });
 }

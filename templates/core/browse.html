@@ -18,8 +18,9 @@
 
 <div class="row search-results">
     <form id="mainsearch" class="main main-search">
-
     <div class="search-results">
+
+        <!-- BEGIN:SEARCH-BOX -->
         <div class="d-flex flex-column justify-content-center align-items-center mt-lg-5 mx-0 mx-lg-3 pb-1">
             <div class="col-12 col-lg-9">
                 <div class="input-group input-group-lg align-items-center m-0">
@@ -30,11 +31,11 @@
                 </div>
             </div>
         </div>
-
+        <!-- END:SEARCH-BOX -->
 
         <!-- BEGIN:ADVANCED-SEARCH -->
         <div class="d-flex flex-column justify-content-center align-items-center mx-0 mx-lg-3 pb-3">
-            <div class="col-12 col-lg-9 rounded" id="filter-container">
+            <div class="col-12 col-lg-9 rounded search-panel" id="filter-container">
                 <button class="btn btn-link btn-sm mt-2 align-self-start ps-4 fw-bold search-button" type="button"
                         data-bs-toggle="collapse" data-bs-target="#filter" id="advanced-search-button">
                     Advanced Search <i class="fas fa-chevron-down" id="advanced-arrow"></i>
@@ -96,13 +97,10 @@
             </div>
         </div>
         <!-- END:ADVANCED-SEARCH -->
-    </div>
 
-    </form>
-
-    {# ── Columns panel ──────────────────────────────────────────────────────── #}
+    <!-- BEGIN:COLUMNS-PANEL -->
     <div class="d-flex flex-column justify-content-center align-items-center mx-0 mx-lg-3 pb-3">
-        <div class="col-12 col-lg-9 rounded" id="columns-container">
+        <div class="col-12 col-lg-9 rounded search-panel" id="columns-container">
             <button class="btn btn-link btn-sm mt-2 align-self-start ps-4 fw-bold search-button" type="button"
                     data-bs-toggle="collapse" data-bs-target="#columns-panel"
                     id="columns-button">
@@ -150,6 +148,10 @@
                 <button type="button" class="btn btn-primary btn-sm" id="apply-columns">Apply</button>
             </div>
         </div>
+    </div>
+    <!-- END:COLUMNS-PANEL -->
+
+    </form>
     </div>
 
 <div class="d-flex search-results justify-content-center">
