@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ flatpage.title }}{% endblock %}
+
+{% block content %}
+<h1 class="fw-bold mb-4">{{ flatpage.title }}</h1>
+<div class="flatpage-content">
+    {{ flatpage.content }}
+</div>
+{% endblock %}

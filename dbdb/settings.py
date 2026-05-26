@@ -23,6 +23,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.postgres',
+    'django.contrib.sites',
+    'django.contrib.flatpages',
 
     #'autoslug',
     'django_bootstrap5',
@@ -47,6 +49,7 @@ MIDDLEWARE = [
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 ]
 
 if DEBUG:
@@ -66,11 +69,14 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'dbdb.core.context_processors.navbar_flatpages',
             ],
             'string_if_invalid': 'ERR(%s)' if DEBUG else '',
         },
     },
 ]
+
+SITE_ID = 1
 
 APPEND_SLASH = False
 LOGOUT_REDIRECT_URL = '/'

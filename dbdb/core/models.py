@@ -687,6 +687,32 @@ class SystemVersion(models.Model):
     pass
 
 
+# ==============================================
+# FlatPageMeta
+# ==============================================
+class FlatPageMeta(models.Model):
+    """Extends django.contrib.flatpages.FlatPage with site-specific metadata."""
+    page = models.OneToOneField(
+        'flatpages.FlatPage',
+        on_delete=models.CASCADE,
+        related_name='meta',
+    )
+    show_in_navbar = models.BooleanField(
+        default=False,
+        help_text="Show this page as a link in the top navigation bar.",
+    )
+    nav_order = models.PositiveSmallIntegerField(
+        default=0,
+        help_text="Order in which this page appears in the navbar (lower = first).",
+    )
+
+    class Meta:
+        ordering = ['nav_order', 'page__title']
+
+    def __str__(self):
+        return f"Meta for {self.page}"
+
+
 __all__ = (
     'CitationUrl',
     'Feature',
@@ -705,6 +731,7 @@ __all__ = (
     'SystemRecommendation',
     'SystemSearchText',
     'SystemVisit',
+    'FlatPageMeta',
 )
 
 # signal handlers

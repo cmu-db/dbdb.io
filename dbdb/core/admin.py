@@ -3,10 +3,26 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.contrib.admin.widgets import AutocompleteSelect
+from django.contrib.flatpages.admin import FlatPageAdmin
+from django.contrib.flatpages.models import FlatPage
 from django.utils.html import format_html
 
 # local imports
 from .models import *
+
+
+class FlatPageMetaInline(admin.StackedInline):
+    model = FlatPageMeta
+    can_delete = False
+    verbose_name_plural = 'Display settings'
+
+
+class FlatPageAdminWithMeta(FlatPageAdmin):
+    inlines = [FlatPageMetaInline]
+
+
+admin.site.unregister(FlatPage)
+admin.site.register(FlatPage, FlatPageAdminWithMeta)
 
 
 class CitationUrlAutocompleteMixin:
