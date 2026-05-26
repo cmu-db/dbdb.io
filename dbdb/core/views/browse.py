@@ -1,0 +1,679 @@
+import collections
+import urllib.parse
+from dataclasses import asdict
+from functools import reduce
+from operator import and_, or_
+
+from django.contrib.postgres.aggregates import JSONBAgg
+from django.contrib.postgres.search import SearchQuery
+from django.db.models import F, Max, Min, Q
+from django.db.models.expressions import RawSQL
+from django.db.models.functions import JSONObject
+from django.shortcuts import redirect, render
+from django.views import View
+
+from django_countries import countries
+
+from dbdb.core.common.searchvector import SearchVector
+from dbdb.core.models import (
+    Feature,
+    FeatureOption,
+    License,
+    OperatingSystem,
+    ProgrammingLanguage,
+    ProjectType,
+    System,
+    SystemFeature,
+    SystemSearchText,
+    SystemVersion,
+    Tag,
+)
+from dbdb.core.utils.filters import FilterChoice, FilterGroup
+
+
+# ==============================================
+# BrowseView
+# ==============================================
+class BrowseView(View):
+
+    template_name = 'core/browse.html'
+
+    def build_filter_group_for_field(self, field, search_field, label, all_systems, querydict):
+        empty_set = set()
+        values = SystemVersion.objects.filter(is_current=True)\
+                        .filter(~Q(**{field: None}))\
+                        .values_list(field)
+                        # .distinct() \
+                        # .order_by()
+        fg = FilterGroup(search_field, label, sorted([
+            FilterChoice(
+                all_systems[v[0]].slug,
+                all_systems[v[0]].name,
+                # False
+            )
+            for v in set(values)
+            #for sys in System.objects.values_list('id','slug','name', named=True)
+        ], key=lambda x: x.label))
+        return fg
+
+    def build_filter_groups(self, querydict):
+        empty_set = set()
+
+        # def prepare(fg):
+        #     for i,choice in enumerate(fg.choices):
+        #         if i >= FILTERGROUP_VISIBLE_LENGTH:
+        #             choice.is_hidden = True
+        #             fg.has_more = True
+        #     return fg
+
+        def reduce_feature_options(mapping, option):
+            mapping[option.feature_id].choices.append(
+                FilterChoice(
+                    option.slug,
+                    option.value,
+                    # False
+                )
+            )
+            return mapping
+
+        other_filtersgroups = []
+
+        # Countries
+        def reduce_countries(mapping, item):
+            countries = item.countries.split(',')
+            for c in countries:
+                if c: mapping[c] = mapping.get(c, 0) + 1
+            return mapping
+
+        system_countries = SystemVersion.objects \
+            .filter(is_current=True) \
+            .values_list('countries', named=True)
+        system_countries = reduce(reduce_countries, system_countries, {})
+
+        countries_map = dict(countries)
+
+        fg_country = FilterGroup('country', 'Country', sorted([
+            FilterChoice(
+               code,
+               countries_map[code], # name
+            #    False
+            )
+            for code in map(str.upper, system_countries.keys())
+        ], key=lambda x: x.label))
+        other_filtersgroups.append(fg_country)
+
+        all_systems = dict([
+            (sys.id, sys)
+            for sys in System.objects.values_list('id','slug','name', named=True)
+        ])
+
+        # Compatible
+        other_filtersgroups.append(self.build_filter_group_for_field(\
+            'compatible_with', \
+            'compatible', \
+            'Compatible With', \
+            all_systems, \
+            querydict
+        ))
+
+        # Embedded
+        other_filtersgroups.append(self.build_filter_group_for_field(\
+            'embedded', \
+            'embeds', \
+            'Embeds / Uses', \
+            all_systems, \
+            querydict
+        ))
+
+        # Derived
+        other_filtersgroups.append(self.build_filter_group_for_field(\
+            'derived_from', \
+            'derived', \
+            'Derived From', \
+            all_systems, \
+            querydict
+        ))
+
+        # Inspired
+        other_filtersgroups.append(self.build_filter_group_for_field(\
+            'inspired_by', \
+            'inspired', \
+            'Inspired By', \
+            all_systems, \
+            querydict
+        ))
+
+        # Hosted By
+        other_filtersgroups.append(self.build_filter_group_for_field(\
+            'hosted_services', \
+            'hosted_by', \
+            'Hosted By', \
+            all_systems, \
+            querydict
+        ))
+
+        # add operating system
+        fg_os = FilterGroup('os', 'Operating System', [
+            FilterChoice(
+                os.slug,
+                os.name,
+            )
+            for os in OperatingSystem.objects.values_list('id','slug','name', named=True)
+        ])
+        other_filtersgroups.append(fg_os)
+
+        # add programming languages
+        fg_programming = FilterGroup('programming', 'Programming Languages', [
+            FilterChoice(
+                p.slug,
+                p.name,
+            )
+            for p in ProgrammingLanguage.objects.values_list('id','slug','name', named=True)
+        ])
+        other_filtersgroups.append(fg_programming)
+
+        # add tags
+        fg_tag = FilterGroup('tag', 'Tags', [
+            FilterChoice(
+                t.slug,
+                t.name,
+            )
+            for t in Tag.objects.values_list('id','slug','name', named=True)
+        ])
+        other_filtersgroups.append(fg_tag)
+
+        # add project types
+        fg_project_type = FilterGroup('type', 'Project Types', [
+            FilterChoice(
+                pt.slug,
+                pt.name,
+            )
+            for pt in ProjectType.objects.values_list('id','slug','name', named=True)
+        ])
+        other_filtersgroups.append(fg_project_type)
+
+        # add licenses
+        fg_license = FilterGroup('license', 'Licenses', [
+            FilterChoice(
+                l.slug,
+                l.name,
+            )
+            for l in License.objects.values_list('id','slug','name', named=True)
+        ])
+        other_filtersgroups.append(fg_license)
+
+        # build from list of features (alphabetical order)
+        filtergroups = collections.OrderedDict(
+            (
+                f_id,
+                FilterGroup(f_slug, f_label, []),
+            )
+            for f_id,f_slug,f_label in Feature.objects.all().order_by('label').values_list('id','slug','label')
+        )
+
+        # add feature options to features
+        filtergroups = reduce(
+            reduce_feature_options,
+            FeatureOption.objects.all().order_by('value').values_list('feature_id','feature__slug','id','slug','value', named=True),
+            filtergroups
+        )
+
+        filtergroups = other_filtersgroups + list( filtergroups.values() )
+
+        return filtergroups
+
+    def slug_to_system(self, slugs):
+        slugs = { s.strip() for s in slugs }
+        systems = System.objects.filter(slug__in=slugs)
+        return { s.slug : s for s in systems }
+    ## DEF
+
+
+    def do_search(self, request, sqs, search_op):
+        has_search = False
+
+        countries_map = dict(countries)
+
+        # map feature slugs to ids
+        features_map = {
+            f_slug : f_id
+            for f_id,f_slug in Feature.objects.all().order_by().values_list('id','slug')
+        }
+
+        # map feature options slugs to ids
+        featuresoptions_map = {
+            (f_id,fo_slug) : fo_id
+            for f_id,fo_id,fo_slug in FeatureOption.objects.all().order_by().values_list('feature_id','id','slug')
+        }
+
+        # pull search criteria
+        search_q = request.GET.get('q', '').strip()
+        search_fg = {
+            features_map[k] : set( request.GET.getlist(k) )
+            for k in request.GET.keys()
+            if k in features_map
+        }
+
+        # define date filters
+        search_start_year = request.GET.get('start-year', '').strip()
+        search_start_min = request.GET.get('start-min', '').strip()
+        search_start_max = request.GET.get('start-max', '').strip()
+        search_end_year = request.GET.get('end-year', '').strip()
+        search_end_min = request.GET.get('end-min', '').strip()
+        search_end_max = request.GET.get('end-max', '').strip()
+
+        # define static filters
+        search_compatible = request.GET.getlist('compatible')
+        search_country = list(map(str.upper, request.GET.getlist('country')))
+        search_derived = request.GET.getlist('derived')
+        search_embeds = request.GET.getlist('embeds')
+        search_hosted_by = request.GET.getlist('hosted_by')
+        search_inspired = request.GET.getlist('inspired')
+        search_os = request.GET.getlist('os')
+        search_programming = request.GET.getlist('programming')
+        search_supported = request.GET.getlist('supported')
+        search_type = request.GET.getlist('type')
+        search_tag = request.GET.getlist('tag')
+        search_license = request.GET.getlist('license')
+        search_suffix = request.GET.getlist('suffix')
+
+        # collect filters
+        search_mapping = {
+            'query': search_q,
+
+            'start_year': search_start_year,
+            'start_min': search_start_min,
+            'start_max': search_start_max,
+            'end_year': search_end_year,
+            'end_min': search_end_min,
+            'end_max': search_end_max,
+
+            'compatible': search_compatible,
+            'country': search_country,
+            'derived': search_derived,
+            'embeds': search_embeds,
+            'hosted_by': search_hosted_by,
+            'inspired': search_inspired,
+            'os': search_os,
+            'programming': search_programming,
+            'supported': search_supported,
+            'tag': search_tag,
+            'type': search_type,
+            'license': search_license,
+            'suffix': search_suffix,
+        }
+
+        if not any(search_mapping.values()) and not any(search_fg):
+            return (sqs, { }, 'Browse')
+
+        title = 'Databases'
+
+        # search_badges = []
+
+        # apply keyword search to name (require all terms)
+        if search_q:
+            search_vector = SearchVector('search_text', config='simple')
+            search_query = SearchQuery(search_q, config='simple')
+
+            # We include search for the name here to support partial name queries
+            # For example, some people search for "Wired" and we want to show them "WiredTiger" right away
+            matches = SystemSearchText.objects \
+                .annotate(search=search_vector) \
+                .filter(Q(name__icontains=search_q) | Q(search=search_query)) \
+                .values('system_id')
+            sqs = sqs.filter(system_id__in=[x['system_id'] for x in matches])
+
+        sqs_filters = []
+
+        # apply year limits
+        if search_start_year.isdigit():
+            sqs = sqs.filter(start_year=int(search_start_year))
+            title += f' Started in {search_start_year}'
+            pass
+        if search_start_min.isdigit():
+            sqs = sqs.filter(start_year__gte=int(search_start_min))
+            title += f' Started in {search_start_min}'
+            pass
+        if search_start_max.isdigit():
+            sqs = sqs.filter(start_year__lte=int(search_start_max))
+
+            if search_start_min.isdigit():
+                title += f'-{search_start_max}'
+            else:
+                title += f' Started Before {search_start_max}'
+            pass
+        if search_end_year.isdigit():
+            sqs = sqs.filter(end_year=int(search_end_year))
+            title += f' Ended in {search_end_year}'
+            pass
+        if search_end_min.isdigit():
+            sqs = sqs.filter(end_year__gte=int(search_end_min))
+
+            if search_start_min or search_start_max:
+                title += f' and Ended in {search_end_min}'
+            else:
+                title += f' Ended in {search_end_min}'
+            pass
+        if search_end_max.isdigit():
+            sqs = sqs.filter(end_year__lte=int(search_end_max))
+
+            if search_end_min.isdigit():
+                title += f'-{search_end_max}'
+            else:
+                title += f' Ended Before {search_end_max}'
+            pass
+
+        search_parts = []
+        # search - country
+        if search_country:
+            sqs_filters.append(Q(countries__in=search_country))
+
+            country_names = [(countries_map.get(c) if countries_map.get(c) else '') for c in search_country]
+            search_countries = ' or '.join(country_names) if len(country_names) < 3 else f"{', '.join(country_names[:-1])}, or {country_names[-1]}"
+            if search_countries:
+                search_parts.append(' from ' + search_countries)
+            pass
+
+        # search - compatible
+        if search_compatible:
+            sqs_filters.append(Q(compatible_with__slug__in=search_compatible))
+
+            systems = self.slug_to_system(search_compatible)
+            search_mapping['compatible'] = systems.values()
+
+            system_names = [str(e) for e in search_mapping['compatible']]
+            search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
+            if search_compatiblewith:
+                search_parts.append(' Compatible With ' + search_compatiblewith)
+            pass
+
+        # search - derived from
+        if search_derived:
+            sqs_filters.append(Q(derived_from__slug__in=search_derived))
+            systems = self.slug_to_system(search_derived)
+            search_mapping['derived'] = systems.values()
+
+            system_names = [str(e) for e in search_mapping['derived']]
+            search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
+            if search_compatiblewith:
+                search_parts.append(' Derived From ' + search_compatiblewith)
+            pass
+
+        # search - embedded
+        if search_embeds:
+            sqs_filters.append(Q(embedded__slug__in=search_embeds))
+            systems = self.slug_to_system(search_embeds)
+            search_mapping['embeds'] = systems.values()
+
+            system_names = [str(e) for e in search_mapping['embeds']]
+            search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
+            if search_compatiblewith:
+                search_parts.append(' Using ' + search_compatiblewith)
+            pass
+
+        # search - hosted by
+        if search_hosted_by:
+            sqs_filters.append(Q(hosted_services__slug__in=search_hosted_by))
+            systems = self.slug_to_system(search_hosted_by)
+            search_mapping['hosted_by'] = systems.values()
+
+            system_names = [str(e) for e in search_mapping['hosted_by']]
+            search_hostedby = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
+            if search_hostedby:
+                search_parts.append(' Hosting ' + search_hostedby)
+            pass
+
+        # search - inspired by
+        if search_inspired:
+            sqs_filters.append(Q(inspired_by__slug__in=search_inspired))
+            systems = self.slug_to_system(search_inspired)
+            search_mapping['inspired'] = systems.values()
+
+            system_names = [str(e) for e in search_mapping['inspired']]
+            search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
+            if search_compatiblewith:
+                search_parts.append(' Inspired By ' + search_compatiblewith)
+            pass
+
+        # search - operating systems
+        if search_os:
+            sqs_filters.append(Q(oses__slug__in=search_os))
+            oses = OperatingSystem.objects.filter(slug__in=search_os)
+
+            os_names = [str(e) for e in oses]
+            search_oses = ' or '.join(os_names) if len(os_names) < 3 else f"{', '.join(os_names[:-1])}, or {os_names[-1]}"
+            if search_oses:
+                search_parts.append(' Available for ' + search_oses)
+            pass
+
+        # search - programming languages
+        if search_programming:
+            sqs_filters.append(Q(written_in__slug__in=search_programming))
+            langs = ProgrammingLanguage.objects.filter(slug__in=search_programming)
+
+            languages = [str(e) for e in langs]
+            search_langs = ' or '.join(languages) if len(languages) < 3 else f"{', '.join(languages[:-1])}, or {languages[-1]}"
+            if search_langs:
+                search_parts.append(' Written in ' + search_langs)
+            pass
+
+        # search - supported languages
+        if search_supported:
+            sqs_filters.append(Q(supported_languages__slug__in=search_supported))
+            langs = ProgrammingLanguage.objects.filter(slug__in=search_supported)
+
+            languages = [str(e) for e in langs]
+            search_langs = ' or '.join(languages) if len(languages) < 3 else f"{', '.join(languages[:-1])}, or {languages[-1]}"
+            if search_langs:
+                search_parts.append(' Supporting ' + search_langs)
+            pass
+
+        # search - tags
+        if search_tag:
+            sqs_filters.append(Q(tags__slug__in=search_tag))
+            tags = Tag.objects.filter(slug__in=search_tag)
+
+            tag_names = [str(e) for e in tags]
+            search_tags = ' or '.join(tag_names) if len(tag_names) < 3 else f"{', '.join(tag_names[:-1])}, or {tag_names[-1]}"
+            if search_tags:
+                search_parts.append(' Tagged with ' + search_tags)
+            pass
+
+        # search - project types
+        if search_type:
+            sqs_filters.append(Q(project_types__slug__in=search_type))
+            types = ProjectType.objects.filter(slug__in=search_type)
+
+            type_names = [str(e) for e in types]
+            search_types = ' or '.join(type_names) if len(type_names) < 3 else f"{', '.join(type_names[:-1])}, or {type_names[-1]}"
+            if search_types:
+                search_parts.append(' Classified as ' + search_types + ' Projects ')
+            pass
+
+        # search - licenses
+        if search_license:
+            sqs_filters.append(Q(licenses__slug__in=search_license))
+            licenses = License.objects.filter(slug__in=search_license)
+
+            license_names = [str(e) for e in licenses]
+            search_licenses = ' or '.join(license_names) if len(license_names) < 3 else f"{', '.join(license_names[:-1])}, or {license_names[-1]}"
+            if search_licenses:
+                search_parts.append(' Licensed Under ' + search_licenses)
+            pass
+
+        # search - suffixes
+        if search_suffix:
+            for suffix in search_suffix:
+                sqs_filters.append(Q(system__name__icontains=suffix))
+            pass
+
+        # convert feature option slugs to IDs to do search by filtering
+        feature_option_ids = set()
+        for feature_id,option_slugs in search_fg.items():
+            option_ids = set( map(lambda option_slug: featuresoptions_map[(feature_id,option_slug)], option_slugs) )
+            feature_option_ids.update(option_ids)
+            pass
+
+        # if there are filter options to search for, apply filter
+        if feature_option_ids:
+            # OR Queries (Match Any)
+            if search_op == or_:
+                feature_systems_versions = SystemFeature.objects.filter(options__id__in=feature_option_ids)\
+                                                                .filter(version__is_current=True)\
+                                                                .values_list("version__id", flat=True)\
+                                                                .distinct()
+
+            # AND Queries (Match All)
+            else:
+                feature_systems_versions = None
+                for option_id in feature_option_ids:
+                    option_filter = SystemFeature.objects.filter(options__id=option_id) \
+                                                         .filter(version__is_current=True) \
+                                                         .values_list("version__id", flat=True) \
+                                                         .distinct()
+                    if feature_systems_versions is None:
+                        feature_systems_versions = option_filter
+                    else:
+                        feature_systems_versions = feature_systems_versions.intersection(option_filter)
+            sqs_filters.append(Q(id__in=feature_systems_versions))
+
+        if sqs_filters:
+            query = reduce(search_op, sqs_filters)
+            sqs = sqs.filter(query)
+
+        # Build Title with features
+        reverse_features_map = {v: k for k, v in features_map.items()}
+        feature_parts = []
+        for key in search_fg:
+            feature_options = ' or '.join(search_fg[key]) if len(search_fg[key]) < 3 else f"{', '.join(list(search_fg[key])[:-1])}, or {list(search_fg[key])[-1]}"
+            feature = reverse_features_map[key].replace('-', ' ').title()
+            feature_parts.append(f'{feature_options} {feature}')
+
+        query_parts = []
+        if search_parts:
+            query_parts.append(f' {search_op} '.join(search_parts) if len(search_parts) < 3 else f"{', '.join(search_parts[:-1])}, {search_op} {search_parts[-1]}")
+        if feature_parts:
+            query_parts.append(' with ' + f' {search_op} '.join(feature_parts))
+
+        title += f' {search_op} '.join(query_parts)
+
+        if title == 'Databases':
+            title = 'Browse'
+        elif len(title) > 60:
+            title = title[:60] + '...'
+
+        return (sqs, search_mapping, title)
+
+    def do_dym(self, search_q):
+        """Did you mean search"""
+        matches = System.objects.annotate(rank=RawSQL("name <-> %s", [search_q])).order_by("rank").values("id", "name", "slug")[:1]
+        return matches[0]
+
+    def get(self, request):
+        # handle older filter group urls
+        if any( filter(lambda k: k.startswith('fg'), request.GET.keys()) ):
+           return self.handle_old_urls(request)
+
+        # Search Query
+        search_q = request.GET.get('q', '').strip()
+
+        # Search Operator (AND vs. OR)
+        search_op = request.GET.get('search_op', 'or').lower().strip()
+        search_op = and_ if search_op == 'and' else or_
+
+        search_keys = { }
+        results = SystemVersion.objects.filter(is_current=True)
+
+        results, search_keys, title = self.do_search(request, results, search_op)
+
+        # Only get the columns we need for the browse page
+        results = results.annotate(
+            name=F('system__name'),
+            slug=F('system__slug'),
+            system_tags=JSONBAgg(JSONObject(name=F('tags__name'),
+                                            slug=F('tags__slug'),
+                                            icon=F('tags__icon')))
+        )
+        results = results.values(
+                'id',
+                'name',
+                'slug',
+                'logo',
+                'logo_color',
+                'start_year',
+                'end_year',
+                'system_tags',
+                'created'
+        )
+
+        results.query.comment = "BROWSE-SEARCH"
+        results = list(results.order_by('system__name'))
+        num_results = len(results)
+
+        # check if there are results
+        has_results = len(results) > 0
+
+        suggestion = None
+
+        if search_q and not has_results:
+            search_q = request.GET.get('q', '').strip()
+            suggestion = self.do_dym(search_q)
+            pass
+        else:
+            pass
+
+        # get year ranges
+        years_start = SystemVersion.objects.filter(is_current=True).filter(start_year__gt=0).aggregate(
+            min_start_year=Min('start_year'),
+            max_start_year=Max('start_year')
+        )
+        years_end = SystemVersion.objects.filter(is_current=True).filter(end_year__gt=0).aggregate(
+            min_end_year=Min('end_year'),
+            max_end_year=Max('end_year')
+        )
+
+        years = {}
+        years.update(years_start)
+        years.update(years_end)
+
+        filter_groups = self.build_filter_groups(request.GET)
+        return render(request, self.template_name, {
+            'title': title,
+            'activate': 'browse', # NAV-LINKS
+            'filtergroups': filter_groups,
+            'filtergroupsjson': [asdict(fg) for fg in filter_groups],
+            'has_results': has_results,
+            'query': search_q,
+            'results': results,
+            'num_results' : num_results,
+            'years': years,
+            'has_search': len(search_keys) != 0,
+            'search': search_keys,
+            'suggestion': suggestion,
+            'search_op': "and" if search_op == and_ else "or"
+        })
+
+    def handle_old_urls(self, request):
+        query = []
+
+        # get mapping of feature options
+        featuresoptions_map = {
+            str(fo_id): (f_slug, fo_slug)
+            for fo_id,fo_slug,f_slug in FeatureOption.objects.all().order_by().values_list('id','slug','feature__slug')
+        }
+
+        for k in request.GET.keys():
+            for v in request.GET.getlist(k):
+                if k.startswith('fg'):
+                    query.append( featuresoptions_map[v] )
+                    pass
+                elif v:
+                    query.append((k,v))
+                    pass
+                pass
+            pass
+
+        return redirect( request.path + '?' + urllib.parse.urlencode(query) )
+
+
+    pass
