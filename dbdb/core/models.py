@@ -98,41 +98,45 @@ class FeatureOption(models.Model):
     pass
 
 # ==============================================
-# M2MInfoModel
+# Attribute
 # ==============================================
-#class M2MInfoModel(models.Model):
-    #slug = models.SlugField(unique=True)
-    #name = models.CharField(max_length=64)
-    #url = models.URLField(blank=True, max_length=512)
-    #description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
+class Attribute(models.Model):
+    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
+    icon = models.CharField(max_length=64, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
 
-    #class Meta:
-        #ordering = ('name',)
-        #abstract = True
+    class Meta:
+        ordering = ('name',)
 
-    #def __str__(self):
-        #return self.name
+    def __str__(self):
+        return self.name
 
-    #pass
+    pass
 
 # ==============================================
 # AttributeOption
 # ==============================================
-# class AttributeOption(models.Model):
-#     slug = models.SlugField(unique=True)
-#     name = models.CharField(max_length=64)
-#     url = models.URLField(blank=True, null=True, max_length=512)
-#     description = models.TextField(blank=True, null=True,
-#                                    help_text='This field supports Markdown Syntax')
-#     icon = models.CharField(max_length=64, blank=True, null=True)
-#
-#     class Meta:
-#         ordering = ('name',)
-#
-#     def __str__(self):
-#         return self.name
-#
-#     pass
+class AttributeOption(models.Model):
+    attribute = models.ForeignKey('Attribute', models.CASCADE, related_name='options')
+    slug = models.SlugField()
+    name = models.CharField(max_length=100)
+    url = models.URLField(blank=True, max_length=512)
+    description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
+    icon = models.CharField(max_length=64, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('name',)
+        unique_together = ('attribute', 'slug')
+
+    def __str__(self):
+        return self.name
+
+    pass
 
 
 # ==============================================
@@ -616,6 +620,44 @@ class SystemVersion(models.Model):
         'ProgrammingLanguage', blank=True,
         related_name='systems_written')
 
+    # --- AttributeOption-backed fields (replaces Tag/License/OS/ProgrammingLanguage/ProjectType) ---
+    # Run: manage.py migrate (0059), then manage.py migrate_attributes, then manage.py migrate (0060)
+    attr_tags = models.ManyToManyField(
+        'AttributeOption', blank=True,
+        limit_choices_to={'attribute__slug': 'tag'},
+        related_name='system_tags',
+        verbose_name='Tags')
+
+    attr_project_types = models.ManyToManyField(
+        'AttributeOption', blank=True,
+        limit_choices_to={'attribute__slug': 'project-type'},
+        related_name='system_project_types',
+        verbose_name='Project Types')
+
+    attr_licenses = models.ManyToManyField(
+        'AttributeOption', blank=True,
+        limit_choices_to={'attribute__slug': 'license'},
+        related_name='system_licenses',
+        verbose_name='Licenses')
+
+    attr_oses = models.ManyToManyField(
+        'AttributeOption', blank=True,
+        limit_choices_to={'attribute__slug': 'os'},
+        related_name='system_oses',
+        verbose_name='Operating Systems')
+
+    attr_supported_languages = models.ManyToManyField(
+        'AttributeOption', blank=True,
+        limit_choices_to={'attribute__slug': 'programming-language'},
+        related_name='system_supported_languages',
+        verbose_name='Supported Languages')
+
+    attr_written_in = models.ManyToManyField(
+        'AttributeOption', blank=True,
+        limit_choices_to={'attribute__slug': 'programming-language'},
+        related_name='system_written_in',
+        verbose_name='Written In')
+
     class Meta:
         ordering = ('-ver',)
         unique_together = ('system','ver')
@@ -714,6 +756,8 @@ class FlatPageMeta(models.Model):
 
 
 __all__ = (
+    'Attribute',
+    'AttributeOption',
     'CitationUrl',
     'Feature',
     'FeatureOption',

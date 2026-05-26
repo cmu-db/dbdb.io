@@ -166,6 +166,36 @@ class TagAdmin(admin.ModelAdmin):
             return ''
         return format_html('<i class="{}"></i> <tt>{}</tt>', obj.icon, obj.icon)
 
+
+class AttributeOptionInline(admin.TabularInline):
+    model = AttributeOption
+    extra = 0
+    fields = ('name', 'slug', 'url', 'icon', 'description')
+    prepopulated_fields = {'slug': ('name',)}
+
+
+@admin.register(Attribute)
+class AttributeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug', 'option_count', 'created', 'modified')
+    search_fields = ('name', 'slug')
+    prepopulated_fields = {'slug': ('name',)}
+    readonly_fields = ('created', 'modified')
+    inlines = [AttributeOptionInline]
+
+    @admin.display(description='options')
+    def option_count(self, obj):
+        return obj.options.count()
+
+
+@admin.register(AttributeOption)
+class AttributeOptionAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug', 'attribute', 'url', 'created', 'modified')
+    list_filter = ('attribute',)
+    search_fields = ('name', 'slug')
+    prepopulated_fields = {'slug': ('name',)}
+    readonly_fields = ('created', 'modified')
+    ordering = ('attribute__name', 'name')
+
 # registrations
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)

@@ -1,6 +1,6 @@
 from django import template
 
-from dbdb.core.models import System, Tag
+from dbdb.core.models import AttributeOption, System
 
 register = template.Library()
 
@@ -24,7 +24,7 @@ def browse_link(key: str, value: str, tooltip: str, label: str = None):
     }
 
 @register.inclusion_tag("components/tag_link.html")
-def tag_link(tag: Tag):
+def tag_link(tag: AttributeOption):
     """
     Renders a link for a Tag
     """

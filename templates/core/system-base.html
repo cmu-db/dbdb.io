@@ -31,8 +31,8 @@
             <h1 class="fw-bold order-first mb-3">{{ system.name }}</h1>
 
             <!-- BEGIN:TAGS -->
-            {% if system_version.tags %}
-                {% for tag in system_version.tags.all %}
+            {% if system_version.attr_tags.all %}
+                {% for tag in system_version.attr_tags.all %}
                     {% tag_link tag %}
                 {% endfor %}
             {% endif %}
@@ -181,31 +181,31 @@
                     <dd>{{ system_version.acquired_by }}</dd>
                 {% endif %}
 
-                {% if system_version.project_types.exists %}
+                {% if system_version.attr_project_types.all %}
                     <dt class="fs-6">Project Type</dt>
                     <dd>
                         {% spaceless %}
-                        {% for attropt in system_version.project_types.all %}{% if not forloop.first %}, {% endif %}
+                        {% for attropt in system_version.attr_project_types.all %}{% if not forloop.first %}, {% endif %}
                             {% browse_link "type" attropt.slug ": "|add:attropt.name attropt.name %}{% endfor %}
                         {% endspaceless %}
                     </dd>
                 {% endif %}
 
-                {% if system_version.written_in.exists %}
+                {% if system_version.attr_written_in.all %}
                     <dt class="fs-6">Written in</dt>
                     <dd>
                         {% spaceless %}
-                        {% for attropt in system_version.written_in.all %}{% if not forloop.first %}, {% endif %}
+                        {% for attropt in system_version.attr_written_in.all %}{% if not forloop.first %}, {% endif %}
                             {% browse_link "programming" attropt.slug "Written In "|add:attropt.name attropt.name %}{% endfor %}
                         {% endspaceless %}
                     </dd>
                 {% endif %}
 
-                {% if system_version.supported_languages.exists %}
+                {% if system_version.attr_supported_languages.all %}
                     <dt class="fs-6">Supported languages</dt>
                     <dd>
                         {% spaceless %}
-                        {% for attropt in system_version.supported_languages.all %}{% if not forloop.first %}, {% endif %}
+                        {% for attropt in system_version.attr_supported_languages.all %}{% if not forloop.first %}, {% endif %}
                             {% browse_link "supported" attropt.slug "Supporting "|add:attropt.name attropt.name %}{% endfor %}
                         {% endspaceless %}
                     </dd>
@@ -251,18 +251,18 @@
                     </dd>
                 {% endif %}
 
-                {% if system_version.oses.exists %}
+                {% if system_version.attr_oses.all %}
                     <dt class="fs-6">Operating Systems</dt>
                     <dd>
-                        {% for attropt in system_version.oses.all %}{% if not forloop.first %}, {% endif %}
+                        {% for attropt in system_version.attr_oses.all %}{% if not forloop.first %}, {% endif %}
                             {% browse_link "os" attropt.slug "That Support "|add:attropt.name attropt.name %}{% endfor %}
                     </dd>
                 {% endif %}
 
-                {% if system_version.licenses.exists %}
+                {% if system_version.attr_licenses.all %}
                     <dt class="fs-6">Licenses</dt>
                     <dd>
-                        {% for attropt in system_version.licenses.all %}{% if not forloop.first %}, {% endif %}
+                        {% for attropt in system_version.attr_licenses.all %}{% if not forloop.first %}, {% endif %}
                             {% browse_link "license" attropt.slug "That Use "|add:attropt.name|add:" License" attropt.name %}{% endfor %}
                     </dd>
                 {% endif %}

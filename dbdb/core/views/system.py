@@ -80,7 +80,14 @@ class SystemView(View):
                 pass
             pass
 
-        system_version = system.current()
+        system_version = (
+            SystemVersion.objects
+            .prefetch_related(
+                'attr_tags', 'attr_oses', 'attr_licenses',
+                'attr_project_types', 'attr_supported_languages', 'attr_written_in',
+            )
+            .get(system=system, is_current=True)
+        )
         system_features = SystemFeature.objects.filter(version=system_version).select_related('feature').order_by('feature__label')
 
         # if they are logged in, check whether they are allowed to edit
