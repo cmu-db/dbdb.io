@@ -16,17 +16,14 @@ from django_countries import countries
 
 from dbdb.core.common.searchvector import SearchVector
 from dbdb.core.models import (
+    Attribute,
+    AttributeOption,
     Feature,
     FeatureOption,
-    License,
-    OperatingSystem,
-    ProgrammingLanguage,
-    ProjectType,
     System,
     SystemFeature,
     SystemSearchText,
     SystemVersion,
-    Tag,
 )
 from dbdb.core.utils.filters import FilterChoice, FilterGroup
 
@@ -152,55 +149,14 @@ class BrowseView(View):
             querydict
         ))
 
-        # add operating system
-        fg_os = FilterGroup('os', 'Operating System', [
-            FilterChoice(
-                os.slug,
-                os.name,
-            )
-            for os in OperatingSystem.objects.values_list('id','slug','name', named=True)
-        ])
-        other_filtersgroups.append(fg_os)
-
-        # add programming languages
-        fg_programming = FilterGroup('programming', 'Programming Languages', [
-            FilterChoice(
-                p.slug,
-                p.name,
-            )
-            for p in ProgrammingLanguage.objects.values_list('id','slug','name', named=True)
-        ])
-        other_filtersgroups.append(fg_programming)
-
-        # add tags
-        fg_tag = FilterGroup('tag', 'Tags', [
-            FilterChoice(
-                t.slug,
-                t.name,
-            )
-            for t in Tag.objects.values_list('id','slug','name', named=True)
-        ])
-        other_filtersgroups.append(fg_tag)
-
-        # add project types
-        fg_project_type = FilterGroup('type', 'Project Types', [
-            FilterChoice(
-                pt.slug,
-                pt.name,
-            )
-            for pt in ProjectType.objects.values_list('id','slug','name', named=True)
-        ])
-        other_filtersgroups.append(fg_project_type)
-
-        # add licenses
-        fg_license = FilterGroup('license', 'Licenses', [
-            FilterChoice(
-                l.slug,
-                l.name,
-            )
-            for l in License.objects.values_list('id','slug','name', named=True)
-        ])
-        other_filtersgroups.append(fg_license)
+        # Add one FilterGroup per Attribute that has a sv_field configured.
+        # Adding a new Attribute in the admin automatically shows up here.
+        for attr in Attribute.objects.filter(sv_field__gt='').prefetch_related('options').order_by('name'):
+            other_filtersgroups.append(FilterGroup(
+                attr.slug,
+                attr.name,
+                [FilterChoice(opt.slug, opt.name) for opt in attr.options.order_by('name')],
+            ))
 
         # build from list of features (alphabetical order)
         filtergroups = collections.OrderedDict(
@@ -269,13 +225,14 @@ class BrowseView(View):
         search_embeds = request.GET.getlist('embeds')
         search_hosted_by = request.GET.getlist('hosted_by')
         search_inspired = request.GET.getlist('inspired')
-        search_os = request.GET.getlist('os')
-        search_programming = request.GET.getlist('programming')
-        search_supported = request.GET.getlist('supported')
-        search_type = request.GET.getlist('type')
-        search_tag = request.GET.getlist('tag')
-        search_license = request.GET.getlist('license')
         search_suffix = request.GET.getlist('suffix')
+
+        # collect attribute-based search params keyed by Attribute slug
+        attr_searches = {}
+        for attr in Attribute.objects.filter(sv_field__gt='').only('slug', 'name', 'sv_field', 'search_text'):
+            vals = request.GET.getlist(attr.slug)
+            if vals:
+                attr_searches[attr.slug] = (attr, vals)
 
         # collect filters
         search_mapping = {
@@ -294,14 +251,11 @@ class BrowseView(View):
             'embeds': search_embeds,
             'hosted_by': search_hosted_by,
             'inspired': search_inspired,
-            'os': search_os,
-            'programming': search_programming,
-            'supported': search_supported,
-            'tag': search_tag,
-            'type': search_type,
-            'license': search_license,
             'suffix': search_suffix,
         }
+        # Include attribute params so the early-return check counts them
+        for slug, (attr, vals) in attr_searches.items():
+            search_mapping[slug] = vals
 
         if not any(search_mapping.values()) and not any(search_fg):
             return (sqs, { }, 'Browse')
@@ -435,71 +389,14 @@ class BrowseView(View):
                 search_parts.append(' Inspired By ' + search_compatiblewith)
             pass
 
-        # search - operating systems
-        if search_os:
-            sqs_filters.append(Q(oses__slug__in=search_os))
-            oses = OperatingSystem.objects.filter(slug__in=search_os)
-
-            os_names = [str(e) for e in oses]
-            search_oses = ' or '.join(os_names) if len(os_names) < 3 else f"{', '.join(os_names[:-1])}, or {os_names[-1]}"
-            if search_oses:
-                search_parts.append(' Available for ' + search_oses)
-            pass
-
-        # search - programming languages
-        if search_programming:
-            sqs_filters.append(Q(written_in__slug__in=search_programming))
-            langs = ProgrammingLanguage.objects.filter(slug__in=search_programming)
-
-            languages = [str(e) for e in langs]
-            search_langs = ' or '.join(languages) if len(languages) < 3 else f"{', '.join(languages[:-1])}, or {languages[-1]}"
-            if search_langs:
-                search_parts.append(' Written in ' + search_langs)
-            pass
-
-        # search - supported languages
-        if search_supported:
-            sqs_filters.append(Q(supported_languages__slug__in=search_supported))
-            langs = ProgrammingLanguage.objects.filter(slug__in=search_supported)
-
-            languages = [str(e) for e in langs]
-            search_langs = ' or '.join(languages) if len(languages) < 3 else f"{', '.join(languages[:-1])}, or {languages[-1]}"
-            if search_langs:
-                search_parts.append(' Supporting ' + search_langs)
-            pass
-
-        # search - tags
-        if search_tag:
-            sqs_filters.append(Q(tags__slug__in=search_tag))
-            tags = Tag.objects.filter(slug__in=search_tag)
-
-            tag_names = [str(e) for e in tags]
-            search_tags = ' or '.join(tag_names) if len(tag_names) < 3 else f"{', '.join(tag_names[:-1])}, or {tag_names[-1]}"
-            if search_tags:
-                search_parts.append(' Tagged with ' + search_tags)
-            pass
-
-        # search - project types
-        if search_type:
-            sqs_filters.append(Q(project_types__slug__in=search_type))
-            types = ProjectType.objects.filter(slug__in=search_type)
-
-            type_names = [str(e) for e in types]
-            search_types = ' or '.join(type_names) if len(type_names) < 3 else f"{', '.join(type_names[:-1])}, or {type_names[-1]}"
-            if search_types:
-                search_parts.append(' Classified as ' + search_types + ' Projects ')
-            pass
-
-        # search - licenses
-        if search_license:
-            sqs_filters.append(Q(licenses__slug__in=search_license))
-            licenses = License.objects.filter(slug__in=search_license)
-
-            license_names = [str(e) for e in licenses]
-            search_licenses = ' or '.join(license_names) if len(license_names) < 3 else f"{', '.join(license_names[:-1])}, or {license_names[-1]}"
-            if search_licenses:
-                search_parts.append(' Licensed Under ' + search_licenses)
-            pass
+        # search - attribute options (dynamic: one block per Attribute)
+        for slug, (attr, param_slugs) in attr_searches.items():
+            sqs_filters.append(Q(**{f'{attr.sv_field}__slug__in': param_slugs}))
+            matched = AttributeOption.objects.filter(attribute=attr, slug__in=param_slugs)
+            names = [o.name for o in matched]
+            joined = ' or '.join(names) if len(names) < 3 else f"{', '.join(names[:-1])}, or {names[-1]}"
+            if joined and attr.search_text:
+                search_parts.append(attr.search_text.format(names=joined))
 
         # search - suffixes
         if search_suffix:
@@ -590,9 +487,9 @@ class BrowseView(View):
         results = results.annotate(
             name=F('system__name'),
             slug=F('system__slug'),
-            system_tags=JSONBAgg(JSONObject(name=F('tags__name'),
-                                            slug=F('tags__slug'),
-                                            icon=F('tags__icon')))
+            system_tags=JSONBAgg(JSONObject(name=F('attr_tags__name'),
+                                            slug=F('attr_tags__slug'),
+                                            icon=F('attr_tags__icon')))
         )
         results = results.values(
                 'id',

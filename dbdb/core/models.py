@@ -105,6 +105,15 @@ class Attribute(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
     icon = models.CharField(max_length=64, blank=True)
+    sv_field = models.CharField(
+        max_length=64, blank=True,
+        verbose_name='SystemVersion field',
+        help_text="Name of the SystemVersion M2M field (e.g. 'attr_tags'). "
+                  "Used to build browse filters automatically.")
+    search_text = models.CharField(
+        max_length=200, blank=True,
+        help_text="Browse search description format string. Use {names} for the joined option names "
+                  "(e.g. ' Tagged with {names}').")
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 

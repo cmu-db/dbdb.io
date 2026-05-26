@@ -4,9 +4,9 @@ rows into Attribute/AttributeOption, then re-links existing SystemVersion M2M re
 to the new attr_* fields.
 
 Run order:
-    1. manage.py migrate          (applies migration 0059 — adds Attribute/AttributeOption tables)
+    1. manage.py migrate          (applies 0059 + 0060 — adds Attribute/AttributeOption + sv_field/search_text)
     2. manage.py copy_attributes [--dry-run]
-    3. manage.py migrate          (applies migration 0060 — removes old fields, renames attr_* fields)
+    3. manage.py migrate          (applies 0061 — removes old fields, renames attr_* fields)
 """
 
 from django.core.management.base import BaseCommand
@@ -23,30 +23,40 @@ CONFIGS = [
     {
         'attribute_slug': 'tag',
         'attribute_name': 'Tag',
+        'attribute_sv_field': 'attr_tags',
+        'attribute_search_text': ' Tagged with {names}',
         'source_model': Tag,
         'pairs': [('tags', 'attr_tags')],
     },
     {
         'attribute_slug': 'project-type',
         'attribute_name': 'Project Type',
+        'attribute_sv_field': 'attr_project_types',
+        'attribute_search_text': ' Classified as {names}',
         'source_model': ProjectType,
         'pairs': [('project_types', 'attr_project_types')],
     },
     {
         'attribute_slug': 'license',
         'attribute_name': 'License',
+        'attribute_sv_field': 'attr_licenses',
+        'attribute_search_text': ' Licensed Under {names}',
         'source_model': License,
         'pairs': [('licenses', 'attr_licenses')],
     },
     {
         'attribute_slug': 'os',
         'attribute_name': 'Operating System',
+        'attribute_sv_field': 'attr_oses',
+        'attribute_search_text': ' Available for {names}',
         'source_model': OperatingSystem,
         'pairs': [('oses', 'attr_oses')],
     },
     {
         'attribute_slug': 'programming-language',
         'attribute_name': 'Programming Language',
+        'attribute_sv_field': 'attr_written_in',
+        'attribute_search_text': ' Written in {names}',
         'source_model': ProgrammingLanguage,
         'pairs': [
             ('supported_languages', 'attr_supported_languages'),
@@ -80,12 +90,25 @@ class Command(BaseCommand):
                 attr_name = cfg['attribute_name']
                 source_model = cfg['source_model']
 
+                attr_sv_field = cfg['attribute_sv_field']
+                attr_search_text = cfg['attribute_search_text']
+
                 attr, attr_created = Attribute.objects.get_or_create(
                     slug=attr_slug,
-                    defaults={'name': attr_name},
+                    defaults={
+                        'name': attr_name,
+                        'sv_field': attr_sv_field,
+                        'search_text': attr_search_text,
+                    },
                 )
-                action = 'Created' if attr_created else 'Found existing'
-                self.stdout.write(f'{action} Attribute: {attr_name} ({attr_slug})')
+                if not attr_created:
+                    # Always sync these fields even if the Attribute already existed.
+                    attr.sv_field = attr_sv_field
+                    attr.search_text = attr_search_text
+                    attr.save(update_fields=['sv_field', 'search_text'])
+                action = 'Created' if attr_created else 'Updated'
+                self.stdout.write(f'{action} Attribute: {attr_name} ({attr_slug})'
+                                  f'  sv_field={attr_sv_field}')
 
                 # Build slug→AttributeOption mapping from source rows
                 old_id_to_opt = {}
