@@ -1,14 +1,12 @@
 import collections
 from functools import reduce
 
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.shortcuts import render
 from django.views import View
 
 from dbdb.core.models import (
-    License,
-    ProgrammingLanguage,
-    ProjectType,
+    AttributeOption,
     System,
     SystemVersion,
 )
@@ -96,6 +94,20 @@ class StatsView(View):
 
         return stat
 
+    def get_attributeoption_stat(self, title, attr_slug, sv_related_name, search_field, limit):
+        """Count current SystemVersion rows linked to each AttributeOption of a given Attribute."""
+        options = (
+            AttributeOption.objects
+            .filter(attribute__slug=attr_slug)
+            .annotate(
+                count=Count(sv_related_name, filter=Q(**{sv_related_name + '__is_current': True}))
+            )
+            .filter(count__gt=0)
+            .order_by('-count')
+        )
+        stat_items = [StatItem(opt.name, opt.count, opt.slug, None) for opt in options]
+        return Stat(title, stat_items[:limit], search_field, False, len(stat_items))
+
     def get_system_stat(self, title, field, labels, slugs, limit):
         values = System.objects \
             .order_by('-'+field)[:limit]
@@ -162,24 +174,17 @@ class StatsView(View):
         # Licenses
         if stats_type is None or stats_type == "license":
             limit = -1 if stats_type == "license" else self.default_limit
-            labels = dict(License.objects.all().values_list('id', 'name'))
-            slugs = dict(License.objects.all().values_list('id', 'slug'))
-            stats.append( self.get_version_stat('License', 'licenses', 'license', labels, slugs, False, limit) )
+            stats.append(self.get_attributeoption_stat('License', 'license', 'system_licenses', 'license', limit))
 
         # Implementation Language
         if stats_type is None or stats_type == "programming":
             limit = -1 if stats_type == "programming" else self.default_limit
-            all_values = ProgrammingLanguage.objects.all()
-            labels = dict(all_values.values_list('id', 'name'))
-            slugs = dict(all_values.values_list('id', 'slug'))
-            stats.append( self.get_version_stat('Implementation', 'written_in', 'programming', labels, slugs, False, limit) )
+            stats.append(self.get_attributeoption_stat('Implementation', 'programming-language', 'system_written_in', 'programming', limit))
 
         # Project Type
         if stats_type is None or stats_type == "project_type":
             limit = -1 if stats_type == "project_type" else self.default_limit
-            labels = dict(ProjectType.objects.all().values_list('id', 'name'))
-            slugs = dict(ProjectType.objects.all().values_list('id', 'slug'))
-            stats.append( self.get_version_stat('Project Type', 'project_types', 'type', labels, slugs, False, limit) )
+            stats.append(self.get_attributeoption_stat('Project Type', 'project-type', 'system_project_types', 'type', limit))
 
         return render(request, self.template_name, context={
             'activate': 'stats', # NAV-LINKS
