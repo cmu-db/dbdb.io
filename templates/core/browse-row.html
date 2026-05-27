@@ -17,7 +17,7 @@
         <img class="browse-logo browse-logo-placeholder" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ result.name }}">
         {% endif %}
     </td>
-    <td>
+    <td data-sort-val="{{ result.name }}">
         <div class="fw-semibold">{{ result.name }}</div>
         <div class="d-flex d-md-none flex-wrap gap-1 mt-1">
         {% for tag in result.system_tags %}
@@ -27,7 +27,7 @@
     </td>
     {% for col_val in result.col_values %}
         {% if col_val.type == 'tags' %}
-        <td class="d-none d-md-table-cell">
+        <td class="d-none d-md-table-cell" data-sort-val="{% for tag in col_val.data %}{% if tag.name %}{% if not forloop.first %} {% endif %}{{ tag.name }}{% endif %}{% endfor %}">
             <div class="d-flex flex-wrap gap-1">
             {% for tag in col_val.data %}
                 {% if tag.name %}{% tag_link tag %}{% endif %}
@@ -35,15 +35,15 @@
             </div>
         </td>
         {% elif col_val.type == 'year' %}
-        <td class="text-nowrap">
+        <td class="text-nowrap" data-sort-val="{{ col_val.data }}">
             {% if col_val.data %}{{ col_val.data }}{% else %}&mdash;{% endif %}
         </td>
         {% elif col_val.type == 'feature_opts' %}
-        <td>
+        <td data-sort-val="{% for opt in col_val.data %}{% if not forloop.first %} {% endif %}{{ opt.value }}{% endfor %}">
             {% for opt in col_val.data %}{% if not forloop.first %}, {% endif %}{{ opt.value }}{% empty %}&mdash;{% endfor %}
         </td>
         {% elif col_val.type == 'attr_opts' %}
-        <td>
+        <td data-sort-val="{% for opt in col_val.data %}{% if not forloop.first %} {% endif %}{{ opt.name }}{% endfor %}">
             {% for opt in col_val.data %}{% if not forloop.first %}, {% endif %}{{ opt.name }}{% empty %}&mdash;{% endfor %}
         </td>
         {% endif %}

@@ -34,7 +34,7 @@
         <!-- END:SEARCH-BOX -->
 
         <!-- BEGIN:ADVANCED-SEARCH -->
-        <div class="d-flex flex-column justify-content-center align-items-center mx-0 mx-lg-3 pb-2">
+        <div class="d-flex flex-column justify-content-center align-items-center mx-0 mx-lg-3 pb-0">
             <div class="col-12 col-lg-9 rounded search-panel" id="filter-container">
                 <button class="btn btn-link btn-sm mt-2 align-self-start ps-4 fw-bold search-button" type="button"
                         data-bs-toggle="collapse" data-bs-target="#filter" id="advanced-search-button">
@@ -99,7 +99,7 @@
         <!-- END:ADVANCED-SEARCH -->
 
         <!-- BEGIN:COLUMNS-PANEL -->
-        <div class="d-flex flex-column justify-content-center align-items-center mx-0 mx-lg-3 pb-2">
+        <div class="d-flex flex-column justify-content-center align-items-center mx-0 mx-lg-3 pb-0">
             <div class="col-12 col-lg-9 rounded search-panel" id="columns-container">
                 <button class="btn btn-link btn-sm mt-2 align-self-start ps-4 fw-bold search-button" type="button"
                         data-bs-toggle="collapse" data-bs-target="#columns-panel"
@@ -162,46 +162,32 @@
                 <tr>
                     <th class="results-logo"></th>
                     <th class="results-name">
-                        <button type="button" id="name-sort" class="btn btn-link p-0 text-light fw-bold text-decoration-none">
+                        <button type="button" class="sort-btn btn btn-link p-0 text-light fw-bold text-decoration-none"
+                                data-sort-col="1" data-sort-type="text">
                             <span class="d-flex align-items-center gap-1">
                                 Name
                                 <span class="d-flex flex-column lh-1">
-                                    <i id="name-asc-arrow" class="fas fa-caret-up sort-arrow" style="opacity: 1;"></i>
-                                    <i id="name-dec-arrow" class="fas fa-caret-down sort-arrow"></i>
+                                    <i class="fas fa-caret-up sort-arrow"></i>
+                                    <i class="fas fa-caret-down sort-arrow"></i>
                                 </span>
                             </span>
                         </button>
                     </th>
                     {% for col in active_columns %}
-                        {% if col.col_id == 'tags' %}
-                        <th class="results-tags d-none d-md-table-cell">Tags</th>
-                        {% elif col.col_id == 'start-year' %}
-                        <th class="results-startyear">
-                            <button type="button" id="start-year-sort" class="btn btn-link p-0 text-light fw-bold text-decoration-none">
-                                <span class="d-flex align-items-center gap-1">
-                                    Start Year
-                                    <span class="d-flex flex-column lh-1">
-                                        <i id="start-asc-arrow" class="fas fa-caret-up sort-arrow"></i>
-                                        <i id="start-dec-arrow" class="fas fa-caret-down sort-arrow"></i>
-                                    </span>
+                    <th {% if col.col_id == 'tags' %}class="results-tags d-none d-md-table-cell"{% endif %}>
+                        <button type="button"
+                                class="sort-btn btn btn-link p-0 text-light fw-bold text-decoration-none"
+                                data-sort-col="{{ forloop.counter0|add:2 }}"
+                                data-sort-type="{% if col.col_id == 'start-year' or col.col_id == 'end-year' %}numeric{% else %}text{% endif %}">
+                            <span class="d-flex align-items-center gap-1">
+                                {{ col.label }}
+                                <span class="d-flex flex-column lh-1">
+                                    <i class="fas fa-caret-up sort-arrow"></i>
+                                    <i class="fas fa-caret-down sort-arrow"></i>
                                 </span>
-                            </button>
-                        </th>
-                        {% elif col.col_id == 'end-year' %}
-                        <th class="results-endyear">
-                            <button type="button" id="end-year-sort" class="btn btn-link p-0 text-light fw-bold text-decoration-none">
-                                <span class="d-flex align-items-center gap-1">
-                                    End Year
-                                    <span class="d-flex flex-column lh-1">
-                                        <i id="end-asc-arrow" class="fas fa-caret-up sort-arrow"></i>
-                                        <i id="end-dec-arrow" class="fas fa-caret-down sort-arrow"></i>
-                                    </span>
-                                </span>
-                            </button>
-                        </th>
-                        {% else %}
-                        <th>{{ col.label }}</th>
-                        {% endif %}
+                            </span>
+                        </button>
+                    </th>
                     {% endfor %}
                 </tr>
             </thead>

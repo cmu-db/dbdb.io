@@ -376,59 +376,60 @@ document.getElementById('advanced-search-clear').addEventListener('click', funct
 
 // ── Table sort ───────────────────────────────────────────────────────────────
 
-const sortState = { column: 'name', order: 'asc' };
+const sortState = { btn: null, order: 'asc' };
 
-const arrowIds = {
-    name:      { asc: 'name-asc-arrow',  desc: 'name-dec-arrow'  },
-    startYear: { asc: 'start-asc-arrow', desc: 'start-dec-arrow' },
-    endYear:   { asc: 'end-asc-arrow',   desc: 'end-dec-arrow'   },
-};
-
-function updateSortArrows(column, order) {
-    document.querySelectorAll('.sort-arrow').forEach(el => { el.style.opacity = '0.2'; });
-    const id = arrowIds[column][order === 'asc' ? 'asc' : 'desc'];
-    document.getElementById(id).style.opacity = '1';
+function updateSortArrows(activeBtn, order) {
+    document.querySelectorAll('.sort-btn .sort-arrow').forEach(el => { el.style.opacity = '0.2'; });
+    if (!activeBtn) return;
+    const arrows = activeBtn.querySelectorAll('.sort-arrow');
+    if (order === 'asc'  && arrows[0]) arrows[0].style.opacity = '1';
+    if (order === 'desc' && arrows[1]) arrows[1].style.opacity = '1';
 }
 
-function sortTableBy(column, order) {
+function sortTableBy(btn, order) {
     const tbody = document.getElementById('table-body');
     if (!tbody) return;
     const rows = Array.from(tbody.querySelectorAll('tr.browse-row'));
+    const colIndex = parseInt(btn.dataset.sortCol);
+    const sortType = btn.dataset.sortType || 'text';
 
     rows.sort((a, b) => {
-        if (column === 'name') {
-            const aVal = a.dataset.name || '';
-            const bVal = b.dataset.name || '';
-            return order === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        const aRaw = a.cells[colIndex] ? (a.cells[colIndex].dataset.sortVal || '') : '';
+        const bRaw = b.cells[colIndex] ? (b.cells[colIndex].dataset.sortVal || '') : '';
+        if (sortType === 'numeric') {
+            const aVal = aRaw !== '' ? parseInt(aRaw) : null;
+            const bVal = bRaw !== '' ? parseInt(bRaw) : null;
+            if (aVal === null && bVal === null) return 0;
+            if (aVal === null) return 1;
+            if (bVal === null) return -1;
+            return order === 'asc' ? aVal - bVal : bVal - aVal;
         }
-        const aRaw = a.dataset[column];
-        const bRaw = b.dataset[column];
-        const aVal = aRaw ? parseInt(aRaw) : null;
-        const bVal = bRaw ? parseInt(bRaw) : null;
-        if (aVal === null && bVal === null) return 0;
-        if (aVal === null) return 1;
-        if (bVal === null) return -1;
-        return order === 'asc' ? aVal - bVal : bVal - aVal;
+        return order === 'asc' ? aRaw.localeCompare(bRaw) : bRaw.localeCompare(aRaw);
     });
 
     rows.forEach(row => tbody.appendChild(row));
 }
 
-function handleSortClick(column) {
-    const newOrder = (sortState.column === column && sortState.order === 'asc') ? 'desc' : 'asc';
-    sortState.column = column;
+function handleSortClick(btn) {
+    const newOrder = (sortState.btn === btn && sortState.order === 'asc') ? 'desc' : 'asc';
+    sortState.btn = btn;
     sortState.order = newOrder;
-    updateSortArrows(column, newOrder);
-    sortTableBy(column, newOrder);
+    updateSortArrows(btn, newOrder);
+    sortTableBy(btn, newOrder);
 }
 
-const nameSortBtn = document.getElementById('name-sort');
-const startSortBtn = document.getElementById('start-year-sort');
-const endSortBtn = document.getElementById('end-year-sort');
+document.querySelectorAll('.sort-btn').forEach(btn => {
+    btn.addEventListener('click', () => handleSortClick(btn));
+});
 
-if (nameSortBtn)  nameSortBtn.addEventListener('click',  () => handleSortClick('name'));
-if (startSortBtn) startSortBtn.addEventListener('click', () => handleSortClick('startYear'));
-if (endSortBtn)   endSortBtn.addEventListener('click',   () => handleSortClick('endYear'));
+// Initialise with name column (td index 1) sorted ascending
+const nameSortBtn = document.querySelector('.sort-btn[data-sort-col="1"]');
+if (nameSortBtn) {
+    sortState.btn = nameSortBtn;
+    sortState.order = 'asc';
+    updateSortArrows(nameSortBtn, 'asc');
+    sortTableBy(nameSortBtn, 'asc');
+}
 
 // ── Row click navigation ─────────────────────────────────────────────────────
 
