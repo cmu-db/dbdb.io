@@ -1,4 +1,5 @@
 # django imports
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
@@ -9,6 +10,19 @@ from django.utils.html import format_html
 
 # local imports
 from .models import *
+
+
+class IconDisplayMixin:
+    """Adds icon_display() and FontAwesome CSS Media to any ModelAdmin."""
+
+    class Media:
+        css = {'all': (settings.FONTAWESOME_CSS_URL,)}
+
+    @admin.display(description='icon')
+    def icon_display(self, obj):
+        if not obj.icon:
+            return ''
+        return format_html('<i class="{}"></i> <tt>{}</tt>', obj.icon, obj.icon)
 
 
 class FlatPageMetaInline(admin.StackedInline):
@@ -158,7 +172,7 @@ class AttributeAdmin(admin.ModelAdmin):
 
 
 @admin.register(AttributeOption)
-class AttributeOptionAdmin(admin.ModelAdmin):
+class AttributeOptionAdmin(IconDisplayMixin, admin.ModelAdmin):
     list_display = ('name', 'slug', 'attribute', 'icon_display', 'url', 'modified')
     list_filter = ('attribute',)
     search_fields = ('name', 'slug')
@@ -166,14 +180,13 @@ class AttributeOptionAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'modified')
     ordering = ('attribute__name', 'name')
 
-    class Media:
-        css = {'all': ('//use.fontawesome.com/releases/v7.1.0/css/all.css',)}
 
-    @admin.display(description='icon')
-    def icon_display(self, obj):
-        if not obj.icon:
-            return ''
-        return format_html('<i class="{}"></i> <tt>{}</tt>', obj.icon, obj.icon)
+@admin.register(SavedSearch)
+class SavedSearchAdmin(IconDisplayMixin, admin.ModelAdmin):
+    list_display = ('name', 'icon_display', 'search_params', 'created', 'modified')
+    list_filter = ['created', 'modified']
+    search_fields = ('name', 'description')
+    readonly_fields = ('created', 'modified')
 
 # registrations
 admin.site.unregister(User)

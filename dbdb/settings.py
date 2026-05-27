@@ -184,6 +184,8 @@ STATICFILES_FINDERS = (
 STATIC_ROOT = os.path.join(BASE_DIR, 'static-live')
 STATIC_URL = '/static/'
 
+FONTAWESOME_CSS_URL = '//use.fontawesome.com/releases/v7.1.0/css/all.css'
+
 # Custom Twitter Cards
 TWITTER_CARD_ROOT = os.path.join(MEDIA_ROOT, 'twitter')
 TWITTER_CARD_URL = MEDIA_URL + "twitter/"

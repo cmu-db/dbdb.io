@@ -1,4 +1,5 @@
 import datetime
+import random
 
 import pytz
 
@@ -7,7 +8,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.views import View
 
-from dbdb.core.models import System
+from dbdb.core.models import SavedSearch, System
 
 
 # ==============================================
@@ -47,6 +48,15 @@ class HomeView(View):
         # count numb systems
         num_systems = System.objects.all().count()
 
+        # pick 3 saved searches per hour using a deterministic seed
+        now = timezone.now()
+        hour_seed = now.year * 1000000 + now.month * 10000 + now.day * 100 + now.hour
+        all_saved_searches = list(SavedSearch.objects.all())
+        if len(all_saved_searches) >= 3:
+            featured_searches = random.Random(hour_seed).sample(all_saved_searches, 3)
+        else:
+            featured_searches = all_saved_searches
+
         return render(request, self.template_name, {
             'activate': "home",
             'most_recent': most_recent,
@@ -55,6 +65,7 @@ class HomeView(View):
 
             'no_nav_search': True,
             'num_systems': num_systems,
+            'featured_searches': featured_searches,
         })
 
     pass

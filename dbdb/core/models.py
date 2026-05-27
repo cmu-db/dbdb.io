@@ -13,7 +13,6 @@ from django.db.models import Max
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.urls import reverse
-from django.utils import timezone
 from django_countries.fields import CountryField
 
 # third-party imports
@@ -34,7 +33,7 @@ class CitationUrl(models.Model):
         IGNORE = 4, "Ignore"
 
     url = models.URLField(max_length=500, unique=True)
-    created = models.DateTimeField(default=timezone.now)
+    created = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(choices=Status, blank=False, null=False, default=Status.UNKNOWN)
     last_checked = models.DateTimeField(default=None, blank=True, null=True)
     last_modified = models.DateTimeField(default=None, blank=True, null=True)
@@ -189,8 +188,8 @@ class Organization(models.Model):
     description = models.TextField(
         blank=True,
         help_text="This field supports Markdown Syntax")
-    created = models.DateTimeField(default=timezone.now)
-    modified = models.DateTimeField(default=timezone.now)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ('name',)
@@ -207,8 +206,8 @@ class System(models.Model):
 
     slug = models.SlugField(unique=True)
     name = models.CharField(max_length=64, blank=False)
-    created = models.DateTimeField(default=timezone.now)
-    modified = models.DateTimeField(default=timezone.now)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
     secret_key = models.UUIDField(max_length=36, default=uuid.uuid4)
     view_count = models.PositiveIntegerField(default=0)
     ver = models.PositiveIntegerField('Version No.', default=1)
@@ -275,8 +274,8 @@ class Acquisition(models.Model):
 class SystemACL(models.Model):
     system = models.ForeignKey('System', models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT)
-    created = models.DateTimeField(default=timezone.now)
-    modified = models.DateTimeField(default=timezone.now)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ('system', 'user')
@@ -345,7 +344,7 @@ class SystemVisit(models.Model):
     system = models.ForeignKey('System', models.CASCADE, related_name='visits')
     ip_address = models.GenericIPAddressField(null=False)
     user_agent = models.CharField(max_length=128, blank=True, null=False)
-    created = models.DateTimeField(default=timezone.now)
+    created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return "(%s, %s, %s)" % (self.system.name, self.ip_address, str(self.created))
@@ -362,7 +361,7 @@ class SystemRecommendation(models.Model):
     system = models.ForeignKey('System', models.CASCADE, related_name='recommendation_to')
     recommendation = models.ForeignKey('System', models.CASCADE, related_name='recommendation_from')
     score = models.FloatField(blank=True, null=True)
-    created = models.DateTimeField(default=timezone.now)
+    created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return "(%s, %s)" % (self.system.name, self.recommendation.name)
@@ -381,7 +380,7 @@ class SystemSearchText(models.Model):
     name = models.CharField(max_length=64, blank=False, null=False)
     search_text = models.TextField(default=None, null=True,
                                    help_text="Synthesized text for searching")
-    created = models.DateTimeField(default=timezone.now)
+    created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = "System Search Text"
@@ -402,7 +401,7 @@ class SystemVersion(models.Model):
     ver = models.PositiveIntegerField('Version No.', default=1)
     is_current = models.BooleanField(default=True)
     comment = models.TextField(blank=True)
-    created = models.DateTimeField(default=timezone.now)
+    created = models.DateTimeField(auto_now_add=True)
 
     # Fields with citations
     description = models.TextField(
@@ -625,6 +624,26 @@ class SystemVersion(models.Model):
 
 
 # ==============================================
+# SavedSearch
+# ==============================================
+class SavedSearch(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=500, blank=True)
+    icon = models.CharField(max_length=100, blank=True, help_text="FontAwesome class, e.g. 'fas fa-database'")
+    search_params = models.CharField(max_length=1000, help_text="Query string for the browse URL, e.g. 'data-model=relational'")
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Saved Search'
+        verbose_name_plural = 'Saved Searches'
+
+    def __str__(self):
+        return self.name
+
+
+# ==============================================
 # FlatPageMeta
 # ==============================================
 class FlatPageMeta(models.Model):
@@ -656,7 +675,9 @@ __all__ = (
     'CitationUrl',
     'Feature',
     'FeatureOption',
+    'FlatPageMeta',
     'Organization',
+    'SavedSearch',
     'SuggestedSystem',
     'System',
     'SystemFeature',
@@ -665,7 +686,6 @@ __all__ = (
     'SystemRecommendation',
     'SystemSearchText',
     'SystemVisit',
-    'FlatPageMeta',
 )
 
 # signal handlers

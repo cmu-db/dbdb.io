@@ -6,7 +6,7 @@ from operator import and_, or_
 
 from django.contrib.postgres.aggregates import JSONBAgg
 from django.contrib.postgres.search import SearchQuery
-from django.db.models import F, Max, Min, Q
+from django.db.models import Count, F, Max, Min, Q
 from django.db.models.expressions import RawSQL
 from django.db.models.functions import JSONObject
 from django.shortcuts import redirect, render
@@ -215,11 +215,24 @@ class BrowseView(View):
 
         # pull search criteria
         search_q = request.GET.get('q', '').strip()
-        search_fg = {
-            features_map[k] : set( request.GET.getlist(k) )
-            for k in request.GET.keys()
-            if k in features_map
-        }
+
+        def _is_count_val(v):
+            return v.startswith('+') and v[1:].isdigit()
+
+        # separate option-slug values from count (+N) values for feature params
+        search_fg = {}
+        feature_counts = {}
+        for k in request.GET.keys():
+            if k not in features_map:
+                continue
+            fid = features_map[k]
+            vals = request.GET.getlist(k)
+            option_vals = [v for v in vals if not _is_count_val(v)]
+            count_vals  = [v for v in vals if _is_count_val(v)]
+            if option_vals:
+                search_fg[fid] = set(option_vals)
+            if count_vals:
+                feature_counts[fid] = max(int(v[1:]) for v in count_vals)
 
         # define date filters
         search_start_year = request.GET.get('start-year', '').strip()
@@ -240,10 +253,17 @@ class BrowseView(View):
 
         # collect attribute-based search params keyed by Attribute slug
         attr_searches = {}
+        attr_count_searches = {}
         for attr in Attribute.objects.filter(sv_field__gt='').only('slug', 'name', 'sv_field', 'search_text'):
             vals = request.GET.getlist(attr.slug)
-            if vals:
-                attr_searches[attr.slug] = (attr, vals)
+            if not vals:
+                continue
+            option_vals = [v for v in vals if not _is_count_val(v)]
+            count_vals  = [v for v in vals if _is_count_val(v)]
+            if option_vals:
+                attr_searches[attr.slug] = (attr, option_vals)
+            if count_vals:
+                attr_count_searches[attr.slug] = (attr, max(int(v[1:]) for v in count_vals))
 
         # collect filters
         search_mapping = {
@@ -264,9 +284,13 @@ class BrowseView(View):
             'inspired': search_inspired,
             'suffix': search_suffix,
         }
-        # Include attribute params so the early-return check counts them
+        # Include attribute and count params so the early-return check counts them
         for slug, (attr, vals) in attr_searches.items():
             search_mapping[slug] = vals
+        for slug, (attr, min_count) in attr_count_searches.items():
+            search_mapping[f'{slug}__gte'] = min_count
+        for fid, min_count in feature_counts.items():
+            search_mapping[f'feature_{fid}__gte'] = min_count
 
         if not any(search_mapping.values()) and not any(search_fg):
             return (sqs, { }, 'Browse')
@@ -408,6 +432,32 @@ class BrowseView(View):
             joined = ' or '.join(names) if len(names) < 3 else f"{', '.join(names[:-1])}, or {names[-1]}"
             if joined and attr.search_text:
                 search_parts.append(attr.search_text.format(names=joined))
+
+        # search - attribute counts (+N): SystemVersions with >= N options for that attribute
+        for slug, (attr, min_count) in attr_count_searches.items():
+            version_ids = (
+                SystemVersion.objects
+                .filter(is_current=True)
+                .annotate(_cnt=Count(attr.sv_field))
+                .filter(_cnt__gte=min_count)
+                .values_list('id', flat=True)
+            )
+            sqs_filters.append(Q(id__in=list(version_ids)))
+            search_parts.append(f'at least {min_count} {attr.name}')
+
+        # search - feature counts (+N): SystemVersions with >= N options for that feature
+        for fid, min_count in feature_counts.items():
+            version_ids = (
+                SystemFeature.objects
+                .filter(feature_id=fid, version__is_current=True)
+                .annotate(_cnt=Count('options'))
+                .filter(_cnt__gte=min_count)
+                .values_list('version_id', flat=True)
+            )
+            sqs_filters.append(Q(id__in=list(version_ids)))
+            reverse_features_map_local = {v: k for k, v in features_map.items()}
+            feat_label = reverse_features_map_local.get(fid, str(fid)).replace('-', ' ').title()
+            search_parts.append(f'at least {min_count} {feat_label}')
 
         # search - suffixes
         if search_suffix:
