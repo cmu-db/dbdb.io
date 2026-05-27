@@ -493,10 +493,11 @@ class BrowseView(View):
             if slug in available_map and slug not in selected_ids:
                 selected_ids.append(slug)
         cols = [available_map[c] for c in selected_ids if c in available_map]
-        # Tags column always floats to the far right when present
-        tags_cols  = [c for c in cols if c.col_id == 'tags']
-        other_cols = [c for c in cols if c.col_id != 'tags']
-        return (other_cols + tags_cols, is_custom)
+        # Canonical order: start-year → feature/attribute cols → end-year → tags
+        start_cols   = [c for c in cols if c.col_id == 'start-year']
+        content_cols = [c for c in cols if c.col_type in ('feature', 'attribute')]
+        tags_cols    = [c for c in cols if c.col_id == 'tags']
+        return (start_cols + content_cols + tags_cols, is_custom)
 
     def do_dym(self, search_q):
         """Did you mean search"""
