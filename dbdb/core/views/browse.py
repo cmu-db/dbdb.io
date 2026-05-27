@@ -607,6 +607,9 @@ class BrowseView(View):
         )
         years = {**years_start, **years_end}
 
+        # print(f"active_col_ids: {set(active_col_ids)}")
+        # print(f"DEFAULT_COLS: {set(DEFAULT_COLS)}")
+
         filter_groups = self.build_filter_groups(request.GET)
         return render(request, self.template_name, {
             'title': title,
@@ -624,6 +627,7 @@ class BrowseView(View):
             'search_op': "and" if search_op == and_ else "or",
             'active_columns': active_columns,
             'active_col_ids': active_col_ids,
+            'cols_are_custom': set(active_col_ids) != set(DEFAULT_COLS),
             'available_builtin':    [c for c in available_columns if c.col_type == 'builtin'],
             'available_features':   [c for c in available_columns if c.col_type == 'feature'],
             'available_attributes': [c for c in available_columns if c.col_type == 'attribute'],
