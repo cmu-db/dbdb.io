@@ -487,10 +487,16 @@ class BrowseView(View):
             selected_ids = [c.strip() for c in cols_param.split(',') if c.strip() in available_map]
         else:
             selected_ids = list(DEFAULT_COLS)
+        is_custom = set(selected_ids) != set(DEFAULT_COLS)
+
         for slug in extra_slugs:
             if slug in available_map and slug not in selected_ids:
                 selected_ids.append(slug)
-        return [available_map[c] for c in selected_ids if c in available_map]
+        cols = [available_map[c] for c in selected_ids if c in available_map]
+        # Tags column always floats to the far right when present
+        tags_cols  = [c for c in cols if c.col_id == 'tags']
+        other_cols = [c for c in cols if c.col_id != 'tags']
+        return (other_cols + tags_cols, is_custom)
 
     def do_dym(self, search_q):
         """Did you mean search"""
@@ -516,7 +522,8 @@ class BrowseView(View):
             Attribute.objects.filter(sv_field__gt='').exclude(slug='tag').values_list('slug', flat=True)
         )
         searched_slugs = [k for k in request.GET.keys() if k in feature_slugs_set or k in attr_slugs_set]
-        active_columns = self.get_active_columns(request, available_columns, searched_slugs)
+
+        active_columns, cols_are_custom = self.get_active_columns(request, available_columns, searched_slugs)
         active_col_ids = [c.col_id for c in active_columns]
 
         results = SystemVersion.objects.filter(is_current=True)
@@ -607,9 +614,6 @@ class BrowseView(View):
         )
         years = {**years_start, **years_end}
 
-        # print(f"active_col_ids: {set(active_col_ids)}")
-        # print(f"DEFAULT_COLS: {set(DEFAULT_COLS)}")
-
         filter_groups = self.build_filter_groups(request.GET)
         return render(request, self.template_name, {
             'title': title,
@@ -627,7 +631,7 @@ class BrowseView(View):
             'search_op': "and" if search_op == and_ else "or",
             'active_columns': active_columns,
             'active_col_ids': active_col_ids,
-            'cols_are_custom': set(active_col_ids) != set(DEFAULT_COLS),
+            'cols_are_custom': cols_are_custom,
             'available_builtin':    [c for c in available_columns if c.col_type == 'builtin'],
             'available_features':   [c for c in available_columns if c.col_type == 'feature'],
             'available_attributes': [c for c in available_columns if c.col_type == 'attribute'],
