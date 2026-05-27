@@ -452,7 +452,7 @@ if (tableBody) {
 $("#mainsearch").find('input[name="q"]').autoComplete({
     minChars: 3,
     source: function(term, response) {
-        $.getJSON('/search/autocomplete/', { q: term }, function(data) { response(data); });
+        $.getJSON('/api/systems/autocomplete/', { q: term }, function(data) { response(data); });
     },
     onSelect: function(e, term, item) { window.location.href = "/db/" + convertToSlug(term); }
 });

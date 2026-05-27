@@ -264,10 +264,7 @@ span.search-keyword {
     width: 2.5rem;
 }
 .results-tags {
-
-}
-.results-startyear, .results-endyear {
-    min-width: 15%;
+    width: 15%;
 }
 .sort-arrow {
     font-size: 0.65rem;
@@ -441,13 +438,13 @@ tr.browse-row {
 }
 
 .browse-logo-cell {
-    width: 2.5rem;
+    width: 3.5rem;
     padding-left: 0.5rem;
     padding-right: 0.25rem;
 }
 .browse-logo {
-    width: 32px;
-    height: 32px;
+    width: 3rem;
+    height: 3rem;
     object-fit: contain;
 }
 .browse-logo-placeholder {
