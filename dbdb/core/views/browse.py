@@ -20,6 +20,7 @@ from dbdb.core.models import (
     AttributeOption,
     Feature,
     FeatureOption,
+    Organization,
     System,
     SystemFeature,
     SystemSearchText,
@@ -160,6 +161,22 @@ class BrowseView(View):
             querydict
         ))
 
+        # Developer Orgs
+        developer_org_slugs = set(
+            SystemVersion.objects
+            .filter(is_current=True, developer_orgs__isnull=False)
+            .values_list('developer_orgs__slug', flat=True)
+            .distinct()
+        )
+        developer_orgs_map = {
+            o.slug: o.name
+            for o in Organization.objects.filter(slug__in=developer_org_slugs).only('slug', 'name')
+        }
+        other_filtersgroups.append(FilterGroup('developer', 'Developer', sorted([
+            FilterChoice(slug, name)
+            for slug, name in developer_orgs_map.items()
+        ], key=lambda x: x.label)))
+
         # Add one FilterGroup per Attribute that has a sv_field configured.
         # Adding a new Attribute in the admin automatically shows up here.
         for attr in Attribute.objects.filter(sv_field__gt='').prefetch_related('options').order_by('name'):
@@ -246,6 +263,7 @@ class BrowseView(View):
         search_compatible = request.GET.getlist('compatible')
         search_country = list(map(str.upper, request.GET.getlist('country')))
         search_derived = request.GET.getlist('derived')
+        search_developer = request.GET.getlist('developer')
         search_embeds = request.GET.getlist('embeds')
         search_hosted_by = request.GET.getlist('hosted_by')
         search_inspired = request.GET.getlist('inspired')
@@ -279,6 +297,7 @@ class BrowseView(View):
             'compatible': search_compatible,
             'country': search_country,
             'derived': search_derived,
+            'developer': search_developer,
             'embeds': search_embeds,
             'hosted_by': search_hosted_by,
             'inspired': search_inspired,
@@ -422,6 +441,16 @@ class BrowseView(View):
             search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
             if search_compatiblewith:
                 search_parts.append(' Inspired By ' + search_compatiblewith)
+            pass
+
+        # search - developer orgs
+        if search_developer:
+            sqs_filters.append(Q(developer_orgs__slug__in=search_developer))
+            orgs = Organization.objects.filter(slug__in=search_developer).only('name')
+            org_names = [o.name for o in orgs]
+            joined = ' or '.join(org_names) if len(org_names) < 3 else f"{', '.join(org_names[:-1])}, or {org_names[-1]}"
+            if joined:
+                search_parts.append(f' Developed By {joined}')
             pass
 
         # search - attribute options (dynamic: one block per Attribute)
