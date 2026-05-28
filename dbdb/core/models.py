@@ -22,6 +22,19 @@ from dbdb.core.common.searchvector import SearchVector
 
 
 # ==============================================
+# LogoMixin
+# ==============================================
+class LogoMixin(models.Model):
+    logo = ThumbnailerField(blank=True, upload_to='logos/')
+    logo_color = ColorField(format="hex", help_text="The color of the logo")
+    logo_width = models.IntegerField(blank=True, null=True)
+    logo_height = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        abstract = True
+
+
+# ==============================================
 # CitationUrl
 # ==============================================
 class CitationUrl(models.Model):
@@ -171,7 +184,7 @@ class SuggestedSystem(models.Model):
 # ==============================================
 # Organization
 # ==============================================
-class Organization(models.Model):
+class Organization(LogoMixin, models.Model):
 
     slug = models.SlugField(unique=True)
     name = models.CharField(max_length=200, unique=True)
@@ -393,7 +406,7 @@ class SystemSearchText(models.Model):
 # ==============================================
 # SystemVersion
 # ==============================================
-class SystemVersion(models.Model):
+class SystemVersion(LogoMixin, models.Model):
 
     # Internal Version Meta-data
     system = models.ForeignKey('System', models.CASCADE, related_name='versions')
@@ -436,13 +449,6 @@ class SystemVersion(models.Model):
         related_name='developed_systems',
         verbose_name='Developer Organizations',
         help_text="Organizations that developed this DBMS (structured alternative to the developer text field)")
-
-    logo = ThumbnailerField(
-        blank=True, upload_to='logos/')
-    logo_color = ColorField(format="hex",
-        help_text="The color of the logo")
-    logo_width = models.IntegerField(blank=True, null=True)
-    logo_height = models.IntegerField(blank=True, null=True)
 
     countries = CountryField(
         blank=True, multiple=True,

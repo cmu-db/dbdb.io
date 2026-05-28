@@ -59,6 +59,7 @@ SPAM_IGNORE_DOMAINS = {
     "//www.postgresql.org/",
     "//www.slideshare.net/", # LLM spam checker can't handle it?
     "//news.ycombinator.com/",
+    "//books.google.com/"
 }
 
 IGNORE_TITLES = map(str.lower, [
@@ -174,6 +175,13 @@ def _extract_html_title(
     title = None
     html = _get_html_page(url, request_timeout=request_timeout)
     soup = BeautifulSoup(html, "html.parser")
+
+    if html and re.search(
+        r'Visit\s+(?:<a[^>]*>)?cloudflare\.com(?:</a>)?\s+for more information',
+        html, re.IGNORECASE
+    ):
+        LOG.debug(f"Cloudflare error page detected for {url}")
+        return None
 
     if not skip_spamcheck:
         # Extract the text from the HTML and clean up the newlines and spaces
