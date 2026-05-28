@@ -50,6 +50,10 @@
         <td data-sort-val="{% for org in col_val.data %}{% if not forloop.first %} {% endif %}{{ org.name }}{% endfor %}">
             {% for org in col_val.data %}{% if not forloop.first %}, {% endif %}{{ org.name }}{% empty %}&mdash;{% endfor %}
         </td>
+        {% elif col_val.type == 'countries' %}
+        <td data-sort-val="{% for c in col_val.data %}{% if not forloop.first %} {% endif %}{{ c.name }}{% endfor %}">
+            {% for c in col_val.data %}{% if not forloop.first %}, {% endif %}<span title="{{ c.name }}"><i class="{{ c.flag_css }}"></i> {{ c.code }}</span>{% empty %}&mdash;{% endfor %}
+        </td>
         {% endif %}
     {% endfor %}
 </tr>

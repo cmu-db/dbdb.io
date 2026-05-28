@@ -9,6 +9,7 @@
 {% block css %}
 <link rel="stylesheet" type="text/css" href="{% static 'lib/css/nouislider.min.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+{% if 'country' in active_col_ids %}<link rel="stylesheet" href="{% static 'flags/sprite.css' %}">{% endif %}
 {% endblock %}
 
 {% block content %}

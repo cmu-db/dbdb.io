@@ -14,6 +14,7 @@ from django.shortcuts import redirect, render
 from django.views import View
 
 from django_countries import countries
+from django_countries.fields import Country as CountryObj
 
 from dbdb.core.common.searchvector import SearchVector
 from dbdb.core.models import (
@@ -35,15 +36,23 @@ ColumnDef = collections.namedtuple('ColumnDef', ['col_id', 'label', 'col_type'])
 DEFAULT_COLS = ['data-model', 'start-year', 'tags']
 
 _BUILTIN_COLUMNS = [
-    ColumnDef('tags',          'Tags',        'builtin'),
-    ColumnDef('start-year',    'Start Year',  'builtin'),
-    ColumnDef('end-year',      'End Year',    'builtin'),
-    ColumnDef('developer-orgs','Developer',   'builtin'),
-    ColumnDef('acquired-by',   'Acquired By', 'builtin'),
+    ColumnDef('tags',          'Tags',              'builtin'),
+    ColumnDef('start-year',    'Start Year',        'builtin'),
+    ColumnDef('end-year',      'End Year',          'builtin'),
+    ColumnDef('developer-orgs','Developer',         'builtin'),
+    ColumnDef('acquired-by',   'Acquired By',       'builtin'),
+    ColumnDef('country',       'Country of Origin', 'builtin'),
 ]
 
-_YEAR_IDS       = frozenset({'start-year', 'end-year'})
+_YEAR_IDS        = frozenset({'start-year', 'end-year'})
 _FIXED_RIGHT_IDS = frozenset({'tags'})
+
+# Maps a search GET param to the column ID that should be auto-shown when that param is active.
+_SEARCH_PARAM_TO_COL = {
+    'developer':   'developer-orgs',
+    'acquired-by': 'acquired-by',
+    'country':     'country',
+}
 
 _DOI_RE = re.compile(r'\b10\.\d{4,}/\S+', re.IGNORECASE)
 
@@ -641,6 +650,9 @@ class BrowseView(View):
             Attribute.objects.filter(sv_field__gt='').exclude(slug='tag').values_list('slug', flat=True)
         )
         searched_slugs = [k for k in request.GET.keys() if k in feature_slugs_set or k in attr_slugs_set]
+        for param, col_id in _SEARCH_PARAM_TO_COL.items():
+            if request.GET.get(param) and col_id not in searched_slugs:
+                searched_slugs.append(col_id)
 
         active_columns, cols_are_custom = self.get_active_columns(request, available_columns, searched_slugs)
         active_col_ids = [c.col_id for c in active_columns]
@@ -691,6 +703,8 @@ class BrowseView(View):
             value_fields.append('col_developer_orgs')
         if 'acquired-by' in active_col_ids:
             value_fields.append('col_acquired_by')
+        if 'country' in active_col_ids:
+            value_fields.append('countries')
 
         results.query.comment = "BROWSE-SEARCH"
         results = list(results.values(*value_fields).order_by('system__name'))
@@ -741,6 +755,13 @@ class BrowseView(View):
                     col_values.append({'type': 'orgs', 'data': r.get('col_developer_orgs') or []})
                 elif col.col_id == 'acquired-by':
                     col_values.append({'type': 'orgs', 'data': r.get('col_acquired_by') or []})
+                elif col.col_id == 'country':
+                    codes = [c for c in (r.get('countries') or '').split(',') if c]
+                    country_data = [
+                        {'code': c, 'name': CountryObj(c).name, 'flag_css': CountryObj(c).flag_css}
+                        for c in codes if c
+                    ]
+                    col_values.append({'type': 'countries', 'data': country_data})
             r['col_values'] = col_values
 
         has_results = len(results) > 0

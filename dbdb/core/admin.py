@@ -105,8 +105,8 @@ class AttributeOptionInline(admin.TabularInline):
     prepopulated_fields = {'slug': ('name',)}
 
 @admin.register(Attribute)
-class AttributeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'option_count', 'modified')
+class AttributeAdmin(IconDisplayMixin, admin.ModelAdmin):
+    list_display = ('name', 'slug', 'icon_display', 'option_count', 'modified')
     search_fields = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
     readonly_fields = ('created', 'modified')
