@@ -177,6 +177,22 @@ class BrowseView(View):
             for slug, name in developer_orgs_map.items()
         ], key=lambda x: x.label)))
 
+        # Acquired By
+        acquiredby_org_slugs = set(
+            SystemVersion.objects
+            .filter(is_current=True, acquisitions__isnull=False)
+            .values_list('acquisitions__organization__slug', flat=True)
+            .distinct()
+        )
+        acquiredby_orgs_map = {
+            o.slug: o.name
+            for o in Organization.objects.filter(slug__in=acquiredby_org_slugs).only('slug', 'name')
+        }
+        other_filtersgroups.append(FilterGroup('acquiredby', 'Acquired By', sorted([
+            FilterChoice(slug, name)
+            for slug, name in acquiredby_orgs_map.items()
+        ], key=lambda x: x.label)))
+
         # Add one FilterGroup per Attribute that has a sv_field configured.
         # Adding a new Attribute in the admin automatically shows up here.
         for attr in Attribute.objects.filter(sv_field__gt='').prefetch_related('options').order_by('name'):
@@ -260,6 +276,7 @@ class BrowseView(View):
         search_end_max = request.GET.get('end-max', '').strip()
 
         # define static filters
+        search_acquiredby = request.GET.getlist('acquiredby')
         search_compatible = request.GET.getlist('compatible')
         search_country = list(map(str.upper, request.GET.getlist('country')))
         search_derived = request.GET.getlist('derived')
@@ -294,6 +311,7 @@ class BrowseView(View):
             'end_min': search_end_min,
             'end_max': search_end_max,
 
+            'acquiredby': search_acquiredby,
             'compatible': search_compatible,
             'country': search_country,
             'derived': search_derived,
@@ -451,6 +469,16 @@ class BrowseView(View):
             joined = ' or '.join(org_names) if len(org_names) < 3 else f"{', '.join(org_names[:-1])}, or {org_names[-1]}"
             if joined:
                 search_parts.append(f' Developed By {joined}')
+            pass
+
+        # search - acquired by
+        if search_acquiredby:
+            sqs_filters.append(Q(acquisitions__organization__slug__in=search_acquiredby))
+            orgs = Organization.objects.filter(slug__in=search_acquiredby).only('name')
+            org_names = [o.name for o in orgs]
+            joined = ' or '.join(org_names) if len(org_names) < 3 else f"{', '.join(org_names[:-1])}, or {org_names[-1]}"
+            if joined:
+                search_parts.append(f' Acquired By {joined}')
             pass
 
         # search - attribute options (dynamic: one block per Attribute)
