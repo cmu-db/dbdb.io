@@ -26,27 +26,20 @@
         </div>
     </div>
     {% if featured_searches %}
-    <div class="row justify-content-md-center mt-3">
-        <div class="col col-md-9 col-sm-12">
-            <div class="row g-3 justify-content-center">
-                {% for s in featured_searches %}
-                <div class="col-12 col-md-4">
-                    <a href="{% url 'browse' %}?{{ s.search_params }}" class="text-decoration-none">
-                        <div class="card h-100 text-center saved-search-card">
-                            <div class="card-body">
-                                {% if s.icon %}<div class="mb-2 fs-3 text-primary"><i class="{{ s.icon }}"></i></div>{% endif %}
-                                <h6 class="card-title fw-bold mb-1">{{ s.name }}</h6>
-                                {% if s.description %}<p class="card-text small text-muted mb-0">{{ s.description }}</p>{% endif %}
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                {% endfor %}
-            </div>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 py-5">
+        {% for s in featured_searches %}
+        <div class="col d-flex align-items-start">
+            <a href="{% url 'browse' %}?{{ s.search_params }}"
+               {% if s.description %}data-bs-toggle="tooltip" data-bs-title="{{ s.description }}"{% endif %}>
+                {% if s.icon %}<i class="{{ s.icon }} fs-5 text-primary flex-shrink-0"></i>{% endif %}
+                <div class="fw-bold mb-0 text-body-emphasis">{{ s.name }}</div>
+            </a>
         </div>
+        {% endfor %}
     </div>
     {% endif %}
 </div>
+
 <div class="container homepage-list">
     <div class="row">
         <div class="col-md-4 text-center">
@@ -86,6 +79,8 @@
 
 {% block scripts %}
 <script type="text/javascript">
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+
     // Homepage Search Box
     $("#mainsearch").find('input[name="q"]').autoComplete({
         minChars: 3,
