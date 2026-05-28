@@ -582,13 +582,24 @@ def get_systems(c: CitationUrl,
         features = features.filter(version__is_current=True)
     systems = set([sf.version.system for sf in features])
 
-    # Then check SystemVersions
+    # Then check all CitationUrl fields on SystemVersions
     versions = SystemVersion.objects.filter(
+        # M2M citation fields
         Q(description_citations__in=[c]) |
         Q(start_year_citations__in=[c]) |
         Q(end_year_citations__in=[c]) |
-        Q(history_citations__in=[c])
-    )
+        Q(history_citations__in=[c]) |
+        # FK URL fields
+        Q(system_url=c) |
+        Q(docs_url=c) |
+        Q(sourcerepo_url=c) |
+        Q(wikipedia_url=c) |
+        # Developer org URLs
+        Q(developer_orgs__url=c) |
+        Q(developer_orgs__linkedin_url=c) |
+        # Acquisition citation
+        Q(acquisitions__citation=c)
+    ).distinct()
     if current_only:
         versions = versions.filter(is_current=True)
     systems.update(v.system for v in versions)
