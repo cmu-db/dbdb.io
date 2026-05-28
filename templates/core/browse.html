@@ -162,9 +162,9 @@
                 <tr>
                     <th class="results-logo"></th>
                     <th class="results-name">
-                        <button type="button" class="sort-btn btn btn-link p-0 text-light fw-bold text-decoration-none"
+                        <button type="button" class="sort-btn btn btn-link p-0 text-light fw-bold text-decoration-none text-start"
                                 data-sort-col="1" data-sort-type="text">
-                            <span class="d-flex align-items-center gap-1">
+                            <span class="d-flex gap-1">
                                 Name
                                 <span class="d-flex flex-column lh-1">
                                     <i class="fas fa-caret-up sort-arrow"></i>
@@ -176,10 +176,10 @@
                     {% for col in active_columns %}
                     <th {% if col.col_id == 'tags' %}class="results-tags d-none d-md-table-cell"{% endif %}>
                         <button type="button"
-                                class="sort-btn btn btn-link p-0 text-light fw-bold text-decoration-none"
+                                class="sort-btn btn btn-link p-0 text-light fw-bold text-decoration-none text-start"
                                 data-sort-col="{{ forloop.counter0|add:2 }}"
                                 data-sort-type="{% if col.col_id == 'start-year' or col.col_id == 'end-year' %}numeric{% else %}text{% endif %}">
-                            <span class="d-flex align-items-center gap-1">
+                            <span class="d-flex gap-1">
                                 {{ col.label }}
                                 <span class="d-flex flex-column lh-1">
                                     <i class="fas fa-caret-up sort-arrow"></i>

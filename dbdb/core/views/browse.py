@@ -34,10 +34,15 @@ ColumnDef = collections.namedtuple('ColumnDef', ['col_id', 'label', 'col_type'])
 DEFAULT_COLS = ['data-model', 'start-year', 'tags']
 
 _BUILTIN_COLUMNS = [
-    ColumnDef('tags',       'Tags',       'builtin'),
-    ColumnDef('start-year', 'Start Year', 'builtin'),
-    ColumnDef('end-year',   'End Year',   'builtin'),
+    ColumnDef('tags',          'Tags',        'builtin'),
+    ColumnDef('start-year',    'Start Year',  'builtin'),
+    ColumnDef('end-year',      'End Year',    'builtin'),
+    ColumnDef('developer-orgs','Developer',   'builtin'),
+    ColumnDef('acquired-by',   'Acquired By', 'builtin'),
 ]
+
+_YEAR_IDS       = frozenset({'start-year', 'end-year'})
+_FIXED_RIGHT_IDS = frozenset({'tags'})
 
 
 # ==============================================
@@ -188,7 +193,7 @@ class BrowseView(View):
             o.slug: o.name
             for o in Organization.objects.filter(slug__in=acquiredby_org_slugs).only('slug', 'name')
         }
-        other_filtersgroups.append(FilterGroup('acquiredby', 'Acquired By', sorted([
+        other_filtersgroups.append(FilterGroup('acquired-by', 'Acquired By', sorted([
             FilterChoice(slug, name)
             for slug, name in acquiredby_orgs_map.items()
         ], key=lambda x: x.label)))
@@ -276,7 +281,7 @@ class BrowseView(View):
         search_end_max = request.GET.get('end-max', '').strip()
 
         # define static filters
-        search_acquiredby = request.GET.getlist('acquiredby')
+        search_acquiredby = request.GET.getlist('acquired-by')
         search_compatible = request.GET.getlist('compatible')
         search_country = list(map(str.upper, request.GET.getlist('country')))
         search_derived = request.GET.getlist('derived')
@@ -311,7 +316,7 @@ class BrowseView(View):
             'end_min': search_end_min,
             'end_max': search_end_max,
 
-            'acquiredby': search_acquiredby,
+            'acquired-by': search_acquiredby,
             'compatible': search_compatible,
             'country': search_country,
             'derived': search_derived,
@@ -600,10 +605,10 @@ class BrowseView(View):
             if slug in available_map and slug not in selected_ids:
                 selected_ids.append(slug)
         cols = [available_map[c] for c in selected_ids if c in available_map]
-        # Canonical order: start-year → feature/attribute cols → end-year → tags
+        # Canonical order: start-year → all content cols → tags
         start_cols   = [c for c in cols if c.col_id == 'start-year']
-        content_cols = [c for c in cols if c.col_type in ('feature', 'attribute')]
-        tags_cols    = [c for c in cols if c.col_id == 'tags']
+        tags_cols    = [c for c in cols if c.col_id in _FIXED_RIGHT_IDS]
+        content_cols = [c for c in cols if c.col_id not in _YEAR_IDS and c.col_id not in _FIXED_RIGHT_IDS]
         return (start_cols + content_cols + tags_cols, is_custom)
 
     def do_dym(self, search_q):
@@ -657,9 +662,29 @@ class BrowseView(View):
                 distinct=True,
             )})
 
+        # Developer orgs column annotation (inline)
+        if 'developer-orgs' in active_col_ids:
+            results = results.annotate(col_developer_orgs=JSONBAgg(
+                JSONObject(name=F('developer_orgs__name'), slug=F('developer_orgs__slug')),
+                filter=Q(developer_orgs__isnull=False),
+                distinct=True,
+            ))
+
+        # Acquired-by column annotation (inline)
+        if 'acquired-by' in active_col_ids:
+            results = results.annotate(col_acquired_by=JSONBAgg(
+                JSONObject(name=F('acquisitions__organization__name'), slug=F('acquisitions__organization__slug')),
+                filter=Q(acquisitions__isnull=False),
+                distinct=True,
+            ))
+
         value_fields = ['id', 'name', 'slug', 'logo', 'logo_color', 'start_year', 'end_year', 'system_tags', 'created']
         for col in attr_cols:
             value_fields.append('col_' + col.col_id.replace('-', '_'))
+        if 'developer-orgs' in active_col_ids:
+            value_fields.append('col_developer_orgs')
+        if 'acquired-by' in active_col_ids:
+            value_fields.append('col_acquired_by')
 
         results.query.comment = "BROWSE-SEARCH"
         results = list(results.values(*value_fields).order_by('system__name'))
@@ -706,6 +731,10 @@ class BrowseView(View):
                 elif col.col_type == 'attribute':
                     key = 'col_' + col.col_id.replace('-', '_')
                     col_values.append({'type': 'attr_opts', 'data': r.get(key) or []})
+                elif col.col_id == 'developer-orgs':
+                    col_values.append({'type': 'orgs', 'data': r.get('col_developer_orgs') or []})
+                elif col.col_id == 'acquired-by':
+                    col_values.append({'type': 'orgs', 'data': r.get('col_acquired_by') or []})
             r['col_values'] = col_values
 
         has_results = len(results) > 0

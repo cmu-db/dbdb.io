@@ -46,6 +46,10 @@
         <td data-sort-val="{% for opt in col_val.data %}{% if not forloop.first %} {% endif %}{{ opt.name }}{% endfor %}">
             {% for opt in col_val.data %}{% if not forloop.first %}, {% endif %}{{ opt.name }}{% empty %}&mdash;{% endfor %}
         </td>
+        {% elif col_val.type == 'orgs' %}
+        <td data-sort-val="{% for org in col_val.data %}{% if not forloop.first %} {% endif %}{{ org.name }}{% endfor %}">
+            {% for org in col_val.data %}{% if not forloop.first %}, {% endif %}{{ org.name }}{% empty %}&mdash;{% endfor %}
+        </td>
         {% endif %}
     {% endfor %}
 </tr>
