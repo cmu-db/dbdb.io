@@ -436,7 +436,9 @@ def fetch_url_metadata(
             status = CitationUrl.Status.IGNORE
 
     if status == CitationUrl.Status.UNKNOWN:
-        status = CitationUrl.Status.VALID if status_code >= 200 and status_code < 300 else CitationUrl.Status.DEAD
+        status = CitationUrl.Status.DEAD
+        if (200 <= status_code < 300) or status_code == 307:
+            status = CitationUrl.Status.VALID
 
     # --- Content-Type dispatch ---
 

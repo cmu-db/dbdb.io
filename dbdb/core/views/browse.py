@@ -1,4 +1,5 @@
 import collections
+import re
 import urllib.parse
 from dataclasses import asdict
 from functools import reduce
@@ -43,6 +44,11 @@ _BUILTIN_COLUMNS = [
 
 _YEAR_IDS       = frozenset({'start-year', 'end-year'})
 _FIXED_RIGHT_IDS = frozenset({'tags'})
+
+_DOI_RE = re.compile(r'\b10\.\d{4,}/\S+', re.IGNORECASE)
+
+def _is_doi_query(q: str) -> bool:
+    return 'doi.org' in q.lower() or bool(_DOI_RE.search(q))
 
 
 # ==============================================
@@ -755,6 +761,7 @@ class BrowseView(View):
         return render(request, self.template_name, {
             'title': title,
             'activate': 'browse',
+            'doi_warning': _is_doi_query(search_q),
             'filtergroups': filter_groups,
             'filtergroupsjson': [asdict(fg) for fg in filter_groups],
             'has_results': has_results,
