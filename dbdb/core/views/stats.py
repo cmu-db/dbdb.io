@@ -7,11 +7,12 @@ from django.views import View
 
 from dbdb.core.models import (
     AttributeOption,
+    Organization,
     System,
     SystemVersion,
 )
 
-Stat = collections.namedtuple('Stat', ['label', 'items', 'search_field', 'systems', 'count'])
+Stat = collections.namedtuple('Stat', ['label', 'items', 'search_field', 'systems', 'count', 'organizations'], defaults=[False])
 StatItem = collections.namedtuple('StatItem', ['label', 'value', 'slug', 'url'])
 
 
@@ -134,6 +135,19 @@ class StatsView(View):
         return stat
 
 
+    def get_org_stat(self, title, count_field, count_filter, search_field, limit):
+        orgs = (
+            Organization.objects
+            .annotate(count=Count(count_field, filter=count_filter))
+            .filter(count__gt=0)
+            .order_by('-count')
+        )
+        stat_items = [
+            StatItem(org, org.count, org.slug, None)
+            for org in orgs[:limit]
+        ]
+        return Stat(title, stat_items, search_field, False, len(stat_items), organizations=True)
+
     def get(self, request, stats_type=None):
         self.is_privileged = request.user.is_superuser or request.user.is_staff
         stats = []
@@ -185,6 +199,28 @@ class StatsView(View):
         if stats_type is None or stats_type == "project_type":
             limit = -1 if stats_type == "project_type" else self.default_limit
             stats.append(self.get_attributeoption_stat('Project Type', 'project-type', 'system_project_types', 'project-type', limit))
+
+        # Developer Organizations
+        if stats_type is None or stats_type == "developer":
+            limit = -1 if stats_type == "developer" else self.default_limit
+            stats.append(self.get_org_stat(
+                'Developers',
+                'developed_systems',
+                Q(developed_systems__is_current=True),
+                'developer',
+                limit,
+            ))
+
+        # Acquisition Organizations
+        if stats_type is None or stats_type == "acquired-by":
+            limit = -1 if stats_type == "acquired-by" else self.default_limit
+            stats.append(self.get_org_stat(
+                'Acquisitions',
+                'acquisitions',
+                Q(acquisitions__version__is_current=True),
+                'acquired-by',
+                limit,
+            ))
 
         return render(request, self.template_name, context={
             'activate': 'stats', # NAV-LINKS

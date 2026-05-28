@@ -54,6 +54,15 @@ Leaderboards
                                     {% endif %}
                                     {{ item.label.name }}
                                     </a>
+                                {% elif stat.organizations %}
+                                    <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}">
+                                    {% if item.label.logo %}
+                                        <img src="{% if item.label.logo.url.lower|slice:"-3:" == "svg" %}{{ item.label.logo.url }}{% else %}{{ item.label.logo|thumbnail_url:'stats' }}{% endif %}" alt="{{ item.label.name }}" class="logo-stats" />
+                                    {% else %}
+                                        <img src="{% static 'core/images/database-nologo-sidebar.svg' %}" alt="{{ item.label.name }}" class="logo-stats" />
+                                    {% endif %}
+                                    {{ item.label.name }}
+                                    </a>
                                 {% else %}
                                     <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}">{{ item.label }}</a>
                                 {% endif %}
