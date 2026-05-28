@@ -80,9 +80,9 @@ def is_spam(
         # Adding the developer is useful for when pages talk about a company acquisition
         # but the name of the company is not the same as the database system (e.g., RedHat's etcd).
         first_line = f"The expected topic of this page is the database system '{system.name}'"
-        developer = system.current().developer
-        if developer:
-            first_line += f" and/or {system.name}'s developers " + " and ".join(map(str.strip, developer.split(",")))
+        developer_names = list(system.current().developer_orgs.values_list('name', flat=True))
+        if developer_names:
+            first_line += f" and/or {system.name}'s developers " + " and ".join(developer_names)
     else:
         first_line = "The expected topic of this page is about database systems"
     user_prompt = (
@@ -137,8 +137,9 @@ def _check_response(response: str,
 
     developer_names = ""
     if system:
-        if system.current().developer:
-            developer_names = " and ".join(map(str.strip, system.current().developer.split(",")))
+        names = list(system.current().developer_orgs.values_list('name', flat=True))
+        if names:
+            developer_names = " and ".join(names)
 
     system_prompt = (
         "You are a classification and validation model.\n"
