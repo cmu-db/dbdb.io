@@ -19,6 +19,7 @@ from django_countries.fields import CountryField
 from easy_thumbnails.fields import ThumbnailerField
 
 from dbdb.core.common.searchvector import SearchVector
+from dbdb.core.utils.logos import color_to_hex, extract_color, extract_dimensions
 
 
 # ==============================================
@@ -33,6 +34,25 @@ class LogoMixin(models.Model):
     class Meta:
         abstract = True
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # print(f"Logo({self.pk}) -> {self.logo} [{self.logo_color}]")
+        if self.logo and self.logo_width is None:
+            try:
+                path = self.logo.path
+                w, h = extract_dimensions(path)
+                color = color_to_hex(extract_color(path))
+                self.logo_width = w
+                self.logo_height = h
+                self.logo_color = color
+                self.__class__.objects.filter(pk=self.pk).update(
+                    logo_width=w,
+                    logo_height=h,
+                    logo_color=color,
+                )
+            except Exception:
+                pass
 
 # ==============================================
 # CitationUrl

@@ -38,9 +38,9 @@ from dbdb.core.models import (
     SystemSearchText,
     SystemVersion,
 )
-from dbdb.core.utils import logos
 from dbdb.core.utils.searchtext import generate_searchtext
 from dbdb.core.utils.twitter_card import create_twitter_card
+
 from .api import CounterView
 
 
@@ -417,12 +417,6 @@ class SystemEditView(LoginRequiredMixin, View):
 
             if logo and not new_version.logo:
                 new_version.logo = logo
-            # Extract information about the logo that we can use when rendering pages
-            if new_version.logo is not None:
-                logo_w, logo_h = logos.extract_dimensions(new_version.logo.path)
-                new_version.logo_width = logo_w
-                new_version.logo_height = logo_h
-                new_version.logo_color = logos.color_to_hex(logos.extract_color(new_version.logo.path))
 
             system.ver = new_version.ver
             system.modified = timezone.now()

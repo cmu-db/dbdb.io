@@ -11,6 +11,9 @@ from django.utils.html import format_html
 # local imports
 from .models import *
 
+# ==============================================
+# MIXINS
+# ==============================================
 
 class IconDisplayMixin:
     """Adds icon_display() and FontAwesome CSS Media to any ModelAdmin."""
@@ -23,21 +26,6 @@ class IconDisplayMixin:
         if not obj.icon:
             return ''
         return format_html('<i class="{}"></i> <tt>{}</tt>', obj.icon, obj.icon)
-
-
-class FlatPageMetaInline(admin.StackedInline):
-    model = FlatPageMeta
-    can_delete = False
-    verbose_name_plural = 'Display settings'
-
-
-class FlatPageAdminWithMeta(FlatPageAdmin):
-    inlines = [FlatPageMetaInline]
-
-
-admin.site.unregister(FlatPage)
-admin.site.register(FlatPage, FlatPageAdminWithMeta)
-
 
 class CitationUrlAutocompleteMixin:
     """Replaces the default select widget with an incremental-search autocomplete
@@ -56,22 +44,91 @@ class CitationUrlAutocompleteMixin:
             )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
+# ==============================================
+# FLAT PAGES
+# ==============================================
 
-class FeatureOptionsInlines(admin.StackedInline):
-    model = FeatureOption
-    extra = 0
+class FlatPageMetaInline(admin.StackedInline):
+    model = FlatPageMeta
+    can_delete = False
+    verbose_name_plural = 'Display settings'
+
+class FlatPageAdminWithMeta(FlatPageAdmin):
+    inlines = [FlatPageMetaInline]
+
+admin.site.unregister(FlatPage)
+admin.site.register(FlatPage, FlatPageAdminWithMeta)
+
+# ==============================================
+# USER
+# ==============================================
 
 class SystemACLInlines(admin.StackedInline):
     model = SystemACL
     extra = 0
     exclude=('created', 'modified')
 
-# model admins
-
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'is_staff', 'date_joined', 'last_login')
     readonly_fields=('date_joined', 'last_login')
     inlines = [SystemACLInlines]
+
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)
+
+# ==============================================
+# FEATURES
+# ==============================================
+
+class FeatureOptionsInlines(admin.StackedInline):
+    model = FeatureOption
+    extra = 0
+
+@admin.register(Feature)
+class FeatureAdmin(admin.ModelAdmin):
+    inlines = [FeatureOptionsInlines]
+
+@admin.register(FeatureOption)
+class FeatureOptionAdmin(admin.ModelAdmin):
+    list_filter = ['feature']
+    list_display = ('value', 'feature')
+    search_fields = ('value', )
+
+# ==============================================
+# ATTRIBUTES
+# ==============================================
+
+class AttributeOptionInline(admin.TabularInline):
+    model = AttributeOption
+    extra = 0
+    fields = ('name', 'slug', 'url', 'icon', 'description')
+    prepopulated_fields = {'slug': ('name',)}
+
+@admin.register(Attribute)
+class AttributeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug', 'option_count', 'modified')
+    search_fields = ('name', 'slug')
+    prepopulated_fields = {'slug': ('name',)}
+    readonly_fields = ('created', 'modified')
+    inlines = [AttributeOptionInline]
+
+    @admin.display(description='options')
+    def option_count(self, obj):
+        return obj.options.count()
+
+
+@admin.register(AttributeOption)
+class AttributeOptionAdmin(IconDisplayMixin, admin.ModelAdmin):
+    list_display = ('name', 'slug', 'attribute', 'icon_display', 'url', 'modified')
+    list_filter = ('attribute',)
+    search_fields = ('name', 'slug')
+    prepopulated_fields = {'slug': ('name',)}
+    readonly_fields = ('created', 'modified')
+    ordering = ('attribute__name', 'name')
+
+# ==============================================
+# MISC
+# ==============================================
 
 @admin.register(CitationUrl)
 class CitationUrlAdmin(admin.ModelAdmin):
@@ -84,15 +141,19 @@ class CitationUrlAdmin(admin.ModelAdmin):
     def url_display(self, obj):
         return format_html('{} <a href="{}" target="_blank">🔗</a>', obj.url, obj.url)
 
-@admin.register(Feature)
-class FeatureAdmin(admin.ModelAdmin):
-    inlines = [FeatureOptionsInlines]
+@admin.register(Organization)
+class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
+    list_display = ('name', 'slug', 'url', 'linkedin_url', 'created', 'modified')
+    list_filter = ['created', 'modified']
+    search_fields = ('name',)
+    readonly_fields = ('created', 'modified')
+    ordering = ('name',)
 
-@admin.register(FeatureOption)
-class FeatureOptionAdmin(admin.ModelAdmin):
-    list_filter = ['feature']
-    list_display = ('value', 'feature')
-    search_fields = ('value', )
+# ==============================================
+# SYSTEMS
+# ==============================================
+
+
 
 @admin.register(System)
 class SystemAdmin(admin.ModelAdmin):
@@ -143,51 +204,9 @@ class SystemVisitAdmin(admin.ModelAdmin):
     readonly_fields=('created',)
     ordering = ('-created',)
 
-@admin.register(Organization)
-class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
-    list_display = ('name', 'slug', 'url', 'linkedin_url', 'created', 'modified')
-    list_filter = ['created', 'modified']
-    search_fields = ('name',)
-    readonly_fields = ('created', 'modified')
-    ordering = ('name',)
-
-class AttributeOptionInline(admin.TabularInline):
-    model = AttributeOption
-    extra = 0
-    fields = ('name', 'slug', 'url', 'icon', 'description')
-    prepopulated_fields = {'slug': ('name',)}
-
-
-@admin.register(Attribute)
-class AttributeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'option_count', 'modified')
-    search_fields = ('name', 'slug')
-    prepopulated_fields = {'slug': ('name',)}
-    readonly_fields = ('created', 'modified')
-    inlines = [AttributeOptionInline]
-
-    @admin.display(description='options')
-    def option_count(self, obj):
-        return obj.options.count()
-
-
-@admin.register(AttributeOption)
-class AttributeOptionAdmin(IconDisplayMixin, admin.ModelAdmin):
-    list_display = ('name', 'slug', 'attribute', 'icon_display', 'url', 'modified')
-    list_filter = ('attribute',)
-    search_fields = ('name', 'slug')
-    prepopulated_fields = {'slug': ('name',)}
-    readonly_fields = ('created', 'modified')
-    ordering = ('attribute__name', 'name')
-
-
 @admin.register(SavedSearch)
 class SavedSearchAdmin(IconDisplayMixin, admin.ModelAdmin):
     list_display = ('name', 'icon_display', 'search_params', 'created', 'modified')
     list_filter = ['created', 'modified']
     search_fields = ('name', 'description')
     readonly_fields = ('created', 'modified')
-
-# registrations
-admin.site.unregister(User)
-admin.site.register(User, CustomUserAdmin)
