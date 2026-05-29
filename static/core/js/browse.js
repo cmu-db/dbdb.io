@@ -422,14 +422,21 @@ document.querySelectorAll('.sort-btn').forEach(btn => {
     btn.addEventListener('click', () => handleSortClick(btn));
 });
 
-// Initialise with name column (td index 1) sorted ascending
-const nameSortBtn = document.querySelector('.sort-btn[data-sort-col="1"]');
-if (nameSortBtn) {
-    sortState.btn = nameSortBtn;
-    sortState.order = 'asc';
-    updateSortArrows(nameSortBtn, 'asc');
-    sortTableBy(nameSortBtn, 'asc');
-}
+// Initialise sort from ?order-by= param, falling back to name column ascending
+(function () {
+    const param = new URLSearchParams(window.location.search).get('order-by') || '';
+    const desc = param.startsWith('-');
+    const colId = param.replace(/^[+-]/, '') || 'name';
+    const order = desc ? 'desc' : 'asc';
+    const btn = document.querySelector(`.sort-btn[data-col-id="${colId}"]`)
+             || document.querySelector('.sort-btn[data-sort-col="1"]');
+    if (btn) {
+        sortState.btn = btn;
+        sortState.order = order;
+        updateSortArrows(btn, order);
+        sortTableBy(btn, order);
+    }
+}());
 
 // ── Row click navigation ─────────────────────────────────────────────────────
 

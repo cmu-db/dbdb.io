@@ -149,7 +149,7 @@
                 <tr>
                     <th class="r-logo"></th>
                     <th>
-                        <button type="button" class="sort-btn" data-sort-col="1" data-sort-type="text">
+                        <button type="button" class="sort-btn" data-sort-col="1" data-sort-type="text" data-col-id="name">
                             Name <i class="fas fa-sort caret sort-arrow"></i>
                         </button>
                     </th>
@@ -157,7 +157,8 @@
                     <th {% if col.col_id == 'tags' %}class="d-none d-md-table-cell"{% endif %}>
                         <button type="button" class="sort-btn"
                                 data-sort-col="{{ forloop.counter0|add:2 }}"
-                                data-sort-type="{% if col.col_id == 'start-year' or col.col_id == 'end-year' %}numeric{% else %}text{% endif %}">
+                                data-sort-type="{% if col.col_id == 'start-year' or col.col_id == 'end-year' %}numeric{% else %}text{% endif %}"
+                                data-col-id="{{ col.col_id }}">
                             {{ col.label }} <i class="fas fa-sort caret sort-arrow"></i>
                         </button>
                     </th>
