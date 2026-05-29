@@ -830,6 +830,16 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .flatpage-modified { margin-top: 2rem; }
 .flatpage-content h2 { margin-top: 2.3rem; }
 
+/* ---- Page-level error alert ---- */
+.page-alert {
+  display: flex; align-items: flex-start; gap: .75rem;
+  border: 1.5px solid var(--accent); background: var(--tint);
+  color: var(--ink); padding: .85rem 1rem; margin-bottom: 1.25rem;
+  font-family: var(--sans); font-size: 1.1rem; line-height: 1.5;
+}
+.page-alert i { color: var(--accent); font-size: 2rem; margin-top: .15rem; flex-shrink: 0; }
+.page-alert a { color: var(--accent); text-decoration: underline; }
+
 .entry-section { margin-top: 2.3rem; scroll-margin-top: 1rem; }
 .entry-section h2 {
   font-family: var(--serif); font-weight: 600; font-size: 1.55rem; margin: 0;

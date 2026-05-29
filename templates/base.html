@@ -44,6 +44,12 @@
 {% block page_header %}{% include "components/runhead.html" %}{% endblock %}
 
 <main class="container pb-4 pt-3 page-{{ activate }}">
+    {% if page_error %}
+    <div class="page-alert" role="alert">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>{{ page_error|safe }}</span>
+    </div>
+    {% endif %}
     {% block content %}{% endblock %}
 </main>
 

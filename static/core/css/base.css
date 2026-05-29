@@ -431,7 +431,7 @@ form.main-search > div.search-results {
 }
 form.main-search > div.search-results div.input-group-lg { margin:40px auto 40px auto; border: 1px solid #ced4da; border-radius: 0.3rem; }
 form.main-search > div.search-results div.input-group-lg button.btn { border-left: 1px solid #ced4da; font-size: 1.25rem; line-height: 1.5; border-radius: 0px 0.3rem 0.3rem 0px; padding: .5rem 1rem; }
-form.main-search > div.search-results p.results-info { font-size: 1.75rem; margin:30px 0; text-align:center; }
+div.results h2.results-info { font-size: 1.75rem; text-align:center; }
 form.main-search > div.search-results nav.letters { margin:30px 0 30px 0; }
 form.main-search > div.search-results nav.letters .btn { padding: .2rem .6rem; }
 

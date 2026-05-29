@@ -17,21 +17,6 @@
 {{ filtergroupsjson|json_script:"filterdata" }}
 {{ years|json_script:"years" }}
 
-{% if doi_warning %}
-<div class="alert alert-danger mt-2" role="alert">
-    <strong>Invalid search.</strong>
-    This site is for searching database management systems, not academic publications.
-    If you are looking for a paper, please use
-    <a href="https://scholar.google.com/" class="alert-link" target="_blank" rel="noopener">Google Scholar</a> or
-    <a href="https://www.semanticscholar.org/" class="alert-link" target="_blank" rel="noopener">Semantic Scholar</a>.
-</div>
-{% endif %}
-{% if search_error %}
-<div class="alert alert-danger mt-2" role="alert">
-    <strong>Invalid search parameter.</strong> {{ search_error }}
-</div>
-{% endif %}
-
 <div class="page-title">
     <p class="kicker">{% if saved_search %}{{ saved_search.name }}{% else %}{{ num_results|intcomma }} System{{ num_results|pluralize }}{% endif %}</p>
     <h1>{{ title }}</h1>
@@ -178,7 +163,7 @@
         <h2 class="results-info">
             No databases found
             {% if search.query %}for <span class="search-keyword">{{ search.query }}</span>{% endif %}
-            {% if suggestion and not doi_warning %}
+            {% if suggestion and not page_error %}
             <p>Did you mean <a href="{% url 'system' suggestion.slug %}">{{ suggestion.name }}</a>?</p>
             {% endif %}
         </h2>

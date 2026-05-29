@@ -11,6 +11,7 @@ from django.db.models import Count, F, Max, Min, Q
 from django.db.models.expressions import RawSQL
 from django.db.models.functions import JSONObject
 from django.shortcuts import redirect, render
+from django.utils.html import mark_safe
 from django.views import View
 
 from django_countries import countries
@@ -82,6 +83,14 @@ _DOI_RE = re.compile(r'\b10\.\d{4,}/\S+', re.IGNORECASE)
 
 def _is_doi_query(q: str) -> bool:
     return 'doi.org' in q.lower() or bool(_DOI_RE.search(q))
+
+def _doi_warning_html(q: str):
+    return mark_safe(
+        'This site is for searching database management systems, not academic publications. '
+        'If you are looking for a paper, please use '
+        '<a href="https://scholar.google.com/" target="_blank" rel="noopener">Google Scholar</a> or '
+        '<a href="https://www.semanticscholar.org/" target="_blank" rel="noopener">Semantic Scholar</a>.'
+    )
 
 _PRESERVE_CASE_PARAMS = frozenset({'q', 'ss'})
 
@@ -879,8 +888,7 @@ class BrowseView(View):
         return render(request, self.template_name, {
             'title': title,
             'activate': 'browse',
-            'doi_warning': _is_doi_query(search_q),
-            'search_error': search_error,
+            'page_error': search_error or (_doi_warning_html(search_q) if _is_doi_query(search_q) else None),
             'filtergroups': filter_groups,
             'filtergroupsjson': [asdict(fg) for fg in filter_groups],
             'has_results': has_results,
