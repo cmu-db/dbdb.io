@@ -373,7 +373,6 @@ div.search-badges a.badge em { font-weight: normal; }
 .search-button { color: #767676; font-size: 18px; text-decoration: none; }
 .search-button:hover { color: var(--link-color); text-decoration: underline; }
 
-.is-selected { background-color: #D6D6D6 !important; }
 
 #advanced-arrow { transition: transform 0.3s ease; }
 #advanced-arrow.open { -ms-transform: rotate(-180deg); transform: rotate(-180deg) }

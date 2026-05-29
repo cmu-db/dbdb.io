@@ -647,6 +647,35 @@ form.main-search { display: block; padding: 0; }
 }
 .filter-actions .spacer { flex: 1; }
 
+/* Reduce gutter between field-pick column and choices column */
+.filter-group.row { --bs-gutter-x: .4rem; }
+
+/* Choices.js widget overrides */
+.choices__inner {
+  background: var(--paper) !important;
+  border: 1px solid var(--rule) !important;
+  border-radius: 0 !important;
+  padding: .4rem .45rem !important;
+  min-height: 40px !important;
+  font-family: var(--sans) !important;
+}
+.choices__list--multiple .choices__item {
+  background: var(--ink) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  color: var(--paper) !important;
+  font-family: var(--mono) !important;
+  font-size: .68rem !important;
+  letter-spacing: .04em !important;
+  padding: .22rem .3rem .22rem .55rem !important;
+  margin: 2px 3px 2px 0 !important;
+}
+.choices__list--multiple .choices__item .choices__button {
+  border-left: 1px solid rgba(255,255,255,.3) !important;
+  opacity: .65;
+}
+.choices__list--multiple .choices__item .choices__button:hover { opacity: 1; }
+
 /* column checklist */
 .col-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem 1.6rem; padding-top: .3rem; }
 .col-grid .grp-h {
