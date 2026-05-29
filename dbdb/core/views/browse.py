@@ -59,6 +59,15 @@ _DOI_RE = re.compile(r'\b10\.\d{4,}/\S+', re.IGNORECASE)
 def _is_doi_query(q: str) -> bool:
     return 'doi.org' in q.lower() or bool(_DOI_RE.search(q))
 
+# Maps logical order-by names (from the ?order-by= param) to annotated/ORM field names.
+# 'name' and 'slug' are available because they are annotated onto the queryset before .values().
+_ORDER_BY_MAP = {
+    'name':       'name',
+    'start-year': 'start_year',
+    'end-year':   'end_year',
+    'created':    'created',
+}
+
 
 # ==============================================
 # BrowseView
@@ -706,8 +715,22 @@ class BrowseView(View):
         if 'country' in active_col_ids:
             value_fields.append('countries')
 
+        limit_param = request.GET.get('limit', '').strip()
+        limit = int(limit_param) if limit_param.isdigit() and int(limit_param) > 0 else None
+
+        order_by_raw = request.GET.get('order-by', '').strip()
+        if order_by_raw:
+            desc = order_by_raw[0] == '-'
+            col_key = order_by_raw.lstrip('+-')
+            db_field = _ORDER_BY_MAP.get(col_key, 'name')
+            order_by_expr = f'-{db_field}' if desc else db_field
+        else:
+            order_by_expr = 'name'
+
         results.query.comment = "BROWSE-SEARCH"
-        results = list(results.values(*value_fields).order_by('system__name'))
+        results = list(results.values(*value_fields).order_by(order_by_expr))
+        if limit:
+            results = results[:limit]
         num_results = len(results)
 
         # Feature column data — bulk fetch and merge (post-query)
