@@ -2,7 +2,11 @@
 <header class="runhead">
     <div class="container">
         <a class="wordmark" href="{% url 'home' %}">Database <span class="of">of</span> Databases</a>
-        <nav id="runhead-search">
+        <button class="rh-toggle d-md-none" id="rh-hamburger"
+                aria-expanded="false" aria-controls="rh-nav" aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+        <nav id="rh-nav" class="rh-nav">
             <a class="{% if activate == 'browse' %}active{% endif %}" href="{% url 'browse' %}">Browse</a>
             <a class="{% if activate == 'stats' %}active{% endif %}" href="{% url 'stats' %}">Leaderboards</a>
             <a class="{% if activate == 'recent' %}active{% endif %}" href="{% url 'recent' %}">Recent</a>
@@ -10,12 +14,24 @@
             <a href="{{ page.url }}">{{ page.title }}</a>
             {% endfor %}
             {% if not no_nav_search %}
-            <form class="d-inline-flex align-items-center gap-1 ms-2" action="{% url 'browse' %}" method="GET" style="display:inline-flex">
-                <input type="search" name="q" placeholder="Search…" value="{% if query %}{{ query }}{% endif %}"
-                       style="font-family:var(--mono);font-size:.7rem;border:1px solid var(--rule);background:transparent;color:var(--ink);padding:.3rem .6rem;outline:none;width:140px;">
-                <button type="submit" style="background:transparent;border:0;color:var(--ink-soft);padding:.2rem .4rem;cursor:pointer;font-size:.8rem;"><i class="fas fa-search"></i></button>
+            <form id="runhead-search" class="rh-search" action="{% url 'browse' %}" method="GET">
+                <input type="search" name="q" placeholder="Search…" value="{% if query %}{{ query }}{% endif %}">
+                <button type="submit" aria-label="Search"><i class="fas fa-search"></i></button>
             </form>
             {% endif %}
         </nav>
     </div>
 </header>
+<script>
+(function () {
+    var btn = document.getElementById('rh-hamburger');
+    var nav = document.getElementById('rh-nav');
+    if (btn && nav) {
+        btn.addEventListener('click', function () {
+            var open = nav.classList.toggle('rh-open');
+            btn.setAttribute('aria-expanded', open);
+        });
+    }
+
+}());
+</script>

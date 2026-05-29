@@ -629,6 +629,9 @@ p.recent-text { font-size: 10pt; margin: 0; }
 /********************************************************************
  * BEGIN:AUTOCOMPLETE
  ********************************************************************/
+.autocomplete-suggestion {
+    font-family: var(--mono);
+}
 .autocomplete-suggestion b {
     color: var(--link-color) !important;
     background-color: var(--highlight-color);

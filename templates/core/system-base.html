@@ -44,7 +44,7 @@
 {# the mobile block below and the desktop aside. The content is not rendered at this point. #}
 {% partialdef factbox %}
 <div class="factbox">
-    <div class="fb-logo">
+    <div class="fb-logo text-center">
         {% if system_version.logo %}
         <a href="{{ system_version.logo.url }}" class="logo-thumbnail">
         <img class="{% if system_version.logo_height > system_version.logo_width %}logo-tall{% else %}logo-normal{% endif %}"
@@ -54,7 +54,7 @@
         {% else %}
         {% mono_tile system_version.logo system.name lazy=False %}
         {% endif %}
-        <div class="fb-name">{{ system.name }}</div>
+{#        <div class="fb-name">{{ system.name }}</div>#}
     </div>
     <dl>
         {% if system_version.system_url %}

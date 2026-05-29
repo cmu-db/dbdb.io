@@ -99,7 +99,11 @@ a:hover { color: var(--accent); }
 .edition .label { color: rgba(255,255,255,.62); }
 .edition .label .text-accent { color: var(--accent); }
 
-.edition-actions { display: flex; align-items: center; gap: 1.1rem; }
+.edition-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
 
 .theme-toggle {
   background: transparent;
@@ -112,7 +116,7 @@ a:hover { color: var(--accent); }
   align-items: center;
   gap: .4rem;
   font-family: var(--mono);
-  font-size: .64rem;
+  font-size: 0.5rem;
   letter-spacing: .12em;
   text-transform: uppercase;
   cursor: pointer;
@@ -126,7 +130,7 @@ a:hover { color: var(--accent); }
 
 .edition .user-link {
   font-family: var(--mono);
-  font-size: .68rem;
+  font-size: 0.5rem;
   letter-spacing: .08em;
   color: rgba(255,255,255,.7);
   display: inline-flex; align-items: center; gap: .35rem;
@@ -541,8 +545,14 @@ a:hover { color: var(--accent); }
   white-space: nowrap;
 }
 .runhead .wordmark .of { font-style: italic; font-weight: 400; color: var(--accent); margin-right: 0.2rem; }
-.runhead nav { display: flex; flex-wrap: wrap; }
-.runhead nav a {
+.rh-toggle {
+  background: transparent; border: 0; padding: .35rem .45rem;
+  color: var(--ink); font-size: 1.15rem; cursor: pointer; line-height: 1;
+}
+.rh-toggle:hover { color: var(--accent); }
+
+.rh-nav { display: flex; flex-wrap: wrap; align-items: center; }
+.rh-nav a {
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: .14em;
@@ -552,11 +562,56 @@ a:hover { color: var(--accent); }
   padding: .5rem .9rem;
   position: relative;
 }
-.runhead nav a:hover { color: var(--accent); }
-.runhead nav a.active { color: var(--ink); }
-.runhead nav a.active::after {
+.rh-nav a:hover { color: var(--accent); }
+.rh-nav a.active { color: var(--ink); }
+.rh-nav a.active::after {
   content: ""; position: absolute; left: .9rem; right: .9rem; bottom: -.65rem;
   height: 2px; background: var(--accent);
+}
+
+/* Inline search form in the runhead */
+.rh-search {
+  display: inline-flex; align-items: center; margin-left: .5rem;
+  background: var(--surface); border: 1.5px solid var(--ink);
+}
+.rh-search input {
+  font-family: var(--serif); font-size: .95rem; font-style: italic;
+  border: 0; background: transparent; color: var(--ink);
+  padding: .3rem .5rem .3rem .7rem; outline: none; width: 160px;
+}
+.rh-search input::placeholder { color: var(--muted); }
+.rh-search button {
+  background: transparent; border: 0; color: var(--ink-soft);
+  padding: .2rem .5rem; cursor: pointer; font-size: .8rem;
+}
+.rh-search button:hover { color: var(--accent); }
+
+/* Desktop: always show nav regardless of Bootstrap collapse state */
+@media (min-width: 768px) {
+  .rh-nav { display: flex !important; }
+}
+
+/* Mobile: expanded nav sits below the wordmark row as a vertical list */
+@media (max-width: 767.98px) {
+  .runhead .container { flex-wrap: wrap; }
+  .rh-nav { display: none; }
+  .rh-nav.rh-open {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    border-top: 1px solid var(--rule-soft);
+    padding: .4rem 0 .8rem;
+  }
+  .rh-nav.rh-open a {
+    padding: .55rem .25rem;
+    width: 100%;
+  }
+  .rh-nav.rh-open a.active::after { display: none; }
+  .rh-nav.rh-open .rh-search {
+    margin-left: 0; margin-top: .4rem; width: 100%;
+  }
+  .rh-nav.rh-open .rh-search input { width: 100%; }
 }
 
 /* ============================================================
@@ -790,7 +845,9 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 /* sidebar factbox */
 .factbox { border: 1px solid var(--rule); background: var(--surface); }
 .fb-logo {
-  padding: 1.6rem; border-bottom: 1px solid var(--rule); display: grid; place-items: center;
+  padding: 1.6rem; border-bottom: 1px solid var(--rule);
+  /*display: grid;*/
+  place-items: center;
 }
 .fb-logo .mono-tile { width: 96px; height: 96px; font-size: 1.7rem; }
 .fb-logo .fb-name { font-family: var(--serif); font-weight: 600; font-size: 1.15rem; margin-top: .7rem; color: var(--ink); }
@@ -946,7 +1003,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   .search-field .kbd { display: none; }
   .col-grid { grid-template-columns: 1fr; }
   .bsearch input { font-size: 1.05rem; }
-  .runhead .container { flex-wrap: wrap; min-height: 0; }
+  .runhead .container { min-height: 0; }
   .results { overflow-x: auto; }
   .lb-grid { grid-template-columns: 1fr; }
   .feed-item { grid-template-columns: 1fr; gap: .35rem; }
