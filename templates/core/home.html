@@ -16,11 +16,11 @@
                     <input autofocus type="text" name="q" class="form-control form-control-lg" aria-describedby="Search field" placeholder="Search">
                 </div>
                 <p class="lead mt-3">
-                    <a href="{% url 'browse' %}" class="btn btn-primary active mt-2" role="button" aria-pressed="true"><i class="fas fa-th"></i> Browse</a>
+                    <a href="{% url 'browse' %}" class="btn btn-primary mt-2" role="button" aria-pressed="true"><i class="fas fa-th"></i> Browse</a>
                     &nbsp;
-                    <a href="{% url 'stats' %}" class="btn btn-primary active mt-2" role="button" aria-pressed="true"><i class="far fa-chart-bar"></i> Leaderboards</a>
+                    <a href="{% url 'stats' %}" class="btn btn-primary mt-2" role="button" aria-pressed="true"><i class="far fa-chart-bar"></i> Leaderboards</a>
                     &nbsp;
-                    <a href="{% url 'browse' %}?start-year={% now "Y" %}" class="btn btn-primary active mt-2" role="button" aria-pressed="true"><i class="fas fa-trophy"></i> New in {% now "Y" %}</a>
+                    <a href="{% url 'browse' %}?start-year={% now "Y" %}" class="btn btn-primary mt-2" role="button" aria-pressed="true"><i class="fas fa-trophy"></i> New in {% now "Y" %}</a>
                 </p>
             </form>
         </div>
