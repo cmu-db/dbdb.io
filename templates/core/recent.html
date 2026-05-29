@@ -3,79 +3,47 @@
 {% load thumbnail %}
 {% load django_bootstrap5 %}
 
-{% block title %}
-Recent Changes
-{% endblock %}
+{% block title %}Recent Changes{% endblock %}
 
 {% block content %}
-<div class="main">
-    <div class="container">
-        <div class="row justify-content-md-center homepage-header">
-            <div class="col col-md-12 col-sm-12 text-center">
+<div class="page-title">
+    <p class="kicker">Edit History</p>
+    <h1>Recent Changes{% if lookup_user %}: {{ lookup_user.username }}{% endif %}</h1>
+    <hr class="title-rule">
+</div>
+
+{% if not revision_list %}
+{% include "core/pagination.html" %}
+{% endif %}
+
+<div class="feed">
+    {% for version in versions %}
+    <div class="feed-item">
+        <div class="feed-time">{{ version.created }}</div>
+        <div class="feed-body">
+            <div class="feed-line">
+                <span class="verb">updated by</span>
+                <a href="{% url 'recent' %}?username={{ version.creator.username }}" class="actor">
+                    <span class="feed-tile mono-tile">{{ version.creator.username|first|upper }}</span>
+                    {{ version.creator.username }}
+                </a>
+                {% if not revision_list %}
+                <a href="{{ version.system.get_absolute_url }}" class="sys">{{ version.system.name }}</a>
+                {% endif %}
                 {% if revision_list %}
-                <h1 class="d-flex align-items-center justify-content-center">
-                    <a href="{{ system.get_absolute_url }}" class="d-flex align-items-center">
-                        {% if system.current.logo %}
-                            <img class="logo-recent" src="{% if version.system.current.logo.url.lower|slice:"-3:" == "svg" %}{{ system.current.logo.url }}{% else %}{{ system.current.logo|thumbnail_url:'thumb' }}{% endif %}" alt="{{ system.name }}" />
-                        {% else %}
-                            <img class="logo-recent" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ system.name }}" />
-                        {% endif %}
-                        <a href="{{ system.get_absolute_url }}">{{ system.name }}</a>
-                    </a>
-                </h1>
-                {% else %}
-                <h1>Recent Changes{% if lookup_user %}: {{ lookup_user.username }}{% endif %}</h1>
+                <span class="verb">— Version #{{ version.ver }}</span>
                 {% endif %}
             </div>
+            {% if version.comment %}
+            <p class="feed-comment">{{ version.comment }}</p>
+            {% endif %}
         </div>
     </div>
-    {% if not revision_list %}
-    {% include "core/pagination.html" %}
-    {% endif %}
-
-    <div class="d-flex flex-column container align-items-center">
-        <div class="row col-12 col-md-9 col-lg-7 border rounded">
-            <div class="d-flex flex-column p-0">
-                {% for version in versions %}
-                <div class="version-date-container">
-                    <a href="{{ version.get_absolute_url }}" class="d-flex align-items-center border">
-                        {% if revision_list %}
-                        <p class="version-date p-2 m-0 fw-bold">Version #{{ version.ver }}</p>
-                        {% endif %}
-                        <p class="version-date p-2 m-0 fw-bold">{{ version.created }}</p>
-                    </a>
-                </div>
-                <div class="container p-3">
-                    <div class="d-flex align-items-center">
-                        <a href="{% url 'recent' %}?username={{ version.creator.username }}" class="d-flex align-items-center">
-                            <i class="fas fa-user" style="color: #54595d;"></i>
-                            <p class="recent-text ps-2">{{ version.creator.username }}</p>
-                        </a>
-                        {% if not revision_list %}
-                        <p class="recent-text ps-1">updated</p>
-                        <a href="{{ version.system.get_absolute_url }}" class="d-flex align-items-center ps-3">
-                            {% if version.system.current.logo %}
-                                <img class="logo-recent" src="{% if version.system.current.logo.url.lower|slice:"-3:" == "svg" %}{{ version.system.current.logo.url }}{% else %}{{ version.system.current.logo|thumbnail_url:'thumb' }}{% endif %}" alt="{{ version.system.name }}"/>
-                            {% else %}
-                                <img class="logo-recent" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ version.system.name }}"/>
-                            {% endif %}
-                            <a href="{{ version.system.get_absolute_url }}">
-                                <p class="recent-text ps-2 link-hover">{{ version.system.name }}</p>
-                            </a>
-                        </a>
-                        {% endif %}
-                    </div>
-                    <div class="pt-2">
-                        <p class="recent-text">{{ version.comment }}</p>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    {% if not revision_list %}
-    {% include "core/pagination.html" %}
-    {% endif %}
+    {% endfor %}
 </div>
+
+{% if not revision_list %}
+{% include "core/pagination.html" %}
+{% endif %}
+
 {% endblock %}

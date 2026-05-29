@@ -24,15 +24,6 @@
   }
 
 
-* {
-  font-family: 'Open Sans', sans-serif;
-}
-
-body {
-	/*font-size: 14px;*/
-	font-family: "Open Sans",sans-serif;
-    padding-top: 4.5rem;
-}
 body > div.jumbotron { margin-bottom:0; }
 
 h1 {
@@ -54,15 +45,15 @@ main a:has(img), main .version-date-container > a {
     background-color: inherit !important;
 }
 */
-main a:not(.page-home a):not(.page-stats a):not(.badge):not(.btn) {
-    padding: 1px 1px;
-    border-radius: 3px;
-}
-main a:not(.page-home a):not(.page-stats a):not(img):not(.systems-extra a):not(.logo-thumbnail):hover {
-    background-color: var(--link-color);
-    color: white;
-    text-decoration: underline dotted;
-}
+/*main a:not(.page-home a):not(.page-stats a):not(.badge):not(.btn) {*/
+/*    padding: 1px 1px;*/
+/*    border-radius: 3px;*/
+/*}*/
+/*main a:not(.page-home a):not(.page-stats a):not(img):not(.systems-extra a):not(.logo-thumbnail):hover {*/
+/*    background-color: transparent;*/
+/*    color: var(--accent);*/
+/*    text-decoration: none;*/
+/*}*/
 .page-home a:hover {
     background-color: none;
 }
@@ -401,7 +392,7 @@ tr.browse-row:hover { background-color: var(--browse-hover-color); }
 
 #content { padding:40px 0; }
 
-div.results { min-height: 60vh; padding:40px 40px 30px 40px; }
+/*div.results { min-height: 60vh; padding:40px 40px 30px 40px; }*/
 div.results div.version { margin-bottom:20px; max-width:800px; }
 div.results div.version h3 { font-size:20px; margin:0; }
 div.results div.version cite { color:#006621; font-size:13px; font-style:normal; }
@@ -649,3 +640,14 @@ p.recent-text { font-size: 10pt; margin: 0; }
  ********************************************************************/
 .alert-revision { line-height: 34px; }
 .acquisition-year { width: 4rem; }
+
+/* Editorial redesign: disable the colored bg hover on links in favor of color-only transitions */
+main a:not(.page-home a):not(.page-stats a):not(img):not(.systems-extra a):not(.logo-thumbnail):hover {
+    background-color: transparent;
+    color: var(--accent);
+    text-decoration: none;
+}
+.db-row a, .lb-row a, .feed-item a, .entry-main a, .factbox a {
+    background-color: transparent !important;
+    text-decoration: none;
+}

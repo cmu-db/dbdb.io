@@ -1,28 +1,21 @@
 {% load static %}
 {% load thumbnail %}
 
-<div class="card-body">
-    <h4 class="card-title" >
-        {{ title }}
-    </h4>
-    <ul class="list-group list-group-flush">
-    {% for other_sys in systems %}
-        {% if not limit or forloop.counter0 < limit %}
-            <li class="list-group-item list-group-item-action">
-                <a href="{{ other_sys.get_absolute_url }}" title="{{ other_sys.name }}">
+<div class="sc-h">{{ title }}</div>
+{% for other_sys in systems %}
+    {% if not limit or forloop.counter0 < limit %}
+    <a href="{{ other_sys.get_absolute_url }}" class="logo-row" title="{{ other_sys.name }}">
+        <span class="mono-tile lb-tile">
             {% if other_sys.current.logo %}
-                <img class="logo-recommendation" src="{% if other_sys.current.logo.url|lower|slice:"-3:" == "svg" %}{{ other_sys.current.logo.url }}{% else %}{{ other_sys.current.logo|thumbnail_url:'recommendation' }}{% endif %}"  alt="{{ other_sys.name }}" />
-            {% else %}
-                <img class="logo-recommendation" src="{% static 'core/images/database-nologo-icon.svg' %}" alt="{{ other_sys.name }}" /> {{ other_sys.name }}
-            {% endif %}
-                </a>
-            </li>
-        {% endif %}
-    {% endfor %}
-    </ul>
-    {% if limit and systems|length > limit %}
-    <div class="card-footer text-muted p-1 font-weight-bold">
-        <a href="{% url 'browse' %}?{{ field }}={{ slug }}">View All ({{ systems|length }})</a>
-    </div>
+            <img style="width:100%;height:100%;object-fit:contain;" src="{% if other_sys.current.logo.url|lower|slice:"-3:" == "svg" %}{{ other_sys.current.logo.url }}{% else %}{{ other_sys.current.logo|thumbnail_url:'recommendation' }}{% endif %}" alt="{{ other_sys.name }}">
+            {% else %}{{ other_sys.name|first|upper }}{% endif %}
+        </span>
+        <span class="ln">{{ other_sys.name }}</span>
+    </a>
     {% endif %}
+{% endfor %}
+{% if limit and systems|length > limit %}
+<div class="sc-foot">
+    <a href="{% url 'browse' %}?{{ field }}={{ slug }}">View All ({{ systems|length }})</a>
 </div>
+{% endif %}

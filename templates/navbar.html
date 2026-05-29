@@ -1,72 +1,39 @@
-<nav class="navbar fixed-top navbar-expand-lg bg-dark navbar-dark">
+<div class="edition">
     <div class="container">
-        <a class="navbar-brand" href="{%  url 'home' %}">Database of Databases</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav me-auto mb-2 mb-md-0">
-                <li class="nav-item">
-                    <a class="nav-link {% if activate == 'browse' %} active{% endif %}" href="{% url 'browse' %}">Browse</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if activate == 'stats' %} active{% endif %}" href="{% url 'stats' %}">Leaderboards</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if activate == 'recent' %} active{% endif %}" href="{% url 'recent' %}">Recent</a>
-                </li>
-                {% for page in navbar_flatpages %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ page.url }}">{{ page.title }}</a>
-                </li>
-                {% endfor %}
-            </ul>
-            {% if not no_nav_search %}
-            <form class="d-flex" role="search" action="{% url 'browse' %}" method="GET" id="topsearch">
-                <input type="search" class="form-control me-2" placeholder="Search" aria-label="Search" id="top-searchbox" name="q" value="{% if query %}{{ query }}{% endif %}">
-                <button class="btn btn-primary" type="submit">
-                    <i class="fas fa-search"></i>
-                </button>
-{#                <button class="btn btn-outline-success" type="submit">Search</button>#}
-{#                    <div class="input-group-append">#}
-{#                    </div>#}
-{#                </div>#}
-            </form>
+        <span class="label">The Encyclopedia of Database Systems &middot; Est. 2014</span>
+        <div class="edition-actions">
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" type="button">
+                <span class="dot"></span>
+                <span id="themeLabel">Dark</span>
+            </button>
+            {% if user.is_authenticated %}
+            <div class="dropdown">
+                <a class="user-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user fa-xs"></i> {{ user.username }} <i class="fas fa-caret-down fa-xs"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    {% if user.is_superuser %}
+                    <li><a class="dropdown-item" href="{% url 'create_system' %}">Add System</a></li>
+                    <li><a class="dropdown-item" href="{% url 'create_user' %}">Create Account</a></li>
+                    {% endif %}
+                    {% if user.is_superuser or user.is_staff %}
+                    <li><a class="dropdown-item" href="{% url 'empty_fields' %}">Empty Fields</a></li>
+                    {% endif %}
+                    {% if user.is_staff %}
+                    <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a></li>
+                    {% endif %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item">Logout</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            {% else %}
+            <a class="user-link" href="{% url 'login' %}"><i class="fas fa-user fa-xs"></i> Login</a>
             {% endif %}
-
-            <ul class="navbar-nav my-2 my-lg-0 ms-lg-4">
-                {% if not user.is_authenticated %}
-                <li><a class="dropdown-item" href="{% url "login" %}">Login</a></li>
-                {% else %}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ user.username }}
-                    </a>
-
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        {% if user.is_superuser %}
-                        <li><a class="dropdown-item {% if activate == 'create' %} active{% endif %}" href="{% url 'create_system' %}">Add System</a></li>
-                        <li><a class="dropdown-item" href="{% url "create_user" %}">Create Account</a></li>
-                        {% endif %}
-                        {% if user.is_superuser or user.is_staff %}
-                        <li><a class="dropdown-item {% if activate == 'empty' %} active{% endif %}" href="{% url 'empty_fields' %}">Empty Fields</a></li>
-                        {% endif %}
-
-                        {% if user.is_staff %}
-                        <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a></li>
-                        {% endif %}
-
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <form method="post" action="{% url 'logout' %}">
-                                {% csrf_token %}
-                                <button type="submit" class="dropdown-item">Logout</button>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
-                {% endif %}
-            </ul>
         </div>
     </div>
-</nav>
+</div>

@@ -18,180 +18,141 @@
 {{ years|json_script:"years" }}
 
 {% if doi_warning %}
-<div class="d-flex flex-column justify-content-center align-items-center mx-0 mx-lg-3 mt-2">
-    <div class="col-12 col-lg-9">
-        <div class="alert alert-danger" role="alert">
-            <strong>Invalid search.</strong>
-            This site is for searching database management systems, not academic publications.
-            If you are looking for a paper, please use a service such as
-            <a href="https://scholar.google.com/" class="alert-link" target="_blank" rel="noopener">Google Scholar</a> or
-            <a href="https://www.semanticscholar.org/" class="alert-link" target="_blank" rel="noopener">Semantic Scholar</a>.
-        </div>
-    </div>
+<div class="alert alert-danger mt-2" role="alert">
+    <strong>Invalid search.</strong>
+    This site is for searching database management systems, not academic publications.
+    If you are looking for a paper, please use
+    <a href="https://scholar.google.com/" class="alert-link" target="_blank" rel="noopener">Google Scholar</a> or
+    <a href="https://www.semanticscholar.org/" class="alert-link" target="_blank" rel="noopener">Semantic Scholar</a>.
 </div>
 {% endif %}
 
-<div class="row search-results">
-    <form id="mainsearch" class="main main-search">
-    <div class="search-results">
-
-        <!-- BEGIN:SEARCH-BOX -->
-        <div class="d-flex flex-column justify-content-center align-items-center mt-lg-5 mx-0 mx-lg-3 pb-1">
-            <div class="col-12 col-lg-9">
-                <div class="input-group input-group-lg align-items-center m-0">
-                    <i class="fas fa-search ps-4 text-muted"></i>
-                    <input type="text" class="form-control" placeholder="Keywords" aria-label="Search name, keywords, features..." aria-describedby="search" id="mainsearch-q" name="q" value="{{ query }}">
-                    <p class="m-0 px-4 d-none d-sm-block num-results">{% if num_results != 0 %}{{ num_results|intcomma }}{% else %}No{% endif %} result{% if num_results != 1 %}s{% endif %}</p>
-                    <button class="btn btn-primary" type="submit" id="search">Search</button>
-                </div>
-            </div>
-        </div>
-        <!-- END:SEARCH-BOX -->
-
-        <!-- BEGIN:ADVANCED-SEARCH -->
-        <div class="d-flex flex-column justify-content-center align-items-center mx-0 mx-lg-3 pb-0">
-            <div class="col-12 col-lg-9 rounded search-panel" id="filter-container">
-                <button class="btn btn-link btn-sm mt-2 align-self-start ps-4 fw-bold search-button" type="button"
-                        data-bs-toggle="collapse" data-bs-target="#filter" id="advanced-search-button">
-                    Advanced Search <i class="fas fa-chevron-down" id="advanced-arrow"></i>
-                </button>
-                <div class="filters collapse m-0 px-4 pb-3" id="filter">
-
-                    <div class="filter-group row mb-2" hidden id="template">
-                        <div class="dropdown col-12 col-md-5">
-                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Search Fields
-                            </button>
-                            <ul class="dropdown-menu" style="max-height: 200px; overflow-y: auto;">
-                                <li class="dropdown-item">Start Year</li>
-                                <li class="dropdown-item">End Year</li>
-                                {% for filtergroup in filtergroups %}
-                                    <li class="dropdown-item">{{ filtergroup.label }}</li>
-                                {% endfor %}
-                            </ul>
-                            <a href="javascript:;" class="remove ms-2 text-secondary small" title="remove filter"><i class="fas fa-times"></i> remove</a>
-                        </div>
-                    </div>
-
-                    <div class="filter-group row mb-2" id="filter-none">
-                        <div class="dropdown col-12 col-md-5">
-                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Search Fields
-                            </button>
-                            <ul class="dropdown-menu" style="max-height: 200px; overflow-y: auto;">
-                                <li class="dropdown-item">Start Year</li>
-                                <li class="dropdown-item">End Year</li>
-                                {% for filtergroup in filtergroups %}
-                                    <li class="dropdown-item">{{ filtergroup.label }}</li>
-                                {% endfor %}
-                            </ul>
-                            <a href="javascript:;" class="remove ms-2 text-secondary small" title="remove filter"><i class="fas fa-times"></i> remove</a>
-                        </div>
-                    </div>
-
-                    <div class="d-flex gap-2 mt-1 align-items-center" id="advanced-search-btn-container">
-                        <button class="btn btn-secondary btn-sm" type="button" id="add_field">
-                            <i class="fas fa-plus fa-xs me-1"></i>Add Field
-                        </button>
-                        <select class="form-select form-select-sm" name="search_op" id="search_op" style="width:auto;">
-                            <option value="or" {% if search_op == 'or' %}selected{% endif %}>Match Any</option>
-                            <option value="and" {% if search_op == 'and' %}selected{% endif %}>Match All</option>
-                        </select>
-                        <button class="btn btn-outline-secondary btn-sm ms-auto" type="button" id="advanced-search-clear">Clear</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- END:ADVANCED-SEARCH -->
-
-        <!-- BEGIN:COLUMNS-PANEL -->
-        <div class="d-flex flex-column justify-content-center align-items-center mx-0 mx-lg-3 pb-0">
-            <div class="col-12 col-lg-9 rounded search-panel" id="columns-container">
-                <button class="btn btn-link btn-sm mt-2 align-self-start ps-4 fw-bold search-button" type="button"
-                        data-bs-toggle="collapse" data-bs-target="#columns-panel"
-                        id="columns-button">
-                        Columns <i class="fas fa-chevron-down" id="columns-arrow"></i>
-                </button>
-
-                <div class="collapse px-4 pb-3" id="columns-panel">
-                    <div class="row g-3 mb-3">
-                        <div class="col-12 col-md-2">
-                            <strong class="d-block mb-1 text-muted small text-uppercase">General</strong>
-                            {% for col in available_builtin %}
-                            <div class="form-check">
-                                <input class="form-check-input col-checkbox" type="checkbox"
-                                       value="{{ col.col_id }}" id="col-{{ col.col_id }}"
-                                       {% if col.col_id in active_col_ids %}checked{% endif %}>
-                                <label class="form-check-label small" for="col-{{ col.col_id }}">{{ col.label }}</label>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        <div class="col-12 col-md-7">
-                            <strong class="d-block mb-1 text-muted small text-uppercase">Features</strong>
-                            <div style="columns: 2; column-gap: 1.5rem;">
-                            {% for col in available_features %}
-                            <div class="form-check" style="break-inside: avoid;">
-                                <input class="form-check-input col-checkbox" type="checkbox"
-                                       value="{{ col.col_id }}" id="col-{{ col.col_id }}"
-                                       {% if col.col_id in active_col_ids %}checked{% endif %}>
-                                <label class="form-check-label small" for="col-{{ col.col_id }}">{{ col.label }}</label>
-                            </div>
-                            {% endfor %}
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <strong class="d-block mb-1 text-muted small text-uppercase">Attributes</strong>
-                            {% for col in available_attributes %}
-                            <div class="form-check">
-                                <input class="form-check-input col-checkbox" type="checkbox"
-                                       value="{{ col.col_id }}" id="col-{{ col.col_id }}"
-                                       {% if col.col_id in active_col_ids %}checked{% endif %}>
-                                <label class="form-check-label small" for="col-{{ col.col_id }}">{{ col.label }}</label>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-primary btn-sm" id="apply-columns">Apply</button>
-                </div>
-            </div>
-        </div>
-        <!-- END:COLUMNS-PANEL -->
-
-        </form>
+<div class="browse-wrap mt-3">
+<form id="mainsearch" class="main main-search">
+    <div class="bsearch">
+        <span class="ic"><i class="fas fa-search"></i></span>
+        <input type="text" placeholder="Search by name, keyword, or feature..." aria-label="Search" id="mainsearch-q" name="q" value="{{ query }}">
+        <span class="count">{% if num_results != 0 %}{{ num_results|intcomma }}{% else %}No{% endif %} result{% if num_results != 1 %}s{% endif %}</span>
+        <button class="go" type="submit">Search</button>
     </div>
 
-<div class="d-flex search-results justify-content-center">
+    <!-- FILTER PANEL -->
+    <div class="panel">
+        <button class="panel-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#filter" id="advanced-search-button" aria-expanded="false" aria-controls="filter">
+            <i class="fas fa-sliders"></i> Advanced Search
+            <i class="fas fa-chevron-down chev"></i>
+        </button>
+        <div class="collapse" id="filter">
+          <div class="panel-body">
+            <div class="filter-group row mb-2" hidden id="template">
+                <div class="dropdown col-12 col-md-5">
+                    <button class="field-pick dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Search Fields <i class="fas fa-chevron-down chev"></i>
+                    </button>
+                    <ul class="dropdown-menu" style="max-height:200px;overflow-y:auto;">
+                        <li class="dropdown-item">Start Year</li>
+                        <li class="dropdown-item">End Year</li>
+                        {% for filtergroup in filtergroups %}<li class="dropdown-item">{{ filtergroup.label }}</li>{% endfor %}
+                    </ul>
+                    <a href="javascript:;" class="remove ms-2 text-secondary small"><i class="fas fa-times"></i> remove</a>
+                </div>
+            </div>
+
+            <div class="filter-group row mb-2" id="filter-none">
+                <div class="dropdown col-12 col-md-5">
+                    <button class="field-pick dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Search Fields <i class="fas fa-chevron-down chev"></i>
+                    </button>
+                    <ul class="dropdown-menu" style="max-height:200px;overflow-y:auto;">
+                        <li class="dropdown-item">Start Year</li>
+                        <li class="dropdown-item">End Year</li>
+                        {% for filtergroup in filtergroups %}<li class="dropdown-item">{{ filtergroup.label }}</li>{% endfor %}
+                    </ul>
+                    <a href="javascript:;" class="remove ms-2 text-secondary small"><i class="fas fa-times"></i> remove</a>
+                </div>
+            </div>
+
+            <div class="filter-actions" id="advanced-search-btn-container">
+                <button class="mini-btn" type="button" id="add_field">
+                    <i class="fas fa-plus fa-xs"></i> Add Field
+                </button>
+                <select class="mini-select" name="search_op" aria-label="Match mode">
+                    <option value="and" {% if search_op == 'and' %}selected{% endif %}>Match All</option>
+                    <option value="or"  {% if search_op == 'or'  %}selected{% endif %}>Match Any</option>
+                </select>
+                <span class="spacer"></span>
+                <button class="mini-btn ghost" type="button" id="advanced-search-clear">Clear</button>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <!-- COLUMNS PANEL -->
+    <div class="panel">
+        <button class="panel-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#columns-panel" id="columns-button" aria-expanded="false" aria-controls="columns-panel">
+            <i class="fas fa-table-columns"></i> Columns
+            <i class="fas fa-chevron-down chev"></i>
+        </button>
+        <div class="collapse {% if cols_are_custom %}show{% endif %}" id="columns-panel">
+          <div class="panel-body">
+            <div class="col-grid">
+                <div>
+                    <div class="grp-h">General</div>
+                    {% for col in available_builtin %}
+                    <label class="col-check">
+                        <input class="col-checkbox" type="checkbox" value="{{ col.col_id }}" {% if col.col_id in active_col_ids %}checked{% endif %}>
+                        {{ col.label }}
+                    </label>
+                    {% endfor %}
+                </div>
+                <div>
+                    <div class="grp-h">Features</div>
+                    <div class="col-feat">
+                    {% for col in available_features %}
+                    <label class="col-check">
+                        <input class="col-checkbox" type="checkbox" value="{{ col.col_id }}" {% if col.col_id in active_col_ids %}checked{% endif %}>
+                        {{ col.label }}
+                    </label>
+                    {% endfor %}
+                    </div>
+                </div>
+                <div>
+                    <div class="grp-h">Attributes</div>
+                    {% for col in available_attributes %}
+                    <label class="col-check">
+                        <input class="col-checkbox" type="checkbox" value="{{ col.col_id }}" {% if col.col_id in active_col_ids %}checked{% endif %}>
+                        {{ col.label }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="filter-actions mt-3">
+                <button type="button" class="mini-btn" id="apply-columns">Apply</button>
+            </div>
+          </div>
+        </div>
+    </div>
+</form>
+
+<!-- RESULTS TABLE -->
+<div class="results">
     {% if results %}
-    <div class="table-responsive col-12 col-lg-9">
-        <table id="results-table" class="table table-sm table-hover results-table align-middle">
-            <thead class="table-dark">
+    <div class="table-responsive w-100">
+        <table id="results-table" class="rtable">
+            <thead>
                 <tr>
-                    <th class="results-logo"></th>
-                    <th class="results-name">
-                        <button type="button" class="sort-btn btn btn-link p-0 text-light fw-bold text-decoration-none text-start"
-                                data-sort-col="1" data-sort-type="text">
-                            <span class="d-flex gap-1">
-                                Name
-                                <span class="d-flex flex-column lh-1">
-                                    <i class="fas fa-caret-up sort-arrow"></i>
-                                    <i class="fas fa-caret-down sort-arrow"></i>
-                                </span>
-                            </span>
+                    <th class="r-logo"></th>
+                    <th>
+                        <button type="button" class="sort-btn" data-sort-col="1" data-sort-type="text">
+                            Name <i class="fas fa-sort caret sort-arrow"></i>
                         </button>
                     </th>
                     {% for col in active_columns %}
-                    <th {% if col.col_id == 'tags' %}class="results-tags d-none d-md-table-cell"{% endif %}>
-                        <button type="button"
-                                class="sort-btn btn btn-link p-0 text-light fw-bold text-decoration-none text-start"
+                    <th {% if col.col_id == 'tags' %}class="d-none d-md-table-cell"{% endif %}>
+                        <button type="button" class="sort-btn"
                                 data-sort-col="{{ forloop.counter0|add:2 }}"
                                 data-sort-type="{% if col.col_id == 'start-year' or col.col_id == 'end-year' %}numeric{% else %}text{% endif %}">
-                            <span class="d-flex gap-1">
-                                {{ col.label }}
-                                <span class="d-flex flex-column lh-1">
-                                    <i class="fas fa-caret-up sort-arrow"></i>
-                                    <i class="fas fa-caret-down sort-arrow"></i>
-                                </span>
-                            </span>
+                            {{ col.label }} <i class="fas fa-sort caret sort-arrow"></i>
                         </button>
                     </th>
                     {% endfor %}
@@ -204,26 +165,21 @@
             </tbody>
         </table>
     </div>
-
     {% else %}
     <div class="d-flex align-items-center justify-content-center mt-4">
         <h2 class="results-info">
             No databases found
-            {% if search.query %}
-                for <span class="search-keyword">{{ search.query }}</span>
-            {% endif %}
+            {% if search.query %}for <span class="search-keyword">{{ search.query }}</span>{% endif %}
             {% if suggestion and not doi_warning %}
-                <p>Did you mean <a href="{% url 'system' suggestion.slug %}">{{ suggestion.name }}</a>?</p>
+            <p>Did you mean <a href="{% url 'system' suggestion.slug %}">{{ suggestion.name }}</a>?</p>
             {% endif %}
         </h2>
     </div>
     {% endif %}
 </div>
-
-</div>
+</div>{# /browse-wrap #}
 
 {% endblock %}
-
 
 {% block scripts %}
 <script type="text/javascript" src="{% static 'lib/js/nouislider.min.js' %}"></script>

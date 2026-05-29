@@ -1,0 +1,21 @@
+{% load static %}
+<header class="runhead">
+    <div class="container">
+        <a class="wordmark" href="{% url 'home' %}">Database <span class="of">of</span> Databases</a>
+        <nav id="runhead-search">
+            <a class="{% if activate == 'browse' %}active{% endif %}" href="{% url 'browse' %}">Browse</a>
+            <a class="{% if activate == 'stats' %}active{% endif %}" href="{% url 'stats' %}">Leaderboards</a>
+            <a class="{% if activate == 'recent' %}active{% endif %}" href="{% url 'recent' %}">Recent</a>
+            {% for page in navbar_flatpages %}
+            <a href="{{ page.url }}">{{ page.title }}</a>
+            {% endfor %}
+            {% if not no_nav_search %}
+            <form class="d-inline-flex align-items-center gap-1 ms-2" action="{% url 'browse' %}" method="GET" style="display:inline-flex">
+                <input type="search" name="q" placeholder="Search…" value="{% if query %}{{ query }}{% endif %}"
+                       style="font-family:var(--mono);font-size:.7rem;border:1px solid var(--rule);background:transparent;color:var(--ink);padding:.3rem .6rem;outline:none;width:140px;">
+                <button type="submit" style="background:transparent;border:0;color:var(--ink-soft);padding:.2rem .4rem;cursor:pointer;font-size:.8rem;"><i class="fas fa-search"></i></button>
+            </form>
+            {% endif %}
+        </nav>
+    </div>
+</header>

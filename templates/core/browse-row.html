@@ -8,18 +8,20 @@
     data-name="{{ result.name }}"
     data-start-year="{{ result.start_year|default:'' }}"
     data-end-year="{{ result.end_year|default:'' }}">
-    <td class="browse-logo-cell text-center">
-        {% if result.logo %}
-        <img class="browse-logo" loading="lazy"
-             src="{% if result.logo|lower|slice:"-3:" == "svg" %}/media/{{ result.logo }}{% else %}{{ logo }}{% endif %}"
-             alt="{{ result.name }}">
-        {% else %}
-        <img class="browse-logo browse-logo-placeholder" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ result.name }}">
-        {% endif %}
+    <td class="r-logo">
+        <span class="mono-tile" style="width:38px;height:38px;font-size:.82rem;overflow:hidden;">
+            {% if result.logo %}
+            <img style="width:100%;height:100%;object-fit:contain;" loading="lazy"
+                 src="{% if result.logo|lower|slice:"-3:" == "svg" %}/media/{{ result.logo }}{% else %}{{ logo }}{% endif %}"
+                 alt="{{ result.name }}">
+            {% else %}
+            {{ result.name|first|upper }}
+            {% endif %}
+        </span>
     </td>
     <td data-sort-val="{{ result.name }}">
-        <div class="fw-semibold">{{ result.name }}</div>
-        <div class="d-flex d-md-none flex-wrap gap-1 mt-1">
+        <a href="{{ result.get_absolute_url }}" class="r-name">{{ result.name }}</a>
+        <div class="tag-stack d-md-none mt-1" style="flex-direction:column;">
         {% for tag in result.system_tags %}
             {% if tag.name %}{% tag_link tag %}{% endif %}
         {% endfor %}
@@ -27,32 +29,32 @@
     </td>
     {% for col_val in result.col_values %}
         {% if col_val.type == 'tags' %}
-        <td class="d-none d-md-table-cell" data-sort-val="{% for tag in col_val.data %}{% if tag.name %}{% if not forloop.first %} {% endif %}{{ tag.name }}{% endif %}{% endfor %}">
-            <div class="d-flex flex-wrap gap-1">
+        <td class="tag-cell d-none d-md-table-cell" data-sort-val="{% for tag in col_val.data %}{% if tag.name %}{% if not forloop.first %} {% endif %}{{ tag.name }}{% endif %}{% endfor %}">
+            <div class="tag-stack" style="flex-direction:column;align-items:flex-start;">
             {% for tag in col_val.data %}
                 {% if tag.name %}{% tag_link tag %}{% endif %}
             {% endfor %}
             </div>
         </td>
         {% elif col_val.type == 'year' %}
-        <td class="text-nowrap" data-sort-val="{{ col_val.data }}">
-            {% if col_val.data %}{{ col_val.data }}{% else %}&mdash;{% endif %}
+        <td class="r-year" data-sort-val="{{ col_val.data }}">
+            {% if col_val.data %}{{ col_val.data }}{% else %}<span class="r-dash">&mdash;</span>{% endif %}
         </td>
         {% elif col_val.type == 'feature_opts' %}
-        <td data-sort-val="{% for opt in col_val.data %}{% if not forloop.first %} {% endif %}{{ opt.value }}{% endfor %}">
-            {% for opt in col_val.data %}{% if not forloop.first %}, {% endif %}{{ opt.value }}{% empty %}&mdash;{% endfor %}
+        <td class="r-model" data-sort-val="{% for opt in col_val.data %}{% if not forloop.first %} {% endif %}{{ opt.value }}{% endfor %}">
+            {% for opt in col_val.data %}{% if not forloop.first %}, {% endif %}{{ opt.value }}{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}
         </td>
         {% elif col_val.type == 'attr_opts' %}
-        <td data-sort-val="{% for opt in col_val.data %}{% if not forloop.first %} {% endif %}{{ opt.name }}{% endfor %}">
-            {% for opt in col_val.data %}{% if not forloop.first %}, {% endif %}{{ opt.name }}{% empty %}&mdash;{% endfor %}
+        <td class="r-model" data-sort-val="{% for opt in col_val.data %}{% if not forloop.first %} {% endif %}{{ opt.name }}{% endfor %}">
+            {% for opt in col_val.data %}{% if not forloop.first %}, {% endif %}{{ opt.name }}{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}
         </td>
         {% elif col_val.type == 'orgs' %}
-        <td data-sort-val="{% for org in col_val.data %}{% if not forloop.first %} {% endif %}{{ org.name }}{% endfor %}">
-            {% for org in col_val.data %}{% if not forloop.first %}, {% endif %}{{ org.name }}{% empty %}&mdash;{% endfor %}
+        <td class="r-model" data-sort-val="{% for org in col_val.data %}{% if not forloop.first %} {% endif %}{{ org.name }}{% endfor %}">
+            {% for org in col_val.data %}{% if not forloop.first %}, {% endif %}{{ org.name }}{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}
         </td>
         {% elif col_val.type == 'countries' %}
-        <td data-sort-val="{% for c in col_val.data %}{% if not forloop.first %} {% endif %}{{ c.name }}{% endfor %}">
-            {% for c in col_val.data %}{% if not forloop.first %}, {% endif %}<span title="{{ c.name }}"><i class="{{ c.flag_css }}"></i> {{ c.code }}</span>{% empty %}&mdash;{% endfor %}
+        <td class="r-country" data-sort-val="{% for c in col_val.data %}{% if not forloop.first %} {% endif %}{{ c.name }}{% endfor %}">
+            {% for c in col_val.data %}{% if not forloop.first %}, {% endif %}<span title="{{ c.name }}"><i class="{{ c.flag_css }}"></i> {{ c.code }}</span>{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}
         </td>
         {% endif %}
     {% endfor %}

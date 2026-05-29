@@ -1,7 +1,7 @@
 {% load static %}
 {% load django_bootstrap5 %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}{% if title %}{{ title }}{% endif %}{% endblock %} - Database of Databases</title>
@@ -14,16 +14,14 @@
     <link rel="apple-touch-icon" sizes="90x90" href="{% static 'core/images/dbdb_io-90x90.png' %}">
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'core/images/dbdb_io-180x180.png' %}">
 
-    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,700,800">
-    <link rel="stylesheet" href="//use.fontawesome.com/releases/v7.1.0/css/all.css">
-
-    {# Load CSS and JavaScript #}
     {% bootstrap_css %}
     {% bootstrap_javascript %}
 
     <link rel="stylesheet" type="text/css" href="{% static 'lib/css/bootstrap-select.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'core/css/base.css' %}?v=2">
+    <link rel="stylesheet" type="text/css" href="{% static 'core/css/base.css' %}?v=3">
     <link rel="stylesheet" type="text/css" href="{% static 'core/css/jquery.auto-complete.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'core/css/dbdb-redesign.css' %}">
+    <link rel="stylesheet" href="//use.fontawesome.com/releases/v7.1.0/css/all.css">
 
     <meta property="og:site_name" content="Database of Databases" />
     <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
@@ -43,53 +41,45 @@
 <body class="d-flex flex-column min-vh-100">
 
 {% include "navbar.html" %}
+{% block page_header %}{% include "components/runhead.html" %}{% endblock %}
 
 <main class="container pb-4 pt-3 page-{{ activate }}">
     {% block content %}{% endblock %}
 </main>
 
-<!-- BEGIN:FOOTER -->
-<footer class="mt-auto pt-1 border-top">
-    <div class="container align-top d-md-none border-bottom">
+<footer class="site-footer mt-auto">
+    <div class="container align-top d-md-none border-bottom mb-2">
         {% block footer %}{% endblock %}
     </div>
-    <div class="container align-top">
-        {% include "footer.html" %}
-    </div>
+    {% include "footer.html" %}
 </footer>
-<!-- END:FOOTER -->
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 
 {% if not user.is_superuser %}
-<!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-4067813-21"></script>
 <script>
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
-
 gtag('config', 'UA-4067813-21');
 </script>
 {% endif %}
 
-<!-- Slugify -->
 <script type="text/javascript">
     function convertToSlug(text) {
         return text
             .toLowerCase()
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .normalize("NFD").replace(/[̀-ͯ]/g, "")
             .replace(/[^\w -]+/g,'')
             .replace(/ +/g,'-');
     }
 </script>
 
-<!-- Search Box Autocomplete -->
 <script src="{% static 'core/js/jquery.auto-complete.min.js' %}"></script>
 {% if not no_nav_search %}
 <script type="text/javascript">
-    // Top Search Box
-    $("#topsearch").find('input[name="q"]').autoComplete({
+    $("#runhead-search").find('input[name="q"]').autoComplete({
         minChars: 3,
         source: function(term, response) {
             $.getJSON('/api/systems/autocomplete/', { q: term }, function(data) { response(data); });
@@ -98,6 +88,25 @@ gtag('config', 'UA-4067813-21');
     });
 </script>
 {% endif %}
+
+<script type="text/javascript">
+(function() {
+    var stored = localStorage.getItem('dbdb-theme');
+    var preferred = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-bs-theme', preferred);
+    var label = document.getElementById('themeLabel');
+    if (label) label.textContent = preferred === 'dark' ? 'Light' : 'Dark';
+})();
+
+function toggleTheme() {
+    var current = document.documentElement.getAttribute('data-bs-theme') || 'light';
+    var next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-bs-theme', next);
+    localStorage.setItem('dbdb-theme', next);
+    var label = document.getElementById('themeLabel');
+    if (label) label.textContent = next === 'dark' ? 'Light' : 'Dark';
+}
+</script>
 
 {% block scripts %}{% endblock %}
 

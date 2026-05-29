@@ -1,87 +1,31 @@
-<div class="container col-12 col-md-8 col-lg-6">
-    <div class="d-flex justify-content-center p-3">
-        <div class="col-auto d-flex align-items-center justify-content-center page-row-bg rounded-4 overflow-x-auto px-0 me-3 d-none d-md-block">
-            {% if versions.has_previous %}
-            <a href="?page=1{% if lookup_user %}&username={{ lookup_user }}{% endif %}" class="page-link">
-                <p class="m-0">&laquo; First</p>
-            </a>
-            {% else %}
-            <p class="page-link m-0 disabled">&laquo; First</p>
-            {% endif %}
-        </div>
-        <div class="col-auto d-flex align-items-center justify-content-center page-row-bg rounded-4 overflow-x-auto px-0">
-            <div class="d-md-none">
-                {% if versions.has_previous %}
-                <a href="?page=1{% if lookup_user %}&username={{ lookup_user }}{% endif %}" class="page-link">
-                    <p class="m-0">&laquo;</p>
-                </a>
-                {% else %}
-                <p class="page-link m-0 disabled">&laquo;</p>
-                {% endif %}
-            </div>
+<div class="pager">
+    {% if versions.has_previous %}
+    <a href="?page=1{% if lookup_user %}&username={{ lookup_user }}{% endif %}" class="pg-edge">&laquo; First</a>
+    <a href="?page={{ versions.previous_page_number }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}" class="pg-edge">&lsaquo; Prev</a>
+    {% else %}
+    <span class="pg-edge" style="opacity:.4">&laquo; First</span>
+    <span class="pg-edge" style="opacity:.4">&lsaquo; Prev</span>
+    {% endif %}
 
-            {% if versions.has_previous %}
-            <a href="?page={{ versions.previous_page_number }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}" class="page-link">
-                <p class="m-0">&lsaquo;</p>
-            </a>
+    {% for num in page_range %}
+        {% if num == versions.number %}
+            <span class="pg active">{{ num }}</span>
+        {% else %}
+            {% if num == page_range.start and num > 1 %}
+                <span class="dots">…</span>
+            {% elif num|add:1 == page_range.stop and num < versions.paginator.num_pages %}
+                <span class="dots">…</span>
             {% else %}
-            <p class="page-link m-0 disabled">&lsaquo;</p>
+                <a href="?page={{ num }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}" class="pg">{{ num }}</a>
             {% endif %}
+        {% endif %}
+    {% endfor %}
 
-            {% for num in page_range %}
-                {% if num == versions.number %}
-                    <a class="page-link active">{{ num }}</a>
-                {% else %}
-                    <!-- render elipse for lg and md screens at start -->
-                    {% if num == page_range.start and num > 1 %}
-                        <p class="page-link m-0 disabled d-none d-sm-block">...</p>
-                    {% else %}
-                        <!-- render elipse for lg and md screens at end -->
-                        {% if num|add:1 == page_range.stop and num < versions.paginator.num_pages %}
-                            <p class="page-link m-0 disabled d-none d-sm-block">...</p>
-                        <!-- render 3 when on page 1 -->
-                        {% elif versions.number == 1 and num == 3 %}
-                            <a href="?page={{ num }}" class="page-link">{{ num }}</a>
-                        <!-- render last page - 2 when on last page -->
-                        {% elif versions.number == versions.paginator.num_pages and num == versions.paginator.num_pages|add:"-2" %}
-                            <a href="?page={{ num }}" class="page-link">{{ num }}</a>
-                        <!-- render number outside range for lg and md screens -->
-                        {% elif num < versions.number|add:"-1" or num > versions.number|add:1 %}
-                            <a href="?page={{ num }}" class="page-link d-none d-sm-block">{{ num }}</a>
-                        {% else %}
-                            <a href="?page={{ num }}" class="page-link">{{ num }}</a>
-                        {% endif %}
-                    {% endif %}
-
-                {% endif %}
-            {% endfor %}
-
-            {% if versions.has_next %}
-            <a href="?page={{ versions.next_page_number }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}" class="page-link">
-                <p class="m-0">&rsaquo;</p>
-            </a>
-            {% else %}
-            <p class="page-link m-0 disabled">&rsaquo;</p>
-            {% endif %}
-            
-            <div class="d-md-none">
-                {% if versions.has_next %}
-                <a href="?page={{ versions.paginator.num_pages }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}" class="page-link">
-                    <p class="m-0">&raquo;</p>
-                </a>
-                {% else %}
-                <p class="page-link m-0 disabled">&raquo;</p>
-                {% endif %}
-            </div>
-        </div>
-        <div class="col-auto d-flex align-items-center justify-content-center page-row-bg rounded-4 overflow-x-auto px-0 ms-3 d-none d-md-block">
-            {% if versions.has_next %}
-            <a href="?page={{ versions.paginator.num_pages }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}" class="page-link">
-                <p class="m-0">Last &raquo;</p>
-            </a>
-            {% else %}
-            <p class="page-link m-0 disabled">Last &raquo;</p>
-            {% endif %}
-        </div>
-    </div>
+    {% if versions.has_next %}
+    <a href="?page={{ versions.next_page_number }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}" class="pg-edge">Next &rsaquo;</a>
+    <a href="?page={{ versions.paginator.num_pages }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}" class="pg-edge">Last &raquo;</a>
+    {% else %}
+    <span class="pg-edge" style="opacity:.4">Next &rsaquo;</span>
+    <span class="pg-edge" style="opacity:.4">Last &raquo;</span>
+    {% endif %}
 </div>

@@ -21,343 +21,61 @@
 {% endblock %}
 
 {% block content %}
-    <!-- BEGIN: MAIN COL -->
-        <!-- BEGIN:HEADER-MOBILE1 -->
-        <div class="d-block d-md-none">
-            {% partialdef title_tags inline %}
+
+{% if has_revision %}
+<div class="alert alert-info mb-3" role="alert">
+    Viewing Revision #{{ system_version.ver }} from {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
+    <a href="{{ system.get_absolute_url }}" class="btn btn-secondary btn-sm ms-2">View Current</a>
+    {% if not system_version.is_current and user.is_authenticated %}
+    <form class="form-inline d-inline" action="{% url 'system_revision' system.slug %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" value="{{ system_version.id }}" name="current_version">
+        <button type="submit" class="btn btn-primary btn-sm ms-2">Set As Current</button>
+    </form>
+    {% endif %}
+</div>
+{% endif %}
+{% if request.GET.noperms and request.GET.noperms == '1' %}
+<div class="alert alert-danger mb-3">You do not have permission to edit this entry</div>
+{% endif %}
+
+<div class="entry-grid">
+    <!-- MAIN -->
+    <div class="entry-main">
+        <p class="entry-kicker">Encyclopedia Entry</p>
+        <div class="entry-head">
+            <h1 class="entry-title">{{ system.name }}</h1>
             {% if user.is_authenticated and user_can_edit %}
-                <a class="btn btn-primary float-end mt-1" href="{% url 'system_edit' system.slug %}" role="button"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
+            <a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
             {% endif %}
-            <h1 class="fw-bold order-first mb-3">{{ system.name }}</h1>
-
-            <!-- BEGIN:TAGS -->
-            {% if system_version.tags.all %}
-                {% for tag in system_version.tags.all %}
-                    {% tag_link tag %}
-                {% endfor %}
-            {% endif %}
-            <!-- END:TAGS -->
-
-            <!-- BEGIN:REVISION -->
-            {% if has_revision %}
-            <div class="alert alert-info d-none d-md-block" class="alert-revision" role="alert">
-                Viewing Revision #{{ system_version.ver }} from {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
-                <a href="{{ system.get_absolute_url }}" class="btn btn-secondary btn-sm float-end ms-2" role="button" aria-pressed="true">View Current</a>
-                {% if not system_version.is_current and user.is_authenticated %}
-                <form class="form-inline d-inline" action="{% url 'system_revision' system.slug %}" method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" value="{{ system_version.id }}" name="current_version">
-                    <button type="submit" class="btn btn-primary btn-sm float-end ms-2">Set As Current</button>
-                </form>
-                {% endif %}
-            </div>
-            {% endif %}
-            {% if request.GET.noperms and request.GET.noperms == '1' %}
-            <div class="alert alert-danger alert-dismissable alert-link">
-                <button class="close" type="button" data-dismiss="alert" aria-hidden="true">&#215;</button>
-                    You do not have permission to edit this entry
-            </div>
-            {% endif %}
-            <!-- END:REVISION -->
-            {% endpartialdef %}
-
-            {{ system_version.description_mobile_intro|markdownify }}
         </div>
-            <!-- END:HEADER-MOBILE1 -->
 
-    <!-- BEGIN: SIDEBAR -->
-    <div class="col-sm-12 col-md-4 float-md-end text-wrap text-break sidebar pb-4 ms-md-5">
-        {% if has_revision %}
-        <div class="alert alert-info d-block d-md-none" class="alert-revision" role="alert">
-            <a href="{{ system.get_absolute_url }}" class="btn btn-secondary btn-sm float-right active" role="button" aria-pressed="true">View Current</a>
-            Viewing Revision #{{ system_version.ver }} from {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
+        {% if system_version.tags.all %}
+        <div class="entry-tags">
+            {% for tag in system_version.tags.all %}{% tag_link tag %}{% endfor %}
         </div>
         {% endif %}
 
-        <div class="border rounded bg-light p-4">
-            {% if system_version.logo %}
-            {% spaceless %}
-            <div class="text-center mb-3 pb-3 border-bottom">
-                <a href="{{ system_version.logo.url }}" class="logo-thumbnail"><img
-                        class="{% if system_version.logo_height > system_version.logo_width %}logo-tall{% else %}logo-normal{% endif %}"
-                        src="{% if system_version.logo.url.lower|slice:"-3:" == "svg" %}{{ system_version.logo.url }}{% else %}{{ system_version.logo|thumbnail_url:'thumb' }}{% endif %}"
-                        alt="{{ system.name }} Logo"
-                        title="{{ system.name }}"></a>
-            </div>
-            {% endspaceless %}
-            {% endif %}
-
-            <dl class="row">
-                {% if system_version.system_url %}
-                    <dt class="fs-6">Website</dt>
-                    <dd><a href="{{ system_version.system_url.url }}" target="_{{ system.slug }}">{{ system_version.system_url.url }}</a></dd>
-                {% endif %}
-
-                {% if system_version.sourcerepo_url %}
-                    <dt class="fs-6">Source Code</dt>
-                    <dd><a href="{{ system_version.sourcerepo_url.url }}" target="_{{ system.slug }}">{{ system_version.sourcerepo_url.url }}</a></dd>
-                {% endif %}
-
-                {% if system_version.docs_url %}
-                    <dt class="fs-6">Tech Docs</dt>
-                    <dd><a href="{{ system_version.docs_url.url }}" target="_{{ system.slug }}">{{ system_version.docs_url.url }}</a></dd>
-                {% endif %}
-
-                {% if system_version.twitter_handle %}
-                    <dt class="fs-6">Twitter</dt>
-                    <dd><i class="fa-brands fa-twitter"></i> <a target="_twitter" href="{{ system_version.twitter_handle_url }}" target="_{{ system.slug }}"> {{ system_version.twitter_handle }}</a></dd>
-                {% endif %}
-
-                {% if system_version.linkedin_handle %}
-                    <dt class="fs-6">LinkedIn</dt>
-                    <dd><i class="fa-brands fa-linkedin"></i> <a target="_linkedin" href="{{ system_version.linkedin_handle_url }}" target="_{{ system.slug }}"> {{ system_version.linkedin_handle }}</a></dd>
-                {% endif %}
-
-                {% if system_version.developer_orgs.all %}
-                    <dt class="fs-6">Developer</dt>
-                    <dd>{% for org in system_version.developer_orgs.all %}{% if not forloop.first %}, {% endif %}{% if org.url %}<a href="{{ org.url }}" target="_blank">{{ org.name }}</a>{% else %}{{ org.name }}{% endif %}{% endfor %}</dd>
-                {% elif system_version.developer %}
-                    <dt class="fs-6">Developer</dt>
-                    <dd>{{ system_version.developer }}</dd>
-                {% endif %}
-
-                {% if system_version.countries %}
-                <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
-                    <dt class="fs-6">Country of Origin</dt>
-                    <dd>
-                    {% for country in system_version.countries %}
-                    {% if not forloop.first %}, {% endif %}
-                    <a href="{% url 'browse' %}?country={{ country.code }}" title="View other systems from {{ country.name }}">
-                        <i class="{{ country.flag_css }}"></i>
-                        {{ country }}
-                    </a>
-                    {% endfor %}
-                    </dd>
-                {% endif %}
-
-                {% if system_version.start_year %}
-                    <dt class="fs-6">
-                        Start Year
-                        {% if start_year_citations %}
-                            {% for c in start_year_citations %}{% citation_footnote c %}{% endfor %}
-                        {% endif %}
-                    </dt>
-                    <dd>{{ system_version.start_year }}</dd>
-                {% endif %}
-
-                {% if system_version.end_year %}
-                    <dt class="fs-6">
-                        End Year
-                        {% if end_year_citations %}
-                            {% for c in end_year_citations %}{% citation_footnote c %}{% endfor %}
-                        {% endif %}
-                    </dt>
-                    <dd>{{ system_version.end_year }}</dd>
-                {% endif %}
-
-                {% if system_version.former_names %}
-                    <dt class="fs-6">Former Name</dt>
-                    <dd>{{ system_version.former_names }}</dd>
-                {% endif %}
-
-                {% if acquisitions %}
-                    <dt class="fs-6">Acquired By</dt>
-                    <dd>
-                        <table class="table table-sm table-borderless mb-0">
-                            <tbody>
-                            {% for acq in acquisitions %}
-                            <tr>
-                                <td class="ps-0 text-muted acquisition-year">{% if acq.year %}{{ acq.year }}{% else %}&mdash;{% endif %}</td>
-                                <td class="ps-0">
-                                    {{ acq.organization.name }}{% for c in acq.citations %}{% citation_footnote c %}{% endfor %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </dd>
-                {% elif system_version.acquired_by %}
-                    <dt class="fs-6">Acquired By</dt>
-                    <dd>{{ system_version.acquired_by }}</dd>
-                {% endif %}
-
-                {% if system_version.project_types.all %}
-                    <dt class="fs-6">Project Type</dt>
-                    <dd>
-                        {% spaceless %}
-                        {% for attropt in system_version.project_types.all %}{% if not forloop.first %}, {% endif %}
-                            {% browse_link "project-type" attropt.slug ": "|add:attropt.name attropt.name %}{% endfor %}
-                        {% endspaceless %}
-                    </dd>
-                {% endif %}
-
-                {% if system_version.written_in.all %}
-                    <dt class="fs-6">Written in</dt>
-                    <dd>
-                        {% spaceless %}
-                        {% for attropt in system_version.written_in.all %}{% if not forloop.first %}, {% endif %}
-                            {% browse_link "programming-language" attropt.slug "Written In "|add:attropt.name attropt.name %}{% endfor %}
-                        {% endspaceless %}
-                    </dd>
-                {% endif %}
-
-                {% if system_version.supported_languages.all %}
-                    <dt class="fs-6">Supported languages</dt>
-                    <dd>
-                        {% spaceless %}
-                        {% for attropt in system_version.supported_languages.all %}{% if not forloop.first %}, {% endif %}
-                            {% browse_link "programming-language" attropt.slug "Supporting "|add:attropt.name attropt.name %}{% endfor %}
-                        {% endspaceless %}
-                    </dd>
-                {% endif %}
-
-                {% if system_version.derived_from.exists %}
-                    <dt class="fs-6">Derived From</dt>
-                    <dd>
-                        {% spaceless %}
-                        {% for other in system_version.derived_from.all %}{% if not forloop.first %}, {% endif %}
-                            {% system_link other %}
-                            {% browse_link "derived" other.slug "Derived From "|add:other.name %}{% endfor %}
-                        {% endspaceless %}
-                    </dd>
-                {% endif %}
-
-                {% if system_version.embedded.exists %}
-                    <dt class="fs-6">Embeds / Uses</dt>
-                    <dd>
-                        {% spaceless %}
-                        {% for other in system_version.embedded.all %}{% if not forloop.first %}, {% endif %}
-                            {% system_link other %}
-                            {% browse_link "embeds" other.slug "Embed "|add:other.name %}{% endfor %}
-                        {% endspaceless %}
-                    </dd>
-                {% endif %}
-
-                {% if system_version.inspired_by.exists %}
-                    <dt class="fs-6">Inspired By</dt>
-                    <dd>
-                        {% for other in system_version.inspired_by.all %}{% if not forloop.first %}, {% endif %}
-                            {% system_link other %}
-                            {% browse_link "inspired" other.slug "Inspired By "|add:other.name %}{% endfor %}
-                    </dd>
-                {% endif %}
-
-                {% if system_version.compatible_with.exists %}
-                    <dt class="fs-6">Compatible With</dt>
-                    <dd>
-                        {% for other in system_version.compatible_with.all %}{% if not forloop.first %}, {% endif %}
-                            {% system_link other %}
-                            {% browse_link "compatible" other.slug "Compatible With "|add:other.name %}{% endfor %}
-                    </dd>
-                {% endif %}
-
-                {% if system_version.oses.all %}
-                    <dt class="fs-6">Operating Systems</dt>
-                    <dd>
-                        {% for attropt in system_version.oses.all %}{% if not forloop.first %}, {% endif %}
-                            {% browse_link "os" attropt.slug "That Support "|add:attropt.name attropt.name %}{% endfor %}
-                    </dd>
-                {% endif %}
-
-                {% if system_version.licenses.all %}
-                    <dt class="fs-6">Licenses</dt>
-                    <dd>
-                        {% for attropt in system_version.licenses.all %}{% if not forloop.first %}, {% endif %}
-                            {% browse_link "license" attropt.slug "That Use "|add:attropt.name|add:" License" attropt.name %}{% endfor %}
-                    </dd>
-                {% endif %}
-
-                {% if system_version.wikipedia_url %}
-                    <dt class="fs-6">Wikipedia</dt>
-                    <dd><a href="{{ system_version.wikipedia_url.url }}" target="_{{ system.slug }}">{{ system_version.wikipedia_url.url }}</a></dd>
-                {% endif %}
-            </dl>
-
-        </div>
-
-        <div class="d-none d-md-block ">
-            {% partialdef related inline %}
-            {% if compatible %}
-            <!-- START: COMPATIBLE -->
-            <div class="card systems-extra p-0" >
-                {% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}
-            </div>
-            <!-- END: COMPATIBLE -->
-            {% endif %}
-
-            {% if derived %}
-            <!-- START: DERIVED -->
-            <div class="card systems-extra p-0" >
-                {% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}
-            </div>
-            <!-- END: DERIVED -->
-            {% endif %}
-
-            {% if embeds %}
-            <!-- START: EMBEDS -->
-            <div class="card systems-extra p-0" >
-                {% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}
-            </div>
-            <!-- END: EMBEDS -->
-            {% endif %}
-
-            {% if hosted_by %}
-            <!-- START: HOSTED BY -->
-            <div class="card systems-extra p-0">
-                {% include 'core/system-sys-sidebar.html' with title='Hosted By' systems=hosted_by limit=3 %}
-            </div>
-            <!-- END: HOSTED BY -->
-            {% endif %}
-
-            {% if recommendations %}
-            <!-- START: RECOMMENDATIONS -->
-            <div class="card systems-extra p-0" >
-                {% include 'core/system-sys-sidebar.html' with title='People Also Viewed' systems=recommendations %}
-            </div>
-            <!-- END: RECOMMENDATIONS -->
-            {% endif %}
-            {% endpartialdef %}
-        </div>
-
-
-    </div>
-    <!-- END: SIDEBAR -->
-
-    <!-- START: MAIN BODY -->
-    <div class="clearfix">
-        <!-- BEGIN:HEADER-MOBILE2 -->
-        <div class="d-block d-md-none">
-            {{ system_version.description_mobile_remainder|markdownify }}
-        </div>
-        <!-- END:HEADER-MOBILE2 -->
-
-        <!-- BEGIN:HEADER-FULL -->
-        <div class="d-none d-md-block">
-            {% partial title_tags %}
+        <!-- DESCRIPTION -->
+        <div class="entry-lead-block mt-3">
             {{ system_version.description|markdownify }}
         </div>
-        <!-- END:HEADER-FULL -->
 
         {% if system_version.hosted_services.exists %}
-        <!-- BEGIN:HOSTED -->
-        <div id="hosted-services" class="pt-md-2 mb-4">
-            <h3 class="mb-0">Hosted Systems</h3>
-            <hr class="mt-1 mb-2" />
-            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+        <div id="hosted-services" class="entry-section">
+            <h2>Hosted Systems</h2>
+            <hr class="sec-rule">
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3">
                 {% for hosted_sys in system_version.hosted_services.all %}
                 <div class="col">
-                    <div class="card h-100 text-center border shadow-sm">
+                    <div class="card h-100 text-center border">
                         <a href="{{ hosted_sys.get_absolute_url }}" class="text-decoration-none">
                             <div class="card-body d-flex flex-column align-items-center justify-content-center p-3">
                                 {% with hosted_ver=hosted_sys.current %}
                                 {% if hosted_ver.logo %}
-                                <img src="{% if hosted_ver.logo.url|lower|slice:"-3:" == "svg" %}{{ hosted_ver.logo.url }}{% else %}{{ hosted_ver.logo|thumbnail_url:'thumb' }}{% endif %}"
-                                     class="img-fluid logo-hosted mb-2"
-                                     alt="{{ hosted_sys.name }}">
+                                <img src="{% if hosted_ver.logo.url|lower|slice:"-3:" == "svg" %}{{ hosted_ver.logo.url }}{% else %}{{ hosted_ver.logo|thumbnail_url:'thumb' }}{% endif %}" class="img-fluid logo-hosted mb-2" alt="{{ hosted_sys.name }}">
                                 {% else %}
-                                <img src="{% static 'core/images/database-nologo-icon.svg' %}"
-                                     class="img-fluid logo-hosted mb-2"
-                                     alt="{{ hosted_sys.name }}">
+                                <img src="{% static 'core/images/database-nologo-icon.svg' %}" class="img-fluid logo-hosted mb-2" alt="{{ hosted_sys.name }}">
                                 {% endif %}
                                 {% endwith %}
                                 <span class="small fw-semibold text-body">{{ hosted_sys.name }}</span>
@@ -368,87 +86,193 @@
                 {% endfor %}
             </div>
         </div>
-        <!-- END:HOSTED -->
         {% endif %}
 
         {% for sec in sections %}
-            <div id="{{ sec.id }}" class="pt-md-2 mb-4">
-                {% if sec.title %}
-                    <h3 class="mb-0">{{ sec.title }}{% if sec.citations %}{% for c in sec.citations %}{% citation_footnote c %}{% endfor %}{% endif %}                        </h3>
-                    <hr class="mt-1 mb-2" />
-                {% endif %}
-                {% if sec.options %}
-                    {% for o in sec.options %}
-                    <a class="badge badge-section" href="{% url 'browse' %}?{{ sec.id }}={{ o.slug }}" title="View Other '{{ o.value }}' Systems">{{ o.value }}</a>
-                    {% endfor %}
-                {% endif %}
-                {% if sec.system %}
-                    <p class="section-sameas fw-bold">⮡ Same as {% system_link sec.system %}
-                {% endif %}
-
-                {{ sec.body|markdownify }}
+        <div id="{{ sec.id }}" class="entry-section">
+            {% if sec.title %}
+            <h2>{{ sec.title }}{% if sec.citations %}<sup class="cites">{% for c in sec.citations %}{% citation_footnote c %}{% endfor %}</sup>{% endif %}</h2>
+            <hr class="sec-rule">
+            {% endif %}
+            {% if sec.options %}
+            <div class="badges">
+                {% for o in sec.options %}
+                <a class="badge-section" href="{% url 'browse' %}?{{ sec.id }}={{ o.slug }}" title="View Other '{{ o.value }}' Systems">{{ o.value }}</a>
+                {% endfor %}
             </div>
+            {% endif %}
+            {% if sec.system %}
+            <p class="section-sameas fw-bold">⮡ Same as {% system_link sec.system %}</p>
+            {% endif %}
+            {{ sec.body|markdownify }}
+        </div>
         {% endfor %}
-    </div>
-    <!-- END: MAIN BODY -->
 
-    {% if citations %}
-    <!-- BEGIN:CITATIONS -->
-    <div class="citations text-wrap text-break">
-        <h3>Citations</h3>
-        <hr class="mt-1 mb-2" />
-        <ol class="citations">
-            {% for c in citations %}
-                <li id="citation{{ forloop.counter }}" class="pb-1">
+        {% if citations %}
+        <div class="citations-block">
+            <div class="sec-head"><h2>Citations</h2><hr class="rule"></div>
+            <ol class="citations-list">
+                {% for c in citations %}
+                <li id="citation{{ forloop.counter }}">
                     {% citation_link c %}
-
                     {% if c.last_modified %}
-                    <time id="citation{{ forloop.counter }}-last_modified" datetime="{{ c.last_modified|date:"c" }}">
-                        <span class="citation-timestamp text-muted px-1 rounded border">Modified: {{ c.last_modified|date }}</span>
+                    <time datetime="{{ c.last_modified|date:"c" }}">
+                        <span class="cite-meta">Modified: {{ c.last_modified|date }}</span>
                     </time>
                     {% endif %}
                     {% if c.last_checked %}
-                    <time id="citation{{ forloop.counter }}-accessed" datetime="{{ c.last_checked|date:"c" }}">
-                        <span class="citation-timestamp text-muted px-1 rounded border">Accessed: {{ c.last_checked|date }}</span>
+                    <time datetime="{{ c.last_checked|date:"c" }}">
+                        <span class="cite-meta">Accessed: {{ c.last_checked|date }}</span>
                     </time>
                     {% endif %}
                 </li>
-            {% endfor %}
-        </ol>
-    </div>
-    <!-- END:CITATIONS -->
-    {% endif %}
+                {% endfor %}
+            </ol>
+        </div>
+        {% endif %}
 
-    <!-- BEGIN:RELATED-MOBILE -->
-    <div class="row d-md-none">
-        {% partial related %}
-    </div>
-    <!-- END:RELATED-MOBILE -->
-
-
-    <!-- BEGIN:REVISION -->
-    <div class="text-end border-3 border-top d-none d-md-block">
-        {% partialdef revision inline %}
-        <a href="{% url 'system_revision' system.slug %}" title="View All Revisions for {{ system.name }}">
-            <time datetime="{{ system_version.created|date:"c" }}">
+        <div class="entry-foot">
+            <a href="{% url 'system_revision' system.slug %}" class="text-accent">
                 <i class="fa-solid fa-clock-rotate-left"></i>
                 Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
-            </time>
-            |
-            Revision #{{ system_version.ver }}
-        </a>
-        {% endpartialdef %}
+            </a>
+            <span>Revision #{{ system_version.ver }}</span>
+        </div>
     </div>
-    <!-- END:REVISION -->
+
+    <!-- SIDEBAR -->
+    <aside class="entry-sidebar">
+        <div class="factbox">
+            <div class="fb-logo">
+                {% if system_version.logo %}
+                <a href="{{ system_version.logo.url }}" class="logo-thumbnail">
+                    <img class="{% if system_version.logo_height > system_version.logo_width %}logo-tall{% else %}logo-normal{% endif %}"
+                         src="{% if system_version.logo.url.lower|slice:"-3:" == "svg" %}{{ system_version.logo.url }}{% else %}{{ system_version.logo|thumbnail_url:'thumb' }}{% endif %}"
+                         alt="{{ system.name }} Logo" title="{{ system.name }}">
+                </a>
+                {% else %}
+                <span class="mono-tile" style="width:96px;height:96px;font-size:1.7rem;">{{ system.name|first|upper }}</span>
+                {% endif %}
+                <div class="fb-name">{{ system.name }}</div>
+            </div>
+            <dl>
+                {% if system_version.system_url %}
+                <div class="fact"><dt>Website</dt><dd><a href="{{ system_version.system_url.url }}" target="_{{ system.slug }}">{{ system_version.system_url.url }}</a></dd></div>
+                {% endif %}
+                {% if system_version.sourcerepo_url %}
+                <div class="fact"><dt>Source Code</dt><dd><a href="{{ system_version.sourcerepo_url.url }}" target="_{{ system.slug }}">{{ system_version.sourcerepo_url.url }}</a></dd></div>
+                {% endif %}
+                {% if system_version.docs_url %}
+                <div class="fact"><dt>Tech Docs</dt><dd><a href="{{ system_version.docs_url.url }}" target="_{{ system.slug }}">{{ system_version.docs_url.url }}</a></dd></div>
+                {% endif %}
+                {% if system_version.twitter_handle %}
+                <div class="fact"><dt>Twitter</dt><dd><a href="{{ system_version.twitter_handle_url }}"><i class="fa-brands fa-twitter"></i> {{ system_version.twitter_handle }}</a></dd></div>
+                {% endif %}
+                {% if system_version.linkedin_handle %}
+                <div class="fact"><dt>LinkedIn</dt><dd><a href="{{ system_version.linkedin_handle_url }}"><i class="fa-brands fa-linkedin"></i> {{ system_version.linkedin_handle }}</a></dd></div>
+                {% endif %}
+                {% if system_version.developer_orgs.all %}
+                <div class="fact"><dt>Developer</dt><dd>{% for org in system_version.developer_orgs.all %}{% if not forloop.first %}, {% endif %}{% if org.url %}<a href="{{ org.url }}" target="_blank">{{ org.name }}</a>{% else %}{{ org.name }}{% endif %}{% endfor %}</dd></div>
+                {% elif system_version.developer %}
+                <div class="fact"><dt>Developer</dt><dd>{{ system_version.developer }}</dd></div>
+                {% endif %}
+                {% if system_version.countries %}
+                <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
+                <div class="fact"><dt>Country of Origin</dt><dd>{% for country in system_version.countries %}{% if not forloop.first %}, {% endif %}<a href="{% url 'browse' %}?country={{ country.code }}"><i class="{{ country.flag_css }}"></i> {{ country }}</a>{% endfor %}</dd></div>
+                {% endif %}
+                {% if system_version.start_year %}
+                <div class="fact"><dt>Start Year{% if start_year_citations %} {% for c in start_year_citations %}{% citation_footnote c %}{% endfor %}{% endif %}</dt><dd>{{ system_version.start_year }}</dd></div>
+                {% endif %}
+                {% if system_version.end_year %}
+                <div class="fact"><dt>End Year{% if end_year_citations %} {% for c in end_year_citations %}{% citation_footnote c %}{% endfor %}{% endif %}</dt><dd>{{ system_version.end_year }}</dd></div>
+                {% endif %}
+                {% if system_version.former_names %}
+                <div class="fact"><dt>Former Name</dt><dd>{{ system_version.former_names }}</dd></div>
+                {% endif %}
+                {% if acquisitions %}
+                <div class="fact"><dt>Acquired By</dt><dd>
+                    {% for acq in acquisitions %}<div>{% if acq.year %}<span class="text-muted me-1">{{ acq.year }}</span>{% endif %}{{ acq.organization.name }}{% for c in acq.citations %}{% citation_footnote c %}{% endfor %}</div>{% endfor %}
+                </dd></div>
+                {% elif system_version.acquired_by %}
+                <div class="fact"><dt>Acquired By</dt><dd>{{ system_version.acquired_by }}</dd></div>
+                {% endif %}
+                {% if system_version.project_types.all %}
+                <div class="fact"><dt>Project Type</dt><dd>{% for attropt in system_version.project_types.all %}{% if not forloop.first %}, {% endif %}{% browse_link "project-type" attropt.slug ": "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
+                {% endif %}
+                {% if system_version.written_in.all %}
+                <div class="fact"><dt>Written in</dt><dd>{% for attropt in system_version.written_in.all %}{% if not forloop.first %}, {% endif %}{% browse_link "programming-language" attropt.slug "Written In "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
+                {% endif %}
+                {% if system_version.supported_languages.all %}
+                <div class="fact"><dt>Supported Languages</dt><dd>{% for attropt in system_version.supported_languages.all %}{% if not forloop.first %}, {% endif %}{% browse_link "programming-language" attropt.slug "Supporting "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
+                {% endif %}
+                {% if system_version.derived_from.exists %}
+                <div class="fact"><dt>Derived From</dt><dd>{% for other in system_version.derived_from.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
+                {% endif %}
+                {% if system_version.embedded.exists %}
+                <div class="fact"><dt>Embeds / Uses</dt><dd>{% for other in system_version.embedded.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
+                {% endif %}
+                {% if system_version.inspired_by.exists %}
+                <div class="fact"><dt>Inspired By</dt><dd>{% for other in system_version.inspired_by.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
+                {% endif %}
+                {% if system_version.compatible_with.exists %}
+                <div class="fact"><dt>Compatible With</dt><dd>{% for other in system_version.compatible_with.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
+                {% endif %}
+                {% if system_version.oses.all %}
+                <div class="fact"><dt>Operating Systems</dt><dd>{% for attropt in system_version.oses.all %}{% if not forloop.first %}, {% endif %}{% browse_link "os" attropt.slug "That Support "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
+                {% endif %}
+                {% if system_version.licenses.all %}
+                <div class="fact"><dt>Licenses</dt><dd>{% for attropt in system_version.licenses.all %}{% if not forloop.first %}, {% endif %}{% browse_link "license" attropt.slug "That Use "|add:attropt.name|add:" License" attropt.name %}{% endfor %}</dd></div>
+                {% endif %}
+                {% if system_version.wikipedia_url %}
+                <div class="fact"><dt>Wikipedia</dt><dd><a href="{{ system_version.wikipedia_url.url }}" target="_{{ system.slug }}">{{ system_version.wikipedia_url.url }}</a></dd></div>
+                {% endif %}
+            </dl>
+        </div>
+
+        {% partialdef related inline %}
+        {% if compatible %}
+        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}</div>
+        {% endif %}
+        {% if derived %}
+        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}</div>
+        {% endif %}
+        {% if embeds %}
+        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}</div>
+        {% endif %}
+        {% if hosted_by %}
+        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Hosted By' systems=hosted_by limit=3 %}</div>
+        {% endif %}
+        {% if recommendations %}
+        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='People Also Viewed' systems=recommendations %}</div>
+        {% endif %}
+        {% endpartialdef %}
+    </aside>
+</div>
+
+<!-- Mobile related section -->
+<div class="row d-md-none mt-3">
+    {% partial related %}
+</div>
+
+{% block navbuttons %}{% endblock %}
+
 {% endblock %}
 
 {% block footer %}
-    {% partial revision %}
+<div class="entry-foot" style="font-size:.66rem;letter-spacing:.05em;color:var(--muted);">
+    {% partialdef revision inline %}
+    <a href="{% url 'system_revision' system.slug %}">
+        <time datetime="{{ system_version.created|date:"c" }}">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
+        </time>
+        | Revision #{{ system_version.ver }}
+    </a>
+    {% endpartialdef %}
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script src="{% static 'lib/js/bootstrap.bundle.js' %}"></script>
-
 {% block system_script %}{% endblock %}
 {% endblock %}
-

@@ -4,96 +4,57 @@
 {% load thumbnail %}
 {% load django_bootstrap5 %}
 
-{% block title %}
-Leaderboards
-{% endblock %}
-
+{% block title %}Leaderboards{% endblock %}
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
 {% endblock %}
 
-
 {% block content %}
-<div class="main justify-content-center">
-    <div class="container">
-        <div class="row justify-content-md-center homepage-header">
-            <div class="col col-md-12 col-sm-12 text-center">
-                <h1 class="display-3">Leaderboards</h1>
-                <p class="lead">Category Statistics</p>
-            </div>
-        </div>
-    </div>
-    <div class="d-flex row justify-content-center">
-        <div class="row col-lg-10">
-            {% for stat in stats %}
-            <!-- BEGIN: {{ stat.label|upper }} -->
-            <div class="d-flex col-md-6 col-xl-4 ps-md-4 pe-md-4">
-                <div class="card w-100 d-md-block mb-4 mx-4 text-center mx-auto">
-                    <div class="card-header">
-                        <h4>{{ stat.label }}</h4>
-                    </div>
-                    <table class="table table-hover table-stats">
-                        <tbody>
-                            {% for item in stat.items %}
-                            <tr>
-                                <td class="stat-label text-start">
-                                {% if stat.search_field == "country" %}
-                                    {% get_country item.label as country %}
-                                    <a href="{% url 'browse' %}?country={{ country.code }}" title="View other systems from {{ country.name }}"><i class="{{ country.flag_css }}"></i> {{ country.name }}</a>
-                                {% elif stat.systems %}
-                                    <a href="{% if item.url %}
-                                    {{ item.url }}
-                                    {% else %}
-                                    {% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}
-                                    {% endif %}">
-                                    {% if item.label.current.logo %}
-                                        <img src="{% if item.label.current.logo.url.lower|slice:"-3:" == "svg" %}{{ item.label.current.logo.url }}{% else %}{{ item.label.current.logo|thumbnail_url:'stats' }}{% endif %}" alt="{{ item.label.name }}" class="logo-stats" />
-                                    {% else %}
-                                        <img src="{% static 'core/images/database-nologo.svg' %}" alt="{{ item.label.name }}" class="logo-stats" />
-                                    {% endif %}
-                                    {{ item.label.name }}
-                                    </a>
-                                {% elif stat.organizations %}
-                                    <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}">
-                                    {% if item.label.logo %}
-                                        <img src="{% if item.label.logo.url.lower|slice:"-3:" == "svg" %}{{ item.label.logo.url }}{% else %}{{ item.label.logo|thumbnail_url:'stats' }}{% endif %}" alt="{{ item.label.name }}" class="logo-stats" />
-                                    {% else %}
-                                        <img src="{% static 'core/images/database-nologo-sidebar.svg' %}" alt="{{ item.label.name }}" class="logo-stats" />
-                                    {% endif %}
-                                    {{ item.label.name }}
-                                    </a>
-                                {% else %}
-                                    <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}">{{ item.label }}</a>
-                                {% endif %}
-                                </td>
-                                <td class="stat-value text-end">{{ item.value }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <!--
-                    {% if stats_type == stats.search_field %}
-                    <div class="card-footer text-muted p-1 font-weight-bold">
-                        <a href="{% url 'stats' %}/{{ stat.search_field }}">View All ({{ stat.count }})</a>
-                    </div>
-                    {% endif %}
-                    -->
-                </div>
-            </div>
+<div class="page-title">
+    <p class="kicker">{{ num_systems|default:"" }} Systems Ranked</p>
+    <h1>Leaderboards</h1>
+    <p class="sub">Category statistics across the encyclopedia</p>
+    <hr class="title-rule">
+</div>
 
-            <!-- END: {{ stat.label|upper }} -->
-            {% endfor %}
+<div class="lb-grid">
+    {% for stat in stats %}
+    <div class="lb-card">
+        <div class="lb-h">{{ stat.label }}</div>
+        {% for item in stat.items %}
+        <div class="lb-row">
+            <span class="lb-rank">{{ forloop.counter }}</span>
+            {% if stat.search_field == "country" %}
+                {% get_country item.label as country %}
+                <a href="{% url 'browse' %}?country={{ country.code }}" class="lb-tile mono-tile" title="{{ country.name }}">{{ country.code|slice:":2" }}</a>
+                <a href="{% url 'browse' %}?country={{ country.code }}" class="lb-name">{{ country.name }}</a>
+            {% elif stat.systems %}
+                <a href="{% if item.url %}{{ item.url }}{% else %}{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}{% endif %}" class="lb-tile mono-tile">
+                    {% if item.label.current.logo %}
+                    <img style="width:100%;height:100%;object-fit:contain;" src="{% if item.label.current.logo.url.lower|slice:"-3:" == "svg" %}{{ item.label.current.logo.url }}{% else %}{{ item.label.current.logo|thumbnail_url:'stats' }}{% endif %}" alt="{{ item.label.name }}">
+                    {% else %}{{ item.label.name|first|upper }}{% endif %}
+                </a>
+                <a href="{% if item.url %}{{ item.url }}{% else %}{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}{% endif %}" class="lb-name">{{ item.label.name }}</a>
+            {% elif stat.organizations %}
+                <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}" class="lb-tile mono-tile">
+                    {% if item.label.logo %}
+                    <img style="width:100%;height:100%;object-fit:contain;" src="{% if item.label.logo.url.lower|slice:"-3:" == "svg" %}{{ item.label.logo.url }}{% else %}{{ item.label.logo|thumbnail_url:'stats' }}{% endif %}" alt="{{ item.label.name }}">
+                    {% else %}{{ item.label.name|first|upper }}{% endif %}
+                </a>
+                <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}" class="lb-name">{{ item.label.name }}</a>
+            {% else %}
+                <span class="lb-tile mono-tile">{{ item.label|first|upper }}</span>
+                <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}" class="lb-name">{{ item.label }}</a>
+            {% endif %}
+            <span class="lb-count">{{ item.value }}</span>
         </div>
+        {% endfor %}
     </div>
+    {% endfor %}
 </div>
 {% endblock %}
 
-
 {% block scripts %}
-<script>
-$(document).ready(function () {
-
-});
-</script>
+<script>$(document).ready(function () {});</script>
 {% endblock %}

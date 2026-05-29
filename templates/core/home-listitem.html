@@ -1,15 +1,18 @@
 {% load static %}
 {% load thumbnail %}
 
-<tr>
-    <td>
-        <a href="{{ item.get_absolute_url }}">
+<div class="db-row">
+    <span class="rank">{{ forloop.counter }}</span>
+    <span class="mono-tile">
         {% if item.current.logo %}
-        <img class="logo-homepage" src="{% if item.current.logo.url|lower|slice:"-3:" == "svg" %}{{ item.current.logo.url }}{% else %}{{ item.current.logo|thumbnail_url:'thumb' }}{% endif %}" alt="{{ item.name }}" />
+        <img style="width:100%;height:100%;object-fit:contain;" loading="lazy"
+             src="{% if item.current.logo.url|lower|slice:"-3:" == "svg" %}{{ item.current.logo.url }}{% else %}{{ item.current.logo|thumbnail_url:'thumb' }}{% endif %}"
+             alt="{{ item.name }}">
         {% else %}
-        <img class="logo-homepage" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ item.name }}" />
+        {{ item.name|first|upper }}
         {% endif %}
-        </a>
-    </td>
-    <td class="homepage-system"><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
-</tr>
+    </span>
+    <div class="db-info">
+        <a class="db-name" href="{{ item.get_absolute_url }}">{{ item.name }}</a>
+    </div>
+</div>

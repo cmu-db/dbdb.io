@@ -1,5 +1,5 @@
-<a class="badge badge-tag rounded-pill"
+<a class="tag-badge"
    href="{% url 'browse' %}?tag={{ tag.slug }}"
    title="View Other '{{ tag.name }}' Systems">
-    <i class="badge-tag-icon {{ tag.icon }}"></i> {{ tag.name }}
+    {% if tag.icon %}<i class="{{ tag.icon }}"></i> {% endif %}{{ tag.name }}
 </a>
