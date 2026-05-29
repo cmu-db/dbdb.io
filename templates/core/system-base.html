@@ -2,6 +2,7 @@
 {% load static %}
 {% load logos %}
 {% load markdownify %}
+{% load thumbnail %}
 {% load citations %}
 {% load links %}
 
@@ -142,7 +143,10 @@
             <div class="fb-logo">
                 {% if system_version.logo %}
                 <a href="{{ system_version.logo.url }}" class="logo-thumbnail">
-                    {% mono_tile system_version.logo system.name 'thumb' lazy=False %}
+                <img class="{% if system_version.logo_height > system_version.logo_width %}logo-tall{% else %}logo-normal{% endif %}"
+                         src="{% if system_version.logo.url.lower|slice:"-3:" == "svg" %}{{ system_version.logo.url }}{% else %}{{ system_version.logo|thumbnail_url:'thumb' }}{% endif %}"
+                         alt="{{ system.name }} Logo" title="{{ system.name }}">
+{#                    {% mono_tile system_version.logo system.name 'thumb' lazy=False %}#}
                 </a>
                 {% else %}
                 {% mono_tile system_version.logo system.name lazy=False %}
@@ -175,10 +179,10 @@
                 <div class="fact"><dt>Country of Origin</dt><dd>{% for country in system_version.countries %}{% if not forloop.first %}, {% endif %}<a href="{% url 'browse' %}?country={{ country.code }}"><i class="{{ country.flag_css }}"></i> {{ country }}</a>{% endfor %}</dd></div>
                 {% endif %}
                 {% if system_version.start_year %}
-                <div class="fact"><dt>Start Year{% if start_year_citations %} {% for c in start_year_citations %}{% citation_footnote c %}{% endfor %}{% endif %}</dt><dd>{{ system_version.start_year }}</dd></div>
+                    <div class="fact"><dt>Start Year</dt><dd>{{ system_version.start_year }} {% if start_year_citations %} <span class="cites">{% for c in start_year_citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</dd></div>
                 {% endif %}
                 {% if system_version.end_year %}
-                <div class="fact"><dt>End Year{% if end_year_citations %} {% for c in end_year_citations %}{% citation_footnote c %}{% endfor %}{% endif %}</dt><dd>{{ system_version.end_year }}</dd></div>
+                    <div class="fact"><dt>End Year</dt><dd>{{ system_version.end_year }}{% if end_year_citations %} <span class="cites">{% for c in end_year_citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</dd></div>
                 {% endif %}
                 {% if system_version.former_names %}
                 <div class="fact"><dt>Former Name</dt><dd>{{ system_version.former_names }}</dd></div>

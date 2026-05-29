@@ -41,7 +41,7 @@
                 </a>
                 <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}" class="lb-name">{{ item.label.name }}</a>
             {% else %}
-                <span class="lb-tile mono-tile">{{ item.label|first|upper }}</span>
+                <span class="lb-tile mono-tile">{{ item.label|slice:":2"|upper }}</span>
                 <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}" class="lb-name">{{ item.label }}</a>
             {% endif %}
             <span class="lb-count">{{ item.value }}</span>

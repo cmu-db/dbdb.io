@@ -28,7 +28,7 @@
         <div class="feed-body">
             <div class="feed-line">
                 <a href="{% url 'recent' %}?username={{ version.creator.username }}" class="actor">
-                    <i class="fas fa-user"></i> {{ version.creator.username }}
+                    <i class="fa-regular fa-user"></i> {{ version.creator.username }}
                 </a>
                 <span class="verb">updated</span>
                 {% if not revision_list %}

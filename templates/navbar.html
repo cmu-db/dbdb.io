@@ -9,7 +9,7 @@
             {% if user.is_authenticated %}
             <div class="dropdown">
                 <a class="user-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user fa-xs"></i> {{ user.username }} <i class="fas fa-caret-down fa-xs"></i>
+                    <i class="fa-regular fa-user fa-xs"></i> {{ user.username }}
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                     {% if user.is_superuser %}
@@ -32,7 +32,7 @@
                 </ul>
             </div>
             {% else %}
-            <a class="user-link" href="{% url 'login' %}"><i class="fas fa-user fa-xs"></i> Login</a>
+            <a class="user-link" href="{% url 'login' %}"><i class="fa-regular fa-user fa-xs"></i> Login</a>
             {% endif %}
         </div>
     </div>
