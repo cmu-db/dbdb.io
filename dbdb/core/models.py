@@ -689,6 +689,20 @@ class FlatPageMeta(models.Model):
         default=0,
         help_text="Order in which this page appears in the navbar (lower = first).",
     )
+    kicker = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Short label shown above the page title (e.g. 'About', 'Resources').",
+    )
+    subtitle = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Italic subheading shown below the page title.",
+    )
+    modified = models.DateTimeField(
+        auto_now=True,
+        help_text="Automatically updated whenever this record is saved.",
+    )
 
     class Meta:
         ordering = ['nav_order', 'page__title']

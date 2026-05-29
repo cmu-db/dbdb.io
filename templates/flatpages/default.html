@@ -4,11 +4,15 @@
 
 {% block content %}
 <div class="page-title">
-    <p class="kicker">Reference</p>
+    <p class="kicker">{% if flatpage.meta.kicker %}{{ flatpage.meta.kicker }}{% else %}Reference{% endif %}</p>
     <h1>{{ flatpage.title }}</h1>
+    {% if flatpage.meta.subtitle %}<p class="sub">{{ flatpage.meta.subtitle }}</p>{% endif %}
     <hr class="title-rule">
 </div>
 <div class="flatpage-content">
     {{ flatpage.content }}
 </div>
+{% if flatpage.meta.modified %}
+<p class="flatpage-modified label">Last modified: {{ flatpage.meta.modified }}</p>
+{% endif %}
 {% endblock %}

@@ -821,6 +821,13 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 }
 .entry-lead b { color: var(--ink); font-weight: 600; }
 
+/* Flatpage body text matches entry-lead-block prose style */
+.flatpage-content { font-family: var(--serif); font-size: 1.24rem; line-height: 1.55; color: var(--ink-soft); }
+.flatpage-content a { color: var(--link-color); }
+.flatpage-content a:hover { color: var(--link-color); text-decoration: underline dotted; }
+.flatpage-modified { margin-top: 2rem; }
+.flatpage-content h2 { margin-top: 2.3rem; }
+
 .entry-section { margin-top: 2.3rem; scroll-margin-top: 1rem; }
 .entry-section h2 {
   font-family: var(--serif); font-weight: 600; font-size: 1.55rem; margin: 0;
