@@ -157,6 +157,7 @@ a:hover { color: var(--accent); }
   font-style: italic;
   font-weight: 400;
   color: var(--accent);
+  margin-right: 0.8rem;
 }
 
 .masthead-meta {
