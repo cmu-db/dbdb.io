@@ -21,13 +21,11 @@ Edit {{ system.name }}
 
 
 {% block content %}
-    <h1 class="fw-bold order-first mb-3">
-        {% if system.slug %}
-        <a href="{% url 'system' system.slug %}">{{ system.name }}</a> > Edit
-        {% else %}
-        Add Database System
-        {% endif %}
-    </h1>
+<div class="page-title">
+    <p class="kicker">{% if system.slug %}Edit Entry{% else %}New Entry{% endif %}</p>
+    <h1>{% if system.slug %}{{ system.name }}{% else %}Add Database System{% endif %}</h1>
+    <hr class="title-rule">
+</div>
 
     <form method="POST" enctype="multipart/form-data" id="edit-form">
 

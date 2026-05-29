@@ -27,7 +27,13 @@
 </div>
 {% endif %}
 
-<div class="browse-wrap mt-3">
+<div class="page-title">
+    <p class="kicker">{{ num_results|intcomma }} System{{ num_results|pluralize }}</p>
+    <h1>{{ title }}</h1>
+    <hr class="title-rule">
+</div>
+
+<div class="browse-wrap">
 <form id="mainsearch" class="main main-search">
     <div class="bsearch">
         <span class="ic"><i class="fas fa-search"></i></span>

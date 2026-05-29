@@ -133,12 +133,15 @@
 
 <!-- MOBILE LAYOUT: 1) name+tags  2) intro  3) factbox  4) remainder -->
 <div class="d-md-none">
-    <p class="entry-kicker">Encyclopedia Entry</p>
-    <div class="entry-head">
-        <h1 class="entry-title">{{ system.name }}</h1>
-        {% if user.is_authenticated and user_can_edit %}
-        <a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
-        {% endif %}
+    <div class="page-title">
+        <p class="kicker">Encyclopedia Entry</p>
+        <div class="d-flex align-items-start justify-content-between gap-3">
+            <h1>{{ system.name }}</h1>
+            {% if user.is_authenticated and user_can_edit %}
+            <a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
+            {% endif %}
+        </div>
+        <hr class="title-rule">
     </div>
     {% if system_version.tags.all %}
     <div class="entry-tags">
@@ -161,12 +164,15 @@
     <div class="entry-main">
         <!-- Desktop only: kicker, title, tags, full description -->
         <div class="d-none d-md-block">
-            <p class="entry-kicker">Encyclopedia Entry</p>
-            <div class="entry-head">
-                <h1 class="entry-title">{{ system.name }}</h1>
-                {% if user.is_authenticated and user_can_edit %}
-                <a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
-                {% endif %}
+            <div class="page-title">
+                <p class="kicker">Encyclopedia Entry</p>
+                <div class="d-flex align-items-start justify-content-between gap-3">
+                    <h1>{{ system.name }}</h1>
+                    {% if user.is_authenticated and user_can_edit %}
+                    <a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
+                    {% endif %}
+                </div>
+                <hr class="title-rule">
             </div>
             {% if system_version.tags.all %}
             <div class="entry-tags">
