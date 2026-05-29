@@ -26,6 +26,11 @@
     <a href="https://www.semanticscholar.org/" class="alert-link" target="_blank" rel="noopener">Semantic Scholar</a>.
 </div>
 {% endif %}
+{% if search_error %}
+<div class="alert alert-danger mt-2" role="alert">
+    <strong>Invalid search parameter.</strong> {{ search_error }}
+</div>
+{% endif %}
 
 <div class="page-title">
     <p class="kicker">{% if saved_search %}{{ saved_search.name }}{% else %}{{ num_results|intcomma }} System{{ num_results|pluralize }}{% endif %}</p>
@@ -108,7 +113,7 @@
                     {% endfor %}
                 </div>
                 <div>
-                    <div class="grp-h">Features</div>
+                    <div class="grp-h">Implementation Features</div>
                     <div class="col-feat">
                     {% for col in available_features %}
                     <label class="col-check">

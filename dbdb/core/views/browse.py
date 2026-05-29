@@ -396,7 +396,7 @@ class BrowseView(View):
             search_mapping[f'feature_{fid}__gte'] = min_count
 
         if not any(search_mapping.values()) and not any(search_fg):
-            return (sqs, { }, 'Browse')
+            return (sqs, { }, 'Browse', None)
 
         title = 'Databases '
 
@@ -585,10 +585,19 @@ class BrowseView(View):
                 sqs_filters.append(Q(system__name__icontains=suffix))
             pass
 
+        # validate feature option slugs — reject unknown values with an error
+        reverse_features_map = {v: k for k, v in features_map.items()}
+        for feature_id, option_slugs in search_fg.items():
+            for slug in option_slugs:
+                if (feature_id, slug) not in featuresoptions_map:
+                    feature_name = reverse_features_map.get(feature_id, str(feature_id))
+                    return (sqs.none(), {}, 'Invalid Search',
+                            f"Unknown value '{slug}' for feature '{feature_name}'.")
+
         # convert feature option slugs to IDs to do search by filtering
         feature_option_ids = set()
         for feature_id,option_slugs in search_fg.items():
-            option_ids = set( map(lambda option_slug: featuresoptions_map[(feature_id,option_slug)], option_slugs) )
+            option_ids = {featuresoptions_map[(feature_id, s)] for s in option_slugs}
             feature_option_ids.update(option_ids)
             pass
 
@@ -620,7 +629,6 @@ class BrowseView(View):
             sqs = sqs.filter(query)
 
         # Build Title with features
-        reverse_features_map = {v: k for k, v in features_map.items()}
         feature_parts = []
         for key in search_fg:
             feature_options = ' or '.join(search_fg[key]) if len(search_fg[key]) < 3 else f"{', '.join(list(search_fg[key])[:-1])}, or {list(search_fg[key])[-1]}"
@@ -642,7 +650,7 @@ class BrowseView(View):
         elif len(title) > 60:
             title = title[:60] + '...'
 
-        return (sqs, search_mapping, title)
+        return (sqs, search_mapping, title, None)
 
     def get_available_columns(self):
         cols = list(_BUILTIN_COLUMNS) + list(_RELATIONSHIP_COLUMNS)
@@ -705,7 +713,7 @@ class BrowseView(View):
         active_col_ids = [c.col_id for c in active_columns]
 
         results = SystemVersion.objects.filter(is_current=True)
-        results, search_keys, title = self.do_search(get_params, results, search_op)
+        results, search_keys, title, search_error = self.do_search(get_params, results, search_op)
 
         # Base annotations (always)
         results = results.annotate(
@@ -872,6 +880,7 @@ class BrowseView(View):
             'title': title,
             'activate': 'browse',
             'doi_warning': _is_doi_query(search_q),
+            'search_error': search_error,
             'filtergroups': filter_groups,
             'filtergroupsjson': [asdict(fg) for fg in filter_groups],
             'has_results': has_results,
