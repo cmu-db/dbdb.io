@@ -86,7 +86,15 @@ class FeatureOptionsInlines(admin.StackedInline):
 
 @admin.register(Feature)
 class FeatureAdmin(admin.ModelAdmin):
+    list_display = ('label', 'slug', 'option_count', 'modified')
+    search_fields = ('label', 'slug')
+    prepopulated_fields = {'slug': ('label',)}
+    readonly_fields = ('created', 'modified')
     inlines = [FeatureOptionsInlines]
+
+    @admin.display(description='options')
+    def option_count(self, obj):
+        return obj.options.count()
 
 @admin.register(FeatureOption)
 class FeatureOptionAdmin(admin.ModelAdmin):
