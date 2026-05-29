@@ -140,6 +140,7 @@ a:hover { color: var(--accent); }
   background: var(--paper);
   border-bottom: 2px solid var(--ink);
   padding-top: 1.6rem;
+  padding-bottom: .5rem;
 }
 .masthead .rule-thick { border-top: 2px solid var(--ink); }
 
@@ -171,8 +172,6 @@ a:hover { color: var(--accent); }
 
 /* primary nav row */
 .topnav {
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
   background: var(--paper);
 }
 .topnav .container {
