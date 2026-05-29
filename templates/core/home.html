@@ -26,9 +26,9 @@
         </div>
     </div>
     {% if featured_searches %}
-    <div class="row justify-content-md-center pt-1 pb-3">
+    <div class="row justify-content-center pt-1 pb-3 gx-1 gy-2 mx-md-5">
         {% for s in featured_searches %}
-        <div class="col d-flex text-center">
+        <div class="col-12 col-sm-4 d-flex justify-content-center">
             <a href="{% url 'browse' %}?{{ s.search_params }}"
                class="btn btn-outline-secondary d-flex align-items-center"
                {% if s.description %}data-bs-toggle="tooltip" data-bs-title="{{ s.description }}"{% endif %}
