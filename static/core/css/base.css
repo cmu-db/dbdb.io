@@ -644,12 +644,12 @@ p.recent-text { font-size: 10pt; margin: 0; }
 .acquisition-year { width: 4rem; }
 
 /* Editorial redesign: disable the colored bg hover on links in favor of color-only transitions */
-main a:not(.page-home a):not(.page-stats a):not(img):not(.systems-extra a):not(.logo-thumbnail):hover {
-    background-color: transparent;
-    color: var(--accent);
-    text-decoration: none;
-}
+/*main a:not(.page-home a):not(.page-stats a):not(img):not(.systems-extra a):not(.logo-thumbnail):hover {*/
+/*    background-color: transparent;*/
+/*    color: var(--accent);*/
+/*    text-decoration: none;*/
+/*}*/
 .db-row a, .lb-row a, .feed-item a, .entry-main a, .factbox a {
     /*background-color: transparent !important;*/
-    text-decoration: none;
+    /*text-decoration: none;*/
 }

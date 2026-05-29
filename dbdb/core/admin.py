@@ -161,8 +161,6 @@ class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
 # SYSTEMS
 # ==============================================
 
-
-
 @admin.register(System)
 class SystemAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
