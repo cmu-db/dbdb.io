@@ -83,6 +83,19 @@ _DOI_RE = re.compile(r'\b10\.\d{4,}/\S+', re.IGNORECASE)
 def _is_doi_query(q: str) -> bool:
     return 'doi.org' in q.lower() or bool(_DOI_RE.search(q))
 
+_PRESERVE_CASE_PARAMS = frozenset({'q', 'ss'})
+
+def _normalize_get(qd):
+    """Return a mutable QueryDict with all keys and values lowercased.
+    Preserves original case for 'q' (search text) and 'ss' (signed token)."""
+    from django.http import QueryDict
+    result = QueryDict(mutable=True)
+    for key in qd.keys():
+        norm_key = key.lower()
+        for val in qd.getlist(key):
+            result.appendlist(norm_key, val if norm_key in _PRESERVE_CASE_PARAMS else val.lower())
+    return result
+
 # Maps logical order-by names (from the ?order-by= param) to annotated/ORM field names.
 # 'name' and 'slug' are available because they are annotated onto the queryset before .values().
 _ORDER_BY_MAP = {
@@ -282,7 +295,7 @@ class BrowseView(View):
     ## DEF
 
 
-    def do_search(self, request, sqs, search_op):
+    def do_search(self, get_params, sqs, search_op):
         has_search = False
 
         countries_map = dict(countries)
@@ -300,7 +313,7 @@ class BrowseView(View):
         }
 
         # pull search criteria
-        search_q = request.GET.get('q', '').strip()
+        search_q = get_params.get('q', '').strip()
 
         def _is_count_val(v):
             return v.startswith('+') and v[1:].isdigit()
@@ -308,11 +321,11 @@ class BrowseView(View):
         # separate option-slug values from count (+N) values for feature params
         search_fg = {}
         feature_counts = {}
-        for k in request.GET.keys():
+        for k in get_params.keys():
             if k not in features_map:
                 continue
             fid = features_map[k]
-            vals = request.GET.getlist(k)
+            vals = get_params.getlist(k)
             option_vals = [v for v in vals if not _is_count_val(v)]
             count_vals  = [v for v in vals if _is_count_val(v)]
             if option_vals:
@@ -321,29 +334,29 @@ class BrowseView(View):
                 feature_counts[fid] = max(int(v[1:]) for v in count_vals)
 
         # define date filters
-        search_start_year = request.GET.get('start-year', '').strip()
-        search_start_min = request.GET.get('start-min', '').strip()
-        search_start_max = request.GET.get('start-max', '').strip()
-        search_end_year = request.GET.get('end-year', '').strip()
-        search_end_min = request.GET.get('end-min', '').strip()
-        search_end_max = request.GET.get('end-max', '').strip()
+        search_start_year = get_params.get('start-year', '').strip()
+        search_start_min = get_params.get('start-min', '').strip()
+        search_start_max = get_params.get('start-max', '').strip()
+        search_end_year = get_params.get('end-year', '').strip()
+        search_end_min = get_params.get('end-min', '').strip()
+        search_end_max = get_params.get('end-max', '').strip()
 
         # define static filters
-        search_acquiredby = request.GET.getlist('acquired-by')
-        search_compatible = request.GET.getlist('compatible')
-        search_country = list(map(str.upper, request.GET.getlist('country')))
-        search_derived = request.GET.getlist('derived')
-        search_developer = request.GET.getlist('developer')
-        search_embeds = request.GET.getlist('embeds')
-        search_hosted_by = request.GET.getlist('hosted_by')
-        search_inspired = request.GET.getlist('inspired')
-        search_suffix = request.GET.getlist('suffix')
+        search_acquiredby = get_params.getlist('acquired-by')
+        search_compatible = get_params.getlist('compatible')
+        search_country = list(map(str.upper, get_params.getlist('country')))
+        search_derived = get_params.getlist('derived')
+        search_developer = get_params.getlist('developer')
+        search_embeds = get_params.getlist('embeds')
+        search_hosted_by = get_params.getlist('hosted_by')
+        search_inspired = get_params.getlist('inspired')
+        search_suffix = get_params.getlist('suffix')
 
         # collect attribute-based search params keyed by Attribute slug
         attr_searches = {}
         attr_count_searches = {}
         for attr in Attribute.objects.filter(sv_field__gt='').only('slug', 'name', 'sv_field', 'search_text'):
-            vals = request.GET.getlist(attr.slug)
+            vals = get_params.getlist(attr.slug)
             if not vals:
                 continue
             option_vals = [v for v in vals if not _is_count_val(v)]
@@ -639,9 +652,9 @@ class BrowseView(View):
             cols.append(ColumnDef(attr.slug, attr.name, 'attribute'))
         return cols
 
-    def get_active_columns(self, request, available_cols, extra_slugs=()):
+    def get_active_columns(self, get_params, available_cols, extra_slugs=()):
         available_map = {c.col_id: c for c in available_cols}
-        cols_param = request.GET.get('cols', '').strip()
+        cols_param = get_params.get('cols', '').strip()
         if cols_param:
             selected_ids = [c.strip() for c in cols_param.split(',') if c.strip() in available_map]
         else:
@@ -664,15 +677,17 @@ class BrowseView(View):
         return matches[0]
 
     def get(self, request):
+        get_params = _normalize_get(request.GET)
+
         # handle older filter group urls
-        if any( filter(lambda k: k.startswith('fg'), request.GET.keys()) ):
+        if any(filter(lambda k: k.startswith('fg'), get_params.keys())):
            return self.handle_old_urls(request)
 
         # Search Query
-        search_q = request.GET.get('q', '').strip()
+        search_q = get_params.get('q', '').strip()
 
         # Search Operator (AND vs. OR)
-        search_op = request.GET.get('search_op', 'or').lower().strip()
+        search_op = get_params.get('search_op', 'or').strip()
         search_op = and_ if search_op == 'and' else or_
 
         # Determine active columns (before search so we can auto-add searched ones)
@@ -681,16 +696,16 @@ class BrowseView(View):
         attr_slugs_set = set(
             Attribute.objects.filter(sv_field__gt='').exclude(slug='tag').values_list('slug', flat=True)
         )
-        searched_slugs = [k for k in request.GET.keys() if k in feature_slugs_set or k in attr_slugs_set]
+        searched_slugs = [k for k in get_params.keys() if k in feature_slugs_set or k in attr_slugs_set]
         for param, col_id in _SEARCH_PARAM_TO_COL.items():
-            if request.GET.get(param) and col_id not in searched_slugs:
+            if get_params.get(param) and col_id not in searched_slugs:
                 searched_slugs.append(col_id)
 
-        active_columns, cols_are_custom = self.get_active_columns(request, available_columns, searched_slugs)
+        active_columns, cols_are_custom = self.get_active_columns(get_params, available_columns, searched_slugs)
         active_col_ids = [c.col_id for c in active_columns]
 
         results = SystemVersion.objects.filter(is_current=True)
-        results, search_keys, title = self.do_search(request, results, search_op)
+        results, search_keys, title = self.do_search(get_params, results, search_op)
 
         # Base annotations (always)
         results = results.annotate(
@@ -751,10 +766,10 @@ class BrowseView(View):
             if col_id in active_col_ids:
                 value_fields.append('col_' + col_id.replace('-', '_'))
 
-        limit_param = request.GET.get('limit', '').strip()
+        limit_param = get_params.get('limit', '').strip()
         limit = int(limit_param) if limit_param.isdigit() and int(limit_param) > 0 else None
 
-        order_by_raw = request.GET.get('order-by', '').strip()
+        order_by_raw = get_params.get('order-by', '').strip()
         if order_by_raw:
             desc = order_by_raw[0] == '-'
             col_key = order_by_raw.lstrip('+-')
@@ -842,13 +857,13 @@ class BrowseView(View):
 
         # Resolve SavedSearch from signed 'ss' token
         saved_search = None
-        ss_token = request.GET.get('ss', '').strip()
+        ss_token = get_params.get('ss', '').strip()
         if ss_token:
             pk = ss_decode(ss_token)
             if pk is not None:
                 saved_search = SavedSearch.objects.filter(pk=pk).first()
 
-        filter_groups = self.build_filter_groups(request.GET)
+        filter_groups = self.build_filter_groups(get_params)
         dropdown_fields = sorted(
             ['Start Year', 'End Year'] + [fg.label for fg in filter_groups],
             key=str.casefold,

@@ -92,7 +92,7 @@ gtag('config', 'UA-4067813-21');
 <script type="text/javascript">
 (function() {
     var stored = localStorage.getItem('dbdb-theme');
-    var preferred = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    var preferred = stored || 'light';
     document.documentElement.setAttribute('data-bs-theme', preferred);
     var label = document.getElementById('themeLabel');
     if (label) label.textContent = preferred === 'dark' ? 'Light' : 'Dark';

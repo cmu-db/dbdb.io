@@ -105,6 +105,11 @@ a:hover { color: var(--accent); }
   gap: 0.9rem;
 }
 
+.edition .user-link, .theme-toggle {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+}
+
 .theme-toggle {
   background: transparent;
   border: 1px solid rgba(255,255,255,.22);
@@ -115,8 +120,6 @@ a:hover { color: var(--accent); }
   display: inline-flex;
   align-items: center;
   gap: .4rem;
-  font-family: var(--mono);
-  font-size: 0.5rem;
   letter-spacing: .12em;
   text-transform: uppercase;
   cursor: pointer;
@@ -129,8 +132,6 @@ a:hover { color: var(--accent); }
 }
 
 .edition .user-link {
-  font-family: var(--mono);
-  font-size: 0.5rem;
   letter-spacing: .08em;
   color: rgba(255,255,255,.7);
   display: inline-flex; align-items: center; gap: .35rem;
@@ -774,12 +775,13 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 
 /* tag badges */
 .tag-badge {
-  font-family: var(--mono); text-transform: uppercase; letter-spacing: .05em; font-size: .6rem;
+  font-family: var(--mono); text-transform: uppercase; letter-spacing: .05em; font-size: 1rem;
   border: 1px solid var(--rule); background: var(--surface); color: var(--ink-soft);
   padding: .28rem .5rem; display: inline-flex; align-items: center; gap: .35rem; white-space: nowrap;
   transition: border-color .15s, color .15s;
 }
 .tag-badge i { font-size: .68rem; color: var(--muted); }
+.rtable .tag-badge { font-size: .65rem; }
 .tag-badge:hover { border-color: var(--accent); color: var(--accent); }
 .tag-badge:hover i { color: var(--accent); }
 .tag-badge.danger { border-color: color-mix(in srgb, var(--accent) 35%, var(--rule)); color: var(--accent); }
