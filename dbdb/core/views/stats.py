@@ -222,10 +222,13 @@ class StatsView(View):
                 limit,
             ))
 
+        num_systems = SystemVersion.objects.filter(is_current=True).count()
+
         return render(request, self.template_name, context={
             'activate': 'stats', # NAV-LINKS
             'stats': stats,
             'stats_type': stats_type,
+            'num_systems': num_systems,
         })
 
     pass

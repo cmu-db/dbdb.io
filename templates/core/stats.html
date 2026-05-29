@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 {% load static %}
 {% load countries %}
 {% load thumbnail %}
@@ -12,7 +13,7 @@
 
 {% block content %}
 <div class="page-title">
-    <p class="kicker">{{ num_systems|default:"" }} Systems Ranked</p>
+    <p class="kicker">{{ num_systems|intcomma }} Systems Ranked</p>
     <h1>Leaderboards</h1>
     <p class="sub">Category statistics across the encyclopedia</p>
     <hr class="title-rule">

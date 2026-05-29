@@ -3,7 +3,11 @@
 {% block title %}{{ flatpage.title }}{% endblock %}
 
 {% block content %}
-<h1 class="fw-bold mb-4">{{ flatpage.title }}</h1>
+<div class="page-title">
+    <p class="kicker">Reference</p>
+    <h1>{{ flatpage.title }}</h1>
+    <hr class="title-rule">
+</div>
 <div class="flatpage-content">
     {{ flatpage.content }}
 </div>

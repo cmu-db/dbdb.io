@@ -33,13 +33,13 @@
 {% block content %}
 
 <div class="hero">
-    <p class="lead-line">Discover &amp; learn about <b>{{ num_systems|intcomma }}</b> database management systems</p>
+    <p class="lead-line">A curated reference guide for implementations of the world's most important type of software.</p>
     <div class="search-wrap">
         <form id="mainsearch" action="{% url 'browse' %}" method="GET">
             <div class="search-field">
                 <span class="ic"><i class="fas fa-search"></i></span>
-                <input autofocus type="text" name="q" placeholder="Search databases…" aria-label="Search">
-                <span class="kbd">⌘K</span>
+                <input autofocus type="text" name="q" placeholder="Search {{ num_systems|intcomma }} systems..." aria-label="Search">
+                <span class="kbd">↵ to browse</span>
             </div>
         </form>
     </div>
@@ -92,7 +92,7 @@
     <div class="row g-4 g-lg-5">
         <div class="col-md-4 list-col">
             <h3 class="col-title">Most Recent</h3>
-            <div class="col-sub">Newly added entries</div>
+            <div class="col-sub">Newly modified entries</div>
             <div class="col-rule"></div>
             {% for item in most_recent %}{% include 'core/home-listitem.html' %}{% endfor %}
         </div>
@@ -104,7 +104,7 @@
         </div>
         <div class="col-md-4 list-col">
             <h3 class="col-title">Most Edited</h3>
-            <div class="col-sub">All-time revisions</div>
+            <div class="col-sub">Last 30 days</div>
             <div class="col-rule"></div>
             {% for item in most_versions %}{% include 'core/home-listitem.html' %}{% endfor %}
         </div>
