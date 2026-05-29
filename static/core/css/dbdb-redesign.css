@@ -867,6 +867,8 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 }
 .feed-item:hover { background: var(--tint); }
 .feed-time { font-family: var(--mono); font-size: .72rem; color: var(--muted); letter-spacing: .02em; padding-top: .35rem; }
+.feed-time a { color: var(--muted); }
+.feed-time a:hover { color: var(--accent); }
 .feed-body { min-width: 0; }
 .feed-line { display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; }
 .feed-line .verb { font-family: var(--sans); font-size: .9rem; color: var(--ink-soft); }

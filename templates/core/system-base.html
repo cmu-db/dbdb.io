@@ -91,7 +91,7 @@
         {% for sec in sections %}
         <div id="{{ sec.id }}" class="entry-section">
             {% if sec.title %}
-            <h2>{{ sec.title }}{% if sec.citations %}<sup class="cites">{% for c in sec.citations %}{% citation_footnote c %}{% endfor %}</sup>{% endif %}</h2>
+                <h2>{{ sec.title }}{% if sec.citations %}<span class="cites">{% for c in sec.citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</h2>
             <hr class="sec-rule">
             {% endif %}
             {% if sec.options %}

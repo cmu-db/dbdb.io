@@ -13,6 +13,8 @@
     <hr class="title-rule">
 </div>
 
+<div style="max-width:860px;margin:0 auto;">
+
 {% if not revision_list %}
 {% include "core/pagination.html" %}
 {% endif %}
@@ -20,16 +22,26 @@
 <div class="feed">
     {% for version in versions %}
     <div class="feed-item">
-        <div class="feed-time">{{ version.created }}</div>
+        <div class="feed-time">
+            <a href="{{ version.get_absolute_url }}">{{ version.created }}</a>
+        </div>
         <div class="feed-body">
             <div class="feed-line">
-                <span class="verb">updated by</span>
                 <a href="{% url 'recent' %}?username={{ version.creator.username }}" class="actor">
-                    <span class="feed-tile mono-tile">{{ version.creator.username|first|upper }}</span>
-                    {{ version.creator.username }}
+                    <i class="fas fa-user"></i> {{ version.creator.username }}
                 </a>
+                <span class="verb">updated</span>
                 {% if not revision_list %}
-                <a href="{{ version.system.get_absolute_url }}" class="sys">{{ version.system.name }}</a>
+                {% if version.logo %}
+                <span class="mono-tile feed-tile">
+                    <img style="width:100%;height:100%;object-fit:contain;" loading="lazy"
+                         src="{% if version.logo.url|lower|slice:"-3:" == "svg" %}{{ version.logo.url }}{% else %}{{ version.logo|thumbnail_url:'recent' }}{% endif %}"
+                         alt="{{ version.system.name }}">
+                </span>
+                {% else %}
+                <span class="mono-tile feed-tile">{{ version.system.name|first|upper }}</span>
+                {% endif %}
+                <a href="{% url 'system_revision' version.system.slug %}" class="sys">{{ version.system.name }}</a>
                 {% endif %}
                 {% if revision_list %}
                 <span class="verb">— Version #{{ version.ver }}</span>
@@ -47,4 +59,5 @@
 {% include "core/pagination.html" %}
 {% endif %}
 
+</div>
 {% endblock %}
