@@ -42,6 +42,10 @@
         <td class="r-model" data-sort-val="{% for org in col_val.data %}{% if not forloop.first %} {% endif %}{{ org.name }}{% endfor %}">
             {% for org in col_val.data %}{% if not forloop.first %}, {% endif %}{{ org.name }}{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}
         </td>
+        {% elif col_val.type == 'systems' %}
+        <td class="r-model" data-sort-val="{% for sys in col_val.data %}{% if not forloop.first %} {% endif %}{{ sys.name }}{% endfor %}">
+            {% for sys in col_val.data %}{% if not forloop.first %}, {% endif %}<a href="{% url 'system' sys.slug %}">{{ sys.name }}</a>{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}
+        </td>
         {% elif col_val.type == 'countries' %}
         <td class="r-country" data-sort-val="{% for c in col_val.data %}{% if not forloop.first %} {% endif %}{{ c.name }}{% endfor %}">
             {% for c in col_val.data %}{% if not forloop.first %}, {% endif %}<span title="{{ c.name }}"><i class="{{ c.flag_css }}"></i> {{ c.code }}</span>{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}

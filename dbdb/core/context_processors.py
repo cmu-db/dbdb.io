@@ -11,4 +11,5 @@ def navbar_flatpages(request):
     return {
         'navbar_flatpages': pages,
         'DBDB_FOUNDING_YEAR': settings.DBDB_FOUNDING_YEAR,
+        'FONTAWESOME_CSS_URL': settings.FONTAWESOME_CSS_URL,
     }

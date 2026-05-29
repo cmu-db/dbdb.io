@@ -46,6 +46,23 @@ _BUILTIN_COLUMNS = [
     ColumnDef('country',       'Country of Origin', 'builtin'),
 ]
 
+_RELATIONSHIP_COLUMNS = [
+    ColumnDef('compatible-with', 'Compatible With', 'relationship'),
+    ColumnDef('derived-from',    'Derived From',    'relationship'),
+    ColumnDef('embedded',        'Embeds / Uses',   'relationship'),
+    ColumnDef('hosted-services', 'Hosted Services', 'relationship'),
+    ColumnDef('inspired-by',     'Inspired By',     'relationship'),
+]
+
+# Maps relationship col_id → (SystemVersion M2M field name, null-check field)
+_RELATIONSHIP_FIELD_MAP = {
+    'compatible-with': 'compatible_with',
+    'derived-from':    'derived_from',
+    'embedded':        'embedded',
+    'hosted-services': 'hosted_services',
+    'inspired-by':     'inspired_by',
+}
+
 _YEAR_IDS        = frozenset({'start-year', 'end-year'})
 _FIXED_RIGHT_IDS = frozenset({'tags'})
 
@@ -54,6 +71,11 @@ _SEARCH_PARAM_TO_COL = {
     'developer':   'developer-orgs',
     'acquired-by': 'acquired-by',
     'country':     'country',
+    'compatible':  'compatible-with',
+    'derived':     'derived-from',
+    'embeds':      'embedded',
+    'hosted_by':   'hosted-services',
+    'inspired':    'inspired-by',
 }
 
 _DOI_RE = re.compile(r'\b10\.\d{4,}/\S+', re.IGNORECASE)
@@ -610,7 +632,7 @@ class BrowseView(View):
         return (sqs, search_mapping, title)
 
     def get_available_columns(self):
-        cols = list(_BUILTIN_COLUMNS)
+        cols = list(_BUILTIN_COLUMNS) + list(_RELATIONSHIP_COLUMNS)
         for feature in Feature.objects.all().order_by('label'):
             cols.append(ColumnDef(feature.slug, feature.label, 'feature'))
         for attr in Attribute.objects.filter(sv_field__gt='').exclude(slug='tag').order_by('name'):
@@ -706,6 +728,16 @@ class BrowseView(View):
                 distinct=True,
             ))
 
+        # Relationship column annotations (derived_from, embedded, etc.)
+        for col_id, sv_field in _RELATIONSHIP_FIELD_MAP.items():
+            if col_id in active_col_ids:
+                key = 'col_' + col_id.replace('-', '_')
+                results = results.annotate(**{key: JSONBAgg(
+                    JSONObject(name=F(f'{sv_field}__name'), slug=F(f'{sv_field}__slug')),
+                    filter=Q(**{f'{sv_field}__isnull': False}),
+                    distinct=True,
+                )})
+
         value_fields = ['id', 'name', 'slug', 'logo', 'logo_color', 'start_year', 'end_year', 'system_tags', 'created']
         for col in attr_cols:
             value_fields.append('col_' + col.col_id.replace('-', '_'))
@@ -715,6 +747,9 @@ class BrowseView(View):
             value_fields.append('col_acquired_by')
         if 'country' in active_col_ids:
             value_fields.append('countries')
+        for col_id in _RELATIONSHIP_FIELD_MAP:
+            if col_id in active_col_ids:
+                value_fields.append('col_' + col_id.replace('-', '_'))
 
         limit_param = request.GET.get('limit', '').strip()
         limit = int(limit_param) if limit_param.isdigit() and int(limit_param) > 0 else None
@@ -779,6 +814,9 @@ class BrowseView(View):
                     col_values.append({'type': 'orgs', 'data': r.get('col_developer_orgs') or []})
                 elif col.col_id == 'acquired-by':
                     col_values.append({'type': 'orgs', 'data': r.get('col_acquired_by') or []})
+                elif col.col_type == 'relationship':
+                    key = 'col_' + col.col_id.replace('-', '_')
+                    col_values.append({'type': 'systems', 'data': r.get(key) or []})
                 elif col.col_id == 'country':
                     codes = [c for c in (r.get('countries') or '').split(',') if c]
                     country_data = [
@@ -835,7 +873,7 @@ class BrowseView(View):
             'cols_are_custom': cols_are_custom,
             'available_builtin':    sorted((c for c in available_columns if c.col_type == 'builtin'), key=lambda c: c.label),
             'available_features':   [c for c in available_columns if c.col_type == 'feature'],
-            'available_attributes': [c for c in available_columns if c.col_type == 'attribute'],
+            'available_attributes': sorted((c for c in available_columns if c.col_type in ('attribute', 'relationship')), key=lambda c: c.label),
             'cols_param': ','.join(active_col_ids),
             'saved_search': saved_search,
             'dropdown_fields': dropdown_fields,
