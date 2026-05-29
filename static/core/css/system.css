@@ -14,11 +14,11 @@ h3 > sup {
 }
 
 
-.badge-section {
-  background-color: var(--light-bg-color);
-  border: 1px solid var(--dark-gray);
-  color: var(--dark-gray);
-}
+/*.badge-section {*/
+/*  background-color: var(--light-bg-color);*/
+/*  border: 1px solid var(--dark-gray);*/
+/*  color: var(--dark-gray);*/
+/*}*/
 .badge-section::before {
     content: "▶ ";
 }

@@ -567,12 +567,11 @@ a:hover { color: var(--accent); }
   vertical-align: -1px;
   margin-right: .35rem;
 }
-.flag-de { background: linear-gradient(#1c1a17 0 33.3%, #c8102e 33.3% 66.6%, #f5c518 66.6% 100%); }
 
 /* ============================================================
    BROWSE — search + filters
    ============================================================ */
-.browse-wrap { max-width: 920px; margin: 0 auto; }
+/*.browse-wrap { max-width: 920px; margin: 0 auto; }*/
 form.main-search { display: block; padding: 0; }
 
 .bsearch {

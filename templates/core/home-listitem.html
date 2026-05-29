@@ -1,8 +1,8 @@
 {% load static %}
 {% load thumbnail %}
 
-<div class="db-row">
-    <span class="rank">{{ forloop.counter }}</span>
+<a href="{{ item.get_absolute_url }}" class="db-row">
+    <span class="rank">{{ forloop.counter|stringformat:"02d" }}</span>
     <span class="mono-tile">
         {% if item.current.logo %}
         <img style="width:100%;height:100%;object-fit:contain;" loading="lazy"
@@ -12,7 +12,9 @@
         {{ item.name|first|upper }}
         {% endif %}
     </span>
-    <div class="db-info">
-        <a class="db-name" href="{{ item.get_absolute_url }}">{{ item.name }}</a>
-    </div>
-</div>
+    <span class="db-info">
+        <span class="db-name">{{ item.name }}</span>
+        {% if item.data_model_str %}<span class="db-model">{{ item.data_model_str }}</span>{% endif %}
+    </span>
+    {% if item.metric %}<span class="db-metric">{{ item.metric }}</span>{% endif %}
+</a>

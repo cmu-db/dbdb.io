@@ -110,7 +110,7 @@
 
         {% if citations %}
         <div class="citations-block">
-            <div class="sec-head"><h2>Citations</h2><hr class="rule"></div>
+            <div class="sec-head"><h2>Citations</h2><span class="rule"></span><span class="num">{{ citations|length }} source{% if citations|length != 1 %}s{% endif %}</span></div>
             <ol class="citations-list">
                 {% for c in citations %}
                 <li id="citation{{ forloop.counter }}">

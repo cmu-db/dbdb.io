@@ -229,3 +229,5 @@ MARKDOWNIFY = {
         "BLEACH": False
     }
 }
+
+DBDB_FOUNDING_YEAR = 2017

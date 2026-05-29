@@ -648,6 +648,6 @@ main a:not(.page-home a):not(.page-stats a):not(img):not(.systems-extra a):not(.
     text-decoration: none;
 }
 .db-row a, .lb-row a, .feed-item a, .entry-main a, .factbox a {
-    background-color: transparent !important;
+    /*background-color: transparent !important;*/
     text-decoration: none;
 }

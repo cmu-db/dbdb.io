@@ -10,7 +10,7 @@
     <div class="container">
         <div class="masthead-meta">
             <span class="label edge">Carnegie Mellon University &middot; Pittsburgh, PA</span>
-            <span class="label">Est. 2017 &middot; Vol. IX</span>
+            <span class="label">Est. {{ DBDB_FOUNDING_YEAR }} &middot; Vol. IX</span>
             <span class="label edge">{{ num_systems|intcomma }} Systems Catalogued</span>
         </div>
         <h1 class="nameplate">Database <span class="of">of</span> Databases</h1>
@@ -65,35 +65,51 @@
 </div>
 {% endif %}
 
-<div class="row g-4 mt-2">
-    <div class="col-md-4">
-        <div class="sec-head">
-            <h2>Most Recent</h2>
-            <hr class="rule">
-            <span class="num">{{ most_recent|length }} systems</span>
-        </div>
-        <hr class="col-rule" style="border-top:2px solid var(--ink);margin:0 0 .2rem;">
-        {% for item in most_recent %}{% include 'core/home-listitem.html' %}{% endfor %}
+{% if data_models %}
+<section>
+    <div class="sec-head">
+        <h2>Browse by Data Model</h2>
+        <span class="rule"></span>
+        <span class="num">{{ data_models|length }} model{{ data_models|length|pluralize }}</span>
     </div>
-    <div class="col-md-4">
-        <div class="sec-head">
-            <h2>Most Viewed</h2>
-            <hr class="rule">
-            <span class="num">Last 30 days</span>
-        </div>
-        <hr style="border-top:2px solid var(--ink);margin:0 0 .2rem;">
-        {% for item in most_visits %}{% include 'core/home-listitem.html' %}{% endfor %}
+    <div class="index-rail">
+        {% for dm in data_models %}
+        <a href="{% url 'browse' %}?data-model={{ dm.slug }}" class="index-chip">
+            {{ dm.value }} <span class="ct">{{ dm.system_count }}</span>
+        </a>
+        {% endfor %}
     </div>
-    <div class="col-md-4">
-        <div class="sec-head">
-            <h2>Most Edited</h2>
-            <hr class="rule">
-            <span class="num">Last 30 days</span>
-        </div>
-        <hr style="border-top:2px solid var(--ink);margin:0 0 .2rem;">
-        {% for item in most_versions %}{% include 'core/home-listitem.html' %}{% endfor %}
+</section>
+{% endif %}
+
+<section>
+    <div class="sec-head">
+        <h2>The Leaderboards</h2>
+        <span class="rule"></span>
+        <span class="num">Updated daily</span>
     </div>
-</div>
+
+    <div class="row g-4 g-lg-5">
+        <div class="col-md-4 list-col">
+            <h3 class="col-title">Most Recent</h3>
+            <div class="col-sub">Newly added entries</div>
+            <div class="col-rule"></div>
+            {% for item in most_recent %}{% include 'core/home-listitem.html' %}{% endfor %}
+        </div>
+        <div class="col-md-4 list-col">
+            <h3 class="col-title">Most Viewed</h3>
+            <div class="col-sub">Last 30 days</div>
+            <div class="col-rule"></div>
+            {% for item in most_visits %}{% include 'core/home-listitem.html' %}{% endfor %}
+        </div>
+        <div class="col-md-4 list-col">
+            <h3 class="col-title">Most Edited</h3>
+            <div class="col-sub">All-time revisions</div>
+            <div class="col-rule"></div>
+            {% for item in most_versions %}{% include 'core/home-listitem.html' %}{% endfor %}
+        </div>
+    </div>
+</section>
 
 {% endblock %}
 
