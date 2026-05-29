@@ -11,7 +11,7 @@
             <a class="{% if activate == 'stats' %}active{% endif %}" href="{% url 'stats' %}">Leaderboards</a>
             <a class="{% if activate == 'recent' %}active{% endif %}" href="{% url 'recent' %}">Recent</a>
             {% for page in navbar_flatpages %}
-            <a href="{{ page.url }}">{{ page.title }}</a>
+            <a class="{% if request.path == page.url %}active{% endif %}" href="{{ page.url }}">{{ page.title }}</a>
             {% endfor %}
             {% if not no_nav_search %}
             <form id="runhead-search" class="rh-search" action="{% url 'browse' %}" method="GET">

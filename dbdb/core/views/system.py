@@ -338,6 +338,11 @@ class SystemEditView(LoginRequiredMixin, View):
     @transaction.atomic
     def post(self, request, slug=None):
 
+        if request.POST.get('action') == 'cancel':
+            if slug:
+                return redirect('system', slug=slug)
+            return redirect('home')
+
         prev_version = None
         if slug is None:
             if not request.user.is_superuser:
