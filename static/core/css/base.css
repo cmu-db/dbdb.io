@@ -10,7 +10,19 @@
 
     /* Bootstrap Overrides */
     --bs-badge-font-size: 2em !important;
+
+    --bs-focus-ring-color: color-mix(in srgb, var(--link-color) 60%, transparent);
+    --bs-focus-ring-width: 0.25rem;                   /* halo spread */
+    --bs-focus-ring-blur: 0.25rem;                          /* blur radius */
 }
+  .form-control:focus,
+  .form-select:focus {
+      border-color: #ff6400;
+      box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0)
+                  var(--bs-focus-ring-blur) var(--bs-focus-ring-width)
+                  var(--bs-focus-ring-color);
+  }
+
 
 * {
   font-family: 'Open Sans', sans-serif;
