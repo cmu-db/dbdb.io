@@ -2,6 +2,7 @@
 {% load humanize %}
 {% load static %}
 {% load thumbnail %}
+{% load savedsearch_tags %}
 
 {% block title %}Home{% endblock %}
 
@@ -47,7 +48,7 @@
 {% if featured_searches %}
 <div class="shortcuts">
     {% for s in featured_searches %}
-    <a href="{% url 'browse' %}?{{ s.search_params }}" class="shortcut"
+    <a href="{% url 'browse' %}?{{ s.search_params }}&ss={{ s.id|ss_token }}" class="shortcut"
        {% if s.description %}title="{{ s.description }}"{% endif %}>
         <span class="sc-ic">{% if s.icon %}<i class="{{ s.icon }}"></i>{% else %}<i class="fas fa-database"></i>{% endif %}</span>
         <span class="sc-tx">

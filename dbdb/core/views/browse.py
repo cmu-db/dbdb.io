@@ -17,12 +17,14 @@ from django_countries import countries
 from django_countries.fields import Country as CountryObj
 
 from dbdb.core.common.searchvector import SearchVector
+from dbdb.core.templatetags.savedsearch_tags import ss_decode
 from dbdb.core.models import (
     Attribute,
     AttributeOption,
     Feature,
     FeatureOption,
     Organization,
+    SavedSearch,
     System,
     SystemFeature,
     SystemSearchText,
@@ -361,7 +363,7 @@ class BrowseView(View):
         if not any(search_mapping.values()) and not any(search_fg):
             return (sqs, { }, 'Browse')
 
-        title = 'Databases'
+        title = 'Databases '
 
         # search_badges = []
 
@@ -403,7 +405,6 @@ class BrowseView(View):
             pass
         if search_end_min.isdigit():
             sqs = sqs.filter(end_year__gte=int(search_end_min))
-
             if search_start_min or search_start_max:
                 title += f' and Ended in {search_end_min}'
             else:
@@ -411,7 +412,6 @@ class BrowseView(View):
             pass
         if search_end_max.isdigit():
             sqs = sqs.filter(end_year__lte=int(search_end_max))
-
             if search_end_min.isdigit():
                 title += f'-{search_end_max}'
             else:
@@ -422,7 +422,6 @@ class BrowseView(View):
         # search - country
         if search_country:
             sqs_filters.append(Q(countries__in=search_country))
-
             country_names = [(countries_map.get(c) if countries_map.get(c) else '') for c in search_country]
             search_countries = ' or '.join(country_names) if len(country_names) < 3 else f"{', '.join(country_names[:-1])}, or {country_names[-1]}"
             if search_countries:
@@ -801,6 +800,14 @@ class BrowseView(View):
         )
         years = {**years_start, **years_end}
 
+        # Resolve SavedSearch from signed 'ss' token
+        saved_search = None
+        ss_token = request.GET.get('ss', '').strip()
+        if ss_token:
+            pk = ss_decode(ss_token)
+            if pk is not None:
+                saved_search = SavedSearch.objects.filter(pk=pk).first()
+
         filter_groups = self.build_filter_groups(request.GET)
         return render(request, self.template_name, {
             'title': title,
@@ -824,6 +831,7 @@ class BrowseView(View):
             'available_features':   [c for c in available_columns if c.col_type == 'feature'],
             'available_attributes': [c for c in available_columns if c.col_type == 'attribute'],
             'cols_param': ','.join(active_col_ids),
+            'saved_search': saved_search,
         })
 
     def handle_old_urls(self, request):

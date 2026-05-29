@@ -28,7 +28,7 @@
 {% endif %}
 
 <div class="page-title">
-    <p class="kicker">{{ num_results|intcomma }} System{{ num_results|pluralize }}</p>
+    <p class="kicker">{% if saved_search %}{{ saved_search.name }}{% else %}{{ num_results|intcomma }} System{{ num_results|pluralize }}{% endif %}</p>
     <h1>{{ title }}</h1>
     <hr class="title-rule">
 </div>
