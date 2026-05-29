@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load thumbnail %}
+{% load logos %}
 {% load markdownify %}
 {% load citations %}
 {% load links %}
@@ -72,11 +72,7 @@
                         <a href="{{ hosted_sys.get_absolute_url }}" class="text-decoration-none">
                             <div class="card-body d-flex flex-column align-items-center justify-content-center p-3">
                                 {% with hosted_ver=hosted_sys.current %}
-                                {% if hosted_ver.logo %}
-                                <img src="{% if hosted_ver.logo.url|lower|slice:"-3:" == "svg" %}{{ hosted_ver.logo.url }}{% else %}{{ hosted_ver.logo|thumbnail_url:'thumb' }}{% endif %}" class="img-fluid logo-hosted mb-2" alt="{{ hosted_sys.name }}">
-                                {% else %}
-                                <img src="{% static 'core/images/database-nologo-icon.svg' %}" class="img-fluid logo-hosted mb-2" alt="{{ hosted_sys.name }}">
-                                {% endif %}
+                                {% mono_tile hosted_ver.logo hosted_sys.name 'thumb' %}
                                 {% endwith %}
                                 <span class="small fw-semibold text-body">{{ hosted_sys.name }}</span>
                             </div>
@@ -146,12 +142,10 @@
             <div class="fb-logo">
                 {% if system_version.logo %}
                 <a href="{{ system_version.logo.url }}" class="logo-thumbnail">
-                    <img class="{% if system_version.logo_height > system_version.logo_width %}logo-tall{% else %}logo-normal{% endif %}"
-                         src="{% if system_version.logo.url.lower|slice:"-3:" == "svg" %}{{ system_version.logo.url }}{% else %}{{ system_version.logo|thumbnail_url:'thumb' }}{% endif %}"
-                         alt="{{ system.name }} Logo" title="{{ system.name }}">
+                    {% mono_tile system_version.logo system.name 'thumb' lazy=False %}
                 </a>
                 {% else %}
-                <span class="mono-tile" style="width:96px;height:96px;font-size:1.7rem;">{{ system.name|first|upper }}</span>
+                {% mono_tile system_version.logo system.name lazy=False %}
                 {% endif %}
                 <div class="fb-name">{{ system.name }}</div>
             </div>

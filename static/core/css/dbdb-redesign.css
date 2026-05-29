@@ -454,7 +454,9 @@ a:hover { color: var(--accent); }
   font-size: 1rem;
   color: var(--ink);
   line-height: 1;
+  overflow: hidden;
 }
+.mono-tile img { width: 100%; height: 100%; object-fit: contain; }
 .db-row .db-info { min-width: 0; flex: 1; }
 .db-row .db-name {
   font-family: var(--serif);

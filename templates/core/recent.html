@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load thumbnail %}
+{% load logos %}
 {% load django_bootstrap5 %}
 
 {% block title %}Recent Changes{% endblock %}
@@ -32,15 +32,7 @@
                 </a>
                 <span class="verb">updated</span>
                 {% if not revision_list %}
-                {% if version.logo %}
-                <span class="mono-tile feed-tile">
-                    <img style="width:100%;height:100%;object-fit:contain;" loading="lazy"
-                         src="{% if version.logo.url|lower|slice:"-3:" == "svg" %}{{ version.logo.url }}{% else %}{{ version.logo|thumbnail_url:'recent' }}{% endif %}"
-                         alt="{{ version.system.name }}">
-                </span>
-                {% else %}
-                <span class="mono-tile feed-tile">{{ version.system.name|first|upper }}</span>
-                {% endif %}
+                {% mono_tile version.logo version.system.name 'recent' extra_classes='feed-tile' %}
                 <a href="{% url 'system_revision' version.system.slug %}" class="sys">{{ version.system.name }}</a>
                 {% endif %}
                 {% if revision_list %}

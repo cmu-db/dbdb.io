@@ -1,15 +1,11 @@
 {% load static %}
-{% load thumbnail %}
+{% load logos %}
 
 <div class="sc-h">{{ title }}</div>
 {% for other_sys in systems %}
     {% if not limit or forloop.counter0 < limit %}
     <a href="{{ other_sys.get_absolute_url }}" class="logo-row" title="{{ other_sys.name }}">
-        <span class="mono-tile lb-tile">
-            {% if other_sys.current.logo %}
-            <img style="width:100%;height:100%;object-fit:contain;" src="{% if other_sys.current.logo.url|lower|slice:"-3:" == "svg" %}{{ other_sys.current.logo.url }}{% else %}{{ other_sys.current.logo|thumbnail_url:'recommendation' }}{% endif %}" alt="{{ other_sys.name }}">
-            {% else %}{{ other_sys.name|first|upper }}{% endif %}
-        </span>
+        {% mono_tile other_sys.current.logo other_sys.name 'recommendation' extra_classes='lb-tile' %}
         <span class="ln">{{ other_sys.name }}</span>
     </a>
     {% endif %}

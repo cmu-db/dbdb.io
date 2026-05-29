@@ -2,7 +2,7 @@
 {% load humanize %}
 {% load static %}
 {% load countries %}
-{% load thumbnail %}
+{% load logos %}
 {% load django_bootstrap5 %}
 
 {% block title %}Leaderboards{% endblock %}
@@ -31,17 +31,13 @@
                 <a href="{% url 'browse' %}?country={{ country.code }}" class="lb-tile mono-tile" title="{{ country.name }}">{{ country.code|slice:":2" }}</a>
                 <a href="{% url 'browse' %}?country={{ country.code }}" class="lb-name">{{ country.name }}</a>
             {% elif stat.systems %}
-                <a href="{% if item.url %}{{ item.url }}{% else %}{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}{% endif %}" class="lb-tile mono-tile">
-                    {% if item.label.current.logo %}
-                    <img style="width:100%;height:100%;object-fit:contain;" src="{% if item.label.current.logo.url.lower|slice:"-3:" == "svg" %}{{ item.label.current.logo.url }}{% else %}{{ item.label.current.logo|thumbnail_url:'stats' }}{% endif %}" alt="{{ item.label.name }}">
-                    {% else %}{{ item.label.name|first|upper }}{% endif %}
+                <a href="{% if item.url %}{{ item.url }}{% else %}{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}{% endif %}">
+                    {% mono_tile item.label.current.logo item.label.name 'stats' extra_classes='lb-tile' lazy=False %}
                 </a>
                 <a href="{% if item.url %}{{ item.url }}{% else %}{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}{% endif %}" class="lb-name">{{ item.label.name }}</a>
             {% elif stat.organizations %}
-                <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}" class="lb-tile mono-tile">
-                    {% if item.label.logo %}
-                    <img style="width:100%;height:100%;object-fit:contain;" src="{% if item.label.logo.url.lower|slice:"-3:" == "svg" %}{{ item.label.logo.url }}{% else %}{{ item.label.logo|thumbnail_url:'stats' }}{% endif %}" alt="{{ item.label.name }}">
-                    {% else %}{{ item.label.name|first|upper }}{% endif %}
+                <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}">
+                    {% mono_tile item.label.logo item.label.name 'stats' extra_classes='lb-tile' lazy=False %}
                 </a>
                 <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}" class="lb-name">{{ item.label.name }}</a>
             {% else %}

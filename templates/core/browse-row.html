@@ -1,7 +1,5 @@
-{% load static %}
+{% load logos %}
 {% load links %}
-{% load thumbnail %}
-{% with logo=result.logo|thumbnail_url:'recent' %}
 
 <tr class="browse-row"
     data-href="{% url 'system' result.slug %}"
@@ -9,18 +7,10 @@
     data-start-year="{{ result.start_year|default:'' }}"
     data-end-year="{{ result.end_year|default:'' }}">
     <td class="r-logo">
-        <span class="mono-tile" style="width:38px;height:38px;font-size:.82rem;overflow:hidden;">
-            {% if result.logo %}
-            <img style="width:100%;height:100%;object-fit:contain;" loading="lazy"
-                 src="{% if result.logo|lower|slice:"-3:" == "svg" %}/media/{{ result.logo }}{% else %}{{ logo }}{% endif %}"
-                 alt="{{ result.name }}">
-            {% else %}
-            {{ result.name|first|upper }}
-            {% endif %}
-        </span>
+        {% mono_tile result.logo result.name 'recent' %}
     </td>
     <td data-sort-val="{{ result.name }}">
-        <a href="{{ result.get_absolute_url }}" class="r-name">{{ result.name }}</a>
+        <a href="{% url 'system' result.slug %}" class="r-name">{{ result.name }}</a>
         <div class="tag-stack d-md-none mt-1" style="flex-direction:column;">
         {% for tag in result.system_tags %}
             {% if tag.name %}{% tag_link tag %}{% endif %}
@@ -59,5 +49,3 @@
         {% endif %}
     {% endfor %}
 </tr>
-
-{% endwith %}
