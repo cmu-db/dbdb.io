@@ -26,13 +26,17 @@
         </div>
     </div>
     {% if featured_searches %}
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 py-5">
+    <div class="row justify-content-md-center pt-1 pb-3">
         {% for s in featured_searches %}
-        <div class="col d-flex align-items-start">
+        <div class="col d-flex text-center">
             <a href="{% url 'browse' %}?{{ s.search_params }}"
-               {% if s.description %}data-bs-toggle="tooltip" data-bs-title="{{ s.description }}"{% endif %}>
-                {% if s.icon %}<i class="{{ s.icon }} fs-5 text-primary flex-shrink-0"></i>{% endif %}
-                <div class="fw-bold mb-0 text-body-emphasis">{{ s.name }}</div>
+               class="btn btn-outline-secondary d-flex align-items-center"
+               {% if s.description %}data-bs-toggle="tooltip" data-bs-title="{{ s.description }}"{% endif %}
+            >
+                {% if s.icon %}<i class="{{ s.icon }} fs-2 flex-shrink-0"></i>{% endif %}
+                <div class="text-start ms-2">
+                    <div class="fw-bold">{{ s.name }}</div>
+                </div>
             </a>
         </div>
         {% endfor %}
