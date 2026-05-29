@@ -40,26 +40,142 @@
 <div class="alert alert-danger mb-3">You do not have permission to edit this entry</div>
 {% endif %}
 
+{# Factbox partial — defined here (no inline) so {% partial factbox %} works in both     #}
+{# the mobile block below and the desktop aside. The content is not rendered at this point. #}
+{% partialdef factbox %}
+<div class="factbox">
+    <div class="fb-logo">
+        {% if system_version.logo %}
+        <a href="{{ system_version.logo.url }}" class="logo-thumbnail">
+        <img class="{% if system_version.logo_height > system_version.logo_width %}logo-tall{% else %}logo-normal{% endif %}"
+                 src="{% if system_version.logo.url.lower|slice:"-3:" == "svg" %}{{ system_version.logo.url }}{% else %}{{ system_version.logo|thumbnail_url:'thumb' }}{% endif %}"
+                 alt="{{ system.name }} Logo" title="{{ system.name }}">
+        </a>
+        {% else %}
+        {% mono_tile system_version.logo system.name lazy=False %}
+        {% endif %}
+        <div class="fb-name">{{ system.name }}</div>
+    </div>
+    <dl>
+        {% if system_version.system_url %}
+        <div class="fact"><dt>Website</dt><dd><a href="{{ system_version.system_url.url }}" target="_{{ system.slug }}">{{ system_version.system_url.url }}</a></dd></div>
+        {% endif %}
+        {% if system_version.sourcerepo_url %}
+        <div class="fact"><dt>Source Code</dt><dd><a href="{{ system_version.sourcerepo_url.url }}" target="_{{ system.slug }}">{{ system_version.sourcerepo_url.url }}</a></dd></div>
+        {% endif %}
+        {% if system_version.docs_url %}
+        <div class="fact"><dt>Tech Docs</dt><dd><a href="{{ system_version.docs_url.url }}" target="_{{ system.slug }}">{{ system_version.docs_url.url }}</a></dd></div>
+        {% endif %}
+        {% if system_version.twitter_handle %}
+        <div class="fact"><dt>Twitter</dt><dd><a href="{{ system_version.twitter_handle_url }}"><i class="fa-brands fa-twitter"></i> {{ system_version.twitter_handle }}</a></dd></div>
+        {% endif %}
+        {% if system_version.linkedin_handle %}
+        <div class="fact"><dt>LinkedIn</dt><dd><a href="{{ system_version.linkedin_handle_url }}"><i class="fa-brands fa-linkedin"></i> {{ system_version.linkedin_handle }}</a></dd></div>
+        {% endif %}
+        {% if system_version.developer_orgs.all %}
+        <div class="fact"><dt>Developer</dt><dd>{% for org in system_version.developer_orgs.all %}{% if not forloop.first %}, {% endif %}{% if org.url %}<a href="{{ org.url }}" target="_blank">{{ org.name }}</a>{% else %}{{ org.name }}{% endif %}{% endfor %}</dd></div>
+        {% elif system_version.developer %}
+        <div class="fact"><dt>Developer</dt><dd>{{ system_version.developer }}</dd></div>
+        {% endif %}
+        {% if system_version.countries %}
+        <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
+        <div class="fact"><dt>Country of Origin</dt><dd>{% for country in system_version.countries %}{% if not forloop.first %}, {% endif %}<a href="{% url 'browse' %}?country={{ country.code }}"><i class="{{ country.flag_css }}"></i> {{ country }}</a>{% endfor %}</dd></div>
+        {% endif %}
+        {% if system_version.start_year %}
+            <div class="fact"><dt>Start Year</dt><dd>{{ system_version.start_year }} {% if start_year_citations %} <span class="cites">{% for c in start_year_citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</dd></div>
+        {% endif %}
+        {% if system_version.end_year %}
+            <div class="fact"><dt>End Year</dt><dd>{{ system_version.end_year }}{% if end_year_citations %} <span class="cites">{% for c in end_year_citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</dd></div>
+        {% endif %}
+        {% if system_version.former_names %}
+        <div class="fact"><dt>Former Name</dt><dd>{{ system_version.former_names }}</dd></div>
+        {% endif %}
+        {% if acquisitions %}
+        <div class="fact"><dt>Acquired By</dt><dd>
+            {% for acq in acquisitions %}<div>{% if acq.year %}<span class="text-muted me-1">{{ acq.year }}</span>{% endif %}{{ acq.organization.name }}{% for c in acq.citations %}{% citation_footnote c %}{% endfor %}</div>{% endfor %}
+        </dd></div>
+        {% elif system_version.acquired_by %}
+        <div class="fact"><dt>Acquired By</dt><dd>{{ system_version.acquired_by }}</dd></div>
+        {% endif %}
+        {% if system_version.project_types.all %}
+        <div class="fact"><dt>Project Type</dt><dd>{% for attropt in system_version.project_types.all %}{% if not forloop.first %}, {% endif %}{% browse_link "project-type" attropt.slug ": "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
+        {% endif %}
+        {% if system_version.written_in.all %}
+        <div class="fact"><dt>Written in</dt><dd>{% for attropt in system_version.written_in.all %}{% if not forloop.first %}, {% endif %}{% browse_link "programming-language" attropt.slug "Written In "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
+        {% endif %}
+        {% if system_version.supported_languages.all %}
+        <div class="fact"><dt>Supported Languages</dt><dd>{% for attropt in system_version.supported_languages.all %}{% if not forloop.first %}, {% endif %}{% browse_link "programming-language" attropt.slug "Supporting "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
+        {% endif %}
+        {% if system_version.derived_from.exists %}
+        <div class="fact"><dt>Derived From</dt><dd>{% for other in system_version.derived_from.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
+        {% endif %}
+        {% if system_version.embedded.exists %}
+        <div class="fact"><dt>Embeds / Uses</dt><dd>{% for other in system_version.embedded.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
+        {% endif %}
+        {% if system_version.inspired_by.exists %}
+        <div class="fact"><dt>Inspired By</dt><dd>{% for other in system_version.inspired_by.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
+        {% endif %}
+        {% if system_version.compatible_with.exists %}
+        <div class="fact"><dt>Compatible With</dt><dd>{% for other in system_version.compatible_with.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
+        {% endif %}
+        {% if system_version.oses.all %}
+        <div class="fact"><dt>Operating Systems</dt><dd>{% for attropt in system_version.oses.all %}{% if not forloop.first %}, {% endif %}{% browse_link "os" attropt.slug "That Support "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
+        {% endif %}
+        {% if system_version.licenses.all %}
+        <div class="fact"><dt>Licenses</dt><dd>{% for attropt in system_version.licenses.all %}{% if not forloop.first %}, {% endif %}{% browse_link "license" attropt.slug "That Use "|add:attropt.name|add:" License" attropt.name %}{% endfor %}</dd></div>
+        {% endif %}
+        {% if system_version.wikipedia_url %}
+        <div class="fact"><dt>Wikipedia</dt><dd><a href="{{ system_version.wikipedia_url.url }}" target="_{{ system.slug }}">{{ system_version.wikipedia_url.url }}</a></dd></div>
+        {% endif %}
+    </dl>
+</div>
+{% endpartialdef %}
+
+<!-- MOBILE LAYOUT: 1) name+tags  2) intro  3) factbox  4) remainder -->
+<div class="d-md-none">
+    <p class="entry-kicker">Encyclopedia Entry</p>
+    <div class="entry-head">
+        <h1 class="entry-title">{{ system.name }}</h1>
+        {% if user.is_authenticated and user_can_edit %}
+        <a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
+        {% endif %}
+    </div>
+    {% if system_version.tags.all %}
+    <div class="entry-tags">
+        {% for tag in system_version.tags.all %}{% tag_link tag %}{% endfor %}
+    </div>
+    {% endif %}
+    <div class="entry-lead-block mt-3">
+        {{ system_version.description_mobile_intro|markdownify }}
+    </div>
+    {% partial factbox %}
+    {% if system_version.description_mobile_remainder %}
+    <div class="entry-lead-block mt-3">
+        {{ system_version.description_mobile_remainder|markdownify }}
+    </div>
+    {% endif %}
+</div>
+
 <div class="entry-grid">
     <!-- MAIN -->
     <div class="entry-main">
-        <p class="entry-kicker">Encyclopedia Entry</p>
-        <div class="entry-head">
-            <h1 class="entry-title">{{ system.name }}</h1>
-            {% if user.is_authenticated and user_can_edit %}
-            <a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
+        <!-- Desktop only: kicker, title, tags, full description -->
+        <div class="d-none d-md-block">
+            <p class="entry-kicker">Encyclopedia Entry</p>
+            <div class="entry-head">
+                <h1 class="entry-title">{{ system.name }}</h1>
+                {% if user.is_authenticated and user_can_edit %}
+                <a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
+                {% endif %}
+            </div>
+            {% if system_version.tags.all %}
+            <div class="entry-tags">
+                {% for tag in system_version.tags.all %}{% tag_link tag %}{% endfor %}
+            </div>
             {% endif %}
-        </div>
-
-        {% if system_version.tags.all %}
-        <div class="entry-tags">
-            {% for tag in system_version.tags.all %}{% tag_link tag %}{% endfor %}
-        </div>
-        {% endif %}
-
-        <!-- DESCRIPTION -->
-        <div class="entry-lead-block mt-3">
-            {{ system_version.description|markdownify }}
+            <div class="entry-lead-block mt-3">
+                {{ system_version.description|markdownify }}
+            </div>
         </div>
 
         {% if system_version.hosted_services.exists %}
@@ -137,95 +253,9 @@
         </div>
     </div>
 
-    <!-- SIDEBAR -->
-    <aside class="entry-sidebar">
-        <div class="factbox">
-            <div class="fb-logo">
-                {% if system_version.logo %}
-                <a href="{{ system_version.logo.url }}" class="logo-thumbnail">
-                <img class="{% if system_version.logo_height > system_version.logo_width %}logo-tall{% else %}logo-normal{% endif %}"
-                         src="{% if system_version.logo.url.lower|slice:"-3:" == "svg" %}{{ system_version.logo.url }}{% else %}{{ system_version.logo|thumbnail_url:'thumb' }}{% endif %}"
-                         alt="{{ system.name }} Logo" title="{{ system.name }}">
-{#                    {% mono_tile system_version.logo system.name 'thumb' lazy=False %}#}
-                </a>
-                {% else %}
-                {% mono_tile system_version.logo system.name lazy=False %}
-                {% endif %}
-                <div class="fb-name">{{ system.name }}</div>
-            </div>
-            <dl>
-                {% if system_version.system_url %}
-                <div class="fact"><dt>Website</dt><dd><a href="{{ system_version.system_url.url }}" target="_{{ system.slug }}">{{ system_version.system_url.url }}</a></dd></div>
-                {% endif %}
-                {% if system_version.sourcerepo_url %}
-                <div class="fact"><dt>Source Code</dt><dd><a href="{{ system_version.sourcerepo_url.url }}" target="_{{ system.slug }}">{{ system_version.sourcerepo_url.url }}</a></dd></div>
-                {% endif %}
-                {% if system_version.docs_url %}
-                <div class="fact"><dt>Tech Docs</dt><dd><a href="{{ system_version.docs_url.url }}" target="_{{ system.slug }}">{{ system_version.docs_url.url }}</a></dd></div>
-                {% endif %}
-                {% if system_version.twitter_handle %}
-                <div class="fact"><dt>Twitter</dt><dd><a href="{{ system_version.twitter_handle_url }}"><i class="fa-brands fa-twitter"></i> {{ system_version.twitter_handle }}</a></dd></div>
-                {% endif %}
-                {% if system_version.linkedin_handle %}
-                <div class="fact"><dt>LinkedIn</dt><dd><a href="{{ system_version.linkedin_handle_url }}"><i class="fa-brands fa-linkedin"></i> {{ system_version.linkedin_handle }}</a></dd></div>
-                {% endif %}
-                {% if system_version.developer_orgs.all %}
-                <div class="fact"><dt>Developer</dt><dd>{% for org in system_version.developer_orgs.all %}{% if not forloop.first %}, {% endif %}{% if org.url %}<a href="{{ org.url }}" target="_blank">{{ org.name }}</a>{% else %}{{ org.name }}{% endif %}{% endfor %}</dd></div>
-                {% elif system_version.developer %}
-                <div class="fact"><dt>Developer</dt><dd>{{ system_version.developer }}</dd></div>
-                {% endif %}
-                {% if system_version.countries %}
-                <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
-                <div class="fact"><dt>Country of Origin</dt><dd>{% for country in system_version.countries %}{% if not forloop.first %}, {% endif %}<a href="{% url 'browse' %}?country={{ country.code }}"><i class="{{ country.flag_css }}"></i> {{ country }}</a>{% endfor %}</dd></div>
-                {% endif %}
-                {% if system_version.start_year %}
-                    <div class="fact"><dt>Start Year</dt><dd>{{ system_version.start_year }} {% if start_year_citations %} <span class="cites">{% for c in start_year_citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</dd></div>
-                {% endif %}
-                {% if system_version.end_year %}
-                    <div class="fact"><dt>End Year</dt><dd>{{ system_version.end_year }}{% if end_year_citations %} <span class="cites">{% for c in end_year_citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</dd></div>
-                {% endif %}
-                {% if system_version.former_names %}
-                <div class="fact"><dt>Former Name</dt><dd>{{ system_version.former_names }}</dd></div>
-                {% endif %}
-                {% if acquisitions %}
-                <div class="fact"><dt>Acquired By</dt><dd>
-                    {% for acq in acquisitions %}<div>{% if acq.year %}<span class="text-muted me-1">{{ acq.year }}</span>{% endif %}{{ acq.organization.name }}{% for c in acq.citations %}{% citation_footnote c %}{% endfor %}</div>{% endfor %}
-                </dd></div>
-                {% elif system_version.acquired_by %}
-                <div class="fact"><dt>Acquired By</dt><dd>{{ system_version.acquired_by }}</dd></div>
-                {% endif %}
-                {% if system_version.project_types.all %}
-                <div class="fact"><dt>Project Type</dt><dd>{% for attropt in system_version.project_types.all %}{% if not forloop.first %}, {% endif %}{% browse_link "project-type" attropt.slug ": "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
-                {% endif %}
-                {% if system_version.written_in.all %}
-                <div class="fact"><dt>Written in</dt><dd>{% for attropt in system_version.written_in.all %}{% if not forloop.first %}, {% endif %}{% browse_link "programming-language" attropt.slug "Written In "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
-                {% endif %}
-                {% if system_version.supported_languages.all %}
-                <div class="fact"><dt>Supported Languages</dt><dd>{% for attropt in system_version.supported_languages.all %}{% if not forloop.first %}, {% endif %}{% browse_link "programming-language" attropt.slug "Supporting "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
-                {% endif %}
-                {% if system_version.derived_from.exists %}
-                <div class="fact"><dt>Derived From</dt><dd>{% for other in system_version.derived_from.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
-                {% endif %}
-                {% if system_version.embedded.exists %}
-                <div class="fact"><dt>Embeds / Uses</dt><dd>{% for other in system_version.embedded.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
-                {% endif %}
-                {% if system_version.inspired_by.exists %}
-                <div class="fact"><dt>Inspired By</dt><dd>{% for other in system_version.inspired_by.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
-                {% endif %}
-                {% if system_version.compatible_with.exists %}
-                <div class="fact"><dt>Compatible With</dt><dd>{% for other in system_version.compatible_with.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
-                {% endif %}
-                {% if system_version.oses.all %}
-                <div class="fact"><dt>Operating Systems</dt><dd>{% for attropt in system_version.oses.all %}{% if not forloop.first %}, {% endif %}{% browse_link "os" attropt.slug "That Support "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
-                {% endif %}
-                {% if system_version.licenses.all %}
-                <div class="fact"><dt>Licenses</dt><dd>{% for attropt in system_version.licenses.all %}{% if not forloop.first %}, {% endif %}{% browse_link "license" attropt.slug "That Use "|add:attropt.name|add:" License" attropt.name %}{% endfor %}</dd></div>
-                {% endif %}
-                {% if system_version.wikipedia_url %}
-                <div class="fact"><dt>Wikipedia</dt><dd><a href="{{ system_version.wikipedia_url.url }}" target="_{{ system.slug }}">{{ system_version.wikipedia_url.url }}</a></dd></div>
-                {% endif %}
-            </dl>
-        </div>
+    <!-- SIDEBAR: hidden on mobile (factbox is rendered in the mobile block above) -->
+    <aside class="entry-sidebar d-none d-md-block">
+        {% partial factbox %}
 
         {% partialdef related inline %}
         {% if compatible %}
@@ -247,7 +277,7 @@
     </aside>
 </div>
 
-<!-- Mobile related section -->
+<!-- Mobile: related cards pushed to the very bottom -->
 <div class="row d-md-none mt-3">
     {% partial related %}
 </div>
