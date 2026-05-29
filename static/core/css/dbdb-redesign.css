@@ -541,7 +541,7 @@ a:hover { color: var(--accent); }
   color: var(--ink);
   white-space: nowrap;
 }
-.runhead .wordmark .of { font-style: italic; font-weight: 400; color: var(--accent); }
+.runhead .wordmark .of { font-style: italic; font-weight: 400; color: var(--accent); margin-right: 0.2rem; }
 .runhead nav { display: flex; flex-wrap: wrap; }
 .runhead nav a {
   font-family: var(--mono);
@@ -727,8 +727,14 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 
 .entry-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1rem; }
 .entry-lead {
+}
+.entry-lead-block p {
   font-family: var(--serif); font-size: 1.24rem; line-height: 1.55; color: var(--ink-soft);
-  max-width: 68ch; margin: 1.1rem 0 0;
+  /*max-width: 68ch;*/
+}
+.entry-section p {
+  font-family: var(--serif); font-size: 1.07rem; line-height: 1.62; color: var(--ink);
+  /*max-width: 72ch;*/
 }
 .entry-lead b { color: var(--ink); font-weight: 600; }
 
@@ -741,10 +747,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .entry-section .cites a { color: var(--accent); padding-left: .15rem; vertical-align: super; }
 .entry-section .sec-rule { border-top: 1.5px solid var(--ink); margin: .55rem 0 .85rem; }
 .entry-section .badges { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .85rem; }
-.entry-section p {
-  font-family: var(--serif); font-size: 1.07rem; line-height: 1.62; color: var(--ink);
-  max-width: 72ch; margin: 0;
-}
+
 .entry-section code {
   font-family: var(--mono); font-size: .84em; background: var(--surface-2);
   padding: .1rem .36rem; border-radius: 3px; color: var(--accent-2);
@@ -804,6 +807,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 }
 .citations-list a { color: var(--accent); word-break: break-all; }
 .citations-list .src { font-style: italic; color: var(--muted); }
+.cite-body { flex: 1; min-width: 0; }
 .cite-meta {
   font-family: var(--mono); font-size: .58rem; text-transform: uppercase; letter-spacing: .05em;
   color: var(--muted); border: 1px solid var(--rule); padding: .04rem .35rem; white-space: nowrap;
