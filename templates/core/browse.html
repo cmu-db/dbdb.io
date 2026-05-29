@@ -56,9 +56,7 @@
                         Search Fields <i class="fas fa-chevron-down chev"></i>
                     </button>
                     <ul class="dropdown-menu" style="max-height:200px;overflow-y:auto;">
-                        <li class="dropdown-item">Start Year</li>
-                        <li class="dropdown-item">End Year</li>
-                        {% for filtergroup in filtergroups %}<li class="dropdown-item">{{ filtergroup.label }}</li>{% endfor %}
+                        {% for label in dropdown_fields %}<li class="dropdown-item">{{ label }}</li>{% endfor %}
                     </ul>
                     <a href="javascript:;" class="remove ms-2 text-secondary small"><i class="fas fa-times"></i> remove</a>
                 </div>
@@ -70,9 +68,7 @@
                         Search Fields <i class="fas fa-chevron-down chev"></i>
                     </button>
                     <ul class="dropdown-menu" style="max-height:200px;overflow-y:auto;">
-                        <li class="dropdown-item">Start Year</li>
-                        <li class="dropdown-item">End Year</li>
-                        {% for filtergroup in filtergroups %}<li class="dropdown-item">{{ filtergroup.label }}</li>{% endfor %}
+                        {% for label in dropdown_fields %}<li class="dropdown-item">{{ label }}</li>{% endfor %}
                     </ul>
                     <a href="javascript:;" class="remove ms-2 text-secondary small"><i class="fas fa-times"></i> remove</a>
                 </div>

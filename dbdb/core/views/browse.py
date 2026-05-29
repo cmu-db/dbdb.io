@@ -592,13 +592,15 @@ class BrowseView(View):
             feature = reverse_features_map[key].replace('-', ' ').title()
             feature_parts.append(f'{feature_options} {feature}')
 
+        op_str = 'and' if search_op == and_ else 'or'
+
         query_parts = []
         if search_parts:
-            query_parts.append(f' {search_op} '.join(search_parts) if len(search_parts) < 3 else f"{', '.join(search_parts[:-1])}, {search_op} {search_parts[-1]}")
+            query_parts.append(f' {op_str} '.join(search_parts) if len(search_parts) < 3 else f"{', '.join(search_parts[:-1])}, {op_str} {search_parts[-1]}")
         if feature_parts:
-            query_parts.append(' with ' + f' {search_op} '.join(feature_parts))
+            query_parts.append(' with ' + f' {op_str} '.join(feature_parts))
 
-        title += f' {search_op} '.join(query_parts)
+        title += f' {op_str} '.join(query_parts)
 
         if title == 'Databases':
             title = 'Browse'
@@ -809,6 +811,10 @@ class BrowseView(View):
                 saved_search = SavedSearch.objects.filter(pk=pk).first()
 
         filter_groups = self.build_filter_groups(request.GET)
+        dropdown_fields = sorted(
+            ['Start Year', 'End Year'] + [fg.label for fg in filter_groups],
+            key=str.casefold,
+        )
         return render(request, self.template_name, {
             'title': title,
             'activate': 'browse',
@@ -827,11 +833,12 @@ class BrowseView(View):
             'active_columns': active_columns,
             'active_col_ids': active_col_ids,
             'cols_are_custom': cols_are_custom,
-            'available_builtin':    [c for c in available_columns if c.col_type == 'builtin'],
+            'available_builtin':    sorted((c for c in available_columns if c.col_type == 'builtin'), key=lambda c: c.label),
             'available_features':   [c for c in available_columns if c.col_type == 'feature'],
             'available_attributes': [c for c in available_columns if c.col_type == 'attribute'],
             'cols_param': ','.join(active_col_ids),
             'saved_search': saved_search,
+            'dropdown_fields': dropdown_fields,
         })
 
     def handle_old_urls(self, request):
