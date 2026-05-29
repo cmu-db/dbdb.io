@@ -77,6 +77,9 @@
         {% elif system_version.developer %}
         <div class="fact"><dt>Developer</dt><dd>{{ system_version.developer }}</dd></div>
         {% endif %}
+        {% if system_version.governance.all %}
+        <div class="fact"><dt>Governance</dt><dd>{% for f in system_version.governance.all %}{% if not forloop.first %}, {% endif %}{% browse_link "governance" f.slug "" f.name %}{% endfor %}</dd></div>
+        {% endif %}
         {% if system_version.countries %}
         <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
         <div class="fact"><dt>Country of Origin</dt><dd>{% for country in system_version.countries %}{% if not forloop.first %}, {% endif %}<a href="{% url 'browse' %}?country={{ country.code }}"><i class="{{ country.flag_css }}"></i> {{ country }}</a>{% endfor %}</dd></div>

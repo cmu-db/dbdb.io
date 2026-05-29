@@ -8,6 +8,7 @@ from dbdb.core.models import SystemFeature, SystemVersion
 def generate_searchtext(ver : SystemVersion):
     words = [ver.system.name]
     words += [org.name for org in ver.developer_orgs.all()]
+    words += [f.name for f in ver.governance.all()]
     words += [x.name for x in ver.countries]
     if ver.former_names:
         words += ver.former_names.split(",")

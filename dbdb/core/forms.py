@@ -300,6 +300,7 @@ class SystemVersionForm(forms.ModelForm):
             'end_year',
             'end_year_citations',
             'tags',
+            'governance',
             'project_types',
             'countries',
             'former_names',

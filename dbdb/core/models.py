@@ -544,6 +544,12 @@ class SystemVersion(LogoMixin, models.Model):
         verbose_name='Hosted DBaaS Services',
         help_text="Other DBMS systems that this system offers as a managed hosted DBaaS service (e.g., Amazon RDS hosting PostgreSQL). Do not include this system itself.")
 
+    governance = models.ManyToManyField(
+        'AttributeOption', blank=True,
+        limit_choices_to={'attribute__slug': 'governance'},
+        related_name='system_governance',
+        verbose_name='Governance')
+
     tags = models.ManyToManyField(
         'AttributeOption', blank=True,
         limit_choices_to={'attribute__slug': 'tag'},
