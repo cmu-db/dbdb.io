@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.views import View
 
-from dbdb.core.models import SavedSearch, System
+from dbdb.core.models import SavedSearch, System, SystemVersion
 
 
 # ==============================================
@@ -48,8 +48,14 @@ class HomeView(View):
         # count numb systems
         num_systems = System.objects.all().count()
 
-        # pick 3 saved searches per hour using a deterministic seed
         now = timezone.now()
+
+        # find the most recent year that has at least one SystemVersion
+        new_in_year = now.year
+        while not SystemVersion.objects.filter(start_year=new_in_year).exists():
+            new_in_year -= 1
+
+        # pick 3 saved searches per hour using a deterministic seed
         hour_seed = now.year * 1000000 + now.month * 10000 + now.day * 100 + now.hour
         all_saved_searches = list(SavedSearch.objects.all())
         if len(all_saved_searches) >= 3:
@@ -66,6 +72,7 @@ class HomeView(View):
             'no_nav_search': True,
             'num_systems': num_systems,
             'featured_searches': featured_searches,
+            'new_in_year': new_in_year,
         })
 
     pass
