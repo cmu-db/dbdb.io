@@ -624,7 +624,7 @@ class BrowseView(View):
 
         title += f' {op_str} '.join(query_parts)
 
-        if title == 'Databases':
+        if title == 'Databases ':
             title = 'Browse'
         elif len(title) > 60:
             title = title[:60] + '...'

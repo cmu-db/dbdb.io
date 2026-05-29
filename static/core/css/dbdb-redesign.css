@@ -566,7 +566,7 @@ a:hover { color: var(--accent); }
 .rh-nav a.active { color: var(--ink); }
 .rh-nav a.active::after {
   content: ""; position: absolute; left: .9rem; right: .9rem; bottom: -.65rem;
-  height: 2px; background: var(--accent);
+  height: 4px; background: var(--accent);
 }
 
 /* Inline search form in the runhead */

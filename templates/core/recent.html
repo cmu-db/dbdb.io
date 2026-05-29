@@ -2,14 +2,23 @@
 {% load static %}
 {% load logos %}
 {% load django_bootstrap5 %}
+{% load humanize %}
 
 {% block title %}Recent Changes{% endblock %}
 
 {% block content %}
 <div class="page-title">
-    <p class="kicker">Edit History</p>
-    <h1>Recent Changes{% if lookup_user %}: {{ lookup_user.username }}{% endif %}</h1>
-    <p class="sub">Every revision across the encyclopedia, newest first</p>
+    <p class="kicker">{{ total_revisions|intcomma }} Revision{{ total_revisions|pluralize }}</p>
+    <h1>Recent Changes{% if system %}: {{ system.name }}{% elif lookup_user %}: {{ lookup_user.username }}{% endif %}</h1>
+    <p class="sub">
+        {% if system %}
+            Revision history for <a href="{% url 'system' system.slug %}">{{ system.name }}</a>
+        {% elif lookup_user %}
+            All revisions by user '{{ lookup_user.username }}'
+        {% else %}
+            Every revision across the encyclopedia, newest first
+        {% endif %}
+    </p>
     <hr class="title-rule">
 </div>
 

@@ -7,7 +7,6 @@ from .stats import StatsView
 from .system import (
     RecentChangesView,
     SystemEditView,
-    SystemRevisionList,
     SystemRevisionView,
     SystemView,
 )

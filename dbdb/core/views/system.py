@@ -596,88 +596,70 @@ class SystemEditView(LoginRequiredMixin, View):
 class RecentChangesView(View):
     template_name = "core/recent.html"
 
-    def get(self, request):
+    def get(self, request, slug=None):
         from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
         page = request.GET.get("page", 1)
         username = request.GET.get("username", None)
         versions = None
         lookup_user = None
+        system = None
 
-        # Try to get the versions for the given username
-        if username is not None:
+        if slug is not None:
+            system = get_object_or_404(System, slug=slug)
+            versions = SystemVersion.objects.filter(system=system).select_related('system')
+        elif username is not None:
             User = get_user_model()
             try:
                 lookup_user = User.objects.get(username=username)
                 versions = SystemVersion.objects.filter(creator=lookup_user)
-            except:
+            except Exception:
                 lookup_user = None
-                pass
+
         if versions is None:
             versions = SystemVersion.objects.all()
 
-        # Sort by timestamps
         versions = versions.order_by("-created")
+        total_revisions = versions.count()
 
-        paginator = Paginator(versions, 25)
-        try:
-            versions = paginator.get_page(page)
-            total_pages = paginator.num_pages
-            current_page = versions.number
-            DISPLAY_PAGES = 7
-            half_window = DISPLAY_PAGES // 2
+        context = {
+            "activate": "recent",
+            "lookup_user": lookup_user,
+            "system": system,
+            "total_revisions": total_revisions,
+            "revision_list": slug is not None,
+        }
 
-            start_page = max(current_page - half_window, 1)
-            end_page = start_page + DISPLAY_PAGES - 1
-            if end_page > total_pages:
-                end_page = total_pages
-                start_page = max(end_page - DISPLAY_PAGES + 1, 1)
+        if slug is not None:
+            context["versions"] = versions
+            context["page_range"] = None
+        else:
+            paginator = Paginator(versions, 25)
+            page_range = range(1, 2)
+            try:
+                versions = paginator.get_page(page)
+                total_pages = paginator.num_pages
+                current_page = versions.number
+                DISPLAY_PAGES = 7
+                half_window = DISPLAY_PAGES // 2
+                start_page = max(current_page - half_window, 1)
+                end_page = start_page + DISPLAY_PAGES - 1
+                if end_page > total_pages:
+                    end_page = total_pages
+                    start_page = max(end_page - DISPLAY_PAGES + 1, 1)
+                page_range = range(start_page, end_page + 1)
+            except PageNotAnInteger:
+                versions = paginator.get_page(1)
+            except EmptyPage:
+                versions = paginator.get_page(paginator.num_pages)
+            context["versions"] = versions
+            context["page_range"] = page_range
 
-            page_range = range(start_page, end_page + 1)
-        except PageNotAnInteger:
-            versions = paginator.get_page(1)
-        except EmptyPage:
-            versions = paginator.get_page(paginator.num_pages)
-
-        return render(
-            request,
-            self.template_name,
-            context={
-                "activate": "recent",  # NAV-LINKS
-                "versions": versions,
-                "page_range": page_range,
-                "lookup_user": lookup_user,
-                "revision_list": False,
-            },
-        )
-
-    pass
-
-
-# ==============================================
-# SystemRevisionList
-# ==============================================
-class SystemRevisionList(View):
-
-    template_name = 'core/recent.html'
-
-    def get(self, request, slug):
-        system = get_object_or_404(System, slug=slug)
-
-        versions = SystemVersion.objects \
-            .filter(system=system) \
-            .select_related('system')
-
-        return render(request, self.template_name, {
-            'activate': 'revisions', # NAV-LINKS
-            'system': system,
-            'versions': versions,
-            'revision_list': True,
-        })
+        return render(request, self.template_name, context)
 
     @method_decorator(login_required)
-    def post(self, request, slug):
-        if not request.user.is_authenticated:
+    def post(self, request, slug=None):
+        if not request.user.is_authenticated or slug is None:
             return HttpResponseForbidden()
 
         system = System.objects.get(slug=slug)
@@ -690,8 +672,6 @@ class SystemRevisionList(View):
         system.save()
 
         return redirect('system', slug=slug)
-
-    pass
 
 
 # ==============================================
