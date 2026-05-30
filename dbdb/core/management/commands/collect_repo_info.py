@@ -1,4 +1,5 @@
 import logging
+import time
 
 from django.core.management import BaseCommand
 from django.utils import timezone
@@ -16,9 +17,25 @@ class Command(BaseCommand):
         parser.add_argument(
             'system', metavar='S', type=str, nargs='?',
             help='System slug or numeric ID to process (default: all enabled)')
+        parser.add_argument(
+            '--debug', action='store_true',
+            help='Enable debug logging')
+        parser.add_argument(
+            '--sleep', type=int, default=0, metavar='SECONDS',
+            help='Seconds to sleep between repositories (default: 0)')
+        parser.add_argument(
+            '--ignore-last-checked', type=int, default=None, metavar='DAYS',
+            help='Skip repositories scanned in the last N days')
         return
 
     def handle(self, *args, **options):
+        if options['debug']:
+            logging.basicConfig(
+                level=logging.DEBUG,
+                format='%(name)s %(levelname)s: %(message)s',
+                force=True,
+            )
+
         versions = (
             SystemVersion.objects
             .filter(is_current=True, sourcerepo_url__isnull=False)
@@ -33,12 +50,19 @@ class Command(BaseCommand):
             else:
                 versions = versions.filter(system__slug=keyword)
 
+        ignore_days = options['ignore_last_checked']
+        sleep_secs = options['sleep']
+
         seen_citation_ids: set[int] = set()
         ok = err = skipped = 0
+        first = True
+        last_was_skipped = False
 
         for ver in versions:
             citation = ver.sourcerepo_url
             if citation.id in seen_citation_ids:
+                LOG.debug("Skipping duplicate citation: %s", citation.url)
+                last_was_skipped = True
                 continue
             seen_citation_ids.add(citation.id)
 
@@ -46,7 +70,25 @@ class Command(BaseCommand):
             if not repo_info.enabled:
                 LOG.debug("Skipping disabled repo: %s", citation.url)
                 skipped += 1
+                last_was_skipped = True
                 continue
+
+            if ignore_days is not None and repo_info.last_snapshot is not None:
+                age = timezone.now() - repo_info.last_snapshot
+                if age.days < ignore_days:
+                    LOG.debug(
+                        "Skipping recently checked repo (%d days ago): %s",
+                        age.days, citation.url,
+                    )
+                    skipped += 1
+                    last_was_skipped = True
+                    continue
+
+            if sleep_secs > 0 and not first and not last_was_skipped:
+                LOG.debug("Sleeping %d seconds before next repo...", sleep_secs)
+                time.sleep(sleep_secs)
+            first = False
+            last_was_skipped = False
 
             self.stdout.write(f"{ver.system.name}  {citation.url}")
             try:
@@ -54,6 +96,7 @@ class Command(BaseCommand):
             except ValueError as exc:
                 self.stderr.write(f"  Skipped — {exc}")
                 skipped += 1
+                last_was_skipped = True
                 continue
             except Exception as exc:
                 self.stderr.write(f"  ERROR — {exc}")

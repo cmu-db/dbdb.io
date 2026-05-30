@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 import subprocess
 import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
+
+LOG = logging.getLogger(__name__)
 
 
 def get_git_commit_metadata(
@@ -36,10 +39,12 @@ def get_git_commit_metadata(
         If the commit cannot be fetched or inspected
     """
 
+    LOG.debug("Fetching commit %s from %s", commit_id, repo_url)
     with tempfile.TemporaryDirectory() as tmpdir:
         repo_path = Path(tmpdir)
 
         def run(cmd: list[str]) -> str:
+            LOG.debug("Running: %s", ' '.join(cmd))
             try:
                 result = subprocess.run(
                     cmd,
@@ -85,5 +90,6 @@ def get_git_commit_metadata(
         ]).rstrip()
 
         timestamp = datetime.fromisoformat(timestamp_str).astimezone(UTC)
+        LOG.debug("Commit %s: timestamp=%s message=%r", commit_id, timestamp, message[:80])
 
         return message, timestamp
