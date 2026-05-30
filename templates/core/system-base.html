@@ -62,6 +62,9 @@
         {% endif %}
         {% if system_version.sourcerepo_url %}
         <div class="fact"><dt>Source Code</dt><dd><a href="{{ system_version.sourcerepo_url.url }}" target="_{{ system.slug }}">{{ system_version.sourcerepo_url.url }}</a></dd></div>
+        {% if repo_snapshot and repo_snapshot.last_commit_timestamp %}
+        <div class="fact"><dt>Last Commit</dt><dd><time datetime="{{ repo_snapshot.last_commit_timestamp|date:"c" }}">{{ repo_snapshot.last_commit_timestamp|date:"M j, Y" }}</time></dd></div>
+        {% endif %}
         {% endif %}
         {% if system_version.docs_url %}
         <div class="fact"><dt>Tech Docs</dt><dd><a href="{{ system_version.docs_url.url }}" target="_{{ system.slug }}">{{ system_version.docs_url.url }}</a></dd></div>

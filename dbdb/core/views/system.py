@@ -30,6 +30,7 @@ from dbdb.core.models import (
     Feature,
     FeatureOption,
     Organization,
+    RepositoryInfo,
     System,
     SystemACL,
     SystemFeature,
@@ -197,6 +198,18 @@ class SystemView(View):
                                 .order_by("-score")
                                 .select_related()
         ]
+
+        repo_snapshot = None
+        if system_version.sourcerepo_url_id:
+            repo_info = (
+                RepositoryInfo.objects
+                .filter(sourcerepo_url_id=system_version.sourcerepo_url_id)
+                .select_related('current')
+                .first()
+            )
+            if repo_info:
+                repo_snapshot = repo_info.current
+
         return render(request, self.template_name, {
             'activate': 'system',  # NAV-LINKS
             'system': system,
@@ -214,6 +227,7 @@ class SystemView(View):
             'recommendations': recommendations,
             'counter_token': CounterView.build_token('system', pk=system.id),
             'Status': CitationUrl.Status,
+            'repo_snapshot': repo_snapshot,
         })
 
     pass
