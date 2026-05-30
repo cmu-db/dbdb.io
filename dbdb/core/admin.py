@@ -216,3 +216,103 @@ class SavedSearchAdmin(IconDisplayMixin, admin.ModelAdmin):
     list_filter = ['created', 'modified']
     search_fields = ('name', 'description')
     readonly_fields = ('created', 'modified')
+
+# ==============================================
+# URL MANAGEMENT
+# ==============================================
+
+class RepositorySnapshotInline(admin.TabularInline):
+    model = RepositorySnapshot
+    extra = 0
+    max_num = 0       # no adding snapshots via inline
+    can_delete = False
+    show_change_link = True
+    fields = (
+        'created',
+        'commit_count', 'last_commit_hash',
+        'open_pr_count', 'merged_pr_count',
+        'open_issue_count', 'closed_issue_count',
+        'star_count', 'fork_count',
+    )
+    readonly_fields = fields
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).order_by('-created')
+
+
+@admin.register(RepositoryInfo)
+class RepositoryInfoAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
+    list_display = ('sourcerepo_url', 'enabled', 'last_snapshot', 'snapshot_count', 'created')
+    list_filter = ('enabled',)
+    readonly_fields = ('created', 'modified', 'last_snapshot', 'current')
+    search_fields = ('sourcerepo_url__url',)
+    inlines = [RepositorySnapshotInline]
+
+    @admin.display(description='snapshots')
+    def snapshot_count(self, obj):
+        return obj.snapshots.count()
+
+
+@admin.register(RepositorySnapshot)
+class RepositorySnapshotAdmin(admin.ModelAdmin):
+    list_display = (
+        'repo', 'created',
+        'commit_count',
+        'open_pr_count', 'merged_pr_count',
+        'open_issue_count', 'closed_issue_count',
+        'star_count', 'fork_count',
+    )
+    list_filter = ('created',)
+    readonly_fields = (
+        'repo', 'created',
+        'commit_count', 'last_commit_timestamp', 'last_commit_hash',
+        'open_pr_count', 'merged_pr_count', 'last_pr_submitted_at', 'last_pr_closed_at',
+        'open_issue_count', 'closed_issue_count', 'last_issue_submitted_at', 'last_issue_closed_at',
+        'fork_count', 'star_count',
+        'commit_authors', 'pr_authors', 'issue_authors',
+    )
+    ordering = ('-created',)
+    search_fields = ('repo__sourcerepo_url__url',)
+
+
+# ── Custom section ────────────────────────────────────────────────────────────
+# Django admin groups by app_label, so "URL Management" models would normally
+# appear under "Core".  We swap admin.site's class for a subclass that extracts
+# those two models and re-injects them as a separate virtual section on the
+# index page.  Existing registrations are untouched because we change the class
+# on the live instance rather than creating a fresh AdminSite.
+
+_URL_MGMT_MODELS = frozenset({'RepositoryInfo', 'RepositorySnapshot'})
+
+
+class _DBDBAdminSite(admin.AdminSite):
+    def get_app_list(self, request, app_label=None):
+        app_list = super().get_app_list(request, app_label)
+
+        # Only reorganise on the top-level index (no app_label filter).
+        if app_label is not None:
+            return app_list
+
+        url_models: list = []
+        for app in app_list:
+            if app['app_label'] == 'core':
+                kept, moved = [], []
+                for m in app['models']:
+                    (moved if m['object_name'] in _URL_MGMT_MODELS else kept).append(m)
+                app['models'] = kept
+                url_models = moved
+                break
+
+        if url_models:
+            app_list.append({
+                'name': 'URL Management',
+                'app_label': 'url_management',
+                'app_url': '#',
+                'has_module_perms': True,
+                'models': url_models,
+            })
+
+        return app_list
+
+
+admin.site.__class__ = _DBDBAdminSite

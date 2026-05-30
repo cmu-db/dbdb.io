@@ -717,6 +717,111 @@ class FlatPageMeta(models.Model):
         return f"Meta for {self.page}"
 
 
+# ==============================================
+# RepositoryInfo
+# ==============================================
+class RepositoryInfo(models.Model):
+    sourcerepo_url = models.OneToOneField(
+        'CitationUrl', models.CASCADE,
+        related_name='repository_info',
+        verbose_name="Source Repository URL")
+    current = models.ForeignKey(
+        'RepositorySnapshot', models.SET_NULL,
+        blank=True, null=True,
+        related_name='+',
+        verbose_name="Current Snapshot")
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+    last_snapshot = models.DateTimeField(
+        blank=True, null=True,
+        help_text="Timestamp of the last time this repository was scanned")
+    enabled = models.BooleanField(
+        default=True,
+        help_text="Whether this repository should be scanned for new snapshots")
+
+    class Meta:
+        verbose_name = "Repository Info"
+        verbose_name_plural = "Repository Infos"
+
+    def __str__(self):
+        return f"RepositoryInfo({self.sourcerepo_url.url})"
+
+
+# ==============================================
+# RepositorySnapshot
+# ==============================================
+class RepositorySnapshot(models.Model):
+    repo = models.ForeignKey(
+        'RepositoryInfo', models.CASCADE,
+        related_name='snapshots')
+    created = models.DateTimeField(auto_now_add=True)
+
+    # Commit statistics
+    commit_count = models.PositiveIntegerField(
+        blank=True, null=True,
+        help_text="Total number of commits on the default branch")
+    last_commit_timestamp = models.DateTimeField(
+        blank=True, null=True,
+        help_text="Timestamp of the most recent commit")
+    last_commit_hash = models.CharField(
+        max_length=64, blank=True,
+        help_text="SHA hash of the most recent commit")
+
+    # Pull request statistics
+    open_pr_count = models.PositiveIntegerField(
+        blank=True, null=True,
+        help_text="Number of currently open pull requests / merge requests")
+    merged_pr_count = models.PositiveIntegerField(
+        blank=True, null=True,
+        help_text="Total number of merged pull requests / merge requests")
+    last_pr_submitted_at = models.DateTimeField(
+        blank=True, null=True,
+        help_text="Timestamp of the most recently submitted (opened) pull request")
+    last_pr_closed_at = models.DateTimeField(
+        blank=True, null=True,
+        help_text="Timestamp of the most recently closed or merged pull request")
+
+    # Issue statistics
+    open_issue_count = models.PositiveIntegerField(
+        blank=True, null=True,
+        help_text="Number of currently open issues")
+    closed_issue_count = models.PositiveIntegerField(
+        blank=True, null=True,
+        help_text="Total number of closed issues")
+    last_issue_submitted_at = models.DateTimeField(
+        blank=True, null=True,
+        help_text="Timestamp of the most recently submitted (opened) issue")
+    last_issue_closed_at = models.DateTimeField(
+        blank=True, null=True,
+        help_text="Timestamp of the most recently closed issue")
+
+    # Popularity statistics
+    fork_count = models.PositiveIntegerField(
+        blank=True, null=True,
+        help_text="Number of repository forks")
+    star_count = models.PositiveIntegerField(
+        blank=True, null=True,
+        help_text="Number of repository stars / watchers")
+
+    # Contributor lists
+    commit_authors = models.JSONField(
+        default=list, blank=True,
+        help_text="Unique contributor login names or display names (from commit history)")
+    pr_authors = models.JSONField(
+        default=list, blank=True,
+        help_text="Unique authors who have submitted pull requests or merge requests")
+    issue_authors = models.JSONField(
+        default=list, blank=True,
+        help_text="Unique authors who have submitted issues")
+
+    class Meta:
+        verbose_name = "Repository Snapshot"
+        ordering = ('-created',)
+
+    def __str__(self):
+        return f"RepositorySnapshot({self.repo_id}, {self.created})"
+
+
 __all__ = (
     'Attribute',
     'AttributeOption',
@@ -725,6 +830,8 @@ __all__ = (
     'FeatureOption',
     'FlatPageMeta',
     'Organization',
+    'RepositoryInfo',
+    'RepositorySnapshot',
     'SavedSearch',
     'SuggestedSystem',
     'System',

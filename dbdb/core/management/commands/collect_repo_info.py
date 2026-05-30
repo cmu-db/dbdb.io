@@ -1,0 +1,78 @@
+import logging
+
+from django.core.management import BaseCommand
+from django.utils import timezone
+
+from dbdb.core.models import RepositoryInfo, RepositorySnapshot, SystemVersion
+from dbdb.core.utils.repository import fetch_snapshot_data
+
+LOG = logging.getLogger(__name__)
+
+
+class Command(BaseCommand):
+    help = "Collect repository statistics for systems that have a source-repo URL"
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            'system', metavar='S', type=str, nargs='?',
+            help='System slug or numeric ID to process (default: all enabled)')
+        return
+
+    def handle(self, *args, **options):
+        versions = (
+            SystemVersion.objects
+            .filter(is_current=True, sourcerepo_url__isnull=False)
+            .select_related('sourcerepo_url', 'system')
+            .order_by('system__name')
+        )
+
+        if options.get('system'):
+            keyword = options['system'].strip()
+            if keyword.isdigit():
+                versions = versions.filter(system__id=int(keyword))
+            else:
+                versions = versions.filter(system__slug=keyword)
+
+        seen_citation_ids: set[int] = set()
+        ok = err = skipped = 0
+
+        for ver in versions:
+            citation = ver.sourcerepo_url
+            if citation.id in seen_citation_ids:
+                continue
+            seen_citation_ids.add(citation.id)
+
+            repo_info, _ = RepositoryInfo.objects.get_or_create(sourcerepo_url=citation)
+            if not repo_info.enabled:
+                LOG.debug("Skipping disabled repo: %s", citation.url)
+                skipped += 1
+                continue
+
+            self.stdout.write(f"{ver.system.name}  {citation.url}")
+            try:
+                data = fetch_snapshot_data(citation)
+            except ValueError as exc:
+                self.stderr.write(f"  Skipped — {exc}")
+                skipped += 1
+                continue
+            except Exception as exc:
+                self.stderr.write(f"  ERROR — {exc}")
+                LOG.exception("Failed to fetch repo data for %s", citation.url)
+                err += 1
+                continue
+
+            snapshot = RepositorySnapshot.objects.create(repo=repo_info, **data)
+            repo_info.current = snapshot
+            repo_info.last_snapshot = timezone.now()
+            repo_info.save(update_fields=['current', 'last_snapshot', 'modified'])
+            ok += 1
+            self.stdout.write(
+                f"  commits={snapshot.commit_count}  "
+                f"open_prs={snapshot.open_pr_count}  merged_prs={snapshot.merged_pr_count}  "
+                f"open_issues={snapshot.open_issue_count}  closed_issues={snapshot.closed_issue_count}  "
+                f"stars={snapshot.star_count}  forks={snapshot.fork_count}"
+            )
+
+        self.stdout.write(
+            self.style.SUCCESS(f"\nDone: {ok} updated, {skipped} skipped, {err} errors")
+        )
