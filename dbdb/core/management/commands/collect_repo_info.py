@@ -1,11 +1,12 @@
 import logging
 import time
 
+from django.conf import settings
 from django.core.management import BaseCommand
 from django.utils import timezone
 
 from dbdb.core.models import RepositoryInfo, RepositorySnapshot, SystemVersion
-from dbdb.core.utils.repository import fetch_snapshot_data
+from dbdb.core.utils.repository import check_abandoned, fetch_snapshot_data
 
 _FAILED_DISABLE_THRESHOLD = 3
 
@@ -31,6 +32,9 @@ class Command(BaseCommand):
         parser.add_argument(
             '--limit', type=int, default=None, metavar='N',
             help='Stop after successfully retrieving information for N repositories')
+        parser.add_argument(
+            '--check-abandoned', action='store_true',
+            help='After each snapshot, check whether the repo should be marked abandoned')
         return
 
     def handle(self, *args, **options):
@@ -59,6 +63,8 @@ class Command(BaseCommand):
         ignore_days = options['ignore_last_checked']
         sleep_secs = options['sleep']
         limit = options['limit']
+        do_check_abandoned = options['check_abandoned']
+        inactivity_days = settings.REPOSITORY_INACTIVITY_DAYS
 
         seen_citation_ids: set[int] = set()
         ok = err = skipped = 0
@@ -162,6 +168,18 @@ class Command(BaseCommand):
                         f"  Disabled {citation.url} — "
                         f"{_FAILED_DISABLE_THRESHOLD} consecutive FAILED snapshots"
                     )
+
+            if do_check_abandoned:
+                try:
+                    was_abandoned = check_abandoned(
+                        ver.system, inactivity_days=inactivity_days
+                    )
+                    if was_abandoned:
+                        self.stdout.write(
+                            f"  Marked as abandoned (no activity in {inactivity_days}+ days)"
+                        )
+                except ValueError as exc:
+                    LOG.debug("check_abandoned skipped for %s: %s", ver.system.slug, exc)
 
             if limit is not None and ok >= limit:
                 self.stdout.write(f"Limit of {limit} reached, stopping.")

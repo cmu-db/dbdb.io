@@ -235,3 +235,4 @@ DBDB_FOUNDING_YEAR = 2017
 # Repository scanning (collect_repo_info management command)
 GITHUB_API_TOKEN = env('GITHUB_API_TOKEN', default='')
 GITLAB_API_TOKEN = env('GITLAB_API_TOKEN', default='')
+REPOSITORY_INACTIVITY_DAYS = 730
