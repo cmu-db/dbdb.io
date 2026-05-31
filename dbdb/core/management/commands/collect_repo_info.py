@@ -104,6 +104,11 @@ class Command(BaseCommand):
                 err += 1
                 continue
 
+            fetch_errors = data.pop('errors', [])
+            for exc in fetch_errors:
+                self.stderr.write(f"  WARNING — partial data: {exc}")
+                LOG.warning("Partial repo data for %s: %s", citation.url, exc)
+
             snapshot = RepositorySnapshot.objects.create(repo=repo_info, **data)
             repo_info.current = snapshot
             repo_info.last_snapshot = timezone.now()

@@ -243,7 +243,7 @@ class RepositorySnapshotInline(admin.TabularInline):
 @admin.register(RepositoryInfo)
 class RepositoryInfoAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
     list_display = ('sourcerepo_url', 'enabled', 'last_snapshot', 'snapshot_count', 'created')
-    list_filter = ('enabled',)
+    list_filter = ('enabled', 'last_snapshot', 'modified')
     readonly_fields = ('created', 'modified', 'last_snapshot', 'current')
     search_fields = ('sourcerepo_url__url',)
     inlines = [RepositorySnapshotInline]

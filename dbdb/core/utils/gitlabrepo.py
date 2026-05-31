@@ -33,11 +33,12 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
     """
     Retrieve snapshot metadata for a GitLab project.
 
-    Returns a dict whose keys map directly onto RepositorySnapshot fields.
+    Returns a dict whose keys map directly onto RepositorySnapshot fields plus
+    an 'errors' key containing a list of exceptions raised during collection.
+    Fields that could not be fetched retain their zero/None defaults.
 
     Raises:
         ValueError: URL does not look like a GitLab repo.
-        requests.HTTPError: API request failed.
     """
     match = GITLAB_URL_PATTERN.search(repo_url)
     if not match:
@@ -48,117 +49,171 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
     session = _make_session(token)
     base = f'{GITLAB_API}/projects/{encoded_path}'
 
-    # ── project info (stars, forks) ───────────────────────────────────────────
-    r = session.get(base, timeout=30)
-    r.raise_for_status()
-    proj = r.json()
-    star_count = proj.get('star_count', 0)
-    fork_count = proj.get('forks_count', 0)
+    errors: list[Exception] = []
 
-    # ── commits ───────────────────────────────────────────────────────────────
-    r = session.get(f'{base}/repository/commits', params={'per_page': 1}, timeout=30)
-    r.raise_for_status()
-    commit_count = _total(r)
-    commits = r.json()
+    # Defaults — overwritten section by section as each request succeeds.
+    star_count = 0
+    fork_count = 0
+    commit_count = 0
     last_commit_hash = ''
     last_commit_timestamp = None
-    if commits:
-        c = commits[0]
-        last_commit_hash = c.get('id', '')
-        last_commit_timestamp = _parse_dt(c.get('committed_date') or c.get('authored_date'))
+    open_pr_count = 0
+    merged_pr_count = 0
+    last_pr_submitted_at = None
+    last_pr_closed_at = None
+    open_issue_count = 0
+    closed_issue_count = 0
+    last_issue_submitted_at = None
+    last_issue_closed_at = None
+    commit_authors: list[str] = []
+    pr_authors: list[str] = []
+    issue_authors: list[str] = []
+
+    # ── project info (stars, forks) ───────────────────────────────────────────
+    try:
+        r = session.get(base, timeout=30)
+        r.raise_for_status()
+        proj = r.json()
+        star_count = proj.get('star_count', 0)
+        fork_count = proj.get('forks_count', 0)
+    except Exception as exc:
+        errors.append(exc)
+
+    # ── commits ───────────────────────────────────────────────────────────────
+    try:
+        r = session.get(f'{base}/repository/commits', params={'per_page': 1}, timeout=30)
+        r.raise_for_status()
+        commit_count = _total(r)
+        commits = r.json()
+        if commits:
+            c = commits[0]
+            last_commit_hash = c.get('id', '')
+            last_commit_timestamp = _parse_dt(c.get('committed_date') or c.get('authored_date'))
+    except Exception as exc:
+        errors.append(exc)
 
     # ── merge-request counts ──────────────────────────────────────────────────
-    r = session.get(f'{base}/merge_requests', params={'state': 'opened', 'per_page': 1}, timeout=30)
-    r.raise_for_status()
-    open_pr_count = _total(r)
+    try:
+        r = session.get(f'{base}/merge_requests', params={'state': 'opened', 'per_page': 1}, timeout=30)
+        r.raise_for_status()
+        open_pr_count = _total(r)
+    except Exception as exc:
+        errors.append(exc)
 
-    r = session.get(f'{base}/merge_requests', params={'state': 'merged', 'per_page': 1}, timeout=30)
-    r.raise_for_status()
-    merged_pr_count = _total(r)
+    try:
+        r = session.get(f'{base}/merge_requests', params={'state': 'merged', 'per_page': 1}, timeout=30)
+        r.raise_for_status()
+        merged_pr_count = _total(r)
+    except Exception as exc:
+        errors.append(exc)
 
     # ── last MR submitted ─────────────────────────────────────────────────────
-    r = session.get(f'{base}/merge_requests',
-                    params={'state': 'all', 'order_by': 'created_at', 'sort': 'desc', 'per_page': 1},
-                    timeout=30)
-    r.raise_for_status()
-    newest_mr = r.json()
-    last_pr_submitted_at = _parse_dt(newest_mr[0]['created_at']) if newest_mr else None
+    try:
+        r = session.get(f'{base}/merge_requests',
+                        params={'state': 'all', 'order_by': 'created_at', 'sort': 'desc', 'per_page': 1},
+                        timeout=30)
+        r.raise_for_status()
+        newest_mr = r.json()
+        last_pr_submitted_at = _parse_dt(newest_mr[0]['created_at']) if newest_mr else None
+    except Exception as exc:
+        errors.append(exc)
 
     # ── last MR closed/merged ─────────────────────────────────────────────────
-    r = session.get(f'{base}/merge_requests',
-                    params={'state': 'merged', 'order_by': 'updated_at', 'sort': 'desc', 'per_page': 1},
-                    timeout=30)
-    r.raise_for_status()
-    newest_closed_mr = r.json()
-    last_pr_closed_at = None
-    if newest_closed_mr:
-        last_pr_closed_at = _parse_dt(
-            newest_closed_mr[0].get('merged_at') or newest_closed_mr[0].get('closed_at')
-        )
+    try:
+        r = session.get(f'{base}/merge_requests',
+                        params={'state': 'merged', 'order_by': 'updated_at', 'sort': 'desc', 'per_page': 1},
+                        timeout=30)
+        r.raise_for_status()
+        newest_closed_mr = r.json()
+        if newest_closed_mr:
+            last_pr_closed_at = _parse_dt(
+                newest_closed_mr[0].get('merged_at') or newest_closed_mr[0].get('closed_at')
+            )
+    except Exception as exc:
+        errors.append(exc)
 
     # ── issue counts ──────────────────────────────────────────────────────────
-    r = session.get(f'{base}/issues', params={'state': 'opened', 'per_page': 1}, timeout=30)
-    r.raise_for_status()
-    open_issue_count = _total(r)
+    try:
+        r = session.get(f'{base}/issues', params={'state': 'opened', 'per_page': 1}, timeout=30)
+        r.raise_for_status()
+        open_issue_count = _total(r)
+    except Exception as exc:
+        errors.append(exc)
 
-    r = session.get(f'{base}/issues', params={'state': 'closed', 'per_page': 1}, timeout=30)
-    r.raise_for_status()
-    closed_issue_count = _total(r)
+    try:
+        r = session.get(f'{base}/issues', params={'state': 'closed', 'per_page': 1}, timeout=30)
+        r.raise_for_status()
+        closed_issue_count = _total(r)
+    except Exception as exc:
+        errors.append(exc)
 
     # ── last issue submitted ──────────────────────────────────────────────────
-    r = session.get(f'{base}/issues',
-                    params={'state': 'all', 'order_by': 'created_at', 'sort': 'desc', 'per_page': 1},
-                    timeout=30)
-    r.raise_for_status()
-    newest_issue = r.json()
-    last_issue_submitted_at = _parse_dt(newest_issue[0]['created_at']) if newest_issue else None
+    try:
+        r = session.get(f'{base}/issues',
+                        params={'state': 'all', 'order_by': 'created_at', 'sort': 'desc', 'per_page': 1},
+                        timeout=30)
+        r.raise_for_status()
+        newest_issue = r.json()
+        last_issue_submitted_at = _parse_dt(newest_issue[0]['created_at']) if newest_issue else None
+    except Exception as exc:
+        errors.append(exc)
 
     # ── last issue closed ─────────────────────────────────────────────────────
-    r = session.get(f'{base}/issues',
-                    params={'state': 'closed', 'order_by': 'updated_at', 'sort': 'desc', 'per_page': 1},
-                    timeout=30)
-    r.raise_for_status()
-    newest_closed_issue = r.json()
-    last_issue_closed_at = (
-        _parse_dt(newest_closed_issue[0].get('closed_at')) if newest_closed_issue else None
-    )
+    try:
+        r = session.get(f'{base}/issues',
+                        params={'state': 'closed', 'order_by': 'updated_at', 'sort': 'desc', 'per_page': 1},
+                        timeout=30)
+        r.raise_for_status()
+        newest_closed_issue = r.json()
+        last_issue_closed_at = (
+            _parse_dt(newest_closed_issue[0].get('closed_at')) if newest_closed_issue else None
+        )
+    except Exception as exc:
+        errors.append(exc)
 
     # ── MR authors (most-recent 100) ──────────────────────────────────────────
-    r = session.get(f'{base}/merge_requests',
-                    params={'state': 'all', 'order_by': 'created_at', 'sort': 'desc', 'per_page': 100},
-                    timeout=30)
-    r.raise_for_status()
-    seen: set[str] = set()
-    pr_authors: list[str] = []
-    for mr in r.json():
-        name = (mr.get('author') or {}).get('username') or (mr.get('author') or {}).get('name', '')
-        if name and name not in seen:
-            seen.add(name)
-            pr_authors.append(name)
+    try:
+        r = session.get(f'{base}/merge_requests',
+                        params={'state': 'all', 'order_by': 'created_at', 'sort': 'desc', 'per_page': 100},
+                        timeout=30)
+        r.raise_for_status()
+        seen: set[str] = set()
+        for mr in r.json():
+            name = (mr.get('author') or {}).get('username') or (mr.get('author') or {}).get('name', '')
+            if name and name not in seen:
+                seen.add(name)
+                pr_authors.append(name)
+    except Exception as exc:
+        errors.append(exc)
 
     # ── issue authors (most-recent 100) ───────────────────────────────────────
-    r = session.get(f'{base}/issues',
-                    params={'state': 'all', 'order_by': 'created_at', 'sort': 'desc', 'per_page': 100},
-                    timeout=30)
-    r.raise_for_status()
-    seen = set()
-    issue_authors: list[str] = []
-    for issue in r.json():
-        name = (issue.get('author') or {}).get('username') or (issue.get('author') or {}).get('name', '')
-        if name and name not in seen:
-            seen.add(name)
-            issue_authors.append(name)
+    try:
+        r = session.get(f'{base}/issues',
+                        params={'state': 'all', 'order_by': 'created_at', 'sort': 'desc', 'per_page': 100},
+                        timeout=30)
+        r.raise_for_status()
+        seen = set()
+        for issue in r.json():
+            name = (issue.get('author') or {}).get('username') or (issue.get('author') or {}).get('name', '')
+            if name and name not in seen:
+                seen.add(name)
+                issue_authors.append(name)
+    except Exception as exc:
+        errors.append(exc)
 
     # ── commit authors / contributors (ordered by commit count) ───────────────
-    r = session.get(f'{base}/repository/contributors',
-                    params={'per_page': 100, 'order_by': 'commits'},
-                    timeout=30)
-    r.raise_for_status()
-    commit_authors = [
-        c.get('name') or c.get('email', '')
-        for c in r.json()
-        if c.get('name') or c.get('email')
-    ]
+    try:
+        r = session.get(f'{base}/repository/contributors',
+                        params={'per_page': 100, 'order_by': 'commits'},
+                        timeout=30)
+        r.raise_for_status()
+        commit_authors = [
+            c.get('name') or c.get('email', '')
+            for c in r.json()
+            if c.get('name') or c.get('email')
+        ]
+    except Exception as exc:
+        errors.append(exc)
 
     return {
         'commit_count':             commit_count,
@@ -177,4 +232,5 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
         'commit_authors':           commit_authors,
         'pr_authors':               pr_authors,
         'issue_authors':            issue_authors,
+        'errors':                   errors,
     }
