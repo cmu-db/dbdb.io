@@ -844,6 +844,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .page-alert a { color: var(--accent); text-decoration: underline; }
 
 .entry-section { margin-top: 2.3rem; scroll-margin-top: 1rem; }
+.entry-section:target { outline: 2px solid var(--accent); outline-offset: .5rem; border-radius: 3px; background: var(--tint); }
 .entry-section h2 {
   font-family: var(--serif); font-weight: 600; font-size: 1.55rem; margin: 0;
   color: var(--ink); display: inline;
@@ -912,6 +913,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   content: counter(cite, decimal-leading-zero) "."; font-family: var(--mono); color: var(--muted);
   font-size: .72rem; flex: none; width: 2rem; text-align: right;
 }
+.citations-list li:target { outline: 2px solid var(--accent); outline-offset: .35rem; border-radius: 3px; background: var(--tint); }
 .citations-list a { color: var(--accent); word-break: break-all; }
 .citations-list .src { font-style: italic; color: var(--muted); }
 .cite-body { flex: 1; min-width: 0; }

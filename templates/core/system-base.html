@@ -238,7 +238,7 @@
             <div class="sec-head"><h2>Citations</h2><span class="rule"></span><span class="num">{{ citations|length }} source{% if citations|length != 1 %}s{% endif %}</span></div>
             <ol class="citations-list">
                 {% for c in citations %}
-                <li id="citation{{ forloop.counter }}">
+                <li class="citation" id="citation{{ forloop.counter }}">
                     <span class="cite-body">{% citation_link c %}{% if c.last_modified %} <time datetime="{{ c.last_modified|date:"c" }}"><span class="cite-meta">Modified: {{ c.last_modified|date }}</span></time>{% endif %}{% if c.last_checked %} <time datetime="{{ c.last_checked|date:"c" }}"><span class="cite-meta">Accessed: {{ c.last_checked|date }}</span></time>{% endif %}</span>
                 </li>
                 {% endfor %}

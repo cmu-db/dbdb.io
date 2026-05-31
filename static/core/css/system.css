@@ -23,13 +23,6 @@ h3 > sup {
     content: "▶ ";
 }
 
-
-/* Feature Highlight */
-div:target {
-    background-color: #FFFFCC;
-    border: 3px solid var(--highlight-color);
-}
-
 div.card h2 a { font-size: 16px; }
 div.card h4 a { font-size: 16px; }
 
