@@ -102,7 +102,7 @@ class Command(BaseCommand):
 
             self.stdout.write(f"{ver.system.name}  {citation.url}")
             try:
-                data = fetch_snapshot_data(citation)
+                snap = fetch_snapshot_data(citation)
             except ValueError as exc:
                 self.stderr.write(f"  Skipped — {exc}")
                 skipped += 1
@@ -114,35 +114,25 @@ class Command(BaseCommand):
                 err += 1
                 continue
 
-            fetch_errors = data.pop('errors', [])
+            fetch_errors = snap.errors
             for exc in fetch_errors:
                 self.stderr.write(f"  WARNING — partial data: {exc}")
                 LOG.warning("Partial repo data for %s: %s", citation.url, exc)
 
             if fetch_errors:
-                has_data = any([
-                    data.get('star_count'),
-                    data.get('fork_count'),
-                    data.get('commit_count'),
-                    data.get('last_commit_hash'),
-                    data.get('last_commit_timestamp'),
-                    data.get('open_pr_count'),
-                    data.get('merged_pr_count'),
-                    data.get('open_issue_count'),
-                    data.get('closed_issue_count'),
-                    data.get('commit_authors'),
-                    data.get('pr_authors'),
-                    data.get('issue_authors'),
-                ])
-                data['status'] = (
+                computed_status = (
                     RepositorySnapshot.Status.ERROR
-                    if has_data
+                    if snap.has_data
                     else RepositorySnapshot.Status.FAILED
                 )
             else:
-                data['status'] = RepositorySnapshot.Status.VALID
+                computed_status = RepositorySnapshot.Status.VALID
 
-            snapshot = RepositorySnapshot.objects.create(repo=repo_info, **data)
+            snapshot = RepositorySnapshot.objects.create(
+                repo=repo_info,
+                status=computed_status,
+                **snap.to_model_kwargs(),
+            )
             repo_info.current = snapshot
             repo_info.last_snapshot = timezone.now()
             repo_info.save(update_fields=['current', 'last_snapshot', 'modified'])

@@ -1,51 +1,58 @@
 from __future__ import annotations
 
-import re
 from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
-from dbdb.core.utils.githubrepo import get_metadata as _github_metadata
-from dbdb.core.utils.gitlabrepo import get_metadata as _gitlab_metadata
+from dbdb.core.utils.repositories import (
+    BitbucketCollector,
+    GitHubCollector,
+    GitLabCollector,
+    RepoCollector,
+    SnapshotData,
+    SourceForgeCollector,
+)
 from dbdb.core.utils.versions import clone_system_version, finalize_new_version
 
 
-_GITHUB = re.compile(r'github\.com/')
-_GITLAB = re.compile(r'gitlab\.com/')
+# Registry: host name → (collector class, Django settings key for API token).
+# A None token key means the host requires no authentication.
+_REGISTRY: dict[str, tuple[type[RepoCollector], str | None]] = {
+    'github':      (GitHubCollector,      'GITHUB_API_TOKEN'),
+    'gitlab':      (GitLabCollector,      'GITLAB_API_TOKEN'),
+    'bitbucket':   (BitbucketCollector,   'BITBUCKET_API_TOKEN'),
+    'sourceforge': (SourceForgeCollector, 'SOURCEFORGE_API_TOKEN'),
+}
 
 
 def detect_host(url: str) -> str | None:
-    """Return 'github', 'gitlab', or None for unrecognised hosts."""
-    if _GITHUB.search(url):
-        return 'github'
-    if _GITLAB.search(url):
-        return 'gitlab'
+    """Return the host key ('github', 'gitlab', 'bitbucket', 'sourceforge')
+    for a repository URL, or None if unrecognised.
+    """
+    for host, (cls, _) in _REGISTRY.items():
+        if cls.match_url(url):
+            return host
     return None
 
 
-def fetch_snapshot_data(citation_url) -> dict:
+def fetch_snapshot_data(citation_url) -> SnapshotData:
     """
     Given a CitationUrl instance, fetch repository statistics and return
-    a dict whose keys match RepositorySnapshot field names.
+    a SnapshotData whose fields map directly onto RepositorySnapshot fields.
 
     Raises:
-        ValueError: Host is not GitHub or GitLab.
-        requests.HTTPError: API request failed.
+        ValueError: Host is not supported.
     """
-    url = citation_url.url
+    url  = citation_url.url
     host = detect_host(url)
+    if host is None:
+        raise ValueError(f"Unsupported repository host: {url}")
 
-    if host == 'github':
-        token = getattr(settings, 'GITHUB_API_TOKEN', '') or None
-        return _github_metadata(url, token=token)
-
-    if host == 'gitlab':
-        token = getattr(settings, 'GITLAB_API_TOKEN', '') or None
-        return _gitlab_metadata(url, token=token)
-
-    raise ValueError(f"Unsupported repository host: {url}")
+    cls, token_key = _REGISTRY[host]
+    token = (getattr(settings, token_key, '') or None) if token_key else None
+    return cls(token=token).get_metadata(url)
 
 
 def check_abandoned(system, *, inactivity_days: int = 365) -> bool:
@@ -96,7 +103,7 @@ def check_abandoned(system, *, inactivity_days: int = 365) -> bool:
         return a is not None and b is not None and a == b
 
     no_new_commits = _equal_or_none(latest.commit_count, previous.commit_count)
-    no_new_prs = _equal_or_none(latest.merged_pr_count, previous.merged_pr_count)
+    no_new_prs     = _equal_or_none(latest.merged_pr_count, previous.merged_pr_count)
     if not (no_new_commits and no_new_prs):
         return False
 
@@ -116,8 +123,8 @@ def _mark_abandoned(current_version, repo_info, snapshot):
     """Clone current_version, apply the abandoned tag, and disable scanning."""
     from dbdb.core.models import AttributeOption
 
-    User = get_user_model()
-    bot_user = User.objects.get(username='dbdb-bot')
+    User        = get_user_model()
+    bot_user    = User.objects.get(username='dbdb-bot')
     abandoned_tag = AttributeOption.objects.get(
         attribute__slug='tag', slug='abandoned'
     )
