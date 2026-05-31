@@ -17,6 +17,7 @@ FUDGEY_RESPONSES_NOT_SPAM = [
     'answer: not spam',
     '**answer:** false',
     '**answer:** no',
+    '**answer:** `no`'
 ]
 FUDGEY_RESPONSES_CORRECT_SUMMARIZE = [
 

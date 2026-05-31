@@ -55,7 +55,7 @@ def fetch_snapshot_data(citation_url) -> SnapshotData:
     return cls(token=token).get_metadata(url)
 
 
-def check_abandoned(system, *, inactivity_days: int = 365) -> bool:
+def check_abandoned(system, *, inactivity_days: int = 1095) -> bool:
     """
     Determine whether a system's source repository appears abandoned and, if
     so, record that conclusion as a new SystemVersion.

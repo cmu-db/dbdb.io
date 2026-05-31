@@ -791,7 +791,10 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
    ENTRY PAGE
    ============================================================ */
 .entry-grid { display: grid; grid-template-columns: 1fr 340px; gap: 3rem; align-items: start; }
-.entry-main { min-width: 0; }
+.entry-main {
+  font-family: var(--serif);
+  min-width: 0;
+}
 
 .entry-kicker {
   font-family: var(--mono); text-transform: uppercase; letter-spacing: .16em; font-size: .64rem;

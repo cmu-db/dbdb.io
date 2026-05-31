@@ -17,10 +17,9 @@ def generate_searchtext(ver : SystemVersion):
     words += [x.slug for x in ver.written_in.all()]
 
     # URLs (just include domain names)
-    if ver.system_url:
-        words.append(ver.system_url.get_domain())
-    if ver.sourcerepo_url:
-        words.append(ver.sourcerepo_url.get_domain())
+    for url in [ver.system_url, ver.sourcerepo_url]:
+        if url:
+            words += [url.get_domain(), url.get_domain(include_suffix=False)]
 
     # Add tags with and without hyphens
     # Example: time-series vs. timeseries
