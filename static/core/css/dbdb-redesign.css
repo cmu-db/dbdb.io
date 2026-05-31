@@ -462,13 +462,16 @@ a:hover { color: var(--accent); }
   overflow: hidden;
 }
 .mono-tile img { width: 100%; height: 100%; object-fit: contain; }
-.db-row .db-info { min-width: 0; flex: 1; }
+.db-row .db-info {
+  min-width: 0;
+  flex: 1;
+  line-height: 0.9rem;
+}
 .db-row .db-name {
   font-family: var(--serif);
   font-size: 1.06rem;
   font-weight: 600;
   color: var(--ink);
-  line-height: 1.1;
 }
 .db-row:hover .db-name { color: var(--accent); }
 .db-row .db-model {
