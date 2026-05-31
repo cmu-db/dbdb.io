@@ -36,11 +36,9 @@ from dbdb.core.models import (
     SystemFeature,
     SystemRecommendation,
     SystemRedirect,
-    SystemSearchText,
     SystemVersion,
 )
-from dbdb.core.utils.searchtext import generate_searchtext
-from dbdb.core.utils.twitter_card import create_twitter_card
+from dbdb.core.utils.versions import finalize_new_version
 
 from .api import CounterView
 
@@ -577,14 +575,7 @@ class SystemEditView(LoginRequiredMixin, View):
                 developer_orgs.append(org)
             new_version.developer_orgs.set(developer_orgs)
 
-            # Do this down here to make sure the logo gets uploaded correctly
-            if new_version.logo is not None and old_logo != new_version.logo:
-                create_twitter_card(new_version)
-
-            # Update the search index too!
-            ver_search, created = SystemSearchText.objects.update_or_create(system=system)
-            ver_search.search_text = generate_searchtext(new_version)
-            ver_search.save()
+            finalize_new_version(new_version, old_logo=old_logo)
 
             return redirect(new_version.system.get_absolute_url())
 

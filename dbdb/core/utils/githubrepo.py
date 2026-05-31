@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import time
 from datetime import UTC, datetime
 
 import requests
@@ -8,6 +9,9 @@ import requests
 
 GITHUB_URL_PATTERN = re.compile(r'github\.com/([^/]+)/([^/]+?)(?:\.git)?/?$')
 GITHUB_API = 'https://api.github.com'
+
+# Seconds to sleep before each API request to avoid secondary rate limits.
+GITHUB_API_SLEEP = 1.0
 
 
 def _make_session(token: str | None) -> requests.Session:
@@ -30,6 +34,7 @@ def _link_last_page(response: requests.Response) -> int | None:
 
 def _search_total(session: requests.Session, query: str) -> int:
     """Use the GitHub Search API to get an exact total count."""
+    time.sleep(GITHUB_API_SLEEP)
     r = session.get(
         f'{GITHUB_API}/search/issues',
         params={'q': query, 'per_page': 1},
@@ -65,6 +70,7 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
     base = f'{GITHUB_API}/repos/{owner}/{repo_name}'
 
     # ── repo info (stars, forks) ──────────────────────────────────────────────
+    time.sleep(GITHUB_API_SLEEP)
     r = session.get(base, timeout=30)
     r.raise_for_status()
     repo_data = r.json()
@@ -73,6 +79,7 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
 
     # ── commits ───────────────────────────────────────────────────────────────
     # per_page=1 so last-page number == total commit count on default branch
+    time.sleep(GITHUB_API_SLEEP)
     r = session.get(f'{base}/commits', params={'per_page': 1}, timeout=30)
     r.raise_for_status()
     last_page = _link_last_page(r)
@@ -90,6 +97,7 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
     merged_pr_count = _search_total(session, f'{repo_q} type:pr is:merged')
 
     # ── last PR submitted (newest created_at across all states) ───────────────
+    time.sleep(GITHUB_API_SLEEP)
     r = session.get(f'{base}/pulls',
                     params={'state': 'all', 'sort': 'created', 'direction': 'desc', 'per_page': 1},
                     timeout=30)
@@ -98,6 +106,7 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
     last_pr_submitted_at = _parse_dt(newest_pr[0]['created_at']) if newest_pr else None
 
     # ── last PR closed/merged ─────────────────────────────────────────────────
+    time.sleep(GITHUB_API_SLEEP)
     r = session.get(f'{base}/pulls',
                     params={'state': 'closed', 'sort': 'updated', 'direction': 'desc', 'per_page': 1},
                     timeout=30)
@@ -113,6 +122,7 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
 
     # ── last issue submitted (newest created_at, non-PR) ─────────────────────
     # Use the Search API so we never accidentally pick up a PR
+    time.sleep(GITHUB_API_SLEEP)
     r = session.get(
         f'{GITHUB_API}/search/issues',
         params={'q': f'{repo_q} type:issue', 'sort': 'created', 'order': 'desc', 'per_page': 1},
@@ -123,6 +133,7 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
     last_issue_submitted_at = _parse_dt(newest_issue[0]['created_at']) if newest_issue else None
 
     # ── last issue closed ─────────────────────────────────────────────────────
+    time.sleep(GITHUB_API_SLEEP)
     r = session.get(
         f'{GITHUB_API}/search/issues',
         params={'q': f'{repo_q} type:issue is:closed', 'sort': 'updated', 'order': 'desc', 'per_page': 1},
@@ -135,6 +146,7 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
     )
 
     # ── PR authors (most-recent 100 PRs) ─────────────────────────────────────
+    time.sleep(GITHUB_API_SLEEP)
     r = session.get(f'{base}/pulls',
                     params={'state': 'all', 'sort': 'created', 'direction': 'desc', 'per_page': 100},
                     timeout=30)
@@ -148,6 +160,7 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
             pr_authors.append(login)
 
     # ── issue authors (most-recent 100 issues, PRs excluded) ─────────────────
+    time.sleep(GITHUB_API_SLEEP)
     r = session.get(f'{base}/issues',
                     params={'state': 'all', 'sort': 'created', 'direction': 'desc', 'per_page': 100},
                     timeout=30)
@@ -163,6 +176,7 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
             issue_authors.append(login)
 
     # ── commit authors / contributors (top 100 by contribution count) ─────────
+    time.sleep(GITHUB_API_SLEEP)
     r = session.get(f'{base}/contributors', params={'per_page': 100}, timeout=30)
     r.raise_for_status()
     commit_authors = [
