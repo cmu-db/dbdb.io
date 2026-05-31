@@ -6,10 +6,12 @@ from django.contrib.auth.models import User
 from django.contrib.admin.widgets import AutocompleteSelect
 from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
+from django.urls import reverse
 from django.utils.html import format_html
 
 # local imports
 from .models import *
+from .models import Acquisition
 
 # ==============================================
 # MIXINS
@@ -149,13 +151,96 @@ class CitationUrlAdmin(admin.ModelAdmin):
     def url_display(self, obj):
         return format_html('{} <a href="{}" target="_blank">🔗</a>', obj.url, obj.url)
 
+class OrgDevelopedSystemsFilter(admin.SimpleListFilter):
+    title = 'developed systems'
+    parameter_name = 'developed_systems'
+
+    def lookups(self, request, model_admin):
+        return [('any', 'Has developed systems'), ('none', 'No developed systems')]
+
+    def queryset(self, request, queryset):
+        if self.value() == 'any':
+            return queryset.filter(developed_systems__isnull=False).distinct()
+        if self.value() == 'none':
+            return queryset.filter(developed_systems__isnull=True)
+
+
+class OrgAcquisitionsFilter(admin.SimpleListFilter):
+    title = 'acquisitions'
+    parameter_name = 'acquisitions'
+
+    def lookups(self, request, model_admin):
+        return [('any', 'Has acquisitions'), ('none', 'No acquisitions')]
+
+    def queryset(self, request, queryset):
+        if self.value() == 'any':
+            return queryset.filter(acquisitions__isnull=False).distinct()
+        if self.value() == 'none':
+            return queryset.filter(acquisitions__isnull=True)
+
+
+class OrgDeveloperOrgsInline(admin.TabularInline):
+    """Read-only panel: SystemVersions that list this org as a developer."""
+    model = SystemVersion.developer_orgs.through
+    extra = 0
+    max_num = 0
+    can_delete = False
+    verbose_name = "Developed System"
+    verbose_name_plural = "Developed Systems"
+    fields = ('system_link', 'version_label')
+    readonly_fields = ('system_link', 'version_label')
+
+    def get_queryset(self, request):
+        return (
+            super().get_queryset(request)
+            .select_related('systemversion__system')
+            .order_by('systemversion__system__name', '-systemversion__ver')
+        )
+
+    @admin.display(description='System')
+    def system_link(self, obj):
+        sv = obj.systemversion
+        url = reverse('admin:core_system_change', args=[sv.system_id])
+        return format_html('<a href="{}">{}</a>', url, sv.system.name)
+
+    @admin.display(description='Version')
+    def version_label(self, obj):
+        sv = obj.systemversion
+        label = f"v{sv.ver}"
+        return label + " (current)" if sv.is_current else label
+
+
+class OrgAcquisitionInline(admin.TabularInline):
+    """Read-only panel: Acquisitions where this org is the acquirer."""
+    model = Acquisition
+    extra = 0
+    max_num = 0
+    can_delete = False
+    fields = ('system_link', 'year', 'citation')
+    readonly_fields = ('system_link', 'year', 'citation')
+
+    def get_queryset(self, request):
+        return (
+            super().get_queryset(request)
+            .select_related('version__system', 'citation')
+            .order_by('version__system__name', 'year')
+        )
+
+    @admin.display(description='System')
+    def system_link(self, obj):
+        sv = obj.version
+        url = reverse('admin:core_system_change', args=[sv.system_id])
+        return format_html('<a href="{}">{}</a>', url, sv.system.name)
+
+
 @admin.register(Organization)
 class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
     list_display = ('id', 'name', 'slug', 'url', 'linkedin_url', 'created', 'modified')
-    list_filter = ['created', 'modified']
+    list_filter = ['created', 'modified', OrgDevelopedSystemsFilter, OrgAcquisitionsFilter]
     search_fields = ('name',)
     readonly_fields = ('created', 'modified')
     ordering = ('name',)
+    inlines = [OrgDeveloperOrgsInline, OrgAcquisitionInline]
 
 # ==============================================
 # SYSTEMS
