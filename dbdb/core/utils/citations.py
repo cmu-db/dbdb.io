@@ -27,7 +27,10 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.firefox.options import Options
 from tldextract import tldextract
 
-from dbdb.core.models import CitationUrl, System, SystemFeature, SystemVersion
+from dbdb.core.models import (
+    Acquisition, CitationUrl, Organization,
+    RepositoryInfo, System, SystemFeature, SystemVersion,
+)
 from dbdb.core.utils import spam
 from dbdb.core.utils.git import get_git_commit_metadata
 from dbdb.core.utils.spam import UnexpectedResponseError
@@ -492,80 +495,106 @@ def fetch_url_metadata(
     }
 
 def merge_citations(merge_to: CitationUrl, merge_from: list[CitationUrl]) -> CitationUrl:
+    """
+    Merge all references to each CitationUrl in *merge_from* into *merge_to*,
+    then delete the now-unreferenced merge_from rows.
 
+    Handles:
+      - M2M through-tables (SystemFeature.citations, SystemVersion citation M2Ms)
+      - FK fields on Organization (url, linkedin_url)
+      - FK field on Acquisition (citation)
+      - FK fields on SystemVersion (system_url, docs_url, sourcerepo_url, wikipedia_url)
+      - OneToOne field on RepositoryInfo (sourcerepo_url) — if merge_to already has
+        a RepositoryInfo, the duplicate is deleted; otherwise it is reassigned.
+    """
+    LOG.debug(f"Merging {len(merge_from)} citation(s) into {merge_to}")
 
-    LOG.debug(f"Merging {len(merge_from)} citations to {merge_to}")
-
-    tables = [
-        "core_systemfeature_citations",
-        "core_systemversion_description_citations",
-        "core_systemversion_end_year_citations",
-        "core_systemversion_history_citations",
-        "core_systemversion_start_year_citations",
+    # M2M through-tables: (table, owner_column)
+    m2m_tables = [
+        ("core_systemfeature_citations",             "systemfeature_id"),
+        ("core_systemversion_description_citations", "systemversion_id"),
+        ("core_systemversion_end_year_citations",    "systemversion_id"),
+        ("core_systemversion_history_citations",     "systemversion_id"),
+        ("core_systemversion_start_year_citations",  "systemversion_id"),
     ]
 
-    # We will pick the first one as the one to keep
-    # And then delete the rest. But we need to go through and update any references to them
-    with (transaction.atomic()):
-        url_ids = [c.id for c in merge_from] + [merge_to.id]
-        placeholders = ', '.join(['%s'] * len(url_ids))  # "%s, %s, %s, ... %s"
-        where = f' citationurl_id IN ({placeholders})'
-        for table in tables:
+    from_ids = [c.id for c in merge_from]
+    all_ids  = from_ids + [merge_to.id]
+
+    with transaction.atomic():
+        # ── M2M tables ────────────────────────────────────────────────────
+        for table, owner_col in m2m_tables:
             with connection.cursor() as cursor:
-                # Check whether there is already an entry for the url_id that we want to keep.
-                # If yes, then we just need to delete all these existing entries
-                if table == "core_systemfeature_citations":
-                    info_column = "systemfeature_id"
-                else:
-                    info_column = "systemversion_id"
-                sql = f"SELECT id, {info_column} AS system_info_id, citationurl_id FROM {table} WHERE " \
-                    
-                sql += where
-                LOG.debug(sql)
-
-                # Check whether the merge_to URL already exists for a system.
-                # If yes, then we delete it.
-                # If no, then we just update it
-                cursor.execute(sql, tuple(url_ids))
+                placeholders = ', '.join(['%s'] * len(all_ids))
+                cursor.execute(
+                    f"SELECT id, {owner_col}, citationurl_id "
+                    f"FROM {table} WHERE citationurl_id IN ({placeholders})",
+                    all_ids,
+                )
                 rows = cursor.fetchall()
-                existing_citations = [ (row[1],row[2]) for row in rows if row[2] == merge_to.id ]
-                to_delete = []
-                to_update = []
-                for row in rows:
-                    if row[2] == merge_to.id: continue
-                    target = (row[1], merge_to.id)
-                    p = (row[1], row[2])
-                    if target not in existing_citations:
-                        to_update.append(p)
+
+                # Pairs (owner_id, citationurl_id) already pointing at merge_to
+                keep_pairs: set[tuple[int, int]] = {
+                    (row[1], row[2]) for row in rows if row[2] == merge_to.id
+                }
+                to_update: list[tuple[int, int]] = []
+                to_delete: list[tuple[int, int]] = []
+
+                for _row_id, owner_id, cit_id in rows:
+                    if cit_id == merge_to.id:
+                        continue
+                    if (owner_id, merge_to.id) in keep_pairs:
+                        to_delete.append((owner_id, cit_id))
                     else:
-                        to_delete.append(p)
-                    pass
+                        to_update.append((owner_id, cit_id))
+                        keep_pairs.add((owner_id, merge_to.id))
 
-                # LOG.debug(f"Existing: {existing_citations}")
-                # LOG.debug(f" +MergeFrom: {url_ids}")
-                # LOG.debug(f" +ToDelete: {to_delete}")
-                # LOG.debug(f" +ToUpdate: {to_update}")
+                for owner_id, cit_id in to_update:
+                    cursor.execute(
+                        f"UPDATE {table} SET citationurl_id = %s "
+                        f"WHERE citationurl_id = %s AND {owner_col} = %s",
+                        [merge_to.id, cit_id, owner_id],
+                    )
+                    LOG.info("Updated %d row(s) in %s", cursor.rowcount, table)
 
-                for p in to_update:
-                    sql = f"UPDATE {table} SET citationurl_id = {merge_to.id} WHERE citationurl_id = {p[1]} AND {info_column} = {p[0]};"\
-                            
-                    # LOG.debug(sql)
-                    cursor.execute(sql)
-                    assert cursor.rowcount > 0
-                    LOG.info(f"Modified {cursor.rowcount} records in table '{table}")
-                for p in to_delete:
-                    sql = f"DELETE FROM {table} WHERE citationurl_id = {p[1]} AND {info_column} = {p[0]};" \
-                            
-                    # LOG.debug(sql)
-                    cursor.execute(sql)
-                    assert cursor.rowcount > 0
-                    LOG.info(f"Deleted {cursor.rowcount} records in table '{table}")
+                for owner_id, cit_id in to_delete:
+                    cursor.execute(
+                        f"DELETE FROM {table} "
+                        f"WHERE citationurl_id = %s AND {owner_col} = %s",
+                        [cit_id, owner_id],
+                    )
+                    LOG.info("Deleted %d row(s) in %s", cursor.rowcount, table)
 
-        # It is now safe to delete the duplicate entries
-        # result, _ = CitationUrl.objects.filter(id__in=[c.id for c in merge_from]).delete()
-        # LOG.info(f"Merged {result} objects into '{merge_to}'")
+        # ── FK fields ─────────────────────────────────────────────────────
+        for citation in merge_from:
+            Organization.objects.filter(url=citation).update(url=merge_to)
+            Organization.objects.filter(linkedin_url=citation).update(linkedin_url=merge_to)
 
-        return merge_to
+            Acquisition.objects.filter(citation=citation).update(citation=merge_to)
+
+            SystemVersion.objects.filter(system_url=citation).update(system_url=merge_to)
+            SystemVersion.objects.filter(docs_url=citation).update(docs_url=merge_to)
+            SystemVersion.objects.filter(sourcerepo_url=citation).update(sourcerepo_url=merge_to)
+            SystemVersion.objects.filter(wikipedia_url=citation).update(wikipedia_url=merge_to)
+
+            # RepositoryInfo is OneToOne with CASCADE — reassign or drop duplicate
+            try:
+                ri = RepositoryInfo.objects.get(sourcerepo_url=citation)
+                if RepositoryInfo.objects.filter(sourcerepo_url=merge_to).exists():
+                    ri.delete()
+                    LOG.info("Deleted duplicate RepositoryInfo for %s", citation.url)
+                else:
+                    ri.sourcerepo_url = merge_to
+                    ri.save()
+                    LOG.info("Reassigned RepositoryInfo from %s to %s", citation.url, merge_to.url)
+            except RepositoryInfo.DoesNotExist:
+                pass
+
+        # ── Delete the now-unreferenced source citations ───────────────────
+        deleted, _ = CitationUrl.objects.filter(id__in=from_ids).delete()
+        LOG.info("Deleted %d CitationUrl(s): %s", deleted, from_ids)
+
+    return merge_to
 
 def get_systems(c: CitationUrl,
                 current_only: bool | None = False) -> list[System]:

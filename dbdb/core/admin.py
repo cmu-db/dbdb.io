@@ -151,7 +151,7 @@ class CitationUrlAdmin(admin.ModelAdmin):
 
 @admin.register(Organization)
 class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
-    list_display = ('name', 'slug', 'url', 'linkedin_url', 'created', 'modified')
+    list_display = ('id', 'name', 'slug', 'url', 'linkedin_url', 'created', 'modified')
     list_filter = ['created', 'modified']
     search_fields = ('name',)
     readonly_fields = ('created', 'modified')
