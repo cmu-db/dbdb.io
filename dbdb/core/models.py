@@ -249,6 +249,7 @@ class System(models.Model):
     secret_key = models.UUIDField(max_length=36, default=uuid.uuid4)
     view_count = models.PositiveIntegerField(default=0)
     ver = models.PositiveIntegerField('Version No.', default=1)
+    spotlight_enabled = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('slug',)

@@ -164,8 +164,8 @@ class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
 @admin.register(System)
 class SystemAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
-    list_display = ('name', 'created', 'modified', 'ver', 'view_count')
-    list_filter = ['created', 'modified' ]
+    list_display = ('name', 'created', 'modified', 'ver', 'view_count', 'spotlight_enabled')
+    list_filter = ['created', 'modified', 'spotlight_enabled']
     search_fields = ('name', )
     readonly_fields=('view_count', 'created', 'modified' )
 
@@ -256,14 +256,15 @@ class RepositoryInfoAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
 @admin.register(RepositorySnapshot)
 class RepositorySnapshotAdmin(admin.ModelAdmin):
     list_display = (
-        'repo', 'created', 'status',
-        'commit_count',
+        'repo', 'status',
+        'last_commit_timestamp', 'commit_count',
         'open_pr_count', 'merged_pr_count',
         'open_issue_count', 'closed_issue_count',
         'star_count', 'fork_count',
         'branch_default_name', 'branch_count',
+        'created',
     )
-    list_filter = ('status', 'created',)
+    list_filter = ('status', 'last_commit_timestamp', 'created',)
     readonly_fields = (
         'repo', 'created',
         'commit_count', 'last_commit_timestamp', 'last_commit_hash',

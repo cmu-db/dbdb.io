@@ -27,6 +27,63 @@ _VERSION_M2M = (
 )
 
 
+def is_spotlight_eligible(version) -> bool:
+    """
+    Return True if the SystemVersion is complete enough to be featured as the
+    weekly spotlight system on the homepage.
+
+    Checks (all must pass):
+    1. Basic fields: logo, system_url, docs_url, start_year, description, history
+    2. Core AttributeOption M2M fields: developer_orgs, tags, licenses, project_types
+    3. Every Feature in the database has a SystemFeature for this version with at
+       least one FeatureOption (or an inherited system) and at least one citation.
+    """
+    from dbdb.core.models import Feature
+
+    # 1. Basic scalar / FK fields
+    if not version.logo:
+        return False
+    if not version.system_url_id:
+        return False
+    if not version.docs_url_id:
+        return False
+    if version.start_year is None:
+        return False
+    if not (version.description and version.description.strip()):
+        return False
+    if not (version.history and version.history.strip()):
+        return False
+
+    # 2. Required M2M fields
+    if not version.developer_orgs.exists():
+        return False
+    if not version.tags.exists():
+        return False
+    if not version.licenses.exists():
+        return False
+    if not version.project_types.exists():
+        return False
+
+    # 3. At least 50% of Features must have a SystemFeature with options/system + citation
+    total_features = Feature.objects.count()
+    if total_features == 0:
+        return True
+    sf_map = {
+        sf.feature_id: sf
+        for sf in version.features.prefetch_related('options', 'citations').all()
+    }
+    complete = 0
+    for sf in sf_map.values():
+        options   = list(sf.options.all())    # consumes prefetch cache
+        citations = list(sf.citations.all())  # consumes prefetch cache
+        if (options or sf.system_id is not None) and citations and sf.description.strip():
+            complete += 1
+    if complete < total_features / 2:
+        return False
+
+    return True
+
+
 def finalize_new_version(new_version, *, old_logo=None) -> None:
     """
     Run post-save side effects that must execute after any new SystemVersion
@@ -34,6 +91,7 @@ def finalize_new_version(new_version, *, old_logo=None) -> None:
 
     - Regenerates the twitter card if the logo changed.
     - Updates the SystemSearchText index for the system.
+    - Recomputes System.spotlight_enabled based on version completeness.
     """
     from dbdb.core.models import SystemSearchText
 
@@ -43,6 +101,12 @@ def finalize_new_version(new_version, *, old_logo=None) -> None:
     ver_search, _ = SystemSearchText.objects.update_or_create(system=new_version.system)
     ver_search.search_text = generate_searchtext(new_version)
     ver_search.save()
+
+    eligible = is_spotlight_eligible(new_version)
+    system = new_version.system
+    if system.spotlight_enabled != eligible:
+        system.spotlight_enabled = eligible
+        system.save(update_fields=['spotlight_enabled'])
 
 
 def clone_system_version(current_version, *, creator, comment, **field_overrides):
