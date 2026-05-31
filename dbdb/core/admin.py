@@ -256,19 +256,21 @@ class RepositoryInfoAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
 @admin.register(RepositorySnapshot)
 class RepositorySnapshotAdmin(admin.ModelAdmin):
     list_display = (
-        'repo', 'created',
+        'repo', 'created', 'status',
         'commit_count',
         'open_pr_count', 'merged_pr_count',
         'open_issue_count', 'closed_issue_count',
         'star_count', 'fork_count',
+        'branch_default_name', 'branch_count',
     )
-    list_filter = ('created',)
+    list_filter = ('status', 'created',)
     readonly_fields = (
         'repo', 'created',
         'commit_count', 'last_commit_timestamp', 'last_commit_hash',
         'open_pr_count', 'merged_pr_count', 'last_pr_submitted_at', 'last_pr_closed_at',
         'open_issue_count', 'closed_issue_count', 'last_issue_submitted_at', 'last_issue_closed_at',
         'fork_count', 'star_count',
+        'branch_count', 'branch_default_name', 'branch_name',
         'commit_authors', 'pr_authors', 'issue_authors',
     )
     ordering = ('-created',)

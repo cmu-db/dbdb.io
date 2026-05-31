@@ -77,10 +77,13 @@ class CitationUrl(models.Model):
     last_cachecontrol = models.JSONField(default=dict, blank=True, null=True)
     last_statuscode = models.PositiveIntegerField(default=None, blank=True, null=True)
 
-    def get_domain(self):
+    def get_domain(self, include_suffix:bool = True):
         if self.url.startswith('http'):
             extracted = tldextract.extract(self.url)
-            return f"{extracted.domain}.{extracted.suffix}"
+            domain = extracted.domain
+            if include_suffix:
+                domain += f".{extracted.suffix}"
+            return domain
         return None
 
     class Meta:
@@ -751,10 +754,21 @@ class RepositoryInfo(models.Model):
 # RepositorySnapshot
 # ==============================================
 class RepositorySnapshot(models.Model):
+    class Status(models.IntegerChoices):
+        UNKNOWN = 0, "Unknown"
+        VALID   = 1, "Valid"
+        ERROR   = 2, "Error"
+        FAILED  = 3, "Failed"
+
     repo = models.ForeignKey(
         'RepositoryInfo', models.CASCADE,
         related_name='snapshots')
     created = models.DateTimeField(auto_now_add=True)
+    status = models.IntegerField(
+        choices=Status,
+        blank=False, null=False,
+        default=Status.UNKNOWN,
+        help_text="Outcome of the snapshot retrieval attempt")
 
     # Commit statistics
     commit_count = models.PositiveIntegerField(
@@ -794,6 +808,17 @@ class RepositorySnapshot(models.Model):
     last_issue_closed_at = models.DateTimeField(
         blank=True, null=True,
         help_text="Timestamp of the most recently closed issue")
+
+    # Branch statistics
+    branch_count = models.PositiveIntegerField(
+        blank=True, null=True,
+        help_text="Total number of branches in the repository")
+    branch_default_name = models.CharField(
+        max_length=255, blank=True,
+        help_text="Name of the repository's default branch")
+    branch_name = models.JSONField(
+        default=list, blank=True,
+        help_text="Names of up to 100 branches (most recent / alphabetical order)")
 
     # Popularity statistics
     fork_count = models.PositiveIntegerField(

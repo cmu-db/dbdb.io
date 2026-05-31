@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import logging
 import re
 import time
 from datetime import UTC, datetime
 
 import requests
+
+LOG = logging.getLogger(__name__)
 
 
 GITHUB_URL_PATTERN = re.compile(r'github\.com/([^/]+)/([^/]+?)(?:\.git)?/?$')
@@ -67,6 +70,8 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
     owner, repo_name = match.groups()
     repo_q = f'repo:{owner}/{repo_name}'
 
+    LOG.debug("Fetching GitHub metadata for %s/%s (%s)",
+              owner, repo_name, "with token" if token else "no token — rate limits apply")
     session = _make_session(token)
     base = f'{GITHUB_API}/repos/{owner}/{repo_name}'
 
@@ -75,6 +80,9 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
     # Defaults — overwritten section by section as each request succeeds.
     star_count = 0
     fork_count = 0
+    branch_count = None
+    branch_default_name = ''
+    branch_name: list[str] = []
     commit_count = 0
     last_commit_hash = ''
     last_commit_timestamp = None
@@ -90,7 +98,7 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
     pr_authors: list[str] = []
     issue_authors: list[str] = []
 
-    # ── repo info (stars, forks) ──────────────────────────────────────────────
+    # ── repo info (stars, forks, default branch) ──────────────────────────────
     try:
         time.sleep(GITHUB_API_SLEEP)
         r = session.get(base, timeout=30)
@@ -98,6 +106,7 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
         repo_data = r.json()
         star_count = repo_data.get('stargazers_count', 0)
         fork_count = repo_data.get('forks_count', 0)
+        branch_default_name = repo_data.get('default_branch', '')
     except Exception as exc:
         errors.append(exc)
 
@@ -241,6 +250,24 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
     except Exception as exc:
         errors.append(exc)
 
+    # ── branches (count via per_page=1, names via per_page=100) ──────────────
+    try:
+        time.sleep(GITHUB_API_SLEEP)
+        r = session.get(f'{base}/branches', params={'per_page': 1}, timeout=30)
+        r.raise_for_status()
+        last_page = _link_last_page(r)
+        branch_count = last_page if last_page is not None else len(r.json())
+    except Exception as exc:
+        errors.append(exc)
+
+    try:
+        time.sleep(GITHUB_API_SLEEP)
+        r = session.get(f'{base}/branches', params={'per_page': 100}, timeout=30)
+        r.raise_for_status()
+        branch_name = [b['name'] for b in r.json() if b.get('name')]
+    except Exception as exc:
+        errors.append(exc)
+
     return {
         'commit_count':             commit_count,
         'last_commit_timestamp':    last_commit_timestamp,
@@ -255,6 +282,9 @@ def get_metadata(repo_url: str, token: str | None = None) -> dict:
         'last_issue_closed_at':     last_issue_closed_at,
         'fork_count':               fork_count,
         'star_count':               star_count,
+        'branch_count':             branch_count,
+        'branch_default_name':      branch_default_name,
+        'branch_name':              branch_name,
         'commit_authors':           commit_authors,
         'pr_authors':               pr_authors,
         'issue_authors':            issue_authors,
