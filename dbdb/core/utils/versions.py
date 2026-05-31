@@ -104,9 +104,9 @@ def finalize_new_version(new_version, *, old_logo=None) -> None:
 
     eligible = is_spotlight_eligible(new_version)
     system = new_version.system
-    if system.spotlight_enabled != eligible:
-        system.spotlight_enabled = eligible
-        system.save(update_fields=['spotlight_enabled'])
+    if system.spotlight_eligible != eligible:
+        system.spotlight_eligible = eligible
+        system.save(update_fields=['spotlight_eligible'])
 
 
 def clone_system_version(current_version, *, creator, comment, **field_overrides):

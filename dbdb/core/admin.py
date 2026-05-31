@@ -164,8 +164,8 @@ class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
 @admin.register(System)
 class SystemAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
-    list_display = ('name', 'created', 'modified', 'ver', 'view_count', 'spotlight_enabled')
-    list_filter = ['created', 'modified', 'spotlight_enabled']
+    list_display = ('name', 'created', 'modified', 'ver', 'view_count', 'spotlight_enabled', 'spotlight_eligible')
+    list_filter = ['created', 'modified', 'spotlight_enabled', 'spotlight_eligible']
     search_fields = ('name', )
     readonly_fields=('view_count', 'created', 'modified' )
 

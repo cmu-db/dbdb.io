@@ -103,6 +103,28 @@ class HomeView(View):
             .order_by('-system_count')
         ) if dm_feature else []
 
+        # editor's pick: first spotlight_enabled system
+        spotlight_version = None
+        spotlight_data_model = None
+        spotlight_system = System.objects.filter(spotlight_enabled=True).order_by('name').first()
+        if spotlight_system:
+            spotlight_version = (
+                SystemVersion.objects
+                .filter(system=spotlight_system, is_current=True)
+                .prefetch_related('licenses')
+                .first()
+            )
+        if spotlight_version and data_models:
+            sp_dm_slugs = set(
+                SystemFeature.objects
+                .filter(version=spotlight_version, feature__slug='data-model')
+                .values_list('options__slug', flat=True)
+            )
+            for dm in data_models:  # already ordered by -system_count
+                if dm.slug in sp_dm_slugs:
+                    spotlight_data_model = dm
+                    break
+
         return render(request, self.template_name, {
             'activate': "home",
             'most_recent': most_recent,
@@ -114,6 +136,8 @@ class HomeView(View):
             'featured_searches': featured_searches,
             'new_in_year': new_in_year,
             'data_models': data_models,
+            'spotlight_version': spotlight_version,
+            'spotlight_data_model': spotlight_data_model,
         })
 
     pass

@@ -250,6 +250,7 @@ class System(models.Model):
     view_count = models.PositiveIntegerField(default=0)
     ver = models.PositiveIntegerField('Version No.', default=1)
     spotlight_enabled = models.BooleanField(default=False)
+    spotlight_eligible = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('slug',)

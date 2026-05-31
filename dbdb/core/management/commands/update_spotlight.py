@@ -5,7 +5,7 @@ from dbdb.core.utils.versions import is_spotlight_eligible
 
 
 class Command(BaseCommand):
-    help = "Recompute System.spotlight_enabled for all systems (or a single system)"
+    help = "Recompute System.spotlight_eligible for all systems (or a single system)"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -42,9 +42,9 @@ class Command(BaseCommand):
             else:
                 ineligible += 1
 
-            if system.spotlight_enabled != is_eligible:
-                system.spotlight_enabled = is_eligible
-                system.save(update_fields=['spotlight_enabled'])
+            if system.spotlight_eligible != is_eligible:
+                system.spotlight_eligible = is_eligible
+                system.save(update_fields=['spotlight_eligible'])
                 updated += 1
 
         self.stdout.write(

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load humanize %}
+{% load logos %}
 {% load static %}
 {% load thumbnail %}
 {% load savedsearch_tags %}
@@ -74,6 +75,36 @@
         </a>
         {% endfor %}
     </div>
+</section>
+{% endif %}
+
+{% if spotlight_version %}
+<section>
+    <div class="sec-head">
+        <h2>Featured System</h2>
+        <span class="rule"></span>
+        <span class="num">Weekly</span>
+    </div>
+    <a href="{{ spotlight_version.system.get_absolute_url }}" class="spotlight">
+        {% mono_tile spotlight_version.logo spotlight_version.system.name %}
+        <span>
+            <span class="sp-kicker">System Spotlight</span>
+            <h3>{{ spotlight_version.system.name }}</h3>
+            <p>{{ spotlight_version.description|truncatechars:200 }}</p>
+            <span class="sp-meta">
+                {% if spotlight_data_model %}
+                <span class="index-chip" style="pointer-events:none">{{ spotlight_data_model.value }}</span>
+                {% endif %}
+                {% if spotlight_version.start_year %}
+                <span class="index-chip" style="pointer-events:none">Since {{ spotlight_version.start_year }}</span>
+                {% endif %}
+                {% for license in spotlight_version.licenses.all %}
+                <span class="index-chip" style="pointer-events:none">{{ license.name }}</span>
+                {% endfor %}
+            </span>
+        </span>
+        <span class="cta cta-ghost d-none d-lg-inline-flex" style="align-self:center">Read entry <i class="fa-solid fa-arrow-right"></i></span>
+    </a>
 </section>
 {% endif %}
 
