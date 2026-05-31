@@ -84,13 +84,21 @@ class BitbucketCollector(RepoCollector):
             snap.errors.append(exc)
 
         # ── commits (count + last hash/timestamp) ─────────────────────────
+        # Bitbucket never returns a `size` field for the commits endpoint.
+        # Paginate with pagelen=100 and follow `next` links to count all commits.
         try:
-            r = self._get(f'{base}/commits', pagelen=1)
-            snap.commit_count = self._size(r)
+            r = self._get(f'{base}/commits', pagelen=100)
             values = self._values(r)
             if values:
                 snap.last_commit_hash      = values[0].get('hash', '')
                 snap.last_commit_timestamp = self._parse_dt(values[0].get('date'))
+            count = len(values)
+            next_url = r.json().get('next')
+            while next_url:
+                r = self._get(next_url)
+                count += len(self._values(r))
+                next_url = r.json().get('next')
+            snap.commit_count = count
         except Exception as exc:
             snap.errors.append(exc)
 
