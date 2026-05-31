@@ -66,7 +66,7 @@
     <div class="sec-head">
         <h2>Browse by Data Model</h2>
         <span class="rule"></span>
-        <span class="num">{{ data_models|length }} model{{ data_models|length|pluralize }}</span>
+        <span class="num">{{ data_models|length }} Model{{ data_models|length|pluralize }}</span>
     </div>
     <div class="index-rail">
         {% for dm in data_models %}
@@ -83,27 +83,33 @@
     <div class="sec-head">
         <h2>Featured System</h2>
         <span class="rule"></span>
-        <span class="num">Weekly</span>
+        <span class="num">Updated Weekly</span>
     </div>
     <a href="{{ spotlight_version.system.get_absolute_url }}" class="spotlight">
         {% mono_tile spotlight_version.logo spotlight_version.system.name %}
         <span>
-            <span class="sp-kicker">System Spotlight</span>
+            <span class="sp-kicker">
+                {% if spotlight_data_model %}
+                    {{ spotlight_data_model.value }} Database System
+                {% else %}
+                    System Spotlight
+                {% endif %}
+            </span>
             <h3>{{ spotlight_version.system.name }}</h3>
             <p>{{ spotlight_version.description|truncatechars:200 }}</p>
             <span class="sp-meta">
-                {% if spotlight_data_model %}
-                <span class="index-chip" style="pointer-events:none">{{ spotlight_data_model.value }}</span>
-                {% endif %}
+                {% with spotlight_version.tags.all|first as tag %}
+                {% if tag %}<span class="index-chip">{{ tag.name }}</span>{% endif %}
+                {% endwith %}
                 {% if spotlight_version.start_year %}
-                <span class="index-chip" style="pointer-events:none">Since {{ spotlight_version.start_year }}</span>
+                <span class="index-chip">Since {{ spotlight_version.start_year }}</span>
                 {% endif %}
-                {% for license in spotlight_version.licenses.all %}
-                <span class="index-chip" style="pointer-events:none">{{ license.name }}</span>
-                {% endfor %}
+                {% with spotlight_version.licenses.all|first as license %}
+                {% if license %}<span class="index-chip">{{ license.name }}</span>{% endif %}
+                {% endwith %}
             </span>
         </span>
-        <span class="cta cta-ghost d-none d-lg-inline-flex" style="align-self:center">Read entry <i class="fa-solid fa-arrow-right"></i></span>
+        <span class="cta cta-ghost d-none d-lg-inline-flex">Read entry <i class="fa-solid fa-arrow-right"></i></span>
     </a>
 </section>
 {% endif %}
@@ -112,7 +118,7 @@
     <div class="sec-head">
         <h2>The Leaderboards</h2>
         <span class="rule"></span>
-        <span class="num">Updated daily</span>
+        <span class="num">Updated Daily</span>
     </div>
 
     <div class="row g-4 g-lg-5">

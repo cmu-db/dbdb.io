@@ -111,7 +111,7 @@ class HomeView(View):
             spotlight_version = (
                 SystemVersion.objects
                 .filter(system=spotlight_system, is_current=True)
-                .prefetch_related('licenses')
+                .prefetch_related('licenses', 'tags')
                 .first()
             )
         if spotlight_version and data_models:

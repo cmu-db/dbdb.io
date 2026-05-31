@@ -410,6 +410,8 @@ a:hover { color: var(--accent); }
 .spotlight .sp-meta {
   display: flex; gap: .4rem; margin-top: .7rem; flex-wrap: wrap;
 }
+.spotlight .sp-meta .index-chip { pointer-events: none; }
+.spotlight .cta { align-self: center; }
 
 /* ============================================================
    RANKED LISTS
