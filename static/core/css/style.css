@@ -1197,7 +1197,6 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   .entry-grid { grid-template-columns: 1fr; gap: 2rem; }
   .entry-sidebar { order: 2; }
   .lb-grid { grid-template-columns: repeat(2, 1fr); }
-  .profile-grid { grid-template-columns: 1fr; gap: 2.2rem; }
 }
 @media (max-width: 767.98px) {
   .shortcuts { grid-template-columns: 1fr; }
@@ -1255,7 +1254,6 @@ ins.diff-ins { text-decoration: none; border-radius: 2px; padding: 0 2px; }
 /* ============================================================
    USER PROFILE PAGE
    ============================================================ */
-.profile-grid { display: grid; grid-template-columns: 340px 1fr; gap: 3rem; align-items: start; }
 .profile-main { min-width: 0; }
 
 /* Pin profile table column widths so both tables align identically.

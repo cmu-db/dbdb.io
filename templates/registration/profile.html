@@ -14,9 +14,9 @@
     <hr class="title-rule">
 </div>
 
-<div class="profile-grid">
+<div class="row gy-4 gx-lg-5 align-items-start">
 
-    <aside>
+    <aside class="col-12 col-lg-4">
         <div class="block">
             <div class="block-h">Account Info</div>
             <dl class="mb-0">
@@ -71,7 +71,7 @@
         </div>
     </aside>
 
-    <section class="profile-main">
+    <section class="col-12 col-lg-8 profile-main">
 
         {% if acl_entries or profile_user.is_superuser %}
         <div class="sec-head flush">
@@ -83,7 +83,7 @@
             <span class="num">{{ acl_entries|length }} with edit access</span>
             {% endif %}
         </div>
-        <div class="results">
+        <div class="results mt-3 mb-5">
             <table class="rtable">
                 <colgroup><col><col><col><col><col></colgroup>
                 <thead>
@@ -117,7 +117,7 @@
         </div>
         {% endif %}
 
-        <div class="sec-head{% if not acl_entries %} flush{% endif %}">
+        <div class="sec-head{% if not acl_entries and not profile_user.is_superuser %} flush{% endif %}">
             <h2>Recent Edits</h2>
             <span class="rule"></span>
             <a href="{% url 'recent' %}?username={{ profile_user.username }}" class="view-all">View all <i class="fa-solid fa-arrow-right"></i></a>
