@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Profile — {{ profile_user.username }}{% endblock %}
+
+{% block content %}
+<div class="page-title">
+    <p class="kicker">Account</p>
+    <h1>{{ profile_user.username }}</h1>
+    <hr class="title-rule">
+</div>
+
+<div class="row g-4">
+
+    {# ── Left column: identity + systems ── #}
+    <div class="col-md-5">
+
+        <section class="mb-4">
+            <h2 class="h5 mb-3">Account Info</h2>
+            <dl class="profile-dl">
+                <div class="profile-fact">
+                    <dt>Username</dt>
+                    <dd>{{ profile_user.username }}</dd>
+                </div>
+                <div class="profile-fact">
+                    <dt>Email</dt>
+                    <dd>{{ profile_user.email|default:"—" }}</dd>
+                </div>
+                <div class="profile-fact">
+                    <dt>Last Login</dt>
+                    <dd>
+                        {% if profile_user.last_login %}
+                        {{ profile_user.last_login|date:"Y-m-d H:i" }}
+                        <span class="text-muted ms-1">({{ profile_user.last_login|naturaltime }})</span>
+                        {% else %}—{% endif %}
+                    </dd>
+                </div>
+                <div class="profile-fact">
+                    <dt>Member Since</dt>
+                    <dd>{{ profile_user.date_joined|date:"Y-m-d" }}</dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="mb-4">
+            <h2 class="h5 mb-3">Change Email</h2>
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% if email_form.non_field_errors %}
+                <div class="alert alert-danger py-2">
+                    {% for e in email_form.non_field_errors %}{{ e }}{% endfor %}
+                </div>
+                {% endif %}
+                <div class="mb-3">
+                    <label class="form-label" for="id_email">{{ email_form.email.label }}</label>
+                    <input type="email" name="email" id="id_email"
+                           class="form-control{% if email_form.email.errors %} is-invalid{% endif %}"
+                           value="{{ email_form.email.value|default:'' }}">
+                    {% for e in email_form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="id_current_password">{{ email_form.current_password.label }}</label>
+                    <input type="password" name="current_password" id="id_current_password"
+                           class="form-control{% if email_form.current_password.errors %} is-invalid{% endif %}">
+                    {% for e in email_form.current_password.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">Update Email</button>
+            </form>
+        </section>
+
+        {% if acl_entries %}
+        <section>
+            <h2 class="h5 mb-3">Editable Systems</h2>
+            <ul class="list-unstyled mb-0">
+                {% for acl in acl_entries %}
+                <li class="mb-1">
+                    <a href="{% url 'system' acl.system.slug %}">{{ acl.system.name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+
+    </div>
+
+    {# ── Right column: recent edits ── #}
+    <div class="col-md-7">
+        <div class="d-flex align-items-baseline justify-content-between mb-3">
+            <h2 class="h5 mb-0">Recent Edits</h2>
+            <a href="{% url 'recent' %}?username={{ profile_user.username }}" class="small text-accent">View all →</a>
+        </div>
+
+        {% if recent_versions %}
+        <table class="table table-sm table-hover">
+            <thead>
+                <tr>
+                    <th>System</th>
+                    <th>Version</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sv in recent_versions %}
+                <tr>
+                    <td><a href="{{ sv.get_absolute_url }}">{{ sv.system.name }}</a></td>
+                    <td class="text-muted font-monospace">v{{ sv.ver }}</td>
+                    <td class="text-muted">{{ sv.created|date:"Y-m-d" }}</td>
+                    <td>
+                        {% if sv.approved %}
+                        {% if sv.is_current %}<span class="badge bg-success">Live</span>
+                        {% else %}<span class="badge bg-secondary">Superseded</span>{% endif %}
+                        {% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted">No edits yet.</p>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

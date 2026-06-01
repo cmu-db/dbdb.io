@@ -33,6 +33,7 @@ urlpatterns = [
     path('user/setup', views.SetupUserView.as_view(), name='setup_user'),
     path('user/signup', views.SignupRequestView.as_view(), name='signup_request'),
     path('user/signup/pending', views.SignupPendingView.as_view(), name='signup_pending'),
+    path('user/profile', views.ProfileView.as_view(), name='user_profile'),
 
     path('counter', views.CounterView.as_view(), name='counter'),
     path('sitemap.xml', views.SitemapView.as_view(), name='sitemap'),

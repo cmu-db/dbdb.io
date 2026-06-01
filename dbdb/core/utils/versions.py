@@ -1,9 +1,234 @@
 from __future__ import annotations
 
 import copy
+import io
 
 from dbdb.core.utils.searchtext import generate_searchtext
 from dbdb.core.utils.twitter_card import create_twitter_card
+
+# ── Citation M2M fields that live directly on SystemVersion ──────────────────
+_VERSION_CITATION_M2M = (
+    'description_citations',
+    'start_year_citations',
+    'end_year_citations',
+    'history_citations',
+)
+
+
+def _collect_version_deletions(version):
+    """
+    Inspect *version* and return a plan dict describing every object that
+    would be removed if this SystemVersion were deleted.  Does not touch
+    the database.
+
+    Returns:
+        {
+            'version':          SystemVersion,
+            'features':         [SystemFeature, ...],
+            'acquisitions':     [Acquisition, ...],
+            'orphan_citations': [CitationUrl, ...],   # safe to delete after version is gone
+            'orphan_orgs':      [Organization, ...],  # safe to delete after version is gone
+            'next_version':     SystemVersion | None, # will become is_current
+        }
+    """
+    from dbdb.core.models import (
+        Acquisition, CitationUrl, Organization, SystemFeature, SystemVersion,
+    )
+
+    features     = list(version.features
+                         .select_related('feature')
+                         .prefetch_related('citations')
+                         .all())
+    acquisitions = list(version.acquisitions
+                         .select_related('organization', 'citation')
+                         .all())
+
+    # ── Gather all CitationUrl PKs referenced by this version ────────────────
+    all_cite_ids: set[int] = set()
+    for fk in ('system_url_id', 'docs_url_id', 'sourcerepo_url_id', 'wikipedia_url_id'):
+        val = getattr(version, fk)
+        if val is not None:
+            all_cite_ids.add(val)
+    for attr in _VERSION_CITATION_M2M:
+        all_cite_ids |= set(getattr(version, attr).values_list('pk', flat=True))
+    for sf in features:
+        all_cite_ids |= set(sf.citations.values_list('pk', flat=True))
+    for acq in acquisitions:
+        if acq.citation_id is not None:
+            all_cite_ids.add(acq.citation_id)
+
+    # ── Gather all Organization PKs referenced by this version ───────────────
+    all_org_ids: set[int] = set(version.developer_orgs.values_list('pk', flat=True))
+    for acq in acquisitions:
+        all_org_ids.add(acq.organization_id)
+
+    # ── Determine which citations are used by OTHER objects ──────────────────
+    sf_pks  = [sf.pk  for sf  in features]
+    acq_pks = [acq.pk for acq in acquisitions]
+
+    still_cite: set[int] = set()
+    if all_cite_ids:
+        # FK fields on other SystemVersions
+        for fk in ('system_url_id', 'docs_url_id', 'sourcerepo_url_id', 'wikipedia_url_id'):
+            still_cite |= set(
+                SystemVersion.objects
+                .exclude(pk=version.pk)
+                .filter(**{f'{fk}__in': all_cite_ids})
+                .values_list(fk, flat=True)
+            )
+        # M2M through tables on other SystemVersions
+        for attr in _VERSION_CITATION_M2M:
+            Through = getattr(SystemVersion, attr).through
+            still_cite |= set(
+                Through.objects
+                .exclude(systemversion_id=version.pk)
+                .filter(citationurl_id__in=all_cite_ids)
+                .values_list('citationurl_id', flat=True)
+            )
+        # SystemFeature.citations on features NOT owned by this version
+        Through = SystemFeature.citations.through
+        q = Through.objects.filter(citationurl_id__in=all_cite_ids)
+        if sf_pks:
+            q = q.exclude(systemfeature_id__in=sf_pks)
+        still_cite |= set(q.values_list('citationurl_id', flat=True))
+        # Acquisition.citation on acquisitions NOT owned by this version
+        q = Acquisition.objects.filter(
+            citation_id__in=all_cite_ids, citation_id__isnull=False
+        )
+        if acq_pks:
+            q = q.exclude(pk__in=acq_pks)
+        still_cite |= set(q.values_list('citation_id', flat=True))
+
+    orphan_cite_ids = all_cite_ids - still_cite
+
+    # ── Determine which Organizations are used by OTHER objects ──────────────
+    still_org: set[int] = set()
+    if all_org_ids:
+        Through = SystemVersion.developer_orgs.through
+        still_org |= set(
+            Through.objects
+            .exclude(systemversion_id=version.pk)
+            .filter(organization_id__in=all_org_ids)
+            .values_list('organization_id', flat=True)
+        )
+        q = Acquisition.objects.filter(organization_id__in=all_org_ids)
+        if acq_pks:
+            q = q.exclude(pk__in=acq_pks)
+        still_org |= set(q.values_list('organization_id', flat=True))
+
+    orphan_org_ids = all_org_ids - still_org
+
+    # ── Next version to promote ───────────────────────────────────────────────
+    next_version = (
+        SystemVersion.objects
+        .filter(system=version.system)
+        .exclude(pk=version.pk)
+        .order_by('-ver')
+        .first()
+    )
+
+    return {
+        'version':          version,
+        'features':         features,
+        'acquisitions':     acquisitions,
+        'orphan_citations': list(CitationUrl.objects.filter(pk__in=orphan_cite_ids)),
+        'orphan_orgs':      list(Organization.objects.filter(pk__in=orphan_org_ids)),
+        'next_version':     next_version,
+    }
+
+
+def delete_latest_version(system, *, dry_run: bool = False, out=None) -> None:
+    """
+    Delete the most recent SystemVersion for *system*, clean up exclusively
+    owned shared objects, and promote the next newest version as current.
+
+    Args:
+        system:   System instance.
+        dry_run:  If True, print what would happen without modifying the DB.
+        out:      File-like object for output (defaults to stdout).
+    """
+    from dbdb.core.models import CitationUrl, Organization, SystemVersion
+    from django.db import transaction
+
+    if out is None:
+        import sys
+        out = sys.stdout
+
+    prefix = '[DRY RUN] ' if dry_run else ''
+
+    def log(msg: str) -> None:
+        out.write(prefix + msg + '\n')
+
+    # ── Validate ──────────────────────────────────────────────────────────────
+    total = SystemVersion.objects.filter(system=system).count()
+    if total == 0:
+        out.write(f'No versions found for {system.name}.\n')
+        return
+    if total == 1:
+        out.write(
+            f'Cannot delete: {system.name} v{system.ver} is the only version.\n'
+        )
+        return
+
+    target = (
+        SystemVersion.objects
+        .filter(system=system)
+        .order_by('-ver')
+        .first()
+    )
+
+    out.write(
+        f"{'[DRY RUN] ' if dry_run else ''}Target: {system.name} v{target.ver} "
+        f"(approved={'yes' if target.approved else 'no'}, "
+        f"is_current={'yes' if target.is_current else 'no'})\n"
+    )
+
+    # ── Collect plan ──────────────────────────────────────────────────────────
+    plan = _collect_version_deletions(target)
+
+    log(f'Delete  SystemVersion : {target}')
+    for sf in plan['features']:
+        log(f'Delete  SystemFeature  : {sf}')
+    for acq in plan['acquisitions']:
+        log(f'Delete  Acquisition    : {acq}')
+    for cite in sorted(plan['orphan_citations'], key=lambda c: c.url):
+        log(f'Delete  CitationUrl    : {cite}')
+    for org in sorted(plan['orphan_orgs'], key=lambda o: o.name):
+        log(f'Delete  Organization   : {org}')
+    if plan['next_version']:
+        nv = plan['next_version']
+        log(f'Promote SystemVersion  : {nv} → is_current=True, system.ver={nv.ver}')
+    else:
+        out.write('WARNING: no remaining version to promote.\n')
+
+    if dry_run:
+        return
+
+    # ── Execute ───────────────────────────────────────────────────────────────
+    with transaction.atomic():
+        # Delete the version; CASCADE removes SystemFeature + Acquisition rows.
+        target.delete()
+
+        # Remove exclusively owned CitationUrls.
+        if plan['orphan_citations']:
+            CitationUrl.objects.filter(
+                pk__in=[c.pk for c in plan['orphan_citations']]
+            ).delete()
+
+        # Remove exclusively owned Organizations.
+        if plan['orphan_orgs']:
+            Organization.objects.filter(
+                pk__in=[o.pk for o in plan['orphan_orgs']]
+            ).delete()
+
+        # Promote next version.
+        if plan['next_version']:
+            nv = plan['next_version']
+            SystemVersion.objects.filter(system=system).update(is_current=False)
+            nv.is_current = True
+            nv.save(update_fields=['is_current'])
+            system.ver = nv.ver
+            system.save(update_fields=['ver', 'modified'])
 
 
 _VERSION_M2M = (

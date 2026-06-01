@@ -26,6 +26,7 @@
                     {% if user.is_staff %}
                     <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a></li>
                     {% endif %}
+                    <li><a class="dropdown-item" href="{% url 'user_profile' %}">Profile</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
                         <form method="post" action="{% url 'logout' %}">

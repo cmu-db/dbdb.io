@@ -8,8 +8,8 @@ import tldextract
 # django imports
 from django import forms as django_forms
 from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.mail import send_mail
 from django.db import transaction
 from django.http import JsonResponse
@@ -278,3 +278,65 @@ class SignupPendingView(View):
         return render(request, self.template_name, {})
 
     pass
+
+
+# ==============================================
+# ProfileView
+# ==============================================
+class _EmailChangeForm(django_forms.Form):
+    email = django_forms.EmailField(label='New email address', max_length=254)
+    current_password = django_forms.CharField(
+        label='Current password',
+        widget=django_forms.PasswordInput,
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._user = user
+
+    def clean(self):
+        cleaned = super().clean()
+        password = cleaned.get('current_password')
+        if password and not authenticate(username=self._user.username, password=password):
+            raise django_forms.ValidationError('Current password is incorrect.')
+        email = cleaned.get('email', '').lower().strip()
+        if email and UserModel.objects.filter(email=email).exclude(pk=self._user.pk).exists():
+            raise django_forms.ValidationError('That email address is already in use.')
+        return cleaned
+
+
+class ProfileView(LoginRequiredMixin, View):
+
+    template_name = 'registration/profile.html'
+
+    def _context(self, request, form=None):
+        user = request.user
+        acl_entries = (
+            SystemACL.objects
+            .filter(user=user)
+            .select_related('system')
+            .order_by('system__name')
+        )
+        recent_versions = (
+            SystemVersion.objects
+            .filter(creator=user)
+            .select_related('system')
+            .order_by('-created')[:10]
+        )
+        return {
+            'profile_user': user,
+            'acl_entries': acl_entries,
+            'recent_versions': recent_versions,
+            'email_form': form or _EmailChangeForm(user=user),
+        }
+
+    def get(self, request):
+        return render(request, self.template_name, self._context(request))
+
+    def post(self, request):
+        form = _EmailChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            request.user.email = form.cleaned_data['email'].lower().strip()
+            request.user.save(update_fields=['email'])
+            return redirect('user_profile')
+        return render(request, self.template_name, self._context(request, form=form))
