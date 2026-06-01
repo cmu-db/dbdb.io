@@ -86,7 +86,7 @@
         <span class="num">Updated Weekly</span>
     </div>
     <a href="{{ spotlight_version.system.get_absolute_url }}" class="spotlight">
-        {% mono_tile spotlight_version.logo spotlight_version.system.name %}
+        {% mono_tile spotlight_version.logo spotlight_version.system.name extra_classes="d-none d-md-inline" %}
         <span>
             <span class="sp-kicker">
                 {% if spotlight_data_model %}
