@@ -948,11 +948,11 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .btn-edit:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 
 .entry-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1rem; }
-.entry-lead-block p {
-  font-family: var(--serif); font-size: 1.24rem; line-height: 1.55; color: var(--ink-soft);
+.entry-lead-block {
+  font-family: var(--serif); color: var(--ink-soft);
 }
-.entry-section p {
-  font-family: var(--serif); font-size: 1.07rem; line-height: 1.62; color: var(--ink);
+.entry-section {
+  font-family: var(--serif); color: var(--ink);
 }
 .entry-lead b { color: var(--ink); font-weight: 600; }
 
@@ -1081,11 +1081,13 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .lb-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.6rem; align-items: start; }
 .lb-card { border: 1px solid var(--rule); background: var(--surface); display: flex; flex-direction: column; }
 .lb-h {
-  font-family: var(--serif); font-weight: 600; font-size: 1.12rem; color: var(--ink);
-  padding: .85rem 1.2rem; border-bottom: 2px solid var(--ink); text-align: center;
+  font-family: var(--serif);
+  color: var(--ink);
+  border-bottom: 2px solid var(--ink);
+  text-align: center;
 }
 .lb-row {
-  display: flex; align-items: center; gap: .7rem; padding: .55rem 1.2rem;
+  display: flex; align-items: center; gap: .7rem;
   border-bottom: 1px solid var(--rule-soft); transition: background .15s;
 }
 .lb-row:last-child { border-bottom: 0; }

@@ -178,12 +178,12 @@
         {% for tag in system_version.tags.all %}{% tag_link tag %}{% endfor %}
     </div>
     {% endif %}
-    <div class="entry-lead-block mt-3">
+    <div class="entry-lead-block fs-5 mt-3">
         {{ system_version.description_mobile_intro|markdownify }}
     </div>
     {% partial factbox %}
     {% if system_version.description_mobile_remainder %}
-    <div class="entry-lead-block mt-3">
+    <div class="entry-lead-block fs-5 mt-3">
         {{ system_version.description_mobile_remainder|markdownify }}
     </div>
     {% endif %}
@@ -210,7 +210,7 @@
                 {% for tag in system_version.tags.all %}{% tag_link tag %}{% endfor %}
             </div>
             {% endif %}
-            <div class="entry-lead-block mt-3">
+            <div class="entry-lead-block fs-5 mt-3">
                 {{ system_version.description|markdownify }}
             </div>
         </div>
@@ -239,7 +239,7 @@
         {% endif %}
 
         {% for sec in sections %}
-        <div id="{{ sec.id }}" class="entry-section">
+        <div id="{{ sec.id }}" class="entry-section fs-6">
             {% if sec.title %}
                 <h2>{{ sec.title }}{% if sec.citations %}<span class="cites">{% for c in sec.citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</h2>
             <hr class="sec-rule">

@@ -702,5 +702,5 @@ def normalize_url(url: str) -> str:
     # 5. Preserve fragment
     fragment = parts.fragment
 
-    LOG.info(f"Normalize: {url}\n+ scheme: {scheme}\n+ netloc: {netloc}\n+ path: {path}\n+ query: {query}\n+ fragment: {fragment}")
+    LOG.debug(f"Normalize: {url}\n+ scheme: {scheme}\n+ netloc: {netloc}\n+ path: {path}\n+ query: {query}\n+ fragment: {fragment}")
     return urlunsplit((scheme, netloc, path, query, fragment))

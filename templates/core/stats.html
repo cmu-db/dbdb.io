@@ -22,13 +22,13 @@
 <div class="lb-grid">
     {% for stat in stats %}
     <div class="lb-card">
-        <div class="lb-h">{{ stat.label }}</div>
+        <div class="lb-h py-2 px-1 fs-5 fw-bold">{{ stat.label }}</div>
         {% for item in stat.items %}
-        <div class="lb-row">
+        <div class="lb-row py-2 px-3">
             <span class="lb-rank">{{ forloop.counter }}</span>
             {% if stat.search_field == "country" %}
                 {% get_country item.label as country %}
-                <a href="{% url 'browse' %}?country={{ country.code }}" class="lb-tile mono-tile" title="{{ country.name }}">{{ country.code|slice:":2" }}</a>
+                <a href="{% url 'browse' %}?country={{ country.code }}" class="lb-tile mono-tile" title="{{ country.name }}"><i class="{{ country.flag_css }}"></i></a>
                 <a href="{% url 'browse' %}?country={{ country.code }}" class="lb-name">{{ country.name }}</a>
             {% elif stat.systems %}
                 <a href="{% if item.url %}{{ item.url }}{% else %}{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}{% endif %}">
