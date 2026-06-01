@@ -83,10 +83,9 @@
             <span class="num">{{ acl_entries|length }} with edit access</span>
             {% endif %}
         </div>
-        <div class="results mt-3 mb-5">
-            <table class="rtable">
-                <colgroup><col><col><col><col><col></colgroup>
-                <thead>
+        <div class="table-responsive mt-3 mb-5">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
                     <tr>
                         <th></th>
                         <th>System</th>
@@ -100,7 +99,7 @@
                     <tr>
                         <td class="r-logo"><i class="fa-solid fa-shield-halved text-muted"></i></td>
                         <td colspan="3"><span class="r-name">All Systems</span><span class="text-muted ms-2 small">Superuser edit access</span></td>
-                        <td class="r-actions"></td>
+                        <td></td>
                     </tr>
                     {% endif %}
                     {% for acl in acl_entries %}
@@ -109,7 +108,7 @@
                         <td><a href="{{ acl.system.get_absolute_url }}" class="r-name">{{ acl.system.name }}</a></td>
                         <td class="r-ver">{{ acl.ver_count }}</td>
                         <td class="r-date">{% if acl.last_edited %}{{ acl.last_edited|date:"Y-m-d H:i" }}{% else %}—{% endif %}</td>
-                        <td class="r-actions"><a href="{% url 'system_edit' acl.system.slug %}" class="edit-link"><i class="fa-solid fa-pen"></i> Edit</a></td>
+                        <td class="text-end text-nowrap"><a href="{% url 'system_edit' acl.system.slug %}" class="edit-link"><i class="fa-solid fa-pen"></i> Edit</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -124,10 +123,9 @@
         </div>
 
         {% if recent_versions %}
-        <div class="results">
-            <table class="rtable">
-                <colgroup><col><col><col><col><col></colgroup>
-                <thead>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
                     <tr>
                         <th></th>
                         <th>System</th>
