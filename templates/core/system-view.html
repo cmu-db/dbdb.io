@@ -330,6 +330,9 @@
 {% endblock %}
 
 {% block scripts %}
+{% if user.is_superuser %}
+<script>(function(){var m=document.querySelector('meta[name="counter"]');if(m)m.remove();}());</script>
+{% endif %}
 <script src="{% static 'lib/js/bootstrap.bundle.js' %}"></script>
 <script src="{% static 'core/js/system.js' %}"></script>
 {% endblock %}
