@@ -37,6 +37,7 @@ from dbdb.core.models import (
     SystemRecommendation,
     SystemRedirect,
     SystemVersion,
+    user_can_edit_system,
 )
 from dbdb.core.utils.versions import finalize_new_version
 
@@ -62,41 +63,44 @@ class SystemView(View):
             citation_offsets.append(offset)
         return citation_offsets
 
-    def get(self, request, slug):
+    def get(self, request, slug, ver=None):
         # try to get system by slug
         try:
             system = System.objects.get(slug=slug)
-            pass
         except System.DoesNotExist:
             # if the system doesn't exist, check for a redirect
             try:
                 r = SystemRedirect.objects.get(slug=slug)
                 return redirect( 'system' , permanent=True, slug=r.system.slug )
-                pass
             except SystemRedirect.DoesNotExist:
-                # with no redirect, throw 404
                 raise Http404( 'system does not exist' )
-                pass
-            pass
 
-        system_version = (
-            SystemVersion.objects
-            .prefetch_related(
-                'tags', 'oses', 'licenses',
-                'project_types', 'supported_languages', 'written_in',
-            )
-            .get(system=system, is_current=True)
-        )
-        system_features = SystemFeature.objects.filter(version=system_version).select_related('feature').order_by('feature__label')
-
-        # if they are logged in, check whether they are allowed to edit
+        # Permission check first — needed to decide which version to show.
         if not request.user.is_authenticated:
             user_can_edit = False
         elif request.user.is_superuser or request.user.is_staff:
             user_can_edit = True
         else:
             user_can_edit = SystemACL.objects.filter(system=system, user=request.user).exists()
-            pass
+
+        qs = SystemVersion.objects.prefetch_related(
+            'tags', 'oses', 'licenses',
+            'project_types', 'supported_languages', 'written_in',
+        )
+        approved_ver = None  # ver of the approved (is_current) version, passed to template when showing a pending default
+        if ver is not None:
+            system_version = get_object_or_404(qs, system=system, ver=ver)
+            has_revision = True
+        else:
+            pending = system.pending_version() if user_can_edit else None
+            if pending:
+                system_version = qs.get(system=system, ver=pending.ver)
+                approved_ver = SystemVersion.objects.filter(system=system, is_current=True).values_list('ver', flat=True).first()
+                has_revision = True
+            else:
+                system_version = qs.get(system=system, is_current=True)
+                has_revision = False
+        system_features = SystemFeature.objects.filter(version=system_version).select_related('feature').order_by('feature__label')
 
         # Sections
 
@@ -226,6 +230,8 @@ class SystemView(View):
             'counter_token': CounterView.build_token('system', pk=system.id),
             'Status': CitationUrl.Status,
             'repo_snapshot': repo_snapshot,
+            'has_revision': has_revision,
+            'approved_ver': approved_ver,
         })
 
     pass
@@ -296,8 +302,12 @@ class SystemEditView(LoginRequiredMixin, View):
                     return redirect(url)
             ## IF
 
-            # Load in what we need
-            system_version = SystemVersion.objects.get(system=system, is_current=True)
+            # Load in what we need — prefer the pending (unapproved) version if one exists
+            pending = system.pending_version()
+            if pending:
+                system_version = pending
+            else:
+                system_version = SystemVersion.objects.get(system=system, is_current=True)
             system_features = system_version.features.all()
             pass
 
@@ -345,6 +355,7 @@ class SystemEditView(LoginRequiredMixin, View):
             'features': features,
             'acquisition_formset': acquisition_formset,
             'developer_org_formset': developer_org_formset,
+            'pending_version': system_version if (system_version.pk and not system_version.approved) else None,
         })
 
     @transaction.atomic
@@ -355,25 +366,42 @@ class SystemEditView(LoginRequiredMixin, View):
                 return redirect('system', slug=slug)
             return redirect('home')
 
+        is_admin = request.user.is_superuser or request.user.is_staff
+
         prev_version = None
+        pending = None
         if slug is None:
             if not request.user.is_superuser:
                 raise Http404()
 
             system = System()
-            # system_version = SystemVersion(system=system, is_current=True)
             system_features = SystemFeature.objects.none()
             old_logo = None
-            pass
         else:
             system = System.objects.get(slug=slug)
-            prev_version = SystemVersion.objects.get(system=system, is_current=True)
-            system_features = prev_version.features.all()
-            old_logo = prev_version.logo
-            pass
+
+            # Permission check (was missing from post())
+            if not user_can_edit_system(request.user, system):
+                return HttpResponseForbidden()
+
+            try:
+                prev_version = SystemVersion.objects.get(system=system, is_current=True)
+                system_features = prev_version.features.all()
+                old_logo = prev_version.logo
+            except SystemVersion.DoesNotExist:
+                system_features = SystemFeature.objects.none()
+                old_logo = None
+
+            # For non-admins, find any existing unapproved (pending) version
+            if not is_admin:
+                pending = system.versions.filter(approved=False).first()
 
         system_form = SystemForm(request.POST, instance=system)
-        system_version_form = SystemVersionForm(request.POST, request.FILES)
+        # Bind the pending instance so save() updates it in-place rather than creating a new row
+        system_version_form = SystemVersionForm(
+            request.POST, request.FILES,
+            instance=pending if pending else None,
+        )
         feature_form = SystemFeaturesForm(request.POST, system=system, features=system_features)
         acquisition_formset = AcquisitionFormSet(request.POST, prefix='acquisitions')
         developer_org_formset = DeveloperOrgFormSet(request.POST, prefix='developer_orgs')
@@ -384,7 +412,7 @@ class SystemEditView(LoginRequiredMixin, View):
             acquisition_formset.is_valid() and \
             developer_org_formset.is_valid():
 
-            if request.user.is_superuser:
+            if is_admin:
                 original_system_slug = system.slug
                 system = system_form.save(commit=False)
                 system.slug = slugify(system.name)
@@ -394,11 +422,8 @@ class SystemEditView(LoginRequiredMixin, View):
                 if system.slug != original_system_slug:
                     SystemRedirect.objects.get_or_create(
                         slug=original_system_slug,
-                        defaults=dict(
-                            system=system
-                        )
+                        defaults=dict(system=system)
                     )
-                    pass
 
                 # If there is already a logo and they do not update it,
                 # then we need to make sure it gets copied over.
@@ -406,24 +431,41 @@ class SystemEditView(LoginRequiredMixin, View):
                     logo = system.current().logo
                 except SystemVersion.DoesNotExist:
                     logo = ''
-                pass
             else:
-                logo = system.current().logo
-                pass
+                logo = system.current().logo if prev_version else ''
 
-            system.versions.update(is_current=False)
             new_version = system_version_form.save(commit=False)
-            new_version.creator = request.user
-            new_version.system = system
 
-            # Resolve CitationUrl FK fields from URL inputs
+            if is_admin:
+                # Mark as approved and flip all previous versions to not-current
+                new_version.approved = True
+                new_version.creator = request.user
+                new_version.system = system
+                system.versions.update(is_current=False)
+            else:
+                # Pending path: not approved, stays invisible
+                new_version.approved = False
+                new_version.is_current = False
+                if pending is None:
+                    # New pending version — set creator/system (update path keeps existing values)
+                    new_version.creator = request.user
+                    new_version.system = system
+
+            # Resolve CitationUrl FK fields from URL inputs.
+            # URLField normalizes bare domains by adding a trailing slash (e.g.
+            # "https://mongodb.com" → "https://mongodb.com/").  Try the exact
+            # normalized form first, then the slash-stripped form, before creating.
             for fk_field in ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url'):
                 url_str = (system_version_form.cleaned_data.get(fk_field) or '').strip()
                 if url_str:
-                    citation, _ = CitationUrl.objects.get_or_create(
-                        url=url_str,
-                        defaults={'status': CitationUrl.Status.UNKNOWN},
-                    )
+                    citation = CitationUrl.objects.filter(url=url_str).first()
+                    if citation is None and url_str.endswith('/'):
+                        citation = CitationUrl.objects.filter(url=url_str.rstrip('/')).first()
+                    if citation is None:
+                        citation = CitationUrl.objects.create(
+                            url=url_str,
+                            status=CitationUrl.Status.UNKNOWN,
+                        )
                     setattr(new_version, fk_field, citation)
                 else:
                     setattr(new_version, fk_field, None)
@@ -435,9 +477,10 @@ class SystemEditView(LoginRequiredMixin, View):
             if logo and not new_version.logo:
                 new_version.logo = logo
 
-            system.ver = new_version.ver
-            system.modified = timezone.now()
-            system.save()
+            if is_admin:
+                system.ver = new_version.ver
+                system.modified = timezone.now()
+                system.save()
 
             new_version.description_citations.clear()
             for url in system_version_form.cleaned_data.get('description_citations', []):
@@ -455,13 +498,16 @@ class SystemEditView(LoginRequiredMixin, View):
             for url in system_version_form.cleaned_data.get('end_year_citations', []):
                 new_version.end_year_citations.add(url)
 
-            # I don't know why we need to do this twice?
             new_version.save()
 
             features = {
                 f.label : f
                 for f in Feature.objects.all()
             }
+
+            # For pending-update, wipe existing SystemFeature rows so we start fresh
+            if pending is not None:
+                new_version.features.all().delete()
 
             feature_cache = {}
             def get_systemfeature_obj(feature):
@@ -475,15 +521,10 @@ class SystemEditView(LoginRequiredMixin, View):
                     sf = feature_cache[feature]
                 return sf
 
-            # Old code would create a SystemFeature entry for everything
-            # even if the system doesn't include it. So we need to check
-            # whether they have previous SystemFeatures
             for f in features.values():
                 field_prefix = f.get_sanitized_label()
                 sf = None
 
-                # Get the previous version's Feature for this system
-                # TODO: Do we need to do this???
                 prev_sf = None
                 if prev_version is not None:
                     try:
@@ -521,26 +562,22 @@ class SystemEditView(LoginRequiredMixin, View):
                 if isinstance(value, str):
                     sf = get_systemfeature_obj(f)
                     sf.options.add(
-                        FeatureOption.objects.get(
-                            feature=f,
-                            value=value
-                        )
+                        FeatureOption.objects.get(feature=f, value=value)
                     )
                 else:
                     for v in value:
                         sf = get_systemfeature_obj(f)
                         sf.options.add(
-                            FeatureOption.objects.get(
-                                feature=f,
-                                value=v
-                            )
+                            FeatureOption.objects.get(feature=f, value=v)
                         )
 
             for sf in feature_cache.values():
-                print(f"Saving {sf}")
                 sf.save()
 
-            # Save acquisitions
+            # Save acquisitions (clear existing ones for pending-update)
+            if pending is not None:
+                new_version.acquisitions.all().delete()
+
             for form in acquisition_formset:
                 if not form.has_changed() or form.cleaned_data.get('DELETE'):
                     continue
@@ -624,8 +661,19 @@ class RecentChangesView(View):
         if versions is None:
             versions = SystemVersion.objects.all()
 
+        # Filter out unapproved (pending) versions based on who is viewing
+        if slug is not None:
+            # System-specific feed: editors see pending; public does not
+            if not user_can_edit_system(request.user, system):
+                versions = versions.filter(approved=True)
+        else:
+            # Global feed: always hide pending versions
+            versions = versions.filter(approved=True)
+
         versions = versions.order_by("-created")
         total_revisions = versions.count()
+
+        can_edit_system = user_can_edit_system(request.user, system) if system else False
 
         context = {
             "activate": "recent",
@@ -633,6 +681,7 @@ class RecentChangesView(View):
             "system": system,
             "total_revisions": total_revisions,
             "revision_list": slug is not None,
+            "can_edit_system": can_edit_system,
         }
 
         if slug is not None:
@@ -664,13 +713,16 @@ class RecentChangesView(View):
 
     @method_decorator(login_required)
     def post(self, request, slug=None):
-        if not request.user.is_authenticated or slug is None:
+        if slug is None:
+            return HttpResponseForbidden()
+        if not (request.user.is_superuser or request.user.is_staff):
             return HttpResponseForbidden()
 
         system = System.objects.get(slug=slug)
         version = SystemVersion.objects.get(id=request.POST['ver'])
         system.versions.update(is_current=False)
         version.is_current = True
+        version.approved = True
         system.ver = version.ver
         system.modified = timezone.now()
         version.save()
@@ -680,21 +732,296 @@ class RecentChangesView(View):
 
 
 # ==============================================
-# SystemRevisionView
 # ==============================================
-class SystemRevisionView(View):
+# _compute_version_diff helper
+# ==============================================
+def _inline_diff(old_text, new_text):
+    """
+    Return (old_html, new_html) with word-level changes highlighted inline,
+    similar to Wikipedia's diff view.
+    Deletions appear wrapped in <del> in old_html; insertions in <ins> in new_html.
+    """
+    import difflib
+    import html as html_module
+    import re
 
-    template_name = 'core/system-revision.html'
+    def tokenize(text):
+        # Split on whitespace boundaries, keeping the whitespace tokens
+        return re.split(r'(\s+)', text)
 
-    def get(self, request, slug, ver):
-        system_version = get_object_or_404(SystemVersion.objects.select_related('system'), system__slug=slug, ver=ver)
+    old_tokens = tokenize(old_text)
+    new_tokens = tokenize(new_text)
+    matcher = difflib.SequenceMatcher(None, old_tokens, new_tokens, autojunk=False)
+
+    old_parts = []
+    new_parts = []
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+        old_chunk = html_module.escape(''.join(old_tokens[i1:i2]))
+        new_chunk = html_module.escape(''.join(new_tokens[j1:j2]))
+        if tag == 'equal':
+            old_parts.append(old_chunk)
+            new_parts.append(new_chunk)
+        elif tag == 'replace':
+            old_parts.append(f'<del>{old_chunk}</del>')
+            new_parts.append(f'<ins>{new_chunk}</ins>')
+        elif tag == 'delete':
+            old_parts.append(f'<del>{old_chunk}</del>')
+        elif tag == 'insert':
+            new_parts.append(f'<ins>{new_chunk}</ins>')
+
+    return ''.join(old_parts), ''.join(new_parts)
+
+
+def _citation_diff(a_set, b_set):
+    """
+    Given two sets of URL strings, return a dict with display-ready item lists.
+
+    v1_items: alphabetically sorted list of all v1 citations, each annotated with
+              status 'removed' or 'unchanged'.
+    v2_items: alphabetically sorted union of both sets, each annotated with
+              status 'added', 'removed' (still shown struck), or 'unchanged'.
+    """
+    removed  = a_set - b_set
+    added    = b_set - a_set
+    unchanged = a_set & b_set
+
+    v1_items = [
+        {'url': u, 'status': 'removed' if u in removed else 'unchanged'}
+        for u in sorted(a_set)
+    ]
+    v2_items = [
+        {'url': u,
+         'status': 'added' if u in added else ('removed' if u in removed else 'unchanged')}
+        for u in sorted(a_set | b_set)
+    ]
+    return {
+        'v1_items': v1_items,
+        'v2_items': v2_items,
+        'changed': bool(removed or added),
+    }
+
+
+def _citation_set_diff(v1_obj, v2_obj, field_name):
+    """Compute citation diff for a named M2M field on a SystemVersion pair."""
+    a_set = set(c.url for c in getattr(v1_obj, field_name).all())
+    b_set = set(c.url for c in getattr(v2_obj, field_name).all())
+    return _citation_diff(a_set, b_set)
+
+
+def _compute_version_diff(v1, v2):
+    """
+    Return a list of diff entries comparing two SystemVersion instances.
+    Fields are grouped so that citations appear directly below their parent field.
+    """
+    diffs = []
+
+    def _str(val):
+        return str(val) if val is not None else ''
+
+    def _url_str(fk_citation):
+        return fk_citation.url if fk_citation else ''
+
+    def _m2m_set(manager, attr='name'):
+        return set(getattr(obj, attr) for obj in manager.all())
+
+    def _set_entry(field, label, a_set, b_set):
+        return {
+            'field': field, 'label': label, 'type': 'set',
+            'v1_val': sorted(a_set), 'v2_val': sorted(b_set),
+            'added': sorted(b_set - a_set),
+            'removed': sorted(a_set - b_set),
+            'unchanged': sorted(a_set & b_set),
+            'changed': a_set != b_set,
+        }
+
+    # --- description + its citations (inline) ---
+    for field, label, cite_field in [
+        ('description', 'Description', 'description_citations'),
+        ('history',     'History',     'history_citations'),
+    ]:
+        a = getattr(v1, field) or ''
+        b = getattr(v2, field) or ''
+        old_html, new_html = _inline_diff(a, b) if a != b else ('', '')
+        cite = _citation_set_diff(v1, v2, cite_field)
+        diffs.append({'field': field, 'label': label, 'type': 'text',
+                      'v1_val': a, 'v2_val': b,
+                      'v1_html': old_html, 'v2_html': new_html,
+                      'changed': a != b or cite['changed'],
+                      'citations': cite})
+
+    # --- start_year + citations (inline) ---
+    a = _str(v1.start_year)
+    b = _str(v2.start_year)
+    cite = _citation_set_diff(v1, v2, 'start_year_citations')
+    diffs.append({'field': 'start_year', 'label': 'Start Year', 'type': 'scalar',
+                  'v1_val': a, 'v2_val': b,
+                  'changed': a != b or cite['changed'],
+                  'citations': cite})
+
+    # --- end_year + citations (inline) ---
+    a = _str(v1.end_year)
+    b = _str(v2.end_year)
+    cite = _citation_set_diff(v1, v2, 'end_year_citations')
+    diffs.append({'field': 'end_year', 'label': 'End Year', 'type': 'scalar',
+                  'v1_val': a, 'v2_val': b,
+                  'changed': a != b or cite['changed'],
+                  'citations': cite})
+
+    # --- remaining scalar fields ---
+    for field, label in [
+        ('twitter_handle',   'Twitter Handle'),
+        ('linkedin_handle',  'LinkedIn Handle'),
+        ('former_names',     'Former Names'),
+        ('countries',        'Countries'),
+    ]:
+        a = _str(getattr(v1, field))
+        b = _str(getattr(v2, field))
+        diffs.append({'field': field, 'label': label, 'type': 'scalar',
+                      'v1_val': a, 'v2_val': b, 'changed': a != b})
+
+    # --- URL / CitationUrl FK fields ---
+    for field, label in [
+        ('system_url',      'Website URL'),
+        ('docs_url',        'Docs URL'),
+        ('sourcerepo_url',  'Source Repo URL'),
+        ('wikipedia_url',   'Wikipedia URL'),
+    ]:
+        a = _url_str(getattr(v1, field))
+        b = _url_str(getattr(v2, field))
+        diffs.append({'field': field, 'label': label, 'type': 'url',
+                      'v1_val': a, 'v2_val': b, 'changed': a != b})
+
+    # --- M2M attribute fields (AttributeOption — use .name) ---
+    attr_fields = [
+        ('tags',               'Tags'),
+        ('licenses',           'Licenses'),
+        ('oses',               'Operating Systems'),
+        ('governance',         'Governance'),
+        ('project_types',      'Project Types'),
+        ('supported_languages','Supported Languages'),
+        ('written_in',         'Written In'),
+    ]
+    for field, label in attr_fields:
+        a_set = _m2m_set(getattr(v1, field), 'name')
+        b_set = _m2m_set(getattr(v2, field), 'name')
+        diffs.append(_set_entry(field, label, a_set, b_set))
+
+    # --- M2M relationship fields (System / Organization — use .name) ---
+    rel_fields = [
+        ('developer_orgs',  'Developer Orgs'),
+        ('derived_from',    'Derived From'),
+        ('embedded',        'Embedded Systems'),
+        ('inspired_by',     'Inspired By'),
+        ('compatible_with', 'Compatible With'),
+        ('hosted_services', 'Hosted Services'),
+    ]
+    for field, label in rel_fields:
+        a_set = _m2m_set(getattr(v1, field), 'name')
+        b_set = _m2m_set(getattr(v2, field), 'name')
+        diffs.append(_set_entry(field, label, a_set, b_set))
+
+    # --- acquisitions ---
+    def _acq_tuple(acq):
+        return (acq.organization.name, acq.year, acq.citation.url if acq.citation else '')
+
+    v1_acqs = set(_acq_tuple(a) for a in v1.acquisitions.select_related('organization', 'citation').all())
+    v2_acqs = set(_acq_tuple(a) for a in v2.acquisitions.select_related('organization', 'citation').all())
+    diffs.append({
+        'field': 'acquisitions', 'label': 'Acquisitions', 'type': 'acquisitions',
+        'v1_val': sorted(v1_acqs), 'v2_val': sorted(v2_acqs),
+        'added': sorted(v2_acqs - v1_acqs),
+        'removed': sorted(v1_acqs - v2_acqs),
+        'unchanged': sorted(v1_acqs & v2_acqs),
+        'changed': v1_acqs != v2_acqs,
+    })
+
+    # --- SystemFeature rows ---
+    def _feature_snapshot(version):
+        snap = {}
+        for sf in version.features.select_related('feature').prefetch_related('options', 'citations').all():
+            snap[sf.feature.label] = {
+                'description': sf.description or '',
+                'options': sorted(fo.value for fo in sf.options.all()),
+                'citations': sorted(c.url for c in sf.citations.all()),
+                'system': sf.system.name if sf.system else '',
+            }
+        return snap
+
+    f1 = _feature_snapshot(v1)
+    f2 = _feature_snapshot(v2)
+    all_features = sorted(set(f1) | set(f2))
+    feature_diffs = []
+    for fname in all_features:
+        s1 = f1.get(fname, {'description': '', 'options': [], 'citations': [], 'system': ''})
+        s2 = f2.get(fname, {'description': '', 'options': [], 'citations': [], 'system': ''})
+        changed = s1 != s2
+        old_desc_html, new_desc_html = _inline_diff(s1['description'], s2['description']) \
+            if s1['description'] != s2['description'] else ('', '')
+        cite = _citation_diff(set(s1['citations']), set(s2['citations']))
+        feature_diffs.append({
+            'name': fname, 'changed': changed,
+            'v1': s1, 'v2': s2,
+            'v1_desc_html': old_desc_html,
+            'v2_desc_html': new_desc_html,
+            'options_added': sorted(set(s2['options']) - set(s1['options'])),
+            'options_removed': sorted(set(s1['options']) - set(s2['options'])),
+            'options_unchanged': sorted(set(s1['options']) & set(s2['options'])),
+            'citations': cite,
+        })
+    diffs.append({
+        'field': 'features', 'label': 'Features', 'type': 'features',
+        'feature_diffs': feature_diffs,
+        'changed': any(fd['changed'] for fd in feature_diffs),
+    })
+
+    return diffs
+
+
+# ==============================================
+# SystemVersionDiffView
+# ==============================================
+class SystemVersionDiffView(View):
+
+    template_name = 'core/system-diff.html'
+
+    def get(self, request, slug, ver1, ver2):
+        system = get_object_or_404(System, slug=slug)
+        v1 = get_object_or_404(SystemVersion, system=system, ver=ver1)
+        v2 = get_object_or_404(SystemVersion, system=system, ver=ver2)
+
+        can_approve = (
+            request.user.is_authenticated
+            and (request.user.is_superuser or request.user.is_staff)
+            and not v2.approved
+        )
+        diffs = _compute_version_diff(v1, v2)
 
         return render(request, self.template_name, {
-            'activate': 'revisions', # NAV-LINKS
-            'system': system_version.system,
-            'system_version': system_version,
-            'has_revision': True,
-            'system_features': system_version.features.all()
+            'activate': 'revisions',
+            'system': system,
+            'v1': v1,
+            'v2': v2,
+            'diffs': diffs,
+            'can_approve': can_approve,
         })
 
-    pass
+    @method_decorator(login_required)
+    def post(self, request, slug, ver1, ver2):
+        if not (request.user.is_superuser or request.user.is_staff):
+            return HttpResponseForbidden()
+
+        system = get_object_or_404(System, slug=slug)
+        v = get_object_or_404(SystemVersion, system=system, ver=ver2)
+
+        if not v.approved:
+            with transaction.atomic():
+                system.versions.update(is_current=False)
+                v.approved = True
+                v.is_current = True
+                v.save()
+                system.ver = v.ver
+                system.modified = timezone.now()
+                system.save()
+                finalize_new_version(v)
+
+        return redirect('system', slug=slug)

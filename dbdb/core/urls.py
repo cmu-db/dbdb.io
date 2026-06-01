@@ -11,7 +11,8 @@ urlpatterns = [
     re_path(r'^db/(?P<slug>[\w-]+)[/]?$', views.SystemView.as_view(), name='system'),
     re_path(r'^db/(?P<slug>[\w-]+)/edit$', views.SystemEditView.as_view(), name='system_edit'),
     re_path(r'^db/(?P<slug>[\w-]+)/revisions/$', views.RecentChangesView.as_view(), name='system_revision'),
-    re_path(r'^db/(?P<slug>[\w-]+)/revisions/(?P<ver>\d+)$', views.SystemRevisionView.as_view(), name='system_revision_view'),
+    re_path(r'^db/(?P<slug>[\w-]+)/revisions/(?P<ver>\d+)$', views.SystemView.as_view(), name='system_version'),
+    re_path(r'^db/(?P<slug>[\w-]+)/diff/(?P<ver1>\d+)/(?P<ver2>\d+)$', views.SystemVersionDiffView.as_view(), name='system_diff'),
 
     path('browse', views.BrowseView.as_view(), name='browse'),
     path('search', views.BrowseView.as_view(), name='search'),
@@ -30,6 +31,8 @@ urlpatterns = [
     path('user/create', views.CreateUserView.as_view(), name='create_user'),
     path('user/create/', RedirectView.as_view(pattern_name='create_user')),
     path('user/setup', views.SetupUserView.as_view(), name='setup_user'),
+    path('user/signup', views.SignupRequestView.as_view(), name='signup_request'),
+    path('user/signup/pending', views.SignupPendingView.as_view(), name='signup_pending'),
 
     path('counter', views.CounterView.as_view(), name='counter'),
     path('sitemap.xml', views.SitemapView.as_view(), name='sitemap'),

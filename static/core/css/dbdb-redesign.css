@@ -27,6 +27,14 @@
   --accent-2: #a50d26;
   --accent-ink:#ffffff;
   --tint:     rgba(200,16,46,0.06);
+
+  /* Diff del/ins palette */
+  --diff-del-bg:     #ffd7d7;
+  --diff-del-fg:     #8b0000;
+  --diff-del-border: #dc3545;
+  --diff-ins-bg:     #d4edda;
+  --diff-ins-fg:     #155724;
+  --diff-ins-border: #198754;
 }
 
 [data-bs-theme="dark"] {
@@ -156,7 +164,7 @@ a:hover { color: var(--accent); }
   line-height: 0.94;
   color: var(--ink);
   text-align: center;
-  font-size: clamp(2.6rem, 8.5vw, 6.2rem);
+  font-size: clamp(3rem, 8.5vw, 6.2rem);
   margin: 0;
 }
 .nameplate .of {
@@ -205,7 +213,6 @@ a:hover { color: var(--accent); }
 /* ============================================================
    HERO
    ============================================================ */
-.hero { padding: 3rem 0 2.4rem; }
 .lead-line {
   font-family: var(--serif);
   font-size: clamp(1.15rem, 2.4vw, 1.6rem);
@@ -262,7 +269,7 @@ a:hover { color: var(--accent); }
   justify-content: center;
   flex-wrap: wrap;
   gap: .6rem;
-  margin-top: 1.2rem;
+  /*margin-top: 1.2rem;*/
 }
 .cta {
   font-family: var(--mono);
@@ -294,7 +301,7 @@ a:hover { color: var(--accent); }
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
   border: 1px solid var(--rule);
-  margin-top: 2.6rem;
+  /*margin-top: 2.6rem;*/
   background: var(--surface);
 }
 .shortcut {
@@ -1038,3 +1045,38 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   .feed-item { grid-template-columns: 1fr; gap: .35rem; }
   .feed-time { padding-top: 0; }
 }
+
+/* ============================================================
+   VERSION DIFF PAGE
+   ============================================================ */
+
+del { background: var(--diff-del-bg); color: var(--diff-del-fg); }
+ins { background: var(--diff-ins-bg); color: var(--diff-ins-fg); }
+
+.diff-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.diff-table th,
+.diff-table td { vertical-align: top; padding: .5rem .75rem; border: 1px solid var(--rule); }
+.diff-table th { background: var(--surface-2); font-family: var(--mono); font-size: .72rem;
+                  letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft); }
+.diff-table .diff-label { width: 160px; font-family: var(--sans); font-size: .8rem;
+                           font-weight: 600; color: var(--ink-soft); background: var(--surface-2); }
+.diff-table tr.diff-changed td { background: color-mix(in srgb, var(--tint) 60%, transparent); }
+.diff-table tr.diff-changed .diff-label { background: color-mix(in srgb, var(--tint) 60%, transparent); }
+.diff-table tr.diff-citations td { background: var(--surface-2); font-size: .78rem; }
+.diff-table tr.diff-citations .diff-label { font-weight: 400; font-style: italic; padding-left: 1.5rem; }
+.diff-col-text { font-family: var(--mono); font-size: .8rem; white-space: pre-wrap; word-break: break-word; }
+del.diff-del { border-radius: 2px; padding: 0 2px; }
+ins.diff-ins { text-decoration: none; border-radius: 2px; padding: 0 2px; }
+.diff-badges { display: flex; flex-wrap: wrap; gap: .35rem; }
+.diff-badge-del { font-family: var(--mono); font-size: .66rem; letter-spacing: .03em;
+                  border: 1px solid var(--diff-del-border); background: var(--diff-del-bg); color: var(--diff-del-fg);
+                  padding: .2rem .5rem; display: inline-flex; align-items: center; }
+.diff-badge-add { font-family: var(--mono); font-size: .66rem; letter-spacing: .03em;
+                  border: 1px solid var(--diff-ins-border); background: var(--diff-ins-bg); color: var(--diff-ins-fg);
+                  padding: .2rem .5rem; display: inline-flex; align-items: center; }
+.diff-version-header { font-family: var(--mono); font-size: .78rem; }
+.diff-version-header .ver-num { font-weight: 600; }
+.diff-version-header .ver-meta { color: var(--ink-soft); }
+.diff-cite-list { margin: .4rem 0 0 0; padding-left: 1.4rem; font-size: .78rem; }
+.diff-cite-list li { margin-bottom: .15rem; }
+.diff-cite-url { font-family: var(--mono); font-size: .75rem; word-break: break-all; color: inherit; }

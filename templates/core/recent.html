@@ -28,9 +28,23 @@
 {% include "core/pagination.html" %}
 {% endif %}
 
+{% if revision_list %}
+<div id="compare-bar" class="mb-3 d-flex align-items-center gap-2">
+    <span class="text-muted small" id="compare-hint">Select two versions to compare</span>
+    <button id="compare-btn" class="btn btn-sm btn-outline-primary ms-2" disabled>
+        Compare (<span id="compare-count">0</span>/2)
+    </button>
+</div>
+{% endif %}
+
 <div class="feed">
     {% for version in versions %}
     <div class="feed-item">
+        {% if revision_list %}
+        <div class="feed-check">
+            <input type="checkbox" class="version-check form-check-input" data-ver="{{ version.ver }}" title="Select for comparison">
+        </div>
+        {% endif %}
         <div class="feed-time">
             <a href="{{ version.get_absolute_url }}">{{ version.created }}</a>
         </div>
@@ -46,6 +60,9 @@
                 {% endif %}
                 {% if revision_list %}
                 <span class="verb">— Version #{{ version.ver }}</span>
+                {% if not version.approved %}
+                <span class="badge bg-warning text-dark ms-1" title="Pending approval — only visible to editors">Pending</span>
+                {% endif %}
                 {% endif %}
             </div>
             {% if version.comment %}
@@ -61,4 +78,41 @@
 {% endif %}
 
 </div>
+
+{% if revision_list %}
+<script>
+(function () {
+    const slug = '{{ system.slug|escapejs }}';
+    const checks = document.querySelectorAll('.version-check');
+    const btn = document.getElementById('compare-btn');
+    const countEl = document.getElementById('compare-count');
+    const selected = [];
+
+    checks.forEach(function (cb) {
+        cb.addEventListener('change', function () {
+            const ver = this.dataset.ver;
+            if (this.checked) {
+                if (selected.length >= 2) {
+                    this.checked = false;
+                    return;
+                }
+                selected.push(ver);
+            } else {
+                const idx = selected.indexOf(ver);
+                if (idx > -1) selected.splice(idx, 1);
+            }
+            countEl.textContent = selected.length;
+            btn.disabled = selected.length !== 2;
+        });
+    });
+
+    btn.addEventListener('click', function () {
+        if (selected.length !== 2) return;
+        const [a, b] = selected.map(Number).sort((x, y) => x - y);
+        window.location.href = '/db/' + slug + '/diff/' + a + '/' + b;
+    });
+})();
+</script>
+{% endif %}
+
 {% endblock %}

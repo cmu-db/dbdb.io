@@ -29,6 +29,17 @@ Edit {{ system.name }}
 
     <form method="POST" enctype="multipart/form-data" id="edit-form">
 
+    {% if pending_version %}
+    <div class="alert alert-warning d-flex gap-2 align-items-start" role="alert">
+        <i class="fa-solid fa-clock-rotate-left mt-1"></i>
+        <div>
+            <strong>Editing a pending (unapproved) version</strong> — v{{ pending_version.ver }},
+            saved {{ pending_version.created|timesince }} ago.
+            Your changes will not be visible publicly until an administrator approves them.
+        </div>
+    </div>
+    {% endif %}
+
     {% bootstrap_form_errors system_form type='all' %}
     {% bootstrap_form_errors system_version_form type='all' %}
     {% bootstrap_form system_form %}

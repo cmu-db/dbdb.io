@@ -3,11 +3,14 @@ import datetime
 import urllib.parse
 
 import jwt
+import tldextract
 
 # django imports
+from django import forms as django_forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.core.mail import send_mail
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
@@ -16,7 +19,7 @@ from django.views import View
 
 # project imports
 from dbdb.core.forms import CreateUserForm
-from dbdb.core.models import System, SystemACL
+from dbdb.core.models import CitationUrl, System, SystemACL, SystemVersion
 
 UserModel = get_user_model()
 
@@ -174,5 +177,104 @@ class SetupUserView(UserPassesTestMixin, View):
 
     def test_func(self):
         return self.request.user.is_superuser
+
+    pass
+
+
+# ==============================================
+# SignupRequestView
+# ==============================================
+class _SignupEmailForm(django_forms.Form):
+    email = django_forms.EmailField(label='Your work email address', max_length=254)
+
+
+class SignupRequestView(View):
+
+    template_name = 'registration/signup_request.html'
+
+    def _build_token(self, email, system_ids):
+        payload = {
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24),
+            'iss': 'signup_request',
+            'sub': email,
+            'nbf': datetime.datetime.utcnow(),
+            'systems': system_ids,
+        }
+        token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+        # PyJWT 1.x returns bytes
+        if isinstance(token, bytes):
+            token = token.decode('utf-8')
+        return token
+
+    def _find_matching_systems(self, email):
+        """Return a list of System IDs whose system_url domain matches the email domain."""
+        ext = tldextract.extract(email)
+        domain = f"{ext.domain}.{ext.suffix}".lower()
+        if not domain or domain == '.':
+            return []
+
+        matching_citations = CitationUrl.objects.filter(url__icontains=domain)
+        system_ids = list(
+            SystemVersion.objects
+            .filter(is_current=True, system_url__in=matching_citations)
+            .values_list('system_id', flat=True)
+        )
+        return system_ids
+
+    def get(self, request):
+        form = _SignupEmailForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = _SignupEmailForm(request.POST)
+        error = None
+
+        if form.is_valid():
+            email = form.cleaned_data['email'].lower().strip()
+
+            if UserModel.objects.filter(email=email).exists():
+                error = 'An account with that email already exists. Please log in instead.'
+            else:
+                system_ids = self._find_matching_systems(email)
+                if not system_ids:
+                    error = (
+                        'No systems found whose website URL matches your email domain. '
+                        'If you believe this is an error, please contact an administrator.'
+                    )
+
+            if error is None:
+                token = self._build_token(email, system_ids)
+                verify_url = request.build_absolute_uri(
+                    reverse('create_user') + '?' + urllib.parse.urlencode({'token': token})
+                )
+                send_mail(
+                    subject='DBDB.IO: Verify your email to edit database entries',
+                    message=(
+                        f'Hello,\n\n'
+                        f'Click the link below to create your DBDB.IO account. '
+                        f'This link expires in 24 hours.\n\n'
+                        f'{verify_url}\n\n'
+                        f'If you did not request this, you can ignore this email.\n'
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL or 'noreply@dbdb.io',
+                    recipient_list=[email],
+                    fail_silently=False,
+                )
+                return redirect('signup_pending')
+
+        return render(request, self.template_name, {'form': form, 'error': error})
+
+    pass
+
+
+# ==============================================
+# SignupPendingView
+# ==============================================
+class SignupPendingView(View):
+
+    template_name = 'registration/signup_pending.html'
+
+    def get(self, request):
+        return render(request, self.template_name, {})
 
     pass

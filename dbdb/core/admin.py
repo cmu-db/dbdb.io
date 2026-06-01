@@ -258,8 +258,8 @@ class SystemAdmin(admin.ModelAdmin):
 class SystemVersionAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
     raw_id_fields = ('description_citations', 'start_year_citations', 'end_year_citations', 'history_citations')
-    list_display = ('system', 'ver', 'creator', 'created')
-    list_filter = ['created', 'system']
+    list_display = ('system', 'ver', 'creator', 'approved', 'is_current', 'created')
+    list_filter = ['created', 'approved', 'is_current', 'system']
     readonly_fields=('ver', 'system')
     ordering = ('-created',)
     exclude = ('system', )

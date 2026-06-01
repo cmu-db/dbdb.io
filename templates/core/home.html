@@ -28,7 +28,7 @@
 
 {% block content %}
 
-<div class="hero">
+<div class="hero my-4 my-md-5">
     <p class="lead-line">A curated reference guide for implementations of the world's most important type of software.</p>
     <div class="search-wrap">
         <form id="mainsearch" action="{% url 'browse' %}" method="GET">
@@ -39,7 +39,7 @@
             </div>
         </form>
     </div>
-    <div class="cta-row">
+    <div class="cta-row pt-3 pb-4">
         <a href="{% url 'browse' %}" class="cta"><i class="fas fa-th"></i> Browse All</a>
         <a href="{% url 'stats' %}" class="cta cta-ghost"><i class="far fa-chart-bar"></i> Leaderboards</a>
         <a href="{% url 'browse' %}?start-year={{ new_in_year }}" class="cta cta-ghost"><i class="fas fa-trophy"></i> New in {{ new_in_year }}</a>
@@ -47,7 +47,7 @@
 </div>
 
 {% if featured_searches %}
-<div class="shortcuts">
+<div class="shortcuts my-4 my-md-5">
     {% for s in featured_searches %}
     <a href="{% url 'browse' %}?{{ s.search_params }}&ss={{ s.id|ss_token }}" class="shortcut"
        {% if s.description %}title="{{ s.description }}"{% endif %}>
@@ -62,7 +62,7 @@
 {% endif %}
 
 {% if data_models %}
-<section>
+<section class="my-4 my-md-5">
     <div class="sec-head">
         <h2>Browse by Data Model</h2>
         <span class="rule"></span>
@@ -79,7 +79,7 @@
 {% endif %}
 
 {% if spotlight_version %}
-<section>
+<section class="my-4 my-md-5">
     <div class="sec-head">
         <h2>Featured System</h2>
         <span class="rule"></span>
@@ -114,7 +114,7 @@
 </section>
 {% endif %}
 
-<section>
+<section class="my-4 my-md-5">
     <div class="sec-head">
         <h2>The Leaderboards</h2>
         <span class="rule"></span>

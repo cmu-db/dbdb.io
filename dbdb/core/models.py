@@ -273,6 +273,9 @@ class System(models.Model):
 
         return self.versions.get(is_current=True)
 
+    def pending_version(self):
+        return self.versions.filter(approved=False).order_by('-created').first()
+
     def get_absolute_url(self):
         return reverse('system', args=[self.slug])
 
@@ -440,6 +443,7 @@ class SystemVersion(LogoMixin, models.Model):
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT)
     ver = models.PositiveIntegerField('Version No.', default=1)
     is_current = models.BooleanField(default=True)
+    approved = models.BooleanField(default=False)
     comment = models.TextField(blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -607,7 +611,7 @@ class SystemVersion(LogoMixin, models.Model):
         return f'{self.system.name} - Ver#{self.ver}'
 
     def get_absolute_url(self):
-        return reverse('system_revision_view', args=[self.system.slug, self.ver])
+        return reverse('system_version', args=[self.system.slug, self.ver])
 
     def tags_str(self):
         return ', '.join( self.tags.values_list('name', flat=True) )
@@ -868,7 +872,17 @@ __all__ = (
     'SystemRecommendation',
     'SystemSearchText',
     'SystemVisit',
+    'user_can_edit_system',
 )
+
+def user_can_edit_system(user, system):
+    """Return True if the user is allowed to edit the given System."""
+    if not user.is_authenticated:
+        return False
+    if user.is_superuser or user.is_staff:
+        return True
+    return SystemACL.objects.filter(system=system, user=user).exists()
+
 
 # signal handlers
 @receiver(pre_save, sender=SystemVersion)
@@ -884,14 +898,20 @@ def systemversion_pre_save(sender, **kwargs):
 
         if max_ver is None:
             instance.ver = 1
-            pass
+            instance.is_current = True
+            instance.approved = True
         else:
-            SystemVersion.objects.filter(system=instance.system).update(is_current=False)
             instance.ver = max_ver + 1
-            pass
+            if instance.approved:
+                # Approved: make this the live version.
+                SystemVersion.objects.filter(system=instance.system).update(is_current=False)
+                instance.is_current = True
+            else:
+                # Pending: do NOT flip existing versions; stay invisible.
+                instance.is_current = False
 
-        instance.system.ver = instance.ver
-        instance.system.save()
-        pass
+        if instance.approved:
+            instance.system.ver = instance.ver
+            instance.system.save()
 
     return
