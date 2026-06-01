@@ -57,11 +57,17 @@
                 {% if not revision_list %}
                 {% mono_tile version.logo version.system.name 'recent' extra_classes='feed-tile' %}
                 <a href="{% url 'system_revision' version.system.slug %}" class="sys">{{ version.system.name }}</a>
+                {% if version.diff_prev_ver %}
+                <a href="{% url 'system_diff' version.system.slug version.diff_prev_ver version.ver %}" class="btn-edit feed-line-right"><i class="fa-solid fa-code-compare"></i> Diff</a>
+                {% endif %}
                 {% endif %}
                 {% if revision_list %}
                 <span class="verb">— Version #{{ version.ver }}</span>
                 {% if not version.approved %}
                 <span class="badge bg-warning text-dark ms-1" title="Pending approval — only visible to editors">Pending</span>
+                {% endif %}
+                {% if version.diff_prev_ver %}
+                <a href="{% url 'system_diff' system.slug version.diff_prev_ver version.ver %}" class="btn-edit"><i class="fa-solid fa-code-compare"></i> Diff</a>
                 {% endif %}
                 {% endif %}
             </div>

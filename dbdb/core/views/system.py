@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
+from django.db.models import OuterRef, Subquery
 from django.forms import HiddenInput
 from django.http import HttpResponseForbidden
 from django.http.response import Http404
@@ -685,9 +686,17 @@ class RecentChangesView(View):
         }
 
         if slug is not None:
-            context["versions"] = versions
+            version_list = list(versions)
+            for i, v in enumerate(version_list):
+                v.diff_prev_ver = version_list[i + 1].ver if i + 1 < len(version_list) else None
+            context["versions"] = version_list
             context["page_range"] = None
         else:
+            prev_ver_sub = SystemVersion.objects.filter(
+                system_id=OuterRef('system_id'),
+                ver__lt=OuterRef('ver'),
+            ).order_by('-ver').values('ver')[:1]
+            versions = versions.annotate(diff_prev_ver=Subquery(prev_ver_sub))
             paginator = Paginator(versions, 25)
             page_range = range(1, 2)
             try:
