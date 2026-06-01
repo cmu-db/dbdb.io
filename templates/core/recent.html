@@ -51,7 +51,7 @@
         </div>
         {% endif %}
         <div class="feed-time">
-            <a href="{{ version.get_absolute_url }}">{{ version.created }}</a>
+            <a href="{{ version.get_absolute_url }}">{{ version.created|date:"Y-m-d H:i" }}</a>
         </div>
         <div class="feed-body">
             <div class="feed-line">

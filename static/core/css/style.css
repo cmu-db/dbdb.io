@@ -1258,10 +1258,12 @@ ins.diff-ins { text-decoration: none; border-radius: 2px; padding: 0 2px; }
 .profile-grid { display: grid; grid-template-columns: 340px 1fr; gap: 3rem; align-items: start; }
 .profile-main { min-width: 0; }
 
-/* Pin profile table column widths so both tables align identically */
+/* Pin profile table column widths so both tables align identically.
+   table-layout:fixed is required for col widths to be respected. */
+.profile-main .rtable { table-layout: fixed; width: 100%; }
 .profile-main .rtable col:nth-child(1) { width: 52px; }
 .profile-main .rtable col:nth-child(3) { width: 80px; }
-.profile-main .rtable col:nth-child(4) { width: 130px; }
+.profile-main .rtable col:nth-child(4) { width: 150px; }
 .profile-main .rtable col:nth-child(5) { width: 100px; }
 .sec-head.flush { margin-top: 0; }
 .view-all {
