@@ -12,6 +12,7 @@ from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.mail import send_mail
 from django.db import transaction
+from django.db.models import Count, Max, Q
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -311,22 +312,31 @@ class ProfileView(LoginRequiredMixin, View):
 
     def _context(self, request, form=None):
         user = request.user
-        acl_entries = (
+        acl_entries = list(
             SystemACL.objects
             .filter(user=user)
             .select_related('system')
+            .annotate(
+                ver_count=Count('system__versions'),
+                last_edited=Max(
+                    'system__versions__created',
+                    filter=Q(system__versions__creator=user),
+                ),
+            )
             .order_by('system__name')
         )
-        recent_versions = (
+        recent_versions = list(
             SystemVersion.objects
             .filter(creator=user)
             .select_related('system')
             .order_by('-created')[:10]
         )
+        revision_count = SystemVersion.objects.filter(creator=user).count()
         return {
             'profile_user': user,
             'acl_entries': acl_entries,
             'recent_versions': recent_versions,
+            'revision_count': revision_count,
             'email_form': form or _EmailChangeForm(user=user),
         }
 
