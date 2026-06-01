@@ -19,15 +19,15 @@
         <section class="mb-4">
             <h2 class="h5 mb-3">Account Info</h2>
             <dl class="profile-dl">
-                <div class="profile-fact">
+                <div class="profile-fact py-2">
                     <dt>Username</dt>
                     <dd>{{ profile_user.username }}</dd>
                 </div>
-                <div class="profile-fact">
+                <div class="profile-fact py-2">
                     <dt>Email</dt>
                     <dd>{{ profile_user.email|default:"—" }}</dd>
                 </div>
-                <div class="profile-fact">
+                <div class="profile-fact py-2">
                     <dt>Last Login</dt>
                     <dd>
                         {% if profile_user.last_login %}
@@ -36,7 +36,7 @@
                         {% else %}—{% endif %}
                     </dd>
                 </div>
-                <div class="profile-fact">
+                <div class="profile-fact py-2">
                     <dt>Member Since</dt>
                     <dd>{{ profile_user.date_joined|date:"Y-m-d" }}</dd>
                 </div>
@@ -106,7 +106,7 @@
                 <tr>
                     <td><a href="{{ sv.get_absolute_url }}">{{ sv.system.name }}</a></td>
                     <td class="text-muted font-monospace">v{{ sv.ver }}</td>
-                    <td class="text-muted">{{ sv.created|date:"Y-m-d" }}</td>
+                    <td class="text-muted">{{ sv.created }}</td>
                     <td>
                         {% if sv.approved %}
                         {% if sv.is_current %}<span class="badge bg-success">Live</span>

@@ -957,7 +957,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .entry-lead b { color: var(--ink); font-weight: 600; }
 
 /* Flatpage body text matches entry-lead-block prose style */
-.flatpage-content { font-family: var(--serif); font-size: 1.24rem; line-height: 1.55; color: var(--ink-soft); }
+.flatpage-content { font-family: var(--serif); color: var(--ink-soft); }
 .flatpage-content a { color: var(--accent); }
 .flatpage-content a:hover { color: var(--accent); text-decoration: underline dotted; }
 .flatpage-modified { margin-top: 2rem; }
@@ -1205,9 +1205,8 @@ ins.diff-ins { text-decoration: none; border-radius: 2px; padding: 0 2px; }
 /* ============================================================
    USER PROFILE PAGE
    ============================================================ */
-.profile-dl { margin: 0; }
 .profile-fact { display: grid; grid-template-columns: 7rem 1fr; gap: .25rem .75rem;
-                padding: .4rem 0; border-bottom: 1px solid var(--rule); }
+                border-bottom: 1px solid var(--rule); }
 .profile-fact:last-child { border-bottom: 0; }
 .profile-fact dt { font-family: var(--mono); font-size: .72rem; text-transform: uppercase;
                    letter-spacing: .08em; color: var(--muted); padding-top: .1rem; }
