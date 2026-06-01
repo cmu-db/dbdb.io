@@ -81,6 +81,7 @@
         </div>
         <div class="results">
             <table class="rtable">
+                <colgroup><col><col><col><col><col></colgroup>
                 <thead>
                     <tr>
                         <th></th>
@@ -93,7 +94,7 @@
                 <tbody>
                     {% for acl in acl_entries %}
                     <tr>
-                        <td class="r-logo">{% mono_tile None acl.system.name %}</td>
+                        <td class="r-logo">{% mono_tile acl.system.current.logo acl.system.name %}</td>
                         <td><a href="{{ acl.system.get_absolute_url }}" class="r-name">{{ acl.system.name }}</a></td>
                         <td class="r-ver">{{ acl.ver_count }}</td>
                         <td class="r-date">{% if acl.last_edited %}{{ acl.last_edited|date:"Y-m-d" }}{% else %}—{% endif %}</td>
@@ -114,6 +115,7 @@
         {% if recent_versions %}
         <div class="results">
             <table class="rtable">
+                <colgroup><col><col><col><col><col></colgroup>
                 <thead>
                     <tr>
                         <th></th>
