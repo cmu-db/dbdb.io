@@ -87,8 +87,8 @@
         </button>
         <div class="collapse {% if cols_are_custom %}show{% endif %}" id="columns-panel">
           <div class="panel-body">
-            <div class="col-grid">
-                <div>
+            <div class="row row-cols-1 row-cols-md-3 gx-4 gy-3 pt-1">
+                <div class="col">
                     <div class="grp-h">General</div>
                     {% for col in available_builtin %}
                     <label class="col-check">
@@ -97,7 +97,7 @@
                     </label>
                     {% endfor %}
                 </div>
-                <div>
+                <div class="col">
                     <div class="grp-h">Implementation Features</div>
                     <div class="col-feat">
                     {% for col in available_features %}
@@ -108,7 +108,7 @@
                     {% endfor %}
                     </div>
                 </div>
-                <div>
+                <div class="col">
                     <div class="grp-h">Attributes</div>
                     {% for col in available_attributes %}
                     <label class="col-check">

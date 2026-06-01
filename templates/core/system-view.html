@@ -190,9 +190,9 @@
     {% endif %}
 </div>
 
-<div class="entry-grid">
+<div class="row gx-lg-5 align-items-start">
     <!-- MAIN -->
-    <div class="entry-main">
+    <div class="col-12 col-lg-8 entry-main">
         <!-- Desktop only: kicker, title, tags, full description -->
         <div class="d-none d-md-block">
             <div class="page-title">
@@ -282,7 +282,7 @@
     </div>
 
     <!-- SIDEBAR: hidden on mobile (factbox is rendered in the mobile block above) -->
-    <aside class="entry-sidebar d-none d-md-block">
+    <aside class="col-12 col-lg-4 entry-sidebar d-none d-md-block">
         {% partial factbox %}
 
         {% partialdef related inline %}

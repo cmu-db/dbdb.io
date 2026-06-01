@@ -870,8 +870,7 @@ form.main-search { display: block; padding: 0; }
 .choices__list--multiple .choices__item .choices__button:hover { opacity: 1; }
 
 /* column checklist */
-.col-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem 1.6rem; padding-top: .3rem; }
-.col-grid .grp-h {
+.grp-h {
   font-family: var(--mono); text-transform: uppercase; letter-spacing: .12em; font-size: .6rem; color: var(--muted);
   border-bottom: 1px solid var(--rule); padding-bottom: .35rem; margin-bottom: .55rem;
 }
@@ -928,7 +927,6 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 /* ============================================================
    ENTRY PAGE
    ============================================================ */
-.entry-grid { display: grid; grid-template-columns: 1fr 340px; gap: 3rem; align-items: start; }
 .entry-main {
   font-family: var(--serif);
   min-width: 0;
@@ -1095,7 +1093,6 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 /* ============================================================
    LEADERBOARDS — stat cards
    ============================================================ */
-.lb-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.6rem; align-items: start; }
 .lb-card { border: 1px solid var(--rule); background: var(--surface); display: flex; flex-direction: column; }
 .lb-h {
   font-family: var(--serif);
@@ -1193,11 +1190,6 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 /* ============================================================
    RESPONSIVE
    ============================================================ */
-@media (max-width: 991.98px) {
-  .entry-grid { grid-template-columns: 1fr; gap: 2rem; }
-  .entry-sidebar { order: 2; }
-  .lb-grid { grid-template-columns: repeat(2, 1fr); }
-}
 @media (max-width: 767.98px) {
   .shortcuts { grid-template-columns: 1fr; }
   .shortcut { border-right: 0; border-bottom: 1px solid var(--rule); }
@@ -1206,11 +1198,9 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   .spotlight .mono-tile { width: 84px; height: 84px; }
   .masthead-meta .edge { display: none; }
   .search-field .kbd { display: none; }
-  .col-grid { grid-template-columns: 1fr; }
   .bsearch input { font-size: 1.05rem; }
   .runhead .container { min-height: 0; }
   .results { overflow-x: auto; }
-  .lb-grid { grid-template-columns: 1fr; }
   .feed-item { grid-template-columns: 1fr; gap: .35rem; }
   .feed.revisions .feed-item { grid-template-columns: 30px 1fr; }
   .feed-time { padding-top: 0; }

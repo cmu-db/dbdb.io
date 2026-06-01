@@ -19,8 +19,9 @@
     <hr class="title-rule">
 </div>
 
-<div class="lb-grid">
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 align-items-start">
     {% for stat in stats %}
+    <div class="col">
     <div class="lb-card">
         <div class="lb-h py-2 px-1 fs-5 fw-bold">{{ stat.label }}</div>
         {% for item in stat.items %}
@@ -47,6 +48,7 @@
             <span class="lb-count">{{ item.value }}</span>
         </div>
         {% endfor %}
+    </div>
     </div>
     {% endfor %}
 </div>
