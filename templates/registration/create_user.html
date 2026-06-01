@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load django_bootstrap5 %}
+{% load alerts %}
 
 {% block css %}
 <style>
@@ -22,10 +23,9 @@ form#registration [for="captcha"] { display:none; }
                     <h1>User Registration</h1>
 
                     {% if expired_token %}
-                    <div class="alert alert-danger mb-0" role="alert">
-                        <p><strong>The registration link provided to you has expired.</strong></p>
-                        <p>Please request a new one.</p>
-                    </div>
+                    {% alert type="error" title="The registration link provided to you has expired." extra_classes="mb-0" %}
+                    Please request a new one.
+                    {% endalert %}
                     {% else %}
                     {% csrf_token %}
                     {% bootstrap_form form %}

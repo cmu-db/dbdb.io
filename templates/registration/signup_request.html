@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load django_bootstrap5 %}
+{% load alerts %}
 
 {% block title %}Request Editor Access{% endblock %}
 
@@ -14,7 +15,7 @@
     </p>
 
     {% if error %}
-    <div class="alert alert-danger" role="alert">{{ error }}</div>
+    {% alert type="error" %}{{ error }}{% endalert %}
     {% endif %}
 
     <form method="post">

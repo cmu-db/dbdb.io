@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load django_bootstrap5 %}
 {% load static %}
+{% load alerts %}
 
 {% block title %}
 Edit {{ system.name }}
@@ -30,14 +31,11 @@ Edit {{ system.name }}
     <form method="POST" enctype="multipart/form-data" id="edit-form">
 
     {% if pending_version %}
-    <div class="alert alert-warning d-flex gap-2 align-items-start" role="alert">
-        <i class="fa-solid fa-clock-rotate-left mt-1"></i>
-        <div>
-            <strong>Editing a pending (unapproved) version</strong> — v{{ pending_version.ver }},
-            saved {{ pending_version.created|timesince }} ago.
-            Your changes will not be visible publicly until an administrator approves them.
-        </div>
-    </div>
+    {% alert type="warning" icon="fa-solid fa-clock-rotate-left" %}
+    <strong>Editing a pending (unapproved) version</strong> — v{{ pending_version.ver }},
+    saved {{ pending_version.created|timesince }} ago.
+    Your changes will not be visible publicly until an administrator approves them.
+    {% endalert %}
     {% endif %}
 
     {% bootstrap_form_errors system_form type='all' %}
@@ -241,9 +239,7 @@ Edit {{ system.name }}
         <div class="form-group mb-3">
             <label for="id_comment" class="form-label fw-bold">Revision Comment</label>
             <textarea name="comment" rows="4" class="form-control" placeholder="Describe your changes…" id="id_comment"></textarea>
-            <div id="comment-error" class="alert alert-danger py-2 mt-2 small d-none" role="alert">
-                Please enter a revision comment before saving.
-            </div>
+            {% alert type="error" id="comment-error" icon="" extra_classes="mt-2 small d-none" %}Please enter a revision comment before saving.{% endalert %}
         </div>
         <div class="d-grid gap-2">
             <button type="submit" class="btn btn-primary" name="action" value="save" id="btn-save">

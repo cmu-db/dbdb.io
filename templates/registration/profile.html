@@ -2,6 +2,7 @@
 {% load static %}
 {% load humanize %}
 {% load logos %}
+{% load alerts %}
 
 {% block title %}Profile — {{ profile_user.username }}{% endblock %}
 
@@ -49,9 +50,7 @@
                 <form method="post" novalidate>
                     {% csrf_token %}
                     {% if email_form.non_field_errors %}
-                    <div class="alert alert-danger py-2 mb-3">
-                        {% for e in email_form.non_field_errors %}{{ e }}{% endfor %}
-                    </div>
+                    {% alert type="error" extra_classes="mb-3" %}{% for e in email_form.non_field_errors %}{{ e }}{% endfor %}{% endalert %}
                     {% endif %}
                     <div class="ed-field">
                         <label for="id_email">{{ email_form.email.label }}</label>

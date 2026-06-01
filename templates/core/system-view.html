@@ -5,6 +5,7 @@
 {% load thumbnail %}
 {% load citations %}
 {% load links %}
+{% load alerts %}
 
 {% block twitter %}
     <meta property="og:title" content="Database of Databases &mdash; {{ system.name }}" />
@@ -36,32 +37,32 @@
 {% partialdef revision_notice %}
   {% if has_revision %}
   {% if not system_version.approved %}
-  <div class="alert alert-warning mt-3" role="alert">
-      <strong>Pending:</strong> Version #{{ system_version.ver }} from {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }} is awaiting approval and is not publicly visible.
-      {% if approved_ver %}
-      <a href="{% url 'system_version' system.slug approved_ver %}" class="btn btn-secondary btn-sm ms-2">View Approved</a>
-      {% else %}
-      <a href="{{ system.get_absolute_url }}" class="btn btn-secondary btn-sm ms-2">View Approved</a>
-      {% endif %}
-  </div>
+  {% alert type="warning" icon="fa-solid fa-clock-rotate-left" extra_classes="mt-3" %}
+  <strong>Pending:</strong> Version #{{ system_version.ver }} from {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }} is awaiting approval and is not publicly visible.
+  {% if approved_ver %}
+  <a href="{% url 'system_version' system.slug approved_ver %}" class="btn-edit ms-2">View Approved</a>
   {% else %}
-  <div class="alert alert-info mt-3" role="alert">
-      Viewing Revision #{{ system_version.ver }} from {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
-      <a href="{{ system.get_absolute_url }}" class="btn btn-secondary btn-sm ms-2">View Current</a>
-      {% if not system_version.is_current and user.is_authenticated %}
-      <form class="form-inline d-inline" action="{% url 'system_revision' system.slug %}" method="POST">
-          {% csrf_token %}
-          <input type="hidden" value="{{ system_version.id }}" name="current_version">
-          <button type="submit" class="btn btn-primary btn-sm ms-2">Set As Current</button>
-      </form>
-      {% endif %}
-  </div>
+  <a href="{{ system.get_absolute_url }}" class="btn-edit ms-2">View Approved</a>
+  {% endif %}
+  {% endalert %}
+  {% else %}
+  {% alert type="info" icon="fa-solid fa-eye" extra_classes="mt-3" %}
+  Viewing Revision #{{ system_version.ver }} from {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
+  <a href="{{ system.get_absolute_url }}" class="btn-edit ms-2">View Current</a>
+  {% if not system_version.is_current and user.is_authenticated %}
+  <form class="d-inline ms-2" action="{% url 'system_revision' system.slug %}" method="POST">
+      {% csrf_token %}
+      <input type="hidden" value="{{ system_version.id }}" name="current_version">
+      <button type="submit" class="btn-solid">Set As Current</button>
+  </form>
+  {% endif %}
+  {% endalert %}
   {% endif %}
   {% endif %}
 {% endpartialdef %}
 
 {% if request.GET.noperms and request.GET.noperms == '1' %}
-<div class="alert alert-danger mb-3">You do not have permission to edit this entry</div>
+{% alert type="error" extra_classes="mb-3" %}You do not have permission to edit this entry.{% endalert %}
 {% endif %}
 
 {# Factbox partial — defined here (no inline) so {% partial factbox %} works in both     #}

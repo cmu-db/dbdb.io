@@ -1,5 +1,6 @@
 {% load static %}
 {% load django_bootstrap5 %}
+{% load alerts %}
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
@@ -44,10 +45,7 @@
 
 <main class="container pb-4 pt-3 page-{{ activate }}">
     {% if page_error %}
-    <div class="page-alert" role="alert">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        <span>{{ page_error|safe }}</span>
-    </div>
+    {% alert type="error" %}{{ page_error|safe }}{% endalert %}
     {% endif %}
     {% block content %}{% endblock %}
 </main>

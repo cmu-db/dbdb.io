@@ -2,6 +2,7 @@
 {% load static %}
 {% load django_bootstrap5 %}
 {% load humanize %}
+{% load alerts %}
 
 {% block title %}Diff: {{ system.name }} v{{ v1.ver }} → v{{ v2.ver }}{% endblock %}
 
@@ -17,17 +18,18 @@
 </div>
 
 {% if can_approve %}
-<div class="alert alert-info d-flex align-items-center gap-3 mb-4" role="alert">
-    <i class="fa-solid fa-circle-check fa-lg"></i>
+{% alert type="info" icon="fa-solid fa-circle-check" extra_classes="mb-4" %}
+<div class="d-flex align-items-center gap-3 flex-wrap">
     <div class="flex-grow-1">
         <strong>v{{ v2.ver }} is pending approval.</strong>
         Approving will make it the live version of {{ system.name }}.
     </div>
     <form method="post">
         {% csrf_token %}
-        <button type="submit" class="btn btn-success btn-sm">Approve v{{ v2.ver }}</button>
+        <button type="submit" class="btn-solid">Approve v{{ v2.ver }}</button>
     </form>
 </div>
+{% endalert %}
 {% endif %}
 
 <table class="diff-table">

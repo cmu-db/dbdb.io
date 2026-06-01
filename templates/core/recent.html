@@ -3,6 +3,7 @@
 {% load logos %}
 {% load django_bootstrap5 %}
 {% load humanize %}
+{% load alerts %}
 
 {% block title %}Recent Changes{% endblock %}
 
@@ -22,13 +23,9 @@
     <hr class="title-rule">
 </div>
 
-{% if messages %}
-<div class="mb-3">
-    {% for message in messages %}
-    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %}" role="alert">{{ message }}</div>
-    {% endfor %}
-</div>
-{% endif %}
+{% for message in messages %}
+{% alert type=message.tags %}{{ message }}{% endalert %}
+{% endfor %}
 
 <div class="feed-wrap">
 
