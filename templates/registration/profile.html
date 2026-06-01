@@ -73,11 +73,15 @@
 
     <section class="profile-main">
 
-        {% if acl_entries %}
+        {% if acl_entries or profile_user.is_superuser %}
         <div class="sec-head flush">
             <h2>Systems You Maintain</h2>
             <span class="rule"></span>
+            {% if profile_user.is_superuser %}
+            <span class="num">Superuser — all systems</span>
+            {% else %}
             <span class="num">{{ acl_entries|length }} with edit access</span>
+            {% endif %}
         </div>
         <div class="results">
             <table class="rtable">
@@ -92,6 +96,13 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% if profile_user.is_superuser %}
+                    <tr>
+                        <td class="r-logo"><i class="fa-solid fa-shield-halved text-muted"></i></td>
+                        <td colspan="3"><span class="r-name">All Systems</span><span class="text-muted ms-2 small">Superuser edit access</span></td>
+                        <td class="r-actions"></td>
+                    </tr>
+                    {% endif %}
                     {% for acl in acl_entries %}
                     <tr>
                         <td class="r-logo">{% mono_tile acl.system.current.logo acl.system.name %}</td>
