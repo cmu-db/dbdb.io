@@ -1,5 +1,6 @@
 /* ============================================================
-   Database of Databases — Editorial redesign
+   Database of Databases — style.css
+   Consolidated from base.css + dbdb-redesign.css + system.css.
    Built on Bootstrap 5.3. Custom tokens + editorial layer.
    ============================================================ */
 
@@ -10,6 +11,7 @@
    DESIGN TOKENS
    ============================================================ */
 :root {
+  /* Typography */
   --serif: 'Newsreader', Georgia, 'Times New Roman', serif;
   --sans:  'IBM Plex Sans', system-ui, -apple-system, sans-serif;
   --mono:  'IBM Plex Mono', ui-monospace, 'SF Mono', monospace;
@@ -35,6 +37,15 @@
   --diff-ins-bg:     #d4edda;
   --diff-ins-fg:     #155724;
   --diff-ins-border: #198754;
+
+  /* Legacy tokens still referenced by active rules */
+  --highlight-color:    #f2e29f;   /* citations li:target background */
+  --browse-hover-color: #f7ced5;   /* browse table row hover */
+
+  /* Bootstrap focus ring override */
+  --bs-focus-ring-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  --bs-focus-ring-width: 0.25rem;
+  --bs-focus-ring-blur:  0.25rem;
 }
 
 [data-bs-theme="dark"] {
@@ -54,7 +65,123 @@
 }
 
 /* ============================================================
-   BASE
+   LEGACY BASE — active rules carried forward
+   ============================================================ */
+
+h1 {
+    font-size: calc(2rem + 1.5vw);
+    line-height: 1.0;
+}
+
+/* Bootstrap focus ring colour */
+.form-control:focus,
+.form-select:focus {
+    border-color: #ff6400;
+    box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0)
+                var(--bs-focus-ring-blur) var(--bs-focus-ring-width)
+                var(--bs-focus-ring-color);
+}
+
+/* Primary button tinted to brand accent */
+.btn-primary {
+    background-color: var(--accent) !important;
+    border-color:     var(--accent) !important;
+}
+
+/* System link component */
+.system-link { padding-right: 3px; }
+.system-link:active { color: #6d6e71 !important; }
+.system-link .icon { transition: transform 0.3s ease; margin-left: -2px; padding-right: 2px; }
+.system-link:hover .icon { transform: translateX(5px); }
+
+/* Logo sizes — system entry page */
+.logo-thumbnail img { border: none; }
+img.logo-normal { width: 100%; max-width: 20rem; }
+img.logo-tall   { max-height: 20rem; }
+
+/* Search keyword highlight in browse results */
+span.search-keyword {
+    background-color: var(--surface-2);
+    font-family: var(--mono);
+    border-radius: 4px;
+    padding: 6px;
+}
+
+/* Browse table rows */
+tr.browse-row { cursor: pointer; }
+tr.browse-row:hover { background-color: var(--browse-hover-color); }
+
+/* Browse panel toggle state (managed by browse.js) */
+.bg-active   { background-color: var(--surface-2); box-shadow: 0 4px 6px rgba(0,0,0,.1); }
+.no-transition { transition: none !important; }
+
+/* z-index stacking for browse filter and choices dropdown */
+#filter                  { position: relative; z-index: 1000; }
+.choices__list--dropdown { z-index: 1001 !important; }
+.noUi-target             { z-index: 999 !important; }
+
+/* Badges */
+.badge:hover { text-decoration: none; }
+
+/* Citation styling */
+.citation { font-weight: normal; }
+.citations ol { font-size: 90%; }
+.citations li:target {
+    background-color: var(--highlight-color);
+    border: 2px solid var(--accent);
+    scroll-margin-top: 5rem;
+}
+
+.citation-btn-container {
+    display: inline-flex;
+    align-items: stretch;
+    overflow: hidden;
+}
+.citation-btn {
+    font-size: 95%;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+.citation-btn-container.expanded .citation-btn {
+    border-radius: 0.375rem 0 0 0.375rem;
+}
+.citation-link-container {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    background-color: var(--muted);
+}
+.citation-btn-container.expanded .citation-link-container {
+    max-width: 10rem;
+    opacity: 1;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.citation-expand-link {
+    white-space: nowrap;
+    text-decoration: none;
+    color: #fff;
+    font-weight: 500;
+    border-radius: 0.25rem;
+    transition: background 0.2s ease;
+}
+.citation-expand-link:hover { color: #fff; }
+
+/* Autocomplete suggestions */
+.autocomplete-suggestion { font-family: var(--mono); }
+.autocomplete-suggestion b {
+    color: var(--accent) !important;
+    background-color: var(--highlight-color);
+}
+
+/* "Same as" indicator on system feature rows */
+.section-sameas { font-size: 110%; }
+
+/* ============================================================
+   BASE (editorial redesign)
    ============================================================ */
 html { scroll-behavior: smooth; }
 
@@ -68,7 +195,7 @@ body {
 
 ::selection { background: var(--accent); color: var(--accent-ink); }
 
-a { color: var(--ink); text-decoration: none; }
+a { color: var(--ink); text-decoration: none; transition: color .15s; }
 a:hover { color: var(--accent); }
 
 .label {
@@ -184,9 +311,7 @@ a:hover { color: var(--accent); }
 .masthead-meta .edge { flex: none; }
 
 /* primary nav row */
-.topnav {
-  background: var(--paper);
-}
+.topnav { background: var(--paper); }
 .topnav .container {
   display: flex;
   justify-content: center;
@@ -269,7 +394,6 @@ a:hover { color: var(--accent); }
   justify-content: center;
   flex-wrap: wrap;
   gap: .6rem;
-  /*margin-top: 1.2rem;*/
 }
 .cta {
   font-family: var(--mono);
@@ -301,7 +425,6 @@ a:hover { color: var(--accent); }
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
   border: 1px solid var(--rule);
-  /*margin-top: 2.6rem;*/
   background: var(--surface);
 }
 .shortcut {
@@ -641,7 +764,6 @@ a:hover { color: var(--accent); }
 /* ============================================================
    BROWSE — search + filters
    ============================================================ */
-/*.browse-wrap { max-width: 920px; margin: 0 auto; }*/
 form.main-search { display: block; padding: 0; }
 
 .bsearch {
@@ -826,22 +948,18 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .btn-edit:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 
 .entry-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1rem; }
-.entry-lead {
-}
 .entry-lead-block p {
   font-family: var(--serif); font-size: 1.24rem; line-height: 1.55; color: var(--ink-soft);
-  /*max-width: 68ch;*/
 }
 .entry-section p {
   font-family: var(--serif); font-size: 1.07rem; line-height: 1.62; color: var(--ink);
-  /*max-width: 72ch;*/
 }
 .entry-lead b { color: var(--ink); font-weight: 600; }
 
 /* Flatpage body text matches entry-lead-block prose style */
 .flatpage-content { font-family: var(--serif); font-size: 1.24rem; line-height: 1.55; color: var(--ink-soft); }
-.flatpage-content a { color: var(--link-color); }
-.flatpage-content a:hover { color: var(--link-color); text-decoration: underline dotted; }
+.flatpage-content a { color: var(--accent); }
+.flatpage-content a:hover { color: var(--accent); text-decoration: underline dotted; }
 .flatpage-modified { margin-top: 2rem; }
 .flatpage-content h2 { margin-top: 2.3rem; }
 
@@ -881,7 +999,6 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .factbox { border: 1px solid var(--rule); background: var(--surface); }
 .fb-logo {
   padding: 1.6rem; border-bottom: 1px solid var(--rule);
-  /*display: grid;*/
   place-items: center;
 }
 .fb-logo .mono-tile { width: 96px; height: 96px; font-size: 1.7rem; }
@@ -1093,3 +1210,30 @@ ins.diff-ins { text-decoration: none; border-radius: 2px; padding: 0 2px; }
 .profile-fact dt { font-family: var(--mono); font-size: .72rem; text-transform: uppercase;
                    letter-spacing: .08em; color: var(--muted); padding-top: .1rem; }
 .profile-fact dd { margin: 0; font-size: .9rem; }
+
+/* ============================================================
+   SYSTEM PAGE — specific styles (formerly system.css)
+   ============================================================ */
+.markdown-area > h1 { font-size: 1.7em; }
+.markdown-area > h2 { font-size: 1.5em; }
+.markdown-area > h3 { font-size: 1.3em; }
+
+h3 > sup {
+  font-size: 0.5em;
+  top: -1em;
+}
+
+.badge-section::before { content: "▶ "; }
+
+div.card h2 a { font-size: 16px; }
+div.card h4 a { font-size: 16px; }
+
+div.popover { max-width: 600px; }
+div.popover .popover-body ul { font-size: 12px; padding: 0 20px; margin: 10px 0; }
+
+cite.hidden { display: none; }
+
+div.systems-extra { margin-top: 20px; }
+@media screen and (max-width: 760px) {
+  div.systems-extra h4 { font-size: 140%; }
+}

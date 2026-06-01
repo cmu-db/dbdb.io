@@ -6,10 +6,6 @@
 {% load citations %}
 {% load links %}
 
-{% block css %}
-<link href="{% static 'core/css/system.css' %}" rel="stylesheet">
-{% endblock %}
-
 {% block twitter %}
     <meta property="og:title" content="Database of Databases &mdash; {{ system.name }}" />
     <meta property="og:description" content="{{ system_version.description|truncatechars:300 }}" />
