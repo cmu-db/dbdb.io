@@ -22,6 +22,14 @@
     <hr class="title-rule">
 </div>
 
+{% if messages %}
+<div class="mb-3">
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %}" role="alert">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
 <div style="max-width:860px;margin:0 auto;">
 
 {% if not revision_list %}

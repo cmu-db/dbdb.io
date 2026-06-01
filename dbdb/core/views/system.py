@@ -994,9 +994,19 @@ class SystemVersionDiffView(View):
     template_name = 'core/system-diff.html'
 
     def get(self, request, slug, ver1, ver2):
+        from django.contrib import messages
+
         system = get_object_or_404(System, slug=slug)
-        v1 = get_object_or_404(SystemVersion, system=system, ver=ver1)
-        v2 = get_object_or_404(SystemVersion, system=system, ver=ver2)
+        try:
+            v1 = SystemVersion.objects.get(system=system, ver=ver1)
+        except SystemVersion.DoesNotExist:
+            messages.error(request, f'{system.name} does not have a version #{ver1}.')
+            return redirect('system_revision', slug=slug)
+        try:
+            v2 = SystemVersion.objects.get(system=system, ver=ver2)
+        except SystemVersion.DoesNotExist:
+            messages.error(request, f'{system.name} does not have a version #{ver2}.')
+            return redirect('system_revision', slug=slug)
 
         can_approve = (
             request.user.is_authenticated
