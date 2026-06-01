@@ -1,4 +1,5 @@
 from django import template
+from django.template.base import FilterExpression
 from django.utils.html import conditional_escape, mark_safe
 
 register = template.Library()
@@ -21,7 +22,7 @@ class AlertNode(template.Node):
         self.alert_id     = alert_id
 
     def _resolve(self, val, context):
-        if isinstance(val, template.FilterExpression):
+        if isinstance(val, FilterExpression):
             resolved = val.resolve(context, ignore_failures=True)
             return str(resolved) if resolved is not None else ''
         return val or ''
