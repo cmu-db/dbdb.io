@@ -42,8 +42,9 @@
   --highlight-color:    #f2e29f;   /* citations li:target background */
   --browse-hover-color: #f7ced5;   /* browse table row hover */
 
-  /* Status badge green */
-  --ok: #1f8a5b;
+  /* Status badge colors */
+  --ok:   #1f8a5b;
+  --warn: #7a5a00;
 
   /* Bootstrap focus ring override */
   --bs-focus-ring-color: color-mix(in srgb, var(--accent) 60%, transparent);
@@ -66,6 +67,7 @@
   --accent-ink:#1a0d0f;
   --tint:     rgba(240,64,92,0.10);
   --ok:       #4fbd8a;
+  --warn:     #ffc55a;
 }
 
 /* ============================================================
@@ -1183,7 +1185,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   display: inline-flex; align-items: center; gap: .35rem;
   transition: border-color .15s, color .15s;
 }
-.diff-link:hover { border-color: var(--accent); color: var(--accent); }
+.diff-link:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 
 .pager { display: flex; align-items: center; justify-content: center; gap: .3rem; padding: 1.4rem 0; flex-wrap: wrap; }
 .pager .pg, .pager .pg-edge {
@@ -1303,6 +1305,8 @@ ins.diff-ins { text-decoration: none; border-radius: 2px; padding: 0 2px; }
 .status.live::before { background: var(--ok); }
 .status.super { color: var(--muted); }
 .status.super::before { background: var(--muted); }
+.status.pending { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 38%, var(--rule)); }
+.status.pending::before { background: var(--warn); }
 
 .r-ver { font-family: var(--mono); font-size: .78rem; color: var(--ink-soft); white-space: nowrap; }
 .r-date { font-family: var(--mono); font-size: .76rem; color: var(--muted); white-space: nowrap; }

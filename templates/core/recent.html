@@ -4,6 +4,7 @@
 {% load django_bootstrap5 %}
 {% load humanize %}
 {% load alerts %}
+{% load version_status %}
 
 {% block title %}Recent Changes{% endblock %}
 
@@ -60,11 +61,7 @@
                 {% mono_tile version.logo version.system.name 'recent' extra_classes='feed-tile' %}
                 <a href="{% url 'system_revision' version.system.slug %}" class="sys">{{ version.system.name }}</a>
 
-                <!-- BEGIN:PENDING -->
-                {% if not version.approved %}
-                <span class="badge bg-warning text-dark ms-1" title="Pending approval — only visible to editors">Pending</span>
-                {% endif %}
-                <!-- END:PENDING -->
+                {% if not version.approved %}{% ver_status version.approved %}{% endif %}
 
                 <!-- BEGIN:ACTIONS -->
                 <div class="feed-actions">

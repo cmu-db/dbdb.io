@@ -3,6 +3,7 @@
 {% load django_bootstrap5 %}
 {% load humanize %}
 {% load alerts %}
+{% load version_status %}
 
 {% block title %}Diff: {{ system.name }} v{{ v1.ver }} → v{{ v2.ver }}{% endblock %}
 
@@ -49,7 +50,7 @@
                         <span class="ver-meta">
                             — {{ v1.created|date:"Y-m-d H:i" }} by {{ v1.creator.username }}
                             <i class="fa-solid fa-share-from-square"></i>
-                            {% if not v1.approved %}<span class="badge bg-warning text-dark ms-1">Pending</span>{% endif %}
+                            {% if not v1.approved %}{% ver_status v1.approved %}{% endif %}
                         </span>
                     </a>
                 </div>
@@ -61,7 +62,7 @@
                         <span class="ver-meta">
                             — {{ v2.created|date:"Y-m-d H:i" }} by {{ v2.creator.username }}
                             <i class="fa-solid fa-share-from-square"></i>
-                            {% if not v2.approved %}<span class="badge bg-warning text-dark ms-1">Pending</span>{% endif %}
+                            {% if not v2.approved %}{% ver_status v2.approved %}{% endif %}
                         </span>
                     </a>
                 </div>

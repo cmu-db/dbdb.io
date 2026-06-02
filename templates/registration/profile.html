@@ -3,6 +3,7 @@
 {% load humanize %}
 {% load logos %}
 {% load alerts %}
+{% load version_status %}
 
 {% block title %}Profile — {{ profile_user.username }}{% endblock %}
 
@@ -141,12 +142,7 @@
                         <td><a href="{{ sv.get_absolute_url }}" class="r-name">{{ sv.system.name }}</a></td>
                         <td class="r-ver">#{{ sv.ver }}</td>
                         <td class="r-date">{{ sv.created|date:"Y-m-d H:i" }}</td>
-                        <td>
-                            {% if sv.approved %}
-                                {% if sv.is_current %}<span class="status live">Live</span>
-                                {% else %}<span class="status super">Superseded</span>{% endif %}
-                            {% else %}<span class="status">Pending</span>{% endif %}
-                        </td>
+                        <td>{% ver_status sv.approved sv.is_current %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
