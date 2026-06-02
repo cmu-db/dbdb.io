@@ -151,7 +151,7 @@ def merge_organizations(merge_to: Organization, merge_from: list[Organization]) 
       - M2M through-table: core_systemversion_developer_orgs
       - FK on Acquisition.organization (unique_together with version — deduplicated)
     """
-    LOG.debug("Merging %d organization(s) into %s", len(merge_from), merge_to)
+    LOG.debug("Merging %d organization(s) into '%s'", len(merge_from), merge_to)
 
     from_ids = [o.id for o in merge_from]
     all_ids  = from_ids + [merge_to.id]

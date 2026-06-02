@@ -22,6 +22,14 @@ SITEMAP_NSMAP = {None: SITEMAP_NAMESPACE}
 # ==============================================
 # EmptyFieldsView
 # ==============================================
+
+# Reverse-FK accessors on SystemVersion that are worth exposing as searchable
+# fields even though _meta.get_fields() returns them as ManyToOneRel objects.
+_REVERSE_FK_FIELDS = frozenset({
+    'acquisitions',
+})
+
+
 class EmptyFieldsView(View):
 
     template_name = 'core/empty-fields.html'
@@ -32,6 +40,8 @@ class EmptyFieldsView(View):
         IGNORE_TYPES = [
             django.db.models.fields.AutoField,
             django.db.models.fields.related.ForeignKey,
+            django.db.models.fields.related.ManyToOneRel,
+            django.db.models.fields.related.OneToOneRel,
             #django.db.models.fields.related.ManyToManyField,
         ]
         IGNORE_NAMES = [
@@ -43,7 +53,7 @@ class EmptyFieldsView(View):
             "systemversion",
         ]
 
-        version_fields = [ ]
+        version_fields = []
         for f in SystemVersion._meta.get_fields():
             if f.name.endswith("_citations") and not include_citations:
                 continue
@@ -55,10 +65,9 @@ class EmptyFieldsView(View):
                 # SPECIAL!
                 # I want to be able to find all the non-SVG logos
                 if f.name == "logo": version_fields.append(f.name + "__SVG")
-        ## FOR
 
-        return (version_fields)
-    ## DEF
+        version_fields.extend(_REVERSE_FK_FIELDS)
+        return version_fields
 
     def get(self, request):
         import django.db.models.fields
@@ -76,26 +85,29 @@ class EmptyFieldsView(View):
         if search_field:
             query = None
             field = None
+            field_name = None
+            field_type = None
 
             if search_field in version_fields:
-                # SPECIAL
-                if search_field.endswith("__SVG"):
-                    field = SystemVersion._meta.get_field(search_field[:-5])
-                else:
-                    field = SystemVersion._meta.get_field(search_field)
-                field_name = field.name
-                field_type = type(field)
-
-                # We have to query the different field types a certain way
-                if field_type == django.db.models.fields.PositiveIntegerField:
-                    query = Q(**{field_name: None})
-                elif field_type == django.db.models.fields.related.ManyToManyField:
-                    query = Q(**{field_name: None})
+                if search_field in _REVERSE_FK_FIELDS:
+                    # Reverse FK: find versions with no related objects
+                    query = Q(**{search_field + '__isnull': True})
                 elif search_field.endswith("__SVG"):
+                    field = SystemVersion._meta.get_field(search_field[:-5])
+                    field_name = field.name
+                    field_type = type(field)
                     query = Q(logo__endswith=".svg")
                 else:
-                    query = Q(**{field_name: ''})
+                    field = SystemVersion._meta.get_field(search_field)
+                    field_name = field.name
+                    field_type = type(field)
 
+                    if field_type == django.db.models.fields.PositiveIntegerField:
+                        query = Q(**{field_name: None})
+                    elif field_type == django.db.models.fields.related.ManyToManyField:
+                        query = Q(**{field_name + '__isnull': True})
+                    else:
+                        query = Q(**{field_name: ''})
             else:
                 raise Exception("Invalid field '%s'" % search_field)
 
@@ -104,17 +116,20 @@ class EmptyFieldsView(View):
             else:
                 versions = versions.filter(query)
 
-            # convert query list to regular list
-            # and add href/url to each
-            versions = list( versions.order_by('system__name') )
+            # distinct() prevents duplicate rows from the outer-join used by isnull
+            versions = list(versions.distinct().order_by('system__name'))
             for version in versions:
-                version.href = request.build_absolute_uri( version.system.get_absolute_url() )
-                if type(field) == django.db.models.fields.related.ManyToManyField:
-                    method_handle = getattr(version, search_field + "_str")
-                    version.value = method_handle()
+                version.href = request.build_absolute_uri(version.system.get_absolute_url())
+                if search_field in _REVERSE_FK_FIELDS:
+                    version.value = ', '.join(
+                        str(o) for o in getattr(version, search_field).all()
+                    )
+                elif field_type == django.db.models.fields.related.ManyToManyField:
+                    version.value = ', '.join(
+                        str(o) for o in getattr(version, field_name).all()
+                    )
                 else:
                     version.value = getattr(version, field_name, None)
-                pass
         ## IF
 
         num_systems = System.objects.all().count()
