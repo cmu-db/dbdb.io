@@ -389,6 +389,10 @@ def clone_system_version(
         sf.id = None
         sf.version = new_version
         sf.save()
+        # After reassigning pk via save(), the prefetch cache is stale: it
+        # was populated for the old pk, so set() would treat the old entries
+        # as "already present" and skip all inserts for the new row.
+        sf._prefetched_objects_cache = {}
         sf.options.set(sf_options)
         sf.citations.set(sf_citations)
 
