@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            system = System.objects.get(slug=options['slug'])
+            system = System.objects.get(slug__iexact=options['slug'])
         except System.DoesNotExist:
             self.stderr.write(f"System '{options['slug']}' not found.\n")
             return

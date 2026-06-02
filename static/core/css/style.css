@@ -1185,7 +1185,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .feed-line .verb { font-family: var(--sans); font-size: .9rem; color: var(--ink-soft); }
 .feed-line .actor { font-family: var(--mono); font-size: .8rem; color: var(--accent); display: inline-flex; align-items: center; gap: .35rem; }
 .feed-tile { width: 30px; height: 30px; flex: none; font-size: .7rem; }
-.feed-line .sys { font-family: var(--serif); font-weight: 600; font-size: 1.08rem; color: var(--ink); }
+.feed-line .sys { font-family: var(--serif); font-weight: 600; color: var(--ink); }
 .feed-line .btn-edit { margin-top: 0; }
 .feed-line .feed-line-right { margin-left: auto; }
 .feed-line a.sys:hover { color: var(--accent); }

@@ -58,8 +58,10 @@
                     <i class="fa-regular fa-user"></i> {{ version.creator.username }}
                 </a>
                 <span class="verb">{% if version.ver == 1 %}created{% else %}updated{% endif %}</span>
-                {% mono_tile version.logo version.system.name 'recent' extra_classes='feed-tile' %}
-                <a href="{% url 'system_revision' version.system.slug %}" class="sys">{{ version.system.name }}</a>
+                <a href="{% url 'system_revision' version.system.slug %}" title="View Revisions for {{ version.system.name }}">
+                    {% mono_tile version.logo version.system.name 'recent' extra_classes='feed-tile' %}
+                </a>
+                <a href="{% url 'system_revision' version.system.slug %}" class="sys" title="View Revisions for {{ version.system.name }}">{{ version.system.name }}</a>
 
                 {% if not version.approved %}{% ver_status version.approved %}{% endif %}
 
@@ -69,7 +71,7 @@
                     <button class="cmp-btn" data-ver="{{ version.ver }}" type="button">+ Compare</button>
                     {% endif %}
                     {% if version.diff_prev_ver %}
-                    <a href="{% url 'system_diff' version.system.slug version.diff_prev_ver version.ver %}" class="diff-link"><i class="fa-solid fa-code-compare"></i> Diff</a>
+                    <a href="{% url 'system_diff' version.system.slug version.diff_prev_ver version.ver %}" class="diff-link" title="Recent Difference With Previous Revision"><i class="fa-solid fa-code-compare"></i> Diff</a>
                     {% endif %}
                 </div>
                 <!-- END:ACTIONS -->
