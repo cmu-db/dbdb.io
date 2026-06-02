@@ -40,28 +40,28 @@
         </button>
         <div class="collapse" id="filter">
           <div class="panel-body">
-            <div class="filter-group row mb-2" hidden id="template">
-                <div class="dropdown col-12 col-md-5">
-                    <button class="field-pick dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="filter-row d-flex flex-column flex-md-row gap-3 mb-2" hidden id="template">
+                <div class="dropdown align-self-md-start">
+                    <button class="field-pick dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Search Fields <i class="fas fa-chevron-down chev"></i>
                     </button>
-                    <ul class="dropdown-menu" style="max-height:200px;overflow-y:auto;">
+                    <ul class="dropdown-menu">
                         {% for label in dropdown_fields %}<li class="dropdown-item">{{ label }}</li>{% endfor %}
                     </ul>
-                    <a href="javascript:;" class="remove ms-2 text-secondary small"><i class="fas fa-times"></i> remove</a>
                 </div>
+                <a href="javascript:;" class="row-remove align-self-md-center"><i class="fas fa-xmark"></i> Remove</a>
             </div>
 
-            <div class="filter-group row mb-2" id="filter-none">
-                <div class="dropdown col-12 col-md-5">
-                    <button class="field-pick dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="filter-row d-flex flex-column flex-md-row gap-3 mb-2" id="filter-none">
+                <div class="dropdown align-self-md-start">
+                    <button class="field-pick dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Search Fields <i class="fas fa-chevron-down chev"></i>
                     </button>
-                    <ul class="dropdown-menu" style="max-height:200px;overflow-y:auto;">
+                    <ul class="dropdown-menu">
                         {% for label in dropdown_fields %}<li class="dropdown-item">{{ label }}</li>{% endfor %}
                     </ul>
-                    <a href="javascript:;" class="remove ms-2 text-secondary small"><i class="fas fa-times"></i> remove</a>
                 </div>
+                <a href="javascript:;" class="row-remove align-self-md-center"><i class="fas fa-xmark"></i> Remove</a>
             </div>
 
             <div class="filter-actions" id="advanced-search-btn-container">

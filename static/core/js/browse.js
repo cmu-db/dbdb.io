@@ -1,96 +1,3 @@
-function YearRange(selector) {
-    var self = this;
-    var $elem = $(selector);
-    var $btn_toggle = $elem.find('button.btn-toggle');
-    var $input_min = $elem.find('input[for="min"]');
-    var $input_max = $elem.find('input[for="max"]');
-    var $var_min = $elem.find('var[for="min"]');
-    var $var_max = $elem.find('var[for="max"]');
-    var $range = $elem.find('div.range');
-    var range = $range[0];
-
-    var initial_state = null;
-    var min = parseInt( $elem.data('min') , 10 );
-    var max = parseInt( $elem.data('max') , 10 );
-    var selected_min = $input_min.val() ? parseInt( $input_min.val() , 10 ) : '';
-    var selected_max = $input_max.val() ? parseInt( $input_max.val() , 10 ) : '';
-
-    self.update = function update(values, handle) {
-        if ( ! $elem.hasClass('active') ) return;
-
-        var val = parseInt( values[handle] , 10 );
-
-        if ( handle == 0 ) {
-            $input_min.val(val);
-            $var_min.text(val);
-            if (val != selected_min) $elem.addClass('changed');
-        }
-        else if ( handle == 1 ) {
-            $input_max.val(val);
-            $var_max.text(val);
-            if (val != selected_max) $elem.addClass('changed');
-        }
-    };
-
-    self.toggle = function toggle() {
-        if ( $elem.hasClass('active') ) {
-            self.disable();
-        }
-        else {
-            self.enable();
-        }
-        $elem.addClass('changed');
-    };
-
-    self.enable = function enable() {
-        $elem.addClass('active');
-        $range.show();
-        $btn_toggle.text('Enabled');
-        $input_min.prop('disabled', false);
-        $input_max.prop('disabled', false);
-        var values = range.noUiSlider.get();
-        self.update(values, 0);
-        self.update(values, 1);
-    };
-
-    self.disable = function disable() {
-        $elem.removeClass('active');
-        $range.hide();
-        $btn_toggle.text('Enable');
-        $input_min.prop('disabled', true);
-        $input_max.prop('disabled', true);
-        $input_min.val('');
-        $input_max.val('');
-    };
-
-    self.init = function init() {
-        if ( selected_min && selected_max ) {
-            $elem.addClass('active');
-        }
-
-        noUiSlider.create(range, {
-            connect: true,
-            start: [selected_min ? selected_min : min, selected_max ? selected_max : max],
-            step: 1,
-            range: { 'min': min, 'max': max }
-        });
-
-        range.noUiSlider.on('update', self.update);
-
-        if ( $elem.hasClass('active') ) {
-            initial_state = 'active';
-            self.enable();
-        }
-        else {
-            initial_state = 'disabled';
-            self.disable();
-        }
-
-        $btn_toggle.click(self.toggle);
-    };
-    self.init();
-}
-
 function add_filter_button() {
     const template = document.getElementById('template');
     const copy = template.cloneNode(true);
@@ -115,16 +22,18 @@ function buildFilterChoices(fg, select, selected_options) {
 }
 
 function buildFilterGroup(item, selected_options=[]) {
-    item.parentElement.previousElementSibling.textContent = item.textContent;
+    item.parentElement.previousElementSibling.innerHTML =
+        item.textContent + ' <i class="fas fa-chevron-down chev"></i>';
 
     const filterdata = JSON.parse(document.getElementById('filterdata').textContent);
     const filtergroup = filterdata.find(fg => fg.label === item.textContent);
 
-    item.parentElement.parentElement.parentElement.id = 'filter-' + filtergroup.id;
+    const dropdownDiv = item.parentElement.parentElement;
+    const filterRow   = dropdownDiv.parentElement;
+    filterRow.id      = 'filter-' + filtergroup.id;
 
-    const search_row = item.parentElement.parentElement.parentElement;
-    if (search_row.classList.contains('search-field-filled')) {
-        const searchfield_div = item.parentElement.parentElement.nextElementSibling;
+    if (filterRow.classList.contains('search-field-filled')) {
+        const searchfield_div = dropdownDiv.nextElementSibling;
         searchfield_div.innerHTML = '';
         searchfield_div.id = item.textContent;
         const select = document.createElement('select');
@@ -144,9 +53,9 @@ function buildFilterGroup(item, selected_options=[]) {
             maxItemCount: -1,
         });
     } else {
-        search_row.classList.add('search-field-filled');
+        filterRow.classList.add('search-field-filled');
         const searchfield_div = document.createElement('div');
-        searchfield_div.className = 'col filter-group';
+        searchfield_div.className = 'filter-control';
         searchfield_div.id = item.textContent;
         const select = document.createElement('select');
         select.id = filtergroup.id + '-choices';
@@ -157,7 +66,7 @@ function buildFilterGroup(item, selected_options=[]) {
         buildFilterChoices(filtergroup, select, selected_options);
 
         searchfield_div.appendChild(select);
-        item.parentElement.parentElement.insertAdjacentElement('afterend', searchfield_div);
+        dropdownDiv.insertAdjacentElement('afterend', searchfield_div);
         new Choices(select, {
             removeItemButton: true,
             removeItems: true,
@@ -168,77 +77,97 @@ function buildFilterGroup(item, selected_options=[]) {
     }
 }
 
-function buildYearSlider(item, searchfield_div, selected_years={}) {
+function buildYearSlider(item, yearControl, selected_years = {}) {
     const years = JSON.parse(document.getElementById('years').textContent);
+    const isStart = item.textContent === 'Start Year';
 
-    searchfield_div.id = item.textContent;
-    if (item.textContent === 'Start Year') {
-        min_year = years.min_start_year;
-        max_year = years.max_start_year;
-        search_min = /^\d+$/.test(selected_years['start-min']) ? selected_years['start-min'] : years.min_start_year;
-        search_max = /^\d+$/.test(selected_years['start-max']) ? selected_years['start-max'] : years.max_start_year;
-    } else {
-        min_year = years.min_end_year;
-        max_year = years.max_end_year;
-        search_min = /^\d+$/.test(selected_years['end-min']) ? selected_years['end-min'] : years.min_end_year;
-        search_max = /^\d+$/.test(selected_years['end-max']) ? selected_years['end-max'] : years.max_end_year;
-    }
+    const min_year   = isStart ? years.min_start_year : years.min_end_year;
+    const max_year   = isStart ? years.max_start_year : years.max_end_year;
+    const search_min = isStart
+        ? (/^\d+$/.test(selected_years['start-min']) ? +selected_years['start-min'] : min_year)
+        : (/^\d+$/.test(selected_years['end-min'])   ? +selected_years['end-min']   : min_year);
+    const search_max = isStart
+        ? (/^\d+$/.test(selected_years['start-max']) ? +selected_years['start-max'] : max_year)
+        : (/^\d+$/.test(selected_years['end-max'])   ? +selected_years['end-max']   : max_year);
 
-    searchfield_div.setAttribute('data-min', min_year);
-    searchfield_div.setAttribute('data-max', max_year);
+    const namePrefix = isStart ? 'start' : 'end';
+    const capText    = isStart ? 'Founded between' : 'Discontinued between';
 
-    const h3 = document.createElement('h3');
-    const span = document.createElement('span');
-    span.className = 'years';
-    const min = document.createElement('var');
-    min.setAttribute('for', 'min');
-    const max = document.createElement('var');
-    max.setAttribute('for', 'max');
-    span.append('(', min, ' - ', max, ')');
-    h3.appendChild(span);
+    yearControl.id = item.textContent;
 
-    const range_container_div = document.createElement('div');
-    range_container_div.className = 'range-container';
-    const range_div = document.createElement('div');
-    range_div.className = 'range';
-    range_container_div.appendChild(range_div);
+    const head = document.createElement('div');
+    head.className = 'year-head';
 
-    const input_min = document.createElement('input');
-    input_min.setAttribute('type', 'hidden');
-    input_min.setAttribute('name', `${item.textContent.split(' ')[0].toLowerCase()}-min`);
-    input_min.setAttribute('for', 'min');
-    input_min.setAttribute('value', search_min);
+    const cap = document.createElement('span');
+    cap.className = 'yr-cap';
+    cap.textContent = capText;
 
-    const input_max = document.createElement('input');
-    input_max.setAttribute('type', 'hidden');
-    input_max.setAttribute('name', `${item.textContent.split(' ')[0].toLowerCase()}-max`);
-    input_max.setAttribute('for', 'max');
-    input_max.setAttribute('value', search_max);
+    const readout = document.createElement('span');
+    readout.className = 'yr-range';
+    readout.innerHTML = search_min + ' <span class="sep">–</span> ' + search_max;
 
-    searchfield_div.appendChild(h3);
-    searchfield_div.appendChild(range_container_div);
-    searchfield_div.appendChild(input_min);
-    searchfield_div.appendChild(input_max);
+    head.append(cap, readout);
 
-    new YearRange(`#${item.textContent.replace(/ /g, '\\ ')}`);
+    const sliderEl = document.createElement('div');
+    sliderEl.className = 'year-slider';
+
+    const bounds = document.createElement('div');
+    bounds.className = 'year-bounds';
+    bounds.innerHTML = '<span>' + min_year + '</span><span>' + max_year + '</span>';
+
+    const inputMin = document.createElement('input');
+    inputMin.type = 'hidden';
+    inputMin.name = namePrefix + '-min';
+    inputMin.value = search_min;
+
+    const inputMax = document.createElement('input');
+    inputMax.type = 'hidden';
+    inputMax.name = namePrefix + '-max';
+    inputMax.value = search_max;
+
+    yearControl.innerHTML = '';
+    yearControl.append(head, sliderEl, bounds, inputMin, inputMax);
+
+    noUiSlider.create(sliderEl, {
+        start: [search_min, search_max],
+        connect: true,
+        step: 1,
+        margin: 1,
+        range: { min: min_year, max: max_year },
+        format: {
+            to: function (v) { return Math.round(v); },
+            from: function (v) { return Number(v); }
+        }
+    });
+
+    sliderEl.noUiSlider.on('update', function (values) {
+        readout.innerHTML = values[0] + ' <span class="sep">–</span> ' + values[1];
+        inputMin.value = values[0];
+        inputMax.value = values[1];
+    });
 }
 
 function buildYearFilter(item, selected_years) {
-    item.parentElement.previousElementSibling.textContent = item.textContent;
-    item.parentElement.parentElement.parentElement.id = 'filter-' + item.textContent;
+    // item → li.dropdown-item
+    // item.parentElement → ul.dropdown-menu
+    // item.parentElement.previousElementSibling → button.field-pick
+    // item.parentElement.parentElement → div.dropdown
+    // item.parentElement.parentElement.parentElement → div.filter-row
 
-    const search_row = item.parentElement.parentElement.parentElement;
-    if (search_row.classList.contains('search-field-filled')) {
-        const searchfield_div = item.parentElement.parentElement.nextElementSibling;
-        searchfield_div.innerHTML = '';
-        buildYearSlider(item, searchfield_div, selected_years);
-    } else {
-        search_row.classList.add('search-field-filled');
-        const searchfield_div = document.createElement('div');
-        searchfield_div.className = 'col filter-group filter-group-range';
-        item.parentElement.parentElement.insertAdjacentElement('afterend', searchfield_div);
-        buildYearSlider(item, searchfield_div, selected_years);
+    item.parentElement.previousElementSibling.innerHTML =
+        item.textContent + ' <i class="fas fa-chevron-down chev"></i>';
+
+    const dropdownDiv = item.parentElement.parentElement;
+    const filterRow   = dropdownDiv.parentElement;
+    filterRow.id      = 'filter-' + item.textContent;
+
+    let yearControl = filterRow.querySelector('.year-control');
+    if (!yearControl) {
+        yearControl = document.createElement('div');
+        yearControl.className = 'year-control';
+        dropdownDiv.insertAdjacentElement('afterend', yearControl);
     }
+    buildYearSlider(item, yearControl, selected_years);
 }
 
 // ── Collapsible panels (Advanced Search + Columns) ───────────────────────────
@@ -358,9 +287,8 @@ document.addEventListener('click', function(e) {
                 buildFilterGroup(item);
             }
         }
-    } else if (e.target.matches('.remove')) {
-        const row = e.target.parentElement.parentElement;
-        row.remove();
+    } else if (e.target.closest('.row-remove')) {
+        e.target.closest('.filter-row').remove();
     }
 });
 
@@ -369,7 +297,7 @@ add_new_button.addEventListener('click', add_filter_button);
 
 document.getElementById('advanced-search-clear').addEventListener('click', function(e) {
     e.preventDefault();
-    document.querySelectorAll('.filter-group').forEach(el => {
+    document.querySelectorAll('.filter-row').forEach(el => {
         if (el.id !== 'template') el.remove();
     });
 });
