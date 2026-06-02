@@ -335,7 +335,7 @@ def finalize_new_version(new_version, *, old_logo=None) -> None:
 
 
 def clone_system_version(
-    current_version, *, creator, comment,
+    current_version, *, creator=None, username=None, comment,
     attribute_options=None, feature_options=None,
     **field_overrides,
 ):
@@ -345,6 +345,11 @@ def clone_system_version(
 
     The pre_save signal on SystemVersion handles ver numbering and flipping
     is_current automatically.
+
+    creator:  User instance to record as the version creator.
+    username: Username string alternative to creator.  If creator is None,
+              the user is resolved by username; if both are None the first
+              superuser is used.
 
     attribute_options: optional list of AttributeOption instances to add to the
     new version.  Each option's Attribute.sv_field must be set to the
@@ -359,7 +364,17 @@ def clone_system_version(
 
     Returns the new, saved SystemVersion instance.
     """
+    from django.contrib.auth import get_user_model
     from dbdb.core.models import Acquisition, SystemFeature
+
+    if creator is None:
+        User = get_user_model()
+        if username:
+            creator = User.objects.get(username=username)
+        else:
+            creator = User.objects.filter(is_superuser=True).order_by('pk').first()
+            if creator is None:
+                raise ValueError('No creator specified and no superuser found.')
 
     new_version = copy.copy(current_version)
     new_version.pk = None

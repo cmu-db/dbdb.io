@@ -1,11 +1,8 @@
-from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from dbdb.core.models import Attribute, AttributeOption, Feature, FeatureOption, System
 from dbdb.core.utils.versions import clone_system_version, finalize_new_version
-
-User = get_user_model()
 
 
 class Command(BaseCommand):
@@ -151,16 +148,8 @@ class Command(BaseCommand):
                 raise CommandError('--feature and --feature-option must be used together.')
             feature, feat_option = self._resolve_feature_option(options)
 
-        # ── Resolve creator ────────────────────────────────────────────────────
-        if options.get('creator'):
-            try:
-                creator = User.objects.get(username=options['creator'])
-            except User.DoesNotExist:
-                raise CommandError(f'User not found: {options["creator"]!r}')
-        else:
-            creator = User.objects.filter(is_superuser=True).order_by('pk').first()
-            if creator is None:
-                raise CommandError('No superuser found. Specify --creator=USERNAME.')
+        # ── Resolve creator username ───────────────────────────────────────────
+        username = options.get('creator') or None
 
         # Build the comment string from whatever was supplied
         comment_parts = []
@@ -218,7 +207,7 @@ class Command(BaseCommand):
 
                 new_ver = clone_system_version(
                     current,
-                    creator=creator,
+                    username=username,
                     comment=comment,
                     attribute_options=[attr_option] if attr_option and not attr_present else None,
                     feature_options=[feat_option] if feat_option and not feat_present else None,
