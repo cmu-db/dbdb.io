@@ -32,7 +32,8 @@
 {% endalert %}
 {% endif %}
 
-<table class="diff-table">
+<div class="table-responsive">
+<table class="diff-table table table-bordered">
     <colgroup>
         <col class="diff-col-label">
         <col>
@@ -43,22 +44,26 @@
             <th></th>
             <th>
                 <div class="diff-version-header">
-                    <span class="ver-num">v{{ v1.ver }}</span>
-                    <span class="ver-meta">
-                        — {{ v1.created|date:"Y-m-d H:i" }} by {{ v1.creator.username }}
-                        <a href="{{ v1.get_absolute_url }}" class="ms-1">↗</a>
-                        {% if not v1.approved %}<span class="badge bg-warning text-dark ms-1">Pending</span>{% endif %}
-                    </span>
+                    <a href="{{ v1.get_absolute_url }}">
+                        <span class="ver-num">#{{ v1.ver }}</span>
+                        <span class="ver-meta">
+                            — {{ v1.created|date:"Y-m-d H:i" }} by {{ v1.creator.username }}
+                            <i class="fa-solid fa-share-from-square"></i>
+                            {% if not v1.approved %}<span class="badge bg-warning text-dark ms-1">Pending</span>{% endif %}
+                        </span>
+                    </a>
                 </div>
             </th>
             <th>
                 <div class="diff-version-header">
-                    <span class="ver-num">v{{ v2.ver }}</span>
-                    <span class="ver-meta">
-                        — {{ v2.created|date:"Y-m-d H:i" }} by {{ v2.creator.username }}
-                        <a href="{{ v2.get_absolute_url }}" class="ms-1">↗</a>
-                        {% if not v2.approved %}<span class="badge bg-warning text-dark ms-1">Pending</span>{% endif %}
-                    </span>
+                    <a href="{{ v2.get_absolute_url }}">
+                        <span class="ver-num">#{{ v2.ver }}</span>
+                        <span class="ver-meta">
+                            — {{ v2.created|date:"Y-m-d H:i" }} by {{ v2.creator.username }}
+                            <i class="fa-solid fa-share-from-square"></i>
+                            {% if not v2.approved %}<span class="badge bg-warning text-dark ms-1">Pending</span>{% endif %}
+                        </span>
+                    </a>
                 </div>
             </th>
         </tr>
@@ -244,4 +249,5 @@
 
     </tbody>
 </table>
+</div>
 {% endblock %}

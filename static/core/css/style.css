@@ -1218,13 +1218,15 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 del { background: var(--diff-del-bg); color: var(--diff-del-fg); }
 ins { background: var(--diff-ins-bg); color: var(--diff-ins-fg); }
 
-.diff-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.diff-table { table-layout: fixed; }
+.diff-col-label { width: 15%; }
 .diff-table th,
-.diff-table td { vertical-align: top; padding: .5rem .75rem; border: 1px solid var(--rule); }
+.diff-table td { vertical-align: top; padding: .5rem .75rem; border: 1px solid var(--rule) !important; }
 .diff-table th { background: var(--surface-2); font-family: var(--mono); font-size: .72rem;
                   letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft); }
-.diff-table .diff-label { width: 160px; font-family: var(--sans); font-size: .8rem;
-                           font-weight: 600; color: var(--ink-soft); background: var(--surface-2); }
+.diff-table .diff-label { font-family: var(--sans); font-size: .8rem;
+                           font-weight: 600; color: var(--ink-soft); background: var(--surface-2);
+                           overflow-wrap: break-word; }
 .diff-table tr.diff-changed td { background: color-mix(in srgb, var(--tint) 60%, transparent); }
 .diff-table tr.diff-changed .diff-label { background: color-mix(in srgb, var(--tint) 60%, transparent); }
 .diff-table tr.diff-citations td { background: var(--surface-2); font-size: .78rem; }
