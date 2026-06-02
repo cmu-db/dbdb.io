@@ -44,7 +44,7 @@ class AlertNode(template.Node):
         if not icon:
             icon = _ICON_DEFAULTS.get(alert_type, '')
 
-        css_parts = ['page-alert', f'page-alert--{alert_type}']
+        css_parts = ['page-alert', f'page-alert--{alert_type}', 'py-2', 'px-3']
         if extra:
             css_parts.extend(extra.split())
 

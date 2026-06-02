@@ -971,8 +971,8 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   --alert-bg:    var(--tint);
   display: flex; align-items: flex-start; gap: .75rem;
   border: 1.5px solid var(--alert-color); background: var(--alert-bg);
-  color: var(--ink); padding: .85rem 1rem; margin-bottom: 1.25rem;
-  font-family: var(--sans); font-size: .95rem; line-height: 1.5;
+  color: var(--ink);
+  font-family: var(--sans);
 }
 .page-alert .page-alert-icon { color: var(--alert-color); font-size: 1.4rem; margin-top: .1rem; flex-shrink: 0; }
 .page-alert-body { flex: 1; min-width: 0; }
