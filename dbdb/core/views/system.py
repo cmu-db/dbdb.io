@@ -107,6 +107,15 @@ class SystemView(View):
 
         self.all_citations = []
 
+        def _url_citation(field):
+            obj = getattr(system_version, field)
+            return self.process_citations([obj])[0] if obj else None
+
+        system_url_citation     = _url_citation('system_url')
+        docs_url_citation       = _url_citation('docs_url')
+        sourcerepo_url_citation = _url_citation('sourcerepo_url')
+        wikipedia_url_citation  = _url_citation('wikipedia_url')
+
         sections = []
 
         if system_version.description_citations:
@@ -233,6 +242,10 @@ class SystemView(View):
             'repo_snapshot': repo_snapshot,
             'has_revision': has_revision,
             'approved_ver': approved_ver,
+            'system_url_citation':     system_url_citation,
+            'docs_url_citation':       docs_url_citation,
+            'sourcerepo_url_citation': sourcerepo_url_citation,
+            'wikipedia_url_citation':  wikipedia_url_citation,
         })
 
     pass

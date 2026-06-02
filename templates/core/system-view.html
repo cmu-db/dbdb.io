@@ -83,16 +83,16 @@
     </div>
     <dl>
         {% if system_version.system_url %}
-        <div class="fact"><dt>Website</dt><dd><a href="{{ system_version.system_url.url }}" target="_{{ system.slug }}">{{ system_version.system_url.url }}</a></dd></div>
+        <div class="fact"><dt>Website</dt><dd><a href="{{ system_version.system_url.url }}" target="_{{ system.slug }}">{{ system_version.system_url.url }}</a>{% if system_url_citation %}<span class="cites">{% citation_footnote system_url_citation %}</span>{% endif %}</dd></div>
         {% endif %}
         {% if system_version.sourcerepo_url %}
-        <div class="fact"><dt>Source Code</dt><dd><a href="{{ system_version.sourcerepo_url.url }}" target="_{{ system.slug }}">{{ system_version.sourcerepo_url.url }}</a></dd></div>
+        <div class="fact"><dt>Source Code</dt><dd><a href="{{ system_version.sourcerepo_url.url }}" target="_{{ system.slug }}">{{ system_version.sourcerepo_url.url }}</a>{% if sourcerepo_url_citation %}<span class="cites">{% citation_footnote sourcerepo_url_citation %}</span>{% endif %}</dd></div>
         {% if repo_snapshot and repo_snapshot.last_commit_timestamp %}
         <div class="fact"><dt>Last Commit</dt><dd><time datetime="{{ repo_snapshot.last_commit_timestamp|date:"c" }}">{{ repo_snapshot.last_commit_timestamp|date:"M j, Y" }}</time></dd></div>
         {% endif %}
         {% endif %}
         {% if system_version.docs_url %}
-        <div class="fact"><dt>Tech Docs</dt><dd><a href="{{ system_version.docs_url.url }}" target="_{{ system.slug }}">{{ system_version.docs_url.url }}</a></dd></div>
+        <div class="fact"><dt>Tech Docs</dt><dd><a href="{{ system_version.docs_url.url }}" target="_{{ system.slug }}">{{ system_version.docs_url.url }}</a>{% if docs_url_citation %}<span class="cites">{% citation_footnote docs_url_citation %}</span>{% endif %}</dd></div>
         {% endif %}
         {% if system_version.twitter_handle %}
         <div class="fact"><dt>Twitter</dt><dd><a href="{{ system_version.twitter_handle_url }}"><i class="fa-brands fa-twitter"></i> {{ system_version.twitter_handle }}</a></dd></div>
@@ -156,7 +156,7 @@
         <div class="fact"><dt>Licenses</dt><dd>{% for attropt in system_version.licenses.all %}{% if not forloop.first %}, {% endif %}{% browse_link "license" attropt.slug "That Use "|add:attropt.name|add:" License" attropt.name %}{% endfor %}</dd></div>
         {% endif %}
         {% if system_version.wikipedia_url %}
-        <div class="fact"><dt>Wikipedia</dt><dd><a href="{{ system_version.wikipedia_url.url }}" target="_{{ system.slug }}">{{ system_version.wikipedia_url.url }}</a></dd></div>
+        <div class="fact"><dt>Wikipedia</dt><dd><a href="{{ system_version.wikipedia_url.url }}" target="_{{ system.slug }}">{{ system_version.wikipedia_url.url }}</a>{% if wikipedia_url_citation %}<span class="cites">{% citation_footnote wikipedia_url_citation %}</span>{% endif %}</dd></div>
         {% endif %}
     </dl>
 </div>
