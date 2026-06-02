@@ -892,8 +892,8 @@ table.rtable thead th {
 table.rtable thead th .caret { color: rgba(255,255,255,.4); margin-left: .25rem; font-size: .6rem; }
 table.rtable thead th .sort-btn {
   background: transparent; border: 0; padding: 0; cursor: pointer;
-  font-family: var(--mono); text-transform: uppercase; letter-spacing: .07em; font-size: .62rem;
-  font-weight: 500; color: var(--paper); text-align: left; white-space: nowrap;
+  font-family: var(--mono); text-transform: uppercase; letter-spacing: .07em; font-size: .8rem;
+  font-weight: 700; color: var(--paper); text-align: left; white-space: nowrap;
 }
 table.rtable .table-responsive, table.rtable { width: 100%; }
 table.rtable tbody td { padding: .8rem .65rem; border-bottom: 1px solid var(--rule-soft); vertical-align: middle; }
