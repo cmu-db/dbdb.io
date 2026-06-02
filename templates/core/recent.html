@@ -46,8 +46,10 @@
     {% for version in versions %}
     <div class="feed-item">
         <div class="feed-time">
-            <span class="ver-tag">#{{ version.ver }}</span>
-            <a href="{{ version.get_absolute_url }}">{{ version.created|date:"Y-m-d H:i" }}</a>
+            <a href="{{ version.get_absolute_url }}" title="View Revision #{{ version.ver }} for {{ version.system.name }}">
+                <span class="ver-tag">#{{ version.ver }}</span>
+                {{ version.created|date:"Y-m-d H:i" }}
+            </a>
         </div>
         <div class="feed-body">
             <div class="feed-line">

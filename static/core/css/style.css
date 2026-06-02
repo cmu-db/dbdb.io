@@ -1166,6 +1166,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .ver-tag {
   font-family: var(--mono); font-size: .68rem; letter-spacing: .03em; color: var(--ink-soft);
   border: 1px solid var(--rule); padding: .12rem .45rem; white-space: nowrap;
+  background: var(--surface-2);
 }
 .feed-actions { display: inline-flex; align-items: center; gap: .4rem; margin-left: auto; }
 .cmp-btn {
