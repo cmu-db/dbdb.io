@@ -1159,18 +1159,24 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .compare-btn.ready { border-color: var(--ink); color: var(--ink); cursor: pointer; }
 .compare-btn.ready:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 
-.feed.revisions .feed-item { grid-template-columns: 30px 158px 1fr; gap: 1.2rem; }
-.feed.revisions .feed-item.checked { background: var(--tint); }
-.feed-check { padding-top: .5rem; }
-.feed-check input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+.feed-item.checked { background: var(--tint); }
 .ver-tag {
   font-family: var(--mono); font-size: .68rem; letter-spacing: .03em; color: var(--ink-soft);
   border: 1px solid var(--rule); padding: .12rem .45rem; white-space: nowrap;
 }
+.feed-actions { display: inline-flex; align-items: center; gap: .4rem; margin-left: auto; }
+.cmp-btn {
+  font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; font-size: .58rem;
+  color: var(--muted); border: 1px solid var(--rule); padding: .2rem .5rem; background: transparent;
+  display: inline-flex; align-items: center; gap: .35rem; cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.cmp-btn:hover { border-color: var(--accent); color: var(--accent); }
+.cmp-btn.selected { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
 .diff-link {
   font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; font-size: .58rem;
   color: var(--muted); border: 1px solid var(--rule); padding: .2rem .5rem;
-  display: inline-flex; align-items: center; gap: .35rem; margin-left: auto;
+  display: inline-flex; align-items: center; gap: .35rem;
   transition: border-color .15s, color .15s;
 }
 .diff-link:hover { border-color: var(--accent); color: var(--accent); }
@@ -1202,7 +1208,6 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   .runhead .container { min-height: 0; }
   .results { overflow-x: auto; }
   .feed-item { grid-template-columns: 1fr; gap: .35rem; }
-  .feed.revisions .feed-item { grid-template-columns: 30px 1fr; }
   .feed-time { padding-top: 0; }
 }
 

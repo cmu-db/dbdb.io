@@ -42,14 +42,9 @@
 </div>
 {% endif %}
 
-<div class="feed{% if revision_list %} revisions{% endif %}">
+<div class="feed">
     {% for version in versions %}
     <div class="feed-item">
-        {% if revision_list %}
-        <div class="feed-check">
-            <input type="checkbox" class="vchk" data-ver="{{ version.ver }}" aria-label="Select version {{ version.ver }}">
-        </div>
-        {% endif %}
         <div class="feed-time">
             <a href="{{ version.get_absolute_url }}">{{ version.created|date:"Y-m-d H:i" }}</a>
         </div>
@@ -59,21 +54,23 @@
                     <i class="fa-regular fa-user"></i> {{ version.creator.username }}
                 </a>
                 <span class="verb">{% if version.ver == 1 %}created{% else %}updated{% endif %}</span>
-                {% if not revision_list %}
-                {% mono_tile version.logo version.system.name 'recent' extra_classes='feed-tile' %}
-                <a href="{% url 'system_revision' version.system.slug %}" class="sys">{{ version.system.name }}</a>
-                {% if version.diff_prev_ver %}
-                <a href="{% url 'system_diff' version.system.slug version.diff_prev_ver version.ver %}" class="diff-link feed-line-right"><i class="fa-solid fa-code-compare"></i> Diff</a>
-                {% endif %}
-                {% endif %}
                 {% if revision_list %}
-                <span class="ver-tag">v{{ version.ver }}</span>
-                {% if not version.approved %}
-                <span class="badge bg-warning text-dark ms-1" title="Pending approval — only visible to editors">Pending</span>
-                {% endif %}
-                {% if version.diff_prev_ver %}
-                <a href="{% url 'system_diff' system.slug version.diff_prev_ver version.ver %}" class="diff-link"><i class="fa-solid fa-code-compare"></i> Diff</a>
-                {% endif %}
+                    <span class="ver-tag">v{{ version.ver }}</span>
+                    {% if not version.approved %}
+                    <span class="badge bg-warning text-dark ms-1" title="Pending approval — only visible to editors">Pending</span>
+                    {% endif %}
+                    <div class="feed-actions">
+                        <button class="cmp-btn" data-ver="{{ version.ver }}" type="button">+ Compare</button>
+                        {% if version.diff_prev_ver %}
+                        <a href="{% url 'system_diff' system.slug version.diff_prev_ver version.ver %}" class="diff-link"><i class="fa-solid fa-code-compare"></i> Diff</a>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    {% mono_tile version.logo version.system.name 'recent' extra_classes='feed-tile' %}
+                    <a href="{% url 'system_revision' version.system.slug %}" class="sys">{{ version.system.name }}</a>
+                    {% if version.diff_prev_ver %}
+                    <a href="{% url 'system_diff' version.system.slug version.diff_prev_ver version.ver %}" class="diff-link feed-line-right"><i class="fa-solid fa-code-compare"></i> Diff</a>
+                    {% endif %}
                 {% endif %}
             </div>
             {% if version.comment %}
@@ -94,35 +91,38 @@
 <script>
 (function () {
     var slug = '{{ system.slug|escapejs }}';
-    var checks = Array.prototype.slice.call(document.querySelectorAll('.vchk'));
-    var btn = document.getElementById('compareBtn');
+    var btns = Array.prototype.slice.call(document.querySelectorAll('.cmp-btn'));
+    var compareBtn = document.getElementById('compareBtn');
     var countEl = document.getElementById('compareCount');
     var selected = [];
 
     function sync() {
         countEl.textContent = selected.length;
         var ready = selected.length === 2;
-        btn.disabled = !ready;
-        btn.classList.toggle('ready', ready);
+        compareBtn.disabled = !ready;
+        compareBtn.classList.toggle('ready', ready);
     }
 
-    checks.forEach(function (cb) {
-        cb.addEventListener('change', function () {
+    btns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
             var ver = this.dataset.ver;
             var item = this.closest('.feed-item');
-            if (this.checked) {
-                if (selected.length >= 2) { this.checked = false; return; }
-                selected.push(ver);
-            } else {
+            if (this.classList.contains('selected')) {
+                this.classList.remove('selected');
                 var i = selected.indexOf(ver);
                 if (i > -1) selected.splice(i, 1);
+                if (item) item.classList.remove('checked');
+            } else {
+                if (selected.length >= 2) return;
+                this.classList.add('selected');
+                selected.push(ver);
+                if (item) item.classList.add('checked');
             }
-            if (item) item.classList.toggle('checked', this.checked);
             sync();
         });
     });
 
-    btn.addEventListener('click', function () {
+    compareBtn.addEventListener('click', function () {
         if (selected.length !== 2) return;
         var pair = selected.map(Number).sort(function (a, b) { return a - b; });
         window.location.href = '/db/' + slug + '/diff/' + pair[0] + '/' + pair[1];
