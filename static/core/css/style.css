@@ -1207,6 +1207,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   .bsearch input { font-size: 1.05rem; }
   .runhead .container { min-height: 0; }
   .results { overflow-x: auto; }
+  .diff-table .badge-section { white-space: normal; }
   .feed-item { grid-template-columns: 1fr; gap: .35rem; }
   .feed-time { padding-top: 0; }
 }
