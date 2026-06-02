@@ -252,7 +252,7 @@ a:hover { color: var(--accent); }
 .theme-toggle {
   background: transparent;
   border: 1px solid rgba(255,255,255,.22);
-  color: var(--paper);
+  color: rgba(255,255,255,.85);
   border-radius: 999px;
   height: 26px;
   padding: 0 .7rem;
