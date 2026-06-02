@@ -84,8 +84,12 @@
 
         {% if acquisitions %}
         <div class="entry-section" id="acquisitions">
-            <h2>Acquisitions</h2>
-            <hr class="sec-rule">
+            <div class="sec-head">
+                <h2>Acquisitions</h2>
+                <span class="rule"></span>
+                <a href="{% url 'browse' %}?acquired-by={{ org.slug }}" class="view-all">View List <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+
             <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-2">
                 {% for acq in acquisitions %}
                 <div class="col">
@@ -106,8 +110,12 @@
 
         {% if developed %}
         <div class="entry-section" id="developed-systems">
-            <h2>Developed Systems</h2>
-            <hr class="sec-rule">
+            <div class="sec-head">
+                <h2>Developed Systems</h2>
+                <span class="rule"></span>
+                <a href="{% url 'browse' %}?developer={{ org.slug }}" class="view-all">View List <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+
             <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-2">
                 {% for ver in developed %}
                 <div class="col">

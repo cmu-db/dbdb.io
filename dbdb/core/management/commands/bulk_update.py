@@ -201,8 +201,10 @@ class Command(BaseCommand):
                 try:
                     current = system.current()
                 except Exception as exc:
-                    rows.append((system.name, 'ERROR', str(exc)))
+                    rows.append((system.name, 'ERROR', str(exc), None))
                     continue
+
+                ver_user = username if username else current.creator.username
 
                 # Check if all requested additions are already present → skip
                 attr_present = (
@@ -220,7 +222,7 @@ class Command(BaseCommand):
                     or current.developer_orgs.filter(pk=dev_org.pk).exists()
                 )
                 if attr_present and feat_present and dev_present:
-                    rows.append((system.name, 'SKIPPED', 'option(s) already present'))
+                    rows.append((system.name, 'SKIPPED', 'option(s) already present', None))
                     continue
 
                 if dry_run:
@@ -231,12 +233,12 @@ class Command(BaseCommand):
                         parts.append(f'feat:{feat_option.value!r}')
                     if not dev_present:
                         parts.append(f'developer:{dev_org.name!r}')
-                    rows.append((system.name, 'DRY RUN', 'would add ' + ', '.join(parts)))
+                    rows.append((system.name, 'DRY RUN', 'would add ' + ', '.join(parts), ver_user))
                     continue
 
                 new_ver = clone_system_version(
                     current,
-                    username=username,
+                    username=ver_user,
                     comment=comment,
                     attribute_options=[attr_option] if attr_option and not attr_present else None,
                     feature_options=[feat_option] if feat_option and not feat_present else None,
@@ -244,7 +246,7 @@ class Command(BaseCommand):
                 if dev_org and not dev_present:
                     new_ver.developer_orgs.add(dev_org)
                 finalize_new_version(new_ver)
-                rows.append((system.name, 'UPDATED', f'v{new_ver.ver}'))
+                rows.append((system.name, 'UPDATED', f'v{new_ver.ver}', ver_user))
 
             if dry_run:
                 transaction.set_rollback(True)
@@ -254,19 +256,20 @@ class Command(BaseCommand):
         col_name   = max(len('System'), max(len(r[0]) for r in rows))
         col_status = max(len('Status'), max(len(r[1]) for r in rows))
         col_detail = max(len('Detail'), max(len(r[2]) for r in rows))
+        col_user = max(len('User'), max(len(r[3]) for r in rows))
 
-        sep = f'+{"-" * (col_name + 2)}+{"-" * (col_status + 2)}+{"-" * (col_detail + 2)}+'
-        hdr = f'| {"System":<{col_name}} | {"Status":<{col_status}} | {"Detail":<{col_detail}} |'
+        sep = f'+{"-" * (col_name + 2)}+{"-" * (col_status + 2)}+{"-" * (col_detail + 2)}+{"-" * (col_user + 2)}+'
+        hdr = f'| {"System":<{col_name}} | {"Status":<{col_status}} | {"Detail":<{col_detail}} | {"User":<{col_user}} |'
 
         self.stdout.write(sep)
         self.stdout.write(hdr)
         self.stdout.write(sep)
-        for name, status, detail in rows:
+        for name, status, detail, user in rows:
             style = self.style.SUCCESS if status == 'UPDATED' else (
                 self.style.WARNING if status in ('SKIPPED', 'DRY RUN') else self.style.ERROR
             )
             self.stdout.write(
-                style(f'| {name:<{col_name}} | {status:<{col_status}} | {detail:<{col_detail}} |')
+                style(f'| {name:<{col_name}} | {status:<{col_status}} | {detail:<{col_detail}} | {user:<{col_user}} |')
             )
         self.stdout.write(sep)
 
