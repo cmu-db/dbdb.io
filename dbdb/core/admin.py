@@ -235,11 +235,12 @@ class OrgAcquisitionInline(admin.TabularInline):
 
 @admin.register(Organization)
 class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
-    list_display = ('id', 'name', 'slug', 'url', 'linkedin_url', 'created', 'modified')
+    list_display = ('id', 'name', 'slug', 'url', 'linkedin_url', 'countries', 'stock_symbol', 'created', 'modified')
     list_filter = ['created', 'modified', OrgDevelopedSystemsFilter, OrgAcquisitionsFilter]
-    search_fields = ('name',)
+    search_fields = ('name', 'stock_symbol')
     readonly_fields = ('created', 'modified')
     ordering = ('name',)
+    filter_horizontal = ('org_type', 'stock_exchange')
     inlines = [OrgDeveloperOrgsInline, OrgAcquisitionInline]
 
 # ==============================================

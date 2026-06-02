@@ -9,6 +9,7 @@ urlpatterns = [
     path('', views.HomeView.as_view(), name="home"),
 
     re_path(r'^db/(?P<slug>[\w-]+)[/]?$', views.SystemView.as_view(), name='system'),
+    re_path(r'^org/(?P<slug>[\w-]+)[/]?$', views.OrganizationView.as_view(), name='organization'),
     re_path(r'^db/(?P<slug>[\w-]+)/edit$', views.SystemEditView.as_view(), name='system_edit'),
     re_path(r'^db/(?P<slug>[\w-]+)/revisions/$', views.RecentChangesView.as_view(), name='system_revision'),
     re_path(r'^db/(?P<slug>[\w-]+)/revisions/(?P<ver>\d+)$', views.SystemView.as_view(), name='system_version'),

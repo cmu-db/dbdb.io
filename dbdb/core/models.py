@@ -223,6 +223,28 @@ class Organization(LogoMixin, models.Model):
         blank=True, null=True,
         related_name='org_linkedin_urls',
         help_text="URL of the organization's LinkedIn page")
+
+    org_type = models.ManyToManyField(
+        'AttributeOption', blank=True,
+        limit_choices_to={'attribute__slug': 'org-type'},
+        related_name='org_types',
+        verbose_name='Organization Type')
+
+    stock_exchange = models.ManyToManyField(
+        'AttributeOption', blank=True,
+        limit_choices_to={'attribute__slug': 'stock-exchange'},
+        related_name='org_stock_exchanges',
+        verbose_name='Stock Exchange')
+
+    stock_symbol = models.CharField(
+        max_length=20, blank=True,
+        help_text='Ticker symbol (e.g. ORCL, MSFT)')
+
+    countries = CountryField(
+        blank=True, multiple=True,
+        verbose_name='Countries',
+        help_text='Countries where this organization is headquartered')
+
     description = models.TextField(
         blank=True,
         help_text="This field supports Markdown Syntax")
@@ -235,7 +257,8 @@ class Organization(LogoMixin, models.Model):
     def __str__(self):
         return self.name
 
-    pass
+    def get_absolute_url(self):
+        return reverse('organization', args=[self.slug])
 
 # ==============================================
 # System

@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load logos %}
+{% load markdownify %}
+{% load thumbnail %}
+{% load citations %}
+{% load links %}
+{% load page_title %}
+
+{% block title %}{{ org.name }}{% endblock %}
+
+{% block content %}
+
+{# Factbox partial — defined once, rendered in both mobile block and desktop aside. #}
+{% partialdef factbox %}
+<div class="factbox">
+    <div class="fb-logo text-center">
+        {% if org.logo %}
+        <a href="{{ org.logo.url }}" class="logo-thumbnail">
+            <img class="{% if org.logo_height > org.logo_width %}logo-tall{% else %}logo-normal{% endif %}"
+                 src="{% if org.logo.url.lower|slice:"-3:" == "svg" %}{{ org.logo.url }}{% else %}{{ org.logo|thumbnail_url:'thumb' }}{% endif %}"
+                 alt="{{ org.name }} Logo" title="{{ org.name }}">
+        </a>
+        {% else %}
+        {% mono_tile org.logo org.name lazy=False %}
+        {% endif %}
+    </div>
+    <dl>
+        {% if org.org_type.exists %}
+        <div class="fact"><dt>Type</dt><dd>{% for t in org.org_type.all %}{% if not forloop.first %}, {% endif %}{{ t.name }}{% endfor %}</dd></div>
+        {% endif %}
+        {% if org.url %}
+        <div class="fact"><dt>Website</dt><dd><a href="{{ org.url.url }}" target="_{{ org.slug }}">{{ org.url.url }}</a>{% if url_citation %}<span class="cites">{% citation_footnote url_citation %}</span>{% endif %}</dd></div>
+        {% endif %}
+        {% if org.linkedin_url %}
+        <div class="fact"><dt>LinkedIn</dt><dd><a href="{{ org.linkedin_url.url }}" target="_{{ org.slug }}"><i class="fa-brands fa-linkedin"></i> {{ org.linkedin_url.url }}</a>{% if linkedin_citation %}<span class="cites">{% citation_footnote linkedin_citation %}</span>{% endif %}</dd></div>
+        {% endif %}
+        {% if org.countries %}
+        <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
+        <div class="fact"><dt>Country</dt><dd>{% for country in org.countries %}{% if not forloop.first %}, {% endif %}<i class="{{ country.flag_css }}"></i> {{ country }}{% endfor %}</dd></div>
+        {% endif %}
+        {% if org.stock_symbol %}
+        <div class="fact"><dt>Stock</dt><dd>
+            {% for ex in org.stock_exchange.all %}{{ ex.name }}: {% endfor %}{{ org.stock_symbol }}
+        </dd></div>
+        {% endif %}
+    </dl>
+</div>
+{% endpartialdef %}
+
+<!-- MOBILE LAYOUT: page title → description → factbox → sections -->
+<div class="d-md-none">
+    {% page_title %}
+    {% ptitle_kicker %}Organization Entry{% endptitle_kicker %}
+    {% ptitle_title %}<h1>{{ org.name }}</h1>{% endptitle_title %}
+    {% endpage_title %}
+
+    {% if org.description %}
+    <div class="entry-lead-block fs-5 mt-3">
+        {{ org.description|markdownify }}
+    </div>
+    {% endif %}
+
+    {% partial factbox %}
+</div>
+
+<!-- DESKTOP LAYOUT: two-column row -->
+<div class="row gx-lg-5 align-items-start">
+
+    <!-- MAIN -->
+    <div class="col-12 col-lg-8 entry-main">
+        <div class="d-none d-md-block">
+            {% page_title %}
+            {% ptitle_kicker %}Organization Entry{% endptitle_kicker %}
+            {% ptitle_title %}<h1>{{ org.name }}</h1>{% endptitle_title %}
+            {% endpage_title %}
+
+            {% if org.description %}
+            <div class="entry-lead-block fs-5 mt-3">
+                {{ org.description|markdownify }}
+            </div>
+            {% endif %}
+        </div>
+
+        {% if acquisitions %}
+        <div class="entry-section" id="acquisitions">
+            <h2>Acquisitions</h2>
+            <hr class="sec-rule">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-2">
+                {% for acq in acquisitions %}
+                <div class="col">
+                    <a href="{{ acq.system.get_absolute_url }}" class="hosted-link d-flex align-items-center gap-3 p-3 h-100 text-decoration-none">
+                        {% with ver=acq.version %}
+                        {% mono_tile ver.logo acq.system.name 'thumb' %}
+                        {% endwith %}
+                        <span class="d-flex flex-column">
+                            <span class="ln">{{ acq.system.name }}</span>
+                            {% if acq.year %}<span class="label">{{ acq.year }}{% if acq.citation %}<span class="cites">{% citation_footnote acq.citation %}</span>{% endif %}</span>{% endif %}
+                        </span>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if developed %}
+        <div class="entry-section" id="developed-systems">
+            <h2>Developed Systems</h2>
+            <hr class="sec-rule">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-2">
+                {% for ver in developed %}
+                <div class="col">
+                    <a href="{{ ver.system.get_absolute_url }}" class="hosted-link d-flex align-items-center gap-3 p-3 h-100 text-decoration-none">
+                        {% mono_tile ver.logo ver.system.name 'thumb' %}
+                        <span class="ln">{{ ver.system.name }}</span>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if citations %}
+        <div class="citations-block">
+            <div class="sec-head"><h2>Citations</h2><span class="rule"></span><span class="num">{{ citations|length }} source{% if citations|length != 1 %}s{% endif %}</span></div>
+            <ol class="citations-list">
+                {% for c in citations %}
+                <li class="citation" id="citation{{ forloop.counter }}">
+                    <span class="cite-body">{% citation_link c %}{% if c.last_modified %} <time datetime="{{ c.last_modified|date:"c" }}"><span class="cite-meta">Modified: {{ c.last_modified|date }}</span></time>{% endif %}{% if c.last_checked %} <time datetime="{{ c.last_checked|date:"c" }}"><span class="cite-meta">Accessed: {{ c.last_checked|date }}</span></time>{% endif %}</span>
+                </li>
+                {% endfor %}
+            </ol>
+        </div>
+        {% endif %}
+
+        <div class="entry-foot">
+            <span><i class="fa-regular fa-clock"></i> Updated {{ org.modified|date:"SHORT_DATETIME_FORMAT" }}</span>
+        </div>
+
+    </div>
+
+    <!-- SIDEBAR (desktop only) -->
+    <aside class="col-12 col-lg-4 entry-sidebar d-none d-md-block">
+        {% partial factbox %}
+    </aside>
+
+</div>
+
+{% endblock %}

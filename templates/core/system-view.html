@@ -165,7 +165,7 @@
 <!-- MOBILE LAYOUT: 1) name+tags  2) intro  3) factbox  4) remainder -->
 <div class="d-md-none">
     {% page_title %}
-    {% ptitle_kicker %}Encyclopedia Entry{% endptitle_kicker %}
+    {% ptitle_kicker %}Database Entry{% endptitle_kicker %}
     {% ptitle_title %}<div class="d-flex align-items-start justify-content-between gap-3">
             <h1>{{ system.name }}</h1>
             {% if user.is_authenticated and user_can_edit %}
@@ -196,7 +196,7 @@
         <!-- Desktop only: kicker, title, tags, full description -->
         <div class="d-none d-md-block">
             {% page_title %}
-            {% ptitle_kicker %}Encyclopedia Entry{% endptitle_kicker %}
+            {% ptitle_kicker %}Database Entry{% endptitle_kicker %}
             {% ptitle_title %}<div class="d-flex align-items-start justify-content-between gap-3">
                     <h1>{{ system.name }}</h1>
                     {% if user.is_authenticated and user_can_edit %}

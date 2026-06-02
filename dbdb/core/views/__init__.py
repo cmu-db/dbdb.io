@@ -3,6 +3,7 @@ from .auth import CreateUserView, SetupUserView, SignupRequestView, SignupPendin
 from .browse import BrowseView
 from .home import HomeView
 from .misc import EmptyFieldsView, SitemapView
+from .organization import OrganizationView
 from .stats import StatsView
 from .system import (
     RecentChangesView,
