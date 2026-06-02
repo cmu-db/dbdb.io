@@ -26,8 +26,8 @@
         {% endif %}
     </div>
     <dl>
-        {% if org.org_type.exists %}
-        <div class="fact"><dt>Type</dt><dd>{% for t in org.org_type.all %}{% if not forloop.first %}, {% endif %}{{ t.name }}{% endfor %}</dd></div>
+        {% if org.org_type %}
+        <div class="fact"><dt>Type</dt><dd>{% if org.org_type_obj.icon %}<i class="{{ org.org_type_obj.icon }}"></i> {% endif %}{{ org.get_org_type_display }}</dd></div>
         {% endif %}
         {% if org.url %}
         <div class="fact"><dt>Website</dt><dd><a href="{{ org.url.url }}" target="_{{ org.slug }}">{{ org.url.url }}</a>{% if url_citation %}<span class="cites">{% citation_footnote url_citation %}</span>{% endif %}</dd></div>
@@ -41,7 +41,7 @@
         {% endif %}
         {% if org.stock_symbol %}
         <div class="fact"><dt>Stock</dt><dd>
-            {% for ex in org.stock_exchange.all %}{{ ex.name }}: {% endfor %}{{ org.stock_symbol }}
+            {% if org.stock_exchange %}{% if org.stock_exchange_obj.url %}<a href="{{ org.stock_exchange_obj.url }}" target="_blank">{{ org.get_stock_exchange_display }}</a>{% else %}{{ org.get_stock_exchange_display }}{% endif %}: {% endif %}{{ org.stock_symbol }}
         </dd></div>
         {% endif %}
     </dl>

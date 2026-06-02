@@ -10,12 +10,7 @@ class OrganizationView(View):
     template_name = 'core/organization-view.html'
 
     def get(self, request, slug):
-        org = get_object_or_404(
-            Organization.objects.prefetch_related(
-                'org_type', 'stock_exchange',
-            ),
-            slug=slug,
-        )
+        org = get_object_or_404(Organization, slug=slug)
 
         # Build a numbered citation list (same mechanic as SystemView)
         all_citations = []

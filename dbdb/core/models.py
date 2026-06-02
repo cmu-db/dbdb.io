@@ -209,6 +209,48 @@ class SuggestedSystem(models.Model):
 # ==============================================
 # Organization
 # ==============================================
+
+class OrgType(models.IntegerChoices):
+    COMPANY      = 1, 'Company'
+    UNIVERSITY   = 2, 'University'
+    INDIVIDUAL   = 3, 'Individual'
+    RESEARCH_LAB = 4, 'Research Lab'
+
+    @property
+    def icon(self):
+        return {
+            1: 'fa-solid fa-building',
+            2: 'fa-solid fa-graduation-cap',
+            3: 'fa-solid fa-person',
+            4: 'fa-solid fa-flask',
+        }.get(self.value, '')
+
+
+class StockExchange(models.IntegerChoices):
+    NYSE     = 1, 'NYSE'
+    NASDAQ   = 2, 'NASDAQ'
+    LSE      = 3, 'LSE'
+    TSE      = 4, 'TSE'
+    HKEX     = 5, 'HKEX'
+    ASX      = 6, 'ASX'
+    TSX      = 7, 'TSX'
+    EURONEXT = 8, 'Euronext'
+    OTHER    = 9, 'Other'
+
+    @property
+    def url(self):
+        return {
+            1: 'https://www.nyse.com',
+            2: 'https://www.nasdaq.com',
+            3: 'https://www.londonstockexchange.com',
+            4: 'https://www.jpx.co.jp/english/',
+            5: 'https://www.hkex.com.hk',
+            6: 'https://www.asx.com.au',
+            7: 'https://www.tsx.com',
+            8: 'https://www.euronext.com',
+        }.get(self.value, '')
+
+
 class Organization(LogoMixin, models.Model):
 
     slug = models.SlugField(unique=True)
@@ -224,16 +266,12 @@ class Organization(LogoMixin, models.Model):
         related_name='org_linkedin_urls',
         help_text="URL of the organization's LinkedIn page")
 
-    org_type = models.ManyToManyField(
-        'AttributeOption', blank=True,
-        limit_choices_to={'attribute__slug': 'org-type'},
-        related_name='org_types',
+    org_type = models.IntegerField(
+        choices=OrgType.choices, null=True, blank=True,
         verbose_name='Organization Type')
 
-    stock_exchange = models.ManyToManyField(
-        'AttributeOption', blank=True,
-        limit_choices_to={'attribute__slug': 'stock-exchange'},
-        related_name='org_stock_exchanges',
+    stock_exchange = models.IntegerField(
+        choices=StockExchange.choices, null=True, blank=True,
         verbose_name='Stock Exchange')
 
     stock_symbol = models.CharField(
@@ -256,6 +294,14 @@ class Organization(LogoMixin, models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def org_type_obj(self):
+        return OrgType(self.org_type) if self.org_type is not None else None
+
+    @property
+    def stock_exchange_obj(self):
+        return StockExchange(self.stock_exchange) if self.stock_exchange is not None else None
 
     def get_absolute_url(self):
         return reverse('organization', args=[self.slug])
