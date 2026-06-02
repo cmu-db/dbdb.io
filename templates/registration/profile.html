@@ -139,7 +139,7 @@
                     <tr>
                         <td class="r-logo">{% mono_tile sv.logo sv.system.name %}</td>
                         <td><a href="{{ sv.get_absolute_url }}" class="r-name">{{ sv.system.name }}</a></td>
-                        <td class="r-ver">v{{ sv.ver }}</td>
+                        <td class="r-ver">#{{ sv.ver }}</td>
                         <td class="r-date">{{ sv.created|date:"Y-m-d H:i" }}</td>
                         <td>
                             {% if sv.approved %}

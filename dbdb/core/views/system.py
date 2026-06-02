@@ -668,8 +668,13 @@ class RecentChangesView(View):
             if not user_can_edit_system(request.user, system):
                 versions = versions.filter(approved=True)
         else:
-            # Global feed: always hide pending versions
-            versions = versions.filter(approved=True)
+            viewing_own = (
+                request.user.is_authenticated
+                and lookup_user is not None
+                and lookup_user == request.user
+            )
+            if not viewing_own:
+                versions = versions.filter(approved=True)
 
         versions = versions.order_by("-created")
         total_revisions = versions.count()

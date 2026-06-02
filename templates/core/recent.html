@@ -46,6 +46,7 @@
     {% for version in versions %}
     <div class="feed-item">
         <div class="feed-time">
+            <span class="ver-tag">#{{ version.ver }}</span>
             <a href="{{ version.get_absolute_url }}">{{ version.created|date:"Y-m-d H:i" }}</a>
         </div>
         <div class="feed-body">
@@ -54,24 +55,25 @@
                     <i class="fa-regular fa-user"></i> {{ version.creator.username }}
                 </a>
                 <span class="verb">{% if version.ver == 1 %}created{% else %}updated{% endif %}</span>
-                {% if revision_list %}
-                    <span class="ver-tag">v{{ version.ver }}</span>
-                    {% if not version.approved %}
-                    <span class="badge bg-warning text-dark ms-1" title="Pending approval — only visible to editors">Pending</span>
-                    {% endif %}
-                    <div class="feed-actions">
-                        <button class="cmp-btn" data-ver="{{ version.ver }}" type="button">+ Compare</button>
-                        {% if version.diff_prev_ver %}
-                        <a href="{% url 'system_diff' system.slug version.diff_prev_ver version.ver %}" class="diff-link"><i class="fa-solid fa-code-compare"></i> Diff</a>
-                        {% endif %}
-                    </div>
-                {% else %}
-                    {% mono_tile version.logo version.system.name 'recent' extra_classes='feed-tile' %}
-                    <a href="{% url 'system_revision' version.system.slug %}" class="sys">{{ version.system.name }}</a>
-                    {% if version.diff_prev_ver %}
-                    <a href="{% url 'system_diff' version.system.slug version.diff_prev_ver version.ver %}" class="diff-link feed-line-right"><i class="fa-solid fa-code-compare"></i> Diff</a>
-                    {% endif %}
+                {% mono_tile version.logo version.system.name 'recent' extra_classes='feed-tile' %}
+                <a href="{% url 'system_revision' version.system.slug %}" class="sys">{{ version.system.name }}</a>
+
+                <!-- BEGIN:PENDING -->
+                {% if not version.approved %}
+                <span class="badge bg-warning text-dark ms-1" title="Pending approval — only visible to editors">Pending</span>
                 {% endif %}
+                <!-- END:PENDING -->
+
+                <!-- BEGIN:ACTIONS -->
+                <div class="feed-actions">
+                    {% if revision_list %}
+                    <button class="cmp-btn" data-ver="{{ version.ver }}" type="button">+ Compare</button>
+                    {% endif %}
+                    {% if version.diff_prev_ver %}
+                    <a href="{% url 'system_diff' version.system.slug version.diff_prev_ver version.ver %}" class="diff-link"><i class="fa-solid fa-code-compare"></i> Diff</a>
+                    {% endif %}
+                </div>
+                <!-- END:ACTIONS -->
             </div>
             {% if version.comment %}
             <p class="feed-comment">{{ version.comment }}</p>

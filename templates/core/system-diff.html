@@ -91,7 +91,7 @@
             <div class="diff-col-text">{% if fd.v1_desc_html %}{{ fd.v1_desc_html|safe }}{% else %}{{ fd.v1.description }}{% endif %}</div>
             {% endif %}
             {% if fd.citations.v1_items %}
-            <ol class="diff-cite-list">
+            <ol class="diff-cite-list border-top">
                 {% for item in fd.citations.v1_items %}
                 <li><a href="{{ item.url }}" target="_blank" rel="noopener" class="diff-cite-url">{{ item.url }}</a></li>
                 {% endfor %}
@@ -115,7 +115,7 @@
             <span class="text-muted fst-italic">removed</span>
             {% endif %}
             {% if fd.citations.v2_items %}
-            <ol class="diff-cite-list">
+            <ol class="diff-cite-list border-top">
                 {% for item in fd.citations.v2_items %}
                 <li><a href="{{ item.url }}" target="_blank" rel="noopener"
                     class="diff-cite-url">{% if item.status == 'removed' %}<del>{{ item.url }}</del>{% elif item.status == 'added' %}<ins>{{ item.url }}</ins>{% else %}{{ item.url }}{% endif %}</a></li>
@@ -183,7 +183,7 @@
             <div class="diff-col-text">{% if diff.v1_html %}{{ diff.v1_html|safe }}{% else %}{{ diff.v1_val }}{% endif %}</div>
             {% else %}<span class="text-muted">—</span>{% endif %}
             {% if diff.citations.v1_items %}
-            <ol class="diff-cite-list">
+            <ol class="diff-cite-list border-top">
                 {% for item in diff.citations.v1_items %}
                 <li><a href="{{ item.url }}" target="_blank" rel="noopener" class="diff-cite-url">{{ item.url }}</a></li>
                 {% endfor %}
@@ -195,7 +195,7 @@
             <div class="diff-col-text">{% if diff.v2_html %}{{ diff.v2_html|safe }}{% else %}{{ diff.v2_val }}{% endif %}</div>
             {% else %}<span class="text-muted">—</span>{% endif %}
             {% if diff.citations.v2_items %}
-            <ol class="diff-cite-list">
+            <ol class="diff-cite-list border-top">
                 {% for item in diff.citations.v2_items %}
                 <li><a href="{{ item.url }}" target="_blank" rel="noopener"
                     class="diff-cite-url">{% if item.status == 'removed' %}<del>{{ item.url }}</del>{% elif item.status == 'added' %}<ins>{{ item.url }}</ins>{% else %}{{ item.url }}{% endif %}</a></li>
@@ -212,7 +212,7 @@
         <td>
             {% if diff.v1_val %}<span>{{ diff.v1_val }}</span>{% else %}<span class="text-muted">—</span>{% endif %}
             {% if diff.citations.v1_items %}
-            <ol class="diff-cite-list">
+            <ol class="diff-cite-list border-top">
                 {% for item in diff.citations.v1_items %}
                 <li><a href="{{ item.url }}" target="_blank" rel="noopener" class="diff-cite-url">{{ item.url }}</a></li>
                 {% endfor %}
@@ -222,7 +222,7 @@
         <td>
             {% if diff.v2_val %}{% if diff.v1_val != diff.v2_val %}<ins>{{ diff.v2_val }}</ins>{% else %}<span>{{ diff.v2_val }}</span>{% endif %}{% else %}<span class="text-muted">—</span>{% endif %}
             {% if diff.citations.v2_items %}
-            <ol class="diff-cite-list">
+            <ol class="diff-cite-list border-top">
                 {% for item in diff.citations.v2_items %}
                 <li><a href="{{ item.url }}" target="_blank" rel="noopener"
                     class="diff-cite-url">{% if item.status == 'removed' %}<del>{{ item.url }}</del>{% elif item.status == 'added' %}<ins>{{ item.url }}</ins>{% else %}{{ item.url }}{% endif %}</a></li>
