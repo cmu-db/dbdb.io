@@ -259,6 +259,9 @@
         </div>
         {% endfor %}
 
+        <!-- Mobile: related cards above citations -->
+        <div class="d-md-none mt-3">{% partial related %}</div>
+
         {% if citations %}
         <div class="citations-block">
             <div class="sec-head"><h2>Citations</h2><span class="rule"></span><span class="num">{{ citations|length }} source{% if citations|length != 1 %}s{% endif %}</span></div>
@@ -303,11 +306,6 @@
         {% endif %}
         {% endpartialdef %}
     </aside>
-</div>
-
-<!-- Mobile: related cards pushed to the very bottom -->
-<div class="row d-md-none mt-3">
-    {% partial related %}
 </div>
 
 {% endblock %}
