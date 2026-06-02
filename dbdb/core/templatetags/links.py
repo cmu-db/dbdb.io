@@ -1,6 +1,6 @@
 from django import template
 
-from dbdb.core.models import AttributeOption, System
+from dbdb.core.models import AttributeOption, Organization, System
 
 register = template.Library()
 
@@ -10,6 +10,13 @@ def system_link(system: System):
     Renders a link for a System
     """
     return {"s": system}
+
+@register.inclusion_tag("components/org_link.html")
+def org_link(org: Organization):
+    """
+    Renders a link for an Organization
+    """
+    return {"org": org}
 
 @register.inclusion_tag("components/browse_link.html")
 def browse_link(key: str, value: str, tooltip: str, label: str = None):

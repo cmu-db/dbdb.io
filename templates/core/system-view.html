@@ -101,7 +101,7 @@
         <div class="fact"><dt>LinkedIn</dt><dd><a href="{{ system_version.linkedin_handle_url }}"><i class="fa-brands fa-linkedin"></i> {{ system_version.linkedin_handle }}</a></dd></div>
         {% endif %}
         {% if system_version.developer_orgs.all %}
-        <div class="fact"><dt>Developer</dt><dd>{% for org in system_version.developer_orgs.all %}{% if not forloop.first %}, {% endif %}{% if org.url %}<a href="{{ org.url }}" target="_blank">{{ org.name }}</a>{% else %}{{ org.name }}{% endif %}{% endfor %}</dd></div>
+        <div class="fact"><dt>Developer</dt><dd>{% for org in system_version.developer_orgs.all %}{% if not forloop.first %}, {% endif %}{% org_link org %}{% endfor %}</dd></div>
         {% elif system_version.developer %}
         <div class="fact"><dt>Developer</dt><dd>{{ system_version.developer }}</dd></div>
         {% endif %}
@@ -123,7 +123,7 @@
         {% endif %}
         {% if acquisitions %}
         <div class="fact"><dt>Acquired By</dt><dd>
-            {% for acq in acquisitions %}<div>{% if acq.year %}<span class="text-muted me-1">{{ acq.year }}</span>{% endif %}{{ acq.organization.name }}{% for c in acq.citations %}{% citation_footnote c %}{% endfor %}</div>{% endfor %}
+            {% for acq in acquisitions %}<div>{% if acq.year %}<span class="text-muted me-1">{{ acq.year }}</span>{% endif %}{% org_link acq.organization %}{% for c in acq.citations %}{% citation_footnote c %}{% endfor %}</div>{% endfor %}
         </dd></div>
         {% elif system_version.acquired_by %}
         <div class="fact"><dt>Acquired By</dt><dd>{{ system_version.acquired_by }}</dd></div>
