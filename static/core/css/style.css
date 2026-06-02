@@ -884,9 +884,12 @@ form.main-search { display: block; padding: 0; }
    ============================================================ */
 .results { margin-top: 1.6rem; }
 table.rtable { width: 100%; border-collapse: collapse; }
+thead.table-dark th,
+table.rtable thead th {
+  font-family: var(--mono); text-transform: uppercase; letter-spacing: .07em; font-size: .62rem; font-weight: 500;
+}
 table.rtable thead th {
   background: var(--ink); color: var(--paper);
-  font-family: var(--mono); text-transform: uppercase; letter-spacing: .07em; font-size: .62rem; font-weight: 500;
   padding: .75rem .65rem; text-align: left; white-space: nowrap;
 }
 table.rtable thead th .caret { color: rgba(255,255,255,.4); margin-left: .25rem; font-size: .6rem; }
