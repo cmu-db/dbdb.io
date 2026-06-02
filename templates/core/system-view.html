@@ -219,19 +219,15 @@
         <div id="hosted-services" class="entry-section">
             <h2>Hosted Systems</h2>
             <hr class="sec-rule">
-            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-2">
                 {% for hosted_sys in system_version.hosted_services.all %}
                 <div class="col">
-                    <div class="card h-100 text-center border">
-                        <a href="{{ hosted_sys.get_absolute_url }}" class="text-decoration-none">
-                            <div class="card-body d-flex flex-column align-items-center justify-content-center p-3">
-                                {% with hosted_ver=hosted_sys.current %}
-                                {% mono_tile hosted_ver.logo hosted_sys.name 'thumb' %}
-                                {% endwith %}
-                                <span class="small fw-semibold text-body">{{ hosted_sys.name }}</span>
-                            </div>
-                        </a>
-                    </div>
+                    <a href="{{ hosted_sys.get_absolute_url }}" class="hosted-link d-flex align-items-center gap-3 p-3 h-100 text-decoration-none" title="View {{ hosted_sys.name }}">
+                        {% with hosted_ver=hosted_sys.current %}
+                        {% mono_tile hosted_ver.logo hosted_sys.name 'thumb' %}
+                        {% endwith %}
+                        <span class="ln">{{ hosted_sys.name }}</span>
+                    </a>
                 </div>
                 {% endfor %}
             </div>

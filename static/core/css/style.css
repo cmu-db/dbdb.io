@@ -512,7 +512,7 @@ a:hover { color: var(--accent); }
   background: var(--surface);
   transition: border-color .15s, color .15s, background .15s;
 }
-.index-chip:hover { border-color: var(--accent); color: var(--accent); }
+.index-chip:hover { background: var(--tint); color: var(--accent); }
 .index-chip .ct { color: var(--muted); font-size: .64rem; }
 .index-chip:hover .ct { color: var(--accent); }
 
@@ -1089,6 +1089,17 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .logo-row .mono-tile { width: 34px; height: 34px; font-size: .76rem; }
 .logo-row .ln { font-family: var(--serif); font-weight: 600; font-size: .95rem; color: var(--ink); }
 .logo-row:hover .ln { color: var(--accent); }
+
+/* Hosted services grid */
+.hosted-link {
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  transition: border-color .15s, background .15s;
+}
+.hosted-link:hover { background: var(--tint); }
+.hosted-link .ln { font-family: var(--serif); font-weight: 600; color: var(--ink); }
+.hosted-link:hover .ln { color: var(--accent); }
+
 .sc-foot {
   padding: .65rem 1.2rem; border-top: 1px solid var(--rule);
   font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; font-size: .64rem;
