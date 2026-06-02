@@ -334,13 +334,25 @@ def finalize_new_version(new_version, *, old_logo=None) -> None:
         system.save(update_fields=['spotlight_eligible'])
 
 
-def clone_system_version(current_version, *, creator, comment, **field_overrides):
+def clone_system_version(
+    current_version, *, creator, comment,
+    attribute_options=None, feature_options=None,
+    **field_overrides,
+):
     """
     Clone a SystemVersion, apply scalar overrides, save it, and copy all
     related data (M2M fields, SystemFeature rows, Acquisition rows).
 
     The pre_save signal on SystemVersion handles ver numbering and flipping
     is_current automatically.
+
+    attribute_options: optional list of AttributeOption instances to add to the
+    new version.  Each option's Attribute.sv_field must be set to the
+    SystemVersion M2M field name (e.g. 'tags', 'licenses').
+
+    feature_options: optional list of FeatureOption instances to add to the
+    new version.  The corresponding SystemFeature row is located by feature;
+    if none exists one is created.
 
     Does NOT call finalize_new_version — the caller is responsible for any
     additional M2M changes (e.g. adding tags) and then calling finalize.
@@ -386,5 +398,21 @@ def clone_system_version(current_version, *, creator, comment, **field_overrides
         acq.id = None
         acq.version = new_version
         acq.save()
+
+    # Add any extra AttributeOptions requested by the caller
+    if attribute_options:
+        for option in attribute_options:
+            sv_field = option.attribute.sv_field
+            if sv_field:
+                getattr(new_version, sv_field).add(option)
+
+    # Add any extra FeatureOptions requested by the caller
+    if feature_options:
+        for fo in feature_options:
+            sf, _ = SystemFeature.objects.get_or_create(
+                version=new_version,
+                feature=fo.feature,
+            )
+            sf.options.add(fo)
 
     return new_version
