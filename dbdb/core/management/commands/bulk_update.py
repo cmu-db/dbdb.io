@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from dbdb.core.models import Attribute, AttributeOption, Feature, FeatureOption, System
+from dbdb.core.models import Attribute, AttributeOption, Feature, FeatureOption, Organization, System
 from dbdb.core.utils.versions import clone_system_version, finalize_new_version
 
 
@@ -35,6 +35,11 @@ class Command(BaseCommand):
             help='FeatureOption slug or value within the feature (e.g. "relational")',
         )
 
+        parser.add_argument(
+            '--developer',
+            metavar='ORG',
+            help='Organization slug or name to add as a developer (e.g. "oracle" or "Oracle")',
+        )
         parser.add_argument(
             '--creator',
             metavar='USERNAME',
@@ -89,6 +94,16 @@ class Command(BaseCommand):
 
         return attribute, attr_option
 
+    def _resolve_organization(self, name_or_slug):
+        """Return Organization or raise CommandError."""
+        try:
+            return Organization.objects.get(slug=name_or_slug)
+        except Organization.DoesNotExist:
+            try:
+                return Organization.objects.get(name__iexact=name_or_slug)
+            except Organization.DoesNotExist:
+                raise CommandError(f'Organization not found: {name_or_slug!r}')
+
     def _resolve_feature_option(self, options):
         """Return (Feature, FeatureOption) or raise CommandError."""
         feat_query = options['feature']
@@ -125,11 +140,12 @@ class Command(BaseCommand):
 
         has_attr = bool(options.get('attribute') or options.get('attribute_option'))
         has_feat = bool(options.get('feature') or options.get('feature_option'))
+        has_dev  = bool(options.get('developer'))
 
-        if not has_attr and not has_feat:
+        if not has_attr and not has_feat and not has_dev:
             raise CommandError(
-                'Specify at least one of --attribute/--attribute-option '
-                'or --feature/--feature-option.'
+                'Specify at least one of --attribute/--attribute-option, '
+                '--feature/--feature-option, or --developer.'
             )
 
         # ── Resolve Attribute+Option ───────────────────────────────────────────
@@ -148,6 +164,11 @@ class Command(BaseCommand):
                 raise CommandError('--feature and --feature-option must be used together.')
             feature, feat_option = self._resolve_feature_option(options)
 
+        # ── Resolve developer Organization ─────────────────────────────────────
+        dev_org = None
+        if has_dev:
+            dev_org = self._resolve_organization(options['developer'])
+
         # ── Resolve creator username ───────────────────────────────────────────
         username = options.get('creator') or None
 
@@ -157,6 +178,8 @@ class Command(BaseCommand):
             comment_parts.append(f'{attribute.name}→{attr_option.name}')
         if feat_option:
             comment_parts.append(f'{feature.label}→{feat_option.value}')
+        if dev_org:
+            comment_parts.append(f'developer:{dev_org.name}')
         comment = ', '.join(comment_parts)
 
         # ── Collect matching Systems (deduplicated across keywords) ────────────
@@ -181,7 +204,7 @@ class Command(BaseCommand):
                     rows.append((system.name, 'ERROR', str(exc)))
                     continue
 
-                # Check if both additions are already present → skip entirely
+                # Check if all requested additions are already present → skip
                 attr_present = (
                     attr_option is None
                     or getattr(current, attribute.sv_field).filter(pk=attr_option.pk).exists()
@@ -192,7 +215,11 @@ class Command(BaseCommand):
                         feature=feature, options=feat_option
                     ).exists()
                 )
-                if attr_present and feat_present:
+                dev_present = (
+                    dev_org is None
+                    or current.developer_orgs.filter(pk=dev_org.pk).exists()
+                )
+                if attr_present and feat_present and dev_present:
                     rows.append((system.name, 'SKIPPED', 'option(s) already present'))
                     continue
 
@@ -202,6 +229,8 @@ class Command(BaseCommand):
                         parts.append(f'attr:{attr_option.name!r}')
                     if not feat_present:
                         parts.append(f'feat:{feat_option.value!r}')
+                    if not dev_present:
+                        parts.append(f'developer:{dev_org.name!r}')
                     rows.append((system.name, 'DRY RUN', 'would add ' + ', '.join(parts)))
                     continue
 
@@ -212,6 +241,8 @@ class Command(BaseCommand):
                     attribute_options=[attr_option] if attr_option and not attr_present else None,
                     feature_options=[feat_option] if feat_option and not feat_present else None,
                 )
+                if dev_org and not dev_present:
+                    new_ver.developer_orgs.add(dev_org)
                 finalize_new_version(new_ver)
                 rows.append((system.name, 'UPDATED', f'v{new_ver.ver}'))
 
