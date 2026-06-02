@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
+{% load page_title %}
 
 {% block title %}
 Revision {{ system.name }}
 {% endblock %}
 
 {% block content %}
-<div class="page-title">
-    <p class="kicker">Revision History</p>
-    <h1>{{ system.name }}</h1>
-    <hr class="title-rule">
-</div>
+{% page_title %}
+{% ptitle_kicker %}Revision History{% endptitle_kicker %}
+{% ptitle_title %}<h1>{{ system.name }}</h1>{% endptitle_title %}
+{% endpage_title %}
 
 <div class="row justify-content-center">
     <form class="col-md-8" method="POST">

@@ -3,17 +3,17 @@
 {% load humanize %}
 {% load logos %}
 {% load alerts %}
+{% load page_title %}
 {% load version_status %}
 
 {% block title %}Profile — {{ profile_user.username }}{% endblock %}
 
 {% block content %}
-<div class="page-title">
-    <p class="kicker">Account</p>
-    <h1>{{ profile_user.username }}</h1>
-    <p class="sub">Curator since {{ profile_user.date_joined|date:"F Y" }}{% if revision_count %} · {{ revision_count|intcomma }} revision{{ revision_count|pluralize }}{% endif %}</p>
-    <hr class="title-rule">
-</div>
+{% page_title %}
+{% ptitle_kicker %}Account{% endptitle_kicker %}
+{% ptitle_title %}<h1>{{ profile_user.username }}</h1>{% endptitle_title %}
+{% ptitle_sub %}Curator since {{ profile_user.date_joined|date:"F Y" }}{% if revision_count %} · {{ revision_count|intcomma }} revision{{ revision_count|pluralize }}{% endif %}{% endptitle_sub %}
+{% endpage_title %}
 
 <div class="row gy-4 gx-lg-5 align-items-start">
 

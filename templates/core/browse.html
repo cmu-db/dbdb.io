@@ -3,6 +3,7 @@
 {% load static %}
 {% load countries %}
 {% load django_bootstrap5 %}
+{% load page_title %}
 
 {% block title %}{{title}}{% endblock %}
 
@@ -17,11 +18,10 @@
 {{ filtergroupsjson|json_script:"filterdata" }}
 {{ years|json_script:"years" }}
 
-<div class="page-title">
-    <p class="kicker">{% if saved_search %}{{ saved_search.name }}{% else %}{{ num_results|intcomma }} System{{ num_results|pluralize }} Indexed{% endif %}</p>
-    <h1>{{ title }}</h1>
-    <hr class="title-rule">
-</div>
+{% page_title %}
+{% ptitle_kicker %}{% if saved_search %}{{ saved_search.name }}{% else %}{{ num_results|intcomma }} System{{ num_results|pluralize }} Indexed{% endif %}{% endptitle_kicker %}
+{% ptitle_title %}<h1>{{ title }}</h1>{% endptitle_title %}
+{% endpage_title %}
 
 <div class="browse-wrap">
 <form id="mainsearch" class="main main-search">

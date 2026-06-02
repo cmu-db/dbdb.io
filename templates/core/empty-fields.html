@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load page_title %}
 
 {% block title %}
 Field Checker
 {% endblock %}
 
 {% block content %}
-<div class="page-title">
-    <p class="kicker">Admin Tool</p>
-    <h1>Empty Fields</h1>
-    <p class="sub">Find entries missing required fields</p>
-    <hr class="title-rule">
-</div>
+{% page_title %}
+{% ptitle_kicker %}Admin Tool{% endptitle_kicker %}
+{% ptitle_title %}<h1>Empty Fields</h1>{% endptitle_title %}
+{% ptitle_sub %}Find entries missing required fields{% endptitle_sub %}
+{% endpage_title %}
 
     <div class="container">
         <div class="row">

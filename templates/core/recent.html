@@ -3,26 +3,18 @@
 {% load logos %}
 {% load django_bootstrap5 %}
 {% load humanize %}
+{% load page_title %}
 {% load alerts %}
 {% load version_status %}
 
 {% block title %}Recent Changes{% endblock %}
 
 {% block content %}
-<div class="page-title">
-    <p class="kicker">{{ total_revisions|intcomma }} Revision{{ total_revisions|pluralize }}</p>
-    <h1>Recent Changes{% if system %}: {{ system.name }}{% elif lookup_user %}: {{ lookup_user.username }}{% endif %}</h1>
-    <p class="sub">
-        {% if system %}
-            Revision history for <a href="{% url 'system' system.slug %}">{{ system.name }}</a>
-        {% elif lookup_user %}
-            All revisions by user '{{ lookup_user.username }}'
-        {% else %}
-            Every revision across the encyclopedia, newest first
-        {% endif %}
-    </p>
-    <hr class="title-rule">
-</div>
+{% page_title %}
+{% ptitle_kicker %}{{ total_revisions|intcomma }} Revision{{ total_revisions|pluralize }}{% endptitle_kicker %}
+{% ptitle_title %}<h1>Recent Changes{% if system %}: {{ system.name }}{% elif lookup_user %}: {{ lookup_user.username }}{% endif %}</h1>{% endptitle_title %}
+{% ptitle_sub %}{% if system %}Revision history for <a href="{% url 'system' system.slug %}">{{ system.name }}</a>{% elif lookup_user %}All revisions by user '{{ lookup_user.username }}'{% else %}Every revision across the encyclopedia, newest first{% endif %}{% endptitle_sub %}
+{% endpage_title %}
 
 {% for message in messages %}
 {% alert type=message.tags %}{{ message }}{% endalert %}

@@ -3,20 +3,16 @@
 {% load django_bootstrap5 %}
 {% load humanize %}
 {% load alerts %}
+{% load page_title %}
 {% load version_status %}
 
 {% block title %}Diff: {{ system.name }} v{{ v1.ver }} → v{{ v2.ver }}{% endblock %}
 
 {% block content %}
-<div class="page-title">
-    <p class="kicker">
-        <a href="{% url 'system' system.slug %}">{{ system.name }}</a>
-        &nbsp;·&nbsp;
-        <a href="{% url 'system_revision' system.slug %}">Revision History</a>
-    </p>
-    <h1>Version Comparison</h1>
-    <hr class="title-rule">
-</div>
+{% page_title %}
+{% ptitle_kicker %}<a href="{% url 'system' system.slug %}">{{ system.name }}</a> &nbsp;·&nbsp; <a href="{% url 'system_revision' system.slug %}">Revision History</a>{% endptitle_kicker %}
+{% ptitle_title %}<h1>Version Comparison</h1>{% endptitle_title %}
+{% endpage_title %}
 
 {% if can_approve %}
 {% alert type="info" icon="fa-solid fa-circle-check" extra_classes="mb-4" %}
