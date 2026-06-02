@@ -39,13 +39,26 @@ ColumnDef = collections.namedtuple('ColumnDef', ['col_id', 'label', 'col_type'])
 DEFAULT_COLS = ['data-model', 'start-year', 'tags']
 
 _BUILTIN_COLUMNS = [
-    ColumnDef('tags',          'Tags',              'builtin'),
-    ColumnDef('start-year',    'Start Year',        'builtin'),
-    ColumnDef('end-year',      'End Year',          'builtin'),
-    ColumnDef('developer-orgs','Developer',         'builtin'),
-    ColumnDef('acquired-by',   'Acquired By',       'builtin'),
-    ColumnDef('country',       'Country of Origin', 'builtin'),
+    ColumnDef('tags',             'Tags',              'builtin'),
+    ColumnDef('start-year',       'Start Year',        'builtin'),
+    ColumnDef('end-year',         'End Year',          'builtin'),
+    ColumnDef('developer-orgs',   'Developer',         'builtin'),
+    ColumnDef('acquired-by',      'Acquired By',       'builtin'),
+    ColumnDef('country',          'Country of Origin', 'builtin'),
+    ColumnDef('system-url',       'Website URL',       'builtin'),
+    ColumnDef('docs-url',         'Docs URL',          'builtin'),
+    ColumnDef('sourcerepo-url',   'Source Repo URL',   'builtin'),
+    ColumnDef('wikipedia-url',    'Wikipedia URL',     'builtin'),
+    ColumnDef('twitter-handle',   'Twitter Handle',    'builtin'),
 ]
+
+# Maps URL col_id → FK traversal path on SystemVersion
+_URL_COL_FIELDS = {
+    'system-url':     'system_url__url',
+    'docs-url':       'docs_url__url',
+    'sourcerepo-url': 'sourcerepo_url__url',
+    'wikipedia-url':  'wikipedia_url__url',
+}
 
 _RELATIONSHIP_COLUMNS = [
     ColumnDef('compatible-with', 'Compatible With', 'relationship'),
@@ -770,6 +783,12 @@ class BrowseView(View):
                     distinct=True,
                 )})
 
+        # URL column annotations (system_url, docs_url, sourcerepo_url, wikipedia_url)
+        for col_id, fk_path in _URL_COL_FIELDS.items():
+            if col_id in active_col_ids:
+                key = 'col_' + col_id.replace('-', '_')
+                results = results.annotate(**{key: F(fk_path)})
+
         value_fields = ['id', 'name', 'slug', 'logo', 'logo_color', 'start_year', 'end_year', 'system_tags', 'created']
         for col in attr_cols:
             value_fields.append('col_' + col.col_id.replace('-', '_'))
@@ -782,6 +801,11 @@ class BrowseView(View):
         for col_id in _RELATIONSHIP_FIELD_MAP:
             if col_id in active_col_ids:
                 value_fields.append('col_' + col_id.replace('-', '_'))
+        for col_id in _URL_COL_FIELDS:
+            if col_id in active_col_ids:
+                value_fields.append('col_' + col_id.replace('-', '_'))
+        if 'twitter-handle' in active_col_ids:
+            value_fields.append('twitter_handle')
 
         limit_param = get_params.get('limit', '').strip()
         limit = int(limit_param) if limit_param.isdigit() and int(limit_param) > 0 else None
@@ -856,6 +880,11 @@ class BrowseView(View):
                         for c in codes if c
                     ]
                     col_values.append({'type': 'countries', 'data': country_data})
+                elif col.col_id in _URL_COL_FIELDS:
+                    key = 'col_' + col.col_id.replace('-', '_')
+                    col_values.append({'type': 'url', 'data': r.get(key) or ''})
+                elif col.col_id == 'twitter-handle':
+                    col_values.append({'type': 'twitter', 'data': r.get('twitter_handle') or ''})
             r['col_values'] = col_values
 
         has_results = len(results) > 0

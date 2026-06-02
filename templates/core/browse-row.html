@@ -50,6 +50,14 @@
         <td class="r-country" data-sort-val="{% for c in col_val.data %}{% if not forloop.first %} {% endif %}{{ c.name }}{% endfor %}">
             {% for c in col_val.data %}{% if not forloop.first %}, {% endif %}<span title="{{ c.name }}"><i class="{{ c.flag_css }}"></i> {{ c.code }}</span>{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}
         </td>
+        {% elif col_val.type == 'url' %}
+        <td class="r-model" data-sort-val="{{ col_val.data }}">
+            {% if col_val.data %}<a href="{{ col_val.data }}" target="_blank" rel="noopener noreferrer">{{ col_val.data }}<i class="fas fa-external-link-alt"></i></a>{% else %}<span class="r-dash">&mdash;</span>{% endif %}
+        </td>
+        {% elif col_val.type == 'twitter' %}
+        <td class="r-model" data-sort-val="{{ col_val.data }}">
+            {% if col_val.data %}<a href="https://twitter.com/{{ col_val.data }}" target="_blank" rel="noopener noreferrer">@{{ col_val.data }}</a>{% else %}<span class="r-dash">&mdash;</span>{% endif %}
+        </td>
         {% endif %}
     {% endfor %}
 </tr>
