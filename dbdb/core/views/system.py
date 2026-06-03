@@ -144,6 +144,15 @@ class SystemView(View):
             if options is None:
                 options = sf.options.all()
 
+            # Skip if the linked system has no options for this feature and
+            # the current SystemFeature contributes nothing of its own.
+            if (sf.system
+                    and not options
+                    and sf.options.count() == 0
+                    and not sf.citations.exists()
+                    and not sf.description):
+                continue
+
             sections.append({
                 "id": sf.feature.slug,
                 "title": sf.feature.label,
