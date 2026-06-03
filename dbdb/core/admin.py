@@ -310,10 +310,15 @@ class SystemVisitAdmin(admin.ModelAdmin):
 
 @admin.register(SavedSearch)
 class SavedSearchAdmin(IconDisplayMixin, admin.ModelAdmin):
-    list_display = ('name', 'icon_display', 'search_params', 'created', 'modified')
+    list_display = ('name', 'icon_display', 'search_params_link', 'created', 'modified')
     list_filter = ['created', 'modified']
     search_fields = ('name', 'description')
     readonly_fields = ('created', 'modified')
+
+    @admin.display(description='search params')
+    def search_params_link(self, obj):
+        url = reverse('browse') + '?' + obj.search_params
+        return format_html('<a href="{}">{}</a>', url, obj.search_params)
 
 # ==============================================
 # URL MANAGEMENT
