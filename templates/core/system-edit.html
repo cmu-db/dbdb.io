@@ -213,8 +213,16 @@ Edit {{ system.name }}
         </div>
     </div>
 
-    <h2 class="pt-4">Features</h2>
-    <div class="accordion" id="features">
+    <div class="d-flex align-items-center justify-content-between pt-4 mb-0">
+        <h2 class="mb-0">Features</h2>
+        <div class="d-flex align-items-center gap-2">
+            <select id="apply-all-system" class="form-select form-select-sm w-auto">
+                <option value="">— Select System —</option>
+            </select>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="apply-all-system-btn">Apply to All</button>
+        </div>
+    </div>
+    <div class="accordion mt-3" id="features">
         {% for featureset in features.values %}
         <div class="accordion-item" id="{{ featureset.id }}">
             <h2 class="accordion-header" id="{{ featureset.id }}_header">
@@ -321,6 +329,26 @@ Edit {{ system.name }}
     $(function() {
         $('#acquisition-rows input[name$="-organization"]').each(function() { initOrgAutocomplete(this); });
     });
+
+    // --- Apply system to all featuresets ---
+    (function() {
+        const applySelect = document.getElementById('apply-all-system');
+        const applyBtn    = document.getElementById('apply-all-system-btn');
+        const firstSysSel = document.querySelector('#features select[id$="_system"]');
+        if (firstSysSel) {
+            Array.from(firstSysSel.options).forEach(function(opt) {
+                if (opt.value !== '') applySelect.appendChild(opt.cloneNode(true));
+            });
+        }
+        applyBtn.addEventListener('click', function() {
+            const val = applySelect.value;
+            if (!val) return;
+            document.querySelectorAll('#features select[id$="_system"]').forEach(function(sel) {
+                sel.value = val;
+                sel.dispatchEvent(new Event('change'));
+            });
+        });
+    })();
 
     function toggleFields(featureName) {
             const systemSelect = document.getElementById('id_' + featureName + '_system');
