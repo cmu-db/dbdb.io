@@ -1064,6 +1064,9 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .badge-section:hover { border-color: var(--accent); color: var(--accent); }
 
 /* sidebar factbox */
+@media (min-width: 768px) {
+  .entry-sidebar { width: 36%; max-width: 400px; }
+}
 .factbox { border: 1px solid var(--rule); background: var(--surface); }
 .fb-logo {
   padding: 1.6rem; border-bottom: 1px solid var(--rule);
