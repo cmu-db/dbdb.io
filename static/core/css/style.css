@@ -1007,7 +1007,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   font-family: var(--serif); color: var(--ink-soft);
 }
 .entry-section {
-  font-family: var(--serif); color: var(--ink);
+  font-family: var(--serif); color: var(--ink); font-size: 1.05rem;
 }
 .entry-lead b { color: var(--ink); font-weight: 600; }
 
@@ -1131,8 +1131,11 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .cite-body { flex: 1; min-width: 0; }
 .cite-meta {
   font-family: var(--mono); font-size: .58rem; text-transform: uppercase; letter-spacing: .05em;
-  color: var(--muted); border: 1px solid var(--rule); padding: .04rem .35rem; white-space: nowrap;
+  color: var(--muted); border: 1px solid var(--rule); padding: .1rem .4rem; white-space: nowrap;
 }
+.citation-archive .cite-meta { transition: background .15s, border-color .15s, color .15s; }
+.citation-archive:hover .cite-meta { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.citation-link:hover { text-decoration: underline dotted; text-underline-offset: 3px; }
 
 .entry-foot {
   margin-top: 2.2rem; padding-top: .85rem; border-top: 1px solid var(--rule);
