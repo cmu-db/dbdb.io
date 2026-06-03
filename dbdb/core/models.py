@@ -1,6 +1,3 @@
-# stdlib imports
-import uuid
-
 # django imports
 import tldextract
 from colorfield.fields import ColorField
@@ -321,7 +318,6 @@ class System(models.Model):
     name = models.CharField(max_length=64, blank=False)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    secret_key = models.UUIDField(max_length=36, default=uuid.uuid4)
     view_count = models.PositiveIntegerField(default=0)
     ver = models.PositiveIntegerField('Version No.', default=1)
     spotlight_enabled = models.BooleanField(default=False)
@@ -331,13 +327,7 @@ class System(models.Model):
         ordering = ('slug',)
 
     def __hash__(self):
-        return hash((
-            self.id,
-            self.name,
-            self.created,
-            self.ver,
-            self.secret_key
-        ))
+        return hash((self.id, self.name, self.created, self.ver))
 
     def __str__(self):
         return self.name
