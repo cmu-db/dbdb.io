@@ -18,6 +18,7 @@ from urllib.parse import (
 
 import requests
 from bs4 import BeautifulSoup
+from django.conf import settings
 from django.db import connection, transaction
 from django.db.models import Q
 from pptx import Presentation
@@ -278,7 +279,7 @@ def fetch_url_metadata(
     redirect_ctr: int = 0,
 ) -> dict[str, Any]:
 
-    headers = {"User-Agent": "dbdb.io/1.0"}
+    headers = {"User-Agent": settings.CRAWLER_USER_AGENT}
     if if_none_match:
         headers["If-None-Match"] = if_none_match
     if if_modified_since:
@@ -338,6 +339,7 @@ def fetch_url_metadata(
     title = None
     status: CitationUrl.Status = CitationUrl.Status.UNKNOWN
 
+    LOG.debug(f"Fetching '{url}'\n -> Headers: {headers}" )
     with requests.get(
         url,
         stream=True,
@@ -350,7 +352,7 @@ def fetch_url_metadata(
 
         # If we get redirected, then recursively call ourselves
         # with allowing the redirect so that we can get the new URL
-        if status_code in (301, 302):
+        if status_code in (301, 302, 307, 308):
             new_url = resp.headers['Location']
             if not new_url.startswith("http"):
                 orig_extracted = tldextract.extract(url)

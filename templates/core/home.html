@@ -98,12 +98,12 @@
             <h3>{{ spotlight_version.system.name }}</h3>
             <p>{{ spotlight_version.description|truncatechars:200 }}</p>
             <span class="sp-meta">
-                {% with spotlight_version.tags.all|first as tag %}
-                {% if tag %}<span class="index-chip">{{ tag.name }}</span>{% endif %}
-                {% endwith %}
                 {% if spotlight_version.start_year %}
                 <span class="index-chip">Since {{ spotlight_version.start_year }}</span>
                 {% endif %}
+                {% with spotlight_version.tags.all|first as tag %}
+                {% if tag %}<span class="index-chip">{{ tag.name }}</span>{% endif %}
+                {% endwith %}
                 {% with spotlight_version.licenses.all|first as license %}
                 {% if license %}<span class="index-chip">{{ license.name }}</span>{% endif %}
                 {% endwith %}

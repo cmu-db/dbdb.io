@@ -1,6 +1,6 @@
 {% spaceless %}
 {% if c.status != Status.SPAM %}
-    <a href="{{ c.url }}" target="_cite{{ c.id }}">
+    <a href="{{ c.url }}" target="_cite{{ c.id }}" class="citation-link">
 {% else %}
     <span class="text-muted text-decoration-line-through me-1">
 {% endif %}
@@ -19,37 +19,24 @@
 {% if c.get_domain %}
     <em>{{ c.get_domain }}</em>
 {% endif %}
-<!-- id={{ c.id }} / status={{ c.status }} -->
 {% if c.status == Status.DEAD or c.status == Status.SPAM %}
-<div class="citation-btn-container" id="citationBtn{{ c.id }}" title="{{ c.get_status_display }} Link - Click for Archive">
-    <button class="citation-btn btn  fw-bold border-0 py-0 px-1" type="button">
+    <a href="https://web.archive.org/web/*/{{ c.url }}*" class="citation-archive" target="_archive{{ c.id }}" title="URL is Not Available - Check archive.org">
+    <span class="cite-meta me-1">
         {% if c.status == Status.DEAD %}
             <i class="fa-solid fa-skull-crossbones"></i>Dead
         {% elif c.status == Status.SPAM %}
             <i class="fa-solid fa-poo"></i>Spam
         {% endif %}
-    </button>
-    <div class="citation-link-container rounded">
-        <a href="https://web.archive.org/web/*/{{ c.url }}*" class="citation-expand-link" target="_archive{{ c.id }}">Archived <i class="fas fa-external-link-alt"></i></a>
-    </div>
-</div>
-
-<script>
-    const container{{ c.id }} = document.getElementById('citationBtn{{ c.id }}');
-    const mainBtn{{ c.id }} = container{{ c.id }}.querySelector('.citation-btn');
-
-    mainBtn{{ c.id }}.addEventListener('click', function(e) {
-        e.stopPropagation();
-        container{{ c.id }}.classList.toggle('expanded');
-    });
-
-    // Close when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!container{{ c.id }}.contains(e.target)) {
-            container{{ c.id }}.classList.remove('expanded');
-        }
-    });
-</script>
+        &mdash;
+        Check Archive <i class="fas fa-external-link-alt"></i>
+    </span>
+    </a>
+{% endif %}
+{% if c.last_modified %}
+    <time datetime="{{ c.last_modified|date:"c" }}"><span class="cite-meta">Modified: {{ c.last_modified|date }}</span></time>
+{% endif %}
+{% if c.last_checked %}
+    <time datetime="{{ c.last_checked|date:"c" }}"><span class="cite-meta">Accessed: {{ c.last_checked|date }}</span></time>
 {% endif %}
 
 

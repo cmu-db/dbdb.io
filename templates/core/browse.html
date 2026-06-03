@@ -24,7 +24,7 @@
 {% endpage_title %}
 
 <div class="browse-wrap">
-<form id="mainsearch" class="main main-search">
+<form id="mainsearch" class="main main-search mx-0 mx-md-3 mx-lg-5">
     <div class="bsearch">
         <span class="ic"><i class="fas fa-search"></i></span>
         <input type="text" placeholder="Search by name, keyword, or feature..." aria-label="Search" id="mainsearch-q" name="q" value="{{ query }}">
@@ -87,7 +87,7 @@
             <i class="fas fa-table-columns"></i> Columns
             <i class="fas fa-chevron-down chev"></i>
         </button>
-        <div class="collapse {% if cols_are_custom %}show{% endif %}" id="columns-panel">
+        <div class="collapse" id="columns-panel">
           <div class="panel-body">
             <div class="row row-cols-1 row-cols-md-3 gx-4 gy-3 pt-1">
                 <div class="col">
