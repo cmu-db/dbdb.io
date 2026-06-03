@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'core/entry-base.html' %}
 {% load static %}
 {% load logos %}
 {% load markdownify %}
@@ -33,8 +33,7 @@
 {% block title %}{{ system.name }}{% if has_revision %} — Revision #{{ system_version.ver }}{% endif %}{% endblock %}
 
 {% block content %}
-
-{# Revision Info Partial #}
+{# Register partials before block.super renders the layout and calls them. #}
 {% partialdef revision_notice %}
   {% if has_revision %}
   {% if not system_version.approved %}
@@ -62,12 +61,6 @@
   {% endif %}
 {% endpartialdef %}
 
-{% if request.GET.noperms and request.GET.noperms == '1' %}
-{% alert type="error" extra_classes="mb-3" %}You do not have permission to edit this entry.{% endalert %}
-{% endif %}
-
-{# Factbox partial — defined here (no inline) so {% partial factbox %} works in both     #}
-{# the mobile block below and the desktop aside. The content is not rendered at this point. #}
 {% partialdef factbox %}
 <div class="factbox">
     <div class="fb-logo text-center">
@@ -162,144 +155,146 @@
 </div>
 {% endpartialdef %}
 
-<!-- MOBILE LAYOUT: 1) name+tags  2) intro  3) factbox  4) remainder -->
-<div class="d-md-none">
-    {% page_title %}
-    {% ptitle_kicker %}Database Entry{% endptitle_kicker %}
-    {% ptitle_title %}<div class="d-flex align-items-start justify-content-between gap-3">
-            <h1>{{ system.name }}</h1>
-            {% if user.is_authenticated and user_can_edit %}
-            <a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
-            {% endif %}
-        </div>{% endptitle_title %}
-    {% ptitle_extra %}{% partial revision_notice %}{% endptitle_extra %}
-    {% endpage_title %}
-    {% if system_version.tags.all %}
-    <div class="entry-tags">
-        {% for tag in system_version.tags.all %}{% tag_link tag %}{% endfor %}
-    </div>
-    {% endif %}
-    <div class="entry-lead-block fs-5 mt-3">
-        {{ system_version.description_mobile_intro|markdownify }}
-    </div>
-    {% partial factbox %}
-    {% if system_version.description_mobile_remainder %}
-    <div class="entry-lead-block fs-5 mt-3">
-        {{ system_version.description_mobile_remainder|markdownify }}
-    </div>
-    {% endif %}
+{% if request.GET.noperms and request.GET.noperms == '1' %}
+{% alert type="error" extra_classes="mb-3" %}You do not have permission to edit this entry.{% endalert %}
+{% endif %}
+
+{{ block.super }}
+{% endblock %}
+
+{% block mobile %}
+{% page_title %}
+{% ptitle_kicker %}Database Entry{% endptitle_kicker %}
+{% ptitle_title %}<div class="d-flex align-items-start justify-content-between gap-3">
+        <h1>{{ system.name }}</h1>
+        {% if user.is_authenticated and user_can_edit %}
+        <a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
+        {% endif %}
+    </div>{% endptitle_title %}
+{% ptitle_extra %}{% partial revision_notice %}{% endptitle_extra %}
+{% endpage_title %}
+{% if system_version.tags.all %}
+<div class="entry-tags">
+    {% for tag in system_version.tags.all %}{% tag_link tag %}{% endfor %}
 </div>
+{% endif %}
+<div class="entry-lead-block fs-5 mt-3">
+    {{ system_version.description_mobile_intro|markdownify }}
+</div>
+{% partial factbox %}
+{% if system_version.description_mobile_remainder %}
+<div class="entry-lead-block fs-5 mt-3">
+    {{ system_version.description_mobile_remainder|markdownify }}
+</div>
+{% endif %}
+{% endblock %}
 
-<div class="entry-main clearfix">
-    <!-- Desktop only: kicker, title, tags, floated sidebar, full description -->
-    <div class="d-none d-md-block">
-        <!-- Sidebar floated right first so title, description, and sections wrap around it -->
-        <aside class="entry-sidebar float-end ms-4 mb-3">
-            {% partial factbox %}
+{% block sidebar %}
+{% partial factbox %}
 
-            {% partialdef related inline %}
-            {% if compatible %}
-            <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}</div>
-            {% endif %}
-            {% if derived %}
-            <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}</div>
-            {% endif %}
-            {% if embeds %}
-            <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}</div>
-            {% endif %}
-            {% if hosted_by %}
-            <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Hosted By' systems=hosted_by limit=3 %}</div>
-            {% endif %}
-            {% if recommendations %}
-            <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='People Also Viewed' systems=recommendations %}</div>
-            {% endif %}
-            {% endpartialdef %}
-        </aside>
+{% partialdef related inline %}
+{% if compatible %}
+<div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}</div>
+{% endif %}
+{% if derived %}
+<div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}</div>
+{% endif %}
+{% if embeds %}
+<div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}</div>
+{% endif %}
+{% if hosted_by %}
+<div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Hosted By' systems=hosted_by limit=3 %}</div>
+{% endif %}
+{% if recommendations %}
+<div class="side-card">{% include 'core/system-sys-sidebar.html' with title='People Also Viewed' systems=recommendations %}</div>
+{% endif %}
+{% endpartialdef %}
+{% endblock %}
 
-        {% page_title %}
-        {% ptitle_kicker %}Database Entry{% endptitle_kicker %}
-        {% ptitle_title %}<div class="d-flex align-items-start justify-content-between gap-3">
-                <h1>{{ system.name }}</h1>
-                {% if user.is_authenticated and user_can_edit %}
-                <a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
-                {% endif %}
-            </div>{% endptitle_title %}
-        {% ptitle_extra %}{% partial revision_notice %}{% endptitle_extra %}
-        {% endpage_title %}
-        {% if system_version.tags.all %}
-        <div class="entry-tags">
-            {% for tag in system_version.tags.all %}{% tag_link tag %}{% endfor %}
-        </div>
+{% block desktop_intro %}
+{% page_title %}
+{% ptitle_kicker %}Database Entry{% endptitle_kicker %}
+{% ptitle_title %}<div class="d-flex align-items-start justify-content-between gap-3">
+        <h1>{{ system.name }}</h1>
+        {% if user.is_authenticated and user_can_edit %}
+        <a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
         {% endif %}
-        <div class="entry-lead-block fs-5 mt-3">
-            {{ system_version.description|markdownify }}
+    </div>{% endptitle_title %}
+{% ptitle_extra %}{% partial revision_notice %}{% endptitle_extra %}
+{% endpage_title %}
+{% if system_version.tags.all %}
+<div class="entry-tags">
+    {% for tag in system_version.tags.all %}{% tag_link tag %}{% endfor %}
+</div>
+{% endif %}
+<div class="entry-lead-block fs-5 mt-3">
+    {{ system_version.description|markdownify }}
+</div>
+{% endblock %}
+
+{% block main_content %}
+{% if system_version.hosted_services.exists %}
+<div id="hosted-services" class="entry-section">
+    <h2>Hosted Systems</h2>
+    <hr class="sec-rule">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-2">
+        {% for hosted_sys in system_version.hosted_services.all %}
+        <div class="col">
+            <a href="{{ hosted_sys.get_absolute_url }}" class="hosted-link d-flex align-items-center gap-3 p-3 h-100 text-decoration-none" title="View {{ hosted_sys.name }}">
+                {% with hosted_ver=hosted_sys.current %}
+                {% mono_tile hosted_ver.logo hosted_sys.name 'thumb' %}
+                {% endwith %}
+                <span class="ln">{{ hosted_sys.name }}</span>
+            </a>
         </div>
-    </div>
-
-    {% if system_version.hosted_services.exists %}
-    <div id="hosted-services" class="entry-section">
-        <h2>Hosted Systems</h2>
-        <hr class="sec-rule">
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-2">
-            {% for hosted_sys in system_version.hosted_services.all %}
-            <div class="col">
-                <a href="{{ hosted_sys.get_absolute_url }}" class="hosted-link d-flex align-items-center gap-3 p-3 h-100 text-decoration-none" title="View {{ hosted_sys.name }}">
-                    {% with hosted_ver=hosted_sys.current %}
-                    {% mono_tile hosted_ver.logo hosted_sys.name 'thumb' %}
-                    {% endwith %}
-                    <span class="ln">{{ hosted_sys.name }}</span>
-                </a>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-
-    {% for sec in sections %}
-    <div id="{{ sec.id }}" class="entry-section fs-6">
-        {% if sec.title %}
-            <h2>{{ sec.title }}{% if sec.citations %}<span class="cites">{% for c in sec.citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</h2>
-        <hr class="sec-rule">
-        {% endif %}
-        {% if sec.options %}
-        <div class="badges">
-            {% for o in sec.options %}
-            <a class="badge-section" href="{% url 'browse' %}?{{ sec.id }}={{ o.slug }}" title="View Other '{{ o.value }}' Systems">{{ o.value }}</a>
-            {% endfor %}
-        </div>
-        {% endif %}
-        {% if sec.system %}
-        <p class="section-sameas fw-bold">⮡ Same as {% system_link sec.system %}</p>
-        {% endif %}
-        {{ sec.body|markdownify }}
-    </div>
-    {% endfor %}
-
-    <!-- Mobile: related cards above citations -->
-    <div class="d-md-none mt-3">{% partial related %}</div>
-
-    {% if citations %}
-    <div class="citations-block">
-        <div class="sec-head"><h2>Citations</h2><span class="rule"></span><span class="num">{{ citations|length }} source{% if citations|length != 1 %}s{% endif %}</span></div>
-        <ol class="citations-list">
-            {% for c in citations %}
-            <li class="citation" id="citation{{ forloop.counter }}">
-                <span class="cite-body">{% citation_link c %}{% if c.last_modified %} <time datetime="{{ c.last_modified|date:"c" }}"><span class="cite-meta">Modified: {{ c.last_modified|date }}</span></time>{% endif %}{% if c.last_checked %} <time datetime="{{ c.last_checked|date:"c" }}"><span class="cite-meta">Accessed: {{ c.last_checked|date }}</span></time>{% endif %}</span>
-            </li>
-            {% endfor %}
-        </ol>
-    </div>
-    {% endif %}
-
-    <div class="entry-foot">
-        <a href="{% url 'system_revision' system.slug %}" class="text-accent">
-            <i class="fa-solid fa-clock-rotate-left"></i>
-            Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
-        </a>
-        <span>Revision #{{ system_version.ver }}</span>
+        {% endfor %}
     </div>
 </div>
+{% endif %}
 
+{% for sec in sections %}
+<div id="{{ sec.id }}" class="entry-section fs-6">
+    {% if sec.title %}
+        <h2>{{ sec.title }}{% if sec.citations %}<span class="cites">{% for c in sec.citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</h2>
+    <hr class="sec-rule">
+    {% endif %}
+    {% if sec.options %}
+    <div class="badges">
+        {% for o in sec.options %}
+        <a class="badge-section" href="{% url 'browse' %}?{{ sec.id }}={{ o.slug }}" title="View Other '{{ o.value }}' Systems">{{ o.value }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% if sec.system %}
+    <p class="section-sameas fw-bold">⮡ Same as {% system_link sec.system %}</p>
+    {% endif %}
+    {{ sec.body|markdownify }}
+</div>
+{% endfor %}
+
+<!-- Mobile: related cards above citations -->
+<div class="d-md-none mt-3">{% partial related %}</div>
+
+{% if citations %}
+<div class="citations-block">
+    <div class="sec-head"><h2>Citations</h2><span class="rule"></span><span class="num">{{ citations|length }} source{% if citations|length != 1 %}s{% endif %}</span></div>
+    <ol class="citations-list">
+        {% for c in citations %}
+        <li class="citation" id="citation{{ forloop.counter }}">
+            <span class="cite-body">{% citation_link c %}{% if c.last_modified %} <time datetime="{{ c.last_modified|date:"c" }}"><span class="cite-meta">Modified: {{ c.last_modified|date }}</span></time>{% endif %}{% if c.last_checked %} <time datetime="{{ c.last_checked|date:"c" }}"><span class="cite-meta">Accessed: {{ c.last_checked|date }}</span></time>{% endif %}</span>
+        </li>
+        {% endfor %}
+    </ol>
+</div>
+{% endif %}
+
+<div class="entry-foot">
+    <a href="{% url 'system_revision' system.slug %}" class="text-accent">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        Updated {{ system_version.created|date:"SHORT_DATETIME_FORMAT" }}
+    </a>
+    <span>Revision #{{ system_version.ver }}</span>
+</div>
 {% endblock %}
 
 {% block footer %}

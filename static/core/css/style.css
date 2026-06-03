@@ -1070,7 +1070,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .factbox { border: 1px solid var(--rule); background: var(--surface); }
 .fb-logo {
   padding: 1.6rem; border-bottom: 1px solid var(--rule);
-  place-items: center;
+  display: flex; flex-direction: column; align-items: center;
 }
 .fb-logo .mono-tile { width: 96px; height: 96px; font-size: 1.7rem; }
 .fb-logo .fb-name { font-family: var(--serif); font-weight: 600; font-size: 1.15rem; margin-top: .7rem; color: var(--ink); }
