@@ -710,11 +710,11 @@ class BrowseView(View):
             if slug in available_map and slug not in selected_ids:
                 selected_ids.append(slug)
         cols = [available_map[c] for c in selected_ids if c in available_map]
-        # Canonical order: start-year → all content cols → tags
-        start_cols   = [c for c in cols if c.col_id == 'start-year']
+        # Canonical order: year cols → all content cols → tags
+        year_cols    = [c for c in cols if c.col_id in _YEAR_IDS]
         tags_cols    = [c for c in cols if c.col_id in _FIXED_RIGHT_IDS]
         content_cols = [c for c in cols if c.col_id not in _YEAR_IDS and c.col_id not in _FIXED_RIGHT_IDS]
-        return (start_cols + content_cols + tags_cols, is_custom)
+        return (year_cols + content_cols + tags_cols, is_custom)
 
     def do_dym(self, search_q):
         """Did you mean search"""
@@ -737,6 +737,7 @@ class BrowseView(View):
 
         # Determine active columns (before search so we can auto-add searched ones)
         available_columns = self.get_available_columns()
+        available_col_ids = {c.col_id for c in available_columns}
         feature_slugs_set = set(Feature.objects.values_list('slug', flat=True))
         attr_slugs_set = set(
             Attribute.objects.filter(sv_field__gt='').exclude(slug='tag').values_list('slug', flat=True)
@@ -745,6 +746,12 @@ class BrowseView(View):
         for param, col_id in _SEARCH_PARAM_TO_COL.items():
             if get_params.get(param) and col_id not in searched_slugs:
                 searched_slugs.append(col_id)
+
+        # Parse order-by early so the sorted column can be auto-included in the display
+        order_by_raw = get_params.get('order-by', '').strip()
+        order_col_key = order_by_raw.lstrip('+-') if order_by_raw else ''
+        if order_col_key and order_col_key in available_col_ids and order_col_key not in searched_slugs:
+            searched_slugs.append(order_col_key)
 
         active_columns, cols_are_custom = self.get_active_columns(get_params, available_columns, searched_slugs)
         active_col_ids = [c.col_id for c in active_columns]
@@ -825,11 +832,9 @@ class BrowseView(View):
         limit_param = get_params.get('limit', '').strip()
         limit = int(limit_param) if limit_param.isdigit() and int(limit_param) > 0 else None
 
-        order_by_raw = get_params.get('order-by', '').strip()
         if order_by_raw:
             desc = order_by_raw[0] == '-'
-            col_key = order_by_raw.lstrip('+-')
-            db_field = _ORDER_BY_MAP.get(col_key, 'name')
+            db_field = _ORDER_BY_MAP.get(order_col_key, 'name')
             order_by_expr = f'-{db_field}' if desc else db_field
         else:
             order_by_expr = 'name'
