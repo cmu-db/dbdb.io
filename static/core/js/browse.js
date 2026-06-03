@@ -33,6 +33,9 @@ function buildFilterGroup(item, selected_options=[]) {
     const filterRow   = dropdownDiv.parentElement;
     filterRow.id      = 'filter-' + filtergroup.id;
 
+    const existingYear = filterRow.querySelector('.year-control');
+    if (existingYear) existingYear.remove();
+
     if (filterRow.classList.contains('search-field-filled')) {
         const searchfield_div = filterRow.querySelector('.filter-control');
         searchfield_div.innerHTML = '';
@@ -161,6 +164,12 @@ function buildYearFilter(item, selected_years) {
     const dropdownDiv = item.parentElement.parentElement;
     const filterRow   = dropdownDiv.parentElement;
     filterRow.id      = 'filter-' + item.textContent;
+
+    const existingControl = filterRow.querySelector('.filter-control');
+    if (existingControl) {
+        existingControl.remove();
+        filterRow.classList.remove('search-field-filled');
+    }
 
     let yearControl = filterRow.querySelector('.year-control');
     if (!yearControl) {
