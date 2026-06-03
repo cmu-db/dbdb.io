@@ -37,6 +37,8 @@ class Command(BaseCommand):
                     help="How many seconds to sleep between processing each citation")
         parser.add_argument('--limit', type=int, default=None,
                     help="# of citations to process before exiting")
+        parser.add_argument('--statuscode', type=int, default=None, metavar='N',
+                    help="Only process citations with last_statuscode=N (e.g. 404)")
         return
 
     def handle(self, *args, **options):
@@ -53,6 +55,9 @@ class Command(BaseCommand):
         if options['last_checked']:
             LOG.info(f"Processing URLs last checked before {options['last_checked']}")
             citations = citations.filter(last_checked__lte=options['last_checked'])
+        if options['statuscode'] is not None:
+            LOG.info(f"Processing URLs with last_statuscode={options['statuscode']}")
+            citations = citations.filter(last_statuscode=options['statuscode'])
 
         citation_ctr = 0
         max_title = CitationUrl._meta.get_field('last_title').max_length
