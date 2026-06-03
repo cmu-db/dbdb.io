@@ -568,10 +568,25 @@ class BrowseView(View):
 
         # search - attribute options (dynamic: one block per Attribute)
         for slug, (attr, param_slugs) in attr_searches.items():
-            sqs_filters.append(Q(**{f'{attr.sv_field}__slug__in': param_slugs}))
+            if search_op == and_ and len(param_slugs) > 1:
+                # AND: must have ALL selected options — intersect one queryset per slug
+                version_ids = None
+                for param_slug in param_slugs:
+                    qs = (
+                        SystemVersion.objects
+                        .filter(is_current=True)
+                        .filter(**{f'{attr.sv_field}__slug': param_slug})
+                        .values_list('id', flat=True)
+                        .distinct()
+                    )
+                    version_ids = qs if version_ids is None else version_ids.intersection(qs)
+                sqs_filters.append(Q(id__in=version_ids))
+            else:
+                sqs_filters.append(Q(**{f'{attr.sv_field}__slug__in': param_slugs}))
             matched = AttributeOption.objects.filter(attribute=attr, slug__in=param_slugs)
             names = [o.name for o in matched]
-            joined = ' or '.join(names) if len(names) < 3 else f"{', '.join(names[:-1])}, or {names[-1]}"
+            op_str = 'and' if search_op == and_ else 'or'
+            joined = f' {op_str} '.join(names) if len(names) < 3 else f"{', '.join(names[:-1])}, {op_str} {names[-1]}"
             if joined and attr.search_text:
                 search_parts.append(attr.search_text.format(names=joined))
 
