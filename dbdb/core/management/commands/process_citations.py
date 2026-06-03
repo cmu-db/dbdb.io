@@ -6,6 +6,7 @@ from argparse import ArgumentParser
 from pprint import pformat
 
 from django.core.management import BaseCommand
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from requests import ConnectTimeout
@@ -21,8 +22,8 @@ LOG = logging.getLogger(__name__)
 class Command(BaseCommand):
 
     def add_arguments(self, parser: ArgumentParser):
-        parser.add_argument('citation', metavar='C', type=str, nargs='?',
-                    help='Citation URL to force process')
+        parser.add_argument('citation', metavar='C', type=str, nargs='*',
+                    help='One or more citation IDs or URL keywords to process')
         parser.add_argument('--ignore-spam', action='store_true',
                     help="Ignore spam checks")
         parser.add_argument('--normalize', action='store_true',
@@ -45,11 +46,14 @@ class Command(BaseCommand):
 
         citations = CitationUrl.objects.filter(url__startswith="http")
         if options['citation']:
-            keyword = options['citation'].strip()
-            if keyword.isdigit():
-                citations = citations.filter(id=int(keyword))
-            else:
-                citations = citations.filter(url__icontains=keyword)
+            q = Q()
+            for term in options['citation']:
+                term = term.strip()
+                if term.isdigit():
+                    q |= Q(id=int(term))
+                else:
+                    q |= Q(url__icontains=term)
+            citations = citations.filter(q)
         if options['only_new']:
             citations = citations.filter(last_checked=None)
         if options['last_checked']:
