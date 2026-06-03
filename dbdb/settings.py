@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django_countries',
     'colorfield',
     'captcha',
+    'turnstile',
     'rest_framework', # djangorestframework
     'markdownify.apps.MarkdownifyConfig',
 
@@ -220,6 +221,12 @@ COUNTRIES_FIRST = ['US']
 RECAPTCHA_PUBLIC_KEY = '' # env('RECAPTCHA_PUBLIC_KEY')
 RECAPTCHA_PRIVATE_KEY = '' # env('RECAPTCHA_PRIVATE_KEY')
 
+# Cloudflare Turnstile — set TURNSTILE_SITEKEY / TURNSTILE_SECRET in .env for production.
+# The defaults below are Cloudflare's always-pass test keys (safe for development).
+TURNSTILE_SITEKEY = env('TURNSTILE_SITEKEY', default='1x00000000000000000000AA')
+TURNSTILE_SECRET  = env('TURNSTILE_SECRET',  default='1x0000000000000000000000000000000AA')
+TURNSTILE_ENABLE  = env.bool('TURNSTILE_ENABLE', default=True)
+
 # Email Configuration
 EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST = env('EMAIL_HOST', default='')
@@ -242,3 +249,5 @@ DBDB_FOUNDING_YEAR = 2017
 GITHUB_API_TOKEN = env('GITHUB_API_TOKEN', default='')
 GITLAB_API_TOKEN = env('GITLAB_API_TOKEN', default='')
 REPOSITORY_INACTIVITY_DAYS = 730
+
+CRAWLER_USER_AGENT = env('CRAWLER_USER_AGENT', default='"dbdb.io/1.0')

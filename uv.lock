@@ -326,6 +326,15 @@ wheels = [
 ]
 
 [[package]]
+name = "django-turnstile"
+version = "0.1.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/cb/e5/795fc00bae0bdbf8fd72d3baa3b700174481ddd7096ba06ee4a7c1fed0af/django_turnstile-0.1.3.tar.gz", hash = "sha256:5079eb937938ba9a475c1a80c146fe1e71de025f25f3e572a911ae926bd5120d", size = 5662, upload-time = "2026-01-18T09:18:12.575Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/68/6f/8d4d5cd527d0cd42a894d51ce750dc3bae50a6cbed8294cfc870d119502a/django_turnstile-0.1.3-py3-none-any.whl", hash = "sha256:f7c82b020d5bd0fcaccb2ffac089809afb220671595c55a46a987283d7d5e61b", size = 7011, upload-time = "2026-01-18T09:18:11.486Z" },
+]
+
+[[package]]
 name = "django-upgrade"
 version = "1.29.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1386,6 +1395,7 @@ dependencies = [
     { name = "django-environ" },
     { name = "django-markdownify" },
     { name = "django-recaptcha" },
+    { name = "django-turnstile" },
     { name = "django-upgrade" },
     { name = "djangorestframework" },
     { name = "docutils" },
@@ -1492,6 +1502,7 @@ requires-dist = [
     { name = "django-environ", specifier = "==0.12.0" },
     { name = "django-markdownify", specifier = "==0.9.6" },
     { name = "django-recaptcha", specifier = "==3.0.0" },
+    { name = "django-turnstile", specifier = ">=0.1.3" },
     { name = "django-upgrade", specifier = "==1.29.1" },
     { name = "djangorestframework", specifier = "==3.16.1" },
     { name = "docutils", specifier = "==0.16" },

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load page_title %}
+
+{% block title %}Suggestion Received{% endblock %}
+
+{% block content %}
+{% page_title %}
+{% ptitle_kicker %}Thank You{% endptitle_kicker %}
+{% ptitle_title %}<h1>Suggestion Received</h1>{% endptitle_title %}
+{% endpage_title %}
+
+<div class="row justify-content-center">
+<div class="col-lg-7 col-md-9">
+
+<div class="alert alert-success d-flex align-items-center gap-2" role="alert">
+    <i class="fa-solid fa-circle-check fs-4"></i>
+    <div>
+        <strong>Your suggestion has been submitted.</strong>
+        If you provided an email address, you'll receive a confirmation shortly.
+    </div>
+</div>
+
+<p class="mt-3">
+    Our team will review your suggestion and add the system to
+    <a href="{% url 'home' %}">DBDB.IO</a>. Thank you for helping make
+    the database of databases more complete.
+</p>
+
+<div class="mt-4">
+    <a href="{% url 'browse' %}" class="btn btn-outline-secondary me-2">Browse Systems</a>
+    <a href="{% url 'system_suggestion' %}" class="btn btn-outline-primary">Suggest Another</a>
+</div>
+
+</div>
+</div>
+{% endblock %}

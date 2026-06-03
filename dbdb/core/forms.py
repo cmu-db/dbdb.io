@@ -8,6 +8,7 @@ import json
 from captcha.fields import ReCaptchaField
 from captcha.widgets import ReCaptchaV2Invisible
 from django import forms
+from turnstile.fields import TurnstileField
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
@@ -338,6 +339,49 @@ class AcquisitionForm(forms.Form):
 
 
 AcquisitionFormSet = formset_factory(AcquisitionForm, extra=0, can_delete=True)
+
+
+class SystemSuggestionForm(forms.Form):
+
+    name = forms.CharField(
+        max_length=100,
+        label='System Name',
+        widget=forms.TextInput(attrs={'placeholder': 'e.g. CockroachDB'}),
+    )
+    system_url = forms.URLField(
+        max_length=500,
+        label='System URL',
+        widget=forms.URLInput(attrs={'placeholder': 'https://www.example.com'}),
+    )
+    sourcerepo_url = forms.URLField(
+        max_length=500,
+        required=False,
+        label='Source Code URL',
+        widget=forms.URLInput(attrs={'placeholder': 'https://github.com/org/project'}),
+    )
+    logo_url = forms.URLField(
+        max_length=500,
+        required=False,
+        label='Logo Image URL',
+        widget=forms.URLInput(attrs={'placeholder': 'https://www.example.com/logo.png'}),
+    )
+    is_my_system = forms.BooleanField(
+        required=False,
+        label='This is my system and I want to edit the entry',
+    )
+    email = forms.EmailField(
+        max_length=100,
+        required=False,
+        label='Your Email',
+        widget=forms.EmailInput(attrs={'placeholder': 'you@example.edu'}),
+    )
+    captcha = TurnstileField()
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get('is_my_system') and not cleaned.get('email'):
+            self.add_error('email', 'Email is required when you want to edit the entry.')
+        return cleaned
 
 
 class DeveloperOrgForm(forms.Form):

@@ -1,5 +1,4 @@
 # stdlib imports
-
 import uuid
 
 # django imports
@@ -187,19 +186,26 @@ class AttributeOption(models.Model):
 
 
 # ==============================================
-# SuggestedSystem
+# SystemSuggestion
 # ==============================================
-class SuggestedSystem(models.Model):
+class SystemSuggestion(models.Model):
 
     name = models.CharField(max_length=100)
-    description = models.TextField(default=None, null=True, blank=True)
-    email = models.EmailField(max_length=100)
-    approved = models.BooleanField()
-    secret_key = models.UUIDField(max_length=36, default=uuid.uuid4)
-    url = models.URLField(blank=True, max_length=500)
+    system_url = models.URLField(max_length=500)
+    sourcerepo_url = models.URLField(blank=True, max_length=500)
+    logo_url = models.URLField(blank=True, max_length=500)
+    email = models.EmailField(max_length=100, blank=True)
+    is_my_system = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+    approved_at = models.DateTimeField(null=True, blank=True)
+    system = models.ForeignKey(
+        'System', models.SET_NULL,
+        null=True, blank=True,
+        related_name='suggestions')
 
     class Meta:
-        ordering = ('name',)
+        ordering = ('-created',)
 
     def __str__(self):
         return self.name
@@ -933,7 +939,7 @@ __all__ = (
     'RepositoryInfo',
     'RepositorySnapshot',
     'SavedSearch',
-    'SuggestedSystem',
+    'SystemSuggestion',
     'System',
     'SystemFeature',
     'SystemVersion',

@@ -37,6 +37,7 @@ from dbdb.core.models import (
     SystemFeature,
     SystemRecommendation,
     SystemRedirect,
+    SystemSuggestion,
     SystemVersion,
     user_can_edit_system,
 )
@@ -334,7 +335,20 @@ class SystemEditView(LoginRequiredMixin, View):
             system_features = system_version.features.all()
             pass
 
-        system_form = SystemForm(instance=system)
+        # Load suggestion pre-fill data (only for new-system creation)
+        suggestion = None
+        if slug is None:
+            suggestion_id = request.GET.get('suggestion_id')
+            if suggestion_id:
+                try:
+                    suggestion = SystemSuggestion.objects.get(id=suggestion_id)
+                except SystemSuggestion.DoesNotExist:
+                    pass
+
+        system_form = SystemForm(
+            instance=system,
+            initial={'name': suggestion.name} if suggestion else {},
+        )
 
         # Don't allow non-superusers from editing the system name
         # This only really hides it from the UI.
@@ -364,21 +378,28 @@ class SystemEditView(LoginRequiredMixin, View):
         ] if system_version.pk else []
         developer_org_formset = DeveloperOrgFormSet(initial=developer_org_initial, prefix='developer_orgs')
 
+        version_initial = {
+            'system_url':     system_version.system_url.url     if system_version.system_url     else '',
+            'docs_url':       system_version.docs_url.url       if system_version.docs_url       else '',
+            'sourcerepo_url': system_version.sourcerepo_url.url if system_version.sourcerepo_url else '',
+            'wikipedia_url':  system_version.wikipedia_url.url  if system_version.wikipedia_url  else '',
+        }
+        if suggestion:
+            version_initial['system_url'] = suggestion.system_url
+            if suggestion.sourcerepo_url:
+                version_initial['sourcerepo_url'] = suggestion.sourcerepo_url
+
         return render(request, self.template_name, {
             'activate': 'create' if system.id is None else 'edit', # NAV-LINKS
             'system': system,
             'system_form': system_form,
-            'system_version_form': SystemVersionForm(instance=system_version, initial={
-                'system_url':       system_version.system_url.url       if system_version.system_url       else '',
-                'docs_url':         system_version.docs_url.url         if system_version.docs_url         else '',
-                'sourcerepo_url':   system_version.sourcerepo_url.url   if system_version.sourcerepo_url   else '',
-                'wikipedia_url':    system_version.wikipedia_url.url    if system_version.wikipedia_url    else '',
-            }),
+            'system_version_form': SystemVersionForm(instance=system_version, initial=version_initial),
             'feature_form': feature_form,
             'features': features,
             'acquisition_formset': acquisition_formset,
             'developer_org_formset': developer_org_formset,
             'pending_version': system_version if (system_version.pk and not system_version.approved) else None,
+            'suggestion': suggestion,
         })
 
     @transaction.atomic

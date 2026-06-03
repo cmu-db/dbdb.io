@@ -1070,7 +1070,8 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .factbox { border: 1px solid var(--rule); background: var(--surface); }
 .fb-logo {
   padding: 1.6rem; border-bottom: 1px solid var(--rule);
-  display: flex; flex-direction: column; align-items: center;
+/*   display: flex;  */
+  flex-direction: column; align-items: center;
 }
 .fb-logo .mono-tile { width: 96px; height: 96px; font-size: 1.7rem; }
 .fb-logo .fb-name { font-family: var(--serif); font-weight: 600; font-size: 1.15rem; margin-top: .7rem; color: var(--ink); }
@@ -1114,7 +1115,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 
 /* citations */
 .citations-block { margin-top: 3rem; }
-.citations-list { list-style: none; counter-reset: cite; padding: 0; margin: 0; max-width: 86ch; }
+.citations-list { list-style: none; counter-reset: cite; padding: 0; margin: 0; }
 .citations-list li {
   counter-increment: cite; display: flex; gap: .8rem; align-items: baseline;
   padding: .5rem 0; border-bottom: 1px solid var(--rule-soft);
@@ -1349,6 +1350,8 @@ ins.diff-ins { text-decoration: none; border-radius: 2px; padding: 0 2px; }
 }
 .ed-field input::placeholder { color: var(--muted); }
 .ed-field input:focus { border-color: var(--ink); }
+.ed-field .form-text { font-size: .75rem; color: var(--muted); margin-top: .3rem; }
+.suggest-error { font-size: .78rem; color: var(--accent); margin-top: .3rem; }
 
 .btn-solid {
   font-family: var(--mono); text-transform: uppercase; letter-spacing: .12em; font-size: .66rem;
@@ -1392,7 +1395,10 @@ h3 > sup {
   top: -1em;
 }
 
-.badge-section::before { content: "▶ "; }
+.badge-section::before {
+  content: "▶ ";
+  padding-right: 0.2rem;
+}
 
 div.card h2 a { font-size: 16px; }
 div.card h4 a { font-size: 16px; }

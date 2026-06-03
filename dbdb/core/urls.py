@@ -36,6 +36,9 @@ urlpatterns = [
     path('user/signup/pending', views.SignupPendingView.as_view(), name='signup_pending'),
     path('user/profile', views.ProfileView.as_view(), name='user_profile'),
 
+    path('suggest', views.SystemSuggestionView.as_view(), name='system_suggestion'),
+    path('suggest/success', views.SystemSuggestionSuccessView.as_view(), name='system_suggestion_success'),
+
     path('counter', views.CounterView.as_view(), name='counter'),
     path('sitemap.xml', views.SitemapView.as_view(), name='sitemap'),
 ]

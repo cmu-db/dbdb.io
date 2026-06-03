@@ -274,6 +274,19 @@ class SystemACLAdmin(admin.ModelAdmin):
     list_filter = ['created']
     readonly_fields=('created', 'modified')
 
+@admin.register(SystemSuggestion)
+class SystemSuggestionAdmin(admin.ModelAdmin):
+    list_display = ('name', 'system_url', 'email', 'is_my_system', 'created', 'approved_at', 'system', 'create_entry_button')
+    list_filter = ['is_my_system', 'created', 'approved_at']
+    search_fields = ('name', 'email', 'system_url')
+    readonly_fields = ('created', 'modified')
+    ordering = ('-created',)
+
+    @admin.display(description='Action')
+    def create_entry_button(self, obj):
+        url = reverse('create_system') + f'?suggestion_id={obj.id}'
+        return format_html('<a href="{}" class="button">Create Entry</a>', url)
+
 @admin.register(SystemRecommendation)
 class SystemRecommendationAdmin(admin.ModelAdmin):
     list_display = ('system', 'recommendation', 'score', 'created')

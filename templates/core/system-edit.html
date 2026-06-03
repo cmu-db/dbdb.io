@@ -30,6 +30,14 @@ Edit {{ system.name }}
 
     <form method="POST" enctype="multipart/form-data" id="edit-form">
 
+    {% if suggestion %}
+    {% alert type="info" icon="fa-solid fa-database" %}
+    Pre-filled from system suggestion <strong>#{{ suggestion.id }}: {{ suggestion.name }}</strong>.
+    {% if suggestion.logo_url %}Logo URL: <a href="{{ suggestion.logo_url }}" target="_blank">{{ suggestion.logo_url }}</a> — upload the logo manually above.{% endif %}
+    {% if suggestion.email %}Suggested by: {{ suggestion.email }}{% endif %}
+    {% endalert %}
+    {% endif %}
+
     {% if pending_version %}
     {% alert type="warning" icon="fa-solid fa-clock-rotate-left" %}
     <strong>Editing a pending (unapproved) version</strong> — v{{ pending_version.ver }},
