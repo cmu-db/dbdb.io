@@ -811,7 +811,7 @@ form.main-search { display: block; padding: 0; }
   flex: none; align-self: flex-start;
   font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; font-size: .66rem;
   border: 1px solid var(--rule); background: var(--surface-2); color: var(--ink-soft);
-  padding: .5rem .7rem; display: inline-flex; align-items: center; gap: .5rem; min-width: 150px; cursor: pointer; white-space: nowrap;
+  padding: .5rem .7rem; display: inline-flex; align-items: center; gap: .5rem; min-width: 150px; max-width: 14rem; cursor: pointer; white-space: nowrap;
 }
 .field-pick .chev { margin-left: auto; color: var(--muted); font-size: .6rem; }
 .token-box {
@@ -844,7 +844,7 @@ form.main-search { display: block; padding: 0; }
 
 /* ---- year range filter ---- */
 .year-control {
-  flex: 1; border: 1px solid var(--rule); background: var(--paper);
+  flex: 1 1 100%; border: 1px solid var(--rule); background: var(--paper);
   padding: .7rem 1.2rem 1rem;
   display: flex; flex-direction: column; gap: .85rem; justify-content: center;
 }
@@ -861,6 +861,8 @@ form.main-search { display: block; padding: 0; }
   display: flex; justify-content: space-between;
   font-family: var(--mono); font-size: .6rem; letter-spacing: .06em; color: var(--muted); margin-top: -.15rem;
 }
+
+@media (min-width: 768px) { .year-control { flex: 1; } }
 
 /* ---- noUiSlider — editorial theme (replaces default teal) ---- */
 /* !important needed: nouislider.min.css loads after style.css via {% block css %} */
@@ -885,7 +887,8 @@ form.main-search { display: block; padding: 0; }
 .row-remove:hover { color: var(--accent); }
 
 /* ---- Choices.js wrapper inside filter-row ---- */
-.filter-control { flex: 1; }
+.filter-control { flex: 1 1 100%; }
+@media (min-width: 768px) { .filter-control { flex: 1; } }
 
 /* ---- Dropdown menu max-height (moved from inline style) ---- */
 .filter-row .dropdown-menu { max-height: 200px; overflow-y: auto; }

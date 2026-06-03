@@ -1,7 +1,8 @@
 function add_filter_button() {
     const template = document.getElementById('template');
     const copy = template.cloneNode(true);
-    copy.hidden = false;
+    copy.classList.remove('d-none');
+    copy.classList.add('d-flex');
     copy.id = 'filter-none';
     const button_container = document.getElementById('advanced-search-btn-container');
     button_container.insertAdjacentElement('beforebegin', copy);
@@ -33,7 +34,7 @@ function buildFilterGroup(item, selected_options=[]) {
     filterRow.id      = 'filter-' + filtergroup.id;
 
     if (filterRow.classList.contains('search-field-filled')) {
-        const searchfield_div = dropdownDiv.nextElementSibling;
+        const searchfield_div = filterRow.querySelector('.filter-control');
         searchfield_div.innerHTML = '';
         searchfield_div.id = item.textContent;
         const select = document.createElement('select');
@@ -66,7 +67,7 @@ function buildFilterGroup(item, selected_options=[]) {
         buildFilterChoices(filtergroup, select, selected_options);
 
         searchfield_div.appendChild(select);
-        dropdownDiv.insertAdjacentElement('afterend', searchfield_div);
+        filterRow.querySelector('.row-remove-desktop').insertAdjacentElement('beforebegin', searchfield_div);
         new Choices(select, {
             removeItemButton: true,
             removeItems: true,
@@ -165,7 +166,7 @@ function buildYearFilter(item, selected_years) {
     if (!yearControl) {
         yearControl = document.createElement('div');
         yearControl.className = 'year-control';
-        dropdownDiv.insertAdjacentElement('afterend', yearControl);
+        filterRow.querySelector('.row-remove-desktop').insertAdjacentElement('beforebegin', yearControl);
     }
     buildYearSlider(item, yearControl, selected_years);
 }

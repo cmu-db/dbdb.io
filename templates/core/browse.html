@@ -19,7 +19,7 @@
 {{ years|json_script:"years" }}
 
 {% page_title %}
-{% ptitle_kicker %}{% if saved_search %}{{ saved_search.name }}{% else %}{{ num_results|intcomma }} System{{ num_results|pluralize }} Indexed{% endif %}{% endptitle_kicker %}
+{% ptitle_kicker %}{% if saved_search %}{{ saved_search.name }}{% else %}{{ num_results|intcomma }} System{{ num_results|pluralize }} Found{% endif %}{% endptitle_kicker %}
 {% ptitle_title %}<h1>{{ title }}</h1>{% endptitle_title %}
 {% endpage_title %}
 
@@ -40,28 +40,30 @@
         </button>
         <div class="collapse" id="filter">
           <div class="panel-body">
-            <div class="filter-row d-flex flex-column flex-md-row gap-3 mb-2" hidden id="template">
-                <div class="dropdown align-self-md-start">
-                    <button class="field-pick dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="filter-row d-none flex-row flex-wrap align-items-center gap-3 mb-2" id="template">
+                <div class="dropdown">
+                    <button class="field-pick dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Search Fields <i class="fas fa-chevron-down chev"></i>
                     </button>
                     <ul class="dropdown-menu">
                         {% for label in dropdown_fields %}<li class="dropdown-item">{{ label }}</li>{% endfor %}
                     </ul>
                 </div>
-                <a href="javascript:;" class="row-remove align-self-md-center"><i class="fas fa-xmark"></i> Remove</a>
+                <a href="javascript:;" class="row-remove d-md-none"><i class="fas fa-xmark"></i> Remove</a>
+                <a href="javascript:;" class="row-remove row-remove-desktop d-none d-md-inline-flex"><i class="fas fa-xmark"></i> Remove</a>
             </div>
 
-            <div class="filter-row d-flex flex-column flex-md-row gap-3 mb-2" id="filter-none">
-                <div class="dropdown align-self-md-start">
-                    <button class="field-pick dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="filter-row d-flex flex-row flex-wrap align-items-center gap-3 mb-2" id="filter-none">
+                <div class="dropdown">
+                    <button class="field-pick dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Search Fields <i class="fas fa-chevron-down chev"></i>
                     </button>
                     <ul class="dropdown-menu">
                         {% for label in dropdown_fields %}<li class="dropdown-item">{{ label }}</li>{% endfor %}
                     </ul>
                 </div>
-                <a href="javascript:;" class="row-remove align-self-md-center"><i class="fas fa-xmark"></i> Remove</a>
+                <a href="javascript:;" class="row-remove d-md-none"><i class="fas fa-xmark"></i> Remove</a>
+                <a href="javascript:;" class="row-remove row-remove-desktop d-none d-md-inline-flex"><i class="fas fa-xmark"></i> Remove</a>
             </div>
 
             <div class="filter-actions" id="advanced-search-btn-container">
