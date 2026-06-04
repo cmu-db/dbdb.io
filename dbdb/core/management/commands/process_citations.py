@@ -40,6 +40,18 @@ class Command(BaseCommand):
                     help="# of citations to process before exiting")
         parser.add_argument('--statuscode', type=int, default=None, metavar='N',
                     help="Only process citations with last_statuscode=N (e.g. 404)")
+
+        status_choices = [s.name.lower() for s in CitationUrl.Status]
+        parser.add_argument('--set-status', metavar='STATUS', default=None,
+                    choices=status_choices,
+                    help=f"Directly set CitationUrl.status without fetching. "
+                         f"Choices: {', '.join(status_choices)}")
+        parser.add_argument('--status-title', metavar='TITLE', default=None,
+                    help="Directly set CitationUrl.last_title without fetching")
+        parser.add_argument('--dry-run', action='store_true',
+                    help="Print what would be changed without writing to the database")
+        parser.add_argument('--debug', action='store_true',
+                    help="Enable debug logging and show each CitationUrl being processed")
         return
 
     def handle(self, *args, **options):
@@ -63,9 +75,36 @@ class Command(BaseCommand):
             LOG.info(f"Processing URLs with last_statuscode={options['statuscode']}")
             citations = citations.filter(last_statuscode=options['statuscode'])
 
+        set_status = options['set_status']
+        status_title = options['status_title']
+        dry_run = options['dry_run']
+        debug = options['debug']
+        if set_status is not None or status_title is not None:
+            update_fields = {}
+            if set_status is not None:
+                update_fields['status'] = CitationUrl.Status[set_status.upper()]
+            if status_title is not None:
+                max_title = CitationUrl._meta.get_field('last_title').max_length
+                update_fields['last_title'] = status_title[:max_title]
+            if debug:
+                for c in citations.order_by('id'):
+                    prefix = "[dry-run] " if dry_run else ""
+                    LOG.debug(f"{prefix}#{c.id}  {c.url}")
+            if dry_run:
+                count = citations.count()
+                self.stdout.write(f"[dry-run] Would update {count} citation(s): {update_fields}")
+            else:
+                count = citations.update(**update_fields)
+                self.stdout.write(self.style.SUCCESS(f"Updated {count} citation(s): {update_fields}"))
+            return
+
         citation_ctr = 0
         max_title = CitationUrl._meta.get_field('last_title').max_length
         for c in citations.order_by("id"):
+            if debug:
+                prefix = "[dry-run] " if dry_run else ""
+                LOG.debug(f"{prefix}#{c.id}  {c.url}")
+
             # First get the list of systems that use this citation
             systems = get_systems(c, current_only=False)
 
@@ -179,7 +218,10 @@ class Command(BaseCommand):
                 raise
             finally:
                 c.last_checked = timezone.now()
-                c.save()
+                if dry_run:
+                    LOG.info(f"[dry-run] Would save: status={c.get_status_display()} title={c.last_title!r}")
+                else:
+                    c.save()
                 LOG.info(f"Result: status={c.get_status_display()}")
                 if info: LOG.debug(pformat(info))
 
