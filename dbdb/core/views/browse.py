@@ -328,11 +328,10 @@ class BrowseView(View):
             for f_id,f_slug in Feature.objects.all().order_by().values_list('id','slug')
         }
 
-        # map feature options slugs to ids
-        featuresoptions_map = {
-            (f_id,fo_slug) : fo_id
-            for f_id,fo_id,fo_slug in FeatureOption.objects.all().order_by().values_list('feature_id','id','slug')
-        }
+        # map feature options slugs to ids, and slugs to display names
+        _fo_rows = FeatureOption.objects.all().order_by().values_list('feature_id','id','slug','value')
+        featuresoptions_map = {(f_id, fo_slug): fo_id for f_id, fo_id, fo_slug, _ in _fo_rows}
+        featureoptions_name_map = {(f_id, fo_slug): fo_value for f_id, _, fo_slug, fo_value in _fo_rows}
 
         # pull search criteria
         search_q = get_params.get('q', '').strip()
@@ -421,6 +420,7 @@ class BrowseView(View):
             return (sqs, { }, 'Browse', None)
 
         title = 'Databases '
+        op_str = 'and' if search_op == and_ else 'or'
 
         # search_badges = []
 
@@ -585,7 +585,6 @@ class BrowseView(View):
                 sqs_filters.append(Q(**{f'{attr.sv_field}__slug__in': param_slugs}))
             matched = AttributeOption.objects.filter(attribute=attr, slug__in=param_slugs)
             names = [o.name for o in matched]
-            op_str = 'and' if search_op == and_ else 'or'
             joined = f' {op_str} '.join(names) if len(names) < 3 else f"{', '.join(names[:-1])}, {op_str} {names[-1]}"
             if joined and attr.search_text:
                 search_parts.append(attr.search_text.format(names=joined))
@@ -668,11 +667,15 @@ class BrowseView(View):
         # Build Title with features
         feature_parts = []
         for key in search_fg:
-            feature_options = ' or '.join(search_fg[key]) if len(search_fg[key]) < 3 else f"{', '.join(list(search_fg[key])[:-1])}, or {list(search_fg[key])[-1]}"
+            names = [
+                featureoptions_name_map.get((key, slug), slug)
+                for slug in search_fg[key]
+            ]
+            feature_options = ' or '.join(names) if len(names) < 3 else f"{', '.join(names[:-1])}, or {names[-1]}"
             feature = reverse_features_map[key].replace('-', ' ').title()
             feature_parts.append(f'{feature_options} {feature}')
 
-        op_str = 'and' if search_op == and_ else 'or'
+
 
         query_parts = []
         if search_parts:
