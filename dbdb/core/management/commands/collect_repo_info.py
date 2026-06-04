@@ -38,6 +38,10 @@ class Command(BaseCommand):
             '--check-abandoned', action='store_true',
             help='After each snapshot, check whether the repo should be marked abandoned')
         parser.add_argument(
+            '--no-collect', action='store_true',
+            help='Skip fetch_snapshot_data(); reuse the existing last RepositorySnapshot instead. '
+                 'Still prints status and runs --check-abandoned.')
+        parser.add_argument(
             '--check-last-commit-older', type=int, default=None, metavar='DAYS',
             help='Only examine repos whose latest snapshot has a last_commit_timestamp '
                  'older than DAYS days. Repos with no snapshots or with enabled=False are skipped.')
@@ -91,6 +95,7 @@ class Command(BaseCommand):
         sleep_secs = options['sleep']
         limit = options['limit']
         do_check_abandoned = options['check_abandoned']
+        no_collect = options['no_collect']
         inactivity_days = settings.REPOSITORY_INACTIVITY_DAYS
 
         seen_citation_ids: set[int] = set()
@@ -134,42 +139,53 @@ class Command(BaseCommand):
             last_was_skipped = False
 
             self.stdout.write(f"{ver.system.name}  {citation.url}")
-            try:
-                snap = fetch_snapshot_data(citation)
-            except ValueError as exc:
-                self.stderr.write(f"  Skipped — {exc}")
-                skipped += 1
-                last_was_skipped = True
-                continue
-            except Exception as exc:
-                self.stderr.write(f"  ERROR — {exc}")
-                LOG.exception("Failed to fetch repo data for %s", citation.url)
-                err += 1
-                continue
 
-            fetch_errors = snap.errors
-            for exc in fetch_errors:
-                self.stderr.write(f"  WARNING — partial data: {exc}")
-                LOG.warning("Partial repo data for %s: %s", citation.url, exc)
-
-            if fetch_errors:
-                computed_status = (
-                    RepositorySnapshot.Status.ERROR
-                    if snap.has_data
-                    else RepositorySnapshot.Status.FAILED
-                )
+            if no_collect:
+                snapshot = repo_info.current
+                if snapshot is None:
+                    self.stderr.write(f"  Skipped — no existing snapshot")
+                    skipped += 1
+                    last_was_skipped = True
+                    continue
+                self.stdout.write(f"  (reusing snapshot #{snapshot.id} from {snapshot.created})")
+                ok += 1
             else:
-                computed_status = RepositorySnapshot.Status.VALID
+                try:
+                    snap = fetch_snapshot_data(citation)
+                except ValueError as exc:
+                    self.stderr.write(f"  Skipped — {exc}")
+                    skipped += 1
+                    last_was_skipped = True
+                    continue
+                except Exception as exc:
+                    self.stderr.write(f"  ERROR — {exc}")
+                    LOG.exception("Failed to fetch repo data for %s", citation.url)
+                    err += 1
+                    continue
 
-            snapshot = RepositorySnapshot.objects.create(
-                repo=repo_info,
-                status=computed_status,
-                **snap.to_model_kwargs(),
-            )
-            repo_info.current = snapshot
-            repo_info.last_snapshot = timezone.now()
-            repo_info.save(update_fields=['current', 'last_snapshot', 'modified'])
-            ok += 1
+                fetch_errors = snap.errors
+                for exc in fetch_errors:
+                    self.stderr.write(f"  WARNING — partial data: {exc}")
+                    LOG.warning("Partial repo data for %s: %s", citation.url, exc)
+
+                if fetch_errors:
+                    computed_status = (
+                        RepositorySnapshot.Status.ERROR
+                        if snap.has_data
+                        else RepositorySnapshot.Status.FAILED
+                    )
+                else:
+                    computed_status = RepositorySnapshot.Status.VALID
+
+                snapshot = RepositorySnapshot.objects.create(
+                    repo=repo_info,
+                    status=computed_status,
+                    **snap.to_model_kwargs(),
+                )
+                repo_info.current = snapshot
+                repo_info.last_snapshot = timezone.now()
+                repo_info.save(update_fields=['current', 'last_snapshot', 'modified'])
+                ok += 1
             self.stdout.write(
                 f"  commits={snapshot.commit_count}  "
                 f"open_prs={snapshot.open_pr_count}  merged_prs={snapshot.merged_pr_count}  "
