@@ -94,15 +94,18 @@
     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-2">
         {% for acq in acquisitions %}
         <div class="col">
-            <a href="{{ acq.system.get_absolute_url }}" class="hosted-link d-flex align-items-center gap-3 p-3 h-100 text-decoration-none">
-                {% with ver=acq.version %}
-                {% mono_tile ver.logo acq.system.name 'thumb' %}
-                {% endwith %}
-                <span class="d-flex flex-column">
-                    <span class="ln">{{ acq.system.name }}</span>
-                    {% if acq.year %}<span class="label">{{ acq.year }}{% if acq.citation %}<span class="cites">{% citation_footnote acq.citation %}</span>{% endif %}</span>{% endif %}
-                </span>
-            </a>
+            <div class="position-relative h-100">
+                <a href="{{ acq.system.get_absolute_url }}" class="sys-card d-flex align-items-center gap-3 p-3 h-100 text-decoration-none">
+                    {% with ver=acq.version %}
+                    {% mono_tile ver.logo acq.system.name 'thumb' %}
+                    {% endwith %}
+                    <span class="d-flex flex-column">
+                        <span class="ln">{{ acq.system.name }}</span>
+                        {% if acq.year %}<span class="label">{{ acq.year }}</span>{% endif %}
+                    </span>
+                </a>
+                {% if acq.citation %}<span class="cites position-absolute top-0 end-0 p-1">{% citation_footnote acq.citation %}</span>{% endif %}
+            </div>
         </div>
         {% endfor %}
     </div>
@@ -120,7 +123,7 @@
     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-2">
         {% for ver in developed %}
         <div class="col">
-            <a href="{{ ver.system.get_absolute_url }}" class="hosted-link d-flex align-items-center gap-3 p-3 h-100 text-decoration-none">
+            <a href="{{ ver.system.get_absolute_url }}" class="sys-card d-flex align-items-center gap-3 p-3 h-100 text-decoration-none">
                 {% mono_tile ver.logo ver.system.name 'thumb' %}
                 <span class="ln">{{ ver.system.name }}</span>
             </a>

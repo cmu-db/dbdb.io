@@ -1097,15 +1097,15 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .logo-row .ln { font-family: var(--serif); font-weight: 600; font-size: .95rem; color: var(--ink); }
 .logo-row:hover .ln { color: var(--accent); }
 
-/* Hosted services grid */
-.hosted-link {
+/* System tile cards (hosted services, acquisitions, developed systems) */
+.sys-card {
   border: 1px solid var(--rule);
   background: var(--surface);
   transition: border-color .15s, background .15s;
 }
-.hosted-link:hover { background: var(--tint); }
-.hosted-link .ln { font-family: var(--serif); font-weight: 600; color: var(--ink); }
-.hosted-link:hover .ln { color: var(--accent); }
+.sys-card:hover { background: var(--tint); }
+.sys-card .ln { font-family: var(--serif); font-weight: 600; color: var(--ink); }
+.sys-card:hover .ln { color: var(--accent); }
 
 .sc-foot {
   padding: .65rem 1.2rem; border-top: 1px solid var(--rule);
