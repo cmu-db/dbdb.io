@@ -20,8 +20,9 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'system', metavar='S', type=str, nargs='?',
-            help='System slug or numeric ID to process (default: all enabled)')
+            'keyword', metavar='KEYWORD', type=str, nargs='?',
+            help='Filter repos to process: numeric value matches System.id, '
+                 'otherwise matches System.name (case-insensitive) or CitationUrl.url (substring)')
         parser.add_argument(
             '--debug', action='store_true',
             help='Enable debug logging')
@@ -62,13 +63,16 @@ class Command(BaseCommand):
             .order_by('system__name')
         )
 
-        if options.get('system'):
-            keyword = options['system'].strip()
-            LOG.debug(f"Searching for system based on keyword '{keyword}'")
+        if options.get('keyword'):
+            keyword = options['keyword'].strip()
+            LOG.debug(f"Filtering repos by keyword '{keyword}'")
             if keyword.isdigit():
                 versions = versions.filter(system__id=int(keyword))
             else:
-                versions = versions.filter(system__name__icontains=keyword)
+                versions = versions.filter(
+                    Q(system__name__icontains=keyword) |
+                    Q(sourcerepo_url__url__icontains=keyword)
+                )
 
         check_older_days = options['check_last_commit_older']
         if check_older_days is not None:
