@@ -90,9 +90,15 @@ class SystemView(View):
             'project_types', 'supported_languages', 'written_in',
         )
         approved_ver = None  # ver of the approved (is_current) version, passed to template when showing a pending default
+        version_error = None
         if ver is not None:
-            system_version = get_object_or_404(qs, system=system, ver=ver)
-            has_revision = True
+            try:
+                system_version = qs.get(system=system, ver=ver)
+                has_revision = True
+            except SystemVersion.DoesNotExist:
+                system_version = qs.get(system=system, is_current=True)
+                has_revision = False
+                version_error = f"Version {ver} does not exist for {system.name}. Showing the current version instead."
         else:
             pending = system.pending_version() if user_can_edit else None
             if pending:
@@ -256,6 +262,7 @@ class SystemView(View):
             'docs_url_citation':       docs_url_citation,
             'sourcerepo_url_citation': sourcerepo_url_citation,
             'wikipedia_url_citation':  wikipedia_url_citation,
+            'page_error': version_error,
         })
 
     pass
