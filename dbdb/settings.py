@@ -244,6 +244,7 @@ MARKDOWNIFY = {
 }
 
 DBDB_FOUNDING_YEAR = 2017
+DBDB_BOT_ACCOUNT = env('DBDB_BOT_ACCOUNT', default='dbdb-bot')
 
 # Repository scanning (collect_repo_info management command)
 GITHUB_API_TOKEN = env('GITHUB_API_TOKEN', default='')

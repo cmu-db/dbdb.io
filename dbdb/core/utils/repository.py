@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
+from dbdb.core.models import SystemVersion, RepositoryInfo, RepositorySnapshot
 from dbdb.core.utils.repositories import (
     BitbucketCollector,
     GitHubCollector,
@@ -119,12 +120,12 @@ def check_abandoned(system, *, inactivity_days: int = 1095) -> bool:
     return True
 
 
-def _mark_abandoned(current_version, repo_info, snapshot):
+def _mark_abandoned(current_version:SystemVersion, repo_info:RepositoryInfo, snapshot:RepositorySnapshot):
     """Clone current_version, apply the abandoned tag, and disable scanning."""
     from dbdb.core.models import AttributeOption
 
     User        = get_user_model()
-    bot_user    = User.objects.get(username='dbdb-bot')
+    bot_user    = User.objects.get(username=settings.DBDB_BOT_ACCOUNT)
     abandoned_tag = AttributeOption.objects.get(
         attribute__slug='tag', slug='abandoned'
     )
@@ -134,14 +135,16 @@ def _mark_abandoned(current_version, repo_info, snapshot):
         snapshot.last_commit_timestamp.year if snapshot.last_commit_timestamp else None
     )
 
+    comment = "Automatically marked as abandoned due to source code inactivity."
+    if snapshot.last_commit_timestamp:
+        comment += f"\nLast commit was {snapshot.last_commit_timestamp.strftime('%Y-%m-%d')}"
+    elif snapshot.last_pr_closed_at:
+        comment += f"\nLast closed PR was {snapshot.last_pr_closed_at.strftime('%Y-%m-%d')}"
+
     new_version = clone_system_version(
         current_version,
         creator=bot_user,
-        comment=(
-            "Automatically marked as abandoned: no new commits or merged pull "
-            "requests detected across the last two repository snapshots, and the "
-            "most recent commit predates the inactivity threshold."
-        ),
+        comment=comment,
         end_year=end_year,
     )
 

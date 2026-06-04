@@ -318,7 +318,7 @@ class SavedSearchAdmin(IconDisplayMixin, admin.ModelAdmin):
     @admin.display(description='search params')
     def search_params_link(self, obj):
         url = reverse('browse') + '?' + obj.search_params
-        return format_html('<a href="{}">{}</a>', url, obj.search_params)
+        return format_html('<a href="{}" target="{}">{}🔗</a>', url, f"_search{obj.id}", obj.search_params)
 
 # ==============================================
 # URL MANAGEMENT
