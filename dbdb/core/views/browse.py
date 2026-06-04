@@ -836,6 +836,8 @@ class BrowseView(View):
             desc = order_by_raw[0] == '-'
             db_field = _ORDER_BY_MAP.get(order_col_key, 'name')
             order_by_expr = f'-{db_field}' if desc else db_field
+            if order_col_key in _ORDER_BY_MAP and db_field != 'name':
+                results = results.filter(**{f'{db_field}__isnull': False})
         else:
             order_by_expr = 'name'
 
