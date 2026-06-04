@@ -310,7 +310,7 @@ class SystemVisitAdmin(admin.ModelAdmin):
 
 @admin.register(SavedSearch)
 class SavedSearchAdmin(IconDisplayMixin, admin.ModelAdmin):
-    list_display = ('name', 'icon_display', 'search_params_link', 'created', 'modified')
+    list_display = ('name', 'description', 'icon_display', 'search_params_link', 'created', 'modified')
     list_filter = ['created', 'modified']
     search_fields = ('name', 'description')
     readonly_fields = ('created', 'modified')
@@ -332,7 +332,7 @@ class RepositorySnapshotInline(admin.TabularInline):
     show_change_link = True
     fields = (
         'created',
-        'commit_count', 'last_commit_hash',
+        'commit_count', 'last_commit_timestamp',
         'open_pr_count', 'merged_pr_count',
         'open_issue_count', 'closed_issue_count',
         'star_count', 'fork_count',
@@ -345,7 +345,7 @@ class RepositorySnapshotInline(admin.TabularInline):
 
 @admin.register(RepositoryInfo)
 class RepositoryInfoAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
-    list_display = ('sourcerepo_url', 'enabled', 'last_snapshot', 'snapshot_count', 'created')
+    list_display = ('sourcerepo_url', 'enabled', 'last_snapshot', 'snapshot_count', 'modified')
     list_filter = ('enabled', 'last_snapshot', 'modified')
     readonly_fields = ('created', 'modified', 'last_snapshot', 'current')
     search_fields = ('sourcerepo_url__url',)
