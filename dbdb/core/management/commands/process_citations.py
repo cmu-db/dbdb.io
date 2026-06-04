@@ -5,7 +5,7 @@ import time
 from argparse import ArgumentParser
 from pprint import pformat
 
-from django.core.management import BaseCommand
+from django.core.management import BaseCommand, CommandError
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -52,6 +52,11 @@ class Command(BaseCommand):
                     help="Print what would be changed without writing to the database")
         parser.add_argument('--debug', action='store_true',
                     help="Enable debug logging and show each CitationUrl being processed")
+        rewrite_group = parser.add_argument_group('URL rewriting')
+        rewrite_group.add_argument('--replace-from', metavar='OLD', default=None,
+                    help="Substring to find in CitationUrl.url (required with --replace-to)")
+        rewrite_group.add_argument('--replace-to', metavar='NEW', default=None,
+                    help="Replacement string for --replace-from (required with --replace-from)")
         return
 
     def handle(self, *args, **options):
@@ -79,6 +84,38 @@ class Command(BaseCommand):
         status_title = options['status_title']
         dry_run = options['dry_run']
         debug = options['debug']
+        replace_from = options['replace_from']
+        replace_to = options['replace_to']
+
+        if (replace_from is None) != (replace_to is None):
+            raise CommandError("--replace-from and --replace-to must be used together")
+
+        if replace_from is not None:
+            rewrite_citations = citations.filter(url__contains=replace_from).order_by('id')
+            replaced = merged = 0
+            for c in rewrite_citations:
+                new_url = c.url.replace(replace_from, replace_to)
+                LOG.debug(f"{'[dry-run] ' if dry_run else ''}#{c.id}  {c.url}  ->  {new_url}")
+                if not dry_run:
+                    other = CitationUrl.objects.filter(url=new_url).exclude(pk=c.pk).first()
+                    if other:
+                        LOG.debug(f"  merging into existing #{other.id}")
+                        merge_citations(other, [c])
+                        c.delete()
+                        merged += 1
+                    else:
+                        c.url = new_url
+                        c.save(update_fields=['url'])
+                        replaced += 1
+            if dry_run:
+                count = rewrite_citations.count()
+                LOG.debug(f"[dry-run] Would rewrite {count} citation(s): {replace_from!r} -> {replace_to!r}")
+            else:
+                LOG.debug(
+                    f"Rewrote {replaced} citation(s), merged {merged} duplicate(s): "
+                    f"{replace_from!r} -> {replace_to!r}"
+                )
+            return
         if set_status is not None or status_title is not None:
             update_fields = {}
             if set_status is not None:
