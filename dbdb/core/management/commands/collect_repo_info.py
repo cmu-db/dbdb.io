@@ -1,8 +1,10 @@
+import datetime
 import logging
 import time
 
 from django.conf import settings
 from django.core.management import BaseCommand
+from django.db.models import Q
 from django.utils import timezone
 
 from dbdb.core.models import RepositoryInfo, RepositorySnapshot, SystemVersion
@@ -35,6 +37,10 @@ class Command(BaseCommand):
         parser.add_argument(
             '--check-abandoned', action='store_true',
             help='After each snapshot, check whether the repo should be marked abandoned')
+        parser.add_argument(
+            '--check-last-commit-older', type=int, default=None, metavar='DAYS',
+            help='Only examine repos whose latest snapshot has a last_commit_timestamp '
+                 'older than DAYS days. Repos with no snapshots or with enabled=False are skipped.')
         return
 
     def handle(self, *args, **options):
@@ -59,6 +65,27 @@ class Command(BaseCommand):
                 versions = versions.filter(system__id=int(keyword))
             else:
                 versions = versions.filter(system__name__icontains=keyword)
+
+        check_older_days = options['check_last_commit_older']
+        if check_older_days is not None:
+            cutoff = timezone.now() - datetime.timedelta(days=check_older_days)
+            eligible_citation_ids = (
+                RepositoryInfo.objects
+                .filter(
+                    enabled=True,
+                    current__isnull=False,
+                )
+                .filter(
+                    Q(current__last_commit_timestamp__lt=cutoff) |
+                    Q(current__last_commit_timestamp__isnull=True)
+                )
+                .values_list('sourcerepo_url_id', flat=True)
+            )
+            versions = versions.filter(sourcerepo_url_id__in=eligible_citation_ids)
+            LOG.debug(
+                "--check-last-commit-older=%d: %d eligible repos (cutoff %s)",
+                check_older_days, eligible_citation_ids.count(), cutoff.date(),
+            )
 
         ignore_days = options['ignore_last_checked']
         sleep_secs = options['sleep']
