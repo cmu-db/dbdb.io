@@ -82,10 +82,6 @@ REMOVE_TEXT = [
 
 # --- Exceptions ---
 
-class SpamPageError(RuntimeError):
-    pass
-
-
 class UnsupportedContentTypeError(RuntimeError):
     pass
 
@@ -171,7 +167,7 @@ def _extract_html_title(
         system: System | None = None,
         skip_spamcheck: bool = False,
         request_timeout: int | None = None,
-    ) -> str:
+    ) -> tuple[str | None, CitationUrl.Status | None]:
 
     if any(d in url for d in SPAM_IGNORE_DOMAINS):
         skip_spamcheck = True
@@ -180,12 +176,12 @@ def _extract_html_title(
     html = _get_html_page(url, request_timeout=request_timeout)
     soup = BeautifulSoup(html, "html.parser")
 
-    if html and re.search(
-        r'Visit\s+(?:<a[^>]*>)?cloudflare\.com(?:</a>)?\s+for more information',
-        html, re.IGNORECASE
+    if html and (
+        re.search(r'Visit\s+(?:<a[^>]*>)?cloudflare\.com(?:</a>)?\s+for more information', html, re.IGNORECASE)
+        or "challenges.cloudflare.com" in html
     ):
-        LOG.debug(f"Cloudflare error page detected for {url}")
-        return None
+        LOG.debug(f"Cloudflare challenge page detected for {url}")
+        return None, CitationUrl.Status.IGNORE
 
     if not skip_spamcheck:
         # <noscript> content is hidden by browsers when JS is enabled; strip it
@@ -228,12 +224,12 @@ def _extract_html_title(
                 model = settings.CRAWLER_SPAM_CHECKER_FALLBACK_MODEL_A if attempts % 2 == 0 else settings.CRAWLER_SPAM_CHECKER_FALLBACK_MODEL_B
                 temperature = max(temperature - 0.1, 0.0)
             if is_spam is not None and is_spam:
-                raise SpamPageError(f"HTML page classified as spam for {system}")
+                return None, CitationUrl.Status.SPAM
 
     if soup.title and soup.title.string:
         title = soup.title.string.strip()
 
-    return title # ValueError("HTML page has no <title>")
+    return title, None
 
 def _get_html_page(
         url,
@@ -510,14 +506,13 @@ def fetch_url_metadata(
 
         # HTML
         elif content_type in {"text/html", "application/xhtml+xml"}:
-            try:
-                title = _extract_html_title(url, data,
-                                            encoding=resp.encoding,
-                                            skip_spamcheck=skip_spamcheck,
-                                            system=system,
-                                            request_timeout=request_timeout)
-            except SpamPageError:
-                status = CitationUrl.Status.SPAM
+            title, page_status = _extract_html_title(url, data,
+                                                     encoding=resp.encoding,
+                                                     skip_spamcheck=skip_spamcheck,
+                                                     system=system,
+                                                     request_timeout=request_timeout)
+            if page_status is not None:
+                status = page_status
 
     # Minor cleaning...
     if title is not None and title:

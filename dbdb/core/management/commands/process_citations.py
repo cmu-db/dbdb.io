@@ -244,11 +244,6 @@ class Command(BaseCommand):
                 c.status = CitationUrl.Status.DEAD
                 pass
 
-            except SpamPageError as e:
-                LOG.warning(f"Spam page error: {e}")
-                c.status = CitationUrl.Status.SPAM
-                pass
-
             except InvalidURL as e:
                 LOG.warning(f"Invalid URL: {e}")
                 c.status = CitationUrl.Status.IGNORE
