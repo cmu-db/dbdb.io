@@ -3,6 +3,7 @@ import random
 
 import pytz
 
+from django.conf import settings
 from django.db.models import Count, Q
 from django.shortcuts import render
 from django.utils import timezone
@@ -30,8 +31,6 @@ def _attach_data_models(systems):
 # ==============================================
 class HomeView(View):
 
-    ITEMS_TO_SHOW = 5
-
     template_name = 'core/home.html'
 
     def get(self, request):
@@ -43,7 +42,7 @@ class HomeView(View):
         now = timezone.now()
 
         # get top systems by modified date
-        most_recent = list(System.objects.order_by('-modified')[:HomeView.ITEMS_TO_SHOW])
+        most_recent = list(System.objects.order_by('-modified')[:settings.DBDB_HOME_LISTINGS_NUM_ENTRIES])
         _attach_data_models(most_recent)
         for s in most_recent:
             delta = (now - s.modified).days
@@ -59,7 +58,7 @@ class HomeView(View):
             System.objects
             .annotate(num_versions=Count('versions__id', filter=Q(versions__created__gte=start_date)))
             .order_by('-num_versions', 'name')
-            .filter(num_versions__gt=0)[:HomeView.ITEMS_TO_SHOW]
+            .filter(num_versions__gt=0)[:settings.DBDB_HOME_LISTINGS_NUM_ENTRIES]
         )
         _attach_data_models(most_versions)
         for s in most_versions:
@@ -70,7 +69,7 @@ class HomeView(View):
             System.objects
             .annotate(num_visits=Count('visits__id', filter=Q(visits__created__gte=start_date)))
             .order_by('-num_visits', 'name')
-            .filter(num_visits__gt=0)[:HomeView.ITEMS_TO_SHOW]
+            .filter(num_visits__gt=0)[:settings.DBDB_HOME_LISTINGS_NUM_ENTRIES]
         )
         _attach_data_models(most_visits)
         for s in most_visits:
@@ -85,11 +84,11 @@ class HomeView(View):
         while not SystemVersion.objects.filter(start_year=new_in_year).exists():
             new_in_year -= 1
 
-        # pick 3 saved searches per hour using a deterministic seed
+        # pick N saved searches per hour using a deterministic seed
         hour_seed = now.year * 1000000 + now.month * 10000 + now.day * 100 + now.hour
         all_saved_searches = list(SavedSearch.objects.all())
-        if len(all_saved_searches) >= 3:
-            featured_searches = random.Random(hour_seed).sample(all_saved_searches, 3)
+        if len(all_saved_searches) >= settings.DBDB_HOME_SAVEDSEARCH_NUM_ENTRIES:
+            featured_searches = random.Random(hour_seed).sample(all_saved_searches, settings.DBDB_HOME_SAVEDSEARCH_NUM_ENTRIES)
         else:
             featured_searches = all_saved_searches
 

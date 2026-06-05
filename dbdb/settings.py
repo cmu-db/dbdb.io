@@ -246,6 +246,8 @@ MARKDOWNIFY = {
 
 DBDB_FOUNDING_YEAR = 2017
 DBDB_BOT_ACCOUNT = env('DBDB_BOT_ACCOUNT', default='dbdb-bot')
+DBDB_HOME_LISTINGS_NUM_ENTRIES   = 5
+DBDB_HOME_SAVEDSEARCH_NUM_ENTRIES = 3
 
 # Repository scanning (collect_repo_info management command)
 GITHUB_API_TOKEN   = env('GITHUB_API_TOKEN',   default='')
