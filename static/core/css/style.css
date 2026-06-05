@@ -467,7 +467,7 @@ a:hover { color: var(--accent); }
   display: grid; place-items: center;
   border: 1px solid var(--rule);
   color: var(--accent);
-  font-size: 1.05rem;
+  font-size: 1.5rem;
 }
 .shortcut .sc-tx .t {
   font-family: var(--serif);

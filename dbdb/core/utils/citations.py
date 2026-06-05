@@ -62,7 +62,7 @@ SPAM_IGNORE_DOMAINS = {
     "//www.postgresql.org/",
     "//www.slideshare.net/", # LLM spam checker can't handle it?
     "//news.ycombinator.com/",
-    "//books.google.com/"
+    "//books.google.com/",
     "//github.com/"
 }
 
