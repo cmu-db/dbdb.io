@@ -4,7 +4,7 @@
 {% load alerts %}
 {% load page_title %}
 
-{% block title %}Edit {{ system.name }} - {% endblock %}
+{% block title %}{% if system.slug %}Edit {{ system.name }}{% else %}Create Database{% endif %} — {% endblock %}
 
 
 {% block css %}
