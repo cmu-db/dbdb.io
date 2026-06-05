@@ -10,14 +10,14 @@
 {% load version_tags %}
 
 {% block twitter %}
-    <meta property="og:title" content="Database of Databases &mdash; {{ system.name }}" />
-    <meta property="og:description" content="{{ system_version.description|truncatechars:300 }}" />
+    <meta property="og:title" content="Database of Databases - {{ system.name }}" />
+    <meta property="og:description" content="{{ version.description|truncatechars:300 }}" />
     <meta property="og:type" content="article" />
-    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ system_version.twitter_card_url }}" />
-    <meta name="twitter:title" content="Database of Databases &mdash; {{ system.name }}" />
-    <meta name="twitter:description" content="{{ system_version.description|truncatechars:200 }}" />
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ version.twitter_card_url }}" />
+    <meta name="twitter:title" content="Database of Databases - {{ system.name }}" />
+    <meta name="twitter:description" content="{{ version.description|truncatechars:200 }}" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ system_version.twitter_card_url }}" />
+    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ version.twitter_card_url }}" />
 {% endblock %}
 
 {% block navbuttons %}
@@ -31,7 +31,7 @@
 {% endif %}
 {% endblock %}
 
-{% block title %}{{ system.name }}{% if has_revision %} — Revision #{{ system_version.ver }}{% endif %} — {% endblock %}
+{% block title %}{{ system.name }}{% if has_revision %} - Revision #{{ version.ver }}{% endif %} - {% endblock %}
 
 {% block content %}
 {# Register partials before block.super renders the layout and calls them. #}

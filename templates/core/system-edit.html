@@ -4,7 +4,7 @@
 {% load alerts %}
 {% load page_title %}
 
-{% block title %}Edit {{ system.name }} — {% endblock %}
+{% block title %}Edit {{ system.name }} - {% endblock %}
 
 
 {% block css %}
@@ -31,14 +31,14 @@
     {% if suggestion %}
     {% alert type="info" icon="fa-solid fa-database" %}
     Pre-filled from system suggestion <strong>#{{ suggestion.id }}: {{ suggestion.name }}</strong>.
-    {% if suggestion.logo_url %}Logo URL: <a href="{{ suggestion.logo_url }}" target="_blank">{{ suggestion.logo_url }}</a> — upload the logo manually above.{% endif %}
+    {% if suggestion.logo_url %}Logo URL: <a href="{{ suggestion.logo_url }}" target="_blank">{{ suggestion.logo_url }}</a> &mdash; upload the logo manually above.{% endif %}
     {% if suggestion.email %}Suggested by: {{ suggestion.email }}{% endif %}
     {% endalert %}
     {% endif %}
 
     {% if pending_version %}
     {% alert type="warning" icon="fa-solid fa-clock-rotate-left" %}
-    <strong>Editing a pending (unapproved) version</strong> — v{{ pending_version.ver }},
+    <strong>Editing a pending (unapproved) version</strong> &mdash; v{{ pending_version.ver }},
     saved {{ pending_version.created|timesince }} ago.
     Your changes will not be visible publicly until an administrator approves them.
     {% endalert %}
@@ -223,7 +223,7 @@
         <h2 class="mb-0">Features</h2>
         <div class="d-flex align-items-center gap-2">
             <select id="apply-all-system" class="form-select form-select-sm w-auto">
-                <option value="">— Select System —</option>
+                <option value="">&mdash; Select System &mdash;</option>
             </select>
             <button type="button" class="btn btn-sm btn-outline-secondary" id="apply-all-system-btn">Apply to All</button>
         </div>

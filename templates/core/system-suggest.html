@@ -2,7 +2,7 @@
 {% load alerts %}
 {% load page_title %}
 
-{% block title %}Suggest a System{% endblock %}
+{% block title %}Suggest a System - {% endblock %}
 
 {% block content %}
 {% page_title %}
@@ -42,13 +42,13 @@ If you believe the entry is incorrect or incomplete, you can view it and request
             </div>
 
             <div class="ed-field">
-                <label for="id_sourcerepo_url">Source Code URL <span class="text-muted fw-normal">— Optional</span></label>
+                <label for="id_sourcerepo_url">Source Code URL <span class="text-muted fw-normal">&mdash; Optional</span></label>
                 {{ form.sourcerepo_url }}
                 {% if form.sourcerepo_url.errors %}<div class="suggest-error">{{ form.sourcerepo_url.errors.0 }}</div>{% endif %}
             </div>
 
             <div class="ed-field mb-0">
-                <label for="id_logo_url">Logo Image URL <span class="text-muted fw-normal">— Optional</span></label>
+                <label for="id_logo_url">Logo Image URL <span class="text-muted fw-normal">&mdash; Optional</span></label>
                 {{ form.logo_url }}
                 <div class="form-text">Direct link to a PNG or SVG, ideally on a transparent background.</div>
                 {% if form.logo_url.errors %}<div class="suggest-error">{{ form.logo_url.errors.0 }}</div>{% endif %}

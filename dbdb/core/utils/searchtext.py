@@ -17,7 +17,7 @@ def generate_searchtext(ver : SystemVersion):
     words += [x.slug for x in ver.written_in.all()]
 
     # URLs (just include domain names)
-    for url in [ver.system_url, ver.sourcerepo_url]:
+    for url in [ver.system_url, ver.sourcerepo_url, ver.wikipedia_url]:
         if url:
             words += [url.get_domain(), url.get_domain(include_suffix=False)]
 

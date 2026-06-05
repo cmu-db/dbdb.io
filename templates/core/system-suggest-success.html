@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load page_title %}
 
-{% block title %}Suggestion Received{% endblock %}
+{% block title %}Suggestion Received - {% endblock %}
 
 {% block content %}
 {% page_title %}
@@ -21,13 +21,11 @@
 </div>
 
 <p class="mt-3">
-    Our team will review your suggestion and add the system to
-    <a href="{% url 'home' %}">DBDB.IO</a>. Thank you for helping make
-    the database of databases more complete.
+    Our team will review your suggestion and add the system to the
+    <a href="{% url 'home' %}">Database of Databases</a>. Thank you for your contribution.
 </p>
 
 <div class="mt-4">
-    <a href="{% url 'browse' %}" class="btn btn-outline-secondary me-2">Browse Systems</a>
     <a href="{% url 'system_suggestion' %}" class="btn btn-outline-primary">Suggest Another</a>
 </div>
 
