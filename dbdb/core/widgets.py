@@ -51,7 +51,7 @@ class CitationUrlListWidget(Widget):
                     + Add URL
                 </button>
                 <button type="button" 
-                        class="btn btn-sm btn-outline-secondary mt-1" 
+                        class="btn btn-sm btn-outline-danger mt-1"
                         onclick="removeURL_{widget_id}()">
                     - Remove URL
                 </button>

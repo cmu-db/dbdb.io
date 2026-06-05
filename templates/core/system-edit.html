@@ -115,6 +115,7 @@
                 </button>
             </div>
             <!-- END: DEVELOPER ORGANIZATIONS -->
+
             {% bootstrap_field system_version_form.governance form_group_class="form-group multi-select mt-3" %}
         </div>
 
@@ -125,11 +126,15 @@
                 {{ acquisition_formset.management_form }}
                 <div id="acquisition-rows">
                 {% for form in acquisition_formset %}
-                <div class="acquisition-row row g-2 mb-2 align-items-center">
-                    <div class="col-md-5">{{ form.organization }}</div>
-                    <div class="col-md-2">{{ form.year }}</div>
-                    <div class="col-md-4">{{ form.citation_url }}</div>
-                    <div class="col-1 text-center">
+                <div class="acquisition-row row g-2 mb-2 align-items-center {% if not forloop.first %}mt-1 border-top{% endif %}">
+                    <div class="col-11 col-md-5">{{ form.organization }}</div>
+                    <div class="col-1 d-md-none text-center">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeAcquisitionRow(this)" title="Remove">×</button>
+                        <span class="d-none">{{ form.DELETE }}</span>
+                    </div>
+                    <div class="col-12 col-md-2">{{ form.year }}</div>
+                    <div class="col-12 col-md-4">{{ form.citation_url }}</div>
+                    <div class="d-none d-md-block col-md-1 text-center">
                         <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeAcquisitionRow(this)" title="Remove">×</button>
                         <span class="d-none">{{ form.DELETE }}</span>
                     </div>
