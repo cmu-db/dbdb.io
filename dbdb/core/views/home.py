@@ -65,6 +65,7 @@ class HomeView(View):
             s.metric = f"{s.num_versions} ✎"
 
         # get top systems by number of (windowed) visits
+        prev_start_date = start_date - datetime.timedelta(days=30)
         most_visits = list(
             System.objects
             .annotate(num_visits=Count('visits__id', filter=Q(visits__created__gte=start_date)))
@@ -72,9 +73,25 @@ class HomeView(View):
             .filter(num_visits__gt=0)[:settings.DBDB_HOME_LISTINGS_NUM_ENTRIES]
         )
         _attach_data_models(most_visits)
+
+        # Fetch previous-period visit counts for the trend arrow
+        prev_visits_map = dict(
+            System.objects
+            .filter(id__in=[s.id for s in most_visits])
+            .annotate(prev_visits=Count(
+                'visits__id',
+                filter=Q(visits__created__gte=prev_start_date, visits__created__lt=start_date)
+            ))
+            .values_list('id', 'prev_visits')
+        )
         for s in most_visits:
-            v = s.num_visits
-            s.metric = f"{v/1000:.1f}k" if v >= 1000 else str(v)
+            prev = prev_visits_map.get(s.id, 0)
+            s.visits_delta = s.num_visits - prev
+            if prev == 0:
+                s.metric = "new"
+            else:
+                pct = round(s.visits_delta / prev * 100)
+                s.metric = f"+{pct}%" if pct >= 0 else f"{pct}%"
 
         # count num systems
         num_systems = System.objects.all().count()
