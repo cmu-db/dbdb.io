@@ -418,6 +418,28 @@ class SystemFeature(models.Model):
     def values_str(self):
         return ', '.join([str(l) for l in self.options.all()])
 
+    def get_my_or_parent_options(self) -> list:
+        """Return the resolved FeatureOption list for this SystemFeature.
+
+        If this instance has its own options, return them.
+        If it delegates to a parent system, recurse into that system's
+        corresponding SystemFeature.
+        Otherwise return an empty list.
+        """
+        own = list(self.options.all())
+        if own:
+            return own
+        if self.system is not None:
+            try:
+                parent_sf = SystemFeature.objects.get(
+                    version=self.system.current(),
+                    feature=self.feature,
+                )
+                return parent_sf.get_my_or_parent_options()
+            except SystemFeature.DoesNotExist:
+                pass
+        return []
+
     def clean(self):
         super().clean()
         # Make sure the derived system feature is *not* the same as this system

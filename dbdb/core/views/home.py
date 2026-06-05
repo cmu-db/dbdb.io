@@ -17,8 +17,8 @@ def _attach_data_models(systems):
     sf_map = {}
     for sf in (SystemFeature.objects
                .filter(version__is_current=True, version__system_id__in=ids, feature__slug='data-model')
-               .prefetch_related('options')):
-        vals = [o.value for o in sf.options.all()]
+               .prefetch_related('options', 'system')):
+        vals = [o.value for o in sf.get_my_or_parent_options()]
         if vals:
             sf_map[sf.version.system_id] = ' · '.join(vals[:2])
     for s in systems:

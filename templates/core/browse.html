@@ -5,7 +5,7 @@
 {% load django_bootstrap5 %}
 {% load page_title %}
 
-{% block title %}{% if title %}{{title}} - {% endif %}{% endblock %}
+{% block title %}{% if saved_search %}{{ saved_search.name }} - {% elif title %}{{title}} - {% endif %}{% endblock %}
 
 {% block css %}
 <link rel="stylesheet" type="text/css" href="{% static 'lib/css/nouislider.min.css' %}">
@@ -19,7 +19,7 @@
 {{ years|json_script:"years" }}
 
 {% page_title %}
-{% ptitle_kicker %}{% if saved_search %}{{ saved_search.name }}{% else %}{{ num_results|intcomma }} System{{ num_results|pluralize }} Found{% endif %}{% endptitle_kicker %}
+{% ptitle_kicker %}{{ num_results|intcomma }} System{{ num_results|pluralize }} Found{% endptitle_kicker %}
 {% ptitle_title %}{{ title }}{% endptitle_title %}
 {% endpage_title %}
 

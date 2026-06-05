@@ -859,21 +859,21 @@ class BrowseView(View):
         if feature_cols:
             sv_ids = [r['id'] for r in results]
             feat_data = collections.defaultdict(lambda: collections.defaultdict(list))
-            sf_rows = (
+            sf_qs = (
                 SystemFeature.objects
                 .filter(
                     version_id__in=sv_ids,
                     feature__slug__in=[c.col_id for c in feature_cols],
-                    options__isnull=False,
                 )
-                .values('version_id', 'feature__slug', 'options__value', 'options__slug')
-                .distinct()
+                .select_related('feature', 'system')
+                .prefetch_related('options')
             )
-            for row in sf_rows:
-                feat_data[row['version_id']][row['feature__slug']].append({
-                    'value': row['options__value'],
-                    'slug':  row['options__slug'],
-                })
+            for sf in sf_qs:
+                for opt in sf.get_my_or_parent_options():
+                    feat_data[sf.version_id][sf.feature.slug].append({
+                        'value': opt.value,
+                        'slug':  opt.slug,
+                    })
             for r in results:
                 for col in feature_cols:
                     key = 'col_' + col.col_id.replace('-', '_')
