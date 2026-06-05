@@ -65,6 +65,7 @@ SPAM_IGNORE_DOMAINS = {
     "//www.slideshare.net/", # LLM spam checker can't handle it?
     "//news.ycombinator.com/",
     "//books.google.com/"
+    "//github.com/"
 }
 
 IGNORE_TITLES = map(str.lower, [
@@ -205,8 +206,7 @@ def _extract_html_title(
         if len(text_words) > 0:
             attempts = 3
             temperature = 0.0
-            # model = "qwen3:14b" # "qwen3:8b"
-            model = "qwen3:32b"
+            model = settings.CRAWLER_SPAM_CHECKER_MODEL
             is_spam = None
             while attempts > 0:
                 attempts -= 1
@@ -222,7 +222,7 @@ def _extract_html_title(
                     LOG.error(e)
                     if attempts == 0: raise e
                     pass
-                model = "qwen3:14b" if attempts % 2 == 0 else "mistral:7b"
+                model = settings.CRAWLER_SPAM_CHECKER_FALLBACK_MODEL_A if attempts % 2 == 0 else settings.CRAWLER_SPAM_CHECKER_FALLBACK_MODEL_B
                 temperature = max(temperature - 0.1, 0.0)
             if is_spam is not None and is_spam:
                 raise SpamPageError(f"HTML page classified as spam for {system}")

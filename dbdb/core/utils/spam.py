@@ -1,9 +1,13 @@
+import logging
 import re
-from pprint import pprint
+import time
 
+from django.conf import settings
 from ollama import chat
 
 from dbdb.core.models import System
+
+LOG = logging.getLogger(__name__)
 
 
 class UnexpectedResponseError(RuntimeError):
@@ -28,7 +32,7 @@ def is_spam(
     html: str,
     system: System,
     *,
-    model: str = "qwen3:8b", # "llama3.2",
+    model: str,
     temperature: float = 0.2,
     timeout: int = 30,
 ) -> bool:
@@ -69,9 +73,6 @@ def is_spam(
         "Your answer must be in English even if the web page is in a different language.\n\n"
         "Ignore HTML tags, navigation menus, cookie banners, and generic ads.\n"
         "Focus on the semantic intent and dominant topic of the page.\n\n"
-        # "You must output ONLY one word and no additional text: true or false.\n"
-        # "true  = the page is spam\n"
-        # "false = the page is not spam"
     ).strip()
 
     user_prompt = [ ]
@@ -95,7 +96,7 @@ def is_spam(
         "HTML CONTENT END\n\n"
         "Answer:"
     )
-    print(f"Invoking '{model}' run spam checker [system={system}]")
+    LOG.debug(f"Invoking '{model}' run spam checker [system={system}]")
     answer = _run_prompt(system_prompt, user_prompt, model, temperature)
 
     if any(fr in answer for fr in FUDGEY_RESPONSES_NOT_SPAM):
@@ -104,7 +105,7 @@ def is_spam(
         # If we don't get definitive answer, check whether at least the response
         # is a technical summarization of the system. If it is, then we can assume
         # that it is not spam
-        if _check_response(answer, system, "mistral:7b", temperature):
+        if _check_response(answer, system, settings.CRAWLER_SPAM_VALIDATION_MODEL, temperature):
             return False
         raise UnexpectedResponseError(f"Unexpected spam check LLM response [model={model} / temperature={temperature}]:\n{answer!r}")
 
@@ -119,12 +120,14 @@ def _run_prompt(system_prompt: str, user_prompt: str, model: str, temperature: f
         "temperature": temperature
     }
 
-    pprint(payload, width=200)
-    print(f"model={model}")
+    LOG.debug(f"model={model}\npayload={payload}")
+    t0 = time.monotonic()
     resp = chat(model, messages=payload, options=options)
+    elapsed = time.monotonic() - t0
+    LOG.debug(f"chat() returned in {elapsed:.1f}s")
+
     answer = resp.message.content.strip().lower()
-    print("-" * 100)
-    pprint(answer, width=200)
+    LOG.debug(f"answer={answer!r}")
 
     # Remove <think> from qwen output
     answer = re.sub(r"<think>.*?</think>", "", answer, flags=re.DOTALL).strip()
@@ -132,7 +135,7 @@ def _run_prompt(system_prompt: str, user_prompt: str, model: str, temperature: f
 
 def _check_response(response: str,
                     system: System,
-                    model: str = "qwen3:8b",
+                    model: str,
                     temperature: float = 0.2,
                     timeout: int = 30,):
 
