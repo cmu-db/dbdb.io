@@ -1,4 +1,5 @@
 import io
+import json
 import logging
 import posixpath
 import re
@@ -267,6 +268,37 @@ def _get_html_page(
 
 # --- Main API ---
 
+def _extract_wikipedia_metadata(
+    data: bytes,
+    encoding: str | None = None,
+) -> tuple[str | None, datetime | None]:
+    """Extract title and last_modified from a Wikipedia page without JS rendering.
+
+    Title comes from <meta property="og:title">; last_modified comes from the
+    dateModified field in the embedded application/ld+json script block.
+    """
+    html = data.decode(encoding or 'utf-8', errors='replace')
+    soup = BeautifulSoup(html, 'html.parser')
+
+    title = None
+    og_title = soup.find('meta', attrs={'property': 'og:title'})
+    if og_title and og_title.get('content'):
+        title = og_title['content'].strip() or None
+
+    last_modified = None
+    for script in soup.find_all('script', attrs={'type': 'application/ld+json'}):
+        try:
+            ld = json.loads(script.string or '')
+            date_str = ld.get('dateModified')
+            if date_str:
+                last_modified = datetime.fromisoformat(date_str)
+                break
+        except (json.JSONDecodeError, ValueError, AttributeError):
+            pass
+
+    return title, last_modified
+
+
 def fetch_url_metadata(
     url: str,
     *,
@@ -459,6 +491,14 @@ def fetch_url_metadata(
             "application/vnd.openxmlformats-officedocument.presentationml.presentation",
         }:
             title = _extract_ppt_title(url, data)
+
+        # HTML — Wikipedia: parse raw bytes directly, skip JS rendering
+        elif content_type in {"text/html", "application/xhtml+xml"} and "wikipedia.org" in url:
+            wiki_title, wiki_last_modified = _extract_wikipedia_metadata(data, resp.encoding)
+            if wiki_title:
+                title = wiki_title
+            if wiki_last_modified:
+                last_modified = wiki_last_modified
 
         # HTML
         elif content_type in {"text/html", "application/xhtml+xml"}:
