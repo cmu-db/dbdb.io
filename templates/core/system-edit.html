@@ -88,13 +88,13 @@
         <div class="col-lg-6">
             <!-- BEGIN: DEVELOPER ORGANIZATIONS -->
             <div class="mb-3">
-                <label class="form-label fw-bold">Developer Organizations</label>
+                <label class="form-label">Developer Organizations</label>
                 {{ developer_org_formset.management_form }}
                 <div id="developer-org-rows">
                 {% for form in developer_org_formset %}
                 <div class="developer-org-row row g-2 mb-2 align-items-center">
-                    <div class="col-md-11">{{ form.organization }}</div>
-                    <div class="col-md-1 text-center">
+                    <div class="col-11">{{ form.organization }}</div>
+                    <div class="col-1 text-center">
                         <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeDeveloperOrgRow(this)" title="Remove">×</button>
                         <span class="d-none">{{ form.DELETE }}</span>
                     </div>
@@ -103,8 +103,8 @@
                 </div>
                 <template id="developer-org-row-template">
                     <div class="developer-org-row row g-2 mb-2 align-items-center">
-                        <div class="col-md-11"><input type="text" name="developer_orgs-__prefix__-organization" class="form-control" placeholder="Organization name" id="id_developer_orgs-__prefix__-organization"></div>
-                        <div class="col-md-1 text-center">
+                        <div class="col-11"><input type="text" name="developer_orgs-__prefix__-organization" class="form-control" placeholder="Organization name" id="id_developer_orgs-__prefix__-organization"></div>
+                        <div class="col-1 text-center">
                             <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeDeveloperOrgRow(this)" title="Remove">×</button>
                             <span class="d-none"><input type="checkbox" name="developer_orgs-__prefix__-DELETE" id="id_developer_orgs-__prefix__-DELETE"></span>
                         </div>
@@ -121,7 +121,7 @@
         <div class="col-lg-6">
             <!-- BEGIN: ACQUISITIONS -->
             <div class="mb-3">
-                <label class="form-label fw-bold">Acquisitions</label>
+                <label class="form-label">Acquisitions</label>
                 {{ acquisition_formset.management_form }}
                 <div id="acquisition-rows">
                 {% for form in acquisition_formset %}
@@ -129,7 +129,7 @@
                     <div class="col-md-5">{{ form.organization }}</div>
                     <div class="col-md-2">{{ form.year }}</div>
                     <div class="col-md-4">{{ form.citation_url }}</div>
-                    <div class="col-md-1 text-center">
+                    <div class="col-1 text-center">
                         <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeAcquisitionRow(this)" title="Remove">×</button>
                         <span class="d-none">{{ form.DELETE }}</span>
                     </div>
@@ -141,7 +141,7 @@
                         <div class="col-md-5"><input type="text"   name="acquisitions-__prefix__-organization"  class="form-control" placeholder="Organization name" id="id_acquisitions-__prefix__-organization"></div>
                         <div class="col-md-2"><input type="number" name="acquisitions-__prefix__-year"          class="form-control" placeholder="Year"              id="id_acquisitions-__prefix__-year"></div>
                         <div class="col-md-4"><input type="url"    name="acquisitions-__prefix__-citation_url"  class="form-control" placeholder="https://…"         id="id_acquisitions-__prefix__-citation_url"></div>
-                        <div class="col-md-1 text-center">
+                        <div class="col-1 text-center">
                             <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeAcquisitionRow(this)" title="Remove">×</button>
                             <span class="d-none"><input type="checkbox" name="acquisitions-__prefix__-DELETE" id="id_acquisitions-__prefix__-DELETE"></span>
                         </div>
@@ -251,7 +251,7 @@
     <!-- BEGIN: SAVEBOX -->
     <div class="edit-savebox card shadow p-3">
         <div class="form-group mb-3">
-            <label for="id_comment" class="form-label fw-bold">Revision Comment</label>
+            <label for="id_comment" class="form-label">Revision Comment</label>
             <textarea name="comment" rows="4" class="form-control" placeholder="Describe your changes…" id="id_comment"></textarea>
             {% alert type="error" id="comment-error" icon="" extra_classes="mt-2 small d-none" %}Please enter a revision comment before saving.{% endalert %}
         </div>
