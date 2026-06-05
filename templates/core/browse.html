@@ -5,7 +5,7 @@
 {% load django_bootstrap5 %}
 {% load page_title %}
 
-{% block title %}{{title}}{% endblock %}
+{% block title %}{% if title %}{{title}} — {% endif %}{% endblock %}
 
 {% block css %}
 <link rel="stylesheet" type="text/css" href="{% static 'lib/css/nouislider.min.css' %}">
