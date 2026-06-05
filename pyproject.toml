@@ -55,6 +55,7 @@ dependencies = [
     "packaging==23.1",
     "pandas==2.3.3",
     "pillow>=12.2.0",
+    "playwright>=1.60.0",
     "psycopg2>=2.9.11",
     "psycopg2-binary>=2.9.11",
     "pycparser==2.22",

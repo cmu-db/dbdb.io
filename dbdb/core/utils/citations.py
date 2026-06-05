@@ -24,9 +24,7 @@ from django.db import connection, transaction
 from django.db.models import Q
 from pptx import Presentation
 from PyPDF2 import PdfReader
-from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.firefox.options import Options
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_playwright
 from tldextract import tldextract
 
 from dbdb.core.models import (
@@ -190,6 +188,11 @@ def _extract_html_title(
         return None
 
     if not skip_spamcheck:
+        # <noscript> content is hidden by browsers when JS is enabled; strip it
+        # so the LLM doesn't see "You need to enable JavaScript to run this app."
+        for tag in soup.find_all("noscript"):
+            tag.decompose()
+
         # Extract the text from the HTML and clean up the newlines and spaces
         # This is wasted space in our prompt context
         text_words = soup.get_text(" ")
@@ -235,34 +238,39 @@ def _extract_html_title(
 def _get_html_page(
         url,
         render_wait: float = 10,
-        request_timeout: int | None = None) -> BeautifulSoup | None:
-    options = Options()
-    options.add_argument("--headless")
-    options.set_preference("javascript.enabled", True)
+        request_timeout: int | None = None) -> str | None:
+    timeout_ms = int((request_timeout or render_wait) * 1000)
 
-    driver = webdriver.Firefox(options=options)
-    # driver = webdriver.Chrome()
-
-    driver.get(url)
-    try:
-        # 2. Use WebDriverWait to wait for the title to be present
-        # This ensures the dynamic content has loaded before proceeding
-        LOG.debug(f"Waiting {render_wait} seconds for HTML page to render")
-        # wait = WebDriverWait(driver, timeout=request_timeout)
-                #.until(EC.presence_of_element_located((By.TAG_NAME, 'title'))))
-        time.sleep(render_wait)
-        LOG.debug("Page is ready and element is present!")
-
-        # 3. Get the page source after the wait condition is met
-        html_source = driver.page_source
-
-    except TimeoutException:
-        LOG.debug("Loading took too much time or element not found!")
-        html_source = None  # Handle the case where the element was not found in time
-
-    finally:
-        # Always close the browser
-        driver.quit()
+    html_source = None
+    with sync_playwright() as pw:
+        browser = pw.firefox.launch(headless=True)
+        try:
+            context = browser.new_context(
+                user_agent=settings.CRAWLER_USER_AGENT,
+                # Mask automation signals: JS property and HTTP header
+                java_script_enabled=True,
+            )
+            # Hide navigator.webdriver before any page script runs
+            context.add_init_script(
+                "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
+            )
+            page = context.new_page()
+            try:
+                # wait_until='networkidle' blocks until there are no more than
+                # 0 in-flight network requests for 500 ms — ideal for SPAs.
+                page.goto(url, wait_until="networkidle", timeout=timeout_ms)
+                LOG.debug(f"Page loaded (networkidle): {page.title()!r}")
+                html_source = page.content()
+            except PlaywrightTimeoutError:
+                LOG.debug(f"Timed out waiting for networkidle on {url}; capturing partial page source")
+                try:
+                    html_source = page.content()
+                except Exception:
+                    pass
+            finally:
+                page.close()
+        finally:
+            browser.close()
 
     return html_source
 
