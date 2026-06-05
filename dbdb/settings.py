@@ -248,8 +248,9 @@ DBDB_FOUNDING_YEAR = 2017
 DBDB_BOT_ACCOUNT = env('DBDB_BOT_ACCOUNT', default='dbdb-bot')
 
 # Repository scanning (collect_repo_info management command)
-GITHUB_API_TOKEN = env('GITHUB_API_TOKEN', default='')
-GITLAB_API_TOKEN = env('GITLAB_API_TOKEN', default='')
+GITHUB_API_TOKEN   = env('GITHUB_API_TOKEN',   default='')
+GITLAB_API_TOKEN   = env('GITLAB_API_TOKEN',   default='')
+CODEBERG_API_TOKEN = env('CODEBERG_API_TOKEN', default='')
 REPOSITORY_INACTIVITY_DAYS = 730
 
 CRAWLER_USER_AGENT = env('CRAWLER_USER_AGENT', default='"dbdb.io/1.0')

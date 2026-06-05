@@ -9,6 +9,7 @@ from django.utils import timezone
 from dbdb.core.models import SystemVersion, RepositoryInfo, RepositorySnapshot
 from dbdb.core.utils.repositories import (
     BitbucketCollector,
+    CodebergCollector,
     GitHubCollector,
     GitLabCollector,
     RepoCollector,
@@ -25,6 +26,7 @@ _REGISTRY: dict[str, tuple[type[RepoCollector], str | None]] = {
     'gitlab':      (GitLabCollector,      'GITLAB_API_TOKEN'),
     'bitbucket':   (BitbucketCollector,   'BITBUCKET_API_TOKEN'),
     'sourceforge': (SourceForgeCollector, 'SOURCEFORGE_API_TOKEN'),
+    'codeberg':    (CodebergCollector,    'CODEBERG_API_TOKEN'),
 }
 
 
