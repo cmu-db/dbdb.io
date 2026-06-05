@@ -937,6 +937,8 @@ class BrowseView(View):
             pk = ss_decode(ss_token)
             if pk is not None:
                 saved_search = SavedSearch.objects.filter(pk=pk).first()
+                if saved_search:
+                    title = saved_search.name
 
         filter_groups = self.build_filter_groups(get_params)
         dropdown_fields = sorted(
