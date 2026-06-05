@@ -940,6 +940,14 @@ class BrowseView(View):
                 if saved_search:
                     title = saved_search.name
 
+        show_all_url = None
+        if limit:
+            qs = urllib.parse.urlencode(
+                [(k, v) for k in get_params.keys() if k != 'limit'
+                 for v in get_params.getlist(k)]
+            )
+            show_all_url = ('?' + qs) if qs else '?'
+
         filter_groups = self.build_filter_groups(get_params)
         dropdown_fields = sorted(
             ['Start Year', 'End Year'] + [fg.label for fg in filter_groups],
@@ -969,6 +977,8 @@ class BrowseView(View):
             'cols_param': ','.join(active_col_ids),
             'saved_search': saved_search,
             'dropdown_fields': dropdown_fields,
+            'limit': limit,
+            'show_all_url': show_all_url,
         })
 
     def handle_old_urls(self, request):

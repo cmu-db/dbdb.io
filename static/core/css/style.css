@@ -829,7 +829,7 @@ form.main-search { display: block; padding: 0; }
 .token .x { cursor: pointer; opacity: .65; font-size: .7rem; }
 .token .x:hover { opacity: 1; color: var(--accent); }
 
-.filter-actions { display: flex; gap: .6rem; align-items: center; margin-top: .9rem; }
+.filter-actions { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin-top: .9rem; }
 .mini-btn {
   font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; font-size: .66rem;
   border: 1px solid var(--ink); background: var(--ink); color: var(--paper);

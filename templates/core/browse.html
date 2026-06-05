@@ -75,6 +75,9 @@
                     <option value="or"  {% if search_op == 'or'  %}selected{% endif %}>Match Any</option>
                 </select>
                 <span class="spacer"></span>
+                {% if show_all_url %}
+                <a class="mini-btn" href="{{ show_all_url }}">Show All Results</a>
+                {% endif %}
                 <button class="mini-btn ghost" type="button" id="advanced-search-clear">Clear</button>
             </div>
           </div>
