@@ -7,8 +7,11 @@ from django.views import View
 
 from dbdb.core.models import (
     AttributeOption,
+    Feature,
+    FeatureOption,
     Organization,
     System,
+    SystemFeature,
     SystemVersion,
 )
 
@@ -109,6 +112,46 @@ class StatsView(View):
         stat_items = [StatItem(opt.name, opt.count, opt.slug, None) for opt in options]
         return Stat(title, stat_items[:limit], search_field, False, len(stat_items))
 
+    def get_feature_stat(self, title, feature_slug, limit):
+        """Count current SystemVersions using each FeatureOption of a given Feature.
+
+        When SystemFeature.system is set and the row has no own options, the
+        options are inherited from that system's current SystemFeature for the
+        same feature (one level of inheritance, matching get_my_or_parent_options).
+        """
+        sf_list = list(
+            SystemFeature.objects
+            .filter(feature__slug=feature_slug, version__is_current=True)
+            .prefetch_related('options')
+            .select_related('version')
+        )
+
+        # Map system_id → direct FeatureOptions so parent lookups are O(1)
+        direct_opts_by_system = {}
+        for sf in sf_list:
+            opts = list(sf.options.all())
+            if opts:
+                direct_opts_by_system[sf.version.system_id] = opts
+
+        counter = collections.Counter()
+        for sf in sf_list:
+            opts = list(sf.options.all())
+            if opts:
+                effective = opts
+            elif sf.system_id is not None:
+                effective = direct_opts_by_system.get(sf.system_id, [])
+            else:
+                effective = []
+            for opt in effective:
+                counter[opt] += 1
+
+        stat_items = [
+            StatItem(opt.value, count, opt.slug, None)
+            for opt, count in sorted(counter.items(), key=lambda x: -x[1])
+            if count > 0
+        ]
+        return Stat(title, stat_items[:limit], feature_slug, False, len(stat_items))
+
     def get_system_stat(self, title, field, labels, slugs, limit):
         values = System.objects \
             .order_by('-'+field)[:limit]
@@ -161,6 +204,16 @@ class StatsView(View):
         labels = dict(all_values.values_list('id', 'name'))
         slugs = dict(all_values.values_list('id', 'slug'))
 
+        # Data Model
+        if stats_type is None or stats_type == "data-model":
+            limit = -1 if stats_type == "data-model" else self.default_limit
+            stats.append(self.get_feature_stat('Data Model', 'data-model', limit))
+
+        # Query Interface
+        if stats_type is None or stats_type == "query-interface":
+            limit = -1 if stats_type == "query-interface" else self.default_limit
+            stats.append(self.get_feature_stat('Query Interface', 'query-interface', limit))
+
         # Compatibility
         if stats_type is None or stats_type == "compatible":
             stats.append( self.get_version_stat('Compatibility', 'compatible_with', 'compatible', labels, slugs, True, self.default_limit) )
@@ -177,13 +230,13 @@ class StatsView(View):
         if stats_type is None or stats_type == "hosted_by":
             stats.append( self.get_version_stat('Hosted Offerings', 'hosted_services', 'hosted_by', labels, slugs, True, self.default_limit) )
 
-        # Versions
-        if stats_type is None or stats_type == "revisions":
-            stats.append( self.get_system_stat('Revisions', 'ver', labels, slugs, self.default_limit ) )
-
-        # Views
-        if stats_type is None or stats_type == "views":
-            stats.append( self.get_system_stat('Views', 'view_count', labels, slugs, self.default_limit ) )
+        # # Versions
+        # if stats_type is None or stats_type == "revisions":
+        #     stats.append( self.get_system_stat('Revisions', 'ver', labels, slugs, self.default_limit ) )
+        #
+        # # Views
+        # if stats_type is None or stats_type == "views":
+        #     stats.append( self.get_system_stat('Views', 'view_count', labels, slugs, self.default_limit ) )
 
         # Licenses
         if stats_type is None or stats_type == "license":
