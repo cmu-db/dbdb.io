@@ -427,10 +427,14 @@ class BrowseView(View):
         # apply keyword search to name (require all terms)
         if search_q:
             search_vector = SearchVector('search_text', config='simple')
-            search_query = SearchQuery(search_q, config='simple')
+            # Use prefix matching (term:*) so partial inputs like "Citrus" match
+            # lexemes like "Citrusleaf" in search_text. The existing GIN index
+            # supports :* natively, so no index change is needed.
+            raw_tsquery = ' & '.join(f'{term}:*' for term in search_q.split())
+            search_query = SearchQuery(raw_tsquery, config='simple', search_type='raw')
 
-            # We include search for the name here to support partial name queries
-            # For example, some people search for "Wired" and we want to show them "WiredTiger" right away
+            # name__icontains keeps mid-word partial matches on the system name
+            # (e.g. "iger" → WiredTiger) that prefix FTS would miss.
             matches = SystemSearchText.objects \
                 .annotate(search=search_vector) \
                 .filter(Q(name__icontains=search_q) | Q(search=search_query)) \
