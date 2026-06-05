@@ -22,8 +22,8 @@
 
 {% block content %}
 {% page_title %}
-{% ptitle_kicker %}{% if system.slug %}Edit Entry{% else %}New Entry{% endif %}{% endptitle_kicker %}
-{% ptitle_title %}<h1>{% if system.slug %}{{ system.name }}{% else %}Add Database System{% endif %}</h1>{% endptitle_title %}
+{% ptitle_kicker %}Database Entry{% endptitle_kicker %}
+{% ptitle_title %}{% if system.slug %}{{ system.name }}: Edit Entry{% else %}Add Database System{% endif %}{% endptitle_title %}
 {% endpage_title %}
 
     <form method="POST" enctype="multipart/form-data" id="edit-form">

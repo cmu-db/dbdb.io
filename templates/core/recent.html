@@ -12,8 +12,8 @@
 
 {% block content %}
 {% page_title %}
-{% ptitle_kicker %}{{ total_revisions|intcomma }} Revision{{ total_revisions|pluralize }}{% endptitle_kicker %}
-{% ptitle_title %}<h1>Recent Changes{% if system %}: {{ system.name }}{% elif lookup_user %}: {{ lookup_user.username }}{% endif %}</h1>{% endptitle_title %}
+{% ptitle_kicker %}{% if system %}Database Entry{% else %}{{ total_revisions|intcomma }} Revision{{ total_revisions|pluralize }}{% endif %}{% endptitle_kicker %}
+{% ptitle_title %}{% if system %}{{ system.name }}: {% endif %}Recent Changes{% if lookup_user %}: {{ lookup_user.username }}{% endif %}{% endptitle_title %}
 {% ptitle_sub %}{% if system %}Revision history for <a href="{% url 'system' system.slug %}">{{ system.name }}</a>{% elif lookup_user %}All revisions by user '{{ lookup_user.username }}'{% else %}Every revision across the encyclopedia, newest first{% endif %}{% endptitle_sub %}
 {% endpage_title %}
 

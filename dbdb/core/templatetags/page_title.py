@@ -26,6 +26,7 @@ class PageTitleNode(template.Node):
 
         kicker = sections.get('kicker', '').strip()
         title  = sections.get('title',  '').strip()
+        action = sections.get('action', '').strip()
         sub    = sections.get('sub',    '').strip()
         extra  = sections.get('extra',  '').strip()
 
@@ -33,7 +34,13 @@ class PageTitleNode(template.Node):
         if kicker:
             parts.append(f'    <p class="kicker">{kicker}</p>')
         if title:
-            parts.append(f'    {title}')
+            if action:
+                parts.append('    <div class="d-flex align-items-start justify-content-between gap-3">')
+                parts.append(f'        <h1>{title}</h1>')
+                parts.append(f'        {action}')
+                parts.append('    </div>')
+            else:
+                parts.append(f'    <h1>{title}</h1>')
         if sub:
             parts.append(f'    <p class="sub">{sub}</p>')
         parts.append('    <hr class="title-rule">')
@@ -64,5 +71,6 @@ def _section_tag(section_name):
 
 register.tag('ptitle_kicker', _section_tag('kicker'))
 register.tag('ptitle_title',  _section_tag('title'))
+register.tag('ptitle_action', _section_tag('action'))
 register.tag('ptitle_sub',    _section_tag('sub'))
 register.tag('ptitle_extra',  _section_tag('extra'))

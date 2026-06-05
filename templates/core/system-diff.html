@@ -12,7 +12,7 @@
 {% block content %}
 {% page_title %}
 {% ptitle_kicker %}<a href="{% url 'system' system.slug %}">{{ system.name }}</a> &nbsp;·&nbsp; <a href="{% url 'system_revision' system.slug %}">Revision History</a>{% endptitle_kicker %}
-{% ptitle_title %}<h1>Version Comparison</h1>{% endptitle_title %}
+{% ptitle_title %}Version Comparison{% endptitle_title %}
 {% endpage_title %}
 
 {% if can_approve %}

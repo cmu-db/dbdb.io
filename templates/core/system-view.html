@@ -168,12 +168,8 @@
 {% block mobile %}
 {% page_title %}
 {% ptitle_kicker %}Database Entry{% endptitle_kicker %}
-{% ptitle_title %}<div class="d-flex align-items-start justify-content-between gap-3">
-        <h1>{{ system.name }}</h1>
-        {% if user.is_authenticated and user_can_edit %}
-        <a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
-        {% endif %}
-    </div>{% endptitle_title %}
+{% ptitle_title %}{{ system.name }}{% endptitle_title %}
+{% ptitle_action %}{% if user.is_authenticated and user_can_edit %}<a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>{% endif %}{% endptitle_action %}
 {% ptitle_extra %}{% partial revision_notice %}{% endptitle_extra %}
 {% endpage_title %}
 {% if version.tags.all %}
@@ -217,12 +213,8 @@
 {% block desktop_intro %}
 {% page_title %}
 {% ptitle_kicker %}Database Entry{% endptitle_kicker %}
-{% ptitle_title %}<div class="d-flex align-items-start justify-content-between gap-3">
-        <h1>{{ system.name }}</h1>
-        {% if user.is_authenticated and user_can_edit %}
-        <a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
-        {% endif %}
-    </div>{% endptitle_title %}
+{% ptitle_title %}{{ system.name }}{% endptitle_title %}
+{% ptitle_action %}{% if user.is_authenticated and user_can_edit %}<a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>{% endif %}{% endptitle_action %}
 {% ptitle_extra %}{% partial revision_notice %}{% endptitle_extra %}
 {% endpage_title %}
 {% if version.tags.all %}

@@ -53,7 +53,7 @@
 {% block mobile %}
 {% page_title %}
 {% ptitle_kicker %}Organization Entry{% endptitle_kicker %}
-{% ptitle_title %}<h1>{{ org.name }}</h1>{% endptitle_title %}
+{% ptitle_title %}{{ org.name }}{% endptitle_title %}
 {% endpage_title %}
 
 {% if org.description %}
@@ -72,7 +72,7 @@
 {% block desktop_intro %}
 {% page_title %}
 {% ptitle_kicker %}Organization Entry{% endptitle_kicker %}
-{% ptitle_title %}<h1>{{ org.name }}</h1>{% endptitle_title %}
+{% ptitle_title %}{{ org.name }}{% endptitle_title %}
 {% endpage_title %}
 
 {% if org.description %}
