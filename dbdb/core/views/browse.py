@@ -643,25 +643,59 @@ class BrowseView(View):
 
         # if there are filter options to search for, apply filter
         if feature_option_ids:
+            # Build option_id → feature_id map so inherited queries know which feature to follow.
+            option_id_to_feature_id = {}
+            for fid, option_slugs in search_fg.items():
+                for slug in option_slugs:
+                    option_id_to_feature_id[featuresoptions_map[(fid, slug)]] = fid
+
+            def _effective_version_ids(option_id):
+                """Version IDs that match option_id directly or via SystemFeature.system inheritance."""
+                fid = option_id_to_feature_id[option_id]
+                direct = set(
+                    SystemFeature.objects
+                    .filter(options__id=option_id, version__is_current=True)
+                    .values_list('version_id', flat=True)
+                )
+                # Two-step to avoid an unsupported double reverse-FK traversal:
+                # Step 1 — which Systems have the option on their current version?
+                parent_system_ids = (
+                    SystemFeature.objects
+                    .filter(feature_id=fid, options__id=option_id, version__is_current=True)
+                    .values('version__system_id')
+                )
+                # Step 2 — child versions whose SystemFeature.system points to those parents
+                inherited = set(
+                    SystemFeature.objects
+                    .filter(
+                        feature_id=fid,
+                        version__is_current=True,
+                        system__isnull=False,
+                        system_id__in=parent_system_ids,
+                    )
+                    .values_list('version_id', flat=True)
+                )
+                return direct | inherited
+
             # OR Queries (Match Any)
             if search_op == or_:
-                feature_systems_versions = SystemFeature.objects.filter(options__id__in=feature_option_ids)\
-                                                                .filter(version__is_current=True)\
-                                                                .values_list("version__id", flat=True)\
-                                                                .distinct()
+                combined: set = set()
+                for oid in feature_option_ids:
+                    combined |= _effective_version_ids(oid)
+                feature_systems_versions = combined
 
             # AND Queries (Match All)
             else:
                 feature_systems_versions = None
-                for option_id in feature_option_ids:
-                    option_filter = SystemFeature.objects.filter(options__id=option_id) \
-                                                         .filter(version__is_current=True) \
-                                                         .values_list("version__id", flat=True) \
-                                                         .distinct()
+                for oid in feature_option_ids:
+                    ids = _effective_version_ids(oid)
                     if feature_systems_versions is None:
-                        feature_systems_versions = option_filter
+                        feature_systems_versions = ids
                     else:
-                        feature_systems_versions = feature_systems_versions.intersection(option_filter)
+                        feature_systems_versions &= ids
+                if feature_systems_versions is None:
+                    feature_systems_versions = set()
+
             sqs_filters.append(Q(id__in=feature_systems_versions))
 
         if sqs_filters:

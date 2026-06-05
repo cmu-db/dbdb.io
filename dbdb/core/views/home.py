@@ -9,7 +9,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.views import View
 
-from dbdb.core.models import Feature, FeatureOption, SavedSearch, System, SystemFeature, SystemVersion
+from dbdb.core.models import Feature, SavedSearch, System, SystemFeature, SystemVersion
 
 
 def _attach_data_models(systems):
@@ -110,14 +110,40 @@ class HomeView(View):
             featured_searches = all_saved_searches
 
         # data models with system counts for Browse by Data Model section
+        # Use the same two-pass inheritance logic as StatsView.get_feature_stat() so
+        # systems that inherit a data model via SystemFeature.system are counted correctly.
         dm_feature = Feature.objects.filter(slug='data-model').first()
-        data_models = list(
-            FeatureOption.objects
-            .filter(feature=dm_feature)
-            .annotate(system_count=Count('system_features__version__system', distinct=True))
-            .filter(system_count__gt=0)
-            .order_by('-system_count')
-        ) if dm_feature else []
+        if dm_feature:
+            sf_list = list(
+                SystemFeature.objects
+                .filter(feature=dm_feature, version__is_current=True)
+                .prefetch_related('options')
+                .select_related('version')
+            )
+            direct_opts_by_system = {}
+            for sf in sf_list:
+                opts = list(sf.options.all())
+                if opts:
+                    direct_opts_by_system[sf.version.system_id] = opts
+
+            counts = {}
+            for sf in sf_list:
+                opts = list(sf.options.all())
+                if opts:
+                    effective = opts
+                elif sf.system_id is not None:
+                    effective = direct_opts_by_system.get(sf.system_id, [])
+                else:
+                    effective = []
+                for opt in effective:
+                    counts[opt] = counts.get(opt, 0) + 1
+
+            data_models = []
+            for opt, count in sorted(counts.items(), key=lambda x: -x[1]):
+                opt.system_count = count
+                data_models.append(opt)
+        else:
+            data_models = []
 
         # editor's pick: first spotlight_enabled system
         spotlight_version = None
