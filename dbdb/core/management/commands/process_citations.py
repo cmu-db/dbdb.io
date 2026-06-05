@@ -214,15 +214,20 @@ class Command(BaseCommand):
 
                 # Check if we need to update the URL
                 if "url" in info and c.url != info["url"]:
-                    # Check whether this url already exists
-                    other_c = CitationUrl.objects.filter(url=info["url"])
-                    if other_c.exists():
-                        merge_citations(other_c[0], [c])
+                    new_url = info["url"]
+                    # Also check the slash-toggled variant so that
+                    # "https://example.com/path/" and "…/path" are treated as the same URL.
+                    alt_url = new_url[:-1] if new_url.endswith('/') else new_url + '/'
+                    other_c = (CitationUrl.objects
+                               .filter(Q(url=new_url) | Q(url=alt_url))
+                               .exclude(pk=c.pk)
+                               .first())
+                    if other_c:
+                        merge_citations(other_c, [c])
                         c.delete()
                         continue
-
                     else:
-                        c.url = info["url"]
+                        c.url = new_url
 
                 # Don't overwrite the title if we get a dead page and there is already
                 # an existing title
