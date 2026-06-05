@@ -1138,8 +1138,8 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .citation-link:hover { text-decoration: underline dotted; text-underline-offset: 3px; }
 
 .entry-foot {
-  margin-top: 2.2rem; padding-top: .85rem; border-top: 1px solid var(--rule);
-  font-family: var(--mono); font-size: .66rem; letter-spacing: .05em; color: var(--muted);
+  border-top: 1px solid var(--rule);
+  font-family: var(--mono); font-size: .8rem; letter-spacing: .05em; color: var(--muted);
   display: flex; justify-content: flex-end; gap: 1.2rem;
 }
 .entry-foot .text-accent { color: var(--accent); }

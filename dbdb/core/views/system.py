@@ -241,12 +241,12 @@ class SystemView(View):
         return render(request, self.template_name, {
             'activate': 'system',  # NAV-LINKS
             'system': system,
+            'version': system_version,
             'sections': sections,
             'citations': self.all_citations,
             'start_year_citations': start_year_citations,
             'end_year_citations': end_year_citations,
             'acquisitions': acquisitions,
-            'system_version': system_version,
             'user_can_edit': user_can_edit,
             'compatible': compatible,
             'derived': derived,
@@ -309,7 +309,7 @@ class SystemEditView(LoginRequiredMixin, View):
 
             # Create a new empty system for the form
             system = System()
-            system_version = SystemVersion(system=system, is_current=True)
+            version = SystemVersion(system=system, is_current=True)
             system_features = SystemFeature.objects.none()
             pass
 
@@ -336,10 +336,10 @@ class SystemEditView(LoginRequiredMixin, View):
             # Load in what we need — prefer the pending (unapproved) version if one exists
             pending = system.pending_version()
             if pending:
-                system_version = pending
+                version = pending
             else:
-                system_version = SystemVersion.objects.get(system=system, is_current=True)
-            system_features = system_version.features.all()
+                version = SystemVersion.objects.get(system=system, is_current=True)
+            system_features = version.features.all()
             pass
 
         # Load suggestion pre-fill data (only for new-system creation)
@@ -375,21 +375,21 @@ class SystemEditView(LoginRequiredMixin, View):
                 'year': acq.year,
                 'citation_url': acq.citation.url if acq.citation else '',
             }
-            for acq in system_version.acquisitions.select_related('organization', 'citation').all()
-        ] if system_version.pk else []
+            for acq in version.acquisitions.select_related('organization', 'citation').all()
+        ] if version.pk else []
         acquisition_formset = AcquisitionFormSet(initial=acquisitions_initial, prefix='acquisitions')
 
         developer_org_initial = [
             {'organization': org.name}
-            for org in system_version.developer_orgs.all()
-        ] if system_version.pk else []
+            for org in version.developer_orgs.all()
+        ] if version.pk else []
         developer_org_formset = DeveloperOrgFormSet(initial=developer_org_initial, prefix='developer_orgs')
 
         version_initial = {
-            'system_url':     system_version.system_url.url     if system_version.system_url     else '',
-            'docs_url':       system_version.docs_url.url       if system_version.docs_url       else '',
-            'sourcerepo_url': system_version.sourcerepo_url.url if system_version.sourcerepo_url else '',
-            'wikipedia_url':  system_version.wikipedia_url.url  if system_version.wikipedia_url  else '',
+            'system_url':     version.system_url.url     if version.system_url     else '',
+            'docs_url':       version.docs_url.url       if version.docs_url       else '',
+            'sourcerepo_url': version.sourcerepo_url.url if version.sourcerepo_url else '',
+            'wikipedia_url':  version.wikipedia_url.url  if version.wikipedia_url  else '',
         }
         if suggestion:
             version_initial['system_url'] = suggestion.system_url
@@ -400,12 +400,12 @@ class SystemEditView(LoginRequiredMixin, View):
             'activate': 'create' if system.id is None else 'edit', # NAV-LINKS
             'system': system,
             'system_form': system_form,
-            'system_version_form': SystemVersionForm(instance=system_version, initial=version_initial),
+            'system_version_form': SystemVersionForm(instance=version, initial=version_initial),
             'feature_form': feature_form,
             'features': features,
             'acquisition_formset': acquisition_formset,
             'developer_org_formset': developer_org_formset,
-            'pending_version': system_version if (system_version.pk and not system_version.approved) else None,
+            'pending_version': version if (version.pk and not version.approved) else None,
             'suggestion': suggestion,
         })
 
