@@ -12,7 +12,7 @@ from lxml import etree
 
 from django.contrib.flatpages.models import FlatPage
 
-from dbdb.core.models import FlatPageMeta, System, SystemVersion
+from dbdb.core.models import FlatPageMeta, Organization, System, SystemVersion
 
 SITEMAP_NAMESPACE = 'https://www.sitemaps.org/schemas/sitemap/0.9'
 SITEMAP_PREFIX = '{%s}' % SITEMAP_NAMESPACE
@@ -178,6 +178,16 @@ class SitemapView(View):
             changefreq = etree.SubElement(url, 'changefreq')
             changefreq.text = 'weekly'
             pass
+
+        # Organizations
+        for org in Organization.objects.order_by('name').iterator():
+            url = etree.SubElement(root, 'url')
+            loc = etree.SubElement(url, 'loc')
+            loc.text = request.build_absolute_uri( reverse('organization', args=[org.slug]) )
+            lastmod = etree.SubElement(url, 'lastmod')
+            lastmod.text = org.created.date().isoformat()
+            changefreq = etree.SubElement(url, 'changefreq')
+            changefreq.text = 'monthly'
 
         # Flatpages
         meta_by_page_id = {
