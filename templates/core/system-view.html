@@ -7,6 +7,7 @@
 {% load links %}
 {% load alerts %}
 {% load page_title %}
+{% load version_tags %}
 
 {% block twitter %}
     <meta property="og:title" content="Database of Databases &mdash; {{ system.name }}" />
@@ -38,7 +39,7 @@
   {% if has_revision %}
   {% if not version.approved %}
   {% alert type="warning" icon="fa-solid fa-clock-rotate-left" extra_classes="mt-3" %}
-  <strong>Pending:</strong> Version #{{ version.ver }} from {{ version.created|date:"SHORT_DATETIME_FORMAT" }} is awaiting approval and is not publicly visible.
+  <strong>Pending:</strong> {% sv_ver version.ver %} from {% sv_created version %} is awaiting approval and is not publicly visible.
   {% if approved_ver %}
   <a href="{% url 'system_version' system.slug approved_ver %}" class="btn-edit ms-2">View Approved</a>
   {% else %}
@@ -47,7 +48,7 @@
   {% endalert %}
   {% else %}
   {% alert type="info" icon="fa-solid fa-eye" extra_classes="mt-3" %}
-  Viewing Revision #{{ version.ver }} from {{ version.created|date:"SHORT_DATETIME_FORMAT" }}
+  Viewing Revision {% sv_ver version.ver %} from {% sv_created version %}
   <a href="{{ system.get_absolute_url }}" class="btn-edit ms-2">View Current</a>
   {% if not version.is_current and user.is_authenticated %}
   <form class="d-inline ms-2" action="{% url 'system_revision' system.slug %}" method="POST">
@@ -290,12 +291,9 @@
 
 <div class="entry-foot pt-3 mt-3">
     <a href="{% url 'system_revision' system.slug %}" class="text-accent" title="View All Revisions for {{ system.name }}">
-        <time datetime="{{ version.created|date:"c" }}">
-            <i class="fa-solid fa-clock-rotate-left"></i>
-            Updated {{ version.created|date:"SHORT_DATETIME_FORMAT" }}
-        </time>
+        Updated {% sv_created version %}
     </a>
-    <span>Revision #{{ version.ver }}</span>
+    <span>Revision {% sv_ver version.ver %}</span>
 </div>
 {% endblock %}
 

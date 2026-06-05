@@ -1232,7 +1232,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 
 .feed-item.checked { background: var(--tint); }
 .ver-tag {
-  font-family: var(--mono); font-size: .68rem; letter-spacing: .03em; color: var(--ink-soft);
+  font-family: var(--mono); font-size: inherit; letter-spacing: .03em; color: var(--ink-soft);
   border: 1px solid var(--rule); padding: .12rem .45rem; white-space: nowrap;
   background: var(--surface-2);
 }
@@ -1315,7 +1315,7 @@ ins.diff-ins { text-decoration: none; border-radius: 2px; padding: 0 2px; }
                   border: 1px solid var(--diff-ins-border); background: var(--diff-ins-bg); color: var(--diff-ins-fg);
                   padding: .2rem .5rem; display: inline-flex; align-items: center; }
 .diff-version-header { font-family: var(--mono); font-size: .78rem; }
-.diff-version-header .ver-num { font-weight: 600; }
+
 .diff-version-header .ver-meta { color: var(--ink-soft); }
 .diff-cite-list { margin: .4rem 0 0 0; padding-left: 1.4rem; font-size: .78rem; }
 .diff-cite-list li { margin-bottom: .15rem; }

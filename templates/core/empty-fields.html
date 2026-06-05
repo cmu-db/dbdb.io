@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load page_title %}
+{% load version_tags %}
 
 {% block title %}
 Field Checker
@@ -62,7 +63,7 @@ Field Checker
                                     {{ version.value }}
                                 {% endif %}
                             </td>
-                            <td>{{ version.created }}</td>
+                            <td>{% sv_created version %}</td>
                     {% endfor %}
                     </tbody>
                 </table>

@@ -160,6 +160,7 @@ USE_L10N = False
 formats.DATE_FORMAT = "Y-m-d"
 formats.TIME_FORMAT = "H:i:s"
 formats.DATETIME_FORMAT = f"{formats.DATE_FORMAT} {formats.TIME_FORMAT}"
+DBDB_SV_DATETIME_FORMAT = "Y-m-d H:i"
 
 FIXTURE_DIRS = [
     root.path('data/fixtures')(),

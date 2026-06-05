@@ -6,6 +6,7 @@
 {% load page_title %}
 {% load alerts %}
 {% load version_status %}
+{% load version_tags %}
 
 {% block title %}Recent Changes{% endblock %}
 
@@ -40,8 +41,8 @@
     <div class="feed-item">
         <div class="feed-time">
             <a href="{{ version.get_absolute_url }}" title="View Revision #{{ version.ver }} for {{ version.system.name }}">
-                <span class="ver-tag">#{{ version.ver }}</span>
-                {{ version.created|date:"Y-m-d H:i" }}
+                {% sv_ver version.ver %}
+                {% sv_created version %}
             </a>
         </div>
         <div class="feed-body">

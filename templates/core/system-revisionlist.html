@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load page_title %}
+{% load version_tags %}
 
 {% block title %}
 Revision {{ system.name }}
@@ -35,8 +36,8 @@ Revision {{ system.name }}
                             {% endif %}
                             {% endif %}
                         </td>
-                        <td>#{{ version.ver }}</td>
-                        <td><a href="{{ version.get_absolute_url }}">{{ version.created }}</a></td>
+                        <td>{% sv_ver version.ver %}</td>
+                        <td><a href="{{ version.get_absolute_url }}">{% sv_created version %}</a></td>
                         <td><a href="{% url 'recent' %}?user={{ version.creator.username }}">{{ version.creator.username }}</a></td>
                         <td>{{ version.comment }}</td>
                     </tr>
