@@ -1254,15 +1254,16 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .diff-link:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 
 .pager { display: flex; align-items: center; justify-content: center; gap: .3rem; padding: 1.4rem 0; flex-wrap: wrap; }
-.pager .pg, .pager .pg-edge {
+.pager .pager-num, .pager .pager-edge {
   font-family: var(--mono); font-size: .72rem; letter-spacing: .04em;
   border: 1px solid var(--rule); background: var(--surface); color: var(--ink-soft);
   padding: .4rem .7rem; min-width: 36px; text-align: center; transition: border-color .15s, color .15s, background .15s;
 }
-.pager .pg-edge { text-transform: uppercase; font-size: .64rem; letter-spacing: .1em; }
-.pager .pg:hover, .pager .pg-edge:hover { border-color: var(--accent); color: var(--accent); }
-.pager .pg.active { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-.pager .pg.active:hover { color: var(--paper); }
+.pager .pager-edge { text-transform: uppercase; font-size: .64rem; letter-spacing: .1em; }
+.pager .pager-edge.disabled { opacity: .4; pointer-events: none; }
+.pager .pager-num:hover, .pager .pager-edge:hover { border-color: var(--accent); color: var(--accent); }
+.pager .pager-num.active { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.pager .pager-num.active:hover { color: var(--paper); }
 .pager .dots { font-family: var(--mono); color: var(--muted); padding: 0 .3rem; }
 
 /* ============================================================
