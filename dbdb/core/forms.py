@@ -163,14 +163,19 @@ class SystemFeaturesForm(forms.Form):
                 required=False
             )
 
-            systems = [ (x.id, x.name) for x in System.objects.exclude(id=self.system.id).order_by('name') ]
-            systems.insert(0, (None, ""))
+            all_systems = [(x.id, x.name) for x in System.objects.exclude(id=self.system.id).order_by('name')]
+            derived_ids = set(
+                self.system.current().derived_from.values_list('id', flat=True)
+            ) if self.system.id else set()
+            derived  = [(id_, name) for id_, name in all_systems if id_ in derived_ids]
+            others   = [(id_, name) for id_, name in all_systems if id_ not in derived_ids]
+            systems  = [(None, '')] + derived + ([('', '─────────')] if derived else []) + others
             self.fields[f'{field_prefix}_system'] = forms.ChoiceField(
                     label='Inherited from System',
                     help_text="Whether this system inherits the capabilities from another system.",
                     choices=systems,
                     initial=initial_sys.id if initial_sys else None,
-                    widget=forms.Select(attrs={'onchange': f"toggleFields('{feature.label}')"}),
+                    widget=forms.Select(attrs={'onchange': f"toggleFields('{feature.label}')", 'class': 'form-select'}),
                     required=False
                 )
 

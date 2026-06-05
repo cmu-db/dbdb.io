@@ -97,6 +97,22 @@ h1 {
 /* Form label weight — used by system-edit and other Bootstrap forms */
 .form-label { font-weight: 500; }
 
+/* Accordion button — consistent weight; open state uses brand tint */
+.accordion-button { font-weight: 500; }
+.accordion-button:not(.collapsed) {
+    background-color: var(--tint);
+    font-weight: 500;
+    color: var(--ink);
+    box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0)
+                var(--bs-focus-ring-blur) var(--bs-focus-ring-width)
+                var(--bs-focus-ring-color);
+}
+.accordion-button:focus {
+    box-shadow: var(--bs-focus-ring-x, 0) var(--bs-focus-ring-y, 0)
+                var(--bs-focus-ring-blur) var(--bs-focus-ring-width)
+                var(--bs-focus-ring-color);
+}
+
 /* System link component */
 .system-link { padding-right: 3px; }
 .system-link:active { color: #6d6e71 !important; }
