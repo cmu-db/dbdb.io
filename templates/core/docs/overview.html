@@ -1,73 +1,79 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends 'entry-base.html' %}
+{% load static markdownify page_title %}
 
 {% block title %}Documentation - {% endblock %}
 
-{% block content %}
-<div class="doc-grid py-4">
+{% block mobile %}
+{% page_title %}
+{% ptitle_kicker %}Documentation{% endptitle_kicker %}
+{% ptitle_title %}The Feature Taxonomy{% endptitle_title %}
+{% endpage_title %}
+<p class="doc-intro">Every system in the encyclopedia is classified along <b>{{ feature_count }} features</b> — the dimensions database architects use to describe how a system stores data, processes queries, and stays correct under concurrency and failure. Each feature page explains the concept, then enumerates the <b>options</b> a system can implement, with a link to browse every system that adopts each one.</p>
+{% endblock %}
 
-    <article class="entry-main">
-        <div class="entry-kicker">Documentation</div>
-        <div class="entry-head">
-            <h1 class="entry-title">The Feature Taxonomy</h1>
-        </div>
+{% block sidebar %}
+{% include 'core/docs/_sidebar.html' with doc_active='home' %}
+{% endblock %}
 
-        <p class="doc-intro">Every system in the encyclopedia is classified along <b>{{ feature_count }} features</b> — the dimensions database architects use to describe how a system stores data, processes queries, and stays correct under concurrency and failure. Each feature page explains the concept, then enumerates the <b>options</b> a system can implement, with a link to browse every system that adopts each one.</p>
+{% block desktop_intro %}
+{% page_title %}
+{% ptitle_kicker %}Documentation{% endptitle_kicker %}
+{% ptitle_title %}The Feature Taxonomy{% endptitle_title %}
+{% endpage_title %}
+<p class="doc-intro">Every system in the encyclopedia is classified along <b>{{ feature_count }} features</b> — the dimensions database architects use to describe how a system stores data, processes queries, and stays correct under concurrency and failure. Each feature page explains the concept, then enumerates the <b>options</b> a system can implement, with a link to browse every system that adopts each one.</p>
+{% endblock %}
 
-        {% for category, features in feature_groups %}
-        <div class="sec-head">
-            <h2 class="serif m-0">{{ category }}</h2>
-            <span class="rule"></span>
-            <span class="num">{{ features|length }} feature{{ features|length|pluralize }}</span>
-        </div>
-        <div class="row row-cols-1 row-cols-md-2 g-3">
-            {% for feature in features %}
-            <div class="col">
-                <a href="{% url 'docs-feature' feature.slug %}" class="doc-card text-decoration-none">
-                    <span><span class="doc-name">{{ feature.label }}</span>
-                    {% if feature.description %}<p class="doc-desc">{{ feature.description|truncatechars:120 }}</p>{% endif %}
-                    </span>
-                </a>
-            </div>
-            {% endfor %}
-        </div>
-        {% endfor %}
+{% block main_content %}
+{% for category, features in feature_groups %}
+<div class="sec-head">
+    <h2 class="serif m-0">{{ category }}</h2>
+    <span class="rule"></span>
+    <span class="num">{{ features|length }} feature{{ features|length|pluralize }}</span>
+</div>
+<div class="row row-cols-1 row-cols-md-2 g-3">
+    {% for feature in features %}
+    <div class="col">
+        <a href="{% url 'docs-feature' feature.slug %}" class="doc-card text-decoration-none">
+            <span>
+                <span class="doc-name">{{ feature.label }}</span>
+                {% if feature.description %}<p class="doc-desc">{{ feature.description|truncatechars:120 }}</p>{% endif %}
+            </span>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endfor %}
 
-        {% if attributes %}
-        <div class="sec-head">
-            <h2 class="serif m-0">System Attributes</h2>
-            <span class="rule"></span>
-            <span class="num">{{ attributes|length }} vocabular{{ attributes|length|pluralize:"y,ies" }}</span>
-        </div>
-        <div class="row row-cols-1 row-cols-md-2 g-3">
-            <div class="col">
-                <a href="{% url 'docs-sys-attrs' %}" class="doc-card text-decoration-none">
-                    <span><span class="doc-name">General Attributes</span>
-                    <p class="doc-desc">Free-form fields recorded on each system — URLs, dates, organizations, and relationships.</p>
-                    </span>
-                </a>
-            </div>
-            {% for attr in attributes %}
-            <div class="col">
-                <a href="{% url 'docs-attribute' attr.slug %}" class="doc-card text-decoration-none">
-                    <span><span class="doc-name">{{ attr.name }}</span>
-                    {% if attr.description %}<p class="doc-desc">{{ attr.description|truncatechars:120 }}</p>{% endif %}
-                    </span>
-                </a>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
+{% if attributes %}
+<div class="sec-head">
+    <h2 class="serif m-0">System Attributes</h2>
+    <span class="rule"></span>
+    <span class="num">{{ attributes|length }} vocabular{{ attributes|length|pluralize:"y,ies" }}</span>
+</div>
+<div class="row row-cols-1 row-cols-md-2 g-3">
+    <div class="col">
+        <a href="{% url 'docs-sys-attrs' %}" class="doc-card text-decoration-none">
+            <span>
+                <span class="doc-name">General Attributes</span>
+                <p class="doc-desc">Free-form fields recorded on each system — URLs, dates, organizations, and relationships.</p>
+            </span>
+        </a>
+    </div>
+    {% for attr in attributes %}
+    <div class="col">
+        <a href="{% url 'docs-attribute' attr.slug %}" class="doc-card text-decoration-none">
+            <span>
+                <span class="doc-name">{{ attr.name }}</span>
+                {% if attr.description %}<p class="doc-desc">{{ attr.description|truncatechars:120 }}</p>{% endif %}
+            </span>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 
-        <div class="entry-foot">
-            <span>Encyclopedia taxonomy <span class="text-accent">·</span> {{ feature_count }} features</span>
-            <span>Maintained by the CMU Database Group</span>
-        </div>
-    </article>
-
-    <aside class="entry-sidebar">
-        {% include 'core/docs/_sidebar.html' with doc_active='home' %}
-    </aside>
-
+<div class="entry-foot pt-3 mt-3">
+    <span>Encyclopedia taxonomy <span class="text-accent">·</span> {{ feature_count }} features</span>
+    <span>Maintained by the CMU Database Group</span>
 </div>
 {% endblock %}
