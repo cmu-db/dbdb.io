@@ -3,29 +3,40 @@
 
 {% block title %}{{ attribute.name }} - Documentation - {% endblock %}
 
-{% block mobile %}
+{% block content %}
+{% partialdef page_heading %}
 {% page_title %}
-{% ptitle_kicker %}Documentation · Attributes{% endptitle_kicker %}
-{% ptitle_title %}{{ attribute.name }}{% endptitle_title %}
-{% if user.is_staff %}{% ptitle_action %}<a href="{% url 'admin:core_attribute_change' attribute.pk %}" class="btn-edit"><i class="fa-solid fa-pen-to-square"></i> Edit</a>{% endptitle_action %}{% endif %}
+    {% ptitle_kicker %}Documentation · Attributes{% endptitle_kicker %}
+    {% ptitle_title %}{{ attribute.name }}{% endptitle_title %}
+    {% if user.is_staff %}
+    {% ptitle_action %}
+        <a href="{% url 'admin:core_attribute_change' attribute.pk %}" class="btn-edit">
+            <i class="fa-solid fa-pen-to-square"></i> Edit
+        </a>
+    {% endptitle_action %}
+    {% endif %}
 {% endpage_title %}
-{% if attribute.description %}<div class="doc-lead">{{ attribute.description|markdownify }}</div>{% endif %}
+{% if attribute.description %}
+<div class="doc-lead">{{ attribute.description|markdownify }}</div>
+{% endif %}
+{% endpartialdef %}
+{{ block.super }}
 {% endblock %}
 
 {% block sidebar %}
 {% include 'core/docs/_sidebar.html' with doc_active=attribute.slug %}
 {% endblock %}
 
+{% block mobile %}
+{% partial page_heading %}
+{% endblock %}
+
 {% block desktop_intro %}
-{% page_title %}
-{% ptitle_kicker %}Documentation · Attributes{% endptitle_kicker %}
-{% ptitle_title %}{{ attribute.name }}{% endptitle_title %}
-{% if user.is_staff %}{% ptitle_action %}<a href="{% url 'admin:core_attribute_change' attribute.pk %}" class="btn-edit"><i class="fa-solid fa-pen-to-square"></i> Edit</a>{% endptitle_action %}{% endif %}
-{% endpage_title %}
-{% if attribute.description %}<div class="doc-lead">{{ attribute.description|markdownify }}</div>{% endif %}
+{% partial page_heading %}
 {% endblock %}
 
 {% block main_content %}
+
 {% with options=attribute.options.all %}
 {% if options %}
 <div class="sec-head">
@@ -39,7 +50,9 @@
     <h3>
         <span class="ao-num">{{ forloop.counter|stringformat:"02d" }}</span>{{ option.name }}
     </h3>
-    {% if option.description %}<p class="ao-desc">{{ option.description|markdownify }}</p>{% endif %}
+    {% if option.description %}
+    <p class="ao-desc">{{ option.description|markdownify }}</p>
+    {% endif %}
     <div class="badges">
         <a href="{% url 'browse' %}?{{ attribute.sv_field }}={{ option.slug }}" class="badge-section">
             {{ option.name }}
@@ -73,4 +86,5 @@
 <div class="entry-foot pt-3 mt-3">
     <span>Last updated <span class="text-accent">{{ attribute.modified|date:"Y-m-d" }}</span></span>
 </div>
+
 {% endblock %}

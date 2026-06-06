@@ -10,7 +10,19 @@
 {% block title %}{{ org.name }} ({% if org.type %}{{ org.type }}{% else %}Organization{% endif %}) - {% endblock %}
 
 {% block content %}
-{# Register factbox partial before block.super renders the layout and calls it. #}
+{# Register partials before block.super renders the layout and calls them. #}
+{% partialdef page_heading %}
+{% page_title %}
+    {% ptitle_kicker %}Organization Entry{% endptitle_kicker %}
+    {% ptitle_title %}{{ org.name }}{% endptitle_title %}
+{% endpage_title %}
+{% if org.description %}
+<div class="entry-lead-block fs-5 mt-3">
+    {{ org.description|markdownify }}
+</div>
+{% endif %}
+{% endpartialdef %}
+
 {% partialdef factbox %}
 <div class="factbox">
     <div class="fb-logo text-center">
@@ -51,17 +63,7 @@
 {% endblock %}
 
 {% block mobile %}
-{% page_title %}
-{% ptitle_kicker %}Organization Entry{% endptitle_kicker %}
-{% ptitle_title %}{{ org.name }}{% endptitle_title %}
-{% endpage_title %}
-
-{% if org.description %}
-<div class="entry-lead-block fs-5 mt-3">
-    {{ org.description|markdownify }}
-</div>
-{% endif %}
-
+{% partial page_heading %}
 {% partial factbox %}
 {% endblock %}
 
@@ -70,16 +72,7 @@
 {% endblock %}
 
 {% block desktop_intro %}
-{% page_title %}
-{% ptitle_kicker %}Organization Entry{% endptitle_kicker %}
-{% ptitle_title %}{{ org.name }}{% endptitle_title %}
-{% endpage_title %}
-
-{% if org.description %}
-<div class="entry-lead-block fs-5 mt-3">
-    {{ org.description|markdownify }}
-</div>
-{% endif %}
+{% partial page_heading %}
 {% endblock %}
 
 {% block main_content %}

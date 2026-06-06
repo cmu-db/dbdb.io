@@ -158,6 +158,26 @@
 </div>
 {% endpartialdef %}
 
+{% partialdef page_heading %}
+{% page_title %}
+    {% ptitle_kicker %}Database Entry{% endptitle_kicker %}
+    {% ptitle_title %}{{ system.name }}{% endptitle_title %}
+    {% ptitle_action %}
+        {% if user.is_authenticated and user_can_edit %}
+        <a class="btn-edit" href="{% url 'system_edit' system.slug %}">
+            <i class="fa-solid fa-pen-to-square"></i> Edit
+        </a>
+        {% endif %}
+    {% endptitle_action %}
+    {% ptitle_extra %}{% partial revision_notice %}{% endptitle_extra %}
+{% endpage_title %}
+{% if version.tags.all %}
+<div class="entry-tags">
+    {% for tag in version.tags.all %}{% tag_link tag %}{% endfor %}
+</div>
+{% endif %}
+{% endpartialdef %}
+
 {% if request.GET.noperms and request.GET.noperms == '1' %}
 {% alert type="error" extra_classes="mb-3" %}You do not have permission to edit this entry.{% endalert %}
 {% endif %}
@@ -166,17 +186,7 @@
 {% endblock %}
 
 {% block mobile %}
-{% page_title %}
-{% ptitle_kicker %}Database Entry{% endptitle_kicker %}
-{% ptitle_title %}{{ system.name }}{% endptitle_title %}
-{% ptitle_action %}{% if user.is_authenticated and user_can_edit %}<a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>{% endif %}{% endptitle_action %}
-{% ptitle_extra %}{% partial revision_notice %}{% endptitle_extra %}
-{% endpage_title %}
-{% if version.tags.all %}
-<div class="entry-tags">
-    {% for tag in version.tags.all %}{% tag_link tag %}{% endfor %}
-</div>
-{% endif %}
+{% partial page_heading %}
 <div class="entry-lead-block fs-5 mt-3">
     {{ version.description_mobile_intro|markdownify }}
 </div>
@@ -211,17 +221,7 @@
 {% endblock %}
 
 {% block desktop_intro %}
-{% page_title %}
-{% ptitle_kicker %}Database Entry{% endptitle_kicker %}
-{% ptitle_title %}{{ system.name }}{% endptitle_title %}
-{% ptitle_action %}{% if user.is_authenticated and user_can_edit %}<a class="btn-edit" href="{% url 'system_edit' system.slug %}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>{% endif %}{% endptitle_action %}
-{% ptitle_extra %}{% partial revision_notice %}{% endptitle_extra %}
-{% endpage_title %}
-{% if version.tags.all %}
-<div class="entry-tags">
-    {% for tag in version.tags.all %}{% tag_link tag %}{% endfor %}
-</div>
-{% endif %}
+{% partial page_heading %}
 <div class="entry-lead-block fs-5 mt-3">
     {{ version.description|markdownify }}
 </div>

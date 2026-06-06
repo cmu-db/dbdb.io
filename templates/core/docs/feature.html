@@ -3,29 +3,40 @@
 
 {% block title %}{{ feature.label }} - Documentation - {% endblock %}
 
-{% block mobile %}
+{% block content %}
+{% partialdef page_heading %}
 {% page_title %}
-{% ptitle_kicker %}Documentation · {{ feature.get_category_display }}{% endptitle_kicker %}
-{% ptitle_title %}{{ feature.label }}{% endptitle_title %}
-{% if user.is_staff %}{% ptitle_action %}<a href="{% url 'admin:core_feature_change' feature.pk %}" class="btn-edit"><i class="fa-solid fa-pen-to-square"></i> Edit</a>{% endptitle_action %}{% endif %}
+    {% ptitle_kicker %}Documentation · {{ feature.get_category_display }}{% endptitle_kicker %}
+    {% ptitle_title %}{{ feature.label }}{% endptitle_title %}
+    {% if user.is_staff %}
+    {% ptitle_action %}
+        <a href="{% url 'admin:core_feature_change' feature.pk %}" class="btn-edit">
+            <i class="fa-solid fa-pen-to-square"></i> Edit
+        </a>
+    {% endptitle_action %}
+    {% endif %}
 {% endpage_title %}
-{% if feature.description %}<div class="doc-lead">{{ feature.description|markdownify }}</div>{% endif %}
+{% if feature.description %}
+<div class="doc-lead">{{ feature.description|markdownify }}</div>
+{% endif %}
+{% endpartialdef %}
+{{ block.super }}
 {% endblock %}
 
 {% block sidebar %}
 {% include 'core/docs/_sidebar.html' with doc_active=feature.slug %}
 {% endblock %}
 
+{% block mobile %}
+{% partial page_heading %}
+{% endblock %}
+
 {% block desktop_intro %}
-{% page_title %}
-{% ptitle_kicker %}Documentation · {{ feature.get_category_display }}{% endptitle_kicker %}
-{% ptitle_title %}{{ feature.label }}{% endptitle_title %}
-{% if user.is_staff %}{% ptitle_action %}<a href="{% url 'admin:core_feature_change' feature.pk %}" class="btn-edit"><i class="fa-solid fa-pen-to-square"></i> Edit</a>{% endptitle_action %}{% endif %}
-{% endpage_title %}
-{% if feature.description %}<div class="doc-lead">{{ feature.description|markdownify }}</div>{% endif %}
+{% partial page_heading %}
 {% endblock %}
 
 {% block main_content %}
+
 {% with options=feature.options.all %}
 {% if options %}
 <div class="sec-head">
@@ -40,11 +51,15 @@
         <h3>{{ option.value }}</h3>
         {% if option.citations.exists %}
         <span class="doc-cites">
-            {% for cite in option.citations.all %}<a href="#cite-opt-{{ option.slug }}-{{ forloop.counter }}">[{{ forloop.counter }}]</a>{% endfor %}
+            {% for cite in option.citations.all %}
+            <a href="#cite-opt-{{ option.slug }}-{{ forloop.counter }}">[{{ forloop.counter }}]</a>
+            {% endfor %}
         </span>
         {% endif %}
     </div>
-    {% if option.description %}<div class="fo-body">{{ option.description|markdownify }}</div>{% endif %}
+    {% if option.description %}
+    <div class="fo-body">{{ option.description|markdownify }}</div>
+    {% endif %}
     <a href="{% url 'browse' %}?{{ feature.slug }}={{ option.slug }}" class="btn-solid">
         <i class="fa-solid fa-magnifying-glass"></i> Browse Systems
     </a>
@@ -76,4 +91,5 @@
 <div class="entry-foot pt-3 mt-3">
     <span>Last updated <span class="text-accent">{{ feature.modified|date:"Y-m-d" }}</span></span>
 </div>
+
 {% endblock %}

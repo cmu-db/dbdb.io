@@ -3,27 +3,37 @@
 
 {% block title %}Documentation - {% endblock %}
 
-{% block mobile %}
+{% block content %}
+{% partialdef page_heading %}
 {% page_title %}
-{% ptitle_kicker %}Documentation{% endptitle_kicker %}
-{% ptitle_title %}The Feature Taxonomy{% endptitle_title %}
+    {% ptitle_kicker %}Documentation{% endptitle_kicker %}
+    {% ptitle_title %}Encyclopedia Taxonomy{% endptitle_title %}
 {% endpage_title %}
-<p class="doc-intro">Every system in the encyclopedia is classified along <b>{{ feature_count }} features</b> — the dimensions database architects use to describe how a system stores data, processes queries, and stays correct under concurrency and failure. Each feature page explains the concept, then enumerates the <b>options</b> a system can implement, with a link to browse every system that adopts each one.</p>
+<p class="doc-intro">
+    Every system in the encyclopedia is classified along <b>{{ feature_count }} features</b> —
+    the dimensions database architects use to describe how a system stores data, processes
+    queries, and stays correct under concurrency and failure. Each feature page explains the
+    concept, then enumerates the <b>options</b> a system can implement, with a link to browse
+    every system that adopts each one.
+</p>
+{% endpartialdef %}
+{{ block.super }}
 {% endblock %}
 
 {% block sidebar %}
 {% include 'core/docs/_sidebar.html' with doc_active='home' %}
 {% endblock %}
 
+{% block mobile %}
+{% partial page_heading %}
+{% endblock %}
+
 {% block desktop_intro %}
-{% page_title %}
-{% ptitle_kicker %}Documentation{% endptitle_kicker %}
-{% ptitle_title %}The Feature Taxonomy{% endptitle_title %}
-{% endpage_title %}
-<p class="doc-intro">Every system in the encyclopedia is classified along <b>{{ feature_count }} features</b> — the dimensions database architects use to describe how a system stores data, processes queries, and stays correct under concurrency and failure. Each feature page explains the concept, then enumerates the <b>options</b> a system can implement, with a link to browse every system that adopts each one.</p>
+{% partial page_heading %}
 {% endblock %}
 
 {% block main_content %}
+
 {% for category, features in feature_groups %}
 <div class="sec-head">
     <h2 class="serif m-0">{{ category }}</h2>
@@ -36,7 +46,9 @@
         <a href="{% url 'docs-feature' feature.slug %}" class="doc-card text-decoration-none">
             <span>
                 <span class="doc-name">{{ feature.label }}</span>
-                {% if feature.description %}<p class="doc-desc">{{ feature.description|truncatechars:120 }}</p>{% endif %}
+                {% if feature.description %}
+                <p class="doc-desc">{{ feature.description|truncatechars:120 }}</p>
+                {% endif %}
             </span>
         </a>
     </div>
@@ -64,7 +76,9 @@
         <a href="{% url 'docs-attribute' attr.slug %}" class="doc-card text-decoration-none">
             <span>
                 <span class="doc-name">{{ attr.name }}</span>
-                {% if attr.description %}<p class="doc-desc">{{ attr.description|truncatechars:120 }}</p>{% endif %}
+                {% if attr.description %}
+                <p class="doc-desc">{{ attr.description|truncatechars:120 }}</p>
+                {% endif %}
             </span>
         </a>
     </div>
@@ -76,4 +90,5 @@
     <span>Encyclopedia taxonomy <span class="text-accent">·</span> {{ feature_count }} features</span>
     <span>Maintained by the CMU Database Group</span>
 </div>
+
 {% endblock %}
