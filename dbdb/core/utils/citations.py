@@ -565,6 +565,7 @@ def merge_citations(merge_to: CitationUrl, merge_from: list[CitationUrl]) -> Cit
         ("core_featureoption_citations",             "featureoption_id"),
         ("core_attribute_citations",                 "attribute_id"),
         ("core_attributeoption_citations",           "attributeoption_id"),
+        ("core_docpage_citations",                   "docpage_id"),
     ]
 
     from_ids = [c.id for c in merge_from]

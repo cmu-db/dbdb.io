@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, render
 from django.views import View
 
-from dbdb.core.models import Attribute, Feature
+from dbdb.core.models import Attribute, DocPage, Feature
 
 
 def _sidebar_context():
@@ -89,9 +89,19 @@ class DocSysAttrsView(View):
     template_name = 'core/docs/system-attributes.html'
 
     def get(self, request):
+        page = (DocPage.objects
+                .filter(slug='system-attributes')
+                .prefetch_related('citations')
+                .first())
+        fields = (DocPage.objects
+                  .filter(parent__slug='system-attributes')
+                  .prefetch_related('citations')
+                  .order_by('sort_order', 'title'))
         feature_groups, attributes = _sidebar_context()
         return render(request, self.template_name, {
             'activate': 'docs',
+            'page': page,
+            'fields': fields,
             'feature_groups': feature_groups,
             'attributes': attributes,
             'doc_active': 'sys-attrs',

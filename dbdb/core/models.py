@@ -193,6 +193,29 @@ class AttributeOption(models.Model):
     pass
 
 
+# ==============================================
+# DocPage
+# ==============================================
+class DocPage(models.Model):
+    slug        = models.SlugField(unique=True)
+    title       = models.CharField(max_length=200)
+    description = models.TextField(blank=True, default='', help_text='This field supports Markdown Syntax')
+    citations   = models.ManyToManyField('CitationUrl', blank=True, related_name='doc_pages')
+    sort_order  = models.PositiveIntegerField(default=0)
+    parent      = models.ForeignKey(
+                      'self', null=True, blank=True,
+                      related_name='children', on_delete=models.SET_NULL)
+    created  = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['sort_order', 'title']
+
+    def __str__(self):
+        return self.title
+
+    pass
+
 
 # ==============================================
 # SystemSuggestion
@@ -956,6 +979,7 @@ __all__ = (
     'Attribute',
     'AttributeOption',
     'CitationUrl',
+    'DocPage',
     'Feature',
     'FeatureOption',
     'FlatPageMeta',

@@ -144,6 +144,29 @@ class AttributeOptionAdmin(IconDisplayMixin, admin.ModelAdmin):
     filter_horizontal = ('citations',)
 
 # ==============================================
+# DOC PAGES
+# ==============================================
+
+class DocPageChildInline(admin.StackedInline):
+    model = DocPage
+    fk_name = 'parent'
+    extra = 0
+    fields = ('title', 'slug', 'sort_order', 'description', 'citations')
+    prepopulated_fields = {'slug': ('title',)}
+    filter_horizontal = ('citations',)
+
+@admin.register(DocPage)
+class DocPageAdmin(admin.ModelAdmin):
+    list_display = ('title', 'slug', 'parent', 'sort_order', 'modified')
+    list_filter = ('parent',)
+    search_fields = ('title', 'slug')
+    prepopulated_fields = {'slug': ('title',)}
+    readonly_fields = ('created', 'modified')
+    fields = ('title', 'slug', 'parent', 'sort_order', 'description', 'citations', 'created', 'modified')
+    filter_horizontal = ('citations',)
+    inlines = [DocPageChildInline]
+
+# ==============================================
 # MISC
 # ==============================================
 
