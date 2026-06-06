@@ -85,13 +85,16 @@ admin.site.register(User, CustomUserAdmin)
 class FeatureOptionsInlines(admin.StackedInline):
     model = FeatureOption
     extra = 0
+    fields = ('value', 'slug', 'description')
 
 @admin.register(Feature)
 class FeatureAdmin(admin.ModelAdmin):
-    list_display = ('label', 'slug', 'option_count', 'modified')
+    list_display = ('label', 'slug', 'category', 'option_count', 'modified')
     search_fields = ('label', 'slug')
     prepopulated_fields = {'slug': ('label',)}
     readonly_fields = ('created', 'modified')
+    fields = ('label', 'slug', 'category', 'multivalued', 'description', 'citations', 'created', 'modified')
+    filter_horizontal = ('citations',)
     inlines = [FeatureOptionsInlines]
 
     @admin.display(description='options')
@@ -103,6 +106,8 @@ class FeatureOptionAdmin(admin.ModelAdmin):
     list_filter = ['feature']
     list_display = ('value', 'feature')
     search_fields = ('value', )
+    fields = ('feature', 'value', 'slug', 'description', 'citations')
+    filter_horizontal = ('citations',)
 
 # ==============================================
 # ATTRIBUTES
@@ -120,6 +125,7 @@ class AttributeAdmin(IconDisplayMixin, admin.ModelAdmin):
     search_fields = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
     readonly_fields = ('created', 'modified')
+    filter_horizontal = ('citations',)
     inlines = [AttributeOptionInline]
 
     @admin.display(description='options')
@@ -135,6 +141,7 @@ class AttributeOptionAdmin(IconDisplayMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     readonly_fields = ('created', 'modified')
     ordering = ('attribute__name', 'name')
+    filter_horizontal = ('citations',)
 
 # ==============================================
 # MISC

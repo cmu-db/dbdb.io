@@ -95,10 +95,18 @@ class CitationUrl(models.Model):
 # ==============================================
 class Feature(models.Model):
 
+    class Category(models.IntegerChoices):
+        STORAGE_DATA             = 1, 'Storage & Data'
+        QUERY_PROCESSING         = 2, 'Query Processing'
+        TRANSACTIONS_CONCURRENCY = 3, 'Transactions & Concurrency'
+        SYSTEM_RELIABILITY       = 4, 'System & Reliability'
+
     slug = models.SlugField(db_index=True, unique=True)
     label = models.CharField(max_length=100, unique=True)
     multivalued = models.BooleanField(default=True)
     description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
+    category = models.IntegerField(choices=Category, blank=True, null=True)
+    citations = models.ManyToManyField('CitationUrl', blank=True, related_name='features')
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
@@ -121,6 +129,8 @@ class FeatureOption(models.Model):
     feature = models.ForeignKey('Feature', models.CASCADE, related_name='options')
     slug = models.SlugField(db_index=True, unique=False)
     value = models.CharField(max_length=100)
+    description = models.TextField(blank=True, default='', help_text='This field supports Markdown Syntax')
+    citations = models.ManyToManyField('CitationUrl', blank=True, related_name='feature_options')
 
     class Meta:
         unique_together = ('feature','slug')
@@ -138,6 +148,7 @@ class Attribute(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
     icon = models.CharField(max_length=64, blank=True)
+    citations = models.ManyToManyField('CitationUrl', blank=True, related_name='attributes')
     sv_field = models.CharField(
         max_length=64, blank=True,
         verbose_name='SystemVersion field',
@@ -168,6 +179,7 @@ class AttributeOption(models.Model):
     url = models.URLField(blank=True, max_length=512)
     description = models.TextField(blank=True, help_text='This field supports Markdown Syntax')
     icon = models.CharField(max_length=64, blank=True)
+    citations = models.ManyToManyField('CitationUrl', blank=True, related_name='attribute_options')
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 

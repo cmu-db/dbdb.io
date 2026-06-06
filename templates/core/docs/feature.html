@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static markdownify %}
+
+{% block title %}{{ feature.label }} - Documentation - {% endblock %}
+
+{% block content %}
+<div class="doc-grid py-4">
+
+    <article class="entry-main">
+        <div class="entry-kicker">
+            <a href="{% url 'docs' %}" class="doc-lnk">Documentation</a>
+            <span class="text-muted">·</span>
+            {{ feature.get_category_display }}
+        </div>
+        <div class="entry-head">
+            <h1 class="entry-title">{{ feature.label }}</h1>
+            {% if user.is_staff %}
+            <a href="{% url 'admin:core_feature_change' feature.pk %}" class="btn-edit">
+                <i class="fa-solid fa-pen-to-square"></i> Edit
+            </a>
+            {% endif %}
+        </div>
+
+        {% if feature.description %}
+        <p class="doc-lead">{{ feature.description|markdownify }}</p>
+        {% endif %}
+
+        {% with options=feature.options.all %}
+        {% if options %}
+        <div class="sec-head">
+            <h2 class="serif m-0">Feature Options</h2>
+            <span class="rule"></span>
+            <span class="num">{{ options|length }} approach{{ options|length|pluralize:"es" }}</span>
+        </div>
+
+        {% for option in options %}
+        <section class="doc-feat-option" id="{{ option.slug }}">
+            <div class="fo-head">
+                <h3>{{ option.value }}</h3>
+                {% if option.citations.exists %}
+                <span class="doc-cites">
+                    {% for cite in option.citations.all %}
+                    <a href="#cite-opt-{{ option.slug }}-{{ forloop.counter }}">[{{ forloop.counter }}]</a>
+                    {% endfor %}
+                </span>
+                {% endif %}
+            </div>
+            {% if option.description %}
+            <div class="fo-body">{{ option.description|markdownify }}</div>
+            {% endif %}
+            <a href="{% url 'browse' %}?{{ feature.slug }}={{ option.slug }}" class="btn-solid">
+                <i class="fa-solid fa-magnifying-glass"></i> Browse Systems
+            </a>
+        </section>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% with feat_cites=feature.citations.all %}
+        {% if feat_cites %}
+        <div class="citations-block">
+            <div class="sec-head">
+                <h2 class="serif m-0">Citations</h2>
+                <span class="rule"></span>
+                <span class="num">{{ feat_cites|length }} source{{ feat_cites|length|pluralize }}</span>
+            </div>
+            <ol class="citations-list">
+                {% for cite in feat_cites %}
+                <li id="cite-feat-{{ forloop.counter }}">
+                    <a href="{{ cite.url }}" target="_blank" rel="noopener">{{ cite.last_title|default:cite.url }}</a>
+                    {% if cite.get_domain %}<span class="src">{{ cite.get_domain }}</span>{% endif %}
+                </li>
+                {% endfor %}
+            </ol>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <div class="entry-foot">
+            <span>Last updated <span class="text-accent">{{ feature.modified|date:"Y-m-d" }}</span></span>
+        </div>
+    </article>
+
+    <aside class="entry-sidebar">
+        {% include 'core/docs/_sidebar.html' with doc_active=feature.slug %}
+    </aside>
+
+</div>
+{% endblock %}

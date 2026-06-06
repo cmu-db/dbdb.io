@@ -1435,3 +1435,54 @@ div.systems-extra { margin-top: 20px; }
 @media screen and (max-width: 760px) {
   div.systems-extra h4 { font-size: 140%; }
 }
+
+/* ============================================================
+   DOCUMENTATION PAGES
+   ============================================================ */
+
+.doc-grid { display: grid; grid-template-columns: 1fr min(36%, 400px); gap: 3rem; align-items: start; }
+
+.doc-lead { font-family: var(--serif); font-size: 1.1rem; line-height: 1.65; color: var(--ink-soft); }
+.doc-lead b { color: var(--ink); font-weight: 600; }
+.doc-cites { font-family: var(--mono); font-size: .6rem; }
+.doc-cites a { color: var(--accent); padding-left: .15rem; vertical-align: super; }
+.doc-lnk { color: var(--ink-soft); }
+.doc-lnk:hover { color: var(--accent); }
+
+.doc-intro { font-family: var(--serif); font-size: 1.18rem; line-height: 1.6; color: var(--ink-soft); max-width: 70ch; }
+.doc-intro b { color: var(--ink); font-weight: 600; }
+
+.doc-card { display: flex; gap: .75rem; align-items: flex-start; border: 1px solid var(--rule); background: var(--surface); padding: .9rem 1.1rem; transition: border-color .15s, background .15s; }
+.doc-card:hover { border-color: var(--accent); background: var(--surface-2); }
+.doc-card .doc-num { font-family: var(--mono); font-size: .66rem; color: var(--muted); flex: none; padding-top: .2rem; min-width: 1.4rem; }
+.doc-card .doc-name { font-family: var(--serif); font-weight: 600; font-size: 1.08rem; color: var(--ink); line-height: 1.15; }
+.doc-card:hover .doc-name { color: var(--accent); }
+.doc-card .doc-desc { font-size: .8rem; color: var(--muted); margin: .25rem 0 0; line-height: 1.45; }
+
+.doc-feat-option { border: 1px solid var(--rule); background: var(--surface); padding: 1.4rem 1.55rem; margin-top: 1.1rem; }
+.doc-feat-option .fo-head { display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap; }
+.doc-feat-option h3 { font-family: var(--serif); font-weight: 600; font-size: 1.32rem; margin: 0; color: var(--ink); }
+.doc-feat-option .fo-body { font-size: .96rem; line-height: 1.62; color: var(--ink-soft); margin: .7rem 0 1.1rem; }
+.doc-feat-option .fo-body code { font-family: var(--mono); font-size: .82em; background: var(--surface-2); padding: .1rem .36rem; border-radius: 3px; color: var(--accent-2); }
+
+.doc-attr-def { padding: .9rem 0; border-bottom: 1px solid var(--rule); }
+.doc-attr-def dt { font-family: var(--serif); font-weight: 600; font-size: 1.02rem; color: var(--ink); display: flex; gap: .55rem; align-items: baseline; margin: 0; }
+.doc-attr-def dt .an { font-family: var(--mono); font-size: .62rem; color: var(--muted); min-width: 1.5rem; flex: none; }
+.doc-attr-def dd { margin: .3rem 0 0 2.05rem; font-size: .85rem; color: var(--muted); line-height: 1.5; }
+
+.doc-attr-option { border: 1px solid var(--rule); background: var(--surface); padding: 1.1rem 1.35rem; margin-top: .9rem; }
+.doc-attr-option h3 { font-family: var(--serif); font-weight: 600; font-size: 1.18rem; margin: 0; color: var(--ink); line-height: 1.2; }
+.doc-attr-option .ao-num { font-family: var(--mono); font-size: .62rem; color: var(--muted); margin-right: .6rem; vertical-align: 2px; }
+.doc-attr-option .ao-desc { font-size: .87rem; color: var(--muted); margin: .35rem 0 .85rem; line-height: 1.5; }
+
+.doc-nav { padding: .4rem 0; }
+.doc-nav .nav-group { font-family: var(--mono); text-transform: uppercase; letter-spacing: .1em; font-size: .56rem; color: var(--muted); padding: .8rem 1.2rem .3rem; }
+.doc-nav a { display: flex; align-items: baseline; gap: .55rem; padding: .34rem 1.2rem; font-family: var(--serif); font-size: .92rem; color: var(--ink-soft); border-left: 2px solid transparent; }
+.doc-nav a .n { font-family: var(--mono); font-size: .6rem; color: var(--muted); min-width: 1.1rem; }
+.doc-nav a:hover { color: var(--accent); }
+.doc-nav a.active { color: var(--accent); border-left-color: var(--accent); background: var(--surface-2); }
+.doc-nav a.active .n { color: var(--accent); }
+
+@media (max-width: 991.98px) {
+  .doc-grid { grid-template-columns: 1fr; gap: 2rem; }
+}

@@ -12,7 +12,7 @@ from lxml import etree
 
 from django.contrib.flatpages.models import FlatPage
 
-from dbdb.core.models import FlatPageMeta, Organization, System, SystemVersion
+from dbdb.core.models import Attribute, Feature, FlatPageMeta, Organization, System, SystemVersion
 
 SITEMAP_NAMESPACE = 'https://www.sitemaps.org/schemas/sitemap/0.9'
 SITEMAP_PREFIX = '{%s}' % SITEMAP_NAMESPACE
@@ -186,6 +186,34 @@ class SitemapView(View):
             loc.text = request.build_absolute_uri( reverse('organization', args=[org.slug]) )
             lastmod = etree.SubElement(url, 'lastmod')
             lastmod.text = org.created.date().isoformat()
+            changefreq = etree.SubElement(url, 'changefreq')
+            changefreq.text = 'monthly'
+
+        # Docs overview
+        for doc_url_name, doc_args in [('docs', []), ('docs-sys-attrs', [])]:
+            url = etree.SubElement(root, 'url')
+            loc = etree.SubElement(url, 'loc')
+            loc.text = request.build_absolute_uri(reverse(doc_url_name))
+            changefreq = etree.SubElement(url, 'changefreq')
+            changefreq.text = 'monthly'
+
+        # Docs feature pages
+        for feature in Feature.objects.order_by('category', 'label').iterator():
+            url = etree.SubElement(root, 'url')
+            loc = etree.SubElement(url, 'loc')
+            loc.text = request.build_absolute_uri(reverse('docs-feature', args=[feature.slug]))
+            lastmod = etree.SubElement(url, 'lastmod')
+            lastmod.text = feature.modified.date().isoformat()
+            changefreq = etree.SubElement(url, 'changefreq')
+            changefreq.text = 'monthly'
+
+        # Docs attribute pages
+        for attribute in Attribute.objects.order_by('name').iterator():
+            url = etree.SubElement(root, 'url')
+            loc = etree.SubElement(url, 'loc')
+            loc.text = request.build_absolute_uri(reverse('docs-attribute', args=[attribute.slug]))
+            lastmod = etree.SubElement(url, 'lastmod')
+            lastmod.text = attribute.modified.date().isoformat()
             changefreq = etree.SubElement(url, 'changefreq')
             changefreq.text = 'monthly'
 

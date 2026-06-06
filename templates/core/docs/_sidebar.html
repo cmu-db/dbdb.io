@@ -1,0 +1,31 @@
+{% load static %}
+<div class="side-card">
+    <div class="sc-h">Table of Contents</div>
+    <nav class="doc-nav">
+        <div class="nav-group">Overview</div>
+        <a href="{% url 'docs' %}" class="{% if doc_active == 'home' %}active{% endif %}">
+            <span class="n"><i class="fa-solid fa-house"></i></span> Documentation Home
+        </a>
+        <a href="{% url 'docs-sys-attrs' %}" class="{% if doc_active == 'sys-attrs' %}active{% endif %}">
+            <span class="n"><i class="fa-solid fa-list"></i></span> System Attributes
+        </a>
+
+        {% if attributes %}
+        <div class="nav-group">Attributes</div>
+        {% for attr in attributes %}
+        <a href="{% url 'docs-attribute' attr.slug %}" class="{% if doc_active == attr.slug %}active{% endif %}">
+            <span class="n"><i class="fa-solid fa-tag"></i></span> {{ attr.name }}
+        </a>
+        {% endfor %}
+        {% endif %}
+
+        {% for category, features in feature_groups %}
+        <div class="nav-group">{{ category }}</div>
+        {% for feature in features %}
+        <a href="{% url 'docs-feature' feature.slug %}" class="{% if doc_active == feature.slug %}active{% endif %}">
+            <span class="n"><i class="fa-solid fa-circle-dot"></i></span> {{ feature.label }}
+        </a>
+        {% endfor %}
+        {% endfor %}
+    </nav>
+</div>

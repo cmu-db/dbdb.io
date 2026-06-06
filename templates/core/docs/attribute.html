@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static markdownify %}
+
+{% block title %}{{ attribute.name }} - Documentation - {% endblock %}
+
+{% block content %}
+<div class="doc-grid py-4">
+
+    <article class="entry-main">
+        <div class="entry-kicker">
+            <a href="{% url 'docs' %}" class="doc-lnk">Documentation</a>
+            <span class="text-muted">·</span>
+            Attributes
+        </div>
+        <div class="entry-head">
+            <h1 class="entry-title">{{ attribute.name }}</h1>
+            {% if user.is_staff %}
+            <a href="{% url 'admin:core_attribute_change' attribute.pk %}" class="btn-edit">
+                <i class="fa-solid fa-pen-to-square"></i> Edit
+            </a>
+            {% endif %}
+        </div>
+
+        {% if attribute.description %}
+        <p class="doc-lead">{{ attribute.description|markdownify }}</p>
+        {% endif %}
+
+        {% with options=attribute.options.all %}
+        {% if options %}
+        <div class="sec-head">
+            <h2 class="serif m-0">Options</h2>
+            <span class="rule"></span>
+            <span class="num">{{ options|length }} option{{ options|length|pluralize }}</span>
+        </div>
+
+        {% for option in options %}
+        <section class="doc-attr-option" id="{{ option.slug }}">
+            <h3>
+                <span class="ao-num">{{ forloop.counter|stringformat:"02d" }}</span>{{ option.name }}
+            </h3>
+            {% if option.description %}
+            <p class="ao-desc">{{ option.description|markdownify }}</p>
+            {% endif %}
+            <div class="badges">
+                <a href="{% url 'browse' %}?{{ attribute.sv_field }}={{ option.slug }}" class="badge-section">
+                    {{ option.name }}
+                </a>
+            </div>
+        </section>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% with attr_cites=attribute.citations.all %}
+        {% if attr_cites %}
+        <div class="citations-block">
+            <div class="sec-head">
+                <h2 class="serif m-0">Citations</h2>
+                <span class="rule"></span>
+                <span class="num">{{ attr_cites|length }} source{{ attr_cites|length|pluralize }}</span>
+            </div>
+            <ol class="citations-list">
+                {% for cite in attr_cites %}
+                <li id="cite-attr-{{ forloop.counter }}">
+                    <a href="{{ cite.url }}" target="_blank" rel="noopener">{{ cite.last_title|default:cite.url }}</a>
+                    {% if cite.get_domain %}<span class="src">{{ cite.get_domain }}</span>{% endif %}
+                </li>
+                {% endfor %}
+            </ol>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <div class="entry-foot">
+            <span>Last updated <span class="text-accent">{{ attribute.modified|date:"Y-m-d" }}</span></span>
+        </div>
+    </article>
+
+    <aside class="entry-sidebar">
+        {% include 'core/docs/_sidebar.html' with doc_active=attribute.slug %}
+    </aside>
+
+</div>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}System Attributes - Documentation - {% endblock %}
+
+{% block content %}
+<div class="doc-grid py-4">
+
+    <article class="entry-main">
+        <div class="entry-kicker">
+            <a href="{% url 'docs' %}" class="doc-lnk">Documentation</a>
+            <span class="text-muted">·</span>
+            Reference
+        </div>
+        <div class="entry-head">
+            <h1 class="entry-title">System Attributes</h1>
+        </div>
+
+        <p class="doc-lead">Beyond the architectural <a href="{% url 'docs' %}" class="doc-lnk">features</a>, every entry records a set of descriptive <b>attributes</b> — the identity, provenance, and relationships of a system. Most are free-form facts captured directly on the entry; a smaller group is <em>classified</em> against controlled vocabularies so that systems can be filtered and compared. See the <a href="{% url 'browse' %}" class="doc-lnk">Browse</a> page to filter systems by any of these attributes.</p>
+
+        <div class="sec-head">
+            <h2 class="serif m-0">General Attributes</h2>
+            <span class="rule"></span>
+            <span class="num">17 fields</span>
+        </div>
+        <p class="text-muted">Descriptive facts recorded on each system&rsquo;s entry. These are free-form values rather than controlled options.</p>
+
+        <dl class="row g-0 mt-1">
+            <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+                <dt><span class="an">01</span> Description</dt>
+                <dd>A prose summary of what the system is and the workloads it targets.</dd>
+            </div>
+            <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+                <dt><span class="an">02</span> Start Year</dt>
+                <dd>The year the project was first released or publicly announced.</dd>
+            </div>
+            <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+                <dt><span class="an">03</span> End Year</dt>
+                <dd>The year active development ceased, if the project is discontinued.</dd>
+            </div>
+            <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+                <dt><span class="an">04</span> History</dt>
+                <dd>Narrative of the system&rsquo;s origins, milestones, and lineage over time.</dd>
+            </div>
+            <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+                <dt><span class="an">05</span> Developer Organizations</dt>
+                <dd>The companies, labs, or communities that build and maintain it.</dd>
+            </div>
+            <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+                <dt><span class="an">06</span> Country of Origin</dt>
+                <dd>Where the system was first developed.</dd>
+            </div>
+            <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+                <dt><span class="an">07</span> System URL</dt>
+                <dd>The official homepage or product website.</dd>
+            </div>
+            <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+                <dt><span class="an">08</span> Documentation URL</dt>
+                <dd>Where the official technical documentation is published.</dd>
+            </div>
+            <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+                <dt><span class="an">09</span> Source Repository URL</dt>
+                <dd>The public version-control repository, where one exists.</dd>
+            </div>
+            <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+                <dt><span class="an">10</span> Wikipedia URL</dt>
+                <dd>The system&rsquo;s Wikipedia article, if available.</dd>
+            </div>
+            <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+                <dt><span class="an">11</span> Twitter Handle</dt>
+                <dd>The project&rsquo;s account on X / Twitter.</dd>
+            </div>
+            <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+                <dt><span class="an">12</span> LinkedIn Handle</dt>
+                <dd>The project or vendor&rsquo;s LinkedIn page.</dd>
+            </div>
+            <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+                <dt><span class="an">13</span> Derived From</dt>
+                <dd>Systems whose codebase this one was forked or built from.</dd>
+            </div>
+            <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+                <dt><span class="an">14</span> Embedded / Used By</dt>
+                <dd>Systems that embed or build upon this one as a component.</dd>
+            </div>
+            <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+                <dt><span class="an">15</span> Inspired By</dt>
+                <dd>Systems that influenced this one&rsquo;s design without shared code.</dd>
+            </div>
+            <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+                <dt><span class="an">16</span> Compatible With</dt>
+                <dd>Systems whose wire protocol or dialect this one is compatible with.</dd>
+            </div>
+            <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+                <dt><span class="an">17</span> Hosted Services (DBaaS)</dt>
+                <dd>Managed cloud offerings that run this system as a service.</dd>
+            </div>
+        </dl>
+
+        <div class="entry-foot">
+            <span>System entry fields <span class="text-accent">·</span> Reference</span>
+        </div>
+    </article>
+
+    <aside class="entry-sidebar">
+        {% include 'core/docs/_sidebar.html' with doc_active='sys-attrs' %}
+    </aside>
+
+</div>
+{% endblock %}

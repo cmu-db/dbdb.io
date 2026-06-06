@@ -1,6 +1,7 @@
 from .api import CounterView, organization_autocomplete, system_autocomplete
 from .auth import CreateUserView, SetupUserView, SignupRequestView, SignupPendingView, ProfileView
 from .browse import BrowseView
+from .docs import DocOverviewView, DocFeatureView, DocAttributeView, DocSysAttrsView
 from .home import HomeView
 from .misc import EmptyFieldsView, SitemapView
 from .organization import OrganizationView

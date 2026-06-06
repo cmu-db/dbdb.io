@@ -561,6 +561,10 @@ def merge_citations(merge_to: CitationUrl, merge_from: list[CitationUrl]) -> Cit
         ("core_systemversion_end_year_citations",    "systemversion_id"),
         ("core_systemversion_history_citations",     "systemversion_id"),
         ("core_systemversion_start_year_citations",  "systemversion_id"),
+        ("core_feature_citations",                   "feature_id"),
+        ("core_featureoption_citations",             "featureoption_id"),
+        ("core_attribute_citations",                 "attribute_id"),
+        ("core_attributeoption_citations",           "attributeoption_id"),
     ]
 
     from_ids = [c.id for c in merge_from]
