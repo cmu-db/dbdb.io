@@ -10,6 +10,7 @@ from .suggest import SystemSuggestionView, SystemSuggestionSuccessView
 from .system import (
     RecentChangesView,
     SystemEditView,
+    SystemLogosView,
     SystemVersionDiffView,
     SystemView,
 )

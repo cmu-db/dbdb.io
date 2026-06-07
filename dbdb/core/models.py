@@ -30,6 +30,13 @@ class LogoMixin(models.Model):
     class Meta:
         abstract = True
 
+    @property
+    def logo_ext(self):
+        import os
+        if not self.logo:
+            return ''
+        return os.path.splitext(self.logo.name)[1].lstrip('.').upper()
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 

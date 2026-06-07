@@ -14,6 +14,7 @@ urlpatterns = [
     re_path(r'^db/(?P<slug>[\w-]+)/revisions/$', views.RecentChangesView.as_view(), name='system_revision'),
     re_path(r'^db/(?P<slug>[\w-]+)/revisions/(?P<ver>\d+)$', views.SystemView.as_view(), name='system_version'),
     re_path(r'^db/(?P<slug>[\w-]+)/diff/(?P<ver1>\d+)/(?P<ver2>\d+)$', views.SystemVersionDiffView.as_view(), name='system_diff'),
+    re_path(r'^db/(?P<slug>[\w-]+)/logos$', views.SystemLogosView.as_view(), name='system_logos'),
 
     path('browse', views.BrowseView.as_view(), name='browse'),
     path('search', views.BrowseView.as_view(), name='search'),

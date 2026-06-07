@@ -1049,6 +1049,33 @@ def _compute_version_diff(v1, v2):
 # ==============================================
 # SystemVersionDiffView
 # ==============================================
+class SystemLogosView(View):
+
+    template_name = 'core/system-logos.html'
+
+    def get(self, request, slug):
+        system = get_object_or_404(System, slug=slug)
+        all_versions = (
+            SystemVersion.objects
+            .filter(system=system)
+            .exclude(logo='')
+            .order_by('-ver')
+        )
+        seen = set()
+        versions = []
+        for v in all_versions:
+            if v.logo.name not in seen:
+                seen.add(v.logo.name)
+                versions.append(v)
+        return render(request, self.template_name, {
+            'system': system,
+            'versions': versions,
+        })
+
+
+# ==============================================
+# SystemVersionDiffView
+# ==============================================
 class SystemVersionDiffView(View):
 
     template_name = 'core/system-diff.html'

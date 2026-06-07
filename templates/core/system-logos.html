@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load logos %}
+{% load thumbnail %}
+{% load page_title %}
+{% load version_tags %}
+
+{% block title %}Logo Versions - {{ system.name }} - {% endblock %}
+
+{% block content %}
+{% page_title %}
+{% ptitle_kicker %}Database Entry{% endptitle_kicker %}
+{% ptitle_title %}{{ system.name }}: Logo Versions{% endptitle_title %}
+{% ptitle_sub %}All unique logo images uploaded across revisions of <a href="{% url 'system' system.slug %}">{{ system.name }}</a>{% endptitle_sub %}
+{% endpage_title %}
+
+<div class="table-responsive mt-3">
+    <table class="rtable logo-ver-table">
+        <thead>
+            <tr>
+                <th class="logo-ver-col-num"></th>
+                <th class="r-logo"></th>
+                <th>Revision</th>
+                <th class="d-none d-lg-table-cell">Format</th>
+                <th class="d-none d-lg-table-cell">Colors</th>
+                <th class="text-end">File Download</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for version in versions %}
+            <tr>
+                <td class="logo-ver-num">{{ forloop.counter|stringformat:"02d" }}</td>
+                <td class="r-logo">
+                    <div class="logo-ver-tile">
+                        {% mono_tile version.logo system.name 'thumb' %}
+                    </div>
+                </td>
+                <td>
+                    <a href="{{ version.get_absolute_url }}" class="text-nowrap">{% sv_ver version.ver %}</a>
+                </td>
+                <td class="d-none d-lg-table-cell">
+                    {% partialdef dimensions %}
+                    <span class="logo-ver-ext">{{ version.logo_ext }}</span>
+                    {% if version.logo_width and version.logo_height %}
+                    <span class="logo-ver-dim ms-1">&bullet; {{ version.logo_width }}&times;{{ version.logo_height }}</span>
+                    {% endif %}
+                    {% endpartialdef %}
+                </td>
+                <td class="d-none d-lg-table-cell">
+                    {% partialdef color %}
+                    {% if version.logo_color %}
+                    <span class="logo-swatch" style="--swatch-color: {{ version.logo_color }};"></span>
+                    <span class="logo-ver-ext ms-1">{{ version.logo_color }}</span>
+                    {% else %}
+                    <span class="text-muted">&mdash;</span>
+                    {% endif %}
+                    {% endpartialdef %}
+                </td>
+                <td class="text-end">
+                    <div class="d-sm-block d-lg-none">
+                        {% partial dimensions %}
+                    </div>
+                    <div class="d-sm-block d-lg-none">
+                        {% partial color %}
+                    </div>
+                    <a href="{{ version.logo.url }}" download class="btn-edit text-nowrap">
+                        <i class="fa-solid fa-download"></i> Download
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-muted text-center">No logo versions found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
