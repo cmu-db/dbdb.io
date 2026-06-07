@@ -414,7 +414,7 @@ class RepositorySnapshotInline(admin.TabularInline):
     show_change_link = True
     fields = (
         'created',
-        'commit_count', 'last_commit_timestamp',
+        'commit_count', 'last_commit_timestamp', 'archival_timestamp',
         'open_pr_count', 'merged_pr_count',
         'open_issue_count', 'closed_issue_count',
         'star_count', 'fork_count',
@@ -447,9 +447,10 @@ class RepositorySnapshotAdmin(admin.ModelAdmin):
         'open_issue_count', 'closed_issue_count',
         'star_count', 'fork_count',
         'branch_default_name', 'branch_count',
+        'archival_timestamp',
         'created',
     )
-    list_filter = ('status', 'last_commit_timestamp', 'created',)
+    list_filter = ('status', 'last_commit_timestamp', 'archival_timestamp', 'created',)
     readonly_fields = (
         'repo', 'created',
         'commit_count', 'last_commit_timestamp', 'last_commit_hash',
@@ -458,6 +459,7 @@ class RepositorySnapshotAdmin(admin.ModelAdmin):
         'fork_count', 'star_count',
         'branch_count', 'branch_default_name', 'branch_name',
         'commit_authors', 'pr_authors', 'issue_authors',
+        'archival_timestamp',
     )
     ordering = ('-created',)
     search_fields = ('repo__sourcerepo_url__url',)

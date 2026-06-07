@@ -588,7 +588,7 @@ def merge_citations(merge_to: CitationUrl, merge_from: list[CitationUrl]) -> Cit
       - OneToOne field on RepositoryInfo (sourcerepo_url) — if merge_to already has
         a RepositoryInfo, the duplicate is deleted; otherwise it is reassigned.
     """
-    LOG.debug(f"Merging {len(merge_from)} citation(s) into {merge_to}")
+    LOG.info(f"Merging {len(merge_from)} citation(s) into {merge_to}" + "\n->".join(map(str, merge_from)))
 
     # M2M through-tables: (table, owner_column)
     m2m_tables = [

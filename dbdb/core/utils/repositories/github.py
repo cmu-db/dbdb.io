@@ -30,6 +30,20 @@ class GitHubCollector(RepoCollector):
         r = self._get(f'{self._API}/search/issues', q=query, per_page=1)
         return r.json().get('total_count', 0)
 
+    def _get_archived_at(self, owner: str, repo_name: str):
+        """Return the archivedAt datetime via the GitHub GraphQL API, or None."""
+        payload = {
+            'query': f'{{ repository(owner: "{owner}", name: "{repo_name}") {{ archivedAt }} }}'
+        }
+        try:
+            r = self.session.post(f'{self._API}/graphql', json=payload, timeout=30)
+            r.raise_for_status()
+            archived_at = r.json().get('data', {}).get('repository', {}).get('archivedAt')
+            return self._parse_dt(archived_at)
+        except Exception as exc:
+            self.log.warning("Could not fetch archivedAt for %s/%s: %s", owner, repo_name, exc)
+            return None
+
     def get_metadata(self, repo_url: str) -> SnapshotData:
         match = self.URL_PATTERN.search(repo_url)
         if not match:
@@ -44,13 +58,15 @@ class GitHubCollector(RepoCollector):
         base = f'{self._API}/repos/{owner}/{repo_name}'
         snap = SnapshotData()
 
-        # ── repo info (stars, forks, default branch) ──────────────────────
+        # ── repo info (stars, forks, default branch, archival status) ────────
         try:
             r = self._get(base)
             d = r.json()
             snap.star_count          = d.get('stargazers_count', 0)
             snap.fork_count          = d.get('forks_count', 0)
             snap.branch_default_name = d.get('default_branch', '')
+            if d.get('archived'):
+                snap.archival_timestamp = self._get_archived_at(owner, repo_name)
         except Exception as exc:
             snap.errors.append(exc)
 

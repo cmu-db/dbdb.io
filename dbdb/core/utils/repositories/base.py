@@ -50,6 +50,9 @@ class SnapshotData:
     pr_authors:     list[str] = field(default_factory=list)
     issue_authors:  list[str] = field(default_factory=list)
 
+    # Archival status (GitHub only; None means not archived or unknown)
+    archival_timestamp: datetime | None = None
+
     # Errors accumulated during collection (never written to the model)
     errors: list[Exception] = field(default_factory=list)
 

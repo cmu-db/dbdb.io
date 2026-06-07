@@ -96,10 +96,18 @@ def check_abandoned(system, *, inactivity_days: int = 1095) -> bool:
         raise ValueError(f"No RepositoryInfo for system '{system.slug}'")
 
     snapshots = list(repo_info.snapshots.order_by('-created')[:2])
+    if not snapshots:
+        return False
+    latest = snapshots[0]
+
+    # Short-circuit: repository explicitly archived on GitHub
+    if latest.archival_timestamp:
+        _mark_abandoned(current, repo_info, latest)
+        return True
+
     if len(snapshots) < 2:
         return False
-
-    latest, previous = snapshots
+    previous = snapshots[1]
 
     # Condition 1 — no new activity between the two snapshots
     def _equal_or_none(a, b):
@@ -137,11 +145,17 @@ def _mark_abandoned(current_version:SystemVersion, repo_info:RepositoryInfo, sna
         snapshot.last_commit_timestamp.year if snapshot.last_commit_timestamp else None
     )
 
-    comment = "Automatically marked as abandoned due to source code inactivity."
-    if snapshot.last_commit_timestamp:
-        comment += f"\nLast commit was {snapshot.last_commit_timestamp.strftime('%Y-%m-%d')}"
-    elif snapshot.last_pr_closed_at:
-        comment += f"\nLast closed PR was {snapshot.last_pr_closed_at.strftime('%Y-%m-%d')}"
+    if snapshot.archival_timestamp:
+        comment = (
+            f"Automatically marked as abandoned: repository was archived on "
+            f"{snapshot.archival_timestamp.strftime('%Y-%m-%d')}."
+        )
+    else:
+        comment = "Automatically marked as abandoned due to source code inactivity."
+        if snapshot.last_commit_timestamp:
+            comment += f"\nLast commit was {snapshot.last_commit_timestamp.strftime('%Y-%m-%d')}"
+        elif snapshot.last_pr_closed_at:
+            comment += f"\nLast closed PR was {snapshot.last_pr_closed_at.strftime('%Y-%m-%d')}"
 
     new_version = clone_system_version(
         current_version,

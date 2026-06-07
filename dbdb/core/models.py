@@ -977,6 +977,11 @@ class RepositorySnapshot(models.Model):
         blank=True, null=True,
         help_text="Number of repository stars / watchers")
 
+    # Archival status
+    archival_timestamp = models.DateTimeField(
+        blank=True, null=True,
+        help_text="Timestamp when the repository was archived, if applicable (GitHub only)")
+
     # Contributor lists
     commit_authors = models.JSONField(
         default=list, blank=True,
