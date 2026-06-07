@@ -261,7 +261,7 @@
     </div>
 
     <!-- BEGIN: SAVEBOX -->
-    <div class="edit-savebox card shadow p-3">
+    <div class="edit-savebox card shadow p-3" id="savebox">
         <div class="form-group mb-3">
             <label for="id_comment" class="form-label">Revision Comment</label>
             <textarea name="comment" rows="4" class="form-control" placeholder="Describe your changes…" id="id_comment"></textarea>
@@ -280,6 +280,14 @@
 
 {% csrf_token %}
 </form>
+
+<!-- BEGIN: JUMP-TO-BOTTOM -->
+<a href="#savebox"
+   class="fab-save d-md-none position-fixed bottom-0 end-0 m-3 btn btn-primary rounded-circle shadow d-flex align-items-center justify-content-center opacity-75"
+   aria-label="Jump to save" title="Jump to save">
+    <i class="fa-solid fa-arrow-down"></i>
+</a>
+<!-- END:JUMP-TO-BOTTOM -->
 {% endblock %}
 
 

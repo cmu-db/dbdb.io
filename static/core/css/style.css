@@ -1436,6 +1436,9 @@ div.systems-extra { margin-top: 20px; }
   div.systems-extra h4 { font-size: 140%; }
 }
 
+/* Floating action button — jump to save box (mobile only, hidden at md+) */
+.fab-save { width: 2.25rem; height: 2.25rem; font-size: 1rem; }
+
 /* ============================================================
    DOCUMENTATION PAGES
    ============================================================ */
