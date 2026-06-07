@@ -91,10 +91,10 @@
         <div class="fact"><dt>Tech Docs</dt><dd><a href="{{ version.docs_url.url }}" target="_{{ system.slug }}">{{ version.docs_url.url }}</a>{% if docs_url_citation %}<span class="cites">{% citation_footnote docs_url_citation %}</span>{% endif %}</dd></div>
         {% endif %}
         {% if version.twitter_handle %}
-        <div class="fact"><dt>Twitter</dt><dd><a href="{{ version.twitter_handle_url }}"><i class="fa-brands fa-twitter"></i> {{ version.twitter_handle }}</a></dd></div>
+        <div class="fact"><dt>Twitter</dt><dd><a href="{{ version.twitter_handle_url }}"><i class="fa-brands fa-twitter"></i>{{ version.twitter_handle }}</a></dd></div>
         {% endif %}
         {% if version.linkedin_handle %}
-        <div class="fact"><dt>LinkedIn</dt><dd><a href="{{ version.linkedin_handle_url }}"><i class="fa-brands fa-linkedin"></i> {{ version.linkedin_handle }}</a></dd></div>
+        <div class="fact"><dt>LinkedIn</dt><dd><a href="{{ version.linkedin_handle_url }}"><i class="fa-brands fa-linkedin"></i>{{ version.linkedin_handle }}</a></dd></div>
         {% endif %}
         {% if version.developer_orgs.all %}
         <div class="fact"><dt>Developer</dt><dd>{% for org in version.developer_orgs.all %}{% if not forloop.first %}, {% endif %}{% org_link org %}{% endfor %}</dd></div>
