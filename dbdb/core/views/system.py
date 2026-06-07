@@ -362,12 +362,13 @@ class SystemEditView(LoginRequiredMixin, View):
             initial={'name': suggestion.name} if suggestion else {},
         )
 
-        # Don't allow non-superusers from editing the system name
+        # Don't allow non-superusers from editing the system name or slug.
         # This only really hides it from the UI.
         if request.user.is_superuser:
             system_form.fields['orig_name'].widget = HiddenInput()
         else:
             system_form.fields['name'].widget = HiddenInput()
+            system_form.fields['slug'].widget = HiddenInput()
             system_form.fields['orig_name'].initial = system.name
 
         feature_form = SystemFeaturesForm(system=system, features=system_features)
@@ -452,7 +453,11 @@ class SystemEditView(LoginRequiredMixin, View):
             if not is_admin:
                 pending = system.versions.filter(approved=False).first()
 
-        system_form = SystemForm(request.POST, instance=system)
+        post_data = request.POST.copy()
+        if not is_admin:
+            post_data['name'] = system.name
+            post_data['slug'] = system.slug
+        system_form = SystemForm(post_data, instance=system)
         # Bind the pending instance so save() updates it in-place rather than creating a new row
         system_version_form = SystemVersionForm(
             request.POST, request.FILES,
@@ -469,18 +474,25 @@ class SystemEditView(LoginRequiredMixin, View):
             developer_org_formset.is_valid():
 
             if is_admin:
-                original_system_slug = system.slug
+                original_name = system.name
+                original_slug = system.slug
                 system = system_form.save(commit=False)
-                system.slug = slugify(system.name)
+                name_changed = system.name != original_name
+                submitted_slug = system_form.cleaned_data.get('slug', '').strip()
+                if submitted_slug and submitted_slug != original_slug:
+                    system.slug = submitted_slug
+                elif name_changed:
+                    system.slug = slugify(system.name)
+                else:
+                    system.slug = original_slug
                 system.save()
 
-                # handle a redirect for a name change
-                if system.slug != original_system_slug:
+                # handle a redirect for a slug change
+                if system.slug != original_slug:
                     SystemRedirect.objects.get_or_create(
-                        slug=original_system_slug,
+                        slug=original_slug,
                         defaults=dict(system=system)
                     )
-
                 # If there is already a logo and they do not update it,
                 # then we need to make sure it gets copied over.
                 try:

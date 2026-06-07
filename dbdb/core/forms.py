@@ -242,9 +242,17 @@ class SystemForm(forms.ModelForm):
 
     class Meta:
         model = System
-        fields = ['name','orig_name']
+        fields = ['name', 'orig_name', 'slug']
 
-    pass
+    def clean_slug(self):
+        slug = self.cleaned_data.get('slug', '').strip()
+        if slug:
+            qs = System.objects.filter(slug=slug)
+            if self.instance and self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise forms.ValidationError(f"A system with slug '{slug}' already exists.")
+        return slug
 
 class SystemVersionForm(forms.ModelForm):
 
