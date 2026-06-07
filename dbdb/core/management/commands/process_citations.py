@@ -20,6 +20,16 @@ from dbdb.core.management.base import DbdbBaseCommand
 LOG = logging.getLogger(__name__)
 
 
+def _check_if_exists(c:CitationUrl, url:str) -> CitationUrl|None:
+    # Also check the slash-toggled variant so that
+    # "https://example.com/path/" and "…/path" are treated as the same URL.
+    alt_url = url[:-1] if url.endswith('/') else url + '/'
+    other_c = (CitationUrl.objects
+               .filter(Q(url=url) | Q(url=alt_url))
+               .exclude(pk=c.pk)
+               .first())
+    return other_c
+
 class Command(DbdbBaseCommand):
 
     def add_arguments(self, parser: ArgumentParser):
@@ -101,10 +111,10 @@ class Command(DbdbBaseCommand):
                 new_url = c.url.replace(replace_from, replace_to)
                 LOG.debug(f"{'[dry-run] ' if dry_run else ''}#{c.id}  {c.url}  ->  {new_url}")
                 if not dry_run:
-                    other = CitationUrl.objects.filter(url=new_url).exclude(pk=c.pk).first()
-                    if other:
-                        LOG.debug(f"  merging into existing #{other.id}")
-                        merge_citations(other, [c])
+                    other_c = _check_if_exists(c, new_url)
+                    if other_c:
+                        LOG.debug(f"  merging into existing #{other_c.id}")
+                        merge_citations(other_c, [c])
                         c.delete()
                         merged += 1
                     else:
@@ -141,8 +151,39 @@ class Command(DbdbBaseCommand):
         citation_ctr = 0
         max_title = CitationUrl._meta.get_field('last_title').max_length
         for c in citations.order_by("id"):
+            citation_ctr += 1
+            if 'limit' in options and options['limit']:
+                if citation_ctr >= options['limit']: break
+
             prefix = "[dry-run] " if dry_run else ""
             LOG.debug(f"{prefix}#{c.id}  {c.url}")
+
+            # Check if we have a malformed URL that we need to cleanup + merge
+            if not c.url.lower().startswith("http"):
+                parts = c.url.split(" ")
+                if parts[0].isdigit() and len(parts) > 1: c.url = parts[1].strip()
+                if parts[0].startswith("ttp:"): c.url = 'h' + parts[0]
+            parts = re.match(r"(http(.*?))[\s]+Section.*", c.url, re.IGNORECASE)
+            if parts:
+                c.url = parts.group(0)
+
+            if options['normalize']:
+                orig_url = c.url
+                c.url = normalize_url(orig_url)
+                if orig_url != c.url:
+                    LOG.info(f"NORMALIZE: {orig_url} -> {c.url}")
+
+            # See if this URL already exists. If yes, then we will merge it
+            other_c = _check_if_exists(c, c.url)
+            if other_c is not None:
+                merge_citations(other_c, [c])
+                c.delete()
+                continue
+
+            # Check again whether this is a valid URL
+            if not c.url.lower().startswith("http"):
+                LOG.info(f"SKIP: {c}")
+                continue
 
             # First get the list of systems that use this citation
             systems = get_systems(c, current_only=False)
@@ -153,45 +194,6 @@ class Command(DbdbBaseCommand):
                 continue
 
             LOG.info(f"Citation {c} => {systems}")
-
-            # Check if we have a malformed URL that we need to merge
-            fixed_url = None
-            if not c.url.lower().startswith("http"):
-                parts = c.url.split(" ")
-                if parts[0].isdigit() and len(parts) > 1: fixed_url = parts[1].strip()
-                if parts[0].startswith("ttp:"): fixed_url = 'h' + parts[0]
-
-            # Hack for bad URLs
-            parts = re.match(r"(http(.*?))[\s]+Section.*", c.url, re.IGNORECASE)
-            if parts:
-                fixed_url = parts.group(0)
-
-            if options['normalize']:
-                fixed_url = normalize_url(fixed_url if fixed_url else c.url)
-                if fixed_url == c.url:
-                    fixed_url = None
-                else:
-                    LOG.info(f"NORMALIZE: {c.url} -> {fixed_url}")
-
-            if fixed_url:
-                LOG.info(f"FIX: {c.url} -> {fixed_url}")
-
-                # See if this URL already exists. If yes, then we will merge it
-                other_c = CitationUrl.objects.filter(url=fixed_url)
-                if other_c.exists():
-                    merge_citations(other_c[0], [c])
-                    c.delete()
-                    continue
-                # Otherwise just change this Citation's URL
-                else:
-                    c.url = fixed_url
-                    c.save()
-                    # Continue processing
-
-            # Check again whether this is a valid URL
-            if not c.url.lower().startswith("http"):
-                LOG.info(f"SKIP: {c}")
-                continue
 
             if citation_ctr > 0 and 'sleep' in options and int(options['sleep']) > 0:
                 LOG.info(f"Sleeping for {options['sleep']} seconds...")
@@ -218,13 +220,7 @@ class Command(DbdbBaseCommand):
                 # Check if we need to update the URL
                 if "url" in info and c.url != info["url"]:
                     new_url = info["url"]
-                    # Also check the slash-toggled variant so that
-                    # "https://example.com/path/" and "…/path" are treated as the same URL.
-                    alt_url = new_url[:-1] if new_url.endswith('/') else new_url + '/'
-                    other_c = (CitationUrl.objects
-                               .filter(Q(url=new_url) | Q(url=alt_url))
-                               .exclude(pk=c.pk)
-                               .first())
+                    other_c = _check_if_exists(c, new_url)
                     if other_c:
                         merge_citations(other_c, [c])
                         c.delete()
@@ -269,8 +265,4 @@ class Command(DbdbBaseCommand):
                     content_info = "no content"
                 LOG.info(f"Result: status={c.get_status_display()} {content_info}")
                 if info: LOG.debug(pformat(info))
-
-            citation_ctr += 1
-            if 'limit' in options and options['limit']:
-                if citation_ctr >= options['limit']: break
     pass
