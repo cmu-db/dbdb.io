@@ -5,7 +5,7 @@ import time
 from argparse import ArgumentParser
 from pprint import pformat
 
-from django.core.management import BaseCommand, CommandError
+from django.core.management import CommandError
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -13,15 +13,17 @@ from requests import ConnectTimeout
 from requests.exceptions import ConnectionError, InvalidURL, ReadTimeout
 from urllib3.exceptions import NewConnectionError, ReadTimeoutError
 
-from dbdb.core.models import CitationUrl
+from dbdb.core.models import CitationUrl, CitationUrlContent
 from dbdb.core.utils.citations import *
+from dbdb.core.management.base import DbdbBaseCommand
 
 LOG = logging.getLogger(__name__)
 
 
-class Command(BaseCommand):
+class Command(DbdbBaseCommand):
 
     def add_arguments(self, parser: ArgumentParser):
+        super().add_arguments(parser)
         parser.add_argument('citation', metavar='C', type=str, nargs='*',
                     help='One or more citation IDs or URL keywords to process')
         parser.add_argument('--ignore-spam', action='store_true',
@@ -52,8 +54,6 @@ class Command(BaseCommand):
                     help="Skip any URL containing this keyword (repeatable: --ignore foo --ignore bar)")
         parser.add_argument('--dry-run', action='store_true',
                     help="Print what would be changed without writing to the database")
-        parser.add_argument('--debug', action='store_true',
-                    help="Enable debug logging and show each CitationUrl being processed")
         rewrite_group = parser.add_argument_group('URL rewriting')
         rewrite_group.add_argument('--replace-from', metavar='OLD', default=None,
                     help="Substring to find in CitationUrl.url (required with --replace-to)")
@@ -88,7 +88,6 @@ class Command(BaseCommand):
         set_status = options['set_status']
         status_title = options['status_title']
         dry_run = options['dry_run']
-        debug = options['debug']
         replace_from = options['replace_from']
         replace_to = options['replace_to']
 
@@ -128,10 +127,9 @@ class Command(BaseCommand):
             if status_title is not None:
                 max_title = CitationUrl._meta.get_field('last_title').max_length
                 update_fields['last_title'] = status_title[:max_title]
-            if debug:
-                for c in citations.order_by('id'):
-                    prefix = "[dry-run] " if dry_run else ""
-                    LOG.debug(f"{prefix}#{c.id}  {c.url}")
+            for c in citations.order_by('id'):
+                prefix = "[dry-run] " if dry_run else ""
+                LOG.debug(f"{prefix}#{c.id}  {c.url}")
             if dry_run:
                 count = citations.count()
                 self.stdout.write(f"[dry-run] Would update {count} citation(s): {update_fields}")
@@ -143,9 +141,8 @@ class Command(BaseCommand):
         citation_ctr = 0
         max_title = CitationUrl._meta.get_field('last_title').max_length
         for c in citations.order_by("id"):
-            if debug:
-                prefix = "[dry-run] " if dry_run else ""
-                LOG.debug(f"{prefix}#{c.id}  {c.url}")
+            prefix = "[dry-run] " if dry_run else ""
+            LOG.debug(f"{prefix}#{c.id}  {c.url}")
 
             # First get the list of systems that use this citation
             systems = get_systems(c, current_only=False)
@@ -265,7 +262,12 @@ class Command(BaseCommand):
                     LOG.info(f"[dry-run] Would save: status={c.get_status_display()} title={c.last_title!r}")
                 else:
                     c.save()
-                LOG.info(f"Result: status={c.get_status_display()}")
+                try:
+                    raw_bytes = len(c.content.raw.encode('utf-8'))
+                    content_info = f"content={raw_bytes:,}b"
+                except CitationUrlContent.DoesNotExist:
+                    content_info = "no content"
+                LOG.info(f"Result: status={c.get_status_display()} {content_info}")
                 if info: LOG.debug(pformat(info))
 
             citation_ctr += 1

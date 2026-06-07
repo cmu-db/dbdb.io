@@ -107,7 +107,7 @@ LOGGING = {
     'loggers': {
         'dbdb': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': False,
         },
         # Uncomment to enable SQL query logging:

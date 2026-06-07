@@ -16,7 +16,8 @@ from argparse import ArgumentParser
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import CommandError
+from dbdb.core.management.base import DbdbBaseCommand
 from django.db import transaction
 
 from dbdb.core.models import (
@@ -124,10 +125,11 @@ def _get_missing_features(version: SystemVersion) -> list[Feature]:
     return list(Feature.objects.exclude(id__in=existing_feature_ids).prefetch_related('options').order_by('category', 'label'))
 
 
-class Command(BaseCommand):
+class Command(DbdbBaseCommand):
     help = 'Fill missing SystemVersion fields using an LLM and save a pending version'
 
     def add_arguments(self, parser: ArgumentParser):
+        super().add_arguments(parser)
         parser.add_argument('slug', help='System slug')
         parser.add_argument('--dry-run', action='store_true',
                             help='Show what would be filled without saving')

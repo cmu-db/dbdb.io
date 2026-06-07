@@ -3,7 +3,7 @@ import logging
 import time
 
 from django.conf import settings
-from django.core.management import BaseCommand
+from dbdb.core.management.base import DbdbBaseCommand
 from django.db.models import Q
 from django.utils import timezone
 
@@ -15,17 +15,15 @@ _FAILED_DISABLE_THRESHOLD = 3
 LOG = logging.getLogger(__name__)
 
 
-class Command(BaseCommand):
+class Command(DbdbBaseCommand):
     help = "Collect repository statistics for systems that have a source-repo URL"
 
     def add_arguments(self, parser):
+        super().add_arguments(parser)
         parser.add_argument(
             'keyword', metavar='KEYWORD', type=str, nargs='?',
             help='Filter repos to process: numeric value matches System.id, '
                  'otherwise matches System.name (case-insensitive) or CitationUrl.url (substring)')
-        parser.add_argument(
-            '--debug', action='store_true',
-            help='Enable debug logging')
         parser.add_argument(
             '--sleep', type=int, default=0, metavar='SECONDS',
             help='Seconds to sleep between repositories (default: 0)')
@@ -49,12 +47,6 @@ class Command(BaseCommand):
         return
 
     def handle(self, *args, **options):
-        if options['debug']:
-            logging.basicConfig(
-                level=logging.DEBUG,
-                format='%(name)s %(levelname)s: %(message)s',
-                force=True,
-            )
 
         versions = (
             SystemVersion.objects
