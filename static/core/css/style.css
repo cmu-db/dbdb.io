@@ -1084,12 +1084,29 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 }
 .factbox { border: 1px solid var(--rule); background: var(--surface); }
 .fb-logo {
-  padding: 1.6rem; border-bottom: 1px solid var(--rule);
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 1.6rem;
+  padding-right: 1.6rem;
+  border-bottom: 1px solid var(--rule);
 /*   display: flex;  */
   flex-direction: column; align-items: center;
 }
 .fb-logo .mono-tile { width: 96px; height: 96px; font-size: 1.7rem; margin-inline: auto; }
 .fb-logo .fb-name { font-family: var(--serif); font-weight: 600; font-size: 1.15rem; margin-top: .7rem; color: var(--ink); }
+.fb-logo .logo-versions-link {
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: .6rem;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  text-align: right;
+}
+
+
 .fact { padding: .68rem 1.2rem; border-bottom: 1px solid var(--rule-soft); }
 .fact:last-child { border-bottom: 0; }
 .fact dt {

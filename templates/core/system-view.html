@@ -71,8 +71,11 @@
                  src="{% if version.logo.url.lower|slice:"-3:" == "svg" %}{{ version.logo.url }}{% else %}{{ version.logo|thumbnail_url:'thumb' }}{% endif %}"
                  alt="{{ system.name }} Logo" title="{{ system.name }}">
         </a>
+        <a class="d-block logo-versions-link text-muted text-uppercase" href="{% url 'system_logos' system.slug %}" title="View All Logos for {{ system.name }}">
+            <i class="fa-solid fa-images"></i>Logo Versions
+        </a>
         {% else %}
-        {% mono_tile version.logo system.name lazy=False %}
+            {% mono_tile version.logo system.name lazy=False %}
         {% endif %}
     </div>
     <dl>
