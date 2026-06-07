@@ -319,7 +319,7 @@ class Command(DbdbBaseCommand):
             # Apply URL FK fields
             for field in URL_FK_FIELDS:
                 if field in missing_fields:
-                    url_str = enrichment.get(field, '').strip()
+                    url_str = (enrichment.get(field) or '').strip()
                     if url_str:
                         try:
                             norm = normalize_url(url_str)

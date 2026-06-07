@@ -198,7 +198,7 @@ class Command(DbdbBaseCommand):
 
             LOG.info(f"Citation {c} => {systems}")
 
-            if citation_ctr > 0 and 'sleep' in options and int(options['sleep']) > 0:
+            if citation_ctr > 1 and 'sleep' in options and int(options['sleep']) > 0:
                 LOG.info(f"Sleeping for {options['sleep']} seconds...")
                 time.sleep(int(options['sleep']))
 

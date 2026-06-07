@@ -92,6 +92,10 @@ def _get_fragment(url: str) -> str:
     parts = urlsplit(url)
     return parts.fragment
 
+def _url_has_path(url: str) -> bool:
+    """Return True if the URL has a meaningful path beyond the root."""
+    return bool(urlsplit(url).path.strip('/'))
+
 def _extract_pdf_metadata(url:str, data: bytes, system: System | None = None) -> tuple[str | None, datetime | None]:
     """
     Extract title and oldest date (CreationDate or ModDate) from PDF metadata.
@@ -409,10 +413,31 @@ def fetch_url_metadata(
             fragment = _get_fragment(url)
             if fragment: new_url += f"#{fragment}"
 
+            # If the original URL had a meaningful path but the redirect drops
+            # it entirely (e.g. redirects to the domain root), the content is
+            # gone — keep the original URL and mark it dead.
+            if _url_has_path(url) and not _url_has_path(new_url):
+                LOG.debug(f"Redirect drops path: {url} -> {new_url}, marking dead")
+                return {
+                    "url": url,
+                    "status": CitationUrl.Status.DEAD,
+                    "status-code": status_code,
+                    "content-type": None,
+                    "content-length": None,
+                    "title": None,
+                    "etag": None,
+                    "last-modified": None,
+                    "cache-control": None,
+                    "revalidate": None,
+                    "raw": '',
+                    "text": '',
+                }
+
             LOG.debug(f"Redirect: {new_url}")
             result = fetch_url_metadata(
                 new_url,
                 system=system,
+                citation_url=citation_url,
                 skip_spamcheck=skip_spamcheck,
                 request_timeout=request_timeout,
                 if_none_match=if_none_match,
