@@ -7,6 +7,7 @@ requires-python = ">=3.13"
 dependencies = [
     "alabaster==0.7.12",
     "annotated-types==0.7.0",
+    "anthropic>=0.107.0",
     "anyascii==0.3.2",
     "anyio==4.12.0",
     "asgiref==3.11.0",

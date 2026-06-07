@@ -48,6 +48,8 @@ class Command(BaseCommand):
                          f"Choices: {', '.join(status_choices)}")
         parser.add_argument('--status-title', metavar='TITLE', default=None,
                     help="Directly set CitationUrl.last_title without fetching")
+        parser.add_argument('--ignore', metavar='KEYWORD', action='append', default=[],
+                    help="Skip any URL containing this keyword (repeatable: --ignore foo --ignore bar)")
         parser.add_argument('--dry-run', action='store_true',
                     help="Print what would be changed without writing to the database")
         parser.add_argument('--debug', action='store_true',
@@ -79,6 +81,9 @@ class Command(BaseCommand):
         if options['statuscode'] is not None:
             LOG.info(f"Processing URLs with last_statuscode={options['statuscode']}")
             citations = citations.filter(last_statuscode=options['statuscode'])
+        for keyword in options['ignore']:
+            LOG.info(f"Ignoring URLs containing: {keyword!r}")
+            citations = citations.exclude(url__icontains=keyword)
 
         set_status = options['set_status']
         status_title = options['status_title']
@@ -201,6 +206,7 @@ class Command(BaseCommand):
                 info = fetch_url_metadata(
                     c.url,
                     system=systems[0],
+                    citation_url=c,
                     skip_spamcheck=options["ignore_spam"],
                     allow_redirects=False
                 )

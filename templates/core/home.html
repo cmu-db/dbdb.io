@@ -19,6 +19,7 @@
             <a href="{% url 'browse' %}">Browse</a>
             <a href="{% url 'stats' %}">Leaderboards</a>
             <a href="{% url 'recent' %}">Recent</a>
+            <a href="{% url 'docs' %}">Docs</a>
             {% for page in navbar_flatpages %}
             <a class="{% if request.path == page.url %}active{% endif %}" href="{{ page.url }}">{{ page.title }}</a>
             {% endfor %}

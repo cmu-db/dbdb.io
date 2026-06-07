@@ -1,0 +1,34 @@
+/* ============================================================
+   DBDB Admin — custom styles
+   ============================================================ */
+
+/* The floated label in .aligned fieldsets prevents width:100% from working on
+   the .readonly wrapper. overflow:hidden creates a new block formatting context
+   so the wrapper expands past the float and fills the remaining row width. */
+.field-raw_display .readonly,
+.field-text_display .readonly {
+    display: block;
+    overflow: hidden;
+    width: 100%;
+}
+
+.content-size {
+    display: block;
+    font-size: 0.75rem;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.content-preview {
+    display: block;
+    width: 100%;
+    height: 160px;
+    resize: vertical;
+    font-family: ui-monospace, 'SF Mono', monospace;
+    font-size: 0.72rem;
+    overflow-y: auto;
+    background: #f8f8f8;
+    border: 1px solid #ccc;
+    padding: 6px;
+    box-sizing: border-box;
+}

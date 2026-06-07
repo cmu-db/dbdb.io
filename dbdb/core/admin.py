@@ -172,23 +172,66 @@ class DocPageAdmin(admin.ModelAdmin):
 
 class CitationUrlContentInline(admin.StackedInline):
     model = CitationUrlContent
-    readonly_fields = ('raw', 'text', 'created')
-    can_delete = False
+    fields = ('raw_display', 'text_display', 'created')
+    readonly_fields = ('raw_display', 'text_display', 'created')
+    can_delete = True
     max_num = 0
     verbose_name = "Crawled Content"
     verbose_name_plural = "Crawled Content"
 
+    class Media:
+        css = {'all': ('core/css/admin.css',)}
+
+    @admin.display(description='Raw content')
+    def raw_display(self, obj):
+        size = f'{len(obj.raw.encode("utf-8")):,}' if obj.raw else '0'
+        return format_html(
+            '<span class="content-size">{} bytes</span>'
+            '<textarea class="content-preview" readonly>{}</textarea>',
+            size, obj.raw or '',
+        )
+
+    @admin.display(description='Text content')
+    def text_display(self, obj):
+        size = f'{len(obj.text.encode("utf-8")):,}' if obj.text else '0'
+        return format_html(
+            '<span class="content-size">{} bytes</span>'
+            '<textarea class="content-preview" readonly>{}</textarea>',
+            size, obj.text or '',
+        )
+
+class CitationUrlHasContentFilter(admin.SimpleListFilter):
+    title = 'has crawled content'
+    parameter_name = 'has_content'
+
+    def lookups(self, request, model_admin):
+        return [('yes', 'Yes'), ('no', 'No')]
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            return queryset.filter(content__isnull=False)
+        if self.value() == 'no':
+            return queryset.filter(content__isnull=True)
+
+
 @admin.register(CitationUrl)
 class CitationUrlAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
-    list_display = ('id', 'url_display', 'status', 'last_title', 'last_statuscode', 'last_modified', 'last_checked')
+    list_display = ('id', 'url_display', 'status', 'has_content', 'last_title', 'last_statuscode', 'last_modified', 'last_checked')
     search_fields = ('id', 'url', 'last_title')
-    list_filter = ['status', 'last_checked', 'last_modified', 'last_statuscode']
+    list_filter = ['status', CitationUrlHasContentFilter, 'last_checked', 'last_modified', 'last_statuscode']
     inlines = [CitationUrlContentInline]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('content')
 
     @admin.display(description='url')
     def url_display(self, obj):
         return format_html('{} <a href="{}" target="_blank">🔗</a>', obj.url, obj.url)
+
+    @admin.display(description='content', boolean=True)
+    def has_content(self, obj):
+        return hasattr(obj, 'content')
 
 class OrgDevelopedSystemsFilter(admin.SimpleListFilter):
     title = 'developed systems'
@@ -427,7 +470,7 @@ class RepositorySnapshotAdmin(admin.ModelAdmin):
 # index page.  Existing registrations are untouched because we change the class
 # on the live instance rather than creating a fresh AdminSite.
 
-_URL_MGMT_MODELS = frozenset({'RepositoryInfo', 'RepositorySnapshot'})
+_URL_MGMT_MODELS = frozenset({'CitationUrl', 'RepositoryInfo', 'RepositorySnapshot'})
 
 
 class _DBDBAdminSite(admin.AdminSite):
