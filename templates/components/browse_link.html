@@ -1,3 +1,1 @@
-<a class="browse_link" href="{% url 'browse' %}?{{ key }}={{ value }}" title="View Systems {{ tooltip }}">
-    {% if label %}{{ label }}{% endif %}
-    <i class="fa-solid fa-table-list"></i></a>
+<a class="browse_link" href="{% url 'browse' %}?{{ key }}={{ value }}" title="View Systems {{ tooltip }}"><i class="fa-solid fa-table-list"></i>{% if label %}{{ label }}{% endif %}</a>

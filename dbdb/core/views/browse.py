@@ -724,8 +724,8 @@ class BrowseView(View):
         title += f' {op_str} '.join(query_parts)
 
         if title == 'Databases ':
-            title = 'Browse'
-        elif len(title) > 60:
+            title = f"Databases matching '{search_q}'" if search_q else 'Browse'
+        if len(title) > 60:
             title = title[:60] + '...'
 
         return (sqs, search_mapping, title, None)
