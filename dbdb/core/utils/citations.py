@@ -28,7 +28,7 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_pla
 from tldextract import tldextract
 
 from dbdb.core.models import (
-    Acquisition, CitationUrl, Organization,
+    Acquisition, CitationUrl, CitationUrlContent, Organization,
     RepositoryInfo, System, SystemFeature, SystemVersion,
 )
 from dbdb.core.utils import spam
@@ -303,10 +303,14 @@ def _extract_wikipedia_metadata(
     return title, last_modified
 
 
+TEXT_CONTENT_MAX_CHARS = 8_000
+
+
 def fetch_url_metadata(
     url: str,
     *,
     system: System | None = None,
+    citation_url: CitationUrl | None = None,
     skip_spamcheck: bool = False,
     request_timeout: int | None = None,
     if_none_match: str | None = None,
@@ -374,6 +378,9 @@ def fetch_url_metadata(
 
     title = None
     status: CitationUrl.Status = CitationUrl.Status.UNKNOWN
+    raw_content = ''
+    clean_text = ''
+    _html_encoding = 'utf-8'
 
     LOG.debug(f"Fetching '{url}'\n -> Headers: {headers}" )
     with requests.get(
@@ -432,6 +439,7 @@ def fetch_url_metadata(
         )
         content_length = resp.headers.get("Content-Length", None)
         etag = resp.headers.get("ETag")
+        _html_encoding = resp.encoding or 'utf-8'
 
         last_modified_hdr = resp.headers.get("Last-Modified")
         try:
@@ -488,6 +496,12 @@ def fetch_url_metadata(
         if content_type == "application/pdf":
             title, pdf_last_modified = _extract_pdf_metadata(url, data)
             if pdf_last_modified: last_modified = pdf_last_modified
+            try:
+                reader = PdfReader(io.BytesIO(data))
+                raw_content = '\n'.join(page.extract_text() or '' for page in reader.pages)
+                clean_text = raw_content[:TEXT_CONTENT_MAX_CHARS]
+            except Exception:
+                pass
 
         # PPTX
         elif content_type in {
@@ -498,21 +512,35 @@ def fetch_url_metadata(
 
         # HTML — Wikipedia: parse raw bytes directly, skip JS rendering
         elif content_type in {"text/html", "application/xhtml+xml"} and "wikipedia.org" in url:
-            wiki_title, wiki_last_modified = _extract_wikipedia_metadata(data, resp.encoding)
+            wiki_title, wiki_last_modified = _extract_wikipedia_metadata(data, _html_encoding)
             if wiki_title:
                 title = wiki_title
             if wiki_last_modified:
                 last_modified = wiki_last_modified
+            raw_content = data.decode(_html_encoding, errors='replace')
+            try:
+                soup = BeautifulSoup(data, 'html.parser')
+                clean_text = re.sub(r'\s+', ' ', soup.get_text(' ')).strip()[:TEXT_CONTENT_MAX_CHARS]
+            except Exception:
+                pass
 
         # HTML
         elif content_type in {"text/html", "application/xhtml+xml"}:
             title, page_status = _extract_html_title(url, data,
-                                                     encoding=resp.encoding,
+                                                     encoding=_html_encoding,
                                                      skip_spamcheck=skip_spamcheck,
                                                      system=system,
                                                      request_timeout=request_timeout)
             if page_status is not None:
                 status = page_status
+            raw_content = data.decode(_html_encoding, errors='replace')
+            try:
+                soup = BeautifulSoup(data, 'html.parser')
+                for tag in soup.find_all(['script', 'style', 'noscript']):
+                    tag.decompose()
+                clean_text = re.sub(r'\s+', ' ', soup.get_text(' ')).strip()[:TEXT_CONTENT_MAX_CHARS]
+            except Exception:
+                pass
 
     # Minor cleaning...
     if title is not None and title:
@@ -522,6 +550,12 @@ def fetch_url_metadata(
         if title and title.startswith("https://"): title = None
         if title and title.lower() in IGNORE_TITLES: title = None
         if title and status_code in [403, 404]: title = None
+
+    if citation_url is not None and (raw_content or clean_text):
+        CitationUrlContent.objects.update_or_create(
+            citation=citation_url,
+            defaults={'raw': raw_content, 'text': clean_text},
+        )
 
     return {
         "url": url,
@@ -537,6 +571,8 @@ def fetch_url_metadata(
             "if-none-match": etag,
             "if-modified-since": last_modified,
         },
+        "raw": raw_content,
+        "text": clean_text,
     }
 
 def merge_citations(merge_to: CitationUrl, merge_from: list[CitationUrl]) -> CitationUrl:

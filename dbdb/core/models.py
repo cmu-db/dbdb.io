@@ -194,6 +194,27 @@ class AttributeOption(models.Model):
 
 
 # ==============================================
+# CitationUrlContent
+# ==============================================
+class CitationUrlContent(models.Model):
+    citation = models.OneToOneField('CitationUrl', on_delete=models.CASCADE,
+                                    related_name='content')
+    raw  = models.TextField(blank=True, default='',
+                            db_comment='Original HTML or PDF-extracted text from the crawled URL')
+    text = models.TextField(blank=True, default='',
+                            db_comment='Stripped, cleaned plain text for LLM context')
+    created = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Citation URL Content"
+
+    def __str__(self):
+        return f"Content for citation #{self.citation_id}"
+
+    pass
+
+
+# ==============================================
 # DocPage
 # ==============================================
 class DocPage(models.Model):
@@ -979,6 +1000,7 @@ __all__ = (
     'Attribute',
     'AttributeOption',
     'CitationUrl',
+    'CitationUrlContent',
     'DocPage',
     'Feature',
     'FeatureOption',

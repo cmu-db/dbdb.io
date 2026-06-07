@@ -170,12 +170,21 @@ class DocPageAdmin(admin.ModelAdmin):
 # MISC
 # ==============================================
 
+class CitationUrlContentInline(admin.StackedInline):
+    model = CitationUrlContent
+    readonly_fields = ('raw', 'text', 'created')
+    can_delete = False
+    max_num = 0
+    verbose_name = "Crawled Content"
+    verbose_name_plural = "Crawled Content"
+
 @admin.register(CitationUrl)
 class CitationUrlAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
     list_display = ('id', 'url_display', 'status', 'last_title', 'last_statuscode', 'last_modified', 'last_checked')
     search_fields = ('id', 'url', 'last_title')
     list_filter = ['status', 'last_checked', 'last_modified', 'last_statuscode']
+    inlines = [CitationUrlContentInline]
 
     @admin.display(description='url')
     def url_display(self, obj):
