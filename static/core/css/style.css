@@ -476,14 +476,6 @@ a:hover { color: var(--accent); }
   line-height: 1.15;
   color: var(--ink);
 }
-.shortcut .sc-tx .s {
-  font-family: var(--mono);
-  font-size: .62rem;
-  letter-spacing: .08em;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-top: .15rem;
-}
 
 /* ============================================================
    SECTION HEADERS
@@ -631,7 +623,7 @@ a:hover { color: var(--accent); }
   color: var(--ink);
 }
 .db-row:hover .db-name { color: var(--accent); }
-.db-row .db-model {
+.info-subtitle {
   font-family: var(--mono);
   font-size: .6rem;
   letter-spacing: .08em;

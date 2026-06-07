@@ -6,7 +6,7 @@
     <span class="db-info">
         <span class="db-name">{{ item.name }}</span>
         {% if item.data_model_str %}
-        <span class="db-model d-block">{{ item.data_model_str }}</span>{% endif %}
+        <span class="info-subtitle d-block">{{ item.data_model_str }}</span>{% endif %}
     </span>
     {% if item.metric %}<span class="db-metric">{{ item.metric }}{% if item.visits_delta > 0 %} <i class="fa-solid fa-up-long"></i>{% elif item.visits_delta < 0 %} <i class="fa-solid fa-down-long"></i>{% endif %}</span>{% endif %}
 </a>

@@ -18,6 +18,8 @@ from django.utils.text import slugify
 from django.views import View
 from django.views.decorators.cache import cache_control
 
+from dbdb.core.views.home import _attach_data_models
+
 from dbdb.core.forms import (
     AcquisitionFormSet,
     DeveloperOrgFormSet,
@@ -238,10 +240,13 @@ class SystemView(View):
             if repo_info:
                 repo_snapshot = repo_info.current
 
+        hosted_services = _attach_data_models(list(system_version.hosted_services.all()))
+
         return render(request, self.template_name, {
             'activate': 'system',  # NAV-LINKS
             'system': system,
             'version': system_version,
+            'hosted_services': hosted_services,
             'sections': sections,
             'citations': self.all_citations,
             'start_year_citations': start_year_citations,

@@ -228,18 +228,22 @@
 {% endblock %}
 
 {% block main_content %}
-{% if version.hosted_services.exists %}
+{% if hosted_services %}
 <div id="hosted-services" class="entry-section">
     <h2>Hosted Systems</h2>
     <hr class="sec-rule">
     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-2">
-        {% for hosted_sys in version.hosted_services.all %}
+        {% for hosted_sys in hosted_services %}
         <div class="col">
             <a href="{{ hosted_sys.get_absolute_url }}" class="sys-card d-flex align-items-center gap-3 p-3 h-100 text-decoration-none" title="View {{ hosted_sys.name }}">
                 {% with hosted_ver=hosted_sys.current %}
                 {% mono_tile hosted_ver.logo hosted_sys.name 'thumb' %}
                 {% endwith %}
-                <span class="ln">{{ hosted_sys.name }}</span>
+                <span class="db-info">
+                    <span class="ln">{{ hosted_sys.name }}</span>
+                    {% if hosted_sys.data_model_str %}
+                    <span class="info-subtitle d-block">{{ hosted_sys.data_model_str }}</span>{% endif %}
+                </span>
             </a>
         </div>
         {% endfor %}
