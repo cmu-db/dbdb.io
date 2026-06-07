@@ -34,10 +34,12 @@ class Command(DbdbBaseCommand):
 
     def add_arguments(self, parser: ArgumentParser):
         super().add_arguments(parser)
+        status_choices = [s.name.lower() for s in CitationUrl.Status]
+
         parser.add_argument('citation', metavar='C', type=str, nargs='*',
                     help='One or more citation IDs or URL keywords to process')
-        parser.add_argument('--ignore-spam', action='store_true',
-                    help="Ignore spam checks")
+        parser.add_argument('--skip-spam', action='store_true',
+                    help="Skip spam checks")
         parser.add_argument('--normalize', action='store_true',
                     help="Normalize URLs to avoid duplicates")
         parser.add_argument('--only-new', action='store_true',
@@ -51,23 +53,24 @@ class Command(DbdbBaseCommand):
         parser.add_argument('--limit', type=int, default=None,
                     help="# of citations to process before exiting")
         parser.add_argument('--statuscode', type=int, default=None, metavar='N',
-                    help="Only process citations with last_statuscode=N (e.g. 404)")
-
-        status_choices = [s.name.lower() for s in CitationUrl.Status]
-        parser.add_argument('--set-status', metavar='STATUS', default=None,
-                    choices=status_choices,
-                    help=f"Directly set CitationUrl.status without fetching. "
-                         f"Choices: {', '.join(status_choices)}")
-        parser.add_argument('--status-title', metavar='TITLE', default=None,
-                    help="Directly set CitationUrl.last_title without fetching")
+                    help="Only process citations with HTTP last_statuscode=N (e.g. 404)")
         parser.add_argument('--ignore', metavar='KEYWORD', action='append', default=[],
                     help="Skip any URL containing this keyword (repeatable: --ignore foo --ignore bar)")
         parser.add_argument('--dry-run', action='store_true',
                     help="Print what would be changed without writing to the database")
-        rewrite_group = parser.add_argument_group('URL rewriting')
-        rewrite_group.add_argument('--replace-from', metavar='OLD', default=None,
+
+        agroup = parser.add_argument_group('URL Overrides')
+        agroup.add_argument('--set-status', metavar='STATUS', default=None,
+                    choices=status_choices,
+                    help=f"Directly set CitationUrl.status without fetching. "
+                         f"Choices: {', '.join(status_choices)}")
+        agroup.add_argument('--status-title', metavar='TITLE', default=None,
+                    help="Directly set CitationUrl.last_title without fetching")
+
+        agroup = parser.add_argument_group('URL rewriting')
+        agroup.add_argument('--replace-from', metavar='OLD', default=None,
                     help="Substring to find in CitationUrl.url (required with --replace-to)")
-        rewrite_group.add_argument('--replace-to', metavar='NEW', default=None,
+        agroup.add_argument('--replace-to', metavar='NEW', default=None,
                     help="Replacement string for --replace-from (required with --replace-from)")
         return
 
@@ -206,7 +209,7 @@ class Command(DbdbBaseCommand):
                     c.url,
                     system=systems[0],
                     citation_url=c,
-                    skip_spamcheck=options["ignore_spam"],
+                    skip_spamcheck=options["skip_spam"],
                     allow_redirects=False
                 )
                 c.status = info["status"]

@@ -14,9 +14,12 @@ For each empty field on the current SystemVersion, the command:
 import logging
 from argparse import ArgumentParser
 
+from datetime import timedelta
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import CommandError
+from django.utils import timezone
 from dbdb.core.management.base import DbdbBaseCommand
 from django.db import transaction
 
@@ -81,14 +84,38 @@ def _get_missing_fields(version: SystemVersion, requested: list[str] | None) -> 
     return [f for f in targets if _is_field_empty(version, f)]
 
 
-def _crawl_existing_urls(version: SystemVersion, system: System) -> dict[str, str]:
-    """Crawl the system's known URL fields; return {url: text_excerpt}."""
+def _crawl_existing_urls(
+    version: SystemVersion,
+    system: System,
+    recrawl_after: int = 7,
+) -> dict[str, str]:
+    """Crawl the system's known URL fields; return {url: text_excerpt}.
+
+    If a CitationUrl was last checked within *recrawl_after* days and already
+    has a CitationUrlContent with text, the cached text is reused and no HTTP
+    request is made.
+    """
+    from dbdb.core.models import CitationUrlContent
     crawled = {}
+    cutoff = timezone.now() - timedelta(days=recrawl_after)
+
     for field in URL_FK_FIELDS:
         citation: CitationUrl | None = getattr(version, field)
         if citation is None:
             continue
         url = citation.url
+
+        # Use cached content if it was fetched recently and has text
+        if citation.last_checked and citation.last_checked >= cutoff:
+            try:
+                content = citation.content
+                if content.text:
+                    LOG.info(f"  Using cached content for {field}: {url}")
+                    crawled[url] = content.text
+                    continue
+            except CitationUrlContent.DoesNotExist:
+                pass
+
         LOG.info(f"  Crawling {field}: {url}")
         try:
             result = fetch_url_metadata(url, system=system, citation_url=citation)
@@ -97,6 +124,8 @@ def _crawl_existing_urls(version: SystemVersion, system: System) -> dict[str, st
                 crawled[url] = text
         except Exception as e:
             LOG.warning(f"  Failed to crawl {url}: {e}")
+        finally:
+            citation.save()
     return crawled
 
 
@@ -130,7 +159,7 @@ class Command(DbdbBaseCommand):
 
     def add_arguments(self, parser: ArgumentParser):
         super().add_arguments(parser)
-        parser.add_argument('slug', help='System slug')
+        parser.add_argument('keyword', metavar='S', type=str, help='System id or slug keyword')
         parser.add_argument('--dry-run', action='store_true',
                             help='Show what would be filled without saving')
         parser.add_argument('--fields', default=None,
@@ -139,9 +168,11 @@ class Command(DbdbBaseCommand):
                             help='Override LLM model name')
         parser.add_argument('--per-feature', action='store_true',
                             help='One LLM call per missing Feature (slower, more targeted)')
+        parser.add_argument('--recrawl-after', type=int, default=7, metavar='DAYS',
+                            help='Re-fetch a URL only if its cached content is older than N days (default: 7)')
 
     def handle(self, *args, **options):
-        slug = options['slug']
+        keyword = options['keyword']
         dry_run: bool = options['dry_run']
         model_override: str | None = options['model']
         per_feature: bool = options['per_feature']
@@ -152,17 +183,20 @@ class Command(DbdbBaseCommand):
 
         # --- 1. Load system and current version ---
         try:
-            system = System.objects.get(slug=slug)
+            if keyword.isdigit():
+                system = System.objects.filter(id=int(keyword)).first()
+            else:
+                system = System.objects.filter(slug__icontains=keyword).first()
         except System.DoesNotExist:
-            raise CommandError(f"No system found with slug '{slug}'")
+            raise CommandError(f"No system found with keyword '{keyword}'")
 
         try:
             current = SystemVersion.objects.prefetch_related(
                 'project_types', 'licenses', 'oses', 'written_in',
-                'system_features', 'system_features__options',
+                'features', 'features__options',
             ).get(system=system, is_current=True)
         except SystemVersion.DoesNotExist:
-            raise CommandError(f"No current SystemVersion for '{slug}'")
+            raise CommandError(f"No current SystemVersion for '{keyword}'")
 
         self.stdout.write(f"System: {system.name} (current ver #{current.ver})")
 
@@ -181,7 +215,7 @@ class Command(DbdbBaseCommand):
 
         # --- 3. Crawl existing URLs ---
         self.stdout.write("Crawling existing URLs...")
-        crawled_pages = _crawl_existing_urls(current, system)
+        crawled_pages = _crawl_existing_urls(current, system, recrawl_after=options['recrawl_after'])
         self.stdout.write(f"  Crawled {len(crawled_pages)} page(s)")
 
         # --- 4. Load taxonomy ---
@@ -331,7 +365,7 @@ class Command(DbdbBaseCommand):
             for feat_slug, option_slugs in feat_suggestions.items():
                 feature = features_by_slug.get(feat_slug)
                 if feature is None:
-                    LOG.warning(f"Unknown feature slug from LLM: {feat_slug}")
+                    LOG.warning(f"Unknown feature keyword from LLM: {feat_slug}")
                     continue
                 opts = list(
                     FeatureOption.objects.filter(
