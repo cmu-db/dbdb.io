@@ -132,15 +132,11 @@ def _crawl_existing_urls(
 def _copy_version(source: SystemVersion) -> SystemVersion:
     """Return an unsaved in-memory copy of *source* with pk=None."""
     copy = SystemVersion()
-    # Copy all concrete non-auto fields
     skip = {'id', 'ver', 'is_current', 'approved', 'created'}
-    for f in source._meta.get_fields():
-        if not hasattr(f, 'attname'):
+    for f in source._meta.concrete_fields:
+        if f.attname in skip:
             continue
-        attr = f.attname
-        if attr in skip:
-            continue
-        setattr(copy, attr, getattr(source, attr, None))
+        setattr(copy, f.attname, getattr(source, f.attname))
     return copy
 
 
