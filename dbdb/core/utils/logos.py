@@ -62,7 +62,10 @@ def extract_color(image_path: str, exclude_dark: bool = True,
     if image_path.lower().endswith('.svg'):
         try:
             import cairosvg
-            png_data = cairosvg.svg2png(url=image_path)
+            try:
+                png_data = cairosvg.svg2png(url=image_path)
+            except ValueError:
+                png_data = cairosvg.svg2png(url=image_path, output_width=200, output_height=200)
             img = Image.open(io.BytesIO(png_data))
         except ImportError:
             raise ImportError("cairosvg is required for SVG support. Install with: pip install cairosvg")
