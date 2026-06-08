@@ -206,12 +206,25 @@ def _mark_abandoned(current_version:SystemVersion, repo_info:RepositoryInfo, sna
         elif snapshot.last_pr_closed_at:
             comment += f"\nLast closed PR was {snapshot.last_pr_closed_at.strftime('%Y-%m-%d')}"
 
+    history_note = None
+    if not current_version.history:
+        if snapshot.archival_timestamp:
+            history_note = f"The system's source code repository was marked as a read-only archive in {snapshot.archival_timestamp.year}"
+        elif snapshot.last_commit_timestamp:
+            history_note = f"The system's source code repository has not been updated since {snapshot.last_commit_timestamp.year}"
+        if history_note:
+            history_note += " and is now considered abandoned."
+
     new_version = clone_system_version(
         current_version,
         creator=bot_user,
         comment=comment,
         end_year=end_year,
     )
+
+    if history_note:
+        new_version.history = history_note
+        new_version.save(update_fields=['history'])
 
     # Add the abandoned tag after cloning so search text includes it
     new_version.tags.add(abandoned_tag)
