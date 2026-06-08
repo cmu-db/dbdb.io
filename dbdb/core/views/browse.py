@@ -804,7 +804,7 @@ class BrowseView(View):
         results = results.annotate(
             name=F('system__name'),
             slug=F('system__slug'),
-            system_tags=JSONBAgg(JSONObject(name=F('tags__name'), slug=F('tags__slug'), icon=F('tags__icon')))
+            system_tags=JSONBAgg(JSONObject(name=F('tags__name'), slug=F('tags__slug'), icon=F('tags__icon')), filter=Q(tags__isnull=False), distinct=True)
         )
 
         # Attribute column annotations (inline)
