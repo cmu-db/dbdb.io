@@ -11,7 +11,6 @@ class GitHubCollector(RepoCollector):
     """Collect repository metadata from the GitHub REST API v3."""
 
     URL_PATTERN = re.compile(r'github\.com/([^/]+)/([^/]+?)(?:\.git)?/?$')
-    API_SLEEP   = 10   # seconds between requests (avoids secondary rate limits)
 
     _API = 'https://api.github.com'
 
@@ -171,13 +170,10 @@ class GitHubCollector(RepoCollector):
         except Exception as exc:
             snap.errors.append(exc)
 
-        # ── commit authors / contributors (top 100) ───────────────────────
+        # ── commit authors via local git clone (all branches) ────────────
         try:
-            r = self._get(f'{base}/contributors', per_page=100)
-            snap.commit_authors = [
-                c['login'] for c in r.json()
-                if isinstance(c, dict) and c.get('login')
-            ]
+            self.clone_url(repo_url, all_branches=True)
+            snap.commit_authors = self.get_all_author_emails()
         except Exception as exc:
             snap.errors.append(exc)
 

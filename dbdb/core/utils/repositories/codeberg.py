@@ -138,14 +138,10 @@ class CodebergCollector(RepoCollector):
         except Exception as exc:
             snap.errors.append(exc)
 
-        # ── commit authors / contributors (up to 100, ordered by commits) ──
+        # ── commit authors via local git clone (all branches) ────────────
         try:
-            r = self._get(f'{base}/contributors', limit=100, page=1)
-            data = r.json()
-            snap.commit_authors = self._collect_unique(
-                data if isinstance(data, list) else [],
-                lambda c: c.get('login') or c.get('name', ''),
-            )
+            self.clone_url(repo_url, all_branches=True)
+            snap.commit_authors = self.get_all_author_emails()
         except Exception as exc:
             snap.errors.append(exc)
 

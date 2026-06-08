@@ -3,6 +3,7 @@ from __future__ import annotations
 import dataclasses
 import logging
 import re
+import tempfile
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
@@ -99,12 +100,27 @@ class RepoCollector(ABC):
     """
 
     URL_PATTERN: ClassVar[re.Pattern]
-    API_SLEEP:   ClassVar[int] = 0       # seconds to sleep before each request
+    API_SLEEP:   ClassVar[int] = 10      # seconds to sleep before each request
+
+    # Email suffixes to skip during get_all_author_emails(). Subclasses may
+    # extend this list with host-specific noreply domains.
+    IGNORED_EMAIL_SUFFIXES: ClassVar[tuple[str, ...]] = (
+        # '@users.noreply.github.com',
+    )
 
     def __init__(self, token: str | None = None) -> None:
         self.token = token
         self.session = self._make_session(token)
         self.log = logging.getLogger(type(self).__module__)
+        self._tmpdir: tempfile.TemporaryDirectory | None = None
+        self._repo = None  # git.Repo once clone_url() is called
+
+    def __del__(self) -> None:
+        tmpdir = getattr(self, '_tmpdir', None)
+        if tmpdir is not None:
+            self.log.debug("__del__: cleaning up temp directory")
+            tmpdir.cleanup()
+            self._tmpdir = None
 
     @abstractmethod
     def _make_session(self, token: str | None) -> requests.Session: ...
@@ -116,6 +132,84 @@ class RepoCollector(ABC):
     def match_url(cls, url: str) -> bool:
         """Return True if this collector handles the given URL."""
         return bool(cls.URL_PATTERN.search(url))
+
+    # ── git clone / local repo helpers ───────────────────────────────────
+
+    def clone_url(
+        self,
+        url: str,
+        *,
+        depth: int | None = None,
+        commit: str | None = None,
+        all_branches: bool = False,
+    ) -> None:
+        """Clone or fetch url into a managed temp directory using gitpython.
+
+        Call with commit=<sha> to do a shallow fetch of a single commit.
+        Call with all_branches=True to clone every branch (for email harvesting).
+        Any previous temp directory is cleaned up before the new clone.
+        """
+        import git as gitpkg
+        if self._tmpdir is not None:
+            self.log.debug("clone_url: replacing existing temp directory for %s", url)
+            self._tmpdir.cleanup()
+        self._tmpdir = tempfile.TemporaryDirectory()
+        # Disable all interactive credential prompts. Any URL that requires
+        # authentication will cause git to exit non-zero immediately, which
+        # gitpython raises as GitCommandError — treated as unavailable/dead.
+        no_prompt = {'GIT_TERMINAL_PROMPT': '0'}
+        if commit:
+            self.log.debug("clone_url: bare init + shallow fetch commit %s from %s", commit, url)
+            self._repo = gitpkg.Repo.init(self._tmpdir.name)
+            self._repo.git.update_environment(**no_prompt)
+            depth_arg = f'--depth={depth}' if depth is not None else '--depth=1'
+            self._repo.git.fetch(depth_arg, url, commit)
+            self.log.debug("clone_url: fetched commit %s", commit)
+        else:
+            clone_kwargs: dict = {'env': no_prompt}
+            if depth is not None:
+                clone_kwargs['depth'] = depth
+            if all_branches:
+                clone_kwargs['no_single_branch'] = True
+            self.log.debug("clone_url: cloning %s (all_branches=%s, depth=%s)", url, all_branches, depth)
+            self._repo = gitpkg.Repo.clone_from(url, self._tmpdir.name, **clone_kwargs)
+            self.log.debug("clone_url: clone complete, %d refs", len(list(self._repo.references)))
+
+    def get_commit_metadata(self, commit_id: str) -> tuple[str, datetime]:
+        """Return (message, timestamp) for a specific commit in self._repo."""
+        self.log.debug("get_commit_metadata: resolving commit %s", commit_id)
+        commit = self._repo.commit(commit_id)
+        message = commit.message.rstrip()
+        timestamp = datetime.fromtimestamp(commit.committed_date, tz=UTC)
+        self.log.debug("get_commit_metadata: timestamp=%s message=%r", timestamp, message[:80])
+        return message, timestamp
+
+    def get_all_author_emails(self) -> list[str]:
+        """Return unique author emails from all commits across all refs.
+
+        Emails ending with any suffix in IGNORED_EMAIL_SUFFIXES are skipped.
+        """
+        refs = list(self._repo.references)
+        self.log.debug("get_all_author_emails: walking %d refs", len(refs))
+        seen: set[str] = set()
+        result: list[str] = []
+        ignored = 0
+        for ref in refs:
+            for commit in self._repo.iter_commits(ref):
+                email = commit.author.email
+                if not email or email in seen:
+                    continue
+                if email.endswith(self.IGNORED_EMAIL_SUFFIXES):
+                    self.log.debug("get_all_author_emails: ignoring %s", email)
+                    ignored += 1
+                    continue
+                seen.add(email)
+                result.append(email)
+        self.log.debug(
+            "get_all_author_emails: found %d unique author emails (%d ignored)",
+            len(result), ignored,
+        )
+        return result
 
     # ── shared request helper ─────────────────────────────────────────────
 

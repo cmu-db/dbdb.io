@@ -201,13 +201,10 @@ class BitbucketCollector(RepoCollector):
         except Exception as exc:
             snap.errors.append(exc)
 
-        # ── commit authors (most-recent 100 commits) ──────────────────────
+        # ── commit authors via local git clone (all branches) ────────────
         try:
-            r = self._get(f'{base}/commits', pagelen=100)
-            def _author(c: dict) -> str:
-                user = (c.get('author') or {}).get('user') or {}
-                return user.get('display_name') or (c.get('author') or {}).get('raw', '')
-            snap.commit_authors = self._collect_unique(self._values(r), _author)
+            self.clone_url(repo_url, all_branches=True)
+            snap.commit_authors = self.get_all_author_emails()
         except Exception as exc:
             snap.errors.append(exc)
 

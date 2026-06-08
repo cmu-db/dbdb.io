@@ -180,15 +180,10 @@ class GitLabCollector(RepoCollector):
         except Exception as exc:
             snap.errors.append(exc)
 
-        # ── commit authors / contributors (ordered by commit count) ───────
+        # ── commit authors via local git clone (all branches) ────────────
         try:
-            r = self._get(f'{base}/repository/contributors',
-                          per_page=100, order_by='commits')
-            snap.commit_authors = [
-                c.get('name') or c.get('email', '')
-                for c in r.json()
-                if c.get('name') or c.get('email')
-            ]
+            self.clone_url(repo_url, all_branches=True)
+            snap.commit_authors = self.get_all_author_emails()
         except Exception as exc:
             snap.errors.append(exc)
 

@@ -52,15 +52,18 @@ class SourceForgeCollector(RepoCollector):
         tickets = f'{base}/tickets'
         snap    = SnapshotData()
 
-        # ── project info (forks, developers) ─────────────────────────────
+        # ── project info (forks) ──────────────────────────────────────────
         try:
             r = self._get_sf(f'{self._API}/p/{shortname}')
             proj = r.json().get('project') or r.json()
-            snap.fork_count     = len(proj.get('forks') or [])
-            snap.commit_authors = [
-                d.get('username', '') for d in (proj.get('developers') or [])
-                if d.get('username')
-            ]
+            snap.fork_count = len(proj.get('forks') or [])
+        except Exception as exc:
+            snap.errors.append(exc)
+
+        # ── commit authors via local git clone (all branches) ────────────
+        try:
+            self.clone_url(repo_url, all_branches=True)
+            snap.commit_authors = self.get_all_author_emails()
         except Exception as exc:
             snap.errors.append(exc)
 

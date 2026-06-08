@@ -32,7 +32,7 @@ from dbdb.core.models import (
     RepositoryInfo, System, SystemFeature, SystemVersion,
 )
 from dbdb.core.utils import spam
-from dbdb.core.utils.git import get_git_commit_metadata
+from dbdb.core.utils.repository import get_git_commit_metadata
 from dbdb.core.utils.spam import UnexpectedResponseError
 
 LOG = logging.getLogger(__name__)

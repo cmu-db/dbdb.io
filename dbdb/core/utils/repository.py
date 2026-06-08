@@ -1,7 +1,10 @@
 from __future__ import annotations
 
-from datetime import timedelta
+import logging
+import re
+from datetime import UTC, datetime, timedelta
 
+import requests
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -17,6 +20,52 @@ from dbdb.core.utils.repositories import (
     SourceForgeCollector,
 )
 from dbdb.core.utils.versions import clone_system_version, finalize_new_version
+
+LOG = logging.getLogger(__name__)
+
+
+class _GenericGitCollector(RepoCollector):
+    """Concrete RepoCollector for raw git operations — no hosting API."""
+
+    URL_PATTERN = re.compile(r'.*')
+
+    def _make_session(self, token: str | None) -> requests.Session:
+        return requests.Session()
+
+    def get_metadata(self, repo_url: str) -> SnapshotData:
+        return SnapshotData()
+
+
+def get_git_commit_metadata(
+    repo_url: str,
+    commit_id: str,
+    *,
+    timeout: int = 30,
+) -> tuple[str, datetime]:
+    """
+    Return the commit message and commit timestamp for a commit
+    from any Git repository reachable via HTTPS.
+
+    Parameters
+    ----------
+    repo_url : str
+        Git repository HTTPS URL
+    commit_id : str
+        Commit SHA (full or abbreviated)
+    timeout : int
+        Kept for API compatibility; gitpython uses its own transport timeout.
+
+    Returns
+    -------
+    (message, timestamp) : (str, datetime)
+        Commit message and commit timestamp (UTC)
+    """
+    LOG.debug("Fetching commit %s from %s", commit_id, repo_url)
+    collector = _GenericGitCollector()
+    collector.clone_url(repo_url, commit=commit_id)
+    message, timestamp = collector.get_commit_metadata(commit_id)
+    LOG.debug("Commit %s: timestamp=%s message=%r", commit_id, timestamp, message[:80])
+    return message, timestamp
 
 
 # Registry: host name → (collector class, Django settings key for API token).
