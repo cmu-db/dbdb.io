@@ -51,10 +51,10 @@
                     <i class="fa-regular fa-user"></i> {{ version.creator.username }}
                 </a>
                 <span class="verb">{% if version.ver == 1 %}created{% else %}updated{% endif %}</span>
-                <a href="{% url 'system_revision' version.system.slug %}" title="View Revisions for {{ version.system.name }}">
+                <a href="{% url 'system' version.system.slug %}" title="View {{ version.system.name }}">
                     {% mono_tile version.logo version.system.name 'recent' extra_classes='feed-tile' %}
                 </a>
-                <a href="{% url 'system_revision' version.system.slug %}" class="sys" title="View Revisions for {{ version.system.name }}">{{ version.system.name }}</a>
+                <a href="{% url 'system' version.system.slug %}" class="sys" title="View {{ version.system.name }}">{{ version.system.name }}</a>
 
                 {% if not version.approved %}{% ver_status version.approved %}{% endif %}
 
