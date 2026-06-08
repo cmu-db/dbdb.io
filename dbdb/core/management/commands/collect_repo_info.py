@@ -184,6 +184,7 @@ class Command(DbdbBaseCommand):
                 ok += 1
             self.stdout.write(
                 f"  commits={snapshot.commit_count}  "
+                f"last_commit={snapshot.last_commit_timestamp}  "
                 f"open_prs={snapshot.open_pr_count}  merged_prs={snapshot.merged_pr_count}  "
                 f"open_issues={snapshot.open_issue_count}  closed_issues={snapshot.closed_issue_count}  "
                 f"stars={snapshot.star_count}  forks={snapshot.fork_count}  "

@@ -187,7 +187,7 @@ class GitHubCollector(RepoCollector):
 
         try:
             r = self._get(f'{base}/branches', per_page=100)
-            snap.branch_name = [b['name'] for b in r.json() if b.get('name')]
+            snap.branch_names = [b['name'] for b in r.json() if b.get('name')]
         except Exception as exc:
             snap.errors.append(exc)
 

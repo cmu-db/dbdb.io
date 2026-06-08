@@ -175,7 +175,7 @@ class BitbucketCollector(RepoCollector):
 
         try:
             r = self._get(f'{base}/refs/branches', pagelen=100)
-            snap.branch_name = [
+            snap.branch_names = [
                 b['name'] for b in self._values(r) if b.get('name')
             ]
         except Exception as exc:

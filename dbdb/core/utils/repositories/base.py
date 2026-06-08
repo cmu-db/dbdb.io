@@ -40,7 +40,7 @@ class SnapshotData:
     # Branch statistics
     branch_count:        int | None  = None
     branch_default_name: str         = ''
-    branch_name:         list[str]   = field(default_factory=list)
+    branch_names:        list[str]   = field(default_factory=list)
 
     # Popularity
     fork_count: int = 0

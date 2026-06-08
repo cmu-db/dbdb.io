@@ -472,7 +472,7 @@ class RepositorySnapshotAdmin(admin.ModelAdmin):
         'open_pr_count', 'merged_pr_count', 'last_pr_submitted_at', 'last_pr_closed_at',
         'open_issue_count', 'closed_issue_count', 'last_issue_submitted_at', 'last_issue_closed_at',
         'fork_count', 'star_count',
-        'branch_count', 'branch_default_name', 'branch_name',
+        'branch_count', 'branch_default_name', 'branch_names',
         'commit_authors', 'pr_authors', 'issue_authors',
         'archival_timestamp',
     )

@@ -2,6 +2,7 @@
 import tldextract
 from colorfield.fields import ColorField
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -974,7 +975,8 @@ class RepositorySnapshot(models.Model):
     branch_default_name = models.CharField(
         max_length=255, blank=True,
         help_text="Name of the repository's default branch")
-    branch_name = models.JSONField(
+    branch_names = ArrayField(
+        models.CharField(max_length=255),
         default=list, blank=True,
         help_text="Names of up to 100 branches (most recent / alphabetical order)")
 
@@ -992,13 +994,16 @@ class RepositorySnapshot(models.Model):
         help_text="Timestamp when the repository was archived, if applicable (GitHub only)")
 
     # Contributor lists
-    commit_authors = models.JSONField(
+    commit_authors = ArrayField(
+        models.CharField(max_length=254),
         default=list, blank=True,
         help_text="Unique contributor login names or display names (from commit history)")
-    pr_authors = models.JSONField(
+    pr_authors = ArrayField(
+        models.CharField(max_length=255),
         default=list, blank=True,
         help_text="Unique authors who have submitted pull requests or merge requests")
-    issue_authors = models.JSONField(
+    issue_authors = ArrayField(
+        models.CharField(max_length=255),
         default=list, blank=True,
         help_text="Unique authors who have submitted issues")
 

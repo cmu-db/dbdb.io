@@ -11,7 +11,7 @@ class SourceForgeCollector(RepoCollector):
     """Collect repository metadata from the SourceForge / Allura REST API.
 
     SourceForge exposes no git commit counts or branch lists via REST.
-    Those fields (commit_count, branch_count, branch_name, last_commit_hash,
+    Those fields (commit_count, branch_count, branch_names, last_commit_hash,
     last_commit_timestamp, open_pr_count, merged_pr_count) will always be
     None/empty — this is expected behaviour, not an error.
 
