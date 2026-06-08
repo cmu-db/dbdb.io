@@ -445,6 +445,13 @@ class RepositoryInfoAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
     def snapshot_count(self, obj):
         return obj.snapshots.count()
 
+    @admin.action(description='Disable Repository')
+    def disable_repository(self, request, queryset):
+        updated = queryset.update(enabled=False)
+        self.message_user(request, f"Disabled {updated} repository info(s).")
+
+    actions = ['disable_repository']
+
 
 @admin.register(RepositorySnapshot)
 class RepositorySnapshotAdmin(admin.ModelAdmin):
