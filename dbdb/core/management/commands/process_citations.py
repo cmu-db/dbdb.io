@@ -64,7 +64,7 @@ class Command(DbdbBaseCommand):
                     choices=status_choices,
                     help=f"Directly set CitationUrl.status without fetching. "
                          f"Choices: {', '.join(status_choices)}")
-        agroup.add_argument('--status-title', metavar='TITLE', default=None,
+        agroup.add_argument('--set-title', metavar='TITLE', default=None,
                     help="Directly set CitationUrl.last_title without fetching")
 
         agroup = parser.add_argument_group('URL rewriting')
@@ -99,7 +99,7 @@ class Command(DbdbBaseCommand):
             citations = citations.exclude(url__icontains=keyword)
 
         set_status = options['set_status']
-        status_title = options['status_title']
+        set_title = options['set_title']
         dry_run = options['dry_run']
         replace_from = options['replace_from']
         replace_to = options['replace_to']
@@ -133,13 +133,13 @@ class Command(DbdbBaseCommand):
                     f"{replace_from!r} -> {replace_to!r}"
                 )
             return
-        if set_status is not None or status_title is not None:
+        if set_status is not None or set_title is not None:
             update_fields = {}
             if set_status is not None:
                 update_fields['status'] = CitationUrl.Status[set_status.upper()]
-            if status_title is not None:
+            if set_title is not None:
                 max_title = CitationUrl._meta.get_field('last_title').max_length
-                update_fields['last_title'] = status_title[:max_title]
+                update_fields['last_title'] = set_title[:max_title]
             for c in citations.order_by('id'):
                 prefix = "[dry-run] " if dry_run else ""
                 LOG.debug(f"{prefix}#{c.id}  {c.url}")

@@ -1,13 +1,13 @@
-from django.core.management import BaseCommand
-
+from dbdb.core.management.base import DbdbBaseCommand
 from dbdb.core.models import Organization
 from dbdb.core.utils.organizations import find_potential_matches, merge_organizations
 
 
-class Command(BaseCommand):
+class Command(DbdbBaseCommand):
     help = "Merge one or more Organizations into the first ID given, or find potential duplicates"
 
     def add_arguments(self, parser):
+        super().add_arguments(parser)
         parser.add_argument(
             'ids', metavar='ID', type=int, nargs='*',
             help='Organization IDs to merge; the first is the merge target, the rest are merged into it')

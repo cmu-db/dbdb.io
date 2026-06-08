@@ -233,6 +233,13 @@ class CitationUrlAdmin(admin.ModelAdmin):
     def has_content(self, obj):
         return hasattr(obj, 'content')
 
+    @admin.action(description='Clear Title')
+    def clear_title(self, request, queryset):
+        updated = queryset.update(last_title=None)
+        self.message_user(request, f"Cleared title on {updated} citation URL(s).")
+
+    actions = ['clear_title']
+
 class OrgDevelopedSystemsFilter(admin.SimpleListFilter):
     title = 'developed systems'
     parameter_name = 'developed_systems'
@@ -428,7 +435,7 @@ class RepositorySnapshotInline(admin.TabularInline):
 
 @admin.register(RepositoryInfo)
 class RepositoryInfoAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
-    list_display = ('sourcerepo_url', 'enabled', 'last_snapshot', 'snapshot_count', 'modified')
+    list_display = ('sourcerepo_url', 'enabled', 'last_snapshot', 'snapshot_count', 'current__last_commit_timestamp', 'modified')
     list_filter = ('enabled', 'last_snapshot', 'modified')
     readonly_fields = ('created', 'modified', 'last_snapshot', 'current')
     search_fields = ('sourcerepo_url__url',)
