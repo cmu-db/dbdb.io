@@ -28,6 +28,20 @@
         </thead>
         <tbody>
             {% for version in versions %}
+                {% partialdef dimensions %}
+                    <span class="logo-ver-ext">{{ version.logo_ext }}</span>
+                    {% if version.logo_width and version.logo_height %}
+                    <span class="logo-ver-dim ms-1">&bullet; {{ version.logo_width }}&times;{{ version.logo_height }}</span>
+                    {% endif %}
+                {% endpartialdef %}
+                {% partialdef color %}
+                    {% if version.logo_color %}
+                    <span class="logo-swatch" style="--swatch-color: {{ version.logo_color }};"></span>
+                    <span class="logo-ver-ext ms-1">{{ version.logo_color }}</span>
+                    {% else %}
+                    <span class="text-muted">&mdash;</span>
+                    {% endif %}
+                {% endpartialdef %}
             <tr>
                 <td class="logo-ver-num">{{ forloop.counter|stringformat:"02d" }}</td>
                 <td class="r-logo">
@@ -39,22 +53,10 @@
                     <a href="{{ version.get_absolute_url }}" class="text-nowrap">{% sv_ver version.ver %}</a>
                 </td>
                 <td class="d-none d-lg-table-cell">
-                    {% partialdef dimensions %}
-                    <span class="logo-ver-ext">{{ version.logo_ext }}</span>
-                    {% if version.logo_width and version.logo_height %}
-                    <span class="logo-ver-dim ms-1">&bullet; {{ version.logo_width }}&times;{{ version.logo_height }}</span>
-                    {% endif %}
-                    {% endpartialdef %}
+                    {% partial dimensions %}
                 </td>
                 <td class="d-none d-lg-table-cell">
-                    {% partialdef color %}
-                    {% if version.logo_color %}
-                    <span class="logo-swatch" style="--swatch-color: {{ version.logo_color }};"></span>
-                    <span class="logo-ver-ext ms-1">{{ version.logo_color }}</span>
-                    {% else %}
-                    <span class="text-muted">&mdash;</span>
-                    {% endif %}
-                    {% endpartialdef %}
+                    {% partial color %}
                 </td>
                 <td class="text-end">
                     <div class="d-sm-block d-lg-none">
