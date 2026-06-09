@@ -352,7 +352,10 @@ class Command(DbdbBaseCommand):
                         getattr(new_sv, cite_m2m).add(cite_obj)
 
             # Create SystemFeature rows for suggested features
-            feat_suggestions: dict = enrichment.get('features', {})
+            feat_suggestions = enrichment.get('features', {})
+            if not isinstance(feat_suggestions, dict):
+                LOG.warning(f"LLM returned non-dict for 'features': {type(feat_suggestions).__name__} — skipping")
+                feat_suggestions = {}
             features_by_slug = {f.slug: f for f in features}
             for feat_slug, option_slugs in feat_suggestions.items():
                 feature = features_by_slug.get(feat_slug)
