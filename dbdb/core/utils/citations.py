@@ -68,6 +68,7 @@ SPAM_IGNORE_DOMAINS = {
     "//news.ycombinator.com/",
     "//books.google.com/",
     "//github.com/"
+    "//www.businesswire.com/"
 }
 
 IGNORE_TITLES = map(str.lower, [
@@ -638,6 +639,46 @@ def merge_citations(merge_to: CitationUrl, merge_from: list[CitationUrl]) -> Cit
     all_ids  = from_ids + [merge_to.id]
 
     with transaction.atomic():
+        # ── Promote better crawl data from a VALID merge_from ────────────
+        # Among merge_from citations that have status=VALID, find the one
+        # with the most recent last_checked.
+        best: CitationUrl | None = None
+        for c in merge_from:
+            if c.status != CitationUrl.Status.VALID or c.last_checked is None:
+                continue
+            if best is None or c.last_checked > best.last_checked:
+                best = c
+
+        if best is not None and (
+            merge_to.last_checked is None or best.last_checked > merge_to.last_checked
+        ):
+            LOG.debug(
+                "Promoting crawl data from #%d (checked %s, VALID) "
+                "into merge_to #%d (checked %s, status=%s)",
+                best.pk, best.last_checked,
+                merge_to.pk, merge_to.last_checked, merge_to.get_status_display(),
+            )
+            merge_to.status            = best.status
+            merge_to.last_checked      = best.last_checked
+            merge_to.last_modified     = best.last_modified
+            merge_to.last_title        = best.last_title
+            merge_to.last_contenttype  = best.last_contenttype
+            merge_to.last_contentsize  = best.last_contentsize
+            merge_to.last_etag         = best.last_etag
+            merge_to.last_cachecontrol = best.last_cachecontrol
+            merge_to.last_statuscode   = best.last_statuscode
+            merge_to.save()
+
+            try:
+                src = best.content
+                CitationUrlContent.objects.update_or_create(
+                    citation=merge_to,
+                    defaults={'raw': src.raw, 'text': src.text},
+                )
+                LOG.debug("  Copied CitationUrlContent from #%d to merge_to #%d", best.pk, merge_to.pk)
+            except CitationUrlContent.DoesNotExist:
+                pass
+
         # ── M2M tables ────────────────────────────────────────────────────
         for table, owner_col in m2m_tables:
             with connection.cursor() as cursor:
