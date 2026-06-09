@@ -309,21 +309,42 @@ class Command(DbdbBaseCommand):
                 if field in missing_fields:
                     val = enrichment.get(field)
                     if val is not None:
-                        setattr(new_sv, field, val)
-                        dirty = True
-
-            # Apply URL FK fields
-            for field in URL_FK_FIELDS:
-                if field in missing_fields:
-                    url_str = (enrichment.get(field) or '').strip()
-                    if url_str:
                         try:
-                            norm = normalize_url(url_str)
-                            c, _ = CitationUrl.objects.get_or_create(url=norm)
-                            setattr(new_sv, field, c)
+                            setattr(new_sv, field, int(val))
                             dirty = True
-                        except Exception as e:
-                            LOG.warning(f"Could not resolve URL field {field}={url_str}: {e}")
+                        except (TypeError, ValueError):
+                            LOG.warning(f"  {field}: LLM returned non-integer {val!r}, skipping")
+
+            # Apply URL FK fields — validate each LLM-suggested URL before use
+            for field in URL_FK_FIELDS:
+                if field not in missing_fields:
+                    continue
+                url_str = (enrichment.get(field) or '').strip()
+                if not url_str:
+                    continue
+                try:
+                    norm = normalize_url(url_str)
+                    existing = CitationUrl.objects.filter(url=norm).first()
+                    if existing:
+                        setattr(new_sv, field, existing)
+                        dirty = True
+                        continue
+                    # New URL: create, validate, keep only if reachable
+                    citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
+                    citation, info = process_citation_url(citation, system=system)
+                    if info is None:
+                        # Merged into an existing CitationUrl
+                        setattr(new_sv, field, citation)
+                        dirty = True
+                    elif info['status'] == CitationUrl.Status.VALID:
+                        citation.save()
+                        setattr(new_sv, field, citation)
+                        dirty = True
+                    else:
+                        LOG.warning(f"  {field}: {url_str!r} is unreachable (status={citation.get_status_display()}), skipping")
+                        citation.delete()
+                except Exception as e:
+                    LOG.warning(f"  {field}: could not validate {url_str!r}: {e}")
 
             if dirty:
                 new_sv.save()
