@@ -286,17 +286,14 @@ class SystemVersionForm(forms.ModelForm):
     wikipedia_url = forms.URLField(
         required=False, label='Wikipedia URL',
         widget=forms.URLInput(attrs={'class': 'form-control'}))
+    linkedin_url = forms.URLField(
+        required=False, label='LinkedIn URL',
+        widget=forms.URLInput(attrs={'class': 'form-control'}))
 
     def clean_twitter_handle(self):
         data = self.cleaned_data['twitter_handle']
         if data and data[0] != '@':
             raise ValidationError("Invalid Twitter handle. Expected to start with '@' character")
-        return data
-
-    def clean_linkedin_handle(self):
-        data = self.cleaned_data['linkedin_handle']
-        if data and data.find("/") == -1:
-            raise ValidationError("Invalid LinkedIn handle. Expected format '<type>/<handle>'")
         return data
 
     class Meta:
@@ -308,7 +305,7 @@ class SystemVersionForm(forms.ModelForm):
             'history',
             'history_citations',
             'twitter_handle',
-            'linkedin_handle',
+            'linkedin_url',
             'start_year',
             'start_year_citations',
             'end_year',

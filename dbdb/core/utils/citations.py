@@ -615,7 +615,7 @@ def merge_citations(merge_to: CitationUrl, merge_from: list[CitationUrl]) -> Cit
       - M2M through-tables (SystemFeature.citations, SystemVersion citation M2Ms)
       - FK fields on Organization (url, linkedin_url)
       - FK field on Acquisition (citation)
-      - FK fields on SystemVersion (system_url, docs_url, sourcerepo_url, wikipedia_url)
+      - FK fields on SystemVersion (system_url, docs_url, sourcerepo_url, wikipedia_url, linkedin_url)
       - OneToOne field on RepositoryInfo (sourcerepo_url) — if merge_to already has
         a RepositoryInfo, the duplicate is deleted; otherwise it is reassigned.
     """
@@ -758,6 +758,11 @@ def merge_citations(merge_to: CitationUrl, merge_from: list[CitationUrl]) -> Cit
             for obj in svs:
                 LOG.debug("  SystemVersion #%d .wikipedia_url", obj.pk)
             svs.update(wikipedia_url=merge_to)
+
+            svs = SystemVersion.objects.filter(linkedin_url=citation)
+            for obj in svs:
+                LOG.debug("  SystemVersion #%d .linkedin_url", obj.pk)
+            svs.update(linkedin_url=merge_to)
 
             # RepositoryInfo is OneToOne with CASCADE — reassign or drop duplicate
             try:
@@ -910,6 +915,7 @@ def get_systems(c: CitationUrl,
         Q(docs_url=c) |
         Q(sourcerepo_url=c) |
         Q(wikipedia_url=c) |
+        Q(linkedin_url=c) |
         # Developer org URLs
         Q(developer_orgs__url=c) |
         Q(developer_orgs__linkedin_url=c) |

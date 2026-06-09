@@ -102,8 +102,8 @@
         <div class="fact"><dt>Twitter</dt><dd><a href="{{ version.twitter_handle_url }}"><i class="fa-brands fa-twitter"></i>{{ version.twitter_handle }}</a></dd></div>
         {% endif %}
 
-        {% if version.linkedin_handle %}
-        <div class="fact"><dt>LinkedIn</dt><dd><a href="{{ version.linkedin_handle_url }}"><i class="fa-brands fa-linkedin"></i>{{ version.linkedin_handle }}</a></dd></div>
+        {% if version.linkedin_url %}
+        <div class="fact"><dt>LinkedIn</dt><dd><a href="{{ version.linkedin_url.url }}" target="_{{ system.slug }}"><i class="fa-brands fa-linkedin"></i>{{ version.linkedin_handle }}</a>{% if linkedin_url_citation %}<span class="cites">{% citation_footnote linkedin_url_citation %}</span>{% endif %}</dd></div>
         {% endif %}
 
         {% if version.developer_orgs.all %}
@@ -308,7 +308,7 @@
         {% for c in citations %}
         <li id="citation{{ forloop.counter }}">
             <span class="cite-body">{% citation_link c %}
-                {% if request.user.is_superuser %}
+                {% if request.user.is_superuser and c.status != Status.UNKNOWN %}
                     <form method="post" action="{% url 'citation_reset_status' c.id %}" class="d-inline">{% csrf_token %}<input type="hidden" name="counter" value="{{ forloop.counter }}"><button type="submit" class="cite-meta mini-btn" title="Reset status to Unknown"><i class="fas fa-rotate-left"></i> Reset Status</button></form>
                 {% endif %}
             </span>

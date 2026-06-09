@@ -58,6 +58,10 @@
         <td class="r-model" data-sort-val="{{ col_val.data }}">
             {% if col_val.data %}<a href="https://twitter.com/{{ col_val.data }}" target="_blank" rel="noopener noreferrer">@{{ col_val.data }}</a>{% else %}<span class="r-dash">&mdash;</span>{% endif %}
         </td>
+        {% elif col_val.type == 'linkedin' %}
+        <td class="r-model" data-sort-val="{{ col_val.data }}">
+            {% if col_val.url %}<a href="{{ col_val.url }}" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-linkedin"></i>{{ col_val.data }}</a>{% else %}<span class="r-dash">&mdash;</span>{% endif %}
+        </td>
         {% endif %}
     {% endfor %}
 </tr>

@@ -46,10 +46,11 @@ _BUILTIN_COLUMNS = [
     ColumnDef('acquired-by',      'Acquired By',       'builtin'),
     ColumnDef('country',          'Country of Origin', 'builtin'),
     ColumnDef('system-url',       'Website URL',       'builtin'),
-    ColumnDef('docs-url',         'Docs URL',          'builtin'),
-    ColumnDef('sourcerepo-url',   'Source Repo URL',   'builtin'),
-    ColumnDef('wikipedia-url',    'Wikipedia URL',     'builtin'),
-    ColumnDef('twitter-handle',   'Twitter Handle',    'builtin'),
+    ColumnDef('docs-url',         'Documentation',     'builtin'),
+    ColumnDef('sourcerepo-url',   'Source Repo',       'builtin'),
+    ColumnDef('wikipedia-url',    'Wikipedia',         'builtin'),
+    ColumnDef('twitter-handle',   'Twitter',           'builtin'),
+    ColumnDef('linkedin-url',     'LinkedIn',          'builtin'),
 ]
 
 # Maps URL col_id → FK traversal path on SystemVersion
@@ -58,6 +59,7 @@ _URL_COL_FIELDS = {
     'docs-url':       'docs_url__url',
     'sourcerepo-url': 'sourcerepo_url__url',
     'wikipedia-url':  'wikipedia_url__url',
+    'linkedin-url':   'linkedin_url__url',
 }
 
 _RELATIONSHIP_COLUMNS = [
@@ -846,7 +848,7 @@ class BrowseView(View):
                     distinct=True,
                 )})
 
-        # URL column annotations (system_url, docs_url, sourcerepo_url, wikipedia_url)
+        # URL column annotations (system_url, docs_url, sourcerepo_url, wikipedia_url, linkedin_url)
         for col_id, fk_path in _URL_COL_FIELDS.items():
             if col_id in active_col_ids:
                 key = 'col_' + col_id.replace('-', '_')
@@ -943,6 +945,13 @@ class BrowseView(View):
                         for c in codes if c
                     ]
                     col_values.append({'type': 'countries', 'data': country_data})
+                elif col.col_id == 'linkedin-url':
+                    full_url = r.get('col_linkedin_url') or ''
+                    handle = ''
+                    if full_url:
+                        m = re.search(r'linkedin\.com(.*)', full_url)
+                        handle = m.group(1).rstrip('/') if m else full_url
+                    col_values.append({'type': 'linkedin', 'data': handle, 'url': full_url})
                 elif col.col_id in _URL_COL_FIELDS:
                     key = 'col_' + col.col_id.replace('-', '_')
                     col_values.append({'type': 'url', 'data': r.get(key) or ''})

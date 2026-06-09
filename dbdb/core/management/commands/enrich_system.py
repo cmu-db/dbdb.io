@@ -43,9 +43,9 @@ User = get_user_model()
 # Fields the command can fill — text, integer, simple char, and URL-FK fields.
 # M2M attribute fields (project_types, licenses, oses, written_in) are handled
 # separately because they require AttributeOption lookups.
-SIMPLE_TEXT_FIELDS = ('description', 'history', 'twitter_handle', 'linkedin_handle')
+SIMPLE_TEXT_FIELDS = ('description', 'history', 'twitter_handle')
 INT_FIELDS = ('start_year', 'end_year')
-URL_FK_FIELDS = ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url')
+URL_FK_FIELDS = ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url', 'linkedin_url')
 M2M_ATTR_FIELDS = ('project_types', 'licenses', 'oses', 'written_in')
 # Maps M2M field name → Attribute slug
 M2M_ATTR_SLUGS = {

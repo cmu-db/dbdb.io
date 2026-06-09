@@ -1,4 +1,5 @@
 # django imports
+import re
 import tldextract
 from colorfield.fields import ColorField
 from django.conf import settings
@@ -667,14 +668,15 @@ class SystemVersion(LogoMixin, models.Model):
         related_name='version_wikipedia_urls',
         verbose_name="Wikipedia URL")
 
+    linkedin_url = models.ForeignKey(
+        'CitationUrl', blank=True, null=True,
+        on_delete=models.SET_NULL,
+        related_name='version_linkedin_urls',
+        verbose_name="LinkedIn URL")
+
     twitter_handle = models.CharField(
         blank=True, max_length=100,
         help_text="Twitter account for the database (avoid company account if possible)")
-
-    linkedin_handle = models.CharField(
-        blank=True, max_length=100,
-        verbose_name="LinkedIn Handle",
-        help_text="LinkedIn profile for main developer backing the system (if available)")
 
     derived_from = models.ManyToManyField(
         'System', blank=True,
@@ -802,13 +804,18 @@ class SystemVersion(LogoMixin, models.Model):
     def description_mobile_remainder(self):
         return "\n".join(self.description.split("\n")[1:])
 
+    @property
+    def linkedin_handle(self):
+        if not self.linkedin_url_id:
+            return None
+        m = re.search(r'linkedin\.com(.*)', self.linkedin_url.url)
+        if not m:
+            return None
+        return m.group(1).rstrip('/')
+
     def twitter_handle_url(self):
         if not self.twitter_handle: return None
         return settings.TWITTER_URL + self.twitter_handle.replace('@', '')
-
-    def linkedin_handle_url(self):
-        if not self.linkedin_handle: return None
-        return settings.LINKEDIN_URL + self.linkedin_handle
 
     def twitter_card_url(self):
         return settings.TWITTER_CARD_URL + self.get_twitter_card_image()

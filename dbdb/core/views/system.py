@@ -124,6 +124,7 @@ class SystemView(View):
         docs_url_citation       = _url_citation('docs_url')
         sourcerepo_url_citation = _url_citation('sourcerepo_url')
         wikipedia_url_citation  = _url_citation('wikipedia_url')
+        linkedin_url_citation   = _url_citation('linkedin_url')
 
         sections = []
 
@@ -269,6 +270,7 @@ class SystemView(View):
             'docs_url_citation':       docs_url_citation,
             'sourcerepo_url_citation': sourcerepo_url_citation,
             'wikipedia_url_citation':  wikipedia_url_citation,
+            'linkedin_url_citation':   linkedin_url_citation,
             'page_error': version_error,
         })
 
@@ -525,7 +527,7 @@ class SystemEditView(LoginRequiredMixin, View):
             # URLField normalizes bare domains by adding a trailing slash (e.g.
             # "https://mongodb.com" → "https://mongodb.com/").  Try the exact
             # normalized form first, then the slash-stripped form, before creating.
-            for fk_field in ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url'):
+            for fk_field in ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url', 'linkedin_url'):
                 url_str = (system_version_form.cleaned_data.get(fk_field) or '').strip()
                 if url_str:
                     citation = CitationUrl.objects.filter(url=url_str).first()
@@ -953,7 +955,6 @@ def _compute_version_diff(v1, v2):
     # --- remaining scalar fields ---
     for field, label in [
         ('twitter_handle',   'Twitter Handle'),
-        ('linkedin_handle',  'LinkedIn Handle'),
         ('former_names',     'Former Names'),
         ('countries',        'Countries'),
     ]:
@@ -968,6 +969,7 @@ def _compute_version_diff(v1, v2):
         ('docs_url',        'Docs URL'),
         ('sourcerepo_url',  'Source Repo URL'),
         ('wikipedia_url',   'Wikipedia URL'),
+        ('linkedin_url',    'LinkedIn URL'),
     ]:
         a = _url_str(getattr(v1, field))
         b = _url_str(getattr(v2, field))
