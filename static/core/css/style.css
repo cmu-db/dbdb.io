@@ -149,7 +149,7 @@ tr.browse-row:hover { background-color: var(--browse-hover-color); }
 .badge:hover { text-decoration: none; }
 
 /* Citation styling */
-.citation { font-weight: normal; }
+.citation { font-weight: 600; font-size: 0.86rem; }
 .citations ol { font-size: 90%; }
 .citations li:target {
     background-color: var(--highlight-color);

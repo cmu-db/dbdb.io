@@ -82,6 +82,7 @@
         {% if version.system_url %}
         <div class="fact"><dt>Website</dt><dd><a href="{{ version.system_url.url }}" target="_{{ system.slug }}">{{ version.system_url.url }}</a>{% if system_url_citation %}<span class="cites">{% citation_footnote system_url_citation %}</span>{% endif %}</dd></div>
         {% endif %}
+
         {% if version.sourcerepo_url %}
         <div class="fact"><dt>Source Code</dt><dd>
             <a href="{{ version.sourcerepo_url.url }}" target="_{{ system.slug }}">{{ version.sourcerepo_url.url }}</a>{% if sourcerepo_url_citation %}<span class="cites">{% citation_footnote sourcerepo_url_citation %}</span>{% endif %}
@@ -92,21 +93,26 @@
             {% endif %}
         </dd></div>
         {% endif %}
+
         {% if version.docs_url %}
         <div class="fact"><dt>Tech Docs</dt><dd><a href="{{ version.docs_url.url }}" target="_{{ system.slug }}">{{ version.docs_url.url }}</a>{% if docs_url_citation %}<span class="cites">{% citation_footnote docs_url_citation %}</span>{% endif %}</dd></div>
         {% endif %}
+
         {% if version.twitter_handle %}
         <div class="fact"><dt>Twitter</dt><dd><a href="{{ version.twitter_handle_url }}"><i class="fa-brands fa-twitter"></i>{{ version.twitter_handle }}</a></dd></div>
         {% endif %}
+
         {% if version.linkedin_handle %}
         <div class="fact"><dt>LinkedIn</dt><dd><a href="{{ version.linkedin_handle_url }}"><i class="fa-brands fa-linkedin"></i>{{ version.linkedin_handle }}</a></dd></div>
         {% endif %}
+
         {% if version.developer_orgs.all %}
         <div class="fact"><dt>Developer{{ version.developer_orgs.all|pluralize }}</dt>
             <dd>{% for org in version.developer_orgs.all %}<div>{% org_link org %}</div>{% endfor %}
         </dd>
         </div>
         {% endif %}
+
         {% if version.governance.all %}
         <div class="fact"><dt>Governance</dt><dd>{% for f in version.governance.all %}{% if not forloop.first %}, {% endif %}{% browse_link "governance" f.slug "" f.name %}{% endfor %}</dd></div>
         {% endif %}
@@ -114,15 +120,18 @@
         <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
         <div class="fact"><dt>Country of Origin</dt><dd>{% for country in version.countries %}{% if not forloop.first %}, {% endif %}<a href="{% url 'browse' %}?country={{ country.code }}"><i class="{{ country.flag_css }}"></i> {{ country }}</a>{% endfor %}</dd></div>
         {% endif %}
+
         {% if version.start_year %}
             <div class="fact"><dt>Start Year</dt><dd>{{ version.start_year }} {% if start_year_citations %} <span class="cites">{% for c in start_year_citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</dd></div>
         {% endif %}
+
         {% if version.end_year %}
             <div class="fact"><dt>End Year</dt><dd>{{ version.end_year }}{% if end_year_citations %} <span class="cites">{% for c in end_year_citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</dd></div>
         {% endif %}
         {% if version.former_names %}
         <div class="fact"><dt>Former Name</dt><dd>{{ version.former_names }}</dd></div>
         {% endif %}
+
         {% if acquisitions %}
         <div class="fact"><dt>Acquired By</dt>
             <dd>
@@ -132,33 +141,43 @@
         {% elif version.acquired_by %}
         <div class="fact"><dt>Acquired By</dt><dd>{{ version.acquired_by }}</dd></div>
         {% endif %}
+
         {% if version.project_types.all %}
         <div class="fact"><dt>Project Type</dt><dd>{% for attropt in version.project_types.all %}{% if not forloop.first %}, {% endif %}{% browse_link "project-type" attropt.slug ": "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
         {% endif %}
+
         {% if version.written_in.all %}
         <div class="fact"><dt>Written in</dt><dd>{% for attropt in version.written_in.all %}{% if not forloop.first %}, {% endif %}{% browse_link "programming-language" attropt.slug "Written In "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
         {% endif %}
+
         {% if version.supported_languages.all %}
         <div class="fact"><dt>Supported Languages</dt><dd>{% for attropt in version.supported_languages.all %}{% if not forloop.first %}, {% endif %}{% browse_link "programming-language" attropt.slug "Supporting "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
         {% endif %}
+
         {% if version.derived_from.exists %}
         <div class="fact"><dt>Derived From</dt><dd>{% for other in version.derived_from.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
         {% endif %}
+
         {% if version.embedded.exists %}
         <div class="fact"><dt>Embeds / Uses</dt><dd>{% for other in version.embedded.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
         {% endif %}
+
         {% if version.inspired_by.exists %}
         <div class="fact"><dt>Inspired By</dt><dd>{% for other in version.inspired_by.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
         {% endif %}
+
         {% if version.compatible_with.exists %}
         <div class="fact"><dt>Compatible With</dt><dd>{% for other in version.compatible_with.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
         {% endif %}
+
         {% if version.oses.all %}
         <div class="fact"><dt>Operating Systems</dt><dd>{% for attropt in version.oses.all %}{% if not forloop.first %}, {% endif %}{% browse_link "os" attropt.slug "That Support "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
         {% endif %}
+
         {% if version.licenses.all %}
         <div class="fact"><dt>Licenses</dt><dd>{% for attropt in version.licenses.all %}{% if not forloop.first %}, {% endif %}{% browse_link "license" attropt.slug "That Use "|add:attropt.name|add:" License" attropt.name %}{% endfor %}</dd></div>
         {% endif %}
+
         {% if version.wikipedia_url %}
         <div class="fact"><dt>Wikipedia</dt><dd><a href="{{ version.wikipedia_url.url }}" target="_{{ system.slug }}">{{ version.wikipedia_url.url }}</a>{% if wikipedia_url_citation %}<span class="cites">{% citation_footnote wikipedia_url_citation %}</span>{% endif %}</dd></div>
         {% endif %}
@@ -287,7 +306,7 @@
     <div class="sec-head"><h2>Citations</h2><span class="rule"></span><span class="num">{{ citations|length }} source{% if citations|length != 1 %}s{% endif %}</span></div>
     <ol class="citations-list">
         {% for c in citations %}
-        <li class="citation" id="citation{{ forloop.counter }}">
+        <li id="citation{{ forloop.counter }}">
             <span class="cite-body">{% citation_link c %}</span>
         </li>
         {% endfor %}

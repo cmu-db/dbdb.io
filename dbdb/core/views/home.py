@@ -102,7 +102,7 @@ class HomeView(View):
             new_in_year -= 1
 
         # pick N saved searches per hour using a deterministic seed
-        hour_seed = now.year * 1000000 + now.month * 10000 + now.day * 100 + now.hour
+        hour_seed = int(now.microsecond) #  now.year * 1000000 + now.month * 10000 + now.day * 100 + now.hour
         all_saved_searches = list(SavedSearch.objects.all())
         if len(all_saved_searches) >= settings.DBDB_HOME_SAVEDSEARCH_NUM_ENTRIES:
             featured_searches = random.Random(hour_seed).sample(all_saved_searches, settings.DBDB_HOME_SAVEDSEARCH_NUM_ENTRIES)

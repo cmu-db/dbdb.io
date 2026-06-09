@@ -55,7 +55,7 @@ class SystemView(View):
 
     template_name = 'core/system-view.html'
 
-    def process_citations(self, citations):
+    def process_citations(self, citations) -> list(int):
         citation_offsets = [ ]
         for c in citations:
             offset = None
@@ -127,8 +127,9 @@ class SystemView(View):
 
         sections = []
 
+        description_citations = []
         if system_version.description_citations:
-            self.process_citations(system_version.description_citations.all())
+            description_citations = self.process_citations(system_version.description_citations.all())
 
         if system_version.history:
             sections.append({
@@ -248,9 +249,6 @@ class SystemView(View):
             'version': system_version,
             'hosted_services': hosted_services,
             'sections': sections,
-            'citations': self.all_citations,
-            'start_year_citations': start_year_citations,
-            'end_year_citations': end_year_citations,
             'acquisitions': acquisitions,
             'user_can_edit': user_can_edit,
             'compatible': compatible,
@@ -263,6 +261,10 @@ class SystemView(View):
             'repo_snapshot': repo_snapshot,
             'has_revision': has_revision,
             'approved_ver': approved_ver,
+            'citations': self.all_citations,
+            'description_citations': description_citations,
+            'start_year_citations': start_year_citations,
+            'end_year_citations': end_year_citations,
             'system_url_citation':     system_url_citation,
             'docs_url_citation':       docs_url_citation,
             'sourcerepo_url_citation': sourcerepo_url_citation,
