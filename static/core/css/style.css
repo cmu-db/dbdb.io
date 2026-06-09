@@ -840,7 +840,7 @@ form.main-search { display: block; padding: 0; }
 .filter-actions { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin-top: .9rem; }
 .mini-btn {
   font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; font-size: .66rem;
-  border: 1px solid var(--ink); background: var(--ink); color: var(--paper);
+  border: 1px solid var(--ink); background: var(--ink); color: var(--paper) !important;
   padding: .45rem .8rem; display: inline-flex; align-items: center; gap: .4rem; cursor: pointer; white-space: nowrap;
 }
 .mini-btn.ghost { background: transparent; color: var(--ink); }
@@ -1168,6 +1168,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .citation-archive .cite-meta { transition: background .15s, border-color .15s, color .15s; }
 .citation-archive:hover .cite-meta { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .citation-link:hover { text-decoration: underline dotted; text-underline-offset: 3px; }
+.cite-body .mini-btn { font-size: .58rem; padding: .1rem .4rem; letter-spacing: .05em; }
 
 .entry-foot {
   border-top: 1px solid var(--rule);
@@ -1350,8 +1351,30 @@ ins.diff-ins { text-decoration: none; border-radius: 2px; padding: 0 2px; }
 .diff-version-header { font-family: var(--mono); font-size: .78rem; }
 
 .diff-version-header .ver-meta { color: var(--ink-soft); }
-.diff-cite-list { margin: .4rem 0 0 0; padding-left: 1.4rem; font-size: .78rem; }
-.diff-cite-list li { margin-bottom: .15rem; }
+.diff-cite-list {
+  font-size: .78rem;
+  list-style: none;
+  counter-reset: cite;
+  padding: 0;
+  margin: 0;
+}
+.diff-cite-list li::before {
+  content: counter(cite, decimal-leading-zero) ".";
+  font-family: var(--mono);
+  color: var(--muted);
+  font-size: .72rem;
+  flex: none;
+  text-align: right;
+}
+.diff-cite-list li {
+  counter-increment: cite;
+  display: flex;
+  gap: .8rem;
+  align-items: baseline;
+  padding: .5rem 0;
+  font-family: var(--sans);
+}
+
 .diff-cite-url { font-family: var(--mono); font-size: .75rem; word-break: break-all; color: inherit; }
 
 /* ============================================================

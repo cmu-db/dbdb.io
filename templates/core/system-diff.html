@@ -113,7 +113,7 @@
             <span class="text-muted fst-italic">removed</span>
             {% endif %}
             {% if fd.citations.v2_items %}
-            <ol class="diff-cite-list border-top">
+            <ol class="diff-cite-list citations-list border-top">
                 {% for item in fd.citations.v2_items %}
                 <li><a href="{{ item.url }}" target="_blank" rel="noopener"
                     class="diff-cite-url">{% if item.status == 'removed' %}<del>{{ item.url }}</del>{% elif item.status == 'added' %}<ins>{{ item.url }}</ins>{% else %}{{ item.url }}{% endif %}</a></li>

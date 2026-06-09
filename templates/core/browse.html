@@ -24,19 +24,23 @@
 {% endpage_title %}
 
 {% if request.user.is_superuser %}
-<div class="text-end mb-2">
-  <a id="btn-save-search" class="btn btn-sm btn-outline-secondary" href="#">
-    <i class="fas fa-bookmark"></i> Save Search
-  </a>
-</div>
-<script>
-document.getElementById('btn-save-search').addEventListener('click', function(e) {
-    e.preventDefault();
-    var params = new URLSearchParams(window.location.search);
-    if (!params.get('q')) params.delete('q');
-    window.location.href = '{% url "admin:core_savedsearch_add" %}?search_params=' + encodeURIComponent(params.toString());
-});
-</script>
+    {% partialdef save_search %}
+    <!-- BEGIN:SAVE-SEARCH -->
+{#    <div class="text-end mb-2 ">#}
+      <a id="btn-save-search" class="mini-btn" href="#">
+        <i class="fas fa-bookmark"></i> Save Search
+      </a>
+{#    </div>#}
+    <script>
+    document.getElementById('btn-save-search').addEventListener('click', function(e) {
+        e.preventDefault();
+        var params = new URLSearchParams(window.location.search);
+        if (!params.get('q')) params.delete('q');
+        window.location.href = '{% url "admin:core_savedsearch_add" %}?search_params=' + encodeURIComponent(params.toString());
+    });
+    </script>
+    <!-- END:SAVE-SEARCH -->
+    {% endpartialdef %}
 {% endif %}
 
 <div class="browse-wrap">
@@ -94,6 +98,7 @@ document.getElementById('btn-save-search').addEventListener('click', function(e)
                 {% if show_all_url %}
                 <a class="mini-btn" href="{{ show_all_url }}">Show All Results</a>
                 {% endif %}
+                {% partial save_search %}
                 <button class="mini-btn ghost" type="button" id="advanced-search-clear">Clear</button>
             </div>
           </div>

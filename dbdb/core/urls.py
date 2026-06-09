@@ -47,5 +47,7 @@ urlpatterns = [
 
     path('counter', views.CounterView.as_view(), name='counter'),
     path('sitemap.xml', views.SitemapView.as_view(), name='sitemap'),
+
+    path('citation/<int:pk>/reset-status', views.CitationResetStatusView.as_view(), name='citation_reset_status'),
 ]
 

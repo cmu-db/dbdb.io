@@ -8,6 +8,7 @@ from .organization import OrganizationView
 from .stats import StatsView
 from .suggest import SystemSuggestionView, SystemSuggestionSuccessView
 from .system import (
+    CitationResetStatusView,
     RecentChangesView,
     SystemEditView,
     SystemLogosView,

@@ -1145,3 +1145,21 @@ class SystemVersionDiffView(View):
                 finalize_new_version(v)
 
         return redirect('system', slug=slug)
+
+
+# ==============================================
+# CitationResetStatusView
+# ==============================================
+class CitationResetStatusView(View):
+
+    def post(self, request, pk):
+        if not request.user.is_superuser:
+            return HttpResponseForbidden()
+        citation = get_object_or_404(CitationUrl, pk=pk)
+        citation.status = CitationUrl.Status.UNKNOWN
+        citation.save(update_fields=['status'])
+        counter = request.POST.get('counter', '')
+        fragment = f"citation{counter}" if counter else ''
+        referer = request.META.get('HTTP_REFERER', '/')
+        parsed = urllib.parse.urlparse(referer)
+        return redirect(urllib.parse.urlunparse(parsed._replace(fragment=fragment)))

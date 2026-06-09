@@ -32,7 +32,7 @@
     </span>
     </a>
 {% endif %}
-{% if c.last_modified %}
+{% if c.last_modified and c.status != Status.SPAM %}
     <time datetime="{{ c.last_modified|date:"c" }}"><span class="cite-meta">Modified: {{ c.last_modified|date }}</span></time>
 {% endif %}
 {% if c.last_checked %}

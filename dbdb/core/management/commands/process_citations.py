@@ -22,8 +22,6 @@ class Command(DbdbBaseCommand):
 
         parser.add_argument('citation', metavar='C', type=str, nargs='*',
                     help='One or more citation IDs or URL keywords to process')
-        parser.add_argument('--skip-spam', action='store_true',
-                    help="Skip spam checks")
         parser.add_argument('--normalize', action='store_true',
                     help="Normalize URLs to avoid duplicates")
         parser.add_argument('--only-new', action='store_true',
@@ -40,6 +38,8 @@ class Command(DbdbBaseCommand):
                     help="Only process citations with HTTP last_statuscode=N (e.g. 404)")
         parser.add_argument('--ignore', metavar='KEYWORD', action='append', default=[],
                     help="Skip any URL containing this keyword (repeatable: --ignore foo --ignore bar)")
+        parser.add_argument('--skip-spam', action='store_true',
+                    help="Skip spam checks")
         parser.add_argument('--dry-run', action='store_true',
                     help="Print what would be changed without writing to the database")
 
