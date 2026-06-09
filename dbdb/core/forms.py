@@ -305,7 +305,6 @@ class SystemVersionForm(forms.ModelForm):
             'history',
             'history_citations',
             'twitter_handle',
-            'linkedin_url',
             'start_year',
             'start_year_citations',
             'end_year',

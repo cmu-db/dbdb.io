@@ -1418,6 +1418,8 @@ ins.diff-ins { text-decoration: none; border-radius: 2px; padding: 0 2px; }
   padding: .6rem 1.2rem; cursor: pointer; transition: background .15s, border-color .15s, color .15s;
 }
 .btn-solid:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn-solid.danger { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn-solid.danger:hover { background: var(--accent-2); border-color: var(--accent-2); }
 
 .status {
   font-family: var(--mono); text-transform: uppercase; letter-spacing: .07em; font-size: .56rem; font-weight: 500;

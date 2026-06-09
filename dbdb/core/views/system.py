@@ -43,7 +43,7 @@ from dbdb.core.models import (
     SystemVersion,
     user_can_edit_system,
 )
-from dbdb.core.utils.versions import finalize_new_version
+from dbdb.core.utils.versions import delete_latest_version, finalize_new_version
 
 from .api import CounterView
 
@@ -1165,3 +1165,20 @@ class CitationResetStatusView(View):
         referer = request.META.get('HTTP_REFERER', '/')
         parsed = urllib.parse.urlparse(referer)
         return redirect(urllib.parse.urlunparse(parsed._replace(fragment=fragment)))
+
+
+# ==============================================
+# SystemVersionDeleteView
+# ==============================================
+class SystemVersionDeleteView(View):
+
+    @method_decorator(login_required)
+    def post(self, request, slug, ver):
+        if not (request.user.is_superuser or request.user.is_staff):
+            return HttpResponseForbidden()
+        system = get_object_or_404(System, slug=slug)
+        v = get_object_or_404(SystemVersion, system=system, ver=ver)
+        if v.approved:
+            return HttpResponseForbidden()
+        delete_latest_version(system)
+        return redirect('system_revision', slug=slug)

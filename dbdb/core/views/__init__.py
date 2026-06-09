@@ -13,5 +13,6 @@ from .system import (
     SystemEditView,
     SystemLogosView,
     SystemVersionDiffView,
+    SystemVersionDeleteView,
     SystemView,
 )
