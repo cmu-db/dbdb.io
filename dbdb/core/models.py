@@ -752,7 +752,14 @@ class SystemVersion(LogoMixin, models.Model):
 
     class Meta:
         ordering = ('-ver',)
-        unique_together = ('system','ver')
+        unique_together = ('system', 'ver')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['system'],
+                condition=models.Q(approved=False),
+                name='unique_pending_version_per_system',
+            ),
+        ]
 
     def __hash__(self):
         return hash((
@@ -767,6 +774,9 @@ class SystemVersion(LogoMixin, models.Model):
 
     def get_absolute_url(self):
         return reverse('system_version', args=[self.system.slug, self.ver])
+
+    def get_diff_url(self):
+        return reverse('system_diff', args=[self.system.slug, self.system.current().ver, self.ver])
 
     def tags_str(self):
         return ', '.join( self.tags.values_list('name', flat=True) )

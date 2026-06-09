@@ -26,15 +26,10 @@ from django.db import transaction
 from dbdb.core.models import (
     Attribute, CitationUrl,
     Feature, FeatureOption,
-    System, SystemFeature, SystemVersion,
+    System, SystemFeature, SystemVersion, AttributeOption,
 )
 from dbdb.core.utils.citations import normalize_url, process_citation_url
-from dbdb.core.utils.enrichment import (
-    build_feature_prompt,
-    build_full_prompt,
-    call_llm,
-    validate_citations,
-)
+from dbdb.core.utils.enrichment import BaseEnricher, SYSTEM_ENRICHMENT_TOOL
 
 LOG = logging.getLogger(__name__)
 User = get_user_model()
@@ -191,6 +186,7 @@ class Command(DbdbBaseCommand):
             raise CommandError(f"No current SystemVersion for '{keyword}'")
 
         self.stdout.write(f"System: {system.name} (current ver #{current.ver})")
+        enricher = BaseEnricher.create(model_override)
 
         # --- 2. Identify missing fields ---
         missing_fields = _get_missing_fields(current, requested_fields)
@@ -225,23 +221,23 @@ class Command(DbdbBaseCommand):
         if not per_feature:
             # Single comprehensive call
             self.stdout.write("Calling LLM (single call)...")
-            prompt = build_full_prompt(
+            prompt = enricher.build_system_prompt(
                 system=system,
                 current_version=current,
                 missing_fields=missing_fields + (['features'] if missing_features else []),
                 crawled_pages=crawled_pages,
-                features=features,
+                features=missing_features,
                 attributes=attributes,
             )
             try:
-                enrichment = call_llm(prompt, model_override=model_override)
+                enrichment = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override)
             except Exception as e:
                 raise CommandError(f"LLM call failed: {e}")
         else:
             # Per-feature calls — merge results into enrichment dict
             if missing_fields:
                 self.stdout.write("Calling LLM for metadata fields...")
-                prompt = build_full_prompt(
+                prompt = enricher.build_system_prompt(
                     system=system,
                     current_version=current,
                     missing_fields=missing_fields,
@@ -250,7 +246,7 @@ class Command(DbdbBaseCommand):
                     attributes=attributes,
                 )
                 try:
-                    enrichment = call_llm(prompt, model_override=model_override)
+                    enrichment = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override)
                 except Exception as e:
                     raise CommandError(f"LLM call failed: {e}")
 
@@ -258,9 +254,9 @@ class Command(DbdbBaseCommand):
             enrichment.setdefault('citations', [])
             for feature in missing_features:
                 self.stdout.write(f"  Calling LLM for feature: {feature.label}")
-                prompt = build_feature_prompt(system, feature, crawled_pages)
+                prompt = enricher.build_feature_prompt(system, feature, crawled_pages)
                 try:
-                    result = call_llm(prompt, model_override=model_override)
+                    result = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override)
                     enrichment['features'].update(result.get('features', {}))
                     enrichment['citations'].extend(result.get('citations', []))
                 except Exception as e:
@@ -269,7 +265,7 @@ class Command(DbdbBaseCommand):
         # --- 6. Validate citations ---
         self.stdout.write("Validating citations...")
         raw_citations = enrichment.get('citations', [])
-        valid_citations = validate_citations(raw_citations, system)
+        valid_citations = enricher.validate_citations(raw_citations, system)
         self.stdout.write(f"  {len(valid_citations)}/{len(raw_citations)} citations valid")
 
         # --- 7. Dry-run output ---
@@ -289,12 +285,17 @@ class Command(DbdbBaseCommand):
         bot_user = User.objects.get(username=settings.DBDB_BOT_ACCOUNT)
 
         with transaction.atomic():
-            new_sv = _copy_version(current)
-            new_sv.approved = False
-            new_sv.is_current = False
-            new_sv.creator = bot_user
+            existing_pending = system.pending_version()
+            if existing_pending:
+                new_sv = existing_pending
+                self.stdout.write(f"Reusing existing pending SystemVersion #{new_sv.ver}")
+            else:
+                new_sv = _copy_version(current)
+                new_sv.approved = False
+                new_sv.is_current = False
+                new_sv.creator = bot_user
+                new_sv.save()  # pre-save signal assigns ver number
             new_sv.comment = f"Auto-enriched by enrich_system command (model: {model_override or settings.ENRICHMENT_LLM_MODEL})"
-            new_sv.save()  # pre-save signal assigns ver number
 
             # Apply simple text / int fields
             dirty = False
@@ -399,8 +400,9 @@ class Command(DbdbBaseCommand):
                 )
                 sf.options.set(opts)
 
+        verb = "Updated" if existing_pending else "Created"
         self.stdout.write(self.style.SUCCESS(
-            f"\nCreated pending SystemVersion #{new_sv.ver} for '{system.name}'"
+            f"\n{verb} pending SystemVersion #{new_sv.ver} for '{system.name}'"
         ))
         fields_filled = [
             f for f in missing_fields
@@ -410,4 +412,6 @@ class Command(DbdbBaseCommand):
             self.stdout.write(f"Fields filled: {', '.join(fields_filled)}")
         if feat_suggestions:
             self.stdout.write(f"Features set: {', '.join(feat_suggestions.keys())}")
-        self.stdout.write("Review and approve at /admin/core/systemversion/")
+        from django.contrib.sites.models import Site
+        domain = Site.objects.get_current().domain
+        self.stdout.write(f"Review and approve: https://{domain}{new_sv.get_diff_url()}")
