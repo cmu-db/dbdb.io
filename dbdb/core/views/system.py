@@ -744,7 +744,7 @@ class RecentChangesView(View):
                 and lookup_user is not None
                 and lookup_user == request.user
             )
-            if not viewing_own:
+            if not viewing_own and not request.user.is_superuser:
                 versions = versions.filter(approved=True)
 
         versions = versions.order_by("-created")
