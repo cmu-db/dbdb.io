@@ -12,6 +12,7 @@ For each empty field on the current SystemVersion, the command:
      suggested values for fields that were empty — existing data is never overwritten
 """
 import logging
+import sys
 from argparse import ArgumentParser
 
 from datetime import timedelta
@@ -30,6 +31,7 @@ from dbdb.core.models import (
 )
 from dbdb.core.utils.citations import normalize_url, process_citation_url
 from dbdb.core.utils.enrichment import BaseEnricher, SYSTEM_ENRICHMENT_TOOL
+from dbdb.core.utils.versions import clone_system_version
 
 LOG = logging.getLogger(__name__)
 User = get_user_model()
@@ -48,6 +50,7 @@ M2M_ATTR_SLUGS = {
     'licenses':      'license',
     'oses':          'os',
     'written_in':    'programming-language',
+    'tags':          'tags'
 }
 # Maps M2M field name → the M2M citation field on SystemVersion
 FIELD_CITATION_MAP = {
@@ -119,16 +122,6 @@ def _crawl_existing_urls(
                 crawled[url] = text
     return crawled
 
-
-def _copy_version(source: SystemVersion) -> SystemVersion:
-    """Return an unsaved in-memory copy of *source* with pk=None."""
-    copy = SystemVersion()
-    skip = {'id', 'ver', 'is_current', 'approved', 'created'}
-    for f in source._meta.concrete_fields:
-        if f.attname in skip:
-            continue
-        setattr(copy, f.attname, getattr(source, f.attname))
-    return copy
 
 
 def _get_missing_features(version: SystemVersion) -> list[Feature]:
@@ -210,7 +203,7 @@ class Command(DbdbBaseCommand):
         features = list(Feature.objects.prefetch_related('options').order_by('category', 'label'))
         attributes = list(
             Attribute.objects
-            .filter(sv_field__in=M2M_ATTR_SLUGS.values())
+            .filter(sv_field__in=M2M_ATTR_SLUGS.keys())
             .prefetch_related('options')
             .order_by('name')
         )
@@ -288,14 +281,15 @@ class Command(DbdbBaseCommand):
             existing_pending = system.pending_version()
             if existing_pending:
                 new_sv = existing_pending
+                new_sv.comment = f"Auto-enriched by enrich_system command (model: {model_override or settings.ENRICHMENT_LLM_MODEL})"
                 self.stdout.write(f"Reusing existing pending SystemVersion #{new_sv.ver}")
             else:
-                new_sv = _copy_version(current)
-                new_sv.approved = False
-                new_sv.is_current = False
-                new_sv.creator = bot_user
-                new_sv.save()  # pre-save signal assigns ver number
-            new_sv.comment = f"Auto-enriched by enrich_system command (model: {model_override or settings.ENRICHMENT_LLM_MODEL})"
+                new_sv = clone_system_version(
+                    current,
+                    approved=False,
+                    creator=bot_user,
+                    comment=f"Auto-enriched by enrich_system command (model: {model_override or settings.ENRICHMENT_LLM_MODEL})",
+                )
 
             # Apply simple text / int fields
             dirty = False
