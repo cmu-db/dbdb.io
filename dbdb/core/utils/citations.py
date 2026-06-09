@@ -22,10 +22,14 @@ from bs4 import BeautifulSoup
 from django.conf import settings
 from django.db import connection, transaction
 from django.db.models import Q
+from django.utils import timezone
 from pptx import Presentation
 from PyPDF2 import PdfReader
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_playwright
+from requests import ConnectTimeout
+from requests.exceptions import ConnectionError, InvalidURL, ReadTimeout
 from tldextract import tldextract
+from urllib3.exceptions import NewConnectionError, ReadTimeoutError
 
 from dbdb.core.models import (
     Acquisition, CitationUrl, CitationUrlContent, Organization,
@@ -310,11 +314,19 @@ def _extract_wikipedia_metadata(
 TEXT_CONTENT_MAX_CHARS = 8_000
 
 
+def _check_if_exists(c: CitationUrl, url: str) -> CitationUrl | None:
+    """Return an existing CitationUrl that matches *url* or its slash-toggled variant, excluding *c* itself."""
+    alt_url = url[:-1] if url.endswith('/') else url + '/'
+    return (CitationUrl.objects
+            .filter(Q(url=url) | Q(url=alt_url))
+            .exclude(pk=c.pk)
+            .first())
+
+
 def fetch_url_metadata(
     url: str,
     *,
     system: System | None = None,
-    citation_url: CitationUrl | None = None,
     skip_spamcheck: bool = False,
     request_timeout: int | None = None,
     if_none_match: str | None = None,
@@ -437,7 +449,6 @@ def fetch_url_metadata(
             result = fetch_url_metadata(
                 new_url,
                 system=system,
-                citation_url=citation_url,
                 skip_spamcheck=skip_spamcheck,
                 request_timeout=request_timeout,
                 if_none_match=if_none_match,
@@ -576,12 +587,6 @@ def fetch_url_metadata(
         if title and title.lower() in IGNORE_TITLES: title = None
         if title and status_code in [403, 404]: title = None
 
-    if citation_url is not None and (raw_content or clean_text):
-        CitationUrlContent.objects.update_or_create(
-            citation=citation_url,
-            defaults={'raw': raw_content, 'text': clean_text},
-        )
-
     return {
         "url": url,
         "status": status,
@@ -678,15 +683,40 @@ def merge_citations(merge_to: CitationUrl, merge_from: list[CitationUrl]) -> Cit
 
         # ── FK fields ─────────────────────────────────────────────────────
         for citation in merge_from:
-            Organization.objects.filter(url=citation).update(url=merge_to)
-            Organization.objects.filter(linkedin_url=citation).update(linkedin_url=merge_to)
+            orgs = Organization.objects.filter(url=citation)
+            for obj in orgs:
+                LOG.debug("  Organization #%d .url", obj.pk)
+            orgs.update(url=merge_to)
 
-            Acquisition.objects.filter(citation=citation).update(citation=merge_to)
+            orgs = Organization.objects.filter(linkedin_url=citation)
+            for obj in orgs:
+                LOG.debug("  Organization #%d .linkedin_url", obj.pk)
+            orgs.update(linkedin_url=merge_to)
 
-            SystemVersion.objects.filter(system_url=citation).update(system_url=merge_to)
-            SystemVersion.objects.filter(docs_url=citation).update(docs_url=merge_to)
-            SystemVersion.objects.filter(sourcerepo_url=citation).update(sourcerepo_url=merge_to)
-            SystemVersion.objects.filter(wikipedia_url=citation).update(wikipedia_url=merge_to)
+            acqs = Acquisition.objects.filter(citation=citation)
+            for obj in acqs:
+                LOG.debug("  Acquisition #%d .citation", obj.pk)
+            acqs.update(citation=merge_to)
+
+            svs = SystemVersion.objects.filter(system_url=citation)
+            for obj in svs:
+                LOG.debug("  SystemVersion #%d .system_url", obj.pk)
+            svs.update(system_url=merge_to)
+
+            svs = SystemVersion.objects.filter(docs_url=citation)
+            for obj in svs:
+                LOG.debug("  SystemVersion #%d .docs_url", obj.pk)
+            svs.update(docs_url=merge_to)
+
+            svs = SystemVersion.objects.filter(sourcerepo_url=citation)
+            for obj in svs:
+                LOG.debug("  SystemVersion #%d .sourcerepo_url", obj.pk)
+            svs.update(sourcerepo_url=merge_to)
+
+            svs = SystemVersion.objects.filter(wikipedia_url=citation)
+            for obj in svs:
+                LOG.debug("  SystemVersion #%d .wikipedia_url", obj.pk)
+            svs.update(wikipedia_url=merge_to)
 
             # RepositoryInfo is OneToOne with CASCADE — reassign or drop duplicate
             try:
@@ -706,6 +736,111 @@ def merge_citations(merge_to: CitationUrl, merge_from: list[CitationUrl]) -> Cit
         LOG.info("Deleted %d CitationUrl(s): %s", deleted, from_ids)
 
     return merge_to
+
+
+def process_citation_url(
+        citation_url: CitationUrl,
+    *,
+        system: System | None = None,
+        skip_spamcheck: bool = False,
+        request_timeout: int | None = None,
+        allow_redirects: bool = False,
+        normalize: bool = False,
+) -> tuple[CitationUrl, dict[str, Any] | None]:
+    """
+    Clean, fetch, and update one CitationUrl in-place.
+
+    Returns:
+        (surviving, None)    — citation_url was merged into *surviving* and deleted;
+                               caller should skip further processing.
+        (citation_url, info) — normal path; metadata fields updated (not saved);
+                               CitationUrlContent saved if content was fetched;
+                               caller should apply info["title"] and then save.
+    """
+    info = None
+
+    # URL cleanup — fix common malformed URL patterns
+    if not citation_url.url.lower().startswith("http"):
+        parts = citation_url.url.split(" ")
+        if parts[0].isdigit() and len(parts) > 1: citation_url.url = parts[1].strip()
+        if parts[0].startswith("ttp:"): citation_url.url = 'h' + parts[0]
+    match = re.match(r"(http(.*?))[\s]+Section.*", citation_url.url, re.IGNORECASE)
+    if match:
+        citation_url.url = match.group(0)
+
+    if normalize:
+        orig_url = citation_url.url
+        citation_url.url = normalize_url(orig_url)
+        if orig_url != citation_url.url:
+            LOG.info(f"NORMALIZE: {orig_url} -> {citation_url.url}")
+
+    # Pre-fetch duplicate check
+    other = _check_if_exists(citation_url, citation_url.url)
+    if other is not None:
+        merge_citations(other, [citation_url])
+        return other, info
+
+    try:
+        info = fetch_url_metadata(
+            citation_url.url,
+            system=system,
+            skip_spamcheck=skip_spamcheck,
+            request_timeout=request_timeout,
+            allow_redirects=allow_redirects,
+        )
+
+        # Post-redirect duplicate check
+        if "url" in info and citation_url.url != info["url"]:
+            new_url = info["url"]
+            other = _check_if_exists(citation_url, new_url)
+            if other is not None:
+                merge_citations(other, [citation_url])
+                return other, info
+            citation_url.url = new_url
+
+        # Update metadata fields (status and last_title are set below, after the try block)
+        citation_url.last_statuscode = info["status-code"]
+        citation_url.last_contenttype = info["content-type"]
+        citation_url.last_contentsize = info["content-length"]
+        citation_url.last_cachecontrol = info["cache-control"]
+        citation_url.last_etag = info["etag"]
+        citation_url.last_modified = info["last-modified"]
+        citation_url.status = info["status"]
+
+        # Save content if fetched
+        raw_content = info.get("raw") or ''
+        clean_text = info.get("text") or ''
+        if raw_content or clean_text:
+            CitationUrlContent.objects.update_or_create(
+                citation=citation_url,
+                defaults={'raw': raw_content, 'text': clean_text},
+            )
+
+        max_title = CitationUrl._meta.get_field('last_title').max_length
+        if not (citation_url.status == CitationUrl.Status.DEAD and citation_url.last_title):
+            citation_url.last_title = info["title"]
+            if citation_url.last_title and len(citation_url.last_title) > max_title:
+                citation_url.last_title = citation_url.last_title[:max_title]
+
+    except (TimeoutError, ReadTimeoutError, ConnectTimeout, ReadTimeout, ConnectionError, NewConnectionError) as e:
+        LOG.warning(f"Connection failed for {citation_url}: {e}")
+        info = {"status": CitationUrl.Status.DEAD, "title": None}
+
+    except InvalidURL as e:
+        LOG.warning(f"Invalid URL {citation_url}: {e}")
+        info = {"status": CitationUrl.Status.IGNORE, "title": None}
+
+    except:
+        info["status"] = CitationUrl.Status.DEAD
+        raise
+
+    finally:
+        citation_url.status = info["status"]
+        citation_url.last_checked = timezone.now()
+        citation_url.save()
+
+    return citation_url, info
+
 
 def get_systems(c: CitationUrl,
                 current_only: bool | None = False) -> list[System]:

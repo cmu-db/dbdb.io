@@ -18,7 +18,7 @@ from dbdb.core.models import (
     Feature, FeatureOption,
     System, SystemVersion,
 )
-from dbdb.core.utils.citations import fetch_url_metadata, normalize_url
+from dbdb.core.utils.citations import normalize_url, process_citation_url
 
 LOG = logging.getLogger(__name__)
 
@@ -299,15 +299,16 @@ def validate_citations(
         # Only re-fetch if we haven't validated recently
         if citation_obj.status == CitationUrl.Status.UNKNOWN or citation_obj.last_checked is None:
             try:
-                result = fetch_url_metadata(
-                    norm_url,
-                    system=system,
-                    citation_url=citation_obj,
-                )
-                citation_obj.status = result["status"]
-                citation_obj.last_title = result.get("title")
-                citation_obj.last_statuscode = result.get("status-code")
-                citation_obj.save(update_fields=["status", "last_title", "last_statuscode"])
+                citation_obj, result = process_citation_url(citation_obj, system=system)
+                if result is None:
+                    # was merged; surviving citation already has its status set
+                    norm_url = citation_obj.url
+                else:
+                    citation_obj.status = result["status"]
+                    citation_obj.last_title = result.get("title")
+                    citation_obj.save(update_fields=["status", "last_title", "last_statuscode",
+                                                     "last_contenttype", "last_contentsize",
+                                                     "last_etag", "last_modified", "last_cachecontrol"])
             except Exception as e:
                 LOG.warning(f"Failed to fetch citation {norm_url}: {e}")
                 continue

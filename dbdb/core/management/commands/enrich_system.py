@@ -28,7 +28,7 @@ from dbdb.core.models import (
     Feature, FeatureOption,
     System, SystemFeature, SystemVersion,
 )
-from dbdb.core.utils.citations import fetch_url_metadata, normalize_url
+from dbdb.core.utils.citations import normalize_url, process_citation_url
 from dbdb.core.utils.enrichment import (
     build_feature_prompt,
     build_full_prompt,
@@ -117,15 +117,11 @@ def _crawl_existing_urls(
                 pass
 
         LOG.info(f"  Crawling {field}: {url}")
-        try:
-            result = fetch_url_metadata(url, system=system, citation_url=citation)
+        _citation, result = process_citation_url(citation, system=system)
+        if result:
             text = result.get('text', '')
             if text:
                 crawled[url] = text
-        except Exception as e:
-            LOG.warning(f"  Failed to crawl {url}: {e}")
-        finally:
-            citation.save()
     return crawled
 
 

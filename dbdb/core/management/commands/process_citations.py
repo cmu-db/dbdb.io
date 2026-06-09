@@ -1,34 +1,18 @@
 import logging
-import re
 import sys
 import time
 from argparse import ArgumentParser
 from pprint import pformat
 
 from django.core.management import CommandError
-from django.db.models import Q
-from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from requests import ConnectTimeout
-from requests.exceptions import ConnectionError, InvalidURL, ReadTimeout
-from urllib3.exceptions import NewConnectionError, ReadTimeoutError
 
 from dbdb.core.models import CitationUrl, CitationUrlContent
+from dbdb.core.utils.citations import _check_if_exists
 from dbdb.core.utils.citations import *
 from dbdb.core.management.base import DbdbBaseCommand
 
 LOG = logging.getLogger(__name__)
-
-
-def _check_if_exists(c:CitationUrl, url:str) -> CitationUrl|None:
-    # Also check the slash-toggled variant so that
-    # "https://example.com/path/" and "…/path" are treated as the same URL.
-    alt_url = url[:-1] if url.endswith('/') else url + '/'
-    other_c = (CitationUrl.objects
-               .filter(Q(url=url) | Q(url=alt_url))
-               .exclude(pk=c.pk)
-               .first())
-    return other_c
 
 class Command(DbdbBaseCommand):
 
@@ -152,7 +136,6 @@ class Command(DbdbBaseCommand):
             return
 
         citation_ctr = 0
-        max_title = CitationUrl._meta.get_field('last_title').max_length
         for c in citations.order_by("id"):
             citation_ctr += 1
             if 'limit' in options and options['limit']:
@@ -161,40 +144,13 @@ class Command(DbdbBaseCommand):
             prefix = "[dry-run] " if dry_run else ""
             LOG.debug(f"{prefix}#{c.id}  {c.url}")
 
-            # Check if we have a malformed URL that we need to cleanup + merge
-            if not c.url.lower().startswith("http"):
-                parts = c.url.split(" ")
-                if parts[0].isdigit() and len(parts) > 1: c.url = parts[1].strip()
-                if parts[0].startswith("ttp:"): c.url = 'h' + parts[0]
-            parts = re.match(r"(http(.*?))[\s]+Section.*", c.url, re.IGNORECASE)
-            if parts:
-                c.url = parts.group(0)
-
-            if options['normalize']:
-                orig_url = c.url
-                c.url = normalize_url(orig_url)
-                if orig_url != c.url:
-                    LOG.info(f"NORMALIZE: {orig_url} -> {c.url}")
-
-            # See if this URL already exists. If yes, then we will merge it
-            other_c = _check_if_exists(c, c.url)
-            if other_c is not None:
-                merge_citations(other_c, [c])
-                c.delete()
-                continue
-
-            # Check again whether this is a valid URL
-            if not c.url.lower().startswith("http"):
-                LOG.info(f"SKIP: {c}")
-                continue
-
             # First get the list of systems that use this citation
             systems = get_systems(c, current_only=False)
 
             # If no system is using this citation, we may want to delete it
-            if len(systems) == 0:
-                LOG.info(f"Did not find any systems using Citation {c}. Skipping...")
-                continue
+            # if len(systems) == 0:
+            #     LOG.info(f"Did not find any systems using Citation {c}. Skipping...")
+            #     continue
 
             LOG.info(f"Citation {c} => {systems}")
 
@@ -203,69 +159,37 @@ class Command(DbdbBaseCommand):
                 time.sleep(int(options['sleep']))
 
             info = None
+            merged = False
             try:
                 # Just grab the first system to use as a hint
-                info = fetch_url_metadata(
-                    c.url,
-                    system=systems[0],
-                    citation_url=c,
+                c, info = process_citation_url(
+                    c,
+                    system=systems[0] if systems else None,
                     skip_spamcheck=options["skip_spam"],
-                    allow_redirects=False
+                    normalize=options["normalize"],
+                    allow_redirects=False,
                 )
-                c.status = info["status"]
-                c.last_statuscode = info["status-code"]
-                c.last_contenttype = info["content-type"]
-                c.last_contentsize = info["content-length"]
-                c.last_cachecontrol = info["cache-control"]
-                c.last_etag = info["etag"]
-                c.last_modified = info["last-modified"]
-
-                # Check if we need to update the URL
-                if "url" in info and c.url != info["url"]:
-                    new_url = info["url"]
-                    other_c = _check_if_exists(c, new_url)
-                    if other_c:
-                        merge_citations(other_c, [c])
-                        c.delete()
-                        continue
-                    else:
-                        c.url = new_url
-
-                # Don't overwrite the title if we get a dead page and there is already
-                # an existing title
-                if not(c.status == CitationUrl.Status.DEAD and c.last_title):
-                    c.last_title = info["title"]
-                    if c.last_title and len(c.last_title) > max_title:
-                        c.last_title = c.last_title[:max_title]
+                if info is None:  # was merged and deleted
+                    merged = True
+                    continue
 
             except KeyboardInterrupt:
                 sys.exit(0)
 
-            except (TimeoutError,ReadTimeoutError,ConnectTimeout,ReadTimeout,ConnectionError,NewConnectionError) as e:
-                LOG.warning(f"Connection failed: {e}")
-                c.status = CitationUrl.Status.DEAD
-                pass
-
-            except InvalidURL as e:
-                LOG.warning(f"Invalid URL: {e}")
-                c.status = CitationUrl.Status.IGNORE
-                pass
-
             except:
                 LOG.error(f"Failed: {c}")
-                c.status = CitationUrl.Status.DEAD
                 raise
             finally:
-                c.last_checked = timezone.now()
-                if dry_run:
-                    LOG.info(f"[dry-run] Would save: status={c.get_status_display()} title={c.last_title!r}")
-                else:
-                    c.save()
-                try:
-                    raw_bytes = len(c.content.raw.encode('utf-8'))
-                    content_info = f"content={raw_bytes:,}b"
-                except CitationUrlContent.DoesNotExist:
-                    content_info = "no content"
-                LOG.info(f"Result: status={c.get_status_display()} {content_info}")
-                if info: LOG.debug(pformat(info))
+                if not merged:
+                    if dry_run:
+                        LOG.info(f"[dry-run] Would save: status={c.get_status_display()} title={c.last_title!r}")
+                    else:
+                        c.save()
+                    try:
+                        raw_bytes = len(c.content.raw.encode('utf-8'))
+                        content_info = f"content={raw_bytes:,}b"
+                    except CitationUrlContent.DoesNotExist:
+                        content_info = "no content"
+                    LOG.info(f"Result: status={c.get_status_display()} {content_info}")
+                    if info: LOG.debug(pformat(info))
     pass

@@ -23,6 +23,22 @@
 {% ptitle_title %}{{ title }}{% endptitle_title %}
 {% endpage_title %}
 
+{% if request.user.is_superuser %}
+<div class="text-end mb-2">
+  <a id="btn-save-search" class="btn btn-sm btn-outline-secondary" href="#">
+    <i class="fas fa-bookmark"></i> Save Search
+  </a>
+</div>
+<script>
+document.getElementById('btn-save-search').addEventListener('click', function(e) {
+    e.preventDefault();
+    var params = new URLSearchParams(window.location.search);
+    if (!params.get('q')) params.delete('q');
+    window.location.href = '{% url "admin:core_savedsearch_add" %}?search_params=' + encodeURIComponent(params.toString());
+});
+</script>
+{% endif %}
+
 <div class="browse-wrap">
 <form id="mainsearch" class="main main-search mx-0 mx-md-3 mx-lg-5">
     <div class="bsearch">
