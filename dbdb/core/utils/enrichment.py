@@ -252,18 +252,27 @@ def call_llm(user_prompt: str, model_override: str | None = None) -> dict:
         f"{schema_str}\n\n"
         f"{user_prompt}"
     )
+    LOG.debug("Ollama prompt:\n%s", ollama_prompt)
     resp = ollama.chat(
         model=fallback_model,
         messages=[{"role": "user", "content": ollama_prompt}],
         options={"temperature": 0.2},
     )
     text = resp["message"]["content"].strip()
+    LOG.debug("Ollama raw response:\n%s", text)
     # Strip markdown code fences if present
     if text.startswith("```"):
         text = text.split("```")[1]
         if text.startswith("json"):
             text = text[4:]
-    return json.loads(text)
+        text = text.strip()
+    LOG.debug("Ollama text after fence strip:\n%s", text)
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as e:
+        LOG.error("JSON parse failed at %s (char %d)", e.msg, e.pos)
+        LOG.error("Offending text: %r", text[:500])
+        raise
 
 
 # ---------------------------------------------------------------------------
