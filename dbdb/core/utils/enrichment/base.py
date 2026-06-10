@@ -4,7 +4,7 @@ BaseEnricher ABC — prompt builders, citation validator, and provider factory.
 import logging
 from abc import ABC, abstractmethod
 
-from dbdb.core.models import CitationUrl, Feature, System, SystemVersion
+from dbdb.core.models import Attribute, CitationUrl, Feature, System, SystemVersion
 from dbdb.core.utils.citations import normalize_url, process_citation_url
 
 LOG = logging.getLogger(__name__)
@@ -14,14 +14,6 @@ LOG = logging.getLogger(__name__)
 _PROMPT_EXCLUDED_FIELDS = frozenset({
     'system_url', 'wikipedia_url', 'sourcerepo_url', 'hosted_services',
 })
-
-# Maps Attribute.sv_field slug → SystemVersion M2M field name.
-_ATTR_SLUG_TO_FIELD = {
-    'project-type':         'project_types',
-    'license':              'licenses',
-    'os':                   'oses',
-    'programming-language': 'written_in',
-}
 
 
 class BaseEnricher(ABC):
@@ -39,17 +31,19 @@ class BaseEnricher(ABC):
     # Prompt builders
     # ------------------------------------------------------------------
 
-    def build_system_prompt(self, system: System, current_version: SystemVersion, fields: list[str], features: list,
-                            attributes: list, crawled_pages: dict[str, str]) -> str:
+    def build_system_prompt(
+        self,
+        system: System,
+        current_version: SystemVersion,
+        fields: list[str],
+        features: list[Feature],
+        attributes: list[Attribute],
+        crawled_pages: dict[str, str],
+    ) -> str:
+        LOG.debug(f"fields={fields}, features={features}, attributes={attributes}")
+
         # Strip fields we never populate via LLM.
         active_fields = [f for f in fields if f not in _PROMPT_EXCLUDED_FIELDS]
-
-        # Only include attribute taxonomy entries whose M2M field still needs filling.
-        active_fields_set = set(active_fields)
-        active_attributes = [
-            a for a in attributes
-            if _ATTR_SLUG_TO_FIELD.get(a.sv_field) in active_fields_set
-        ]
 
         parts = [f"# System: {system.name}\n"]
 
@@ -72,9 +66,9 @@ class BaseEnricher(ABC):
                 opts = [f"{o.slug}={o.value!r}" for o in feature.options.all()]
                 parts.append(f"- {feature.slug} ({feature.label}): {', '.join(opts)}\n")
 
-        if active_attributes:
+        if attributes:
             parts.append("## Attribute Taxonomy (slug → name → options)\n")
-            for attr in active_attributes:
+            for attr in attributes:
                 opts = [f"{o.slug}={o.name!r}" for o in attr.options.all()]
                 parts.append(f"- {attr.sv_field} ({attr.name}): {', '.join(opts)}\n")
 

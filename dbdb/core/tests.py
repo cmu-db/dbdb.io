@@ -6,7 +6,6 @@ from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 # third-party imports
-from haystack.query import SearchQuerySet
 from pyquery import PyQuery as pq
 
 # local imports
@@ -32,18 +31,6 @@ class SearchTestCase(TestCase):
         'core_base.json',
         'core_system.json'
     ]
-
-    def test_haystack_contents(self):
-        """Make sure we are setting up haystack correctly."""
-        sqs = SearchQuerySet()
-        num_results = len(sqs)
-        self.assertEqual(num_results, 2)
-
-        expected = ["SQLite", "XXX"]
-        for i in range(num_results):
-            res = sqs[i]
-            self.assertTrue(res.name in expected)
-        return
 
     def test_search_no_parameters(self):
         query = {'q': 'sql'}

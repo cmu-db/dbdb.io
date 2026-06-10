@@ -105,6 +105,9 @@ def _crawl_existing_urls(
 
         # Use cached content if it was fetched recently and has text
         if citation.last_checked and citation.last_checked >= cutoff:
+            if citation.last_statuscode != CitationUrl.Status.VALID:
+                LOG.warning(f"{citation} status is {citation.last_statuscode}. Skipping...")
+                continue
             try:
                 content = citation.content
                 if content.text:
@@ -116,7 +119,7 @@ def _crawl_existing_urls(
 
         LOG.info(f"  Crawling {field}: {url}")
         _citation, result = process_citation_url(citation, system=system)
-        if result:
+        if result and _citation.last_statuscode == CitationUrl.Status.VALID:
             text = result.get('text', '')
             if text:
                 crawled[url] = text
@@ -202,9 +205,10 @@ class Command(DbdbBaseCommand):
 
         # --- 4. Load taxonomy ---
         features = list(Feature.objects.prefetch_related('options').order_by('category', 'label'))
+        missing_sv_fields = [f for f in missing_fields if f in M2M_ATTR_SLUGS]
         attributes = list(
             Attribute.objects
-            .filter(sv_field__in=M2M_ATTR_SLUGS.values())
+            .filter(sv_field__in=missing_sv_fields)
             .prefetch_related('options')
             .order_by('name')
         )
@@ -219,7 +223,7 @@ class Command(DbdbBaseCommand):
                                                   fields=missing_fields + (['features'] if missing_features else []),
                                                   features=missing_features, attributes=attributes,
                                                   crawled_pages=crawled_pages)
-            # print(prompt)
+            print(prompt)
             # sys.exit(1)
             try:
                 enrichment = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override)
