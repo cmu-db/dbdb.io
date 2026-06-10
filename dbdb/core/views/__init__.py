@@ -1,4 +1,4 @@
-from .api import CounterView, organization_autocomplete, system_autocomplete
+from .api import CounterView, citation_url_autocomplete, organization_autocomplete, system_autocomplete
 from .auth import CreateUserView, SetupUserView, SignupRequestView, SignupPendingView, ProfileView
 from .browse import BrowseView
 from .docs import DocOverviewView, DocFeatureView, DocAttributeView, DocSysAttrsView

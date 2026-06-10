@@ -308,6 +308,16 @@
         });
     }
 
+    // --- Citation URL autocomplete ---
+    $(function() {
+        $('{{ citation_url_selector }}').autoComplete({
+            minChars: 4,
+            source: function(term, response) {
+                $.getJSON('/api/citation-urls/autocomplete/', { q: term }, function(data) { response(data); });
+            }
+        });
+    });
+
     // --- Developer Organization rows ---
     function addDeveloperOrgRow() {
         const template = document.getElementById('developer-org-row-template');

@@ -417,6 +417,7 @@ class SystemEditView(LoginRequiredMixin, View):
             'developer_org_formset': developer_org_formset,
             'pending_version': version if (version.pk and not version.approved) else None,
             'suggestion': suggestion,
+            'citation_url_selector': ', '.join(f'#id_{f}' for f in SystemVersionForm.CITATION_URL_FIELDS),
         })
 
     @transaction.atomic
@@ -699,6 +700,7 @@ class SystemEditView(LoginRequiredMixin, View):
             'features': features,
             'acquisition_formset': acquisition_formset,
             'developer_org_formset': developer_org_formset,
+            'citation_url_selector': ', '.join(f'#id_{f}' for f in SystemVersionForm.CITATION_URL_FIELDS),
         })
 
     pass

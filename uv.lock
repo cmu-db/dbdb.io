@@ -281,6 +281,7 @@ dependencies = [
     { name = "markupsafe" },
     { name = "numpy" },
     { name = "ollama" },
+    { name = "openai" },
     { name = "outcome" },
     { name = "packaging" },
     { name = "pandas" },
@@ -391,6 +392,7 @@ requires-dist = [
     { name = "markupsafe", specifier = "==1.1.1" },
     { name = "numpy", specifier = "==1.26.4" },
     { name = "ollama", specifier = "==0.6.1" },
+    { name = "openai", specifier = ">=2.41.0" },
     { name = "outcome", specifier = "==1.3.0.post0" },
     { name = "packaging", specifier = "==23.1" },
     { name = "pandas", specifier = "==2.3.3" },
@@ -978,6 +980,25 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/9d/5a/652dac4b7affc2b37b95386f8ae78f22808af09d720689e3d7a86b6ed98e/ollama-0.6.1.tar.gz", hash = "sha256:478c67546836430034b415ed64fa890fd3d1ff91781a9d548b3325274e69d7c6", size = 51620, upload-time = "2025-11-13T23:02:17.416Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/47/4f/4a617ee93d8208d2bcf26b2d8b9402ceaed03e3853c754940e2290fed063/ollama-0.6.1-py3-none-any.whl", hash = "sha256:fc4c984b345735c5486faeee67d8a265214a31cbb828167782dc642ce0a2bf8c", size = 14354, upload-time = "2025-11-13T23:02:16.292Z" },
+]
+
+[[package]]
+name = "openai"
+version = "2.41.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "distro" },
+    { name = "httpx" },
+    { name = "jiter" },
+    { name = "pydantic" },
+    { name = "sniffio" },
+    { name = "tqdm" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3c/a6/5815fe2e2aca74b36c650d1bd43b69827cee568073d0d2d9b6fc5aaac80c/openai-2.41.0.tar.gz", hash = "sha256:db5c362acd6604b84f076abbefa66826ea4b46ecba2954ed866e6a149a1352c0", size = 783525, upload-time = "2026-06-03T22:39:40.719Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/be/51/d82bb424e8aa372190c5233253a2ceb399a778747d18b42cff487411e663/openai-2.41.0-py3-none-any.whl", hash = "sha256:20cc7952e8501c7e5773dd2ef7be437bae9cb549044902e1041a83a54516e375", size = 1353378, upload-time = "2026-06-03T22:39:38.964Z" },
 ]
 
 [[package]]
@@ -1744,6 +1765,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/69/ed/8f07e893132d5051d86a553e749d5c89b2a4776eb3a579b72ed61f8559ca/tokenize_rt-6.2.0.tar.gz", hash = "sha256:8439c042b330c553fdbe1758e4a05c0ed460dbbbb24a606f11f0dee75da4cad6", size = 5476, upload-time = "2025-05-23T23:48:00.035Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/33/f0/3fe8c6e69135a845f4106f2ff8b6805638d4e85c264e70114e8126689587/tokenize_rt-6.2.0-py2.py3-none-any.whl", hash = "sha256:a152bf4f249c847a66497a4a95f63376ed68ac6abf092a2f7cfb29d044ecff44", size = 6004, upload-time = "2025-05-23T23:47:58.812Z" },
+]
+
+[[package]]
+name = "tqdm"
+version = "4.68.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/85/05/0d5260f1f1ca784f4a4a0def9cbe6affe587f5b4025328d446c3d67765f4/tqdm-4.68.2.tar.gz", hash = "sha256:89c230e8dbc67c7615c142487111222f878c77427ea09549960f62389e258add", size = 171923, upload-time = "2026-06-09T13:26:42.539Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/eb/75/1a0392bcc21c44dcdf87b3cf2d137e7829be2c083a1e38d44efca3d57a16/tqdm-4.68.2-py3-none-any.whl", hash = "sha256:d4240441fb5353290b87d6a85968c9decc131a99b8c7faa28269d829de669ede", size = 78578, upload-time = "2026-06-09T13:26:40.731Z" },
 ]
 
 [[package]]

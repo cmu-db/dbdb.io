@@ -21,6 +21,7 @@ urlpatterns = [
     path('search', views.BrowseView.as_view(), name='search'),
     path('api/systems/autocomplete/', views.system_autocomplete, name='system_autocomplete'),
     path('api/organizations/autocomplete/', views.organization_autocomplete, name='organization_autocomplete'),
+    path('api/citation-urls/autocomplete/', views.citation_url_autocomplete, name='citation_url_autocomplete'),
     path('search/advanced', views.BrowseView.as_view(), name='advanced_search'),
 
     path('create', views.SystemEditView.as_view(), name='create_system'),

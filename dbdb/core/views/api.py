@@ -8,12 +8,13 @@ import jwt
 from django.conf import settings
 from django.db.models import Case, IntegerField, Value, When
 from django.http import HttpResponse, JsonResponse
+from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
 # project imports
-from dbdb.core.models import Organization, System, SystemVisit
+from dbdb.core.models import CitationUrl, Organization, System, SystemVisit
 
 
 # ==============================================
@@ -86,6 +87,18 @@ class CounterView(View):
 # ==============================================
 # System Name AutoComplete
 # ==============================================
+@login_required
+def citation_url_autocomplete(request):
+    q = request.GET.get('q', '').strip()
+    urls = (
+        CitationUrl.objects
+        .filter(url__icontains=q, status=CitationUrl.Status.VALID)
+        .order_by('url')
+        .values_list('url', flat=True)[:12]
+    ) if q else []
+    return JsonResponse(list(urls), safe=False)
+
+
 def organization_autocomplete(request):
     q = request.GET.get('q', '').strip()
     names = (
