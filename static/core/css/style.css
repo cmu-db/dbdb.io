@@ -1062,8 +1062,9 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   font-family: var(--serif); font-weight: 600; font-size: 1.55rem; margin: 0;
   color: var(--ink); display: inline;
 }
-.entry-section .cites { font-family: var(--mono); font-size: .6rem; }
-.entry-section .cites a { color: var(--accent); padding-left: .15rem; vertical-align: super; }
+.cites { font-family: var(--mono); font-size: .6rem; }
+.cites a { color: var(--accent); padding-left: .15rem; vertical-align: super; }
+
 .entry-section .sec-rule { border-top: 1.5px solid var(--ink); margin: .55rem 0 .85rem; }
 .entry-section .badges { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .85rem; }
 

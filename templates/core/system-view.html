@@ -212,10 +212,15 @@
 {{ block.super }}
 {% endblock %}
 
+{% partialdef desc_citations %}
+    {% if description_citations %}<span class="cites">{% for c in description_citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}
+{% endpartialdef %}
+
 {% block mobile %}
 {% partial page_heading %}
 <div class="entry-lead-block fs-5 mt-3">
     {{ version.description_mobile_intro|markdownify }}
+    {% partial desc_citations %}
 </div>
 {% partial factbox %}
 {% if version.description_mobile_remainder %}
@@ -229,21 +234,21 @@
 {% partial factbox %}
 
 {% partialdef related inline %}
-{% if compatible %}
-<div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}</div>
-{% endif %}
-{% if derived %}
-<div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}</div>
-{% endif %}
-{% if embeds %}
-<div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}</div>
-{% endif %}
-{% if hosted_by %}
-<div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Hosted By' systems=hosted_by limit=3 %}</div>
-{% endif %}
-{% if recommendations %}
-<div class="side-card">{% include 'core/system-sys-sidebar.html' with title='People Also Viewed' systems=recommendations %}</div>
-{% endif %}
+    {% if compatible %}
+        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}</div>
+    {% endif %}
+    {% if derived %}
+        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}</div>
+    {% endif %}
+    {% if embeds %}
+        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}</div>
+    {% endif %}
+    {% if hosted_by %}
+        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Hosted By' systems=hosted_by limit=3 %}</div>
+    {% endif %}
+    {% if recommendations %}
+        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='People Also Viewed' systems=recommendations %}</div>
+    {% endif %}
 {% endpartialdef %}
 {% endblock %}
 
@@ -251,6 +256,7 @@
 {% partial page_heading %}
 <div class="entry-lead-block fs-5 mt-3">
     {{ version.description|markdownify }}
+    {% partial desc_citations %}
 </div>
 {% endblock %}
 
