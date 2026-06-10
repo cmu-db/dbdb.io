@@ -1,0 +1,45 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: dbdb_user
+          POSTGRES_PASSWORD: testpassword
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      PGUSER: dbdb_user
+      PGPASSWORD: testpassword
+      PGHOST: localhost
+      PGPORT: "5432"
+      SECRET_KEY: ci-secret-key-not-used-in-production
+      DEBUG: "False"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run migrations
+        run: uv run python manage.py migrate --settings=dbdb.test_settings
+
+      - name: Run tests
+        run: timeout 60 uv run python manage.py test dbdb.core --settings=dbdb.test_settings --verbosity=2
