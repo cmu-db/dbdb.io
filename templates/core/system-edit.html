@@ -314,12 +314,56 @@
             minChars: 4,
             source: function(term, response) {
                 $.getJSON('/api/citation-urls/autocomplete/', { q: term }, function(data) { response(data); });
+            },
+            onSelect: function() {
+                const widget = $(input).closest('.citation-url-list-widget')[0];
+                if (widget) syncCitationHidden(widget);
             }
         });
     }
 
+    // --- Citation URL list widget helpers ---
+    function syncCitationHidden(widget) {
+        const urls = Array.from(widget.querySelectorAll('.citation-url-input'))
+            .map(i => i.value.trim()).filter(v => v);
+        const hidden = document.getElementById(widget.dataset.hiddenId);
+        if (hidden) hidden.value = JSON.stringify(urls);
+    }
+
+    function addCitationRow(btn) {
+        const widget = btn.closest('.citation-url-list-widget');
+        const rows = widget.querySelector('.citation-url-rows');
+        const row = document.createElement('div');
+        row.className = 'citation-url-row row g-2 mb-1 align-items-center';
+        row.innerHTML = '<div class="col"><input type="url" class="form-control citation-url-input" placeholder="https://…"></div>'
+                      + '<div class="col-auto"><button type="button" class="btn btn-sm btn-outline-danger" onclick="removeCitationRow(this)">&times;</button></div>';
+        rows.appendChild(row);
+        const input = row.querySelector('.citation-url-input');
+        initCitationUrlAutocomplete(input);
+        input.focus();
+    }
+
+    function removeCitationRow(btn) {
+        const row = btn.closest('.citation-url-row');
+        const widget = row.closest('.citation-url-list-widget');
+        row.remove();
+        syncCitationHidden(widget);
+    }
+
     $(function() {
+        // Keep hidden JSON inputs in sync as the user types
+        $(document).on('input', '.citation-url-input', function() {
+            syncCitationHidden(this.closest('.citation-url-list-widget'));
+        });
+        // Sync all widgets before form submit (catches any unfired input events)
+        $('form').on('submit', function() {
+            document.querySelectorAll('.citation-url-list-widget').forEach(w => syncCitationHidden(w));
+        });
+        // Init autocomplete on all citation list widget inputs
+        $('.citation-url-input').each(function() { initCitationUrlAutocomplete(this); });
+        // Init autocomplete on SystemVersionForm URL FK fields
         $('{{ citation_url_selector }}').each(function() { initCitationUrlAutocomplete(this); });
+        // Init autocomplete on acquisition citation_url fields
         $('#acquisition-rows input[name$="-citation_url"]').each(function() { initCitationUrlAutocomplete(this); });
     });
 
