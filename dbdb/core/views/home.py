@@ -5,6 +5,7 @@ import pytz
 
 from django.conf import settings
 from django.db.models import Count, Q
+from django.db.models.aggregates import Max
 from django.shortcuts import render
 from django.utils import timezone
 from django.views import View
@@ -97,9 +98,10 @@ class HomeView(View):
         num_systems = System.objects.all().count()
 
         # find the most recent year that has at least one SystemVersion
-        new_in_year = now.year
-        while not SystemVersion.objects.filter(start_year=new_in_year).exists():
-            new_in_year -= 1
+        years_start = SystemVersion.objects.filter(is_current=True, start_year__gt=0).aggregate(
+            start_year=Max('start_year')
+        )
+        new_in_year = years_start["start_year"]
 
         # pick N saved searches per hour using a deterministic seed
         hour_seed = int(now.microsecond) #  now.year * 1000000 + now.month * 10000 + now.day * 100 + now.hour
