@@ -24,7 +24,7 @@ def _load_attributes_for_missing_fields(missing_fields: list[str]) -> list[Attri
 
 class EnrichSystemAttributeLoadingTestCase(TestCase):
 
-    fixtures = ['core_base.json']
+    fixtures = ['core_features.json', 'core_attributes.json']
 
     def test_loads_only_the_requested_m2m_attributes(self):
         attrs = _load_attributes_for_missing_fields(['licenses', 'oses'])

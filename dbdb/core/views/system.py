@@ -637,10 +637,11 @@ class SystemEditView(LoginRequiredMixin, View):
                 field_name = field_prefix + "_choices"
                 value = feature_form.cleaned_data[field_name]
                 if isinstance(value, str):
-                    sf = get_systemfeature_obj(f)
-                    sf.options.add(
-                        FeatureOption.objects.get(feature=f, value=value)
-                    )
+                    if value:
+                        sf = get_systemfeature_obj(f)
+                        sf.options.add(
+                            FeatureOption.objects.get(feature=f, value=value)
+                        )
                 else:
                     for v in value:
                         sf = get_systemfeature_obj(f)

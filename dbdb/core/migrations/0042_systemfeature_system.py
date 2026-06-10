@@ -11,6 +11,34 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Migration 0031 renamed SystemFeature.system → version but PostgreSQL kept
+        # the old auto-generated index name. Rename it here so the AddField below
+        # can create a fresh index with the same auto-generated name for the new
+        # system FK without hitting a name collision.
+        migrations.RunSQL(
+            sql="""
+                DO $$
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM pg_indexes
+                               WHERE indexname = 'core_systemfeature_system_id_717491a7') THEN
+                        ALTER INDEX core_systemfeature_system_id_717491a7
+                              RENAME TO core_systemfeature_version_id_717491a7;
+                    END IF;
+                END
+                $$;
+            """,
+            reverse_sql="""
+                DO $$
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM pg_indexes
+                               WHERE indexname = 'core_systemfeature_version_id_717491a7') THEN
+                        ALTER INDEX core_systemfeature_version_id_717491a7
+                              RENAME TO core_systemfeature_system_id_717491a7;
+                    END IF;
+                END
+                $$;
+            """,
+        ),
         migrations.AddField(
             model_name='systemfeature',
             name='system',

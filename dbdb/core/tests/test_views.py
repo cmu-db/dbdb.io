@@ -5,14 +5,12 @@ from django.contrib.auth import get_user
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-# third-party imports
-from pyquery import PyQuery as pq
-
 # local imports
-from .models import Feature, System, SystemVisit
-from .views import CounterView
+from dbdb.core.models import Attribute, Feature, System, SystemSearchText, SystemVersion, SystemVisit
+from dbdb.core.utils.searchtext import generate_searchtext
+from dbdb.core.views import CounterView
 
-root = environ.Path(__file__) - 2
+root = environ.Path(__file__) - 4
 
 @override_settings(CACHES={
     'default': {
@@ -28,12 +26,21 @@ class SearchTestCase(TestCase):
     fixtures = [
         'adminuser.json',
         'testuser.json',
-        'core_base.json',
+        'core_features.json',
+        'core_attributes.json',
         'core_system.json'
     ]
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        for ver in SystemVersion.objects.filter(is_current=True):
+            sst, _ = SystemSearchText.objects.update_or_create(system=ver.system)
+            sst.name = ver.system.name
+            sst.search_text = generate_searchtext(ver)
+            sst.save()
+
     def test_search_no_parameters(self):
-        query = {'q': 'sql'}
         response = self.client.get(reverse('browse'))
         self.assertContains(response, 'SQLite', html=True)
         return
@@ -42,7 +49,7 @@ class SearchTestCase(TestCase):
         query = {'q': 'sql'}
         response = self.client.get(reverse('browse'), data=query)
 
-        self.assertContains(response, 'Found 1 database', html=False)
+        self.assertContains(response, '1 System Found', html=False)
         self.assertContains(response, 'SQLite', html=False)
         return
 
@@ -63,24 +70,31 @@ class AutoCompleteTestCase(TestCase):
     fixtures = [
         'adminuser.json',
         'testuser.json',
-        'core_base.json',
+        'core_features.json',
+        'core_attributes.json',
         'core_system.json'
     ]
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        for ver in SystemVersion.objects.filter(is_current=True):
+            sst, _ = SystemSearchText.objects.update_or_create(system=ver.system)
+            sst.name = ver.system.name
+            sst.search_text = generate_searchtext(ver)
+            sst.save()
 
     def test_autocom_valid_parameters(self):
         target = "SQLite"
         for i in range(1, len(target)):
             query = {'q': target[:i+1]}
-            #pprint(query)
             response = self.client.get(reverse('system_autocomplete'), data=query)
-            #pprint(response.json())
             self.assertContains(response, 'SQLite', html=False)
         return
 
     def test_autocom_invalid_parameters(self):
         query = {'q': "YYY"}
         response = self.client.get(reverse('system_autocomplete'), data=query)
-        #pprint(response.json())
         self.assertEqual(len(response.json()), 0)
         return
 
@@ -98,7 +112,8 @@ class SystemViewTestCase(TestCase):
     fixtures = [
         'adminuser.json',
         'testuser.json',
-        'core_base.json',
+        'core_features.json',
+        'core_attributes.json',
         'core_system.json'
     ]
 
@@ -114,7 +129,6 @@ class SystemViewTestCase(TestCase):
         self.assertTrue("status" in result)
         self.assertEqual(result["status"], "ok")
 
-        # Check that we got added a SystemVisit
         new_visits = SystemVisit.objects.filter(system=system).count()
         self.assertEqual(new_visits, orig_visits+1)
 
@@ -133,7 +147,6 @@ class SystemViewTestCase(TestCase):
         self.assertTrue("status" in result)
         self.assertEqual(result["status"], "bot")
 
-        # Make sure count is the same
         system = System.objects.get(name=target)
         new_count = system.view_count
         self.assertEqual(new_count, orig_count)
@@ -150,7 +163,8 @@ class AdvancedSearchTestCase(TestCase):
     fixtures = [
         'adminuser.json',
         'testuser.json',
-        'core_base.json',
+        'core_features.json',
+        'core_attributes.json',
         'core_system.json'
     ]
 
@@ -160,67 +174,53 @@ class AdvancedSearchTestCase(TestCase):
         return
 
     def test_inputs_quantity(self):
-        quantity = Feature.objects.count()
+        feature_count = Feature.objects.count()
+        attr_count = Attribute.objects.filter(sv_field__gt='').count()
+        # 8 hardcoded groups: country, compatible, embedded, derived, inspired, hosted, developer, acquired-by
+        hardcoded_count = 8
+        expected = feature_count + attr_count + hardcoded_count
+
         response = self.client.get(reverse('browse'))
-        d = pq(response.content)
-        filtergroups = d('div.filter-group')
-        # Add two for the year filtergroups
-        # Add nine for country, OS, project type, PL, inspired, derived, embedded compatiable, licenses
-        #pprint(filtergroups)
-        self.assertEqual(quantity + 2 + 9, len(filtergroups))
+        self.assertEqual(expected, len(response.context['filtergroups']))
         return
 
     def test_search_with_insuficient_data(self):
-        data = {
-            'feature1': ['option1'],
-        }
+        # SQLite is row-store; columnar storage → no match
+        data = {'storage-model': ['decomposition-storage-model-columnar']}
         response = self.client.get(reverse('browse'), data=data)
-        #pprint(response.content)
         self.assertContains(response, 'No databases found')
         return
 
     def test_search_with_suficient_data(self):
-        data = {
-            'feature1': ['option3'],
-        }
+        # SQLite uses N-ary (row) storage
+        data = {'storage-model': ['n-ary-storage-model-rowrecord']}
         response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'SQLite', html=True)
         return
 
     def test_search_with_extra_data(self):
-        data = {
-            'feature1': ['option2', 'option3'],
-        }
+        # OR mode: SQLite matches n-ary even when columnar also listed
+        data = {'storage-model': ['n-ary-storage-model-rowrecord', 'decomposition-storage-model-columnar']}
         response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'SQLite', html=True)
         return
 
     def test_search_with_combined_fields(self):
-        data = {
-            'feature1': ['option3'],
-            'feature2': ['option-high'],
-        }
+        # SQLite: storage-model=n-ary, joins includes hash-join and nested-loop-join
+        data = {'storage-model': ['n-ary-storage-model-rowrecord'], 'joins': ['hash-join']}
         response = self.client.get(reverse('browse'), data=data)
-        self.assertContains(response, '<h5>SQLite</h5>', html=True)
+        self.assertContains(response, 'SQLite', html=False)
 
-        data = {
-            'feature1': ['option3'],
-            'feature2': ['option-low']
-        }
+        data = {'storage-model': ['n-ary-storage-model-rowrecord'], 'joins': ['nested-loop-join']}
         response = self.client.get(reverse('browse'), data=data)
-        self.assertContains(response, '<h5>SQLite</h5>', html=True)
+        self.assertContains(response, 'SQLite', html=False)
 
-        data = {
-            'feature1': ['option3'],
-            'feature2': ['option-high', 'option-low']
-        }
+        data = {'storage-model': ['n-ary-storage-model-rowrecord'], 'joins': ['hash-join', 'nested-loop-join']}
         response = self.client.get(reverse('browse'), data=data)
-        self.assertContains(response, 'SQLite', html=True)
+        self.assertContains(response, 'SQLite', html=False)
 
-        data = {
-            'feature1': ['option1'],
-            'feature2': ['option-low']
-        }
+        # SQLite is row-store and doesn't do broadcast joins → no match in OR mode
+        data = {'storage-model': ['decomposition-storage-model-columnar'], 'joins': ['broadcast-join']}
         response = self.client.get(reverse('browse'), data=data)
         self.assertContains(response, 'No databases found')
         return
@@ -235,7 +235,8 @@ class CreateSystemTestCase(TestCase):
     fixtures = [
         'adminuser.json',
         'testuser.json',
-        'core_base.json'
+        'core_features.json',
+        'core_attributes.json',
     ]
 
     def test_cant_access_not_authenticated(self):
@@ -261,10 +262,8 @@ class CreateSystemTestCase(TestCase):
         self.client.login(username='admin', password='testpassword')
         data = {
             'name': 'TestDB',
-            'url': 'http://example.com',
-            'developer': 'Developer X',
-            'tech_docs': 'http://example.com',
-            'project_types': [1],
+            'slug': 'testdb',
+            'project_types': [33],
             'start_year': 2010,
             'end_year': 2020,
             'start_year_citations': '',
@@ -273,12 +272,18 @@ class CreateSystemTestCase(TestCase):
             'description_citations': '',
             'history': 'The history of test db.',
             'history_citations': '',
-            'logo': '',
-            'licenses': [1],
-            'oses': [1, 2],
-
+            'licenses': [53],
+            'oses': [76, 84],
             'action': 'save',
             'comment': '',
+            'acquisitions-TOTAL_FORMS': 0,
+            'acquisitions-INITIAL_FORMS': 0,
+            'acquisitions-MIN_NUM_FORMS': 0,
+            'acquisitions-MAX_NUM_FORMS': 1000,
+            'developer_orgs-TOTAL_FORMS': 0,
+            'developer_orgs-INITIAL_FORMS': 0,
+            'developer_orgs-MIN_NUM_FORMS': 0,
+            'developer_orgs-MAX_NUM_FORMS': 1000,
         }
         response = self.client.post(reverse('create_system'), data=data)
         self.assertRedirects(response, reverse('system', kwargs={'slug': 'testdb'}))
@@ -320,9 +325,6 @@ class HomeTestCase(TestCase):
 
     def test_buttons_shows_when_superuser(self):
         self.client.login(username='admin', password='testpassword')
-        # Load stats insead of home so that we don't get a cached
-        # result. Yes we try to override settings of the cache
-        # up aove to disable it but it doesn't work
         response = self.client.get(reverse('stats'))
         self.assertContains(
             response,
@@ -368,5 +370,3 @@ class LoginTestCase(TestCase):
         )
         return
     pass
-
-
