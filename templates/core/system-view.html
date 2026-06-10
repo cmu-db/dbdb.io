@@ -212,15 +212,10 @@
 {{ block.super }}
 {% endblock %}
 
-{% partialdef desc_citations %}
-    {% if description_citations %}<span class="cites">{% for c in description_citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}
-{% endpartialdef %}
-
 {% block mobile %}
 {% partial page_heading %}
 <div class="entry-lead-block fs-5 mt-3">
-    {{ version.description_mobile_intro|markdownify }}
-    {% partial desc_citations %}
+    {% markdownify_with_cites version.description_mobile_intro description_citations %}
 </div>
 {% partial factbox %}
 {% if version.description_mobile_remainder %}
@@ -255,8 +250,7 @@
 {% block desktop_intro %}
 {% partial page_heading %}
 <div class="entry-lead-block fs-5 mt-3">
-    {{ version.description|markdownify }}
-    {% partial desc_citations %}
+    {% markdownify_with_cites version.description description_citations %}
 </div>
 {% endblock %}
 

@@ -121,10 +121,10 @@ class SystemView(View):
             return self.process_citations([obj])[0] if obj else None
 
         system_url_citation     = _url_citation('system_url')
-        docs_url_citation       = _url_citation('docs_url')
         sourcerepo_url_citation = _url_citation('sourcerepo_url')
-        wikipedia_url_citation  = _url_citation('wikipedia_url')
+        docs_url_citation       = _url_citation('docs_url')
         linkedin_url_citation   = _url_citation('linkedin_url')
+        wikipedia_url_citation  = _url_citation('wikipedia_url')
 
         sections = []
 
