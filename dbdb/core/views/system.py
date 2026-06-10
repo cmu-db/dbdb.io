@@ -454,9 +454,9 @@ class SystemEditView(LoginRequiredMixin, View):
                 system_features = SystemFeature.objects.none()
                 old_logo = None
 
-            # For non-admins, find any existing unapproved (pending) version
-            if not is_admin:
-                pending = system.versions.filter(approved=False).first()
+            # Find any existing pending version — used by both admins (to update in-place
+            # and approve) and non-admins (to update in-place while staying pending).
+            pending = system.pending_version()
 
         post_data = request.POST.copy()
         if not is_admin:
@@ -510,11 +510,15 @@ class SystemEditView(LoginRequiredMixin, View):
             new_version = system_version_form.save(commit=False)
 
             if is_admin:
-                # Mark as approved and flip all previous versions to not-current
+                # Mark as approved and flip all previous versions to not-current.
+                # When updating an existing pending version in-place the pre_save signal
+                # does not fire (created=False), so is_current must be set explicitly.
                 new_version.approved = True
-                new_version.creator = request.user
                 new_version.system = system
-                system.versions.update(is_current=False)
+                if pending is None:
+                    new_version.creator = request.user
+                system.versions.exclude(pk=new_version.pk).update(is_current=False)
+                new_version.is_current = True
             else:
                 # Pending path: not approved, stays invisible
                 new_version.approved = False

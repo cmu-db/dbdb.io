@@ -105,7 +105,7 @@ def _crawl_existing_urls(
 
         # Use cached content if it was fetched recently and has text
         if citation.last_checked and citation.last_checked >= cutoff:
-            if citation.last_statuscode != CitationUrl.Status.VALID:
+            if citation.last_statuscode in [CitationUrl.Status.SPAM, CitationUrl.Status.DEAD, CitationUrl.Status.IGNORE]:
                 LOG.warning(f"{citation} status is {citation.last_statuscode}. Skipping...")
                 continue
             try:
@@ -223,7 +223,7 @@ class Command(DbdbBaseCommand):
                                                   fields=missing_fields + (['features'] if missing_features else []),
                                                   features=missing_features, attributes=attributes,
                                                   crawled_pages=crawled_pages)
-            print(prompt)
+            LOG.debug(prompt)
             # sys.exit(1)
             try:
                 enrichment = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override)
