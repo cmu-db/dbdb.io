@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     services:
       postgres:
@@ -29,9 +29,9 @@ jobs:
       DEBUG: "False"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout
 
-      - uses: astral-sh/setup-uv@v4
+      - uses: astral-sh/setup-uv
         with:
           version: "latest"
 
@@ -40,6 +40,9 @@ jobs:
 
       - name: Run migrations
         run: uv run python manage.py migrate --settings=dbdb.test_settings
+
+      - name: Setup static files
+        run: uv run python manage.py --settings=dbdb.test_settings collectstatic --no-input
 
       - name: Run tests
         run: timeout 60 uv run python manage.py test dbdb.core --settings=dbdb.test_settings --verbosity=2
