@@ -308,14 +308,19 @@
         });
     }
 
-    // --- Citation URL autocomplete ---
-    $(function() {
-        $('{{ citation_url_selector }}').autoComplete({
+    // --- Citation URL autocomplete (shared) ---
+    function initCitationUrlAutocomplete(input) {
+        $(input).autoComplete({
             minChars: 4,
             source: function(term, response) {
                 $.getJSON('/api/citation-urls/autocomplete/', { q: term }, function(data) { response(data); });
             }
         });
+    }
+
+    $(function() {
+        $('{{ citation_url_selector }}').each(function() { initCitationUrlAutocomplete(this); });
+        $('#acquisition-rows input[name$="-citation_url"]').each(function() { initCitationUrlAutocomplete(this); });
     });
 
     // --- Developer Organization rows ---
@@ -353,6 +358,7 @@
         document.getElementById('acquisition-rows').appendChild(clone);
         totalInput.value = idx + 1;
         initOrgAutocomplete(document.getElementById('id_acquisitions-' + idx + '-organization'));
+        initCitationUrlAutocomplete(document.getElementById('id_acquisitions-' + idx + '-citation_url'));
     }
 
     function removeAcquisitionRow(btn) {
