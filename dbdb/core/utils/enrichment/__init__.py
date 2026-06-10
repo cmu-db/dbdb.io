@@ -50,9 +50,8 @@ def validate_citations(raw_citations: list, system) -> dict:
 
 
 def build_full_prompt(system, current_version, missing_fields, crawled_pages, features, attributes) -> str:
-    return BaseEnricher.create().build_system_prompt(
-        system, current_version, missing_fields, crawled_pages, features, attributes
-    )
+    return BaseEnricher.create().build_system_prompt(system, current_version, missing_fields, features, attributes,
+                                                     crawled_pages)
 
 
 def build_feature_prompt(system, feature, crawled_pages) -> str:

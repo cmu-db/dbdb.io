@@ -39,17 +39,10 @@ class BaseEnricher(ABC):
     # Prompt builders
     # ------------------------------------------------------------------
 
-    def build_system_prompt(
-        self,
-        system: System,
-        current_version: SystemVersion,
-        missing_fields: list[str],
-        crawled_pages: dict[str, str],
-        features: list,
-        attributes: list,
-    ) -> str:
+    def build_system_prompt(self, system: System, current_version: SystemVersion, fields: list[str], features: list,
+                            attributes: list, crawled_pages: dict[str, str]) -> str:
         # Strip fields we never populate via LLM.
-        active_fields = [f for f in missing_fields if f not in _PROMPT_EXCLUDED_FIELDS]
+        active_fields = [f for f in fields if f not in _PROMPT_EXCLUDED_FIELDS]
 
         # Only include attribute taxonomy entries whose M2M field still needs filling.
         active_fields_set = set(active_fields)

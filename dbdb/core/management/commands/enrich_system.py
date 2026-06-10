@@ -131,7 +131,8 @@ def _get_missing_features(version: SystemVersion) -> list[Feature]:
         .exclude(options=None)
         .values_list('feature_id', flat=True)
     )
-    return list(Feature.objects.exclude(id__in=existing_feature_ids).prefetch_related('options').order_by('category', 'label'))
+    features = Feature.objects.exclude(id__in=existing_feature_ids).prefetch_related('options').order_by('category', 'label')
+    return list(features)
 
 
 class Command(DbdbBaseCommand):
@@ -203,7 +204,7 @@ class Command(DbdbBaseCommand):
         features = list(Feature.objects.prefetch_related('options').order_by('category', 'label'))
         attributes = list(
             Attribute.objects
-            .filter(sv_field__in=M2M_ATTR_SLUGS.keys())
+            .filter(sv_field__in=M2M_ATTR_SLUGS.values())
             .prefetch_related('options')
             .order_by('name')
         )
@@ -214,14 +215,12 @@ class Command(DbdbBaseCommand):
         if not per_feature:
             # Single comprehensive call
             self.stdout.write("Calling LLM (single call)...")
-            prompt = enricher.build_system_prompt(
-                system=system,
-                current_version=current,
-                missing_fields=missing_fields + (['features'] if missing_features else []),
-                crawled_pages=crawled_pages,
-                features=missing_features,
-                attributes=attributes,
-            )
+            prompt = enricher.build_system_prompt(system=system, current_version=current,
+                                                  fields=missing_fields + (['features'] if missing_features else []),
+                                                  features=missing_features, attributes=attributes,
+                                                  crawled_pages=crawled_pages)
+            # print(prompt)
+            # sys.exit(1)
             try:
                 enrichment = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override)
             except Exception as e:
@@ -230,14 +229,8 @@ class Command(DbdbBaseCommand):
             # Per-feature calls — merge results into enrichment dict
             if missing_fields:
                 self.stdout.write("Calling LLM for metadata fields...")
-                prompt = enricher.build_system_prompt(
-                    system=system,
-                    current_version=current,
-                    missing_fields=missing_fields,
-                    crawled_pages=crawled_pages,
-                    features=[],
-                    attributes=attributes,
-                )
+                prompt = enricher.build_system_prompt(system=system, current_version=current, fields=missing_fields,
+                                                      features=[], attributes=attributes, crawled_pages=crawled_pages)
                 try:
                     enrichment = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override)
                 except Exception as e:
