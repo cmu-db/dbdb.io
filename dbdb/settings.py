@@ -122,7 +122,7 @@ LOGGING = {
 
 # Database
 DATABASES = {
-    'default': env.db(),
+    'default': env.db(default='postgres://localhost/dbdb_io'),
 }
 
 DEFAULT_AUTO_FIELD='django.db.models.AutoField'
