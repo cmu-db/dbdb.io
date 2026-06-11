@@ -24,7 +24,7 @@ _SYSTEM_PROMPTS: dict[str, str] = {
     ),
     "save_org_enrichment": (
         _SYSTEM_PROMPT_COMMON
-        + " Your task is to fill in missing information about a database organization or vendor "
+        + " Your task is to fill in missing information about an organization / company / person / vendor involved in database development "
         "based on the page content provided and your training knowledge."
     ),
     "save_doc_enrichment": (
@@ -178,7 +178,7 @@ _ORG_FIELD_SCHEMAS: dict[str, dict] = {
     "countries": {
         "type": "array",
         "items": {"type": "string"},
-        "description": "ISO 3166-1 alpha-2 country codes for countries where this organization is headquartered (e.g. [\"US\", \"DE\"]).",
+        "description": "ISO 3166-1 alpha-2 country codes for countries where this organization originally was started/founded (e.g. [\"US\", \"DE\"]).",
     },
     "former_names": {
         "type": "array",
