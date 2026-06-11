@@ -122,7 +122,7 @@ class BaseEnricher(ABC):
         parts.append(
             "\nUse the save_org_enrichment tool to return your answer. "
             "Only fill the missing fields listed above. "
-            "Provide citations for every claim you make. "
+            # "Provide citations for every claim you make. "
             "Use only neutral, factual language — no marketing copy or subjective assessments."
         )
         return "".join(parts)
@@ -152,6 +152,7 @@ class BaseEnricher(ABC):
         self,
         raw_citations: list[dict],
         system: System,
+        skip_spamcheck: bool = False,
     ) -> dict[str, tuple[CitationUrl, list[str]]]:
         valid: dict[str, tuple[CitationUrl, list[str]]] = {}
 
@@ -170,9 +171,11 @@ class BaseEnricher(ABC):
 
             if citation_obj.status == CitationUrl.Status.UNKNOWN or citation_obj.last_checked is None:
                 try:
-                    citation_obj, result = process_citation_url(citation_obj, system=system)
+                    citation_obj, result = process_citation_url(citation_obj, system=system, skip_spamcheck=skip_spamcheck)
                     if result is None:
                         norm_url = citation_obj.url
+                    elif result["status"] != CitationUrl.Status.VALID:
+                        LOG.warning(f"{citation_obj} status is {citation_obj.status}. Skipping...")
                     else:
                         citation_obj.status = result["status"]
                         citation_obj.last_title = result.get("title")

@@ -230,7 +230,7 @@ class Command(EnricherBaseCommand):
         # --- 6. Validate citations ---
         self.stdout.write("Validating citations...")
         raw_citations = enrichment.get('citations', [])
-        valid_citations = enricher.validate_citations(raw_citations, system)
+        valid_citations = enricher.validate_citations(raw_citations, system, skip_spamcheck=options['skip_spamcheck'])
         self.stdout.write(f"  {len(valid_citations)}/{len(raw_citations)} citations valid")
 
         # --- 7. Dry-run exit ---

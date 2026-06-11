@@ -153,7 +153,7 @@ class Command(EnricherBaseCommand):
         # --- 5. Validate citations ---
         self.stdout.write("Validating citations...")
         raw_citations = enrichment.get('citations', [])
-        valid_citations = enricher.validate_citations(raw_citations, system=None)
+        valid_citations = enricher.validate_citations(raw_citations, system=None, skip_spamcheck=options['skip_spamcheck'])
         self.stdout.write(f"  {len(valid_citations)}/{len(raw_citations)} citations valid")
 
         # --- 6. Apply enrichment ---
