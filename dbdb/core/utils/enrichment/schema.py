@@ -143,6 +143,10 @@ ORG_ENRICHMENT_TOOL = {
                 "type": "string",
                 "description": "Organization's LinkedIn page URL.",
             },
+            "wikipedia_url": {
+                "type": "string",
+                "description": "Organization's Wikipedia page URL.",
+            },
             "citations": {
                 "type": "array",
                 "description": "URLs that support the provided information.",
