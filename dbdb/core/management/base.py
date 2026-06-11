@@ -54,3 +54,5 @@ class EnricherBaseCommand(DbdbBaseCommand):
                             help="Crawl the target's existing URLs and pass page text to the LLM")
         parser.add_argument('--recrawl-after', type=int, default=7, metavar='DAYS',
                             help='Re-fetch a URL only if cached content is older than N days (default: 7)')
+        parser.add_argument('--skip-field', action='append', default=[], metavar='FIELD',
+                            help='Exclude a field from enrichment (may be repeated)')

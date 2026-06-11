@@ -152,8 +152,9 @@ class Command(EnricherBaseCommand):
         enricher = BaseEnricher.create(options['enricher'], model_override)
 
         # --- 2. Identify missing fields ---
-        missing_fields = _get_missing_fields(current, requested_fields)
-        missing_features = _get_missing_features(current)
+        skip_fields = set(options['skip_field'])
+        missing_fields = [f for f in _get_missing_fields(current, requested_fields) if f not in skip_fields]
+        missing_features = [f for f in _get_missing_features(current) if f.slug not in skip_fields]
 
         if not missing_fields and not missing_features:
             self.stdout.write(self.style.SUCCESS("All fields are already filled. Nothing to do."))
