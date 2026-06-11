@@ -127,63 +127,77 @@ SAVE_ENRICHMENT_TOOL = SYSTEM_ENRICHMENT_TOOL
 # Organization enrichment schema
 # ---------------------------------------------------------------------------
 
-ORG_ENRICHMENT_TOOL = {
-    "name": "save_org_enrichment",
-    "description": (
-        "Save extracted information about a database organization or vendor. "
-        "Only include fields you are confident about."
-    ),
-    "input_schema": {
+# Per-field property definitions for the org enrichment tool.
+# build_org_enrichment_tool() selects only the fields that are missing.
+_ORG_FIELD_SCHEMAS: dict[str, dict] = {
+    "description": {
+        "type": "string",
+        "description": "Brief description of the organization and its role in the database ecosystem.",
+    },
+    "url": {
+        "type": "string",
+        "description": "Organization's official website URL.",
+    },
+    "linkedin_url": {
+        "type": "string",
+        "description": "Organization's LinkedIn page URL.",
+    },
+    "wikipedia_url": {
+        "type": "string",
+        "description": "Organization's Wikipedia page URL.",
+    },
+    "org_type": {
+        "type": "string",
+        "description": "Type of organization.",
+        "enum": ["Company", "University", "Individual", "Research Lab", "Non-profit Corporation"],
+    },
+    "stock_symbol": {
+        "type": "string",
+        "description": "Stock ticker symbol (e.g. ORCL, MSFT). Only set if the organization is publicly traded.",
+    },
+    "stock_exchange": {
+        "type": "string",
+        "description": "Stock exchange where the organization is listed. Only set if publicly traded.",
+        "enum": ["NYSE", "NASDAQ", "LSE", "TSE", "HKEX", "ASX", "TSX", "Euronext", "Other"],
+    },
+}
+
+_ORG_CITATIONS_SCHEMA = {
+    "type": "array",
+    "description": "URLs that support the provided information.",
+    "items": {
         "type": "object",
+        "required": ["url", "fields"],
         "properties": {
-            "description": {
-                "type": "string",
-                "description": "Brief description of the organization and its role in the database ecosystem.",
-            },
-            "url": {
-                "type": "string",
-                "description": "Organization's official website URL.",
-            },
-            "linkedin_url": {
-                "type": "string",
-                "description": "Organization's LinkedIn page URL.",
-            },
-            "wikipedia_url": {
-                "type": "string",
-                "description": "Organization's Wikipedia page URL.",
-            },
-            "org_type": {
-                "type": "string",
-                "description": "Type of organization.",
-                "enum": ["Company", "University", "Individual", "Research Lab", "Non-profit Corporation"],
-            },
-            "stock_symbol": {
-                "type": "string",
-                "description": "Stock ticker symbol (e.g. ORCL, MSFT). Only set if the organization is publicly traded.",
-            },
-            "stock_exchange": {
-                "type": "string",
-                "description": "Stock exchange where the organization is listed. Only set if publicly traded.",
-                "enum": ["NYSE", "NASDAQ", "LSE", "TSE", "HKEX", "ASX", "TSX", "Euronext", "Other"],
-            },
-            "citations": {
+            "url": {"type": "string"},
+            "fields": {
                 "type": "array",
-                "description": "URLs that support the provided information.",
-                "items": {
-                    "type": "object",
-                    "required": ["url", "fields"],
-                    "properties": {
-                        "url": {"type": "string"},
-                        "fields": {
-                            "type": "array",
-                            "items": {"type": "string"},
-                        },
-                    },
-                },
+                "items": {"type": "string"},
             },
         },
     },
 }
+
+
+def build_org_enrichment_tool(missing_fields: list[str]) -> dict:
+    """Return a save_org_enrichment tool schema limited to *missing_fields*."""
+    properties = {
+        field: _ORG_FIELD_SCHEMAS[field]
+        for field in missing_fields
+        if field in _ORG_FIELD_SCHEMAS
+    }
+    properties["citations"] = _ORG_CITATIONS_SCHEMA
+    return {
+        "name": "save_org_enrichment",
+        "description": (
+            "Save extracted information about a database organization or vendor. "
+            "Only include fields you are confident about."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": properties,
+        },
+    }
 
 # ---------------------------------------------------------------------------
 # Documentation enrichment schema (Feature / Attribute descriptions)

@@ -21,7 +21,7 @@ from django.utils import timezone
 from dbdb.core.management.base import EnricherBaseCommand
 from dbdb.core.models import CitationUrl, Organization, OrgType, StockExchange
 from dbdb.core.utils.citations import crawl_citation_url, normalize_url, process_citation_url
-from dbdb.core.utils.enrichment import BaseEnricher, ORG_ENRICHMENT_TOOL
+from dbdb.core.utils.enrichment import BaseEnricher, build_org_enrichment_tool
 
 LOG = logging.getLogger(__name__)
 
@@ -111,8 +111,9 @@ class Command(EnricherBaseCommand):
         self.stdout.write("Calling LLM...")
         prompt = enricher.build_org_prompt(org, missing_fields, crawled_pages)
         LOG.debug(prompt)
+        tool = build_org_enrichment_tool(missing_fields)
         try:
-            enrichment: dict = enricher.call_llm(prompt, ORG_ENRICHMENT_TOOL, model_override)
+            enrichment: dict = enricher.call_llm(prompt, tool, model_override)
         except Exception as e:
             raise CommandError(f"LLM call failed: {e}")
 
