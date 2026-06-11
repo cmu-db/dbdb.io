@@ -18,7 +18,7 @@ from datetime import timedelta
 from django.core.management.base import CommandError
 from django.utils import timezone
 
-from dbdb.core.management.base import DbdbBaseCommand
+from dbdb.core.management.base import EnricherBaseCommand
 from dbdb.core.models import CitationUrl, Organization
 from dbdb.core.utils.citations import crawl_citation_url, normalize_url, process_citation_url
 from dbdb.core.utils.enrichment import BaseEnricher, ORG_ENRICHMENT_TOOL
@@ -56,23 +56,13 @@ def _crawl_org_urls(org: Organization, recrawl_after: int = 7) -> dict[str, str]
     return crawled
 
 
-class Command(DbdbBaseCommand):
+class Command(EnricherBaseCommand):
     help = 'Fill missing Organization fields using an LLM'
 
     def add_arguments(self, parser: ArgumentParser):
         super().add_arguments(parser)
         parser.add_argument('keyword', metavar='ORG', type=str,
                             help='Organization slug or name keyword')
-        parser.add_argument('--dry-run', action='store_true',
-                            help='Show what would be filled without saving')
-        parser.add_argument('--fields', default=None,
-                            help='Comma-separated list of field names to target')
-        parser.add_argument('--model', default=None,
-                            help='Override LLM model name')
-        parser.add_argument('--include-urls', action='store_true',
-                            help="Crawl the org's existing URLs and pass page text to the LLM")
-        parser.add_argument('--recrawl-after', type=int, default=7, metavar='DAYS',
-                            help='Re-fetch a URL only if cached content is older than N days (default: 7)')
 
     def handle(self, *args, **options):
         keyword          = options['keyword']
@@ -94,7 +84,7 @@ class Command(DbdbBaseCommand):
             raise CommandError(f"No organization found matching '{keyword}'")
 
         self.stdout.write(f"Organization: {org.name} (slug: {org.slug})")
-        enricher = BaseEnricher.create(model_override)
+        enricher = BaseEnricher.create(options['enricher'], model_override)
 
         # --- 2. Identify missing fields ---
         missing_fields = _get_missing_org_fields(org, requested_fields)

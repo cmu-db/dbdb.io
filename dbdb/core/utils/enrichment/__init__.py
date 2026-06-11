@@ -39,20 +39,20 @@ __all__ = [
 # Backward-compat module-level wrappers
 # ---------------------------------------------------------------------------
 
-def call_llm(user_prompt: str, model_override: str | None = None) -> dict:
-    return BaseEnricher.create(model_override).call_llm(
+def call_llm(enricher_type: str, user_prompt: str, model_override: str | None = None) -> dict:
+    return BaseEnricher.create(enricher_type, model_override).call_llm(
         user_prompt, SYSTEM_ENRICHMENT_TOOL, model_override
     )
 
 
-def validate_citations(raw_citations: list, system) -> dict:
-    return BaseEnricher.create().validate_citations(raw_citations, system)
+def validate_citations(enricher_type: str, raw_citations: list, system) -> dict:
+    return BaseEnricher.create(enricher_type).validate_citations(raw_citations, system)
 
 
-def build_full_prompt(system, current_version, missing_fields, crawled_pages, features, attributes) -> str:
-    return BaseEnricher.create().build_system_prompt(system, current_version, missing_fields, features, attributes,
-                                                     crawled_pages)
+def build_full_prompt(enricher_type: str, system, current_version, missing_fields, crawled_pages, features, attributes) -> str:
+    return BaseEnricher.create(enricher_type).build_system_prompt(system, current_version, missing_fields, features, attributes,
+                                                                   crawled_pages)
 
 
-def build_feature_prompt(system, feature, crawled_pages) -> str:
-    return BaseEnricher.create().build_feature_prompt(system, feature, crawled_pages)
+def build_feature_prompt(enricher_type: str, system, feature, crawled_pages) -> str:
+    return BaseEnricher.create(enricher_type).build_feature_prompt(system, feature, crawled_pages)

@@ -26,3 +26,31 @@ class DbdbBaseCommand(BaseCommand):
             logging.getLogger('dbdb').setLevel(logging.DEBUG)
             LOG.debug("Debug logging enabled")
         return super().execute(*args, **options)
+
+
+class EnricherBaseCommand(DbdbBaseCommand):
+    """
+    Base class for LLM-enrichment management commands.
+
+    Adds the shared enricher arguments (--dry-run, --fields, --model,
+    --enricher, --include-urls, --recrawl-after) so subclasses only need to
+    declare their entity-specific positional arguments.
+    """
+
+    def add_arguments(self, parser):
+        super().add_arguments(parser)
+        from dbdb.core.utils.enrichment import BaseEnricher
+        enricher_choices = sorted(BaseEnricher._get_registry())
+        parser.add_argument('--dry-run', action='store_true',
+                            help='Show what would be filled without saving')
+        parser.add_argument('--fields', default=None,
+                            help='Comma-separated list of field names to target')
+        parser.add_argument('--model', default=None,
+                            help='Override LLM model name')
+        parser.add_argument('--enricher', required=True, choices=enricher_choices,
+                            metavar='ENRICHER',
+                            help=f'LLM backend to use: {", ".join(enricher_choices)}')
+        parser.add_argument('--include-urls', action='store_true',
+                            help="Crawl the target's existing URLs and pass page text to the LLM")
+        parser.add_argument('--recrawl-after', type=int, default=7, metavar='DAYS',
+                            help='Re-fetch a URL only if cached content is older than N days (default: 7)')

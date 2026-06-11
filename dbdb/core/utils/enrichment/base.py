@@ -188,25 +188,48 @@ class BaseEnricher(ABC):
     # Factory
     # ------------------------------------------------------------------
 
+    # Settings key required for each enricher name (None = no key needed).
+    # Keyed by the lowercase class-name stem, e.g. 'claude' for ClaudeEnricher.
+    _REQUIRED_SETTING: dict[str, str | None] = {
+        'claude':     'ANTHROPIC_API_KEY',
+        'chatgpt':    'OPENAI_API_KEY',
+        'perplexity': 'PERPLEXITY_API_KEY',
+        'ollama':     None,
+    }
+
     @classmethod
-    def create(cls, model_override: str | None = None) -> "BaseEnricher":
-        """Return the right enricher based on model name and available API keys."""
+    def _get_registry(cls) -> dict[str, type["BaseEnricher"]]:
+        """Return {name: subclass} by importing every non-base module in this package."""
+        import importlib
+        import pkgutil
+        from pathlib import Path
+
+        pkg_dir = Path(__file__).parent
+        for _, mod_name, _ in pkgutil.iter_modules([str(pkg_dir)]):
+            if mod_name not in ('base', 'schema'):
+                importlib.import_module(f'.{mod_name}', package=__package__)
+
+        return {
+            sub.__name__.removesuffix('Enricher').lower(): sub
+            for sub in cls.__subclasses__()
+        }
+
+    @classmethod
+    def create(cls, enricher_type: str, model_override: str | None = None) -> "BaseEnricher":
+        """Instantiate the named enricher, raising ValueError if its required settings key is absent."""
         from django.conf import settings
-        from .claude import ClaudeEnricher
-        from .chatgpt import ChatGPTEnricher
-        from .ollama import OllamaEnricher
-        from .perplexity import PerplexityEnricher
 
-        model = (model_override or getattr(settings, "ENRICHMENT_LLM_MODEL", "")).lower()
+        registry = cls._get_registry()
+        if enricher_type not in registry:
+            raise ValueError(
+                f"Unknown enricher {enricher_type!r}. "
+                f"Choose one of: {', '.join(sorted(registry))}"
+            )
 
-        if model.startswith(("gpt-", "o1", "o3", "o4")):
-            return ChatGPTEnricher()
-        if model.startswith("sonar") or "perplexity" in model:
-            return PerplexityEnricher()
-        if getattr(settings, "ANTHROPIC_API_KEY", ""):
-            return ClaudeEnricher()
-        if getattr(settings, "PERPLEXITY_API_KEY", ""):
-            return PerplexityEnricher()
-        if getattr(settings, "OPENAI_API_KEY", ""):
-            return ChatGPTEnricher()
-        return OllamaEnricher()
+        required_key = cls._REQUIRED_SETTING.get(enricher_type)
+        if required_key and not getattr(settings, required_key, ''):
+            raise ValueError(
+                f"enricher {enricher_type!r} requires {required_key} to be set in settings"
+            )
+
+        return registry[enricher_type]()

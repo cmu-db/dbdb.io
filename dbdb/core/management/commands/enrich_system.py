@@ -21,7 +21,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import CommandError
 from django.utils import timezone
-from dbdb.core.management.base import DbdbBaseCommand
+from dbdb.core.management.base import EnricherBaseCommand
 from django.db import transaction
 
 from dbdb.core.models import (
@@ -112,22 +112,14 @@ def _get_missing_features(version: SystemVersion) -> list[Feature]:
     return list(features)
 
 
-class Command(DbdbBaseCommand):
+class Command(EnricherBaseCommand):
     help = 'Fill missing SystemVersion fields using an LLM and save a pending version'
 
     def add_arguments(self, parser: ArgumentParser):
         super().add_arguments(parser)
         parser.add_argument('keyword', metavar='S', type=str, help='System id or slug keyword')
-        parser.add_argument('--dry-run', action='store_true',
-                            help='Show what would be filled without saving')
-        parser.add_argument('--fields', default=None,
-                            help='Comma-separated list of field names to target')
-        parser.add_argument('--model', default=None,
-                            help='Override LLM model name')
         parser.add_argument('--per-feature', action='store_true',
                             help='One LLM call per missing Feature (slower, more targeted)')
-        parser.add_argument('--recrawl-after', type=int, default=7, metavar='DAYS',
-                            help='Re-fetch a URL only if its cached content is older than N days (default: 7)')
 
     def handle(self, *args, **options):
         keyword = options['keyword']
@@ -157,7 +149,7 @@ class Command(DbdbBaseCommand):
             raise CommandError(f"No current SystemVersion for '{keyword}'")
 
         self.stdout.write(f"System: {system.name} (current ver #{current.ver})")
-        enricher = BaseEnricher.create(model_override)
+        enricher = BaseEnricher.create(options['enricher'], model_override)
 
         # --- 2. Identify missing fields ---
         missing_fields = _get_missing_fields(current, requested_fields)
@@ -172,10 +164,12 @@ class Command(DbdbBaseCommand):
         if missing_features:
             self.stdout.write(f"Missing features: {len(missing_features)} of {Feature.objects.count()}")
 
-        # --- 3. Crawl existing URLs ---
-        self.stdout.write("Crawling existing URLs...")
-        crawled_pages = _crawl_existing_urls(current, system, recrawl_after=options['recrawl_after'])
-        self.stdout.write(f"  Crawled {len(crawled_pages)} page(s)")
+        # --- 3. Crawl existing URLs (opt-in via --include-urls) ---
+        crawled_pages: dict[str, str] = {}
+        if options['include_urls']:
+            self.stdout.write("Crawling existing URLs...")
+            crawled_pages = _crawl_existing_urls(current, system, recrawl_after=options['recrawl_after'])
+            self.stdout.write(f"  Crawled {len(crawled_pages)} page(s)")
 
         # --- 4. Load taxonomy ---
         features = list(Feature.objects.prefetch_related('options').order_by('category', 'label'))
