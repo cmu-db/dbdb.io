@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.db.models import OuterRef, Subquery
+from django.db.models import OuterRef, Prefetch, Subquery
 from django.forms import HiddenInput
 from django.http import HttpResponseForbidden
 from django.http.response import Http404
@@ -176,6 +176,7 @@ class SystemView(View):
         start_year_citations = self.process_citations(system_version.start_year_citations.all())
         end_year_citations = self.process_citations(system_version.end_year_citations.all())
 
+        _org_only = Organization.objects.only('id', 'name', 'slug')
         acquisitions = [
             {
                 'organization': acq.organization,
@@ -183,9 +184,12 @@ class SystemView(View):
                 'citations': self.process_citations([acq.citation] if acq.citation else []),
             }
             for acq in system_version.acquisitions
-                .select_related('organization', 'citation')
+                .select_related('citation')
+                .prefetch_related(Prefetch('organization', queryset=_org_only))
                 .order_by('year', 'organization__name')
         ]
+
+        developer_orgs = list(system_version.developer_orgs.only('id', 'name', 'slug'))
 
         # Compatible Systems
         compatible = [
@@ -251,6 +255,7 @@ class SystemView(View):
             'hosted_services': hosted_services,
             'sections': sections,
             'acquisitions': acquisitions,
+            'developer_orgs': developer_orgs,
             'user_can_edit': user_can_edit,
             'compatible': compatible,
             'derived': derived,

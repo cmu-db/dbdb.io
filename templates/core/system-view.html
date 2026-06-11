@@ -106,9 +106,9 @@
         <div class="fact"><dt>LinkedIn</dt><dd><a href="{{ version.linkedin_url.url }}" target="_{{ system.slug }}"><i class="fa-brands fa-linkedin"></i>{{ version.linkedin_handle }}</a>{% if linkedin_url_citation %}<span class="cites">{% citation_footnote linkedin_url_citation %}</span>{% endif %}</dd></div>
         {% endif %}
 
-        {% if version.developer_orgs.all %}
-        <div class="fact"><dt>Developer{{ version.developer_orgs.all|pluralize }}</dt>
-            <dd>{% for org in version.developer_orgs.all %}<div>{% org_link org %}</div>{% endfor %}
+        {% if developer_orgs %}
+        <div class="fact"><dt>Developer{{ developer_orgs|pluralize }}</dt>
+            <dd>{% for org in developer_orgs %}<div>{% org_link org %}</div>{% endfor %}
         </dd>
         </div>
         {% endif %}
