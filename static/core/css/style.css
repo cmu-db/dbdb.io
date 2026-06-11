@@ -552,7 +552,7 @@ a:hover { color: var(--accent); }
 }
 .spotlight p {
   font-family: var(--serif); font-size: 1.02rem; color: var(--ink-soft);
-  margin: 0; max-width: 60ch; line-height: 1.5;
+  margin: 0; max-width: 90ch; line-height: 1.5;
 }
 .spotlight .sp-meta {
   display: flex; gap: .4rem; margin-top: .7rem; flex-wrap: wrap;
