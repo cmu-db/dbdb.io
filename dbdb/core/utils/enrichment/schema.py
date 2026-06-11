@@ -10,7 +10,12 @@ _SYSTEM_PROMPT = (
     "Only include information you are confident about. "
     "For every claim, provide a citation URL in the citations list. "
     "All feature option slugs and attribute option slugs MUST exactly match the "
-    "taxonomy provided — do not invent new slugs."
+    "taxonomy provided — do not invent new slugs. "
+    "Use only neutral, factual language. "
+    "Do not include marketing copy, superlatives, or subjective assessments — "
+    "for example, do not describe a system as high-performance, industry-leading, "
+    "or as handling large volumes of data, and do not describe an organization as "
+    "a leading vendor, innovative, or as thriving or struggling."
 )
 
 # ---------------------------------------------------------------------------

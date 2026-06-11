@@ -75,7 +75,8 @@ class BaseEnricher(ABC):
         parts.append(
             "\nUse the save_enrichment tool to return your answer. "
             "Only fill the missing fields listed above. "
-            "Provide citations for every claim you make."
+            "Provide citations for every claim you make. "
+            "Use only neutral, factual language — no marketing copy or subjective assessments."
         )
         return "".join(parts)
 
@@ -96,8 +97,8 @@ class BaseEnricher(ABC):
             for url, text in crawled_pages.items():
                 parts.append(f"### {url}\n{text[:3000]}\n")
         parts.append(
-            "\nUse the save_enrichment tool. Only fill the 'features' key for this feature "
-            "and provide citations."
+            "\nUse the save_enrichment tool. Only fill the 'features' key for this feature, "
+            "provide citations, and use only neutral, factual language."
         )
         return "".join(parts)
 
@@ -116,7 +117,8 @@ class BaseEnricher(ABC):
         parts.append(
             "\nUse the save_org_enrichment tool to return your answer. "
             "Only fill the missing fields listed above. "
-            "Provide citations for every claim you make."
+            "Provide citations for every claim you make. "
+            "Use only neutral, factual language — no marketing copy or subjective assessments."
         )
         return "".join(parts)
 
@@ -132,7 +134,8 @@ class BaseEnricher(ABC):
                 parts.append(f"### {url}\n{text[:3000]}\n")
         parts.append(
             "\nUse the save_doc_enrichment tool to return a clear description "
-            "with concrete examples and citations."
+            "with concrete examples and citations. "
+            "Use only neutral, factual language — no marketing copy or subjective assessments."
         )
         return "".join(parts)
 
