@@ -353,6 +353,11 @@ class Organization(LogoMixin, models.Model):
         verbose_name='Countries',
         help_text='Countries where this organization is headquartered')
 
+    former_names = ArrayField(
+        models.CharField(max_length=200),
+        default=list, blank=True,
+        help_text="Previous names this organization was known by")
+
     description = models.TextField(
         blank=True,
         help_text="This field supports Markdown Syntax")

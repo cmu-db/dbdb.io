@@ -45,22 +45,40 @@
     </div>
     <dl>
         {% if org.org_type %}
-        <div class="fact"><dt>Type</dt><dd>{% if org.org_type_obj.icon %}<i class="{{ org.org_type_obj.icon }}"></i> {% endif %}{{ org.get_org_type_display }}</dd></div>
+        <div class="fact">
+            <dt>Org Type</dt>
+            <dd>{% if org.org_type_obj.icon %}<i class="{{ org.org_type_obj.icon }}"></i> {% endif %}{{ org.get_org_type_display }}</dd>
+        </div>
         {% endif %}
         {% if org.url %}
-        <div class="fact"><dt>Website</dt><dd><a href="{{ org.url.url }}" target="_{{ org.slug }}">{{ org.url.url }}</a>{% if url_citation %}<span class="cites">{% citation_footnote url_citation %}</span>{% endif %}</dd></div>
+        <div class="fact">
+            <dt>Website</dt>
+            <dd><a href="{{ org.url.url }}" target="_{{ org.slug }}">{{ org.url.url }}</a>{% if url_citation %}<span class="cites">{% citation_footnote url_citation %}</span>{% endif %}</dd>
+        </div>
         {% endif %}
         {% if org.linkedin_url %}
-        <div class="fact"><dt>LinkedIn</dt><dd><a href="{{ org.linkedin_url.url }}" target="_{{ org.slug }}"><i class="fa-brands fa-linkedin"></i> {{ org.linkedin_url.url }}</a>{% if linkedin_citation %}<span class="cites">{% citation_footnote linkedin_citation %}</span>{% endif %}</dd></div>
+        <div class="fact">
+            <dt>LinkedIn</dt>
+            <dd><a href="{{ org.linkedin_url.url }}" target="_{{ org.slug }}"><i class="fa-brands fa-linkedin"></i> {{ org.linkedin_url.url }}</a>{% if linkedin_citation %}<span class="cites">{% citation_footnote linkedin_citation %}</span>{% endif %}</dd>
+        </div>
         {% endif %}
         {% if org.countries %}
         <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
-        <div class="fact"><dt>Country</dt><dd>{% for country in org.countries %}{% if not forloop.first %}, {% endif %}<i class="{{ country.flag_css }}"></i> {{ country }}{% endfor %}</dd></div>
+        <div class="fact">
+            <dt>Country of Origin</dt>
+            <dd>{% for country in org.countries %}{% if not forloop.first %}, {% endif %}<i class="{{ country.flag_css }}"></i> {{ country }}{% endfor %}</dd></div>
         {% endif %}
         {% if org.stock_symbol %}
-        <div class="fact"><dt>Stock</dt><dd>
-            {% if org.stock_exchange %}{% if org.stock_exchange_obj.url %}<a href="{{ org.stock_exchange_obj.url }}" target="_blank">{{ org.get_stock_exchange_display }}</a>{% else %}{{ org.get_stock_exchange_display }}{% endif %}: {% endif %}{{ org.stock_symbol }}
-        </dd></div>
+        <div class="fact">
+            <dt>Stock</dt>
+            <dd>{% if org.stock_exchange %}{% if org.stock_exchange_obj.url %}<a href="{{ org.stock_exchange_obj.url }}" target="_blank">{{ org.get_stock_exchange_display }}</a>{% else %}{{ org.get_stock_exchange_display }}{% endif %}: {% endif %}{{ org.stock_symbol }}</dd>
+        </div>
+        {% endif %}
+        {% if org.former_names %}
+        <div class="fact">
+            <dt>Former Name{{ org.former_names|pluralize }}</dt>
+            <dd>{{ org.former_names|join:", " }}</dd>
+        </div>
         {% endif %}
     </dl>
 </div>
