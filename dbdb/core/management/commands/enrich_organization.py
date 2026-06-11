@@ -19,20 +19,27 @@ from django.core.management.base import CommandError
 from django.utils import timezone
 
 from dbdb.core.management.base import EnricherBaseCommand
-from dbdb.core.models import CitationUrl, Organization
+from dbdb.core.models import CitationUrl, Organization, OrgType, StockExchange
 from dbdb.core.utils.citations import crawl_citation_url, normalize_url, process_citation_url
 from dbdb.core.utils.enrichment import BaseEnricher, ORG_ENRICHMENT_TOOL
 
 LOG = logging.getLogger(__name__)
 
-ORG_URL_FIELDS  = ('url', 'wikipedia_url', 'linkedin_url')
-ORG_TEXT_FIELDS = ('description',)
-ORG_ALL_FIELDS  = ORG_TEXT_FIELDS + ORG_URL_FIELDS
+ORG_URL_FIELDS    = ('url', 'wikipedia_url', 'linkedin_url')
+ORG_TEXT_FIELDS   = ('description', 'stock_symbol')
+ORG_CHOICE_FIELDS = ('org_type', 'stock_exchange')
+ORG_ALL_FIELDS    = ORG_TEXT_FIELDS + ORG_URL_FIELDS + ORG_CHOICE_FIELDS
+
+# Maps display label → integer value for each IntegerChoices field.
+_ORG_TYPE_BY_LABEL      = {label: value for value, label in OrgType.choices}
+_STOCK_EXCHANGE_BY_LABEL = {label: value for value, label in StockExchange.choices}
 
 
 def _is_org_field_empty(org: Organization, field: str) -> bool:
     if field in ORG_URL_FIELDS:
         return getattr(org, f'{field}_id') is None
+    if field in ORG_CHOICE_FIELDS:
+        return getattr(org, field) is None
     val = getattr(org, field, None)
     return not val or str(val).strip() == ''
 
@@ -134,6 +141,23 @@ class Command(EnricherBaseCommand):
                 if val:
                     setattr(org, field, val)
                     dirty = True
+
+        _choice_maps = {
+            'org_type':       _ORG_TYPE_BY_LABEL,
+            'stock_exchange':  _STOCK_EXCHANGE_BY_LABEL,
+        }
+        for field in ORG_CHOICE_FIELDS:
+            if field not in missing_fields:
+                continue
+            label = (enrichment.get(field) or '').strip()
+            if not label:
+                continue
+            int_val = _choice_maps[field].get(label)
+            if int_val is not None:
+                setattr(org, field, int_val)
+                dirty = True
+            else:
+                LOG.warning(f"  {field}: unrecognised value {label!r}, skipping")
 
         for field in ORG_URL_FIELDS:
             if field not in missing_fields:

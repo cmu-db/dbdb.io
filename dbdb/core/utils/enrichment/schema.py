@@ -152,6 +152,20 @@ ORG_ENRICHMENT_TOOL = {
                 "type": "string",
                 "description": "Organization's Wikipedia page URL.",
             },
+            "org_type": {
+                "type": "string",
+                "description": "Type of organization.",
+                "enum": ["Company", "University", "Individual", "Research Lab", "Non-profit Corporation"],
+            },
+            "stock_symbol": {
+                "type": "string",
+                "description": "Stock ticker symbol (e.g. ORCL, MSFT). Only set if the organization is publicly traded.",
+            },
+            "stock_exchange": {
+                "type": "string",
+                "description": "Stock exchange where the organization is listed. Only set if publicly traded.",
+                "enum": ["NYSE", "NASDAQ", "LSE", "TSE", "HKEX", "ASX", "TSX", "Euronext", "Other"],
+            },
             "citations": {
                 "type": "array",
                 "description": "URLs that support the provided information.",
