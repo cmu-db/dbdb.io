@@ -15,9 +15,12 @@ import logging
 from argparse import ArgumentParser
 from datetime import timedelta
 
+from django.contrib.postgres.fields import ArrayField
 from django.core.management.base import CommandError
+from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django_countries.fields import CountryField
 
 from dbdb.core.management.base import EnricherBaseCommand
 from dbdb.core.models import CitationUrl, Organization, OrgType, StockExchange
@@ -26,23 +29,40 @@ from dbdb.core.utils.enrichment import BaseEnricher, build_org_enrichment_tool
 
 LOG = logging.getLogger(__name__)
 
-ORG_URL_FIELDS    = ('url', 'wikipedia_url', 'linkedin_url')
-ORG_TEXT_FIELDS   = ('description', 'stock_symbol')
-ORG_CHOICE_FIELDS = ('org_type', 'stock_exchange')
-ORG_ALL_FIELDS    = ORG_TEXT_FIELDS + ORG_URL_FIELDS + ORG_CHOICE_FIELDS
+# Ordered list of all fields the command can enrich.
+ORG_ALL_FIELDS = (
+    'description', 'stock_symbol',
+    'url', 'wikipedia_url', 'linkedin_url',
+    'org_type', 'stock_exchange',
+    'countries', 'former_names',
+)
 
-# Maps display label → integer value for each IntegerChoices field.
-_ORG_TYPE_BY_LABEL      = {label: value for value, label in OrgType.choices}
-_STOCK_EXCHANGE_BY_LABEL = {label: value for value, label in StockExchange.choices}
+# Maps display label → integer value for IntegerChoices fields.
+_ORG_CHOICE_MAPS = {
+    'org_type':      {label: value for value, label in OrgType.choices},
+    'stock_exchange': {label: value for value, label in StockExchange.choices},
+}
+
+
+def _org_field_type(field_name: str) -> str:
+    """Return the storage category of an Organization field via reflection."""
+    field = Organization._meta.get_field(field_name)
+    if isinstance(field, models.ForeignKey):
+        return 'url'
+    if isinstance(field, models.IntegerField) and field.choices:
+        return 'choice'
+    if isinstance(field, ArrayField) or (isinstance(field, CountryField) and field.multiple):
+        return 'array'
+    return 'text'
 
 
 def _is_org_field_empty(org: Organization, field: str) -> bool:
-    if field in ORG_URL_FIELDS:
+    ft = _org_field_type(field)
+    if ft == 'url':
         return getattr(org, f'{field}_id') is None
-    if field in ORG_CHOICE_FIELDS:
+    if ft == 'choice':
         return getattr(org, field) is None
-    val = getattr(org, field, None)
-    return not val or str(val).strip() == ''
+    return not getattr(org, field, None)
 
 
 def _get_missing_org_fields(org: Organization, requested: list[str] | None) -> list[str]:
@@ -51,10 +71,12 @@ def _get_missing_org_fields(org: Organization, requested: list[str] | None) -> l
 
 
 def _crawl_org_urls(org: Organization, recrawl_after: int = 7) -> dict[str, str]:
-    """Crawl the org's known URL fields; return {url: text_excerpt}."""
+    """Crawl the org's CitationUrl FK fields; return {url: text_excerpt}."""
     crawled: dict[str, str] = {}
     cutoff = timezone.now() - timedelta(days=recrawl_after)
-    for field in ORG_URL_FIELDS:
+    for field in ORG_ALL_FIELDS:
+        if _org_field_type(field) != 'url':
+            continue
         citation: CitationUrl | None = getattr(org, field)
         if citation is None:
             continue
@@ -133,60 +155,57 @@ class Command(EnricherBaseCommand):
         # --- 6. Apply enrichment ---
         dirty = False
 
-        for field in ORG_TEXT_FIELDS:
-            if field in missing_fields:
-                val = enrichment.get(field, '')
+        for field in missing_fields:
+            val = enrichment.get(field)
+            ft = _org_field_type(field)
+
+            if ft == 'text':
                 if val:
                     setattr(org, field, val)
                     dirty = True
 
-        _choice_maps = {
-            'org_type':       _ORG_TYPE_BY_LABEL,
-            'stock_exchange':  _STOCK_EXCHANGE_BY_LABEL,
-        }
-        for field in ORG_CHOICE_FIELDS:
-            if field not in missing_fields:
-                continue
-            label = (enrichment.get(field) or '').strip()
-            if not label:
-                continue
-            int_val = _choice_maps[field].get(label)
-            if int_val is not None:
-                setattr(org, field, int_val)
-                dirty = True
-            else:
-                LOG.warning(f"  {field}: unrecognised value {label!r}, skipping")
+            elif ft == 'choice':
+                label = (val or '').strip()
+                int_val = _ORG_CHOICE_MAPS.get(field, {}).get(label)
+                if int_val is not None:
+                    setattr(org, field, int_val)
+                    dirty = True
+                elif label:
+                    LOG.warning(f"  {field}: unrecognised value {label!r}, skipping")
 
-        for field in ORG_URL_FIELDS:
-            if field not in missing_fields:
-                continue
-            url_str = (enrichment.get(field) or '').strip()
-            if not url_str:
-                continue
-            try:
-                norm = normalize_url(url_str)
-                existing = CitationUrl.objects.filter(url=norm).first()
-                if existing:
-                    setattr(org, field, existing)
+            elif ft == 'array':
+                if isinstance(val, list) and val:
+                    setattr(org, field, val)
                     dirty = True
+
+            elif ft == 'url':
+                url_str = (val or '').strip()
+                if not url_str:
                     continue
-                citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
-                citation, info = process_citation_url(citation)
-                if info is None:
-                    setattr(org, field, citation)
-                    dirty = True
-                elif info['status'] == CitationUrl.Status.VALID:
-                    citation.save()
-                    setattr(org, field, citation)
-                    dirty = True
-                else:
-                    LOG.warning(
-                        f"  {field}: {url_str!r} unreachable "
-                        f"(status={citation.get_status_display()}), skipping"
-                    )
-                    citation.delete()
-            except Exception as e:
-                LOG.warning(f"  {field}: could not validate {url_str!r}: {e}")
+                try:
+                    norm = normalize_url(url_str)
+                    existing = CitationUrl.objects.filter(url=norm).first()
+                    if existing:
+                        setattr(org, field, existing)
+                        dirty = True
+                        continue
+                    citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
+                    citation, info = process_citation_url(citation)
+                    if info is None:
+                        setattr(org, field, citation)
+                        dirty = True
+                    elif info['status'] == CitationUrl.Status.VALID:
+                        citation.save()
+                        setattr(org, field, citation)
+                        dirty = True
+                    else:
+                        LOG.warning(
+                            f"  {field}: {url_str!r} unreachable "
+                            f"(status={citation.get_status_display()}), skipping"
+                        )
+                        citation.delete()
+                except Exception as e:
+                    LOG.warning(f"  {field}: could not validate {url_str!r}: {e}")
 
         if dirty:
             org.save()

@@ -175,6 +175,16 @@ _ORG_FIELD_SCHEMAS: dict[str, dict] = {
         "type": "string",
         "description": "Stock exchange where the organization is listed. Only set if publicly traded.",
     },
+    "countries": {
+        "type": "array",
+        "items": {"type": "string"},
+        "description": "ISO 3166-1 alpha-2 country codes for countries where this organization is headquartered (e.g. [\"US\", \"DE\"]).",
+    },
+    "former_names": {
+        "type": "array",
+        "items": {"type": "string"},
+        "description": "Previous names this organization was known by.",
+    },
 }
 
 _ORG_CITATIONS_SCHEMA = {
