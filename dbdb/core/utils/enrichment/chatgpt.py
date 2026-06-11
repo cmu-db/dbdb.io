@@ -5,7 +5,7 @@ import logging
 from django.conf import settings
 
 from .base import BaseEnricher
-from .schema import _SYSTEM_PROMPT
+from .schema import get_system_prompt
 
 LOG = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class ChatGPTEnricher(BaseEnricher):
         response = client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": _SYSTEM_PROMPT},
+                {"role": "system", "content": get_system_prompt(fn_name)},
                 {"role": "user", "content": user_prompt},
             ],
             tools=[{

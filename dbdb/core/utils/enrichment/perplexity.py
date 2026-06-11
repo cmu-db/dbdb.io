@@ -5,7 +5,7 @@ import logging
 from django.conf import settings
 
 from .base import BaseEnricher
-from .schema import _SYSTEM_PROMPT
+from .schema import get_system_prompt
 
 LOG = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class PerplexityEnricher(BaseEnricher):
         )
         schema_str = json.dumps(tool_schema["input_schema"], indent=2)
         prompt = (
-            f"{_SYSTEM_PROMPT}\n\n"
+            f"{get_system_prompt(tool_schema['name'])}\n\n"
             f"Return ONLY a valid JSON object matching this schema (no prose, no markdown):\n"
             f"{schema_str}\n\n"
             f"{user_prompt}"

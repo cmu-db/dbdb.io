@@ -3,20 +3,40 @@ Tool schemas for each enrichable entity type, plus the shared system prompt.
 Each schema is passed directly to the LLM backend as the structured output spec.
 """
 
-_SYSTEM_PROMPT = (
+_SYSTEM_PROMPT_COMMON = (
     "You are an expert database researcher. "
-    "Your task is to fill in missing information about a database management system "
-    "based on the page content provided and your training knowledge. "
     "Only include information you are confident about. "
     "For every claim, provide a citation URL in the citations list. "
-    "All feature option slugs and attribute option slugs MUST exactly match the "
-    "taxonomy provided — do not invent new slugs. "
     "Use only neutral, factual language. "
     "Do not include marketing copy, superlatives, or subjective assessments — "
     "for example, do not describe a system as high-performance, industry-leading, "
     "or as handling large volumes of data, and do not describe an organization as "
     "a leading vendor, innovative, or as thriving or struggling."
 )
+
+_SYSTEM_PROMPTS: dict[str, str] = {
+    "save_enrichment": (
+        _SYSTEM_PROMPT_COMMON
+        + " Your task is to fill in missing information about a database management system "
+        "based on the page content provided and your training knowledge. "
+        "All feature option slugs and attribute option slugs MUST exactly match the "
+        "taxonomy provided — do not invent new slugs."
+    ),
+    "save_org_enrichment": (
+        _SYSTEM_PROMPT_COMMON
+        + " Your task is to fill in missing information about a database organization or vendor "
+        "based on the page content provided and your training knowledge."
+    ),
+    "save_doc_enrichment": (
+        _SYSTEM_PROMPT_COMMON
+        + " Your task is to write documentation for a database feature or attribute "
+        "based on the page content provided and your training knowledge."
+    ),
+}
+
+
+def get_system_prompt(tool_name: str) -> str:
+    return _SYSTEM_PROMPTS.get(tool_name, _SYSTEM_PROMPTS["save_enrichment"])
 
 # ---------------------------------------------------------------------------
 # System enrichment schema

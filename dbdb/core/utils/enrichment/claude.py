@@ -5,7 +5,7 @@ import anthropic
 from django.conf import settings
 
 from .base import BaseEnricher
-from .schema import _SYSTEM_PROMPT
+from .schema import get_system_prompt
 
 LOG = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ class ClaudeEnricher(BaseEnricher):
             response = client.messages.create(
                 model=model,
                 max_tokens=4096,
-                system=_SYSTEM_PROMPT,
+                system=get_system_prompt(tool_name),
                 tools=[tool_schema],
                 tool_choice={"type": "tool", "name": tool_name},
                 messages=[{"role": "user", "content": user_prompt}],

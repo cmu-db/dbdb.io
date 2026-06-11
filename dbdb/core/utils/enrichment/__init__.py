@@ -10,7 +10,7 @@ from .ollama import OllamaEnricher
 from .chatgpt import ChatGPTEnricher
 from .perplexity import PerplexityEnricher
 from .schema import (
-    _SYSTEM_PROMPT,
+    get_system_prompt,
     SYSTEM_ENRICHMENT_TOOL,
     build_org_enrichment_tool,
     DOC_ENRICHMENT_TOOL,
@@ -22,7 +22,7 @@ __all__ = [
     "OllamaEnricher",
     "ChatGPTEnricher",
     "PerplexityEnricher",
-    "_SYSTEM_PROMPT",
+    "get_system_prompt",
     "SYSTEM_ENRICHMENT_TOOL",
     "build_org_enrichment_tool",
     "DOC_ENRICHMENT_TOOL",
