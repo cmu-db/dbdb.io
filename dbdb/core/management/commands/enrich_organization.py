@@ -16,6 +16,7 @@ from argparse import ArgumentParser
 from datetime import timedelta
 
 from django.core.management.base import CommandError
+from django.urls import reverse
 from django.utils import timezone
 
 from dbdb.core.management.base import EnricherBaseCommand
@@ -194,7 +195,10 @@ class Command(EnricherBaseCommand):
         if dirty:
             org.save()
 
-        fields_filled = [f for f in missing_fields if enrichment.get(f) not in (None, '')]
+        fields_filled = [f"{f}={enrichment.get(f)}" for f in missing_fields if enrichment.get(f) not in (None, '')]
         self.stdout.write(self.style.SUCCESS(f"\nUpdated organization '{org.name}'"))
         if fields_filled:
             self.stdout.write(f"Fields filled: {', '.join(fields_filled)}")
+        from django.contrib.sites.models import Site
+        domain = Site.objects.get_current().domain
+        self.stdout.write(self.style.SUCCESS(f"\nhttps://{domain}{reverse('organization', args=[org.slug])}"))

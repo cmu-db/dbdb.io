@@ -77,7 +77,17 @@
         {% if org.stock_symbol %}
         <div class="fact">
             <dt>Stock</dt>
-            <dd>{% if org.stock_exchange %}{% if org.stock_exchange_obj.url %}<a href="{{ org.stock_exchange_obj.url }}" target="_blank">{{ org.get_stock_exchange_display }}</a>{% else %}{{ org.get_stock_exchange_display }}{% endif %}: {% endif %}{{ org.stock_symbol }}</dd>
+            <dd>
+                {% if org.stock_exchange %}
+                    {% if org.stock_exchange_obj.url %}
+                        <a href="{{ org.stock_exchange_obj.url }}{{ org.stock_symbol }}" target="_blank" title="View {{ org.name }} on {{ org.get_stock_exchange_display }}">{{ org.get_stock_exchange_display }}: {{ org.stock_symbol }}</a>
+                    {% else %}
+                        {{ org.get_stock_exchange_display }}
+                    {% endif %}
+                {% else %}
+                    {{ org.stock_symbol }}
+                {% endif %}
+            </dd>
         </div>
         {% endif %}
         {% if org.wikipedia_url %}

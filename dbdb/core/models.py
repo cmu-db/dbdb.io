@@ -309,9 +309,10 @@ class StockExchange(models.IntegerChoices):
 
     @property
     def url(self):
+        """URLs to go directly to the stock symbol on the exchange"""
         return {
             1: 'https://www.nyse.com',
-            2: 'https://www.nasdaq.com',
+            2: 'https://www.nasdaq.com/market-activity/stocks/',
             3: 'https://www.londonstockexchange.com',
             4: 'https://www.jpx.co.jp/english/',
             5: 'https://www.hkex.com.hk',
