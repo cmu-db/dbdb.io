@@ -30,7 +30,7 @@
 {% if revision_list %}
 <div class="compare-bar">
     <span class="hint">Select two versions to compare</span>
-    <button id="compareBtn" class="compare-btn" type="button" disabled>
+    <button id="compareBtn" class="btn compare-btn" type="button" disabled>
         <i class="fa-solid fa-code-compare"></i> Compare (<span id="compareCount">0</span>/2)
     </button>
 </div>
@@ -61,7 +61,7 @@
                 <!-- BEGIN:ACTIONS -->
                 <div class="feed-actions">
                     {% if revision_list %}
-                    <button class="cmp-btn" data-ver="{{ version.ver }}" type="button">+ Compare</button>
+                    <button class="btn compare-select-btn" data-ver="{{ version.ver }}" type="button">+ Compare</button>
                     {% endif %}
                     {% if version.diff_prev_ver %}
                     <a href="{% url 'system_diff' version.system.slug version.diff_prev_ver version.ver %}" class="diff-link" title="Recent Difference With Previous Revision"><i class="fa-solid fa-code-compare"></i> Diff</a>
@@ -87,7 +87,7 @@
 <script>
 (function () {
     var slug = '{{ system.slug|escapejs }}';
-    var btns = Array.prototype.slice.call(document.querySelectorAll('.cmp-btn'));
+    var btns = Array.prototype.slice.call(document.querySelectorAll('.compare-select-btn'));
     var compareBtn = document.getElementById('compareBtn');
     var countEl = document.getElementById('compareCount');
     var selected = [];

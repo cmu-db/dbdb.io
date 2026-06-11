@@ -837,14 +837,15 @@ form.main-search { display: block; padding: 0; }
 .token .x:hover { opacity: 1; color: var(--accent); }
 
 .filter-actions { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin-top: .9rem; }
-.mini-btn {
+.btn {
   font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; font-size: .66rem;
   border: 1px solid var(--ink); background: var(--ink); color: var(--paper) !important;
   padding: .45rem .8rem; display: inline-flex; align-items: center; gap: .4rem; cursor: pointer; white-space: nowrap;
+  border-radius: 0px;
 }
-.mini-btn.ghost { background: transparent; color: var(--ink); }
-.mini-btn.ghost:hover { background: var(--ink); color: var(--paper); }
-.mini-btn:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink) !important; }
+.btn.ghost { background: transparent; color: var(--ink) !important; border-color: var(--ink); }
+.btn.ghost:hover { background: var(--ink); color: var(--paper) !important; }
 .mini-select {
   font-family: var(--mono); font-size: .66rem; text-transform: uppercase; letter-spacing: .06em;
   border: 1px solid var(--rule); background: var(--surface); color: var(--ink-soft);
@@ -1012,11 +1013,10 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 }
 .btn-edit {
   flex: none; margin-top: .4rem;
-  font-family: var(--mono); text-transform: uppercase; letter-spacing: .1em; font-size: .66rem;
-  border: 1.5px solid var(--ink); background: transparent; color: var(--ink);
-  padding: .5rem .85rem; display: inline-flex; align-items: center; gap: .45rem; transition: background .15s, color .15s;
+  letter-spacing: .1em;
+  border: 1.5px solid var(--ink); background: transparent; color: var(--ink) !important;
+  padding: .5rem .85rem; gap: .45rem; transition: background .15s, color .15s;
 }
-.btn-edit:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 
 .entry-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1rem; }
 .entry-lead-block {
@@ -1174,7 +1174,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .citation-archive .cite-meta { transition: background .15s, border-color .15s, color .15s; }
 .citation-archive:hover .cite-meta { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .citation-link:hover { text-decoration: underline dotted; text-underline-offset: 3px; }
-.cite-body .mini-btn { font-size: .58rem; padding: .1rem .4rem; letter-spacing: .05em; }
+.cite-body .btn { font-size: .58rem; padding: .1rem .4rem; letter-spacing: .05em; }
 
 .entry-foot {
   border-top: 1px solid var(--rule);
@@ -1261,13 +1261,11 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   font-family: var(--mono); text-transform: uppercase; letter-spacing: .1em; font-size: .62rem; color: var(--muted);
 }
 .compare-btn {
-  font-family: var(--mono); text-transform: uppercase; letter-spacing: .1em; font-size: .64rem;
-  border: 1px solid var(--rule); background: transparent; color: var(--muted);
-  padding: .45rem .95rem; cursor: not-allowed; transition: background .15s, border-color .15s, color .15s;
-  display: inline-flex; align-items: center; gap: .45rem;
+  font-size: .64rem; letter-spacing: .1em; padding: .45rem .95rem;
+  background: transparent; color: var(--muted) !important; border-color: var(--rule);
+  cursor: not-allowed; transition: background .15s, border-color .15s, color .15s;
 }
-.compare-btn.ready { border-color: var(--ink); color: var(--ink); cursor: pointer; }
-.compare-btn.ready:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.compare-btn.ready { border-color: var(--ink); color: var(--ink) !important; cursor: pointer; }
 
 .feed-item.checked { background: var(--tint); }
 .ver-tag {
@@ -1276,14 +1274,13 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   background: var(--surface-2);
 }
 .feed-actions { display: inline-flex; align-items: center; gap: .4rem; margin-left: auto; }
-.cmp-btn {
-  font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; font-size: .58rem;
-  color: var(--muted); border: 1px solid var(--rule); padding: .2rem .5rem; background: transparent;
-  display: inline-flex; align-items: center; gap: .35rem; cursor: pointer;
+.compare-select-btn {
+  font-size: .58rem; padding: .2rem .5rem; gap: .35rem;
+  background: transparent; color: var(--muted) !important; border-color: var(--rule);
   transition: border-color .15s, color .15s, background .15s;
 }
-.cmp-btn:hover { border-color: var(--accent); color: var(--accent); }
-.cmp-btn.selected { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+.compare-select-btn:hover { border-color: var(--accent); color: var(--accent) !important; background: transparent; }
+.compare-select-btn.selected { border-color: var(--accent); background: var(--accent); color: var(--accent-ink) !important; }
 .diff-link {
   font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; font-size: .58rem;
   color: var(--muted); border: 1px solid var(--rule); padding: .2rem .5rem;
@@ -1419,12 +1416,10 @@ ins.diff-ins { text-decoration: none; border-radius: 2px; padding: 0 2px; }
 .suggest-error { font-size: .78rem; color: var(--accent); margin-top: .3rem; }
 
 .btn-solid {
-  font-family: var(--mono); text-transform: uppercase; letter-spacing: .12em; font-size: .66rem;
-  border: 1px solid var(--ink); background: var(--ink); color: var(--paper);
-  padding: .6rem 1.2rem; cursor: pointer; transition: background .15s, border-color .15s, color .15s;
+  letter-spacing: .12em; padding: .6rem 1.2rem;
+  transition: background .15s, border-color .15s, color .15s;
 }
-.btn-solid:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-.btn-solid.danger { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn-solid.danger { background: var(--accent); border-color: var(--accent); color: var(--accent-ink) !important; }
 .btn-solid.danger:hover { background: var(--accent-2); border-color: var(--accent-2); }
 
 .status {

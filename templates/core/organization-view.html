@@ -17,7 +17,7 @@
     {% ptitle_title %}{{ org.name }}{% endptitle_title %}
     {% ptitle_action %}
         {% if user.is_superuser %}
-        <a class="btn-edit" href="{% url 'admin:core_organization_change' org.pk %}">
+        <a class="btn btn-edit" href="{% url 'admin:core_organization_change' org.pk %}">
             <i class="fa-solid fa-pen-to-square"></i> Edit
         </a>
         {% endif %}
@@ -173,7 +173,11 @@
     <ol class="citations-list">
         {% for c in citations %}
         <li class="citation" id="citation{{ forloop.counter }}">
-            <span class="cite-body">{% citation_link c %}</span>
+            <span class="cite-body">{% citation_link c %}
+                {% if request.user.is_superuser and c.status != Status.UNKNOWN %}
+                    <form method="post" action="{% url 'citation_reset_status' c.id %}" class="d-inline">{% csrf_token %}<input type="hidden" name="counter" value="{{ forloop.counter }}"><button type="submit" class="cite-meta btn" title="Reset status to Unknown"><i class="fas fa-rotate-left"></i> Reset Status</button></form>
+                {% endif %}
+            </span>
         </li>
         {% endfor %}
     </ol>

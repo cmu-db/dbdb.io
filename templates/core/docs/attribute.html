@@ -10,7 +10,7 @@
     {% ptitle_title %}{{ attribute.name }}{% endptitle_title %}
     {% if user.is_staff %}
     {% ptitle_action %}
-        <a href="{% url 'admin:core_attribute_change' attribute.pk %}" class="btn-edit">
+        <a href="{% url 'admin:core_attribute_change' attribute.pk %}" class="btn btn-edit">
             <i class="fa-solid fa-pen-to-square"></i> Edit
         </a>
     {% endptitle_action %}

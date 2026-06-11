@@ -10,7 +10,7 @@
     {% ptitle_title %}{{ feature.label }}{% endptitle_title %}
     {% if user.is_staff %}
     {% ptitle_action %}
-        <a href="{% url 'admin:core_feature_change' feature.pk %}" class="btn-edit">
+        <a href="{% url 'admin:core_feature_change' feature.pk %}" class="btn btn-edit">
             <i class="fa-solid fa-pen-to-square"></i> Edit
         </a>
     {% endptitle_action %}
@@ -60,7 +60,7 @@
     {% if option.description %}
     <div class="fo-body">{{ option.description|markdownify }}</div>
     {% endif %}
-    <a href="{% url 'browse' %}?{{ feature.slug }}={{ option.slug }}" class="btn-solid">
+    <a href="{% url 'browse' %}?{{ feature.slug }}={{ option.slug }}" class="btn btn-solid">
         <i class="fa-solid fa-magnifying-glass"></i> Browse Systems
     </a>
 </section>

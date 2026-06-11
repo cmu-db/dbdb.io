@@ -24,11 +24,11 @@
     </div>
     <form method="post">
         {% csrf_token %}
-        <button type="submit" class="btn-solid"><i class="fa-solid fa-circle-check"></i> Approve #{{ v2.ver }}</button>
+        <button type="submit" class="btn btn-solid"><i class="fa-solid fa-circle-check"></i> Approve #{{ v2.ver }}</button>
     </form>
     <form method="post" action="{% url 'system_version_delete' system.slug v2.ver %}">
         {% csrf_token %}
-        <button type="submit" class="btn-solid danger"><i class="fa-solid fa-circle-xmark"></i> Delete #{{ v2.ver }}</button>
+        <button type="submit" class="btn btn-solid danger"><i class="fa-solid fa-circle-xmark"></i> Delete #{{ v2.ver }}</button>
     </form>
 </div>
 {% endalert %}
