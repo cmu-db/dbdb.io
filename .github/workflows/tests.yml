@@ -41,7 +41,7 @@ jobs:
         run: uv run python manage.py migrate --settings=dbdb.test_settings
 
       - name: Setup static files
-        run: uv run python manage.py --settings=dbdb.test_settings collectstatic --no-input
+        run: uv run python manage.py collectstatic --settings=dbdb.test_settings --no-input
 
       - name: Run tests
         run: timeout 60 uv run python manage.py test dbdb.core --settings=dbdb.test_settings --verbosity=2
