@@ -34,6 +34,11 @@
 {% endalert %}
 {% endif %}
 
+<div class="d-flex justify-content-end mb-2">
+    <button type="button" class="btn btn-outline-secondary" id="diff-toggle-btn">
+        <i class="fa-solid fa-eye-slash"></i> Hide Unchanged
+    </button>
+</div>
 <div class="table-responsive">
 <table class="diff-table table table-bordered">
     <colgroup>
@@ -77,7 +82,7 @@
     {# ── Features block ── #}
     {% if diff.type == 'features' %}
     {% for fd in diff.feature_diffs %}
-    <tr{% if fd.changed %} class="diff-changed"{% endif %}>
+    <tr class="{% if fd.changed %}diff-changed{% else %}diff-unchanged{% endif %}">
         <td class="diff-label ps-3">{{ fd.name }}</td>
 
         {# v1 column #}
@@ -133,7 +138,7 @@
 
     {# ── Acquisitions ── #}
     {% elif diff.type == 'acquisitions' %}
-    <tr{% if diff.changed %} class="diff-changed"{% endif %}>
+    <tr class="{% if diff.changed %}diff-changed{% else %}diff-unchanged{% endif %}">
         <td class="diff-label">{{ diff.label }}</td>
         <td>
             {% for item in diff.v1_val %}
@@ -154,7 +159,7 @@
 
     {# ── Set / M2M ── #}
     {% elif diff.type == 'set' %}
-    <tr{% if diff.changed %} class="diff-changed"{% endif %}>
+    <tr class="{% if diff.changed %}diff-changed{% else %}diff-unchanged{% endif %}">
         <td class="diff-label">{{ diff.label }}</td>
         <td>
             {% if diff.v1_val %}
@@ -178,7 +183,7 @@
 
     {# ── Text fields (inline word diff) — citations rendered inside same row ── #}
     {% elif diff.type == 'text' %}
-    <tr{% if diff.changed %} class="diff-changed"{% endif %}>
+    <tr class="{% if diff.changed %}diff-changed{% else %}diff-unchanged{% endif %}">
         <td class="diff-label">{{ diff.label }}</td>
         <td>
             {% if diff.v1_val %}
@@ -209,7 +214,7 @@
 
     {# ── Scalar fields — citations rendered inside same row when present ── #}
     {% elif diff.type == 'scalar' %}
-    <tr{% if diff.changed %} class="diff-changed"{% endif %}>
+    <tr class="{% if diff.changed %}diff-changed{% else %}diff-unchanged{% endif %}">
         <td class="diff-label">{{ diff.label }}</td>
         <td>
             {% if diff.v1_val %}<span>{{ diff.v1_val }}</span>{% else %}<span class="text-muted">&mdash;</span>{% endif %}
@@ -236,7 +241,7 @@
 
     {# ── URL fields ── #}
     {% elif diff.type == 'url' %}
-    <tr{% if diff.changed %} class="diff-changed"{% endif %}>
+    <tr class="{% if diff.changed %}diff-changed{% else %}diff-unchanged{% endif %}">
         <td class="diff-label">{{ diff.label }}</td>
         <td>
             {% if diff.v1_val %}<a href="{{ diff.v1_val }}" target="_blank" rel="noopener" class="diff-cite-url">{{ diff.v1_val }}</a>{% else %}<span class="text-muted">&mdash;</span>{% endif %}
@@ -252,4 +257,19 @@
     </tbody>
 </table>
 </div>
+<script>
+(function () {
+    const btn = document.getElementById('diff-toggle-btn');
+    let hidden = false;
+    btn.addEventListener('click', function () {
+        hidden = !hidden;
+        document.querySelectorAll('.diff-table .diff-unchanged').forEach(function (row) {
+            row.classList.toggle('d-none', hidden);
+        });
+        btn.innerHTML = hidden
+            ? '<i class="fa-solid fa-eye"></i> Show Unchanged'
+            : '<i class="fa-solid fa-eye-slash"></i> Hide Unchanged';
+    });
+}());
+</script>
 {% endblock %}
