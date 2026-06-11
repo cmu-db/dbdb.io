@@ -76,7 +76,10 @@ def create_twitter_card(ver : SystemVersion):
                 settings.TWITTER_CARD_MAX_WIDTH - logo.width) // 2, \
               settings.TWITTER_CARD_MARGIN + (settings.TWITTER_CARD_MAX_HEIGHT - logo.height) // 2)
 
-    new_im.paste(logo, offset, logo)
+    if not os.path.exists(settings.TWITTER_CARD_ROOT):
+        os.makedirs(settings.TWITTER_CARD_ROOT)
     card_img = os.path.join(settings.TWITTER_CARD_ROOT, ver.get_twitter_card_image())
+
+    new_im.paste(logo, offset, logo)
     new_im.save(card_img)
     return card_img
