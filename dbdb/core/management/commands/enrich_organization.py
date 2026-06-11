@@ -221,6 +221,13 @@ class Command(EnricherBaseCommand):
                 except Exception as e:
                     LOG.warning(f"  {field}: could not validate {url_str!r}: {e}")
 
+        if org.url_id and 'linkedin.com' in org.url.url:
+            LOG.info(f"Moving LinkedIn URL from url to linkedin_url: {org.url.url}")
+            if not org.linkedin_url_id:
+                org.linkedin_url = org.url
+            org.url = None
+            dirty = True
+
         if org.get_org_type_display() == 'Individual' and org.description:
             LOG.info("Clearing description: org_type is Individual")
             org.description = ''
