@@ -62,6 +62,10 @@
         <td class="r-model" data-sort-val="{{ col_val.data }}">
             {% if col_val.url %}<a href="{{ col_val.url }}" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-linkedin"></i>{{ col_val.data }}</a>{% else %}<span class="r-dash">&mdash;</span>{% endif %}
         </td>
+        {% else %}
+        <td class="r-model" data-sort-val="{{ col_val.data }}">
+            {% if col_val.data %}{{ col_val.data }}{% else %}<span class="r-dash">&mdash;</span>{% endif %}
+        </td>
         {% endif %}
     {% endfor %}
 </tr>
