@@ -149,7 +149,6 @@ _ORG_FIELD_SCHEMAS: dict[str, dict] = {
     "org_type": {
         "type": "string",
         "description": "Type of organization.",
-        "enum": ["Company", "University", "Individual", "Research Lab", "Non-profit Corporation"],
     },
     "stock_symbol": {
         "type": "string",
@@ -158,7 +157,6 @@ _ORG_FIELD_SCHEMAS: dict[str, dict] = {
     "stock_exchange": {
         "type": "string",
         "description": "Stock exchange where the organization is listed. Only set if publicly traded.",
-        "enum": ["NYSE", "NASDAQ", "LSE", "TSE", "HKEX", "ASX", "TSX", "Euronext", "Other"],
     },
 }
 
@@ -181,11 +179,22 @@ _ORG_CITATIONS_SCHEMA = {
 
 def build_org_enrichment_tool(missing_fields: list[str]) -> dict:
     """Return a save_org_enrichment tool schema limited to *missing_fields*."""
-    properties = {
-        field: _ORG_FIELD_SCHEMAS[field]
-        for field in missing_fields
-        if field in _ORG_FIELD_SCHEMAS
+    from dbdb.core.models import OrgType, StockExchange
+
+    _enums = {
+        "org_type":      [label for _, label in OrgType.choices],
+        "stock_exchange": [label for _, label in StockExchange.choices],
     }
+
+    properties = {}
+    for field in missing_fields:
+        if field not in _ORG_FIELD_SCHEMAS:
+            continue
+        schema = dict(_ORG_FIELD_SCHEMAS[field])
+        if field in _enums:
+            schema["enum"] = _enums[field]
+        properties[field] = schema
+
     properties["citations"] = _ORG_CITATIONS_SCHEMA
     return {
         "name": "save_org_enrichment",
