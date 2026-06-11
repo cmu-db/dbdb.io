@@ -124,6 +124,19 @@ class Command(EnricherBaseCommand):
 
     def handle(self, *args, **options):
         keyword = options['keyword']
+
+        if keyword.isdigit():
+            systems = list(System.objects.filter(id=int(keyword)))
+        else:
+            systems = list(System.objects.filter(slug__icontains=keyword))
+
+        if not systems:
+            raise CommandError(f"No system found with keyword '{keyword}'")
+
+        for system in systems:
+            self._enrich_one(system, options)
+
+    def _enrich_one(self, system: System, options: dict):
         dry_run: bool = options['dry_run']
         model_override: str | None = options['model']
         per_feature: bool = options['per_feature']
@@ -132,22 +145,14 @@ class Command(EnricherBaseCommand):
             if options['fields'] else None
         )
 
-        # --- 1. Load system and current version ---
-        try:
-            if keyword.isdigit():
-                system = System.objects.filter(id=int(keyword)).first()
-            else:
-                system = System.objects.filter(slug__icontains=keyword).first()
-        except System.DoesNotExist:
-            raise CommandError(f"No system found with keyword '{keyword}'")
-
+        # --- 1. Load current version ---
         try:
             current = SystemVersion.objects.prefetch_related(
                 'project_types', 'licenses', 'oses', 'written_in',
                 'features', 'features__options',
             ).get(system=system, is_current=True)
         except SystemVersion.DoesNotExist:
-            raise CommandError(f"No current SystemVersion for '{keyword}'")
+            raise CommandError(f"No current SystemVersion for '{system.slug}'")
 
         self.stdout.write(f"System: {system.name} (current ver #{current.ver})")
         enricher = BaseEnricher.create(options['enricher'], model_override)

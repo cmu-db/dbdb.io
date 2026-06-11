@@ -95,7 +95,20 @@ class Command(EnricherBaseCommand):
                             help='Organization slug or name keyword')
 
     def handle(self, *args, **options):
-        keyword          = options['keyword']
+        keyword = options['keyword']
+
+        orgs = Organization.objects.filter(slug=keyword)
+        if not orgs.exists():
+            orgs = Organization.objects.filter(slug__icontains=keyword)
+        if not orgs.exists():
+            orgs = Organization.objects.filter(name__icontains=keyword)
+        if not orgs.exists():
+            raise CommandError(f"No organization found matching '{keyword}'")
+
+        for org in orgs:
+            self._enrich_one(org, options)
+
+    def _enrich_one(self, org: Organization, options: dict):
         dry_run: bool    = options['dry_run']
         model_override   = options['model']
         include_urls     = options['include_urls']
@@ -103,15 +116,6 @@ class Command(EnricherBaseCommand):
             [f.strip() for f in options['fields'].split(',')]
             if options['fields'] else None
         )
-
-        # --- 1. Load organization ---
-        org = (
-            Organization.objects.filter(slug=keyword).first()
-            or Organization.objects.filter(slug__icontains=keyword).first()
-            or Organization.objects.filter(name__icontains=keyword).first()
-        )
-        if org is None:
-            raise CommandError(f"No organization found matching '{keyword}'")
 
         self.stdout.write(f"Organization: {org.name} (slug: {org.slug})")
         enricher = BaseEnricher.create(options['enricher'], model_override)
