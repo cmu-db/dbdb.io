@@ -12,7 +12,6 @@ from .perplexity import PerplexityEnricher
 from .schema import (
     _SYSTEM_PROMPT,
     SYSTEM_ENRICHMENT_TOOL,
-    SAVE_ENRICHMENT_TOOL,
     build_org_enrichment_tool,
     DOC_ENRICHMENT_TOOL,
 )
@@ -25,7 +24,6 @@ __all__ = [
     "PerplexityEnricher",
     "_SYSTEM_PROMPT",
     "SYSTEM_ENRICHMENT_TOOL",
-    "SAVE_ENRICHMENT_TOOL",
     "build_org_enrichment_tool",
     "DOC_ENRICHMENT_TOOL",
     "call_llm",

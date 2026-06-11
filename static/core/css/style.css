@@ -265,9 +265,9 @@ a:hover { color: var(--accent); }
   gap: 0.9rem;
 }
 
-.edition .user-link, .theme-toggle {
+.edition .user-link, .theme-toggle, .edition .label {
   font-family: var(--mono);
-  font-size: 0.6rem;
+  font-size: 0.8rem;
 }
 
 .theme-toggle {
@@ -1065,7 +1065,11 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   color: var(--ink); display: inline;
 }
 .cites { font-family: var(--mono); font-size: .6rem; }
-.cites a { color: var(--accent); padding-left: .15rem; vertical-align: super; }
+.cites a {
+  color: var(--accent);
+  padding-left: .15rem;
+  /*vertical-align: super;*/
+}
 
 .entry-section .sec-rule { border-top: 1.5px solid var(--ink); margin: .55rem 0 .85rem; }
 .entry-section .badges { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .85rem; }

@@ -120,9 +120,6 @@ SYSTEM_ENRICHMENT_TOOL = {
     },
 }
 
-# Backward-compat alias — callers that imported SAVE_ENRICHMENT_TOOL still work.
-SAVE_ENRICHMENT_TOOL = SYSTEM_ENRICHMENT_TOOL
-
 # ---------------------------------------------------------------------------
 # Organization enrichment schema
 # ---------------------------------------------------------------------------
@@ -224,11 +221,6 @@ DOC_ENRICHMENT_TOOL = {
             "description": {
                 "type": "string",
                 "description": "Clear explanation of the feature or attribute for a technical audience.",
-            },
-            "examples": {
-                "type": "array",
-                "items": {"type": "string"},
-                "description": "Concrete examples of systems that exhibit this feature/attribute.",
             },
             "citations": {
                 "type": "array",
