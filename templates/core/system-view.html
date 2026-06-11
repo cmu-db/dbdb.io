@@ -182,7 +182,7 @@
         {% endif %}
 
         {% if version.wikipedia_url %}
-        <div class="fact"><dt>Wikipedia</dt><dd><a href="{{ version.wikipedia_url.url }}" target="_{{ system.slug }}">{{ version.wikipedia_url.url }}</a>{% if wikipedia_url_citation %}<span class="cites">{% citation_footnote wikipedia_url_citation %}</span>{% endif %}</dd></div>
+        <div class="fact"><dt>Wikipedia</dt><dd><a href="{{ version.wikipedia_url.url }}" target="_{{ system.slug }}"><i class="fa-brands fa-wikipedia-w"></i> {{ version.wikipedia_url.url }}</a>{% if wikipedia_url_citation %}<span class="cites">{% citation_footnote wikipedia_url_citation %}</span>{% endif %}</dd></div>
         {% endif %}
     </dl>
 </div>

@@ -68,6 +68,12 @@
             <dt>Country of Origin</dt>
             <dd>{% for country in org.countries %}{% if not forloop.first %}, {% endif %}<i class="{{ country.flag_css }}"></i> {{ country }}{% endfor %}</dd></div>
         {% endif %}
+        {% if org.former_names %}
+        <div class="fact">
+            <dt>Former Name{{ org.former_names|pluralize }}</dt>
+            <dd>{{ org.former_names|join:", " }}</dd>
+        </div>
+        {% endif %}
         {% if org.stock_symbol %}
         <div class="fact">
             <dt>Stock</dt>
@@ -78,12 +84,6 @@
         <div class="fact">
             <dt>Wikipedia</dt>
             <dd><a href="{{ org.wikipedia_url.url }}" target="_{{ org.slug }}"><i class="fa-brands fa-wikipedia-w"></i> {{ org.wikipedia_url.url }}</a>{% if wikipedia_citation %}<span class="cites">{% citation_footnote wikipedia_citation %}</span>{% endif %}</dd>
-        </div>
-        {% endif %}
-        {% if org.former_names %}
-        <div class="fact">
-            <dt>Former Name{{ org.former_names|pluralize }}</dt>
-            <dd>{{ org.former_names|join:", " }}</dd>
         </div>
         {% endif %}
     </dl>
