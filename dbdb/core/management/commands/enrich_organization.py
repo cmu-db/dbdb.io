@@ -101,6 +101,10 @@ class Command(EnricherBaseCommand):
             return
         self.stdout.write(f"Missing fields: {', '.join(missing_fields)}")
 
+        if dry_run:
+            self.stdout.write(self.style.WARNING("\n--- DRY RUN (no changes saved) ---"))
+            return
+
         # --- 3. Crawl existing URLs (opt-in via --include-urls) ---
         crawled_pages: dict[str, str] = {}
         if include_urls:
@@ -124,17 +128,7 @@ class Command(EnricherBaseCommand):
         valid_citations = enricher.validate_citations(raw_citations, system=None)
         self.stdout.write(f"  {len(valid_citations)}/{len(raw_citations)} citations valid")
 
-        # --- 6. Dry-run output ---
-        if dry_run:
-            self.stdout.write(self.style.WARNING("\n--- DRY RUN (no changes saved) ---"))
-            for field in missing_fields:
-                val = enrichment.get(field)
-                if val not in (None, ''):
-                    self.stdout.write(f"  {field}: {str(val)[:120]}")
-            self.stdout.write(f"  valid citations: {list(valid_citations.keys())}")
-            return
-
-        # --- 7. Apply enrichment ---
+        # --- 6. Apply enrichment ---
         dirty = False
 
         for field in ORG_TEXT_FIELDS:
