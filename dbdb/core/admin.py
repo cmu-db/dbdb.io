@@ -1,4 +1,5 @@
 # django imports
+from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
@@ -6,6 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.admin.widgets import AutocompleteSelect
 from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
+from django.contrib.postgres.forms import SimpleArrayField
 from django.urls import reverse
 from django.utils.html import format_html
 
@@ -322,8 +324,23 @@ class OrgAcquisitionInline(admin.TabularInline):
         return format_html('<a href="{}">{}</a>', url, sv.system.name)
 
 
+class OrganizationAdminForm(forms.ModelForm):
+    former_names = SimpleArrayField(
+        forms.CharField(),
+        delimiter='\n',
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 4}),
+        help_text='Enter one name per line.',
+    )
+
+    class Meta:
+        model = Organization
+        fields = '__all__'
+
+
 @admin.register(Organization)
 class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
+    form = OrganizationAdminForm
     list_display = ('id', 'name', 'slug', 'url', 'linkedin_url', 'countries', 'stock_symbol', 'created', 'modified')
     list_filter = ['org_type', 'stock_exchange', 'created', 'modified', OrgDevelopedSystemsFilter, OrgAcquisitionsFilter]
     search_fields = ('name', 'stock_symbol')
