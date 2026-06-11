@@ -888,6 +888,43 @@ def process_citation_url(
     return citation_url, info
 
 
+def crawl_citation_url(
+    citation: CitationUrl,
+    *,
+    system: "System | None" = None,
+    recrawl_cutoff,
+) -> str | None:
+    """Fetch text for one CitationUrl, using cached content when fresh enough.
+
+    Returns the page text, or None if the URL should be skipped / has no text.
+    *recrawl_cutoff* is a timezone-aware datetime; URLs last checked at or after
+    that cutoff reuse cached content instead of making a new HTTP request.
+    """
+    from dbdb.core.models import CitationUrlContent
+
+    if citation.last_checked and citation.last_checked >= recrawl_cutoff:
+        if citation.last_statuscode in (
+            CitationUrl.Status.SPAM,
+            CitationUrl.Status.DEAD,
+            CitationUrl.Status.IGNORE,
+        ):
+            LOG.warning(f"{citation} status is {citation.last_statuscode}. Skipping...")
+            return None
+        try:
+            content = citation.content
+            if content.text:
+                LOG.info(f"  Using cached content for {citation.url}")
+                return content.text
+        except CitationUrlContent.DoesNotExist:
+            pass
+
+    LOG.info(f"  Crawling {citation.url}")
+    _citation, result = process_citation_url(citation, system=system)
+    if result and _citation.last_statuscode == CitationUrl.Status.VALID:
+        return result.get('text') or None
+    return None
+
+
 def get_systems(c: CitationUrl,
                 current_only: bool | None = False) -> list[System]:
     """

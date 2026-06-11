@@ -20,7 +20,7 @@ from django.utils import timezone
 
 from dbdb.core.management.base import DbdbBaseCommand
 from dbdb.core.models import CitationUrl, Organization
-from dbdb.core.utils.citations import normalize_url, process_citation_url
+from dbdb.core.utils.citations import crawl_citation_url, normalize_url, process_citation_url
 from dbdb.core.utils.enrichment import BaseEnricher, ORG_ENRICHMENT_TOOL
 
 LOG = logging.getLogger(__name__)
@@ -44,39 +44,15 @@ def _get_missing_org_fields(org: Organization, requested: list[str] | None) -> l
 
 def _crawl_org_urls(org: Organization, recrawl_after: int = 7) -> dict[str, str]:
     """Crawl the org's known URL fields; return {url: text_excerpt}."""
-    from dbdb.core.models import CitationUrlContent
     crawled: dict[str, str] = {}
     cutoff = timezone.now() - timedelta(days=recrawl_after)
-
     for field in ORG_URL_FIELDS:
         citation: CitationUrl | None = getattr(org, field)
         if citation is None:
             continue
-        url = citation.url
-
-        if citation.last_checked and citation.last_checked >= cutoff:
-            if citation.last_statuscode in (
-                CitationUrl.Status.SPAM,
-                CitationUrl.Status.DEAD,
-                CitationUrl.Status.IGNORE,
-            ):
-                LOG.warning(f"{citation} status is {citation.last_statuscode}. Skipping...")
-                continue
-            try:
-                content = citation.content
-                if content.text:
-                    LOG.info(f"  Using cached content for {field}: {url}")
-                    crawled[url] = content.text
-                    continue
-            except CitationUrlContent.DoesNotExist:
-                pass
-
-        LOG.info(f"  Crawling {field}: {url}")
-        _citation, result = process_citation_url(citation)
-        if result and _citation.last_statuscode == CitationUrl.Status.VALID:
-            text = result.get('text', '')
-            if text:
-                crawled[url] = text
+        text = crawl_citation_url(citation, recrawl_cutoff=cutoff)
+        if text:
+            crawled[citation.url] = text
     return crawled
 
 

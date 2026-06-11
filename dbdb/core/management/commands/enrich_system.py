@@ -29,7 +29,7 @@ from dbdb.core.models import (
     Feature, FeatureOption,
     System, SystemFeature, SystemVersion, AttributeOption,
 )
-from dbdb.core.utils.citations import normalize_url, process_citation_url
+from dbdb.core.utils.citations import crawl_citation_url, normalize_url, process_citation_url
 from dbdb.core.utils.enrichment import BaseEnricher, SYSTEM_ENRICHMENT_TOOL
 from dbdb.core.utils.versions import clone_system_version
 
@@ -87,42 +87,16 @@ def _crawl_existing_urls(
     system: System,
     recrawl_after: int = 7,
 ) -> dict[str, str]:
-    """Crawl the system's known URL fields; return {url: text_excerpt}.
-
-    If a CitationUrl was last checked within *recrawl_after* days and already
-    has a CitationUrlContent with text, the cached text is reused and no HTTP
-    request is made.
-    """
-    from dbdb.core.models import CitationUrlContent
+    """Crawl the system's known URL fields; return {url: text_excerpt}."""
     crawled = {}
     cutoff = timezone.now() - timedelta(days=recrawl_after)
-
     for field in URL_FK_FIELDS:
         citation: CitationUrl | None = getattr(version, field)
         if citation is None:
             continue
-        url = citation.url
-
-        # Use cached content if it was fetched recently and has text
-        if citation.last_checked and citation.last_checked >= cutoff:
-            if citation.last_statuscode in [CitationUrl.Status.SPAM, CitationUrl.Status.DEAD, CitationUrl.Status.IGNORE]:
-                LOG.warning(f"{citation} status is {citation.last_statuscode}. Skipping...")
-                continue
-            try:
-                content = citation.content
-                if content.text:
-                    LOG.info(f"  Using cached content for {field}: {url}")
-                    crawled[url] = content.text
-                    continue
-            except CitationUrlContent.DoesNotExist:
-                pass
-
-        LOG.info(f"  Crawling {field}: {url}")
-        _citation, result = process_citation_url(citation, system=system)
-        if result and _citation.last_statuscode == CitationUrl.Status.VALID:
-            text = result.get('text', '')
-            if text:
-                crawled[url] = text
+        text = crawl_citation_url(citation, system=system, recrawl_cutoff=cutoff)
+        if text:
+            crawled[citation.url] = text
     return crawled
 
 
