@@ -97,7 +97,10 @@ gtag('config', 'UA-4067813-21');
     var preferred = stored || 'light';
     document.documentElement.setAttribute('data-bs-theme', preferred);
     var label = document.getElementById('themeLabel');
-    if (label) label.textContent = preferred === 'dark' ? 'Light' : 'Dark';
+    if (label) {
+        label.classList.toggle('fa-moon', preferred !== 'dark');
+        label.classList.toggle('fa-sun',  preferred === 'dark');
+    }
 })();
 
 function toggleTheme() {
@@ -106,7 +109,10 @@ function toggleTheme() {
     document.documentElement.setAttribute('data-bs-theme', next);
     localStorage.setItem('dbdb-theme', next);
     var label = document.getElementById('themeLabel');
-    if (label) label.textContent = next === 'dark' ? 'Light' : 'Dark';
+    if (label) {
+        label.classList.toggle('fa-moon', next !== 'dark');
+        label.classList.toggle('fa-sun',  next === 'dark');
+    }
 }
 </script>
 

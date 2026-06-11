@@ -288,7 +288,7 @@ a:hover { color: var(--accent); }
 .theme-toggle:hover { border-color: rgba(255,255,255,.5); }
 .theme-toggle .dot {
   width: 9px; height: 9px; border-radius: 50%;
-  background: var(--accent); flex: none;
+  background: var(--paper); flex: none;
 }
 
 .edition .user-link {
@@ -903,6 +903,8 @@ form.main-search { display: block; padding: 0; }
 
 /* ---- Dropdown menu max-height (moved from inline style) ---- */
 .filter-row .dropdown-menu { max-height: 200px; overflow-y: auto; }
+
+.dropdown-item:active { background-color: var(--accent); }
 
 /* Choices.js widget overrides */
 .choices__inner {
