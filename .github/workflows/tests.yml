@@ -6,20 +6,6 @@ jobs:
   test:
     runs-on: self-hosted
 
-    services:
-      postgres:
-        image: postgres:18
-        env:
-          POSTGRES_DB: postgres
-          POSTGRES_USER: dbdb_user
-          POSTGRES_PASSWORD: testpassword
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     env:
       PGUSER: dbdb_user
       PGPASSWORD: testpassword
@@ -38,7 +24,15 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libcairo2
+          sudo apt-get install -y libcairo2 postgresql
+
+      - name: Setup PostgreSQL
+        run: |
+          sudo systemctl start postgresql
+          sudo -u postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname='dbdb_user'" \
+            | grep -q 1 \
+            || sudo -u postgres psql -c "CREATE USER dbdb_user WITH PASSWORD 'testpassword' CREATEDB;"
+          sudo -u postgres psql -c "ALTER USER dbdb_user WITH PASSWORD 'testpassword';"
 
       - name: Install dependencies
         run: uv sync
