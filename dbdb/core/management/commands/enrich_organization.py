@@ -106,7 +106,12 @@ class Command(EnricherBaseCommand):
             raise CommandError(f"No organization found matching '{keyword}'")
 
         for org in orgs:
-            self._enrich_one(org, options)
+            try:
+                self._enrich_one(org, options)
+            except Exception as e:
+                if not options['skip_errors']:
+                    raise
+                self.stderr.write(self.style.ERROR(f"Error enriching '{org.slug}': {e}"))
 
     def _enrich_one(self, org: Organization, options: dict):
         dry_run: bool    = options['dry_run']
@@ -194,7 +199,7 @@ class Command(EnricherBaseCommand):
                         dirty = True
                         continue
                     citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
-                    citation, info = process_citation_url(citation)
+                    citation, info = process_citation_url(citation, skip_spamcheck=options['skip_spamcheck'])
                     if info is None:
                         setattr(org, field, citation)
                         dirty = True

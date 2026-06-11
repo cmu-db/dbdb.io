@@ -134,7 +134,12 @@ class Command(EnricherBaseCommand):
             raise CommandError(f"No system found with keyword '{keyword}'")
 
         for system in systems:
-            self._enrich_one(system, options)
+            try:
+                self._enrich_one(system, options)
+            except Exception as e:
+                if not options['skip_errors']:
+                    raise
+                self.stderr.write(self.style.ERROR(f"Error enriching '{system.slug}': {e}"))
 
     def _enrich_one(self, system: System, options: dict):
         dry_run: bool = options['dry_run']
@@ -289,7 +294,7 @@ class Command(EnricherBaseCommand):
                         continue
                     # New URL: create, validate, keep only if reachable
                     citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
-                    citation, info = process_citation_url(citation, system=system)
+                    citation, info = process_citation_url(citation, system=system, skip_spamcheck=options['skip_spamcheck'])
                     if info is None:
                         # Merged into an existing CitationUrl
                         setattr(new_sv, field, citation)

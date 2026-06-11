@@ -58,3 +58,5 @@ class EnricherBaseCommand(DbdbBaseCommand):
                             help='Exclude a field from enrichment (may be repeated)')
         parser.add_argument('--skip-spamcheck', action='store_true',
                             help='Disable spam checking when retrieving URLs')
+        parser.add_argument('--skip-errors', action='store_true',
+                            help='Print errors from individual enrichments and continue instead of stopping')
