@@ -280,7 +280,6 @@ a:hover { color: var(--accent); }
   display: inline-flex;
   align-items: center;
   gap: .4rem;
-  letter-spacing: .12em;
   text-transform: uppercase;
   cursor: pointer;
   transition: border-color .15s, background .15s;

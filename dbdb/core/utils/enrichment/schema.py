@@ -169,7 +169,7 @@ _ORG_FIELD_SCHEMAS: dict[str, dict] = {
     },
     "stock_symbol": {
         "type": "string",
-        "description": "Stock ticker symbol (e.g. ORCL, MSFT). Only set if the organization is publicly traded.",
+        "description": "Stock ticker symbol (e.g. ORCL, MSFT). Only set if this organization is a company and it is publicly traded.",
     },
     "stock_exchange": {
         "type": "string",
