@@ -893,6 +893,7 @@ def crawl_citation_url(
     *,
     system: "System | None" = None,
     recrawl_cutoff,
+    skip_spamcheck: bool = False,
 ) -> str | None:
     """Fetch text for one CitationUrl, using cached content when fresh enough.
 
@@ -919,7 +920,7 @@ def crawl_citation_url(
             pass
 
     LOG.info(f"  Crawling {citation.url}")
-    _citation, result = process_citation_url(citation, system=system)
+    _citation, result = process_citation_url(citation, system=system, skip_spamcheck=skip_spamcheck)
     if result and _citation.last_statuscode == CitationUrl.Status.VALID:
         return result.get('text') or None
     return None

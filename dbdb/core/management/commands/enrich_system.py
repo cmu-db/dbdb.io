@@ -86,6 +86,7 @@ def _crawl_existing_urls(
     version: SystemVersion,
     system: System,
     recrawl_after: int = 7,
+    skip_spamcheck: bool = False,
 ) -> dict[str, str]:
     """Crawl the system's known URL fields; return {url: text_excerpt}."""
     crawled = {}
@@ -94,7 +95,7 @@ def _crawl_existing_urls(
         citation: CitationUrl | None = getattr(version, field)
         if citation is None:
             continue
-        text = crawl_citation_url(citation, system=system, recrawl_cutoff=cutoff)
+        text = crawl_citation_url(citation, system=system, recrawl_cutoff=cutoff, skip_spamcheck=skip_spamcheck)
         if text:
             crawled[citation.url] = text
     return crawled
@@ -169,7 +170,7 @@ class Command(EnricherBaseCommand):
         crawled_pages: dict[str, str] = {}
         if options['include_urls']:
             self.stdout.write("Crawling existing URLs...")
-            crawled_pages = _crawl_existing_urls(current, system, recrawl_after=options['recrawl_after'])
+            crawled_pages = _crawl_existing_urls(current, system, recrawl_after=options['recrawl_after'], skip_spamcheck=options['skip_spamcheck'])
             self.stdout.write(f"  Crawled {len(crawled_pages)} page(s)")
 
         # --- 4. Load taxonomy ---

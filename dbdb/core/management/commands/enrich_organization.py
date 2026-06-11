@@ -70,7 +70,7 @@ def _get_missing_org_fields(org: Organization, requested: list[str] | None) -> l
     return [f for f in targets if _is_org_field_empty(org, f)]
 
 
-def _crawl_org_urls(org: Organization, recrawl_after: int = 7) -> dict[str, str]:
+def _crawl_org_urls(org: Organization, recrawl_after: int = 7, skip_spamcheck: bool = False) -> dict[str, str]:
     """Crawl the org's CitationUrl FK fields; return {url: text_excerpt}."""
     crawled: dict[str, str] = {}
     cutoff = timezone.now() - timedelta(days=recrawl_after)
@@ -80,7 +80,7 @@ def _crawl_org_urls(org: Organization, recrawl_after: int = 7) -> dict[str, str]
         citation: CitationUrl | None = getattr(org, field)
         if citation is None:
             continue
-        text = crawl_citation_url(citation, recrawl_cutoff=cutoff)
+        text = crawl_citation_url(citation, recrawl_cutoff=cutoff, skip_spamcheck=skip_spamcheck)
         if text:
             crawled[citation.url] = text
     return crawled
@@ -131,7 +131,7 @@ class Command(EnricherBaseCommand):
         crawled_pages: dict[str, str] = {}
         if include_urls:
             self.stdout.write("Crawling existing URLs...")
-            crawled_pages = _crawl_org_urls(org, recrawl_after=options['recrawl_after'])
+            crawled_pages = _crawl_org_urls(org, recrawl_after=options['recrawl_after'], skip_spamcheck=options['skip_spamcheck'])
             self.stdout.write(f"  Crawled {len(crawled_pages)} page(s)")
 
         # --- 4. Call LLM ---

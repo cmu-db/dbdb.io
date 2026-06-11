@@ -38,7 +38,7 @@ class Command(DbdbBaseCommand):
                     help="Only process citations with HTTP last_statuscode=N (e.g. 404)")
         parser.add_argument('--ignore', metavar='KEYWORD', action='append', default=[],
                     help="Skip any URL containing this keyword (repeatable: --ignore foo --ignore bar)")
-        parser.add_argument('--skip-spam', action='store_true',
+        parser.add_argument('--skip-spamcheck', action='store_true',
                     help="Skip spam checks")
         parser.add_argument('--dry-run', action='store_true',
                     help="Print what would be changed without writing to the database")
@@ -165,7 +165,7 @@ class Command(DbdbBaseCommand):
                 c, info = process_citation_url(
                     c,
                     system=systems[0] if systems else None,
-                    skip_spamcheck=options["skip_spam"],
+                    skip_spamcheck=options["skip_spamcheck"],
                     normalize=options["normalize"],
                     allow_redirects=False,
                 )
