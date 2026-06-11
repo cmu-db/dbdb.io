@@ -24,8 +24,13 @@ class BaseEnricher(ABC):
         user_prompt: str,
         tool_schema: dict,
         model_override: str | None = None,
+        dry_run: bool = False,
     ) -> dict:
-        """Invoke the provider LLM; return the parsed result dict."""
+        """Invoke the provider LLM; return the parsed result dict.
+
+        If *dry_run* is True, print the prompt that would be sent and return {}
+        without making any API call.
+        """
 
     # ------------------------------------------------------------------
     # Prompt builders

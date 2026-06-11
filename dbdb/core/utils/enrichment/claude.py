@@ -17,11 +17,17 @@ class ClaudeEnricher(BaseEnricher):
         user_prompt: str,
         tool_schema: dict,
         model_override: str | None = None,
+        dry_run: bool = False,
     ) -> dict:
         model = model_override or settings.ENRICHMENT_LLM_MODEL
         tool_name = tool_schema["name"]
         LOG.debug(f"Calling Anthropic model={model} tool={tool_name}")
         LOG.debug("Prompt:\n%s", user_prompt)
+        if dry_run:
+            print(f"=== DRY RUN — Anthropic model={model} tool={tool_name} ===")
+            print(f"[SYSTEM]\n{get_system_prompt(tool_name)}\n")
+            print(f"[USER]\n{user_prompt}")
+            return {}
         try:
             client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
             response = client.messages.create(

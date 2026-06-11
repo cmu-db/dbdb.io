@@ -18,6 +18,7 @@ class OllamaEnricher(BaseEnricher):
         user_prompt: str,
         tool_schema: dict,
         model_override: str | None = None,
+        dry_run: bool = False,
     ) -> dict:
         model = model_override or settings.ENRICHMENT_LLM_FALLBACK_MODEL
         LOG.debug(f"Calling Ollama model={model}")
@@ -28,14 +29,21 @@ class OllamaEnricher(BaseEnricher):
             f"{schema_str}\n\n"
             f"{user_prompt}"
         )
+        LOG.debug("*" * 100)
         LOG.debug("Ollama prompt:\n%s", prompt)
+        if dry_run:
+            print(f"=== DRY RUN — Ollama model={model} ===")
+            print(f"[PROMPT]\n{prompt}")
+            return {}
         resp = ollama.chat(
             model=model,
             messages=[{"role": "user", "content": prompt}],
             options={"temperature": 0.2},
         )
+        LOG.debug("•" * 60)
         text = resp["message"]["content"].strip()
         LOG.debug("Ollama raw response:\n%s", text)
+        LOG.debug("*" * 100)
         if text.startswith("```"):
             text = text.split("```")[1]
             if text.startswith("json"):

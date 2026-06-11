@@ -101,10 +101,6 @@ class Command(EnricherBaseCommand):
             return
         self.stdout.write(f"Missing fields: {', '.join(missing_fields)}")
 
-        if dry_run:
-            self.stdout.write(self.style.WARNING("\n--- DRY RUN (no changes saved) ---"))
-            return
-
         # --- 3. Crawl existing URLs (opt-in via --include-urls) ---
         crawled_pages: dict[str, str] = {}
         if include_urls:
@@ -118,9 +114,11 @@ class Command(EnricherBaseCommand):
         LOG.debug(prompt)
         tool = build_org_enrichment_tool(missing_fields)
         try:
-            enrichment: dict = enricher.call_llm(prompt, tool, model_override)
+            enrichment: dict = enricher.call_llm(prompt, tool, model_override, dry_run=dry_run)
         except Exception as e:
             raise CommandError(f"LLM call failed: {e}")
+        if dry_run:
+            return
 
         # --- 5. Validate citations ---
         self.stdout.write("Validating citations...")

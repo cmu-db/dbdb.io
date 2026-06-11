@@ -194,7 +194,7 @@ class Command(EnricherBaseCommand):
             LOG.debug(prompt)
             # sys.exit(1)
             try:
-                enrichment = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override)
+                enrichment = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override, dry_run=dry_run)
             except Exception as e:
                 raise CommandError(f"LLM call failed: {e}")
         else:
@@ -204,7 +204,7 @@ class Command(EnricherBaseCommand):
                 prompt = enricher.build_system_prompt(system=system, current_version=current, fields=missing_fields,
                                                       features=[], attributes=attributes, crawled_pages=crawled_pages)
                 try:
-                    enrichment = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override)
+                    enrichment = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override, dry_run=dry_run)
                 except Exception as e:
                     raise CommandError(f"LLM call failed: {e}")
 
@@ -214,7 +214,7 @@ class Command(EnricherBaseCommand):
                 self.stdout.write(f"  Calling LLM for feature: {feature.label}")
                 prompt = enricher.build_feature_prompt(system, feature, crawled_pages)
                 try:
-                    result = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override)
+                    result = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override, dry_run=dry_run)
                     enrichment['features'].update(result.get('features', {}))
                     enrichment['citations'].extend(result.get('citations', []))
                 except Exception as e:
@@ -226,17 +226,8 @@ class Command(EnricherBaseCommand):
         valid_citations = enricher.validate_citations(raw_citations, system)
         self.stdout.write(f"  {len(valid_citations)}/{len(raw_citations)} citations valid")
 
-        # --- 7. Dry-run output ---
+        # --- 7. Dry-run exit ---
         if dry_run:
-            self.stdout.write(self.style.WARNING("\n--- DRY RUN (no changes saved) ---"))
-            for field in missing_fields:
-                val = enrichment.get(field)
-                if val is not None and val != '' and val != [] and val != {}:
-                    self.stdout.write(f"  {field}: {str(val)[:120]}")
-            feat_suggestions = enrichment.get('features', {})
-            if feat_suggestions:
-                self.stdout.write(f"  features: {feat_suggestions}")
-            self.stdout.write(f"  valid citations: {list(valid_citations.keys())}")
             return
 
         # --- 8. Build and save pending SystemVersion ---

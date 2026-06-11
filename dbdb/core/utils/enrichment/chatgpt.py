@@ -17,6 +17,7 @@ class ChatGPTEnricher(BaseEnricher):
         user_prompt: str,
         tool_schema: dict,
         model_override: str | None = None,
+        dry_run: bool = False,
     ) -> dict:
         import openai
 
@@ -24,6 +25,11 @@ class ChatGPTEnricher(BaseEnricher):
         fn_name = tool_schema["name"]
         LOG.debug(f"Calling OpenAI model={model} function={fn_name}")
         LOG.debug("Prompt:\n%s", user_prompt)
+        if dry_run:
+            print(f"=== DRY RUN — OpenAI model={model} function={fn_name} ===")
+            print(f"[SYSTEM]\n{get_system_prompt(fn_name)}\n")
+            print(f"[USER]\n{user_prompt}")
+            return {}
         client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
         response = client.chat.completions.create(
             model=model,

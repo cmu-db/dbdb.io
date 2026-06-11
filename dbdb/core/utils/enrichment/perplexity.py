@@ -17,15 +17,12 @@ class PerplexityEnricher(BaseEnricher):
         user_prompt: str,
         tool_schema: dict,
         model_override: str | None = None,
+        dry_run: bool = False,
     ) -> dict:
         import openai
 
         model = model_override or getattr(settings, "PERPLEXITY_MODEL", "sonar-pro")
         LOG.debug(f"Calling Perplexity model={model}")
-        client = openai.OpenAI(
-            api_key=settings.PERPLEXITY_API_KEY,
-            base_url="https://api.perplexity.ai",
-        )
         schema_str = json.dumps(tool_schema["input_schema"], indent=2)
         prompt = (
             f"{get_system_prompt(tool_schema['name'])}\n\n"
@@ -34,6 +31,14 @@ class PerplexityEnricher(BaseEnricher):
             f"{user_prompt}"
         )
         LOG.debug("Prompt:\n%s", prompt)
+        if dry_run:
+            print(f"=== DRY RUN — Perplexity model={model} ===")
+            print(f"[PROMPT]\n{prompt}")
+            return {}
+        client = openai.OpenAI(
+            api_key=settings.PERPLEXITY_API_KEY,
+            base_url="https://api.perplexity.ai",
+        )
         response = client.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": prompt}],
