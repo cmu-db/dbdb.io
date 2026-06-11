@@ -43,7 +43,9 @@ class OllamaEnricher(BaseEnricher):
             text = text.strip()
         LOG.debug("Ollama text after fence strip:\n%s", text)
         try:
-            return json.loads(text)
+            result = json.loads(text)
+            LOG.debug("Response:\n%s", result)
+            return result
         except json.JSONDecodeError as e:
             LOG.error("JSON parse failed at %s (char %d)", e.msg, e.pos)
             LOG.error("Offending text: %r", text[:500])

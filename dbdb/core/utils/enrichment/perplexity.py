@@ -33,13 +33,14 @@ class PerplexityEnricher(BaseEnricher):
             f"{schema_str}\n\n"
             f"{user_prompt}"
         )
+        LOG.debug("Prompt:\n%s", prompt)
         response = client.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": prompt}],
         )
         choice = response.choices[0]
         text = choice.message.content.strip()
-        LOG.debug("Perplexity raw response:\n%s", text)
+        LOG.debug("Raw response:\n%s", text)
         if text.startswith("```"):
             text = text.split("```")[1]
             if text.startswith("json"):
@@ -51,6 +52,8 @@ class PerplexityEnricher(BaseEnricher):
             LOG.error("JSON parse failed at %s (char %d)", e.msg, e.pos)
             LOG.error("Offending text: %r", text[:500])
             raise
+
+        LOG.debug("Response:\n%s", result)
 
         # Inject Perplexity's own web-search citations into the result.
         # fields=[] means validate_citations() will verify the URL but won't

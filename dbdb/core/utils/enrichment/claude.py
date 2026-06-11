@@ -21,6 +21,7 @@ class ClaudeEnricher(BaseEnricher):
         model = model_override or settings.ENRICHMENT_LLM_MODEL
         tool_name = tool_schema["name"]
         LOG.debug(f"Calling Anthropic model={model} tool={tool_name}")
+        LOG.debug("Prompt:\n%s", user_prompt)
         try:
             client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
             response = client.messages.create(
@@ -33,6 +34,7 @@ class ClaudeEnricher(BaseEnricher):
             )
             for block in response.content:
                 if block.type == "tool_use" and block.name == tool_name:
+                    LOG.debug("Response:\n%s", block.input)
                     return block.input
             raise RuntimeError(f"Anthropic response contained no {tool_name} tool call")
         except anthropic.APIError as e:

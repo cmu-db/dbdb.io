@@ -23,6 +23,7 @@ class ChatGPTEnricher(BaseEnricher):
         model = model_override or getattr(settings, "OPENAI_MODEL", "gpt-4o")
         fn_name = tool_schema["name"]
         LOG.debug(f"Calling OpenAI model={model} function={fn_name}")
+        LOG.debug("Prompt:\n%s", user_prompt)
         client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
         response = client.chat.completions.create(
             model=model,
@@ -43,5 +44,7 @@ class ChatGPTEnricher(BaseEnricher):
         for choice in response.choices:
             for tc in (choice.message.tool_calls or []):
                 if tc.function.name == fn_name:
-                    return json.loads(tc.function.arguments)
+                    result = json.loads(tc.function.arguments)
+                    LOG.debug("Response:\n%s", result)
+                    return result
         raise RuntimeError(f"ChatGPT response contained no {fn_name} tool call")
