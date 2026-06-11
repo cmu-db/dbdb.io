@@ -51,6 +51,7 @@ _BUILTIN_COLUMNS = [
     ColumnDef('wikipedia-url',    'Wikipedia',         'builtin'),
     ColumnDef('twitter-handle',   'Twitter',           'builtin'),
     ColumnDef('linkedin-url',     'LinkedIn',          'builtin'),
+    ColumnDef('former-names',     'Former Names',      'builtin'),
 ]
 
 # Maps URL col_id → FK traversal path on SystemVersion
@@ -715,8 +716,6 @@ class BrowseView(View):
             feature = reverse_features_map[key].replace('-', ' ').title()
             feature_parts.append(f'{feature_options} {feature}')
 
-
-
         query_parts = []
         if search_parts:
             query_parts.append(f' {op_str} '.join(search_parts) if len(search_parts) < 3 else f"{', '.join(search_parts[:-1])}, {op_str} {search_parts[-1]}")
@@ -871,6 +870,8 @@ class BrowseView(View):
                 value_fields.append('col_' + col_id.replace('-', '_'))
         if 'twitter-handle' in active_col_ids:
             value_fields.append('twitter_handle')
+        if 'former-names' in active_col_ids:
+            value_fields.append('former_names')
 
         limit_param = get_params.get('limit', '').strip()
         limit = int(limit_param) if limit_param.isdigit() and int(limit_param) > 0 else None
@@ -957,6 +958,9 @@ class BrowseView(View):
                     col_values.append({'type': 'url', 'data': r.get(key) or ''})
                 elif col.col_id == 'twitter-handle':
                     col_values.append({'type': 'twitter', 'data': r.get('twitter_handle') or ''})
+                elif col.col_id == 'former-names':
+                    names = r.get('former_names') or []
+                    col_values.append({'type': 'former-names', 'data': ', '.join(names)})
             r['col_values'] = col_values
 
         has_results = len(results) > 0
