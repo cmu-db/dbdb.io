@@ -15,6 +15,13 @@
 {% page_title %}
     {% ptitle_kicker %}Organization Entry{% endptitle_kicker %}
     {% ptitle_title %}{{ org.name }}{% endptitle_title %}
+    {% ptitle_action %}
+        {% if user.is_superuser %}
+        <a class="btn-edit" href="{% url 'admin:core_organization_change' org.pk %}">
+            <i class="fa-solid fa-pen-to-square"></i> Edit
+        </a>
+        {% endif %}
+    {% endptitle_action %}
 {% endpage_title %}
 {% if org.description %}
 <div class="entry-lead-block fs-5 mt-3">

@@ -328,6 +328,7 @@ class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
     list_filter = ['org_type', 'stock_exchange', 'created', 'modified', OrgDevelopedSystemsFilter, OrgAcquisitionsFilter]
     search_fields = ('name', 'stock_symbol')
     readonly_fields = ('created', 'modified')
+    prepopulated_fields = {'slug': ('name',)}
     ordering = ('name',)
     inlines = [OrgDeveloperOrgsInline, OrgAcquisitionInline]
 
