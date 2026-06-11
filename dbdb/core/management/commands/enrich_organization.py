@@ -105,9 +105,14 @@ class Command(EnricherBaseCommand):
         if not orgs.exists():
             raise CommandError(f"No organization found matching '{keyword}'")
 
+        limit = options['limit']
+        processed = 0
         for org in orgs:
+            if limit is not None and processed >= limit:
+                break
             try:
                 self._enrich_one(org, options)
+                processed += 1
             except Exception as e:
                 if not options['skip_errors']:
                     raise

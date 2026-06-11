@@ -60,3 +60,5 @@ class EnricherBaseCommand(DbdbBaseCommand):
                             help='Disable spam checking when retrieving URLs')
         parser.add_argument('--skip-errors', action='store_true',
                             help='Print errors from individual enrichments and continue instead of stopping')
+        parser.add_argument('--limit', type=int, default=None, metavar='N',
+                            help='Stop after successfully enriching N entries')

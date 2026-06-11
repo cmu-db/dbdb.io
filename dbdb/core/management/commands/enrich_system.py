@@ -133,9 +133,14 @@ class Command(EnricherBaseCommand):
         if not systems:
             raise CommandError(f"No system found with keyword '{keyword}'")
 
+        limit = options['limit']
+        processed = 0
         for system in systems:
+            if limit is not None and processed >= limit:
+                break
             try:
                 self._enrich_one(system, options)
+                processed += 1
             except Exception as e:
                 if not options['skip_errors']:
                     raise
