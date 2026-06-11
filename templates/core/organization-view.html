@@ -74,6 +74,12 @@
             <dd>{% if org.stock_exchange %}{% if org.stock_exchange_obj.url %}<a href="{{ org.stock_exchange_obj.url }}" target="_blank">{{ org.get_stock_exchange_display }}</a>{% else %}{{ org.get_stock_exchange_display }}{% endif %}: {% endif %}{{ org.stock_symbol }}</dd>
         </div>
         {% endif %}
+        {% if org.wikipedia_url %}
+        <div class="fact">
+            <dt>Wikipedia</dt>
+            <dd><a href="{{ org.wikipedia_url.url }}" target="_{{ org.slug }}"><i class="fa-brands fa-wikipedia-w"></i> {{ org.wikipedia_url.url }}</a>{% if wikipedia_citation %}<span class="cites">{% citation_footnote wikipedia_citation %}</span>{% endif %}</dd>
+        </div>
+        {% endif %}
         {% if org.former_names %}
         <div class="fact">
             <dt>Former Name{{ org.former_names|pluralize }}</dt>

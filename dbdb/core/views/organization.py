@@ -24,8 +24,9 @@ class OrganizationView(View):
                 all_citations.append(c)
                 return len(all_citations)
 
-        url_citation      = process(org.url)
-        linkedin_citation = process(org.linkedin_url)
+        url_citation       = process(org.url)
+        wikipedia_citation = process(org.wikipedia_url)
+        linkedin_citation  = process(org.linkedin_url)
 
         # Systems this org has acquired (via Acquisition → SystemVersion → System)
         acquisitions = []
@@ -52,8 +53,9 @@ class OrganizationView(View):
 
         return render(request, self.template_name, {
             'org':               org,
-            'url_citation':      url_citation,
-            'linkedin_citation': linkedin_citation,
+            'url_citation':       url_citation,
+            'wikipedia_citation': wikipedia_citation,
+            'linkedin_citation':  linkedin_citation,
             'acquisitions':      acquisitions,
             'developed':         developed,
             'citations':         all_citations,

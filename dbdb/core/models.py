@@ -330,6 +330,11 @@ class Organization(LogoMixin, models.Model):
         blank=True, null=True,
         related_name='org_urls',
         help_text="URL of the organization's main website")
+    wikipedia_url = models.ForeignKey(
+        'CitationUrl', models.SET_NULL,
+        blank=True, null=True,
+        related_name='org_wikipedia_urls',
+        help_text="URL of the organization's Wikipedia page")
     linkedin_url = models.ForeignKey(
         'CitationUrl', models.SET_NULL,
         blank=True, null=True,
