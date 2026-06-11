@@ -361,8 +361,23 @@ class SystemAdmin(admin.ModelAdmin):
     search_fields = ('name', )
     readonly_fields=('view_count', 'created', 'modified' )
 
+class SystemVersionAdminForm(forms.ModelForm):
+    former_names = SimpleArrayField(
+        forms.CharField(),
+        delimiter='\n',
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 4}),
+        help_text='Enter one name per line.',
+    )
+
+    class Meta:
+        model = SystemVersion
+        fields = '__all__'
+
+
 @admin.register(SystemVersion)
 class SystemVersionAdmin(admin.ModelAdmin):
+    form = SystemVersionAdminForm
     empty_value_display = 'unknown'
     raw_id_fields = ('description_citations', 'start_year_citations', 'end_year_citations', 'history_citations')
     list_display = ('system', 'ver', 'creator', 'approved', 'is_current', 'created')

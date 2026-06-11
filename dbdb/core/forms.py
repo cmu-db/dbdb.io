@@ -8,6 +8,7 @@ import json
 from captcha.fields import ReCaptchaField
 from captcha.widgets import ReCaptchaV2Invisible
 from django import forms
+from django.contrib.postgres.forms import SimpleArrayField
 from turnstile.fields import TurnstileField
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
@@ -271,6 +272,14 @@ class SystemVersionForm(forms.ModelForm):
     end_year_citations = CitationUrlListField(
         help_text="Citations URLs",
         required=False
+    )
+
+    former_names = SimpleArrayField(
+        forms.CharField(),
+        delimiter='\n',
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 4}),
+        help_text='Enter one name per line.',
     )
 
     # CitationUrl FK fields — rendered as URL inputs; view handles get_or_create.

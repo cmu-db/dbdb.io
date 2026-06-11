@@ -962,13 +962,17 @@ def _compute_version_diff(v1, v2):
     # --- remaining scalar fields ---
     for field, label in [
         ('twitter_handle',   'Twitter Handle'),
-        ('former_names',     'Former Names'),
         ('countries',        'Countries'),
     ]:
         a = _str(getattr(v1, field))
         b = _str(getattr(v2, field))
         diffs.append({'field': field, 'label': label, 'type': 'scalar',
                       'v1_val': a, 'v2_val': b, 'changed': a != b})
+
+    a_fn = ', '.join(v1.former_names) if v1.former_names else ''
+    b_fn = ', '.join(v2.former_names) if v2.former_names else ''
+    diffs.append({'field': 'former_names', 'label': 'Former Names', 'type': 'scalar',
+                  'v1_val': a_fn, 'v2_val': b_fn, 'changed': a_fn != b_fn})
 
     # --- URL / CitationUrl FK fields ---
     for field, label in [

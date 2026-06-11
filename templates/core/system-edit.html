@@ -81,7 +81,26 @@
             {% bootstrap_field system_version_form.end_year_citations %}
 
 
-            {% bootstrap_field system_version_form.former_names %}
+            <!-- BEGIN: FORMER NAMES -->
+            <div class="mb-3">
+                <label class="form-label">Former Names</label>
+                {{ system_version_form.former_names }}
+                <div id="former-name-rows"></div>
+                <template id="former-name-row-template">
+                    <div class="former-name-row row g-2 mb-2 align-items-center">
+                        <div class="col-11">
+                            <input type="text" class="form-control" placeholder="Former name">
+                        </div>
+                        <div class="col-1 text-center">
+                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                    onclick="removeFormerNameRow(this)" title="Remove">×</button>
+                        </div>
+                    </div>
+                </template>
+                <button type="button" class="btn btn-sm btn-outline-secondary mt-1"
+                        onclick="addFormerNameRow()">+ Add Former Name</button>
+            </div>
+            <!-- END: FORMER NAMES -->
         </div>
     </div>
     <div class="row border-2 border-bottom pt-4">
@@ -366,6 +385,42 @@
         // Init autocomplete on acquisition citation_url fields
         $('#acquisition-rows input[name$="-citation_url"]').each(function() { initCitationUrlAutocomplete(this); });
     });
+
+    // --- Former Name rows ---
+    (function initFormerNames() {
+        const textarea = document.getElementById('id_former_names');
+        if (!textarea) return;
+        textarea.style.display = 'none';
+        const rows = document.getElementById('former-name-rows');
+
+        function syncToTextarea() {
+            const vals = Array.from(rows.querySelectorAll('input[type="text"]'))
+                             .map(i => i.value.trim()).filter(v => v);
+            textarea.value = vals.join('\n');
+        }
+
+        function addRow(value) {
+            const tmpl = document.getElementById('former-name-row-template');
+            const clone = tmpl.content.cloneNode(true);
+            const input = clone.querySelector('input[type="text"]');
+            if (value) input.value = value;
+            input.addEventListener('blur', syncToTextarea);
+            rows.appendChild(clone);
+        }
+
+        (textarea.value || '').split('\n').filter(v => v.trim()).forEach(addRow);
+
+        window.addFormerNameRow = function() {
+            addRow('');
+            rows.querySelector('.former-name-row:last-child input').focus();
+        };
+        window.removeFormerNameRow = function(btn) {
+            btn.closest('.former-name-row').remove();
+            syncToTextarea();
+        };
+
+        document.querySelector('form').addEventListener('submit', syncToTextarea);
+    })();
 
     // --- Developer Organization rows ---
     function addDeveloperOrgRow() {

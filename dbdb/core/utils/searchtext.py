@@ -7,14 +7,21 @@ from dbdb.core.models import SystemFeature, SystemVersion
 
 def generate_searchtext(ver : SystemVersion):
     words = [ver.system.name]
-    words += [org.name for org in ver.developer_orgs.all()]
     words += [f.name for f in ver.governance.all()]
     words += [x.name for x in ver.countries]
-    if ver.former_names:
-        words += ver.former_names.split(",")
+    words += ver.former_names
     words += [acq.organization.name for acq in ver.acquisitions.select_related('organization').all()]
     words += [x.name for x in ver.written_in.all()]
     words += [x.slug for x in ver.written_in.all()]
+
+    # Include additional information about developer + acquisition orgs
+    for org in ver.developer_orgs.all():
+        words.append(org.name)
+        words += org.former_names
+    for acq in ver.acquisitions.all():
+        words.append(acq.organization.name)
+        if acq.organization.former_names:
+            words += acq.organization.former_names
 
     # URLs (just include domain names)
     for url in [ver.system_url, ver.sourcerepo_url, ver.wikipedia_url]:
@@ -49,9 +56,7 @@ def generate_searchtext(ver : SystemVersion):
     words += [ver.description]
 
     # Automatically add different variations of the name for better searching
-    names = [ver.system.name]
-    if ver.former_names:
-        names += ver.former_names.split(",")
+    names = [ver.system.name] + ver.former_names
 
     # If they are using unicode characters, convert them to ASCII
     clean_name = re.sub('[^a-zA-Z0-9]', '', anyascii(ver.system.name)).strip()

@@ -645,8 +645,9 @@ class SystemVersion(LogoMixin, models.Model):
         verbose_name="Countries of Origin",
         help_text="Country of where the DBMS company or project started")
 
-    former_names = models.CharField(
-        blank=True, max_length=100,
+    former_names = ArrayField(
+        models.CharField(max_length=200),
+        default=list, blank=True,
         help_text="Previous names of the system")
 
     system_url = models.ForeignKey(

@@ -129,7 +129,10 @@
             <div class="fact"><dt>End Year</dt><dd>{{ version.end_year }}{% if end_year_citations %} <span class="cites">{% for c in end_year_citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</dd></div>
         {% endif %}
         {% if version.former_names %}
-        <div class="fact"><dt>Former Name</dt><dd>{{ version.former_names }}</dd></div>
+        <div class="fact">
+            <dt>Former Name{{ version.former_names|pluralize }}</dt>
+            <dd>{{ version.former_names|join:", " }}</dd>
+        </div>
         {% endif %}
 
         {% if acquisitions %}

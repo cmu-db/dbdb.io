@@ -127,7 +127,7 @@ class Command(BaseCommand):
                         # Check the slug and former name
                         try:
                             vers = SystemVersion.objects.filter( \
-                                Q(former_names__icontains=keyword)
+                                Q(former_names__contains=[keyword])
                             #| Q(former_names__icontains=keyword)
                             ).order_by('-id')
                             if len(vers) > 0:
