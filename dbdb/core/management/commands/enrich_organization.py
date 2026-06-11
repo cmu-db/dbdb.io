@@ -211,6 +211,11 @@ class Command(EnricherBaseCommand):
                 except Exception as e:
                     LOG.warning(f"  {field}: could not validate {url_str!r}: {e}")
 
+        if org.get_org_type_display() == 'Individual' and org.description:
+            LOG.info("Clearing description: org_type is Individual")
+            org.description = ''
+            dirty = True
+
         if dirty:
             org.save()
 
