@@ -77,9 +77,10 @@ def _is_field_empty(version: SystemVersion, field: str) -> bool:
 
 def _get_missing_fields(version: SystemVersion, requested: list[str] | None) -> list[str]:
     """Return the subset of requested fields (or all) that are empty."""
+    if requested:
+        return list(requested)
     all_fields = list(SIMPLE_TEXT_FIELDS) + list(INT_FIELDS) + list(URL_FK_FIELDS) + list(M2M_ATTR_FIELDS)
-    targets = requested if requested else all_fields
-    return [f for f in targets if _is_field_empty(version, f)]
+    return [f for f in all_fields if _is_field_empty(version, f)]
 
 
 def _crawl_existing_urls(
