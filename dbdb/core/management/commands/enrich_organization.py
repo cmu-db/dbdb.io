@@ -93,6 +93,11 @@ class Command(EnricherBaseCommand):
         super().add_arguments(parser)
         parser.add_argument('keyword', metavar='ORG', type=str,
                             help='Organization slug or name keyword')
+        org_type_choices = [m.name.lower() for m in OrgType]
+        parser.add_argument('--set-type', choices=org_type_choices, default=None,
+                            metavar='TYPE',
+                            help=f'Directly set org_type without invoking the LLM. '
+                                 f'Choices: {", ".join(org_type_choices)}')
 
     def handle(self, *args, **options):
         keyword = options['keyword']
@@ -104,6 +109,17 @@ class Command(EnricherBaseCommand):
             orgs = Organization.objects.filter(name__icontains=keyword)
         if not orgs.exists():
             raise CommandError(f"No organization found matching '{keyword}'")
+
+        if options['set_type']:
+            member = OrgType[options['set_type'].upper()]
+            count = orgs.update(org_type=member)
+            self.stdout.write(self.style.SUCCESS(
+                f"Set org_type='{member.label}' on {count} organization(s)"
+            ))
+            return
+
+        if not options['enricher']:
+            raise CommandError("--enricher is required when --set-type is not used")
 
         limit = options['limit']
         processed = 0

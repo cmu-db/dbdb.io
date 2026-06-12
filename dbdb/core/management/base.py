@@ -47,7 +47,7 @@ class EnricherBaseCommand(DbdbBaseCommand):
                             help='Comma-separated list of field names to target')
         parser.add_argument('--model', default=None,
                             help='Override LLM model name')
-        parser.add_argument('--enricher', required=True, choices=enricher_choices,
+        parser.add_argument('--enricher', required=False, default=None, choices=enricher_choices,
                             metavar='ENRICHER',
                             help=f'LLM backend to use: {", ".join(enricher_choices)}')
         parser.add_argument('--include-urls', action='store_true',
