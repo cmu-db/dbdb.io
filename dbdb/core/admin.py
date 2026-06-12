@@ -13,7 +13,7 @@ from django.utils.html import format_html
 
 # local imports
 from .models import *
-from .models import Acquisition
+from .models import Acquisition, OrgType
 
 # ==============================================
 # MIXINS
@@ -338,6 +338,15 @@ class OrganizationAdminForm(forms.ModelForm):
         fields = '__all__'
 
 
+def _make_set_org_type_action(member: OrgType):
+    def _action(modeladmin, request, queryset):
+        updated = queryset.update(org_type=member)
+        modeladmin.message_user(request, f"Set org type '{member.label}' on {updated} organization(s).")
+    _action.__name__ = f'set_org_type_{member.name.lower()}'
+    _action.short_description = f'Set type → {member.label}'
+    return _action
+
+
 @admin.register(Organization)
 class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
     form = OrganizationAdminForm
@@ -348,6 +357,11 @@ class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     ordering = ('name',)
     inlines = [OrgDeveloperOrgsInline, OrgAcquisitionInline]
+    actions = [f'set_org_type_{m.name.lower()}' for m in OrgType]
+
+
+for _m in OrgType:
+    setattr(OrganizationAdmin, f'set_org_type_{_m.name.lower()}', _make_set_org_type_action(_m))
 
 # ==============================================
 # SYSTEMS
