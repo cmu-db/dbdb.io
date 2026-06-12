@@ -91,8 +91,6 @@ class Command(EnricherBaseCommand):
 
     def add_arguments(self, parser: ArgumentParser):
         super().add_arguments(parser)
-        parser.add_argument('keyword', metavar='ORG', type=str,
-                            help='Organization slug or name keyword')
         org_type_choices = [m.name.lower() for m in OrgType]
         parser.add_argument('--set-type', choices=org_type_choices, default=None,
                             metavar='TYPE',
@@ -100,21 +98,24 @@ class Command(EnricherBaseCommand):
                                  f'Choices: {", ".join(org_type_choices)}')
 
     def handle(self, *args, **options):
-        keyword = options['keyword']
-
-        orgs = Organization.objects.filter(slug=keyword)
-        if not orgs.exists():
-            orgs = Organization.objects.filter(slug__icontains=keyword)
-        if not orgs.exists():
-            orgs = Organization.objects.filter(name__icontains=keyword)
-        if not orgs.exists():
-            raise CommandError(f"No organization found matching '{keyword}'")
+        seen = {}
+        for keyword in options['keywords']:
+            qs = Organization.objects.filter(slug=keyword)
+            if not qs.exists():
+                qs = Organization.objects.filter(slug__icontains=keyword)
+            if not qs.exists():
+                qs = Organization.objects.filter(name__icontains=keyword)
+            if not qs.exists():
+                raise CommandError(f"No organization found matching '{keyword}'")
+            for org in qs:
+                seen.setdefault(org.pk, org)
+        orgs = list(seen.values())
 
         if options['set_type']:
             member = OrgType[options['set_type'].upper()]
-            count = orgs.update(org_type=member)
+            Organization.objects.filter(pk__in=[o.pk for o in orgs]).update(org_type=member)
             self.stdout.write(self.style.SUCCESS(
-                f"Set org_type='{member.label}' on {count} organization(s)"
+                f"Set org_type='{member.label}' on {len(orgs)} organization(s)"
             ))
             return
 

@@ -41,6 +41,8 @@ class EnricherBaseCommand(DbdbBaseCommand):
         super().add_arguments(parser)
         from dbdb.core.utils.enrichment import BaseEnricher
         enricher_choices = sorted(BaseEnricher._get_registry())
+        parser.add_argument('keywords', nargs='+', metavar='KEYWORD',
+                            help='One or more slugs or name keywords to match')
         parser.add_argument('--dry-run', action='store_true',
                             help='Show what would be filled without saving')
         parser.add_argument('--fields', default=None,

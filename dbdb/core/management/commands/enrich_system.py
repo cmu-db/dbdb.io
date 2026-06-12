@@ -118,20 +118,21 @@ class Command(EnricherBaseCommand):
 
     def add_arguments(self, parser: ArgumentParser):
         super().add_arguments(parser)
-        parser.add_argument('keyword', metavar='S', type=str, help='System id or slug keyword')
         parser.add_argument('--per-feature', action='store_true',
                             help='One LLM call per missing Feature (slower, more targeted)')
 
     def handle(self, *args, **options):
-        keyword = options['keyword']
-
-        if keyword.isdigit():
-            systems = list(System.objects.filter(id=int(keyword)))
-        else:
-            systems = list(System.objects.filter(slug__icontains=keyword))
-
-        if not systems:
-            raise CommandError(f"No system found with keyword '{keyword}'")
+        seen = {}
+        for keyword in options['keywords']:
+            if keyword.isdigit():
+                qs = System.objects.filter(id=int(keyword))
+            else:
+                qs = System.objects.filter(slug__icontains=keyword)
+            if not qs.exists():
+                raise CommandError(f"No system found with keyword '{keyword}'")
+            for system in qs:
+                seen.setdefault(system.pk, system)
+        systems = list(seen.values())
 
         limit = options['limit']
         processed = 0
