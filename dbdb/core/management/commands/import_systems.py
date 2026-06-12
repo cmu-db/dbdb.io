@@ -4,22 +4,25 @@ import_systems — bulk-create System + SystemVersion entries from a CSV file.
 Usage:
     python manage.py import_systems <csv_file> [options]
 
-CSV columns (positional, header row skipped by default):
-  1. System Name
-  2. System URL
-  3. Source Repository URL
+CSV columns:
+  1. System Name  (required)
+  2. System URL   (always system_url)
+  3+. Any number of additional URLs, classified by content:
+        - contains "wikipedia.org"  → wikipedia_url
+        - contains "github.com"     → sourcerepo_url
+        - contains "docs"           → docs_url
+      Unrecognized URLs are skipped with a warning.
 
 For each row the command:
-  1. Derives a slug from the name and skips the row if a System with that slug exists.
-  2. Optionally finds a logo in --logos-dir by matching {slug}.svg / .png / .jpg / .jpeg.
-  3. Creates CitationUrl rows for non-empty URLs (reuses existing ones).
+  1. Derives a slug from the name; skips if a System with that slug already exists.
+  2. Optionally finds a logo in --logos-dir by matching {slug}.svg/.png/.jpg/.jpeg.
+  3. Creates CitationUrl rows for each URL (reuses existing ones).
      With --validate-urls each URL is fetched; unreachable URLs are dropped.
-  4. Any URL from wikipedia.org is routed to SystemVersion.wikipedia_url.
-  5. Creates a System + SystemVersion (approved=True by default, making it live immediately).
-     If a logo was found, it is attached before save so LogoMixin auto-extracts dimensions/color.
-  6. If the source repository URL is set (and reachable when --validate-urls), the
-     "Open Source" project type is added to the SystemVersion.
-  7. Prints a formatted summary table at the end.
+  4. Creates a System + SystemVersion (approved=True by default, immediately live).
+     If a logo was found it is attached before save so LogoMixin auto-extracts
+     dimensions and color.
+  5. If sourcerepo_url is set, adds the "Open Source" project type.
+  6. Prints a formatted summary table at the end.
 """
 import csv
 import logging
@@ -58,8 +61,16 @@ def _find_logo(logos_dir: str, slug: str) -> str | None:
     return None
 
 
-def _is_wikipedia_url(url: str) -> bool:
-    return 'wikipedia.org' in url.lower()
+def _classify_url(url: str) -> str | None:
+    """Return the SystemVersion field name for a URL, or None if unrecognized."""
+    lower = url.lower()
+    if 'wikipedia.org' in lower:
+        return 'wikipedia_url'
+    if 'github.com' in lower:
+        return 'sourcerepo_url'
+    if 'docs' in lower:
+        return 'docs_url'
+    return None
 
 
 def _get_or_create_citation(
@@ -103,8 +114,8 @@ def _get_or_create_citation(
 
 
 def _print_results_table(write, results: list[dict]):
-    headers = ['Name', 'Slug', 'System URL', 'Repo URL', 'Wikipedia URL', 'Logo', 'Status']
-    keys    = ['name', 'slug', 'system_url', 'sourcerepo_url', 'wikipedia_url', 'logo', 'status']
+    headers = ['Name', 'Slug', 'System URL', 'Repo URL', 'Wikipedia URL', 'Docs URL', 'Logo', 'Status']
+    keys    = ['name', 'slug', 'system_url', 'sourcerepo_url', 'wikipedia_url', 'docs_url', 'logo', 'status']
 
     widths = [len(h) for h in headers]
     for row in results:
@@ -123,13 +134,18 @@ def _print_results_table(write, results: list[dict]):
     write(sep)
 
 
+def _empty_result(name='(empty)', slug='', status='skipped') -> dict:
+    return {'name': name, 'slug': slug, 'system_url': '', 'sourcerepo_url': '',
+            'wikipedia_url': '', 'docs_url': '', 'logo': '', 'status': status}
+
+
 class Command(DbdbBaseCommand):
     help = 'Bulk-create System + SystemVersion entries from a CSV file'
 
     def add_arguments(self, parser: ArgumentParser):
         super().add_arguments(parser)
         parser.add_argument('csv_file', metavar='CSV_FILE',
-                            help='Path to CSV file (columns: Name, System URL, Source Repo URL)')
+                            help='Path to CSV (col 1: Name, col 2: system_url, col 3+: classified URLs)')
         parser.add_argument('--logos-dir', default=None, metavar='DIR',
                             help='Directory to search for logo files named {slug}.{svg,png,jpg,jpeg}')
         parser.add_argument('--dry-run', action='store_true',
@@ -172,8 +188,8 @@ class Command(DbdbBaseCommand):
             slug=_OPEN_SOURCE_ATTR_SLUG,
         ).first()
         if not open_source_opt:
-            LOG.warning(f"AttributeOption '{_OPEN_SOURCE_ATTR_SLUG}' not found — "
-                        "project_type will not be set automatically")
+            LOG.warning("AttributeOption '%s' not found — project_type will not be set automatically",
+                        _OPEN_SOURCE_ATTR_SLUG)
 
         dry_run = options['dry_run']
         if dry_run:
@@ -189,21 +205,38 @@ class Command(DbdbBaseCommand):
             for row in reader:
                 if not any(row):
                     continue
+
                 name = row[0].strip() if len(row) > 0 else ''
                 system_url_str = row[1].strip() if len(row) > 1 else ''
-                sourcerepo_url_str = row[2].strip() if len(row) > 2 else ''
+
+                # Classify all remaining columns into field-name → url-string.
+                extra_urls: dict[str, str] = {}
+                for cell in row[2:]:
+                    url = cell.strip()
+                    if not url:
+                        continue
+                    field = _classify_url(url)
+                    if field is None:
+                        self.stderr.write(self.style.WARNING(
+                            f"  '{name}': unrecognized URL {url!r}, skipping"
+                        ))
+                        continue
+                    if field in extra_urls:
+                        self.stderr.write(self.style.WARNING(
+                            f"  '{name}': duplicate {field}, ignoring {url!r}"
+                        ))
+                        continue
+                    extra_urls[field] = url
 
                 if not name:
-                    results.append({'name': '(empty)', 'slug': '', 'system_url': '',
-                                    'sourcerepo_url': '', 'wikipedia_url': '', 'logo': '',
-                                    'status': 'skipped'})
+                    results.append(_empty_result())
                     continue
 
                 try:
                     result = self._import_one(
                         name=name,
                         system_url_str=system_url_str,
-                        sourcerepo_url_str=sourcerepo_url_str,
+                        extra_urls=extra_urls,
                         creator=creator,
                         logos_dir=logos_dir,
                         open_source_opt=open_source_opt,
@@ -214,12 +247,10 @@ class Command(DbdbBaseCommand):
                     if not options['skip_errors']:
                         raise
                     self.stderr.write(self.style.ERROR(f"Error on '{name}': {exc}"))
-                    results.append({'name': name, 'slug': slugify(name), 'system_url': '',
-                                    'sourcerepo_url': '', 'wikipedia_url': '', 'logo': '',
-                                    'status': f'error: {exc}'})
+                    results.append(_empty_result(name=name, slug=slugify(name), status=f'error: {exc}'))
 
-        imported = sum(1 for r in results if r['status'] == 'imported')
-        skipped  = sum(1 for r in results if r['status'] != 'imported')
+        imported = sum(1 for r in results if r['status'] in ('imported', 'dry-run'))
+        skipped  = len(results) - imported
 
         self.stdout.write('')
         _print_results_table(self.stdout.write, results)
@@ -227,40 +258,21 @@ class Command(DbdbBaseCommand):
             f"\nDone: {imported} imported, {skipped} skipped, {len(results)} total rows"
         ))
 
-    def _import_one(self, *, name, system_url_str, sourcerepo_url_str,
+    def _import_one(self, *, name, system_url_str, extra_urls: dict[str, str],
                     creator, logos_dir, open_source_opt, options) -> dict:
-        dry_run: bool      = options['dry_run']
-        approved: bool     = not options['pending']
-        validate: bool     = options['validate_urls']
+        dry_run: bool        = options['dry_run']
+        approved: bool       = not options['pending']
+        validate: bool       = options['validate_urls']
         skip_spamcheck: bool = options['skip_spamcheck']
 
         slug = slugify(name)
         if not slug:
-            return {'name': name, 'slug': '', 'system_url': '', 'sourcerepo_url': '',
-                    'wikipedia_url': '', 'logo': '', 'status': 'skipped (no slug)'}
+            return _empty_result(name=name, status='skipped (no slug)')
 
         if System.objects.filter(slug=slug).exists():
-            return {'name': name, 'slug': slug, 'system_url': '', 'sourcerepo_url': '',
-                    'wikipedia_url': '', 'logo': '', 'status': 'skipped (exists)'}
+            return _empty_result(name=name, slug=slug, status='skipped (exists)')
 
         logo_path = _find_logo(logos_dir, slug) if logos_dir else None
-
-        # Route Wikipedia URLs to wikipedia_url regardless of source column.
-        raw_urls = {'system_url': system_url_str, 'sourcerepo_url': sourcerepo_url_str}
-        field_map: dict[str, str] = {}
-        wikipedia_url_str = ''
-        for field, url in raw_urls.items():
-            if not url:
-                continue
-            if _is_wikipedia_url(url):
-                if wikipedia_url_str:
-                    self.stderr.write(self.style.WARNING(
-                        f"  '{name}': multiple Wikipedia URLs; using first, ignoring {url!r}"
-                    ))
-                else:
-                    wikipedia_url_str = url
-            else:
-                field_map[field] = url
 
         def _cite(url_str):
             return _get_or_create_citation(
@@ -268,17 +280,22 @@ class Command(DbdbBaseCommand):
                 validate=validate, skip_spamcheck=skip_spamcheck,
             )
 
-        system_cite     = _cite(field_map.get('system_url', ''))
-        sourcerepo_cite = _cite(field_map.get('sourcerepo_url', ''))
-        wikipedia_cite  = _cite(wikipedia_url_str)
+        system_cite     = _cite(system_url_str)
+        sourcerepo_cite = _cite(extra_urls.get('sourcerepo_url', ''))
+        wikipedia_cite  = _cite(extra_urls.get('wikipedia_url', ''))
+        docs_cite       = _cite(extra_urls.get('docs_url', ''))
 
-        # Build the result record using resolved URLs (dropped if validation failed).
+        # If system_url is a GitHub URL and no explicit sourcerepo_url was provided, reuse it.
+        if system_cite and not sourcerepo_cite and 'github.com' in system_url_str.lower():
+            sourcerepo_cite = system_cite
+
         result = {
             'name':           name,
             'slug':           slug,
             'system_url':     _trunc(system_cite.url if system_cite else ''),
             'sourcerepo_url': _trunc(sourcerepo_cite.url if sourcerepo_cite else ''),
             'wikipedia_url':  _trunc(wikipedia_cite.url if wikipedia_cite else ''),
+            'docs_url':       _trunc(docs_cite.url if docs_cite else ''),
             'logo':           os.path.basename(logo_path) if logo_path else '',
             'status':         'dry-run' if dry_run else 'imported',
         }
@@ -297,6 +314,7 @@ class Command(DbdbBaseCommand):
                 system_url=system_cite,
                 sourcerepo_url=sourcerepo_cite,
                 wikipedia_url=wikipedia_cite,
+                docs_url=docs_cite,
             )
 
             if logo_path:
