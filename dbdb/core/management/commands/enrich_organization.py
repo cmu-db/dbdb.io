@@ -66,8 +66,9 @@ def _is_org_field_empty(org: Organization, field: str) -> bool:
 
 
 def _get_missing_org_fields(org: Organization, requested: list[str] | None) -> list[str]:
-    targets = requested if requested else list(ORG_ALL_FIELDS)
-    return [f for f in targets if _is_org_field_empty(org, f)]
+    if requested:
+        return list(requested)
+    return [f for f in ORG_ALL_FIELDS if _is_org_field_empty(org, f)]
 
 
 def _crawl_org_urls(org: Organization, recrawl_after: int = 7, skip_spamcheck: bool = False) -> dict[str, str]:
