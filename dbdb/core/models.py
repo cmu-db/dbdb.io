@@ -25,7 +25,7 @@ from dbdb.core.utils.logos import color_to_hex, extract_color, extract_dimension
 # ==============================================
 class LogoMixin(models.Model):
     logo = ThumbnailerField(blank=True, upload_to='logos/')
-    logo_color = ColorField(format="hex", help_text="The color of the logo")
+    logo_color = ColorField(format="hex", blank=True, null=True, help_text="The color of the logo")
     logo_width = models.IntegerField(blank=True, null=True)
     logo_height = models.IntegerField(blank=True, null=True)
 
@@ -80,7 +80,7 @@ class CitationUrl(models.Model):
     last_contentsize = models.PositiveIntegerField(default=None, blank=True, null=True)
     last_etag = models.CharField(max_length=100, default=None, blank=True, null=True)
     last_cachecontrol = models.JSONField(default=dict, blank=True, null=True)
-    last_statuscode = models.PositiveIntegerField(default=None, blank=True, null=True)
+    last_statuscode = models.PositiveIntegerField(default=None, blank=True, null=True, db_comment="HTTP Status Code")
 
     def get_domain(self, include_suffix:bool = True):
         if self.url.startswith('http'):
@@ -311,7 +311,7 @@ class StockExchange(models.IntegerChoices):
     def url(self):
         """URLs to go directly to the stock symbol on the exchange"""
         return {
-            1: 'https://www.nyse.com',
+            1: 'https://www.nyse.com/quote/XNYS:',
             2: 'https://www.nasdaq.com/market-activity/stocks/',
             3: 'https://www.londonstockexchange.com',
             4: 'https://www.jpx.co.jp/english/',
