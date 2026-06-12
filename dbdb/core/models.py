@@ -8,7 +8,10 @@ from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Max
-from django.db.models.signals import pre_save
+import logging
+from django.db.models.signals import pre_delete, pre_save
+
+LOG = logging.getLogger(__name__)
 from django.dispatch import receiver
 from django.urls import reverse
 from django_countries.fields import CountryField
@@ -1108,3 +1111,22 @@ def systemversion_pre_save(sender, **kwargs):
             instance.system.save()
 
     return
+
+
+@receiver(pre_delete, sender=System)
+def system_pre_delete(sender, instance, **kwargs):
+    """Remove logo files for every version of the system before cascade-deletion.
+
+    Runs in pre_delete so the SystemVersion rows are still queryable.
+    Deduplicates by file name so shared logos are only deleted once.
+    """
+    seen: set[str] = set()
+    for sv in instance.systemversion_set.exclude(logo=''):
+        name = sv.logo.name if sv.logo else ''
+        if not name or name in seen:
+            continue
+        seen.add(name)
+        try:
+            sv.logo.delete(save=False)
+        except Exception:
+            LOG.warning("Could not delete logo file %r for system %r", name, instance.slug)
