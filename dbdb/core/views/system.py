@@ -556,7 +556,13 @@ class SystemEditView(LoginRequiredMixin, View):
             system_version_form.save_m2m()
             new_version.hosted_services.remove(system)
 
-            if logo and not new_version.logo:
+            logo_cleared = bool(request.POST.get('logo-clear'))
+            if logo_cleared:
+                new_version.logo = None
+                new_version.logo_color = None
+                new_version.logo_width = None
+                new_version.logo_height = None
+            elif logo and not new_version.logo:
                 new_version.logo = logo
 
             if is_admin:
