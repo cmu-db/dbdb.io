@@ -1379,6 +1379,7 @@ ins.diff-ins { text-decoration: none; border-radius: 2px; padding: 0 2px; }
 }
 
 .diff-cite-url { font-family: var(--mono); font-size: .75rem; word-break: break-all; color: inherit; }
+.diff-logo-img { max-height: 80px; max-width: 100%; object-fit: contain; }
 
 /* ============================================================
    USER PROFILE PAGE

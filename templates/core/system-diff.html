@@ -251,6 +251,18 @@
         </td>
     </tr>
 
+    {# ── Image fields ── #}
+    {% elif diff.type == 'image' %}
+    <tr class="{% if diff.changed %}diff-changed{% else %}diff-unchanged{% endif %}">
+        <td class="diff-label">{{ diff.label }}</td>
+        <td>
+            {% if diff.v1_url %}<img src="{{ diff.v1_url }}" class="diff-logo-img" alt="v1 logo">{% else %}<span class="text-muted">&mdash;</span>{% endif %}
+        </td>
+        <td>
+            {% if diff.v2_url %}<img src="{{ diff.v2_url }}" class="diff-logo-img" alt="v2 logo">{% else %}<span class="text-muted">&mdash;</span>{% endif %}
+        </td>
+    </tr>
+
     {% endif %}
     {% endfor %}
 

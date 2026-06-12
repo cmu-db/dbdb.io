@@ -937,6 +937,14 @@ def _compute_version_diff(v1, v2):
             'changed': a_set != b_set,
         }
 
+    # --- logo ---
+    a_logo = v1.logo.name if v1.logo else ''
+    b_logo = v2.logo.name if v2.logo else ''
+    diffs.append({'field': 'logo', 'label': 'Logo', 'type': 'image',
+                  'v1_url': v1.logo.url if v1.logo else '',
+                  'v2_url': v2.logo.url if v2.logo else '',
+                  'changed': a_logo != b_logo})
+
     # --- description + its citations (inline) ---
     for field, label, cite_field in [
         ('description', 'Description', 'description_citations'),
