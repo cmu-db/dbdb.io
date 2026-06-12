@@ -149,7 +149,7 @@ SYSTEM_ENRICHMENT_TOOL = {
 _ORG_FIELD_SCHEMAS: dict[str, dict] = {
     "description": {
         "type": "string",
-        "description": "Brief description of the organization and its role in the database ecosystem.",
+        "description": "One sentence description of the organization.",
     },
     "url": {
         "type": "string",
@@ -165,7 +165,7 @@ _ORG_FIELD_SCHEMAS: dict[str, dict] = {
     },
     "org_type": {
         "type": "string",
-        "description": "Type of organization.",
+        "description": "Type of organization. If the organization's name sounds like a person (e.g., it has a first name + last name), then choose 'Individual'.",
     },
     "stock_symbol": {
         "type": "string",

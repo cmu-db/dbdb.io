@@ -904,12 +904,12 @@ def crawl_citation_url(
     from dbdb.core.models import CitationUrlContent
 
     if citation.last_checked and citation.last_checked >= recrawl_cutoff:
-        if citation.last_statuscode in (
+        if citation.status in (
             CitationUrl.Status.SPAM,
             CitationUrl.Status.DEAD,
             CitationUrl.Status.IGNORE,
         ):
-            LOG.warning(f"{citation} status is {citation.last_statuscode}. Skipping...")
+            LOG.warning(f"{citation} status is {citation.status}. Skipping...")
             return None
         try:
             content = citation.content
@@ -919,9 +919,9 @@ def crawl_citation_url(
         except CitationUrlContent.DoesNotExist:
             pass
 
-    LOG.info(f"  Crawling {citation.url}")
+    LOG.info(f"  Crawling {citation.url} [skip_spamcheck={skip_spamcheck}]")
     _citation, result = process_citation_url(citation, system=system, skip_spamcheck=skip_spamcheck)
-    if result and _citation.last_statuscode == CitationUrl.Status.VALID:
+    if result and _citation.status == CitationUrl.Status.VALID:
         return result.get('text') or None
     return None
 

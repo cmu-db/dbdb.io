@@ -341,7 +341,7 @@ class OrganizationAdminForm(forms.ModelForm):
 @admin.register(Organization)
 class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
     form = OrganizationAdminForm
-    list_display = ('id', 'name', 'slug', 'url', 'linkedin_url', 'countries', 'stock_symbol', 'created', 'modified')
+    list_display = ('id', 'name', 'slug', 'org_type', 'url', 'countries', 'created', 'modified')
     list_filter = ['org_type', 'stock_exchange', 'created', 'modified', OrgDevelopedSystemsFilter, OrgAcquisitionsFilter]
     search_fields = ('name', 'stock_symbol')
     readonly_fields = ('created', 'modified')
