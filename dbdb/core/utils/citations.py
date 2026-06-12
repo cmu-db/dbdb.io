@@ -52,7 +52,7 @@ SKIP_DOMAINS = {
     "//www.bloomberg.com/",
     "//dl.acm.org/",
     "//dbdb.io/",
-    "//www.linkedin.com/",
+    # "//www.linkedin.com/",
     "//docs.4d.com/",
     "//doc.4d.com/",
     '//git-wip-us.apache.org',

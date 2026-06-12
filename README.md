@@ -5,6 +5,7 @@
 ## Installation
 
 ```bash
+sudo apt-get install build-essential libffi-dev libpq-dev python3-dev postgresql-common-dev libcairo2
 uv sync
 ```
 

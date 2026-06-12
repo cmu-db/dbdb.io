@@ -221,7 +221,8 @@ class CitationUrlAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
     list_display = ('id', 'url_display', 'status', 'has_content', 'last_title', 'last_statuscode', 'last_modified', 'last_checked')
     search_fields = ('id', 'url', 'last_title')
-    list_filter = ['status', CitationUrlHasContentFilter, 'last_checked', 'last_modified', 'last_statuscode']
+    list_filter = ['status', CitationUrlHasContentFilter, 'created', 'last_checked', 'last_modified', 'last_statuscode']
+    readonly_fields = ['created']
     inlines = [CitationUrlContentInline]
 
     def get_queryset(self, request):

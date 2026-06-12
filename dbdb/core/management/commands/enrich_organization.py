@@ -93,6 +93,10 @@ class Command(EnricherBaseCommand):
     def add_arguments(self, parser: ArgumentParser):
         super().add_arguments(parser)
         org_type_choices = [m.name.lower() for m in OrgType]
+        parser.add_argument('--search-type', choices=org_type_choices, default=None,
+                            metavar='TYPE',
+                            help=f'Only search for organizations with this type. '
+                                 f'Choices: {", ".join(org_type_choices)}')
         parser.add_argument('--set-type', choices=org_type_choices, default=None,
                             metavar='TYPE',
                             help=f'Directly set org_type without invoking the LLM. '
@@ -100,17 +104,27 @@ class Command(EnricherBaseCommand):
 
     def handle(self, *args, **options):
         seen = {}
-        for keyword in options['keywords']:
-            qs = Organization.objects.filter(slug=keyword)
-            if not qs.exists():
-                qs = Organization.objects.filter(slug__icontains=keyword)
-            if not qs.exists():
-                qs = Organization.objects.filter(name__icontains=keyword)
-            if not qs.exists():
-                raise CommandError(f"No organization found matching '{keyword}'")
+
+        # HACK
+        if "search_type" in options:
+            org_type = OrgType[options['search_type'].upper()]
+            qs = Organization.objects.filter(org_type=org_type)
             for org in qs:
                 seen.setdefault(org.pk, org)
+        else:
+            for keyword in options['keywords']:
+                qs = Organization.objects.filter(slug=keyword)
+                if not qs.exists():
+                    qs = Organization.objects.filter(slug__icontains=keyword)
+                if not qs.exists():
+                    qs = Organization.objects.filter(name__icontains=keyword)
+                if not qs.exists():
+                    raise CommandError(f"No organization found matching '{keyword}'")
+                for org in qs:
+                    seen.setdefault(org.pk, org)
+        import random
         orgs = list(seen.values())
+        random.shuffle(orgs)
 
         if options['set_type']:
             member = OrgType[options['set_type'].upper()]

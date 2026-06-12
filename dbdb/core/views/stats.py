@@ -25,7 +25,7 @@ StatItem = collections.namedtuple('StatItem', ['label', 'value', 'slug', 'url'])
 class StatsView(View):
 
     template_name = 'core/stats.html'
-    default_limit = 30
+    default_limit = 50
     is_privileged = False
 
     def get_bycountries(self, limit):
