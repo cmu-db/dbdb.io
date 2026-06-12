@@ -1175,6 +1175,8 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .citation-archive:hover .cite-meta { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .citation-link:hover { text-decoration: underline dotted; text-underline-offset: 3px; }
 .cite-body .btn { font-size: .58rem; padding: .1rem .4rem; letter-spacing: .05em; }
+.btn-row-remove { background: transparent; border: none; padding: 0; cursor: pointer; color: var(--ink); line-height: 1; }
+.btn-row-remove:hover { color: var(--accent); }
 
 .entry-foot {
   border-top: 1px solid var(--rule);
@@ -1477,7 +1479,7 @@ div.systems-extra { margin-top: 20px; }
 }
 
 /* Floating action button — jump to save box (mobile only, hidden at md+) */
-.fab-save { width: 2.25rem; height: 2.25rem; font-size: 1rem; }
+.fab-save { width: 2.6rem; height: 2.6rem; font-size: 1.4rem; }
 
 /* ============================================================
    DOCUMENTATION PAGES

@@ -114,7 +114,7 @@
                 <div class="developer-org-row row g-2 mb-2 align-items-center">
                     <div class="col-11">{{ form.organization }}</div>
                     <div class="col-1 text-center">
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeDeveloperOrgRow(this)" title="Remove">×</button>
+                        <button type="button" class="btn-row-remove" onclick="removeDeveloperOrgRow(this)" title="Remove"><i class="fa-solid fa-circle-xmark"></i></button>
                         <span class="d-none">{{ form.DELETE }}</span>
                     </div>
                 </div>
@@ -124,7 +124,7 @@
                     <div class="developer-org-row row g-2 mb-2 align-items-center">
                         <div class="col-11"><input type="text" name="developer_orgs-__prefix__-organization" class="form-control" placeholder="Organization name" id="id_developer_orgs-__prefix__-organization"></div>
                         <div class="col-1 text-center">
-                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeDeveloperOrgRow(this)" title="Remove">×</button>
+                            <button type="button" class="btn-row-remove" onclick="removeDeveloperOrgRow(this)" title="Remove"><i class="fa-solid fa-circle-xmark"></i></button>
                             <span class="d-none"><input type="checkbox" name="developer_orgs-__prefix__-DELETE" id="id_developer_orgs-__prefix__-DELETE"></span>
                         </div>
                     </div>
@@ -148,13 +148,13 @@
                 <div class="acquisition-row row g-2 mb-2 align-items-center {% if not forloop.first %}mt-1 border-top{% endif %}">
                     <div class="col-11 col-md-5">{{ form.organization }}</div>
                     <div class="col-1 d-md-none text-center">
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeAcquisitionRow(this)" title="Remove">×</button>
+                        <button type="button" class="btn-row-remove" onclick="removeAcquisitionRow(this)" title="Remove"><i class="fa-solid fa-circle-xmark"></i></button>
                         <span class="d-none">{{ form.DELETE }}</span>
                     </div>
                     <div class="col-12 col-md-2">{{ form.year }}</div>
                     <div class="col-12 col-md-4">{{ form.citation_url }}</div>
                     <div class="d-none d-md-block col-md-1 text-center">
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeAcquisitionRow(this)" title="Remove">×</button>
+                        <button type="button" class="btn-row-remove" onclick="removeAcquisitionRow(this)" title="Remove"><i class="fa-solid fa-circle-xmark"></i></button>
                         <span class="d-none">{{ form.DELETE }}</span>
                     </div>
                 </div>
@@ -166,7 +166,7 @@
                         <div class="col-md-2"><input type="number" name="acquisitions-__prefix__-year"          class="form-control" placeholder="Year"              id="id_acquisitions-__prefix__-year"></div>
                         <div class="col-md-4"><input type="url"    name="acquisitions-__prefix__-citation_url"  class="form-control" placeholder="https://…"         id="id_acquisitions-__prefix__-citation_url"></div>
                         <div class="col-1 text-center">
-                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeAcquisitionRow(this)" title="Remove">×</button>
+                            <button type="button" class="btn-row-remove" onclick="removeAcquisitionRow(this)" title="Remove"><i class="fa-solid fa-circle-xmark"></i></button>
                             <span class="d-none"><input type="checkbox" name="acquisitions-__prefix__-DELETE" id="id_acquisitions-__prefix__-DELETE"></span>
                         </div>
                     </div>
@@ -355,7 +355,7 @@
         const row = document.createElement('div');
         row.className = 'citation-url-row row g-2 mb-1 align-items-center';
         row.innerHTML = '<div class="col"><input type="url" class="form-control citation-url-input" placeholder="https://…"></div>'
-                      + '<div class="col-auto"><button type="button" class="btn btn-sm btn-outline-danger" onclick="removeCitationRow(this)">&times;</button></div>';
+                      + '<div class="col-auto"><button type="button" class="btn-row-remove" onclick="removeCitationRow(this)"><i class="fa-solid fa-circle-xmark"></i></button></div>';
         rows.appendChild(row);
         const input = row.querySelector('.citation-url-input');
         initCitationUrlAutocomplete(input);

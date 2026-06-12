@@ -37,7 +37,7 @@ class CitationUrlListWidget(Widget):
             f'<input type="url" class="form-control citation-url-input" value="{html_lib.escape(url)}" placeholder="https://…">'
             '</div>'
             '<div class="col-auto">'
-            '<button type="button" class="btn btn-sm btn-outline-danger" onclick="removeCitationRow(this)">&times;</button>'
+            '<button type="button" class="btn-row-remove" onclick="removeCitationRow(this)"><i class="fa-solid fa-circle-xmark"></i></button>'
             '</div>'
             '</div>'
             for url in url_list
