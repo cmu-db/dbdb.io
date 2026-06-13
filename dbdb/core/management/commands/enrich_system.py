@@ -31,6 +31,7 @@ from dbdb.core.models import (
 )
 from dbdb.core.utils.citations import crawl_citation_url, normalize_url, process_citation_url
 from dbdb.core.utils.enrichment import BaseEnricher, SYSTEM_ENRICHMENT_TOOL
+from dbdb.core.utils.repositories import GitHubCollector
 from dbdb.core.utils.versions import clone_system_version
 
 LOG = logging.getLogger(__name__)
@@ -189,6 +190,22 @@ class Command(EnricherBaseCommand):
             self.stdout.write("Crawling existing URLs...")
             crawled_pages = _crawl_existing_urls(current, system, recrawl_after=options['recrawl_after'], skip_spamcheck=options['skip_spamcheck'])
             self.stdout.write(f"  Crawled {len(crawled_pages)} page(s)")
+
+        # --- 3b. Fetch README from GitHub source repo ---
+        sourcerepo: CitationUrl | None = current.sourcerepo_url
+        if sourcerepo and 'github.com' in sourcerepo.url.lower():
+            try:
+                token = getattr(settings, 'GITHUB_API_TOKEN', None) or None
+                collector = GitHubCollector(token=token, delete_on_exit=False)
+                collector.clone_url(sourcerepo.url, pull=False)
+                readme = collector.get_readme()
+                if readme:
+                    crawled_pages[f"{sourcerepo.url}/README.md"] = readme
+                    self.stdout.write(f"  Fetched README.md from {sourcerepo.url} ({len(readme):,} chars)")
+                else:
+                    self.stdout.write(f"  No README.md found in {sourcerepo.url}")
+            except Exception:
+                LOG.warning("Could not fetch README from %s", sourcerepo.url, exc_info=True)
 
         # --- 4. Load taxonomy ---
         features = list(Feature.objects.prefetch_related('options').order_by('category', 'label'))

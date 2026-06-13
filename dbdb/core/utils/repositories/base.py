@@ -211,6 +211,16 @@ class RepoCollector(ABC):
         self.log.debug("get_commit_metadata: timestamp=%s message=%r", timestamp, message[:80])
         return message, timestamp
 
+    def get_readme(self) -> str | None:
+        """Return the contents of README.md from the root of the cloned repository, or None."""
+        if not self._repo_dir:
+            return None
+        readme_path = os.path.join(self._repo_dir, 'README.md')
+        if not os.path.isfile(readme_path):
+            return None
+        with open(readme_path, encoding='utf-8', errors='replace') as fh:
+            return fh.read()
+
     def get_first_commit_timestamp(self) -> datetime | None:
         """Return the timestamp of the earliest commit across all branches in self._repo."""
         refs = list(self._repo.references)
