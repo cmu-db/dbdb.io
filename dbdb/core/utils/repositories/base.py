@@ -184,6 +184,23 @@ class RepoCollector(ABC):
         self.log.debug("get_commit_metadata: timestamp=%s message=%r", timestamp, message[:80])
         return message, timestamp
 
+    def get_first_commit_timestamp(self) -> datetime | None:
+        """Return the timestamp of the earliest commit across all branches in self._repo."""
+        refs = list(self._repo.references)
+        self.log.debug("get_first_commit_timestamp: scanning %d refs", len(refs))
+        seen: set[str] = set()
+        earliest: datetime | None = None
+        for ref in refs:
+            for commit in self._repo.iter_commits(ref):
+                if commit.hexsha in seen:
+                    continue
+                seen.add(commit.hexsha)
+                ts = datetime.fromtimestamp(commit.committed_date, tz=UTC)
+                if earliest is None or ts < earliest:
+                    earliest = ts
+        self.log.debug("get_first_commit_timestamp: earliest=%s (across %d unique commits)", earliest, len(seen))
+        return earliest
+
     def get_all_author_emails(self) -> list[str]:
         """Return unique author emails from all commits across all refs.
 
