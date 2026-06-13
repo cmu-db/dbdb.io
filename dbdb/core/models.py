@@ -1121,7 +1121,7 @@ def system_pre_delete(sender, instance, **kwargs):
     Deduplicates by file name so shared logos are only deleted once.
     """
     seen: set[str] = set()
-    for sv in instance.systemversion_set.exclude(logo=''):
+    for sv in instance.versions.exclude(logo=''):
         name = sv.logo.name if sv.logo else ''
         if not name or name in seen:
             continue

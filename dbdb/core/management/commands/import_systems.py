@@ -253,7 +253,7 @@ class Command(DbdbBaseCommand):
         skipped  = len(results) - imported
 
         self.stdout.write('')
-        _print_results_table(self.stdout.write, results)
+        _print_results_table(self.stdout.write, sorted(results, key=lambda r: (r.get('logo', '') == '', r.get('logo', ''))))
         self.stdout.write(self.style.SUCCESS(
             f"\nDone: {imported} imported, {skipped} skipped, {len(results)} total rows"
         ))
@@ -310,12 +310,14 @@ class Command(DbdbBaseCommand):
                 system=system,
                 creator=creator,
                 approved=approved,
-                comment='Imported via import_systems command',
+                comment=f"Imported of new system {system.name}",
                 system_url=system_cite,
                 sourcerepo_url=sourcerepo_cite,
                 wikipedia_url=wikipedia_cite,
                 docs_url=docs_cite,
             )
+            if sv.sourcerepo_url and open_source_opt:
+                sv.project_types.add(open_source_opt)
 
             if logo_path:
                 with open(logo_path, 'rb') as f:
@@ -323,8 +325,5 @@ class Command(DbdbBaseCommand):
                     sv.save()
             else:
                 sv.save()
-
-            if sv.sourcerepo_url and open_source_opt:
-                sv.project_types.add(open_source_opt)
 
         return result
