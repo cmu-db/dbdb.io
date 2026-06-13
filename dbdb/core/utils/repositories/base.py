@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import dataclasses
 import logging
+import os
 import re
-import tempfile
+import shutil
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
@@ -108,19 +109,22 @@ class RepoCollector(ABC):
         # '@users.noreply.github.com',
     )
 
-    def __init__(self, token: str | None = None) -> None:
+    _CLONE_ROOT: ClassVar[str] = '/tmp/dbdb'
+
+    def __init__(self, token: str | None = None, *, delete_on_exit: bool = False) -> None:
         self.token = token
+        self.delete_on_exit = delete_on_exit
         self.session = self._make_session(token)
         self.log = logging.getLogger(type(self).__module__)
-        self._tmpdir: tempfile.TemporaryDirectory | None = None
+        self._repo_dir: str | None = None
         self._repo = None  # git.Repo once clone_url() is called
 
     def __del__(self) -> None:
-        tmpdir = getattr(self, '_tmpdir', None)
-        if tmpdir is not None:
-            self.log.debug("__del__: cleaning up temp directory")
-            tmpdir.cleanup()
-            self._tmpdir = None
+        repo_dir = getattr(self, '_repo_dir', None)
+        if repo_dir and self.delete_on_exit and os.path.isdir(repo_dir):
+            self.log.debug("__del__: removing cloned repository at %s", repo_dir)
+            shutil.rmtree(repo_dir, ignore_errors=True)
+            self._repo_dir = None
 
     @abstractmethod
     def _make_session(self, token: str | None) -> requests.Session: ...
@@ -135,6 +139,12 @@ class RepoCollector(ABC):
 
     # ── git clone / local repo helpers ───────────────────────────────────
 
+    def fetch_latest(self) -> None:
+        """Fetch the latest commits from all remotes in the locally cloned repository."""
+        self.log.debug("fetch_latest: fetching all remotes in %s", self._repo_dir)
+        self._repo.git.fetch('--all')
+        self.log.debug("fetch_latest: fetch complete")
+
     def clone_url(
         self,
         url: str,
@@ -142,25 +152,42 @@ class RepoCollector(ABC):
         depth: int | None = None,
         commit: str | None = None,
         all_branches: bool = False,
+        pull: bool = False,
     ) -> None:
-        """Clone or fetch url into a managed temp directory using gitpython.
+        """Clone or fetch *url* into /tmp/dbdb/<reponame> using gitpython.
 
+        If the directory already exists it is reused without re-cloning.
+        Pass pull=True to fetch the latest commits when reusing an existing clone.
         Call with commit=<sha> to do a shallow fetch of a single commit.
         Call with all_branches=True to clone every branch (for email harvesting).
-        Any previous temp directory is cleaned up before the new clone.
+        The clone is only removed on instance destruction when delete_on_exit=True.
         """
         import git as gitpkg
-        if self._tmpdir is not None:
-            self.log.debug("clone_url: replacing existing temp directory for %s", url)
-            self._tmpdir.cleanup()
-        self._tmpdir = tempfile.TemporaryDirectory()
+
+        # Derive a stable name from the last path component of the URL.
+        name = url.rstrip('/').split('/')[-1]
+        if name.endswith('.git'):
+            name = name[:-4]
+        repo_dir = os.path.join(self._CLONE_ROOT, name)
+        os.makedirs(self._CLONE_ROOT, exist_ok=True)
+
+        self._repo_dir = repo_dir
+
+        if os.path.isdir(repo_dir):
+            self.log.debug("clone_url: reusing existing clone at %s", repo_dir)
+            self._repo = gitpkg.Repo(repo_dir)
+            if pull:
+                self.fetch_latest()
+            return
+
         # Disable all interactive credential prompts. Any URL that requires
         # authentication will cause git to exit non-zero immediately, which
         # gitpython raises as GitCommandError — treated as unavailable/dead.
         no_prompt = {'GIT_TERMINAL_PROMPT': '0'}
         if commit:
             self.log.debug("clone_url: bare init + shallow fetch commit %s from %s", commit, url)
-            self._repo = gitpkg.Repo.init(self._tmpdir.name)
+            os.makedirs(repo_dir)
+            self._repo = gitpkg.Repo.init(repo_dir)
             self._repo.git.update_environment(**no_prompt)
             depth_arg = f'--depth={depth}' if depth is not None else '--depth=1'
             self._repo.git.fetch(depth_arg, url, commit)
@@ -172,7 +199,7 @@ class RepoCollector(ABC):
             if all_branches:
                 clone_kwargs['no_single_branch'] = True
             self.log.debug("clone_url: cloning %s (all_branches=%s, depth=%s)", url, all_branches, depth)
-            self._repo = gitpkg.Repo.clone_from(url, self._tmpdir.name, **clone_kwargs)
+            self._repo = gitpkg.Repo.clone_from(url, repo_dir, **clone_kwargs)
             self.log.debug("clone_url: clone complete, %d refs", len(list(self._repo.references)))
 
     def get_commit_metadata(self, commit_id: str) -> tuple[str, datetime]:

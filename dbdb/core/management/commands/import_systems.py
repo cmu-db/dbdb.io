@@ -49,6 +49,7 @@ from django.db.models import Q
 from dbdb.core.management.base import DbdbBaseCommand
 from dbdb.core.models import AttributeOption, CitationUrl, Organization, System, SystemVersion
 from dbdb.core.utils.citations import normalize_url, process_citation_url
+from dbdb.core.utils.repositories import GitHubCollector
 
 LOG = logging.getLogger(__name__)
 User = get_user_model()
@@ -138,6 +139,19 @@ def _get_or_create_org(name: str, *, dry_run: bool) -> 'Organization | None':
     if dry_run:
         return Organization(name=name, slug=slug)
     return Organization.objects.create(name=name, slug=slug)
+
+
+def _get_github_start_year(repo_url: str) -> int | None:
+    """Clone (or reuse) a GitHub repo and return the year of its first commit."""
+    try:
+        token = getattr(settings, 'GITHUB_API_TOKEN', None) or None
+        collector = GitHubCollector(token=token, delete_on_exit=False)
+        collector.clone_url(repo_url, all_branches=True, pull=False)
+        ts = collector.get_first_commit_timestamp()
+        return ts.year if ts else None
+    except Exception:
+        LOG.warning("Could not determine start year from %r", repo_url, exc_info=True)
+        return None
 
 
 def _get_or_create_citation(
@@ -354,6 +368,17 @@ class Command(DbdbBaseCommand):
         system_url_str = field_values.get('system_url', '')
         if 'github.com' in system_url_str.lower() and 'sourcerepo_url' not in cite_map:
             cite_map['sourcerepo_url'] = cite_map.get('system_url')
+
+        # If start_year is absent and the source repo is on GitHub, infer it from
+        # the first commit in the cloned repository.
+        if 'start_year' not in field_values:
+            sourcerepo_cite = cite_map.get('sourcerepo_url')
+            sourcerepo_url_str = sourcerepo_cite.url if sourcerepo_cite else ''
+            if 'github.com' in sourcerepo_url_str.lower():
+                year = _get_github_start_year(sourcerepo_url_str)
+                if year:
+                    field_values = {**field_values, 'start_year': str(year)}
+                    self.stdout.write(f"  [{name}] inferred start_year={year} from first commit")
 
         # Resolve AttributeOption M2M fields — done before the dry-run return so that
         # match errors are always surfaced and the result table shows resolved values.
