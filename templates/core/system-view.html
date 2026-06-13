@@ -118,7 +118,9 @@
         {% endif %}
         {% if version.countries %}
         <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
-        <div class="fact"><dt>Country of Origin</dt><dd>{% for country in version.countries %}{% if not forloop.first %}, {% endif %}<a href="{% url 'browse' %}?country={{ country.code }}"><i class="{{ country.flag_css }}"></i> {{ country }}</a>{% endfor %}</dd></div>
+        <div class="fact">
+            <dt>Country of Origin</dt>
+            <dd>{% for country in version.countries %}{% if not forloop.first %}, {% endif %}<a href="{% url 'browse' %}?country={{ country.code }}" title="View Systems from {{ country.name }}"><i class="{{ country.flag_css }}"></i> {{ country }}</a>{% endfor %}</dd></div>
         {% endif %}
 
         {% if version.start_year %}
