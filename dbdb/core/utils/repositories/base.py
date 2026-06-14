@@ -103,7 +103,7 @@ class RepoCollector(ABC):
     URL_PATTERN: ClassVar[re.Pattern]
     API_SLEEP:   ClassVar[int] = 10      # seconds to sleep before each request
 
-    # Email suffixes to skip during get_all_author_emails(). Subclasses may
+    # Email suffixes to skip during get_author_emails(). Subclasses may
     # extend this list with host-specific noreply domains.
     IGNORED_EMAIL_SUFFIXES: ClassVar[tuple[str, ...]] = (
         # '@users.noreply.github.com',
@@ -238,13 +238,19 @@ class RepoCollector(ABC):
         self.log.debug("get_first_commit_timestamp: earliest=%s (across %d unique commits)", earliest, len(seen))
         return earliest
 
-    def get_all_author_emails(self) -> list[str]:
-        """Return unique author emails from all commits across all refs.
+    def get_author_emails(self, branch: str | None = None) -> list[str]:
+        """Return unique author emails from commits in the cloned repository.
 
+        If *branch* is given, only commits reachable from that branch are
+        walked. If *branch* is None, all refs are walked.
         Emails ending with any suffix in IGNORED_EMAIL_SUFFIXES are skipped.
         """
-        refs = list(self._repo.references)
-        self.log.debug("get_all_author_emails: walking %d refs", len(refs))
+        if branch:
+            refs = [self._repo.refs[branch]]
+            self.log.debug("get_author_emails: walking branch %r", branch)
+        else:
+            refs = list(self._repo.references)
+            self.log.debug("get_author_emails: walking %d refs", len(refs))
         seen: set[str] = set()
         result: list[str] = []
         ignored = 0
@@ -254,13 +260,13 @@ class RepoCollector(ABC):
                 if not email or email in seen:
                     continue
                 if email.endswith(self.IGNORED_EMAIL_SUFFIXES):
-                    self.log.debug("get_all_author_emails: ignoring %s", email)
+                    self.log.debug("get_author_emails: ignoring %s", email)
                     ignored += 1
                     continue
                 seen.add(email)
                 result.append(email)
         self.log.debug(
-            "get_all_author_emails: found %d unique author emails (%d ignored)",
+            "get_author_emails: found %d unique author emails (%d ignored)",
             len(result), ignored,
         )
         return result

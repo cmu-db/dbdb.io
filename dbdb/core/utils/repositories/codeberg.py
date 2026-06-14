@@ -141,7 +141,7 @@ class CodebergCollector(RepoCollector):
         # ── commit authors via local git clone (all branches) ────────────
         try:
             self.clone_url(repo_url, all_branches=True)
-            snap.commit_authors = self.get_all_author_emails()
+            snap.commit_authors = self.get_author_emails(snap.branch_default_name or None)
         except Exception as exc:
             snap.errors.append(exc)
 
