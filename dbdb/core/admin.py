@@ -351,14 +351,19 @@ def _make_set_org_type_action(member: OrgType):
 @admin.register(Organization)
 class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
     form = OrganizationAdminForm
-    list_display = ('id', 'name', 'slug', 'org_type', 'url', 'countries', 'created', 'modified')
+    list_display = ('id', 'name', 'slug', 'org_type', 'description', 'stock_symbol', 'countries', 'created', 'modified')
     list_filter = ['org_type', 'stock_exchange', 'created', 'modified', OrgDevelopedSystemsFilter, OrgAcquisitionsFilter]
     search_fields = ('name', 'stock_symbol')
     readonly_fields = ('created', 'modified')
     prepopulated_fields = {'slug': ('name',)}
     ordering = ('name',)
     inlines = [OrgDeveloperOrgsInline, OrgAcquisitionInline]
-    actions = [f'set_org_type_{m.name.lower()}' for m in OrgType]
+    actions = ['clear_description'] + [f'set_org_type_{m.name.lower()}' for m in OrgType]
+
+    @admin.action(description='Clear Description')
+    def clear_description(self, request, queryset):
+        updated = queryset.update(description='')
+        self.message_user(request, f"Cleared description on {updated} organization(s).")
 
 
 for _m in OrgType:
