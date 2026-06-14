@@ -18,12 +18,13 @@ from datetime import timedelta
 from django.contrib.postgres.fields import ArrayField
 from django.core.management.base import CommandError
 from django.db import models
+from django.db.models import Count
 from django.urls import reverse
 from django.utils import timezone
 from django_countries.fields import CountryField
 
 from dbdb.core.management.base import EnricherBaseCommand
-from dbdb.core.models import CitationUrl, Organization, OrgType, StockExchange
+from dbdb.core.models import CitationUrl, Organization, OrgType, StockExchange, SystemVersion
 from dbdb.core.utils.citations import crawl_citation_url, normalize_url, process_citation_url
 from dbdb.core.utils.enrichment import BaseEnricher, build_org_enrichment_tool
 
@@ -264,6 +265,25 @@ class Command(EnricherBaseCommand):
             LOG.info("Clearing description: org_type is Individual")
             org.description = ''
             dirty = True
+
+        # If the org has no country, look for a current SystemVersion where this
+        # org is the only developer and that SV has exactly one country — if found,
+        # copy that country to the org.
+        if not org.countries:
+            sv = (
+                SystemVersion.objects
+                .filter(is_current=True, developer_orgs=org)
+                .annotate(dev_org_count=Count('developer_orgs'))
+                .filter(dev_org_count=1)
+                .first()
+            )
+            if sv and len(sv.countries) == 1:
+                org.countries = list(sv.countries)
+                dirty = True
+                self.stdout.write(
+                    f"  Inferred countries={list(org.countries)} "
+                    f"from SystemVersion '{sv.system.name}'"
+                )
 
         if dirty:
             org.save()
