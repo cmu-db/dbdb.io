@@ -353,7 +353,7 @@ class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
     form = OrganizationAdminForm
     list_display = ('id', 'name', 'slug', 'org_type', 'description', 'stock_symbol', 'countries', 'created', 'modified')
     list_filter = ['org_type', 'stock_exchange', 'created', 'modified', OrgDevelopedSystemsFilter, OrgAcquisitionsFilter]
-    search_fields = ('name', 'stock_symbol')
+    search_fields = ('name', 'slug', 'stock_symbol')
     readonly_fields = ('created', 'modified')
     prepopulated_fields = {'slug': ('name',)}
     ordering = ('name',)

@@ -149,7 +149,7 @@ SYSTEM_ENRICHMENT_TOOL = {
 _ORG_FIELD_SCHEMAS: dict[str, dict] = {
     "description": {
         "type": "string",
-        "description": "One sentence description of the organization.",
+        "description": "One sentence description of the organization. It should be about a company or individual. It should not be about the database system that the company/individual is building. It should only be about the organization.",
     },
     "url": {
         "type": "string",

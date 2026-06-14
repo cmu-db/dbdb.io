@@ -286,7 +286,8 @@ class OrgType(models.IntegerChoices):
     UNIVERSITY   = 2, 'University'
     INDIVIDUAL   = 3, 'Individual'
     RESEARCH_LAB = 4, 'Research Lab'
-    NONPROFT     = 5, 'Non-profit Corporation'
+    NONPROFT     = 5, 'Non-profit'
+    GOVERNMENT   = 6, 'Government'
 
     @property
     def icon(self):
@@ -296,6 +297,7 @@ class OrgType(models.IntegerChoices):
             3: 'fa-solid fa-person',
             4: 'fa-solid fa-flask',
             5: 'fa-solid fa-building-ngo',
+            6: 'fa-solid fa-landmark-dome',
         }.get(self.value, '')
 
 

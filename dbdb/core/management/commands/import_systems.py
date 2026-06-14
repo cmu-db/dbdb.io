@@ -428,7 +428,7 @@ class Command(DbdbBaseCommand):
                 system=system,
                 creator=creator,
                 approved=approved,
-                comment=f'Imported via import_systems command',
+                comment=f'Created new system via bulk import',
                 **{f: cite_map[f] for f in _URL_FIELDS if f in cite_map},
             )
 

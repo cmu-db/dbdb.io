@@ -226,7 +226,7 @@ a:hover { color: var(--accent); }
 .label {
   font-family: var(--mono);
   text-transform: uppercase;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.1em;
   font-size: 0.66rem;
   font-weight: 500;
   color: var(--muted);
