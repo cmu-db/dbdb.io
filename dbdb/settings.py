@@ -250,6 +250,7 @@ DBDB_HOME_LISTINGS_NUM_ENTRIES   = 5
 DBDB_HOME_SAVEDSEARCH_NUM_ENTRIES = 3
 
 # Repository scanning (collect_repo_info management command)
+DBDB_SOURCEREPO_DIRECTORY = env('DBDB_SOURCEREPO_DIRECTORY', default='/tmp/dbdb/')
 GITHUB_API_TOKEN   = env('GITHUB_API_TOKEN',   default='')
 GITLAB_API_TOKEN   = env('GITLAB_API_TOKEN',   default='')
 CODEBERG_API_TOKEN = env('CODEBERG_API_TOKEN', default='')

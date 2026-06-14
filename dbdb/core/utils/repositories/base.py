@@ -12,6 +12,7 @@ from datetime import UTC, datetime
 from typing import ClassVar
 
 import requests
+from django.conf import settings
 
 
 @dataclass
@@ -115,7 +116,9 @@ class RepoCollector(ABC):
         'dependabot',
     )
 
-    _CLONE_ROOT: ClassVar[str] = '/tmp/dbdb'
+    @property
+    def _CLONE_ROOT(self) -> str:
+        return settings.DBDB_SOURCEREPO_DIRECTORY.rstrip('/')
 
     def __init__(self, token: str | None = None, *, delete_on_exit: bool = False) -> None:
         self.token = token
