@@ -109,6 +109,12 @@ class RepoCollector(ABC):
         # '@users.noreply.github.com',
     )
 
+    # Branch name prefixes to skip during get_author_emails(). Refs whose
+    # short name starts with any of these are excluded from the walk.
+    IGNORED_BRANCH_PREFIXES: ClassVar[tuple[str, ...]] = (
+        'dependabot',
+    )
+
     _CLONE_ROOT: ClassVar[str] = '/tmp/dbdb'
 
     def __init__(self, token: str | None = None, *, delete_on_exit: bool = False) -> None:
@@ -246,10 +252,16 @@ class RepoCollector(ABC):
         Emails ending with any suffix in IGNORED_EMAIL_SUFFIXES are skipped.
         """
         if branch:
+            if branch.startswith(self.IGNORED_BRANCH_PREFIXES):
+                self.log.debug("get_author_emails: skipping ignored branch %r", branch)
+                return []
             refs = [self._repo.refs[branch]]
             self.log.debug("get_author_emails: walking branch %r", branch)
         else:
-            refs = list(self._repo.references)
+            refs = [
+                r for r in self._repo.references
+                if not r.name.startswith(self.IGNORED_BRANCH_PREFIXES)
+            ]
             self.log.debug("get_author_emails: walking %d refs", len(refs))
         seen: set[str] = set()
         result: list[str] = []
