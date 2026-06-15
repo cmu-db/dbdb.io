@@ -262,6 +262,18 @@ class Command(EnricherBaseCommand):
         valid_citations = enricher.validate_citations(raw_citations, system, skip_spamcheck=options['skip_spamcheck'])
         self.stdout.write(f"  {len(valid_citations)}/{len(raw_citations)} citations valid")
 
+        # Drop citations that are simply the system's own known URLs — those are
+        # already stored as FK fields and should not also appear as free citations.
+        known_urls = {
+            c.url
+            for field in URL_FK_FIELDS
+            if (c := getattr(current, field)) is not None
+        }
+        before = len(valid_citations)
+        valid_citations = {url: val for url, val in valid_citations.items() if url not in known_urls}
+        if len(valid_citations) < before:
+            self.stdout.write(f"  Excluded {before - len(valid_citations)} known system URL(s) from citations")
+
         # --- 7. Dry-run exit ---
         if dry_run:
             return
@@ -295,7 +307,7 @@ class Command(EnricherBaseCommand):
             for field in INT_FIELDS:
                 if field in missing_fields:
                     val = enrichment.get(field)
-                    if val is not None:
+                    if val:
                         try:
                             setattr(new_sv, field, int(val))
                             dirty = True
@@ -342,6 +354,7 @@ class Command(EnricherBaseCommand):
                     continue
                 slugs = enrichment.get(field, [])
                 if not slugs:
+                    self.stdout.write(f"  attr  {field}: (empty, skipping)")
                     continue
                 opts = list(
                     AttributeOption.objects.filter(
@@ -351,6 +364,9 @@ class Command(EnricherBaseCommand):
                 )
                 if opts:
                     getattr(new_sv, field).set(opts)
+                    self.stdout.write(f"  attr  {field}: {', '.join(o.value for o in opts)}")
+                else:
+                    self.stdout.write(f"  attr  {field}: no matching options for slugs {slugs}")
 
             # Attach citations to citation M2M fields
             for norm_url, (cite_obj, fields) in valid_citations.items():
@@ -358,6 +374,7 @@ class Command(EnricherBaseCommand):
                     cite_m2m = FIELD_CITATION_MAP.get(field)
                     if cite_m2m:
                         getattr(new_sv, cite_m2m).add(cite_obj)
+                        self.stdout.write(f"  cite  {field}: {norm_url}")
 
             # Create SystemFeature rows for suggested features
             feat_suggestions = enrichment.get('features', {})
@@ -377,6 +394,7 @@ class Command(EnricherBaseCommand):
                     )
                 )
                 if not opts:
+                    self.stdout.write(f"  feat  {feat_slug}: no matching options for slugs {option_slugs}")
                     LOG.warning(f"No matching options for feature {feat_slug}: {option_slugs}")
                     continue
                 sf, _ = SystemFeature.objects.get_or_create(
@@ -385,6 +403,7 @@ class Command(EnricherBaseCommand):
                     defaults={'system': None},
                 )
                 sf.options.set(opts)
+                self.stdout.write(f"  feat  {feature.label}: {', '.join(o.value for o in opts)}")
 
         verb = "Updated" if existing_pending else "Created"
         self.stdout.write(self.style.SUCCESS(
