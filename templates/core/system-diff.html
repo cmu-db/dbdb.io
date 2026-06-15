@@ -94,6 +94,9 @@
                 {% endfor %}
             </div>
             {% endif %}
+            {% if fd.v1.system %}
+            <div class="diff-col-text small text-muted">Inherits: {{ fd.v1.system }}</div>
+            {% endif %}
             {% if fd.v1.description %}
             <div class="diff-col-text">{% if fd.v1_desc_html %}{{ fd.v1_desc_html|safe }}{% else %}{{ fd.v1.description }}{% endif %}</div>
             {% endif %}
@@ -104,7 +107,7 @@
                 {% endfor %}
             </ol>
             {% endif %}
-            {% if not fd.v1.options and not fd.v1.description and not fd.citations.v1_items %}<span class="text-muted">&mdash;</span>{% endif %}
+            {% if not fd.v1.options and not fd.v1.system and not fd.v1.description and not fd.citations.v1_items %}<span class="text-muted">&mdash;</span>{% endif %}
         </td>
 
         {# v2 column #}
@@ -115,6 +118,12 @@
                 {% for o in fd.options_unchanged %}<span class="badge-section">{{ o }}</span>{% endfor %}
                 {% for o in fd.options_added %}<span class="diff-badge-add badge-section"><ins>{{ o }}</ins></span>{% endfor %}
             </div>
+            {% endif %}
+            {% if fd.v1.system != fd.v2.system %}
+                {% if fd.v1.system %}<div class="small"><del>Inherits: {{ fd.v1.system }}</del></div>{% endif %}
+                {% if fd.v2.system %}<div class="small"><ins>Inherits: {{ fd.v2.system }}</ins></div>{% endif %}
+            {% elif fd.v2.system %}
+            <div class="diff-col-text small text-muted">Inherits: {{ fd.v2.system }}</div>
             {% endif %}
             {% if fd.v2.description %}
             <div class="diff-col-text">{% if fd.v2_desc_html %}{{ fd.v2_desc_html|safe }}{% else %}{{ fd.v2.description }}{% endif %}</div>
@@ -129,7 +138,7 @@
                 {% endfor %}
             </ol>
             {% endif %}
-            {% if not fd.options_removed and not fd.options_unchanged and not fd.options_added and not fd.v2.description and not fd.citations.v2_items %}<span class="text-muted">&mdash;</span>{% endif %}
+            {% if not fd.options_removed and not fd.options_unchanged and not fd.options_added and not fd.v2.system and not fd.v2.description and not fd.citations.v2_items %}<span class="text-muted">&mdash;</span>{% endif %}
         </td>
     </tr>
     {% empty %}
