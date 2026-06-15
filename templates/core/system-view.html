@@ -316,20 +316,7 @@
 <div class="d-md-none mt-3">{% partial related %}</div>
 
 {% if citations %}
-<div class="citations-block">
-    <div class="sec-head"><h2>Citations</h2><span class="rule"></span><span class="num">{{ citations|length }} source{% if citations|length != 1 %}s{% endif %}</span></div>
-    <ol class="citations-list">
-        {% for c in citations %}
-        <li id="citation{{ forloop.counter }}">
-            <span class="cite-body">{% citation_link c %}
-                {% if request.user.is_superuser and c.status != Status.UNKNOWN %}
-                    <form method="post" action="{% url 'citation_reset_status' c.id %}" class="d-inline">{% csrf_token %}<input type="hidden" name="counter" value="{{ forloop.counter }}"><button type="submit" class="cite-meta btn" title="Reset status to Unknown"><i class="fas fa-rotate-left"></i> Reset Status</button></form>
-                {% endif %}
-            </span>
-        </li>
-        {% endfor %}
-    </ol>
-</div>
+    {% include 'core/citations-list.html' %}
 {% endif %}
 
 <div class="entry-foot pt-3 mt-3">
