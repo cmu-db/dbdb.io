@@ -97,7 +97,6 @@ class Command(DbdbBaseCommand):
         seen_citation_ids: set[int] = set()
         ok = err = skipped = 0
         first = True
-        last_was_skipped = False
 
         if versions.count() == 0:
             LOG.warning(f"No systems found!")
@@ -106,7 +105,6 @@ class Command(DbdbBaseCommand):
             citation = ver.sourcerepo_url
             if citation.id in seen_citation_ids:
                 LOG.debug("Skipping duplicate citation: %s", citation.url)
-                last_was_skipped = True
                 continue
             seen_citation_ids.add(citation.id)
 
@@ -114,7 +112,6 @@ class Command(DbdbBaseCommand):
             if not repo_info.enabled:
                 LOG.debug("Skipping disabled repo: %s", citation.url)
                 skipped += 1
-                last_was_skipped = True
                 continue
 
             if ignore_days is not None and repo_info.last_snapshot is not None:
@@ -125,15 +122,12 @@ class Command(DbdbBaseCommand):
                         age.days, citation.url,
                     )
                     skipped += 1
-                    last_was_skipped = True
                     continue
 
-            if sleep_secs > 0 and not first and not last_was_skipped:
+            if sleep_secs > 0 and not first:
                 LOG.debug("Sleeping %d seconds before next repo...", sleep_secs)
                 time.sleep(sleep_secs)
             first = False
-            last_was_skipped = False
-
             self.stdout.write(f"{ver.system.name}  {citation.url}")
 
             if no_collect:
@@ -141,7 +135,6 @@ class Command(DbdbBaseCommand):
                 if snapshot is None:
                     self.stderr.write(f"  Skipped — no existing snapshot")
                     skipped += 1
-                    last_was_skipped = True
                     continue
                 self.stdout.write(f"  (reusing snapshot #{snapshot.id} from {snapshot.created})")
                 ok += 1
@@ -151,7 +144,6 @@ class Command(DbdbBaseCommand):
                 except ValueError as exc:
                     self.stderr.write(f"  Skipped — {exc}")
                     skipped += 1
-                    last_was_skipped = True
                     continue
                 except Exception as exc:
                     self.stderr.write(f"  ERROR — {exc}")
