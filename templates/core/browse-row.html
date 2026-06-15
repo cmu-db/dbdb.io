@@ -36,7 +36,7 @@
         </td>
         {% elif col_val.type == 'attr_opts' %}
         <td class="r-model" data-sort-val="{% for opt in col_val.data %}{% if not forloop.first %} {% endif %}{{ opt.name }}{% endfor %}">
-            {% for opt in col_val.data %}{% if not forloop.first %}, {% endif %}{{ opt.name }}{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}
+            {% for opt in col_val.data %}{% if not forloop.first %}, {% endif %}{% if opt.icon %}<i class="{{ opt.icon }}"></i>{% endif %}{{ opt.name }}{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}
         </td>
         {% elif col_val.type == 'orgs' %}
         <td class="r-model" data-sort-val="{% for org in col_val.data %}{% if not forloop.first %} {% endif %}{{ org.name }}{% endfor %}">

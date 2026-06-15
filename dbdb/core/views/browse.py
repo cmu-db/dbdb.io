@@ -816,7 +816,7 @@ class BrowseView(View):
             sv_f = attr.sv_field
             key = 'col_' + col.col_id.replace('-', '_')
             results = results.annotate(**{key: JSONBAgg(
-                JSONObject(name=F(f'{sv_f}__name'), slug=F(f'{sv_f}__slug')),
+                JSONObject(name=F(f'{sv_f}__name'), slug=F(f'{sv_f}__slug'), icon=F(f'{sv_f}__icon')),
                 filter=Q(**{f'{sv_f}__isnull': False}),
                 distinct=True,
             )})
