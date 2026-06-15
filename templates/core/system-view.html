@@ -149,8 +149,7 @@
         {% if coding_agents %}
         <div class="fact"><dt>Coding Agent{{ coding_agents|pluralize }}</dt>
             <dd>{% for entry in coding_agents %}<div>
-<!--                {% if entry.agent.icon %}<i class="{{ entry.agent.icon }}"></i> {% endif %}-->
-                {% browse_link "agent" entry.agent.slug "Using "|add:entry.agent.name entry.agent.name %}
+                {% browse_link "agent" entry.agent.slug "Using "|add:entry.agent.name entry.agent.name entry.agent.icon %}
                 {% if entry.citation %}<span class="cites">{% citation_footnote entry.citation %}</span>{% endif %}
                 </div>{% endfor %}
             </dd>
