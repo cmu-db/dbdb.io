@@ -250,6 +250,9 @@ class RepoCollector(ABC):
                         "retrying with default branch only", url,
                     )
                     shutil.rmtree(repo_dir, ignore_errors=True)
+                    # --single-branch limits remote-tracking refs to the
+                    # checked-out branch, avoiding the collision entirely.
+                    clone_kwargs['single_branch'] = True
                     self._repo = gitpkg.Repo.clone_from(url, repo_dir, **clone_kwargs)
                 else:
                     raise
@@ -291,6 +294,20 @@ class RepoCollector(ABC):
         self.log.debug("get_first_commit_timestamp: earliest=%s (across %d unique commits)", earliest, len(seen))
         return earliest
 
+    def _resolve_branch_ref(self, branch: str):
+        """Return the best ref object for *branch*, or None if not found.
+
+        Tries the local branch name first (refs/heads/<branch>), then the
+        remote-tracking name (origin/<branch>).  Returns None when neither
+        exists — callers should fall back to walking all refs.
+        """
+        for name in (branch, f'origin/{branch}'):
+            try:
+                return self._repo.refs[name]
+            except IndexError:
+                pass
+        return None
+
     def get_author_emails(self, branch: str | None = None) -> list[str]:
         """Return unique author emails from commits in the cloned repository.
 
@@ -302,8 +319,13 @@ class RepoCollector(ABC):
             if branch.startswith(self.IGNORED_BRANCH_PREFIXES):
                 self.log.debug("get_author_emails: skipping ignored branch %r", branch)
                 return []
-            refs = [self._repo.refs[branch]]
-            self.log.debug("get_author_emails: walking branch %r", branch)
+            ref = self._resolve_branch_ref(branch)
+            if ref is not None:
+                refs = [ref]
+                self.log.debug("get_author_emails: walking branch %r", branch)
+            else:
+                refs = [r for r in self._repo.references if not r.name.startswith(self.IGNORED_BRANCH_PREFIXES)]
+                self.log.debug("get_author_emails: branch %r not found, walking %d refs", branch, len(refs))
         else:
             refs = [
                 r for r in self._repo.references
@@ -382,8 +404,13 @@ class RepoCollector(ABC):
         }
 
         if branch:
-            refs = [self._repo.refs[branch]]
-            self.log.debug("get_coding_agent_commits: scanning branch %r", branch)
+            ref = self._resolve_branch_ref(branch)
+            if ref is not None:
+                refs = [ref]
+                self.log.debug("get_coding_agent_commits: scanning branch %r", branch)
+            else:
+                refs = list(self._repo.references)
+                self.log.debug("get_coding_agent_commits: branch %r not found, scanning %d refs", branch, len(refs))
         else:
             refs = list(self._repo.references)
             self.log.debug("get_coding_agent_commits: scanning %d refs", len(refs))
