@@ -9,10 +9,11 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
-from dbdb.core.models import SystemVersion, RepositoryInfo, RepositorySnapshot
+from dbdb.core.models import SystemVersion, RepositoryInfo, RepositorySnapshot, CitationUrl, System
 from dbdb.core.utils.repositories import (
     BitbucketCollector,
     CodebergCollector,
+    GenericGitCollector,
     GitHubCollector,
     GitLabCollector,
     RepoCollector,
@@ -22,18 +23,6 @@ from dbdb.core.utils.repositories import (
 from dbdb.core.utils.versions import clone_system_version, finalize_new_version
 
 LOG = logging.getLogger(__name__)
-
-
-class _GenericGitCollector(RepoCollector):
-    """Concrete RepoCollector for raw git operations — no hosting API."""
-
-    URL_PATTERN = re.compile(r'.*')
-
-    def _make_session(self, token: str | None) -> requests.Session:
-        return requests.Session()
-
-    def get_metadata(self, repo_url: str) -> SnapshotData:
-        return SnapshotData()
 
 
 def get_git_commit_metadata(
@@ -61,7 +50,7 @@ def get_git_commit_metadata(
         Commit message and commit timestamp (UTC)
     """
     LOG.debug("Fetching commit %s from %s", commit_id, repo_url)
-    collector = _GenericGitCollector()
+    collector = GenericGitCollector()
     collector.clone_url(repo_url, commit=commit_id)
     message, timestamp = collector.get_commit_metadata(commit_id)
     LOG.debug("Commit %s: timestamp=%s message=%r", commit_id, timestamp, message[:80])
@@ -89,7 +78,21 @@ def detect_host(url: str) -> str | None:
     return None
 
 
-def fetch_snapshot_data(citation_url) -> SnapshotData:
+def get_collector(citation_url: CitationUrl) -> RepoCollector:
+    """Return the appropriate RepoCollector for the given CitationUrl.
+
+    Falls back to GenericGitCollector for unrecognised hosts.
+    Only citation_url.url is read — the instance need not be saved.
+    """
+    host = detect_host(citation_url.url)
+    if host is None:
+        return GenericGitCollector()
+    cls, token_key = _REGISTRY[host]
+    token = (getattr(settings, token_key, '') or None) if token_key else None
+    return cls(token=token)
+
+
+def fetch_snapshot_data(citation_url: CitationUrl) -> SnapshotData:
     """
     Given a CitationUrl instance, fetch repository statistics and return
     a SnapshotData whose fields map directly onto RepositorySnapshot fields.
@@ -97,17 +100,48 @@ def fetch_snapshot_data(citation_url) -> SnapshotData:
     Raises:
         ValueError: Host is not supported.
     """
-    url  = citation_url.url
-    host = detect_host(url)
+    host = detect_host(citation_url.url)
     if host is None:
-        raise ValueError(f"Unsupported repository host: {url}")
-
-    cls, token_key = _REGISTRY[host]
-    token = (getattr(settings, token_key, '') or None) if token_key else None
-    return cls(token=token).get_metadata(url)
+        raise ValueError(f"Unsupported repository host: {citation_url.url}")
+    return get_collector(citation_url).get_metadata(citation_url.url)
 
 
-def check_abandoned(system, *, inactivity_days: int = 1095) -> bool:
+def scan_coding_agents(
+    citation_url: CitationUrl,
+    branch: str | None = None,
+) -> dict:
+    """Scan a repository for AI coding-agent co-authorship.
+
+    Clones (or reuses an existing clone of) citation_url and calls
+    get_coding_agent_commits().  For each agent found, builds a commit URL
+    and returns a CitationUrl instance for it (created if needed).
+
+    Returns {} for unrecognised hosts or when no agents are found.
+    Only citation_url.url is read — the instance need not be saved.
+    """
+    host = detect_host(citation_url.url)
+    if host is None:
+        return {}
+
+    collector = get_collector(citation_url)
+    collector.clone_url(citation_url.url, all_branches=(branch is None))
+    agent_commits = collector.get_coding_agent_commits(branch)
+
+    result = {}
+    for agent, hexsha in agent_commits.items():
+        try:
+            commit_url = collector.get_commit_url(branch or '', hexsha)
+        except NotImplementedError:
+            commit_url = None
+        if commit_url:
+            agent_citation, _ = CitationUrl.objects.get_or_create(url=commit_url)
+        else:
+            agent_citation = None
+        result[agent] = agent_citation
+    return result
+
+
+def check_abandoned(system:System, *, inactivity_days: int = 1095) -> bool:
     """
     Determine whether a system's source repository appears abandoned and, if
     so, record that conclusion as a new SystemVersion.

@@ -14,6 +14,23 @@ from typing import ClassVar
 import requests
 from django.conf import settings
 
+# Trailer keys recognised as agent-attribution signals in commit messages.
+# The regex captures the value after the colon on each matching line so we
+# can search only those values rather than free-form message prose.
+# Covers patterns used by: Claude Code, GitHub Copilot, Cursor, Aider,
+# Devin, Windsurf/Codeium, and generic AI tooling.
+_AGENT_TRAILER_RE = re.compile(
+    r'^(?:'
+    r'co-authored?-by'      # Co-authored-by / Co-author-by  (Claude Code, Copilot, Cursor …)
+    r'|made-with'           # Made-with  (Cursor, generic)
+    r'|generated-(?:by|with)'  # Generated-by / Generated-with
+    r'|powered-by'          # Powered-by  (some tools)
+    r'|ai-author'           # AI-Author
+    r'|signed-off-by'       # Signed-off-by  (Aider uses this)
+    r')\s*:(.+)$',
+    re.IGNORECASE | re.MULTILINE,
+)
+
 
 @dataclass
 class SnapshotData:
@@ -314,10 +331,15 @@ class RepoCollector(ABC):
     ) -> 'dict[AttributeOption, str]':
         """Scan commits for AI coding-agent co-authorship and return latest hits.
 
-        Loads every AttributeOption with attribute__slug='agent' and searches
-        each commit's author name and full message for the agent's slug
-        (case-insensitive).  Matches the ``Co-authored-by:`` trailer as well as
-        direct authorship.
+        Checks two things per commit:
+          1. The commit author name (for repos where the agent is the literal author).
+          2. Values of recognised agent-attribution trailers in the commit message:
+               Co-authored-by, Co-author, Made-with, Generated-by, Generated-with,
+               Powered-by, Ai-author, Signed-off-by.
+
+        The search is *not* a free-text scan of the whole message; only the trailer
+        values are matched.  This avoids false positives from commit messages that
+        happen to mention an agent name (e.g. "add cursor-based pagination").
 
         Args:
             branch: If given, only commits reachable from that branch are
@@ -360,11 +382,14 @@ class RepoCollector(ABC):
                     continue
                 seen.add(commit.hexsha)
 
-                # Search author name + full message (covers Co-authored-by trailers)
-                search_text = f"{commit.author.name}\n{commit.message}"
+                # Build candidate text from author name and recognised trailer values only.
+                # _AGENT_TRAILER_RE extracts the value portion (after the colon) of each
+                # matching trailer line so we never match free-form message prose.
+                trailer_values = _AGENT_TRAILER_RE.findall(commit.message)
+                candidate = commit.author.name + '\n' + '\n'.join(trailer_values)
 
                 for agent, pattern in agent_patterns.items():
-                    if not pattern.search(search_text):
+                    if not pattern.search(candidate):
                         continue
                     date = commit.committed_date
                     if agent not in best or date > best[agent][0]:

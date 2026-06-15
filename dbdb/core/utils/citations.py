@@ -36,7 +36,7 @@ from dbdb.core.models import (
     RepositoryInfo, System, SystemFeature, SystemVersion,
 )
 from dbdb.core.utils import spam
-from dbdb.core.utils.repository import get_git_commit_metadata
+from dbdb.core.utils.repository import get_collector
 from dbdb.core.utils.spam import UnexpectedResponseError
 
 LOG = logging.getLogger(__name__)
@@ -376,7 +376,9 @@ def fetch_url_metadata(
         try:
             # If the Github repo is no longer available, then this will time out
             # So we'll just treat it like a regular page and record the 404 status-code
-            title, last_modified = get_git_commit_metadata(repo_url, commit_id, timeout=request_timeout)
+            collector = get_collector(CitationUrl(url=repo_url))
+            collector.clone_url(repo_url, commit=commit_id)
+            title, last_modified = collector.get_commit_metadata(commit_id)
             return {
                 "url": url,
                 "status-code": 200,

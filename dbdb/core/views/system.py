@@ -193,6 +193,16 @@ class SystemView(View):
                 .order_by('year', 'organization__name')
         ]
 
+        coding_agents = [
+            {
+                'agent': entry.agent,
+                'citation': self.process_citations([entry.citation])[0] if entry.citation_id else None,
+            }
+            for entry in system_version.coding_agent_entries
+                .select_related('agent', 'citation')
+                .order_by('agent__name')
+        ]
+
         developer_orgs = list(system_version.developer_orgs.only('id', 'name', 'slug'))
 
         # Compatible Systems
@@ -259,6 +269,7 @@ class SystemView(View):
             'hosted_services': hosted_services,
             'sections': sections,
             'acquisitions': acquisitions,
+            'coding_agents': coding_agents,
             'developer_orgs': developer_orgs,
             'user_can_edit': user_can_edit,
             'compatible': compatible,

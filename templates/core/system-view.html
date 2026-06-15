@@ -108,8 +108,7 @@
 
         {% if developer_orgs %}
         <div class="fact"><dt>Developer{{ developer_orgs|pluralize }}</dt>
-            <dd>{% for org in developer_orgs %}<div>{% org_link org %}</div>{% endfor %}
-        </dd>
+            <dd>{% for org in developer_orgs %}<div>{% org_link org %}</div>{% endfor %}</dd>
         </div>
         {% endif %}
 
@@ -147,16 +146,23 @@
         <div class="fact"><dt>Acquired By</dt><dd>{{ version.acquired_by }}</dd></div>
         {% endif %}
 
+        {% if coding_agents %}
+        <div class="fact"><dt>Coding Agent{{ coding_agents|pluralize }}</dt>
+            <dd>{% for entry in coding_agents %}<div>
+<!--                {% if entry.agent.icon %}<i class="{{ entry.agent.icon }}"></i> {% endif %}-->
+                {% browse_link "agent" entry.agent.slug "Using "|add:entry.agent.name entry.agent.name %}
+                {% if entry.citation %}<span class="cites">{% citation_footnote entry.citation %}</span>{% endif %}
+                </div>{% endfor %}
+            </dd>
+        </div>
+        {% endif %}
+
         {% if version.project_types.all %}
         <div class="fact"><dt>Project Type</dt><dd>{% for attropt in version.project_types.all %}{% if not forloop.first %}, {% endif %}{% browse_link "project-type" attropt.slug ": "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
         {% endif %}
 
         {% if version.written_in.all %}
         <div class="fact"><dt>Written in</dt><dd>{% for attropt in version.written_in.all %}{% if not forloop.first %}, {% endif %}{% browse_link "programming-language" attropt.slug "Written In "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
-        {% endif %}
-
-        {% if version.coding_agent_entries.all %}
-        <div class="fact"><dt>Coding Agents</dt><dd>{% for entry in version.coding_agent_entries.all %}{% if not forloop.first %}, {% endif %}{% if entry.agent.icon %}<i class="{{ entry.agent.icon }}"></i> {% endif %}{% browse_link "agent" entry.agent.slug "Using "|add:entry.agent.name entry.agent.name %}{% if entry.citation %}<span class="cites">{% citation_footnote entry.citation %}</span>{% endif %}{% endfor %}</dd></div>
         {% endif %}
 
         {% if version.supported_languages.all %}

@@ -7,8 +7,8 @@ from dbdb.core.management.base import DbdbBaseCommand
 from django.db.models import Q
 from django.utils import timezone
 
-from dbdb.core.models import RepositoryInfo, RepositorySnapshot, SystemVersion
-from dbdb.core.utils.repository import check_abandoned, fetch_snapshot_data
+from dbdb.core.models import AttributeOption, RepositoryInfo, RepositorySnapshot, SystemVersion, SystemVersionCodingAgent
+from dbdb.core.utils.repository import check_abandoned, fetch_snapshot_data, scan_coding_agents
 
 _FAILED_DISABLE_THRESHOLD = 3
 
@@ -44,6 +44,9 @@ class Command(DbdbBaseCommand):
             '--check-last-commit-older', type=int, default=None, metavar='DAYS',
             help='Only examine repos whose latest snapshot has a last_commit_timestamp '
                  'older than DAYS days. Repos with no snapshots or with enabled=False are skipped.')
+        parser.add_argument(
+            '--no-agents', action='store_true',
+            help='Skip coding-agent co-authorship scan after each snapshot.')
         return
 
     def handle(self, *args, **options):
@@ -92,7 +95,17 @@ class Command(DbdbBaseCommand):
         limit = options['limit']
         do_check_abandoned = options['check_abandoned']
         no_collect = options['no_collect']
+        no_agents = options['no_agents']
         inactivity_days = settings.REPOSITORY_INACTIVITY_DAYS
+
+        ai_assisted_tag = None
+        if not no_agents:
+            try:
+                ai_assisted_tag = AttributeOption.objects.get(
+                    attribute__slug='tag', slug='ai-assisted'
+                )
+            except AttributeOption.DoesNotExist:
+                LOG.warning("AttributeOption 'ai-assisted' (tag) not found; tag will not be applied")
 
         seen_citation_ids: set[int] = set()
         ok = err = skipped = 0
@@ -212,6 +225,28 @@ class Command(DbdbBaseCommand):
                         )
                 except ValueError as exc:
                     LOG.debug("check_abandoned skipped for %s: %s", ver.system.slug, exc)
+
+            if not no_agents:
+                try:
+                    branch = snapshot.branch_default_name or None
+                    agents_found = scan_coding_agents(citation, branch)
+                    for agent, agent_citation in agents_found.items():
+                        _, created = SystemVersionCodingAgent.objects.update_or_create(
+                            system_version=ver,
+                            agent=agent,
+                            defaults={'citation': agent_citation},
+                        )
+                        self.stdout.write(
+                            f"  coding_agent {'added' if created else 'updated'}: "
+                            f"{agent.name}  {agent_citation.url if agent_citation else '(no url)'}"
+                        )
+                    if agents_found and ai_assisted_tag is not None:
+                        if not ver.tags.filter(pk=ai_assisted_tag.pk).exists():
+                            ver.tags.add(ai_assisted_tag)
+                            self.stdout.write(f"  tag added: {ai_assisted_tag.slug}")
+                except Exception as exc:
+                    self.stderr.write(f"  WARNING — coding agent scan failed: {exc}")
+                    LOG.warning("Coding agent scan failed for %s: %s", citation.url, exc)
 
             if limit is not None and ok >= limit:
                 self.stdout.write(f"Limit of {limit} reached, stopping.")
