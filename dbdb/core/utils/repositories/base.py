@@ -141,6 +141,15 @@ class RepoCollector(ABC):
     @abstractmethod
     def get_metadata(self, repo_url: str) -> SnapshotData: ...
 
+    @abstractmethod
+    def get_commit_url(self, branch: str, commit: str) -> str:
+        """Return the web URL for a specific commit on this platform.
+
+        *branch* is the branch the commit belongs to; some platforms
+        include it in the URL path.  *commit* is the full commit SHA.
+        """
+        ...
+
     @classmethod
     def match_url(cls, url: str) -> bool:
         """Return True if this collector handles the given URL."""
@@ -285,6 +294,87 @@ class RepoCollector(ABC):
         self.log.debug(
             "get_author_emails: found %d unique author emails (%d ignored)",
             len(result), ignored,
+        )
+        return result
+
+    @property
+    def _origin_url(self) -> str:
+        """HTTPS URL of the origin remote, normalising SSH remote URLs.
+
+        Converts ``git@github.com:owner/repo.git`` to
+        ``https://github.com/owner/repo`` so subclasses can apply their
+        URL_PATTERN uniformly regardless of how the repo was cloned.
+        """
+        url = self._repo.remotes.origin.url
+        url = re.sub(r'^git@([^:]+):(.+?)(?:\.git)?$', r'https://\1/\2', url)
+        return url.rstrip('/')
+
+    def get_coding_agent_commits(
+        self, branch: str | None = None
+    ) -> 'dict[AttributeOption, str]':
+        """Scan commits for AI coding-agent co-authorship and return latest hits.
+
+        Loads every AttributeOption with attribute__slug='agent' and searches
+        each commit's author name and full message for the agent's slug
+        (case-insensitive).  Matches the ``Co-authored-by:`` trailer as well as
+        direct authorship.
+
+        Args:
+            branch: If given, only commits reachable from that branch are
+                    scanned.  If None, all refs are walked.
+
+        Returns:
+            A dict mapping AttributeOption → hexsha of the latest commit where
+            that agent appears as author or co-author.  Agents with no matching
+            commit are omitted.
+        """
+        from dbdb.core.models import AttributeOption
+
+        agents = list(
+            AttributeOption.objects
+            .filter(attribute__slug='agent')
+            .select_related('attribute')
+        )
+        if not agents:
+            return {}
+
+        agent_patterns: dict = {
+            agent: re.compile(re.escape(agent.slug), re.IGNORECASE)
+            for agent in agents
+        }
+
+        if branch:
+            refs = [self._repo.refs[branch]]
+            self.log.debug("get_coding_agent_commits: scanning branch %r", branch)
+        else:
+            refs = list(self._repo.references)
+            self.log.debug("get_coding_agent_commits: scanning %d refs", len(refs))
+
+        # agent -> (committed_date, hexsha) for the best (latest) match found
+        best: dict = {}
+        seen: set[str] = set()
+
+        for ref in refs:
+            for commit in self._repo.iter_commits(ref):
+                if commit.hexsha in seen:
+                    continue
+                seen.add(commit.hexsha)
+
+                # Search author name + full message (covers Co-authored-by trailers)
+                search_text = f"{commit.author.name}\n{commit.message}"
+
+                for agent, pattern in agent_patterns.items():
+                    if not pattern.search(search_text):
+                        continue
+                    date = commit.committed_date
+                    if agent not in best or date > best[agent][0]:
+                        best[agent] = (date, commit.hexsha)
+
+        result = {agent: hexsha for agent, (_, hexsha) in best.items()}
+        self.log.debug(
+            "get_coding_agent_commits: found %d agent(s): %s",
+            len(result),
+            ', '.join(a.slug for a in result),
         )
         return result
 

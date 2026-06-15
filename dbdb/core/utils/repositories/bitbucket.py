@@ -54,6 +54,11 @@ class BitbucketCollector(RepoCollector):
     def _values(response: requests.Response) -> list:
         return response.json().get('values', [])
 
+    def get_commit_url(self, branch: str, commit: str) -> str:
+        match = self.URL_PATTERN.search(self._origin_url)
+        owner, repo_name = match.groups()
+        return f'https://bitbucket.org/{owner}/{repo_name}/commits/{commit}'
+
     def get_metadata(self, repo_url: str) -> SnapshotData:
         match = self.URL_PATTERN.search(repo_url)
         if not match:

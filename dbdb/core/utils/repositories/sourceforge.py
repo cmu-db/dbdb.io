@@ -38,6 +38,11 @@ class SourceForgeCollector(RepoCollector):
             params['access_token'] = self._token
         return self._get(url, **params)
 
+    def get_commit_url(self, branch: str, commit: str) -> str:
+        match = self.URL_PATTERN.search(self._origin_url)
+        shortname = match.group(1)
+        return f'https://sourceforge.net/p/{shortname}/code/ci/{commit}/tree/'
+
     def get_metadata(self, repo_url: str) -> SnapshotData:
         match = self.URL_PATTERN.search(repo_url)
         if not match:

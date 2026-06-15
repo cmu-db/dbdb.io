@@ -28,6 +28,11 @@ class GitLabCollector(RepoCollector):
         val = response.headers.get('X-Total', '').strip()
         return int(val) if val else 0
 
+    def get_commit_url(self, branch: str, commit: str) -> str:
+        match = self.URL_PATTERN.search(self._origin_url)
+        project_path = match.group(1)
+        return f'https://gitlab.com/{project_path}/-/commit/{commit}'
+
     def get_metadata(self, repo_url: str) -> SnapshotData:
         match = self.URL_PATTERN.search(repo_url)
         if not match:

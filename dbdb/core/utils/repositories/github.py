@@ -43,6 +43,11 @@ class GitHubCollector(RepoCollector):
             self.log.warning("Could not fetch archivedAt for %s/%s: %s", owner, repo_name, exc)
             return None
 
+    def get_commit_url(self, branch: str, commit: str) -> str:
+        match = self.URL_PATTERN.search(self._origin_url)
+        owner, repo_name = match.groups()
+        return f'https://github.com/{owner}/{repo_name}/commit/{commit}'
+
     def get_metadata(self, repo_url: str) -> SnapshotData:
         match = self.URL_PATTERN.search(repo_url)
         if not match:

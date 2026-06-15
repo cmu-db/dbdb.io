@@ -28,6 +28,11 @@ class CodebergCollector(RepoCollector):
         val = response.headers.get('X-Total-Count', '').strip()
         return int(val) if val.isdigit() else 0
 
+    def get_commit_url(self, branch: str, commit: str) -> str:
+        match = self.URL_PATTERN.search(self._origin_url)
+        owner, repo_name = match.groups()
+        return f'https://codeberg.org/{owner}/{repo_name}/commit/{commit}'
+
     def get_metadata(self, repo_url: str) -> SnapshotData:
         match = self.URL_PATTERN.search(repo_url)
         if not match:
