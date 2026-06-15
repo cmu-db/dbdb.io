@@ -116,12 +116,16 @@
             <div class="row row-cols-1 row-cols-md-3 gx-4 gy-3 pt-1">
                 <div class="col">
                     <div class="grp-h">General</div>
+                    <div class="row row-cols-2 row-cols-md-1 g-0">
                     {% for col in available_builtin %}
+                    <div class="col">
                     <label class="col-check">
                         <input class="col-checkbox" type="checkbox" value="{{ col.col_id }}" {% if col.col_id in active_col_ids %}checked{% endif %}>
                         {{ col.label }}
                     </label>
+                    </div>
                     {% endfor %}
+                    </div>
                 </div>
                 <div class="col">
                     <div class="grp-h">Implementation Features</div>
@@ -136,12 +140,16 @@
                 </div>
                 <div class="col">
                     <div class="grp-h">Attributes</div>
+                    <div class="row row-cols-2 row-cols-md-1 g-0">
                     {% for col in available_attributes %}
+                    <div class="col">
                     <label class="col-check">
                         <input class="col-checkbox" type="checkbox" value="{{ col.col_id }}" {% if col.col_id in active_col_ids %}checked{% endif %}>
                         {{ col.label }}
                     </label>
+                    </div>
                     {% endfor %}
+                    </div>
                 </div>
             </div>
           </div>
