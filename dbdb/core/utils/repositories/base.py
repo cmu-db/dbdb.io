@@ -239,23 +239,36 @@ class RepoCollector(ABC):
             try:
                 self._repo = gitpkg.Repo.clone_from(url, repo_dir, **clone_kwargs)
             except gitpkg.GitCommandError as exc:
-                # Some repos have branch names that differ only by case (e.g.
-                # "Feature" and "feature"). On case-insensitive or network
-                # filesystems git cannot write both refs and aborts with
-                # "multiple updates for ref ... not allowed".  Fall back to
-                # cloning only the default branch so we still get partial data.
-                if 'multiple updates for ref' in (exc.stderr or '') and clone_kwargs.pop('no_single_branch', False):
+                if 'multiple updates for ref' not in (exc.stderr or ''):
+                    raise
+                # Attempt 2: --single-branch creates only one remote-tracking
+                # ref, avoiding case-insensitive name collisions on NAS/Samba
+                # filesystems or repos with duplicate branch names.
+                clone_kwargs.pop('no_single_branch', None)
+                clone_kwargs['single_branch'] = True
+                self.log.warning(
+                    "clone_url: duplicate refs in %s; retrying with --single-branch", url,
+                )
+                shutil.rmtree(repo_dir, ignore_errors=True)
+                try:
+                    self._repo = gitpkg.Repo.clone_from(url, repo_dir, **clone_kwargs)
+                except gitpkg.GitCommandError as exc2:
+                    if 'multiple updates for ref' not in (exc2.stderr or ''):
+                        raise
+                    # Attempt 3: even --single-branch fails when the remote
+                    # advertises a branch and a tag with the same name (e.g.
+                    # "2026.05").  Fall back to bare init + direct HEAD fetch
+                    # which creates zero remote-tracking refs.
                     self.log.warning(
-                        "clone_url: duplicate case-insensitive refs in %s; "
-                        "retrying with default branch only", url,
+                        "clone_url: --single-branch also failed for %s; "
+                        "falling back to direct HEAD fetch", url,
                     )
                     shutil.rmtree(repo_dir, ignore_errors=True)
-                    # --single-branch limits remote-tracking refs to the
-                    # checked-out branch, avoiding the collision entirely.
-                    clone_kwargs['single_branch'] = True
-                    self._repo = gitpkg.Repo.clone_from(url, repo_dir, **clone_kwargs)
-                else:
-                    raise
+                    os.makedirs(repo_dir)
+                    self._repo = gitpkg.Repo.init(repo_dir)
+                    self._repo.git.update_environment(**no_prompt)
+                    self._repo.create_remote('origin', url)
+                    self._repo.git.fetch('origin', '+HEAD:refs/heads/fetched_default')
             self.log.debug("clone_url: clone complete, %d refs", len(list(self._repo.references)))
 
     def get_commit_metadata(self, commit_id: str) -> tuple[str, datetime]:
