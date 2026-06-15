@@ -7,8 +7,11 @@ from dbdb.core.management.base import DbdbBaseCommand
 from django.db.models import Q
 from django.utils import timezone
 
+from django.contrib.auth import get_user_model
+
 from dbdb.core.models import AttributeOption, RepositoryInfo, RepositorySnapshot, SystemVersion, SystemVersionCodingAgent
 from dbdb.core.utils.repository import check_abandoned, fetch_snapshot_data, scan_coding_agents
+from dbdb.core.utils.versions import clone_system_version, finalize_new_version
 
 _FAILED_DISABLE_THRESHOLD = 3
 
@@ -99,6 +102,7 @@ class Command(DbdbBaseCommand):
         inactivity_days = settings.REPOSITORY_INACTIVITY_DAYS
 
         ai_assisted_tag = None
+        bot_user = None
         if not no_agents:
             try:
                 ai_assisted_tag = AttributeOption.objects.get(
@@ -106,6 +110,10 @@ class Command(DbdbBaseCommand):
                 )
             except AttributeOption.DoesNotExist:
                 LOG.warning("AttributeOption 'ai-assisted' (tag) not found; tag will not be applied")
+            try:
+                bot_user = get_user_model().objects.get(username=settings.DBDB_BOT_ACCOUNT)
+            except Exception as exc:
+                LOG.warning("Bot user '%s' not found; ai-assisted tagging will be skipped: %s", settings.DBDB_BOT_ACCOUNT, exc)
 
         seen_citation_ids: set[int] = set()
         ok = err = skipped = 0
@@ -240,10 +248,16 @@ class Command(DbdbBaseCommand):
                             f"  coding_agent {'added' if created else 'updated'}: "
                             f"{agent.name}  {agent_citation.url if agent_citation else '(no url)'}"
                         )
-                    if agents_found and ai_assisted_tag is not None:
+                    if agents_found and ai_assisted_tag is not None and bot_user is not None:
                         if not ver.tags.filter(pk=ai_assisted_tag.pk).exists():
-                            ver.tags.add(ai_assisted_tag)
-                            self.stdout.write(f"  tag added: {ai_assisted_tag.slug}")
+                            new_ver = clone_system_version(
+                                ver,
+                                creator=bot_user,
+                                comment="Detected coding agents in source code and added AI tag",
+                            )
+                            new_ver.tags.add(ai_assisted_tag)
+                            finalize_new_version(new_ver, old_logo=ver.logo)
+                            self.stdout.write(f"  cloned to v{new_ver.ver} and tagged: {ai_assisted_tag.slug}")
                 except Exception as exc:
                     self.stderr.write(f"  WARNING — coding agent scan failed: {exc}")
                     LOG.warning("Coding agent scan failed for %s: %s", citation.url, exc)
