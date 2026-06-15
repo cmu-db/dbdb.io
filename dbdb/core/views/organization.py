@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views import View
 
 from dbdb.core.models import CitationUrl, Organization
+from dbdb.core.views.home import _attach_data_models
 
 
 class OrganizationView(View):
@@ -50,6 +51,7 @@ class OrganizationView(View):
                .select_related('system')
                .order_by('system__name')
         )
+        _attach_data_models(developed)
 
         return render(request, self.template_name, {
             'org':               org,

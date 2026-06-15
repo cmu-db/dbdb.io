@@ -14,7 +14,12 @@ from dbdb.core.models import Feature, SavedSearch, System, SystemFeature, System
 
 
 def _attach_data_models(systems):
-    ids = [s.id for s in systems]
+    # Supports both System objects (no system_id attr → use s.id)
+    # and SystemVersion objects (have a system_id attr).
+    def _sys_id(s):
+        return getattr(s, 'system_id', s.id)
+
+    ids = [_sys_id(s) for s in systems]
     sf_map = {}
     for sf in (SystemFeature.objects
                .filter(version__is_current=True, version__system_id__in=ids, feature__slug='data-model')
@@ -23,7 +28,7 @@ def _attach_data_models(systems):
         if vals:
             sf_map[sf.version.system_id] = ' · '.join(vals[:2])
     for s in systems:
-        s.data_model_str = sf_map.get(s.id, '')
+        s.data_model_str = sf_map.get(_sys_id(s), '')
     return systems
 
 

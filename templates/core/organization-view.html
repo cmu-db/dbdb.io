@@ -159,7 +159,11 @@
         <div class="col">
             <a href="{{ ver.system.get_absolute_url }}" class="sys-card d-flex align-items-center gap-3 p-3 h-100 text-decoration-none">
                 {% mono_tile ver.logo ver.system.name 'thumb' %}
-                <span class="ln">{{ ver.system.name }}</span>
+                <span class="db-info">
+                    <span class="ln">{{ ver.system.name }}</span>
+                    {% if ver.data_model_str %}
+                    <span class="info-subtitle d-block">{{ ver.data_model_str }}</span>{% endif %}
+                </span>
             </a>
         </div>
         {% endfor %}
