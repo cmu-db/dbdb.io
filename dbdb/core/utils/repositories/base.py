@@ -236,7 +236,23 @@ class RepoCollector(ABC):
             if all_branches:
                 clone_kwargs['no_single_branch'] = True
             self.log.debug("clone_url: cloning %s (all_branches=%s, depth=%s)", url, all_branches, depth)
-            self._repo = gitpkg.Repo.clone_from(url, repo_dir, **clone_kwargs)
+            try:
+                self._repo = gitpkg.Repo.clone_from(url, repo_dir, **clone_kwargs)
+            except gitpkg.GitCommandError as exc:
+                # Some repos have branch names that differ only by case (e.g.
+                # "Feature" and "feature"). On case-insensitive or network
+                # filesystems git cannot write both refs and aborts with
+                # "multiple updates for ref ... not allowed".  Fall back to
+                # cloning only the default branch so we still get partial data.
+                if 'multiple updates for ref' in (exc.stderr or '') and clone_kwargs.pop('no_single_branch', False):
+                    self.log.warning(
+                        "clone_url: duplicate case-insensitive refs in %s; "
+                        "retrying with default branch only", url,
+                    )
+                    shutil.rmtree(repo_dir, ignore_errors=True)
+                    self._repo = gitpkg.Repo.clone_from(url, repo_dir, **clone_kwargs)
+                else:
+                    raise
             self.log.debug("clone_url: clone complete, %d refs", len(list(self._repo.references)))
 
     def get_commit_metadata(self, commit_id: str) -> tuple[str, datetime]:
