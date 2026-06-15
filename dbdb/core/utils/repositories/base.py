@@ -189,6 +189,8 @@ class RepoCollector(ABC):
                 self.fetch_latest()
             return
 
+        self.log.debug(f"clone_url: cloning repo to {repo_dir}")
+
         # Disable all interactive credential prompts. Any URL that requires
         # authentication will cause git to exit non-zero immediately, which
         # gitpython raises as GitCommandError — treated as unavailable/dead.
