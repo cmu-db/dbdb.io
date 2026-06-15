@@ -1193,6 +1193,9 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   font-family: var(--mono); text-transform: uppercase; letter-spacing: .2em; font-size: .66rem;
   color: var(--accent); font-weight: 600; margin-bottom: .8rem;
 }
+.page-title .kicker a {
+  color: var(--accent);
+}
 .page-title h1 {
   font-family: var(--serif); font-weight: 600; letter-spacing: -0.02em; line-height: 1; margin: 0;
   font-size: clamp(2.6rem, 7vw, 4.6rem); color: var(--ink);

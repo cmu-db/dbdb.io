@@ -6,8 +6,8 @@
 
 {% block content %}
 {% page_title %}
-{% ptitle_kicker %}Revision History{% endptitle_kicker %}
-{% ptitle_title %}{{ system.name }}{% endptitle_title %}
+{% ptitle_kicker %}<a href="{% url 'system' system.slug %}">Database Entry</a>{% endptitle_kicker %}
+{% ptitle_title %}{{ system.name }}: Revisions{% endptitle_title %}
 {% endpage_title %}
 
 <div class="row justify-content-center">

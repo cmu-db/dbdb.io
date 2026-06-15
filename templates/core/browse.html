@@ -176,7 +176,18 @@
                                 data-sort-col="{{ forloop.counter0|add:2 }}"
                                 data-sort-type="{% if col.col_id == 'start-year' or col.col_id == 'end-year' %}numeric{% else %}text{% endif %}"
                                 data-col-id="{{ col.col_id }}">
-                            {{ col.label }} <i class="fas fa-sort caret sort-arrow"></i>
+                            {# Start / End Year #}
+                            {% if col.label|slice:"-4:" == 'Year' %}
+                                <span class="d-none d-md-inline">{{ col.label }}</span>
+                                {% if col.label == 'End Year' %}
+                                <span class="d-inline d-md-none">{{ col.label|slice:":3" }}</span>
+                                {% else %}
+                                <span class="d-inline d-md-none">{{ col.label|slice:":5" }}</span>
+                                {% endif %}
+                            {% else %}
+                                {{ col.label }}
+                            {% endif %}
+                            <i class="fas fa-sort caret sort-arrow"></i>
                         </button>
                     </th>
                     {% endfor %}

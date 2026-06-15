@@ -11,8 +11,8 @@
 
 {% block content %}
 {% page_title %}
-{% ptitle_kicker %}<a href="{% url 'system' system.slug %}">{{ system.name }}</a> &nbsp;·&nbsp; <a href="{% url 'system_revision' system.slug %}">Revision History</a>{% endptitle_kicker %}
-{% ptitle_title %}Version Comparison{% endptitle_title %}
+{% ptitle_kicker %}<a href="{% url 'system' system.slug %}">Database Entry</a>{% endptitle_kicker %}
+{% ptitle_title %}{{ system.name }}: Version Comparison{% endptitle_title %}
 {% endpage_title %}
 
 {% if can_approve %}

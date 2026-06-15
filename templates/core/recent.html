@@ -11,11 +11,23 @@
 {% block title %}Recent Changes - {% endblock %}
 
 {% block content %}
-{% page_title %}
-{% ptitle_kicker %}{% if system %}Database Entry{% else %}{{ total_revisions|intcomma }} Revision{{ total_revisions|pluralize }}{% endif %}{% endptitle_kicker %}
-{% ptitle_title %}{% if system %}{{ system.name }}: {% endif %}Recent Changes{% if lookup_user %}: {{ lookup_user.username }}{% endif %}{% endptitle_title %}
-{% ptitle_sub %}{% if system %}Revision history for <a href="{% url 'system' system.slug %}">{{ system.name }}</a>{% elif lookup_user %}All revisions by user '{{ lookup_user.username }}'{% else %}Every revision across the encyclopedia, newest first{% endif %}{% endptitle_sub %}
-{% endpage_title %}
+
+{% if system %}
+    {# System Revision List #}
+    {% page_title %}
+    {% ptitle_kicker %}<a href="{% url 'system' system.slug %}">Database Entry</a>{% endptitle_kicker %}
+    {% ptitle_title %}{{ system.name }}: Recent Changes{% endptitle_title %}
+    {% ptitle_sub %}Revision history for <a href="{% url 'system' system.slug %}">{{ system.name }}</a>{% endptitle_sub %}
+    {% endpage_title %}
+{% else %}
+    {# Glboal Revision List #}
+    {% page_title %}
+    {% ptitle_kicker %}{{ total_revisions|intcomma }} Revision{{ total_revisions|pluralize }}{% endptitle_kicker %}
+    {% ptitle_title %}Recent Changes{% if lookup_user %}: {{ lookup_user.username }}{% endif %}{% endptitle_title %}
+    {% ptitle_sub %}{% if lookup_user %}All revisions by user '{{ lookup_user.username }}'{% else %}Every revision across the encyclopedia, newest first{% endif %}{% endptitle_sub %}
+    {% endpage_title %}
+{% endif %}
+
 
 {% for message in messages %}
 {% alert type=message.tags %}{{ message }}{% endalert %}
