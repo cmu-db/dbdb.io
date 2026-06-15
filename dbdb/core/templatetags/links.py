@@ -19,7 +19,7 @@ def org_link(org: Organization):
     return {"org": org}
 
 @register.inclusion_tag("components/browse_link.html")
-def browse_link(key: str, value: str, tooltip: str, label: str = None):
+def browse_link(key: str, value: str, tooltip: str, label: str = None, icon: str = None):
     """
     Renders a link for a searching something on browse
     """
@@ -28,6 +28,7 @@ def browse_link(key: str, value: str, tooltip: str, label: str = None):
         "value": value,
         "tooltip": tooltip,
         "label": label,
+        "icon": icon or "fa-solid fa-table-list",
     }
 
 @register.inclusion_tag("components/tag_link.html")
