@@ -16,7 +16,7 @@ from django.core.validators import URLValidator
 from django.forms import formset_factory, widgets
 
 # project imports
-from dbdb.core.models import CitationUrl, Feature, FeatureOption, System, SystemVersion
+from dbdb.core.models import AttributeOption, CitationUrl, Feature, FeatureOption, System, SystemVersion
 from dbdb.core.utils import citations
 from dbdb.core.widgets import CitationUrlListWidget
 
@@ -414,4 +414,19 @@ class DeveloperOrgForm(forms.Form):
 
 
 DeveloperOrgFormSet = formset_factory(DeveloperOrgForm, extra=0, can_delete=True)
+
+
+class CodingAgentForm(forms.Form):
+    agent = forms.ModelChoiceField(
+        queryset=AttributeOption.objects.filter(attribute__slug='agent').order_by('name'),
+        required=False,
+        label='Agent',
+        widget=forms.Select(attrs={'class': 'form-select'}))
+    citation_url = forms.URLField(
+        max_length=500, required=False,
+        label='Citation URL',
+        widget=forms.URLInput(attrs={'placeholder': 'https://…', 'class': 'form-control'}))
+
+
+CodingAgentFormSet = formset_factory(CodingAgentForm, extra=0, can_delete=True)
 

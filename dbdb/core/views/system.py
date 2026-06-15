@@ -22,6 +22,7 @@ from dbdb.core.views.home import _attach_data_models
 
 from dbdb.core.forms import (
     AcquisitionFormSet,
+    CodingAgentFormSet,
     DeveloperOrgFormSet,
     SystemFeaturesForm,
     SystemForm,
@@ -29,6 +30,7 @@ from dbdb.core.forms import (
 )
 from dbdb.core.models import (
     Acquisition,
+    AttributeOption,
     CitationUrl,
     Feature,
     FeatureOption,
@@ -41,6 +43,7 @@ from dbdb.core.models import (
     SystemRedirect,
     SystemSuggestion,
     SystemVersion,
+    SystemVersionCodingAgent,
     user_can_edit_system,
 )
 from dbdb.core.utils.versions import delete_latest_version, finalize_new_version
@@ -90,6 +93,7 @@ class SystemView(View):
         qs = SystemVersion.objects.prefetch_related(
             'tags', 'oses', 'licenses',
             'project_types', 'supported_languages', 'written_in',
+            'coding_agent_entries__agent', 'coding_agent_entries__citation',
         )
         approved_ver = None  # ver of the approved (is_current) version, passed to template when showing a pending default
         version_error = None
@@ -400,6 +404,15 @@ class SystemEditView(LoginRequiredMixin, View):
         ] if version.pk else []
         developer_org_formset = DeveloperOrgFormSet(initial=developer_org_initial, prefix='developer_orgs')
 
+        coding_agent_initial = [
+            {
+                'agent': entry.agent_id,
+                'citation_url': entry.citation.url if entry.citation_id else '',
+            }
+            for entry in version.coding_agent_entries.select_related('citation').all()
+        ] if version.pk else []
+        coding_agent_formset = CodingAgentFormSet(initial=coding_agent_initial, prefix='coding_agents')
+
         version_initial = {
             'system_url':     version.system_url.url     if version.system_url     else '',
             'docs_url':       version.docs_url.url       if version.docs_url       else '',
@@ -411,6 +424,7 @@ class SystemEditView(LoginRequiredMixin, View):
             if suggestion.sourcerepo_url:
                 version_initial['sourcerepo_url'] = suggestion.sourcerepo_url
 
+        agent_options = AttributeOption.objects.filter(attribute__slug='agent').order_by('name')
         return render(request, self.template_name, {
             'activate': 'create' if system.id is None else 'edit', # NAV-LINKS
             'system': system,
@@ -420,6 +434,8 @@ class SystemEditView(LoginRequiredMixin, View):
             'features': features,
             'acquisition_formset': acquisition_formset,
             'developer_org_formset': developer_org_formset,
+            'coding_agent_formset': coding_agent_formset,
+            'agent_options': agent_options,
             'pending_version': version if (version.pk and not version.approved) else None,
             'suggestion': suggestion,
             'citation_url_selector': ', '.join(f'#id_{f}' for f in SystemVersionForm.CITATION_URL_FIELDS),
@@ -476,12 +492,14 @@ class SystemEditView(LoginRequiredMixin, View):
         feature_form = SystemFeaturesForm(request.POST, system=system, features=system_features)
         acquisition_formset = AcquisitionFormSet(request.POST, prefix='acquisitions')
         developer_org_formset = DeveloperOrgFormSet(request.POST, prefix='developer_orgs')
+        coding_agent_formset = CodingAgentFormSet(request.POST, prefix='coding_agents')
 
         if system_form.is_valid() and \
             system_version_form.is_valid() and \
             feature_form.is_valid() and \
             acquisition_formset.is_valid() and \
-            developer_org_formset.is_valid():
+            developer_org_formset.is_valid() and \
+            coding_agent_formset.is_valid():
 
             if is_admin:
                 original_name = system.name
@@ -701,12 +719,31 @@ class SystemEditView(LoginRequiredMixin, View):
                 developer_orgs.append(org)
             new_version.developer_orgs.set(developer_orgs)
 
+            # Save coding agents (clear and recreate)
+            new_version.coding_agent_entries.all().delete()
+            for form in coding_agent_formset:
+                if not form.has_changed() or form.cleaned_data.get('DELETE'):
+                    continue
+                agent = form.cleaned_data.get('agent')
+                if not agent:
+                    continue
+                citation = None
+                citation_url_str = (form.cleaned_data.get('citation_url') or '').strip()
+                if citation_url_str:
+                    citation, _ = CitationUrl.objects.get_or_create(url=citation_url_str)
+                SystemVersionCodingAgent.objects.create(
+                    system_version=new_version,
+                    agent=agent,
+                    citation=citation,
+                )
+
             finalize_new_version(new_version, old_logo=old_logo)
 
             return redirect(new_version.system.get_absolute_url())
 
         features = self.build_features(feature_form)
 
+        agent_options = AttributeOption.objects.filter(attribute__slug='agent').order_by('name')
         return render(request, self.template_name, {
             'activate': 'edit', # NAV-LINKS
             'system_name': system.name,
@@ -716,6 +753,8 @@ class SystemEditView(LoginRequiredMixin, View):
             'features': features,
             'acquisition_formset': acquisition_formset,
             'developer_org_formset': developer_org_formset,
+            'coding_agent_formset': coding_agent_formset,
+            'agent_options': agent_options,
             'citation_url_selector': ', '.join(f'#id_{f}' for f in SystemVersionForm.CITATION_URL_FIELDS),
         })
 
@@ -1015,6 +1054,7 @@ def _compute_version_diff(v1, v2):
         ('project_types',      'Project Types'),
         ('supported_languages','Supported Languages'),
         ('written_in',         'Written In'),
+        ('coding_agents',      'Coding Agents'),
     ]
     for field, label in attr_fields:
         a_set = _m2m_set(getattr(v1, field), 'name')

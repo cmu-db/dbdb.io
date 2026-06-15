@@ -767,6 +767,13 @@ class SystemVersion(LogoMixin, models.Model):
         related_name='system_written_in',
         verbose_name='Written In')
 
+    coding_agents = models.ManyToManyField(
+        'AttributeOption', blank=True,
+        through='SystemVersionCodingAgent',
+        limit_choices_to={'attribute__slug': 'agent'},
+        related_name='+',
+        verbose_name='Coding Agents')
+
     class Meta:
         ordering = ('-ver',)
         unique_together = ('system', 'ver')
@@ -851,6 +858,24 @@ class SystemVersion(LogoMixin, models.Model):
         return self.system.slug + ".png"
 
     pass
+
+
+class SystemVersionCodingAgent(models.Model):
+    system_version = models.ForeignKey(
+        'SystemVersion', on_delete=models.CASCADE,
+        related_name='coding_agent_entries')
+    agent = models.ForeignKey(
+        'AttributeOption', on_delete=models.CASCADE,
+        limit_choices_to={'attribute__slug': 'agent'},
+        related_name='system_coding_agents')
+    citation = models.ForeignKey(
+        'CitationUrl', null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name='coding_agent_entries')
+
+    class Meta:
+        unique_together = ('system_version', 'agent')
+        ordering = ('agent__name',)
 
 
 # ==============================================
@@ -1066,6 +1091,7 @@ __all__ = (
     'System',
     'SystemFeature',
     'SystemVersion',
+    'SystemVersionCodingAgent',
     'SystemACL',
     'SystemRecommendation',
     'SystemSearchText',

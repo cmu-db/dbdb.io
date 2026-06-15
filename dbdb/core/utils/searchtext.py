@@ -42,6 +42,7 @@ def generate_searchtext(ver : SystemVersion):
     words += [x.slug for x in ver.oses.all()]
     words += [x.name for x in ver.licenses.all()]
     words += [x.slug for x in ver.licenses.all()]
+    words += [x.name for x in ver.coding_agents.all()]
     for sf in SystemFeature.objects.filter(version=ver):
         for o in sf.options.all():
             value = o.value

@@ -155,6 +155,10 @@
         <div class="fact"><dt>Written in</dt><dd>{% for attropt in version.written_in.all %}{% if not forloop.first %}, {% endif %}{% browse_link "programming-language" attropt.slug "Written In "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
         {% endif %}
 
+        {% if version.coding_agent_entries.all %}
+        <div class="fact"><dt>Coding Agents</dt><dd>{% for entry in version.coding_agent_entries.all %}{% if not forloop.first %}, {% endif %}{% if entry.agent.icon %}<i class="{{ entry.agent.icon }}"></i> {% endif %}{% browse_link "agent" entry.agent.slug "Using "|add:entry.agent.name entry.agent.name %}{% if entry.citation %}<span class="cites">{% citation_footnote entry.citation %}</span>{% endif %}{% endfor %}</dd></div>
+        {% endif %}
+
         {% if version.supported_languages.all %}
         <div class="fact"><dt>Supported Languages</dt><dd>{% for attropt in version.supported_languages.all %}{% if not forloop.first %}, {% endif %}{% browse_link "programming-language" attropt.slug "Supporting "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
         {% endif %}

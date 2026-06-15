@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import io
 
-from dbdb.core.models import SystemVersion
+from dbdb.core.models import SystemVersion, SystemVersionCodingAgent
 from dbdb.core.utils.searchtext import generate_searchtext
 from dbdb.core.utils.twitter_card import create_twitter_card
 
@@ -422,6 +422,14 @@ def clone_system_version(
         acq.id = None
         acq.version = new_version
         acq.save()
+
+    # Clone CodingAgent entries (through model, can't use .set())
+    for entry in current_version.coding_agent_entries.select_related('agent', 'citation').all():
+        SystemVersionCodingAgent.objects.create(
+            system_version=new_version,
+            agent=entry.agent,
+            citation=entry.citation,
+        )
 
     # Add any extra AttributeOptions requested by the caller
     if attribute_options:

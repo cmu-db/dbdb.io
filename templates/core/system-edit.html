@@ -220,6 +220,47 @@
     </div>
 
     <div class="row border-2 border-bottom pt-4">
+        <div class="col-12">
+            <!-- BEGIN: CODING AGENTS -->
+            <div class="mb-3">
+                <label class="form-label">Coding Agents</label>
+                {{ coding_agent_formset.management_form }}
+                <div id="coding-agent-rows">
+                {% for form in coding_agent_formset %}
+                <div class="coding-agent-row row g-2 mb-2 align-items-center">
+                    <div class="col-md-5">{{ form.agent }}</div>
+                    <div class="col-md-6">{{ form.citation_url }}</div>
+                    <div class="col-md-1 text-center">
+                        <button type="button" class="btn-row-remove" onclick="removeCodingAgentRow(this)" title="Remove"><i class="fa-solid fa-circle-xmark"></i></button>
+                        <span class="d-none">{{ form.DELETE }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+                <template id="coding-agent-row-template">
+                    <div class="coding-agent-row row g-2 mb-2 align-items-center">
+                        <div class="col-md-5">
+                            <select name="coding_agents-__prefix__-agent" class="form-select" id="id_coding_agents-__prefix__-agent">
+                                <option value="">---------</option>
+                                {% for opt in agent_options %}<option value="{{ opt.pk }}">{{ opt.name }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6"><input type="url" name="coding_agents-__prefix__-citation_url" class="form-control" placeholder="https://…" id="id_coding_agents-__prefix__-citation_url"></div>
+                        <div class="col-md-1 text-center">
+                            <button type="button" class="btn-row-remove" onclick="removeCodingAgentRow(this)" title="Remove"><i class="fa-solid fa-circle-xmark"></i></button>
+                            <span class="d-none"><input type="checkbox" name="coding_agents-__prefix__-DELETE" id="id_coding_agents-__prefix__-DELETE"></span>
+                        </div>
+                    </div>
+                </template>
+                <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="addCodingAgentRow()">
+                    + Add Coding Agent
+                </button>
+            </div>
+            <!-- END: CODING AGENTS -->
+        </div>
+    </div>
+
+    <div class="row border-2 border-bottom pt-4">
         <div class="col-md-3">
             {% bootstrap_field system_version_form.derived_from form_group_class="form-group multi-select" %}
         </div>
@@ -469,6 +510,30 @@
 
     $(function() {
         $('#acquisition-rows input[name$="-organization"]').each(function() { initOrgAutocomplete(this); });
+    });
+
+    // --- Coding Agent rows ---
+    function addCodingAgentRow() {
+        const template = document.getElementById('coding-agent-row-template');
+        const totalInput = document.querySelector('input[name="coding_agents-TOTAL_FORMS"]');
+        const idx = parseInt(totalInput.value);
+        const clone = template.content.cloneNode(true);
+        const row = clone.querySelector('.coding-agent-row');
+        row.innerHTML = row.innerHTML.replaceAll('__prefix__', idx);
+        document.getElementById('coding-agent-rows').appendChild(clone);
+        totalInput.value = idx + 1;
+        initCitationUrlAutocomplete(document.getElementById('id_coding_agents-' + idx + '-citation_url'));
+    }
+
+    function removeCodingAgentRow(btn) {
+        const row = btn.closest('.coding-agent-row');
+        const del = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+        if (del) del.checked = true;
+        row.style.display = 'none';
+    }
+
+    $(function() {
+        $('#coding-agent-rows input[name$="-citation_url"]').each(function() { initCitationUrlAutocomplete(this); });
     });
 
     // --- Apply system to all featuresets ---

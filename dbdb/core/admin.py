@@ -395,9 +395,17 @@ class SystemVersionAdminForm(forms.ModelForm):
         fields = '__all__'
 
 
+class SystemVersionCodingAgentInline(admin.TabularInline):
+    model = SystemVersionCodingAgent
+    extra = 1
+    raw_id_fields = ('citation',)
+    autocomplete_fields = ('agent',)
+
+
 @admin.register(SystemVersion)
 class SystemVersionAdmin(admin.ModelAdmin):
     form = SystemVersionAdminForm
+    inlines = [SystemVersionCodingAgentInline]
     empty_value_display = 'unknown'
     raw_id_fields = ('description_citations', 'start_year_citations', 'end_year_citations', 'history_citations')
     list_display = ('system', 'ver', 'creator', 'approved', 'is_current', 'created')
