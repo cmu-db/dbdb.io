@@ -220,8 +220,8 @@ body {
 
 ::selection { background: var(--accent); color: var(--accent-ink); }
 
-a { color: var(--ink); text-decoration: none; transition: color .15s; }
-a:hover { color: var(--accent); }
+a { color: var(--accent); text-decoration: none; transition: color .15s; }
+a:hover { color: var(--accent-2); text-decoration: dotted underline; }
 
 .label {
   font-family: var(--mono);

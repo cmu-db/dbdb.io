@@ -546,7 +546,7 @@ class SystemRedirect(models.Model):
     slug = models.SlugField(unique=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.slug}→{self.system.slug}"
 
     pass
 
@@ -1094,6 +1094,7 @@ __all__ = (
     'SystemVersionCodingAgent',
     'SystemACL',
     'SystemRecommendation',
+    'SystemRedirect',
     'SystemSearchText',
     'SystemVisit',
     'user_can_edit_system',

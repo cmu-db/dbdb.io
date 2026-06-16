@@ -459,6 +459,13 @@ class SystemVisitAdmin(admin.ModelAdmin):
     readonly_fields=('created',)
     ordering = ('-created',)
 
+@admin.register(SystemRedirect)
+class SystemRedirectAdmin(admin.ModelAdmin):
+    list_display = ('id', 'slug', 'system')
+    search_fields = ('slug', 'system__name', 'syste__slug')
+    autocomplete_fields = ('system',)
+    ordering = ('slug',)
+
 @admin.register(SavedSearch)
 class SavedSearchAdmin(IconDisplayMixin, admin.ModelAdmin):
     list_display = ('name', 'description', 'icon_display', 'search_params_link', 'created', 'modified')

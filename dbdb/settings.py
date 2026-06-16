@@ -260,7 +260,7 @@ CRAWLER_USER_AGENT = env('CRAWLER_USER_AGENT', default='dbdb.io/1.0')
 
 ANTHROPIC_API_KEY             = env('ANTHROPIC_API_KEY',             default='')
 OPENAI_API_KEY                = env('OPENAI_API_KEY',                default='')
-OPENAI_MODEL                  = env('OPENAI_MODEL',                  default='gpt-4o')
+OPENAI_MODEL                  = env('OPENAI_MODEL',                  default='gpt-5.4-mini')
 PERPLEXITY_API_KEY            = env('PERPLEXITY_API_KEY',            default='')
 PERPLEXITY_MODEL              = env('PERPLEXITY_MODEL',              default='sonar-pro')
 OLLAMA_MODEL                  = env('OLLAMA_MODEL',                  default='qwen3.6:35b')
