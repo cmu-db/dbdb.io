@@ -281,13 +281,31 @@ class RepoCollector(ABC):
         return message, timestamp
 
     def get_readme(self) -> str | None:
-        """Return the contents of README.md from the root of the cloned repository, or None."""
+        """Return the contents of the README file from the root of the cloned repository, or None.
+
+        Prefers README.md (case-insensitive); falls back to any file whose name
+        starts with 'readme' regardless of extension (also case-insensitive).
+        """
         if not self._repo_dir:
             return None
-        readme_path = os.path.join(self._repo_dir, 'README.md')
-        if not os.path.isfile(readme_path):
+        try:
+            entries = os.listdir(self._repo_dir)
+        except OSError:
             return None
-        with open(readme_path, encoding='utf-8', errors='replace') as fh:
+        # Prefer README.md (case-insensitive match)
+        chosen = next(
+            (e for e in entries if e.lower() == 'readme.md'),
+            None,
+        )
+        # Fall back to any readme.* file
+        if chosen is None:
+            chosen = next(
+                (e for e in entries if e.lower().startswith('readme.')),
+                None,
+            )
+        if chosen is None:
+            return None
+        with open(os.path.join(self._repo_dir, chosen), encoding='utf-8', errors='replace') as fh:
             return fh.read()
 
     def get_first_commit_timestamp(self) -> datetime | None:

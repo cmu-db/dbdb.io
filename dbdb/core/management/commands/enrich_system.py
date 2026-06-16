@@ -206,6 +206,8 @@ class Command(EnricherBaseCommand):
                     self.stdout.write(f"  No README.md found in {sourcerepo.url}")
             except Exception:
                 LOG.warning("Could not fetch README from %s", sourcerepo.url, exc_info=True)
+        else:
+            LOG.warning(f"Not retrieving {system.name} README for {sourcerepo.url}")
 
         # --- 4. Load taxonomy ---
         features = list(Feature.objects.prefetch_related('options').order_by('category', 'label'))
@@ -364,7 +366,7 @@ class Command(EnricherBaseCommand):
                 )
                 if opts:
                     getattr(new_sv, field).set(opts)
-                    self.stdout.write(f"  attr  {field}: {', '.join(o.value for o in opts)}")
+                    self.stdout.write(f"  attr  {field}: {', '.join(o.name for o in opts)}")
                 else:
                     self.stdout.write(f"  attr  {field}: no matching options for slugs {slugs}")
 

@@ -385,7 +385,7 @@ def fetch_url_metadata(
                 "content-type": None,
                 "content-length": None,
                 "status": CitationUrl.Status.VALID,
-                "title": title,
+                "title": None, # just use the commit url instead of commit info
                 "etag": None,
                 "last-modified": last_modified,
                 "cache-control": None,
