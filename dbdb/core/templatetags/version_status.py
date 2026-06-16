@@ -13,7 +13,7 @@ def ver_status(approved, is_current=False):
     approved=True, is_current=False → Superseded (muted)
     """
     if not approved:
-        return mark_safe('<span class="status pending">Pending</span>')
+        return mark_safe('<span class="status pending align-middle">Pending</span>')
     if is_current:
-        return mark_safe('<span class="status live">Live</span>')
-    return mark_safe('<span class="status super">Superseded</span>')
+        return mark_safe('<span class="status live align-middle">Live</span>')
+    return mark_safe('<span class="status super align-middle">Superseded</span>')

@@ -69,7 +69,9 @@
                 {% sv_created version %}
             </a>
             {% if not version.approved %}
+                <!-- BEGIN:PENDING-MOBILE -->
                 <span class="d-inline d-md-none">{% ver_status version.approved %}</span>
+                <!-- END:PENDING-MOBILE -->
             {% endif %}
         </div>
         <div class="feed-body">
@@ -84,7 +86,9 @@
                 <a href="{% url 'system' version.system.slug %}" class="sys" title="View {{ version.system.name }}">{{ version.system.name }}</a>
 
                 {% if not version.approved %}
-                    <span class="d-none d-md-inline">{% ver_status version.approved %}</span>
+                    <!-- BEGIN:PENDING-DESKTOP -->
+                    <span class="d-none d-md-inline align-middle">{% ver_status version.approved %}</span>
+                    <!-- END:PENDING-DESKTOP -->
                 {% endif %}
 
                 <!-- BEGIN:ACTIONS -->
