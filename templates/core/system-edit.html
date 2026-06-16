@@ -324,9 +324,29 @@
     <div class="edit-savebox card shadow p-3" id="savebox">
         <div class="form-group mb-3">
             <label for="id_comment" class="form-label">Revision Comment</label>
-            <textarea name="comment" rows="4" class="form-control" placeholder="Describe your changes…" id="id_comment"></textarea>
+            <textarea name="comment" rows="4" class="form-control" placeholder="Describe your changes…" id="id_comment">{% if pending_version %}{{ pending_version.comment }}{% endif %}</textarea>
             {% alert type="error" id="comment-error" icon="" extra_classes="mt-2 small d-none" %}Please enter a revision comment before saving.{% endalert %}
         </div>
+        {% if request.user.is_superuser and pending_version %}
+        <div class="border-top pt-3 mb-3">
+            <div class="mb-2">
+                <label for="admin_approved" class="form-label small">Version Status</label>
+                <select name="admin_approved" id="admin_approved" class="form-select form-select-sm">
+                    <option value="pending" selected>Pending (unapproved)</option>
+                    <option value="approved">Approved (make live)</option>
+                </select>
+            </div>
+            <div class="mb-0">
+                <label for="admin_creator" class="form-label small">Creator</label>
+                <select name="admin_creator" id="admin_creator" class="form-select form-select-sm">
+                    <option value="{{ pending_version.creator.pk }}" selected>{{ pending_version.creator.username }} (current)</option>
+                    {% if request.user.pk != pending_version.creator.pk %}
+                    <option value="{{ request.user.pk }}">{{ request.user.username }} (you)</option>
+                    {% endif %}
+                </select>
+            </div>
+        </div>
+        {% endif %}
         <div class="d-grid gap-2">
             <button type="submit" class="btn btn-primary" name="action" value="save" id="btn-save">
                 <i class="fa-solid fa-floppy-disk me-1"></i> Save

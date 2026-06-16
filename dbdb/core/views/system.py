@@ -541,18 +541,39 @@ class SystemEditView(LoginRequiredMixin, View):
             else:
                 logo = system.current().logo if prev_version else ''
 
+            # Superuser editing a pending version can explicitly keep it pending
+            # instead of publishing it. Only honoured when pending is not None.
+            keep_pending = (
+                request.user.is_superuser
+                and pending is not None
+                and request.POST.get('admin_approved') == 'pending'
+            )
+
             new_version = system_version_form.save(commit=False)
 
             if is_admin:
-                # Mark as approved and flip all previous versions to not-current.
-                # When updating an existing pending version in-place the pre_save signal
-                # does not fire (created=False), so is_current must be set explicitly.
-                new_version.approved = True
                 new_version.system = system
+                if keep_pending:
+                    new_version.approved = False
+                    new_version.is_current = False
+                else:
+                    # Mark as approved and flip all previous versions to not-current.
+                    # When updating an existing pending version in-place the pre_save signal
+                    # does not fire (created=False), so is_current must be set explicitly.
+                    new_version.approved = True
+                    system.versions.exclude(pk=new_version.pk).update(is_current=False)
+                    new_version.is_current = True
                 if pending is None:
                     new_version.creator = request.user
-                system.versions.exclude(pk=new_version.pk).update(is_current=False)
-                new_version.is_current = True
+                # Superuser can reassign the creator when editing a pending version
+                if request.user.is_superuser and pending is not None:
+                    admin_creator_pk = request.POST.get('admin_creator')
+                    if admin_creator_pk:
+                        try:
+                            UserModel = get_user_model()
+                            new_version.creator = UserModel.objects.get(pk=int(admin_creator_pk))
+                        except Exception:
+                            pass
             else:
                 # Pending path: not approved, stays invisible
                 new_version.approved = False
@@ -594,7 +615,7 @@ class SystemEditView(LoginRequiredMixin, View):
             elif logo and not new_version.logo:
                 new_version.logo = logo
 
-            if is_admin:
+            if is_admin and not keep_pending:
                 system.ver = new_version.ver
                 system.modified = timezone.now()
                 system.save()
