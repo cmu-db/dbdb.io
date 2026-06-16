@@ -777,8 +777,8 @@ class SystemEditView(LoginRequiredMixin, View):
 
         agent_options = AttributeOption.objects.filter(attribute__slug='agent').order_by('name')
         return render(request, self.template_name, {
-            'activate': 'edit', # NAV-LINKS
-            'system_name': system.name,
+            'activate': 'create' if system.id is None else 'edit', # NAV-LINKS
+            'system': system,
             'system_form': system_form,
             'system_version_form': system_version_form,
             'feature_form': feature_form,
@@ -787,6 +787,7 @@ class SystemEditView(LoginRequiredMixin, View):
             'developer_org_formset': developer_org_formset,
             'coding_agent_formset': coding_agent_formset,
             'agent_options': agent_options,
+            'pending_version': pending if pending else None,
             'citation_url_selector': ', '.join(f'#id_{f}' for f in SystemVersionForm.CITATION_URL_FIELDS),
         })
 
