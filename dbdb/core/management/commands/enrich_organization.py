@@ -106,13 +106,14 @@ class Command(EnricherBaseCommand):
     def handle(self, *args, **options):
         seen = {}
 
-        # HACK
-        if "search_type" in options:
+        if options.get('search_type'):
             org_type = OrgType[options['search_type'].upper()]
             qs = Organization.objects.filter(org_type=org_type)
             for org in qs:
                 seen.setdefault(org.pk, org)
         else:
+            if not options['keywords']:
+                raise CommandError("Provide at least one KEYWORD or use --search-type")
             for keyword in options['keywords']:
                 qs = Organization.objects.filter(slug=keyword)
                 if not qs.exists():
