@@ -22,19 +22,20 @@ class ChatGPTEnricher(BaseEnricher):
         import openai
 
         model = model_override or getattr(settings, "OPENAI_MODEL", "gpt-4o")
+        self._last_model = model
         fn_name = tool_schema["name"]
         LOG.debug(f"Calling OpenAI model={model} function={fn_name}")
         LOG.debug("Prompt:\n%s", user_prompt)
         if dry_run:
             print(f"=== DRY RUN — OpenAI model={model} function={fn_name} ===")
-            print(f"[SYSTEM]\n{get_system_prompt(fn_name)}\n")
+            print(f"[SYSTEM]\n{get_system_prompt(fn_name, name=self._name, organization=self._organization)}\n")
             print(f"[USER]\n{user_prompt}")
             return {}
         client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
         response = client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": get_system_prompt(fn_name)},
+                {"role": "system", "content": get_system_prompt(fn_name, name=self._name, organization=self._organization)},
                 {"role": "user", "content": user_prompt},
             ],
             tools=[{

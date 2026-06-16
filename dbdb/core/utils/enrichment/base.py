@@ -17,6 +17,16 @@ _PROMPT_EXCLUDED_FIELDS = frozenset({
 
 
 class BaseEnricher(ABC):
+    _name: str = ''
+    _organization: str = ''
+    _last_model: str = ''
+
+    def set_context(self, name: str = '', organization: str = '') -> None:
+        self._name = name
+        self._organization = organization
+
+    def get_last_model(self) -> str:
+        return self._last_model
 
     @abstractmethod
     def call_llm(

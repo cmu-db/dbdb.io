@@ -253,6 +253,9 @@ class Command(EnricherBaseCommand):
         # --- 5. Call LLM ---
         enrichment: dict = {}
 
+        org_names = [o.name for o in current.developer_orgs.all()]
+        enricher.set_context(name=system.name, organization=org_names[0] if org_names else '')
+
         if not per_feature:
             # Single comprehensive call
             self.stdout.write("Calling LLM (single call)...")
@@ -315,17 +318,19 @@ class Command(EnricherBaseCommand):
         bot_user = User.objects.get(username=settings.DBDB_BOT_ACCOUNT)
 
         with transaction.atomic():
+            last_model = enricher.get_last_model()
+            enrichment_comment = f"Auto-enriched by enrich_system command (model: {last_model})"
             existing_pending = system.pending_version()
             if existing_pending:
                 new_sv = existing_pending
-                new_sv.comment = f"Auto-enriched by enrich_system command (model: {model_override or settings.ENRICHMENT_LLM_MODEL})"
+                new_sv.comment = enrichment_comment
                 self.stdout.write(f"Reusing existing pending SystemVersion #{new_sv.ver}")
             else:
                 new_sv = clone_system_version(
                     current,
                     approved=False,
                     creator=bot_user,
-                    comment=f"Auto-enriched by enrich_system command (model: {model_override or settings.ENRICHMENT_LLM_MODEL})",
+                    comment=enrichment_comment,
                 )
 
             # Apply simple text / int fields

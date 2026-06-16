@@ -17,7 +17,7 @@ _SYSTEM_PROMPT_COMMON = (
 _SYSTEM_PROMPTS: dict[str, str] = {
     "save_enrichment": (
         _SYSTEM_PROMPT_COMMON
-        + " Your task is to fill in missing information about a database management system "
+        + " Your task is to fill in missing information about {db_desc} "
         "based on the page content provided and your training knowledge. "
         "All feature option slugs and attribute option slugs MUST exactly match the "
         "taxonomy provided - do not invent new slugs."
@@ -35,8 +35,15 @@ _SYSTEM_PROMPTS: dict[str, str] = {
 }
 
 
-def get_system_prompt(tool_name: str) -> str:
-    return _SYSTEM_PROMPTS.get(tool_name, _SYSTEM_PROMPTS["save_enrichment"])
+def get_system_prompt(tool_name: str, name: str = '', organization: str = '') -> str:
+    template = _SYSTEM_PROMPTS.get(tool_name, _SYSTEM_PROMPTS["save_enrichment"])
+    if name:
+        db_desc = f"the {name} database management system"
+        if organization:
+            db_desc += f" from {organization}"
+    else:
+        db_desc = "a database management system"
+    return template.replace('{db_desc}', db_desc)
 
 # ---------------------------------------------------------------------------
 # System enrichment schema

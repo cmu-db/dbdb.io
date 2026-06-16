@@ -21,10 +21,11 @@ class OllamaEnricher(BaseEnricher):
         dry_run: bool = False,
     ) -> dict:
         model = model_override or settings.OLLAMA_MODEL
+        self._last_model = model
         LOG.debug(f"Calling Ollama model={model}")
         schema_str = json.dumps(tool_schema["input_schema"], indent=2)
         prompt = (
-            f"{get_system_prompt(tool_schema['name'])}\n\n"
+            f"{get_system_prompt(tool_schema['name'], name=self._name, organization=self._organization)}\n\n"
             f"Return ONLY a valid JSON object matching this schema (no prose, no markdown):\n"
             f"{schema_str}\n\n"
             f"{user_prompt}"

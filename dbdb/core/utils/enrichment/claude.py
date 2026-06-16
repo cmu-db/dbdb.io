@@ -20,12 +20,13 @@ class ClaudeEnricher(BaseEnricher):
         dry_run: bool = False,
     ) -> dict:
         model = model_override or settings.ENRICHMENT_LLM_MODEL
+        self._last_model = model
         tool_name = tool_schema["name"]
         LOG.debug(f"Calling Anthropic model={model} tool={tool_name}")
         LOG.debug("Prompt:\n%s", user_prompt)
         if dry_run:
             print(f"=== DRY RUN — Anthropic model={model} tool={tool_name} ===")
-            print(f"[SYSTEM]\n{get_system_prompt(tool_name)}\n")
+            print(f"[SYSTEM]\n{get_system_prompt(tool_name, name=self._name, organization=self._organization)}\n")
             print(f"[USER]\n{user_prompt}")
             return {}
         try:
@@ -33,7 +34,7 @@ class ClaudeEnricher(BaseEnricher):
             response = client.messages.create(
                 model=model,
                 max_tokens=4096,
-                system=get_system_prompt(tool_name),
+                system=get_system_prompt(tool_name, name=self._name, organization=self._organization),
                 tools=[tool_schema],
                 tool_choice={"type": "tool", "name": tool_name},
                 messages=[{"role": "user", "content": user_prompt}],
