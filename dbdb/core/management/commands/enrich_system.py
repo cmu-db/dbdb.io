@@ -51,7 +51,7 @@ M2M_ATTR_SLUGS = {
     'licenses':      'license',
     'oses':          'os',
     'written_in':    'programming-language',
-    'tags':          'tags'
+    'tags':          'tag'
 }
 # Maps M2M field name → the M2M citation field on SystemVersion
 FIELD_CITATION_MAP = {
@@ -396,7 +396,7 @@ class Command(EnricherBaseCommand):
                     )
                 )
                 if opts:
-                    getattr(new_sv, field).set(opts)
+                    getattr(new_sv, field).add(*opts)
                     self.stdout.write(f"  attr  {field}: {', '.join(o.name for o in opts)}")
                 else:
                     self.stdout.write(f"  attr  {field}: no matching options for slugs {slugs}")
