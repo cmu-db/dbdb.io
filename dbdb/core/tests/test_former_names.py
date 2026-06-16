@@ -94,6 +94,10 @@ class FormerNamesEditFormTestCase(TestCase):
             'acquisitions-INITIAL_FORMS': '0',
             'acquisitions-MIN_NUM_FORMS': '0',
             'acquisitions-MAX_NUM_FORMS': '1000',
+            'coding_agents-TOTAL_FORMS': '0',
+            'coding_agents-INITIAL_FORMS': '0',
+            'coding_agents-MIN_NUM_FORMS': '0',
+            'coding_agents-MAX_NUM_FORMS': '1000',
         }
 
     def _current_sv(self):

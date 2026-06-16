@@ -284,6 +284,10 @@ class CreateSystemTestCase(TestCase):
             'developer_orgs-INITIAL_FORMS': 0,
             'developer_orgs-MIN_NUM_FORMS': 0,
             'developer_orgs-MAX_NUM_FORMS': 1000,
+            'coding_agents-TOTAL_FORMS': 0,
+            'coding_agents-INITIAL_FORMS': 0,
+            'coding_agents-MIN_NUM_FORMS': 0,
+            'coding_agents-MAX_NUM_FORMS': 1000,
         }
         response = self.client.post(reverse('create_system'), data=data)
         self.assertRedirects(response, reverse('system', kwargs={'slug': 'testdb'}))
