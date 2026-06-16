@@ -35,6 +35,18 @@
 
 <div class="feed-wrap">
 
+{% if request.user.is_superuser %}
+<form method="get" class="d-flex align-items-center gap-2 mb-3">
+    {% if lookup_user %}<input type="hidden" name="username" value="{{ lookup_user.username }}">{% endif %}
+    <label for="show-filter" class="form-label mb-0 text-nowrap small fw-semibold">Show:</label>
+    <select id="show-filter" name="show" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+        <option value="all" {% if show_filter == 'all' %}selected{% endif %}>All (Approved + Pending)</option>
+        <option value="approved" {% if show_filter == 'approved' %}selected{% endif %}>Approved Only</option>
+        <option value="pending" {% if show_filter == 'pending' %}selected{% endif %}>Pending Only</option>
+    </select>
+</form>
+{% endif %}
+
 {% if not revision_list %}
 {% include "core/pagination.html" %}
 {% endif %}

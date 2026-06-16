@@ -822,19 +822,29 @@ class RecentChangesView(View):
         if versions is None:
             versions = SystemVersion.objects.all()
 
-        # Filter out unapproved (pending) versions based on who is viewing
-        if slug is not None:
-            # System-specific feed: editors see pending; public does not
-            if not user_can_edit_system(request.user, system):
+        # Filter by approval status
+        if request.user.is_superuser:
+            show_filter = request.GET.get('show', 'all')
+            if show_filter not in ('all', 'approved', 'pending'):
+                show_filter = 'all'
+            if show_filter == 'approved':
                 versions = versions.filter(approved=True)
+            elif show_filter == 'pending':
+                versions = versions.filter(approved=False)
         else:
-            viewing_own = (
-                request.user.is_authenticated
-                and lookup_user is not None
-                and lookup_user == request.user
-            )
-            if not viewing_own and not request.user.is_superuser:
-                versions = versions.filter(approved=True)
+            show_filter = None
+            if slug is not None:
+                # System-specific feed: editors see pending; public does not
+                if not user_can_edit_system(request.user, system):
+                    versions = versions.filter(approved=True)
+            else:
+                viewing_own = (
+                    request.user.is_authenticated
+                    and lookup_user is not None
+                    and lookup_user == request.user
+                )
+                if not viewing_own:
+                    versions = versions.filter(approved=True)
 
         versions = versions.order_by("-created")
         total_revisions = versions.count()
@@ -848,6 +858,7 @@ class RecentChangesView(View):
             "total_revisions": total_revisions,
             "revision_list": slug is not None,
             "can_edit_system": can_edit_system,
+            "show_filter": show_filter,
         }
 
         if slug is not None:
