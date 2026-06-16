@@ -20,7 +20,7 @@ class OllamaEnricher(BaseEnricher):
         model_override: str | None = None,
         dry_run: bool = False,
     ) -> dict:
-        model = model_override or settings.ENRICHMENT_LLM_FALLBACK_MODEL
+        model = model_override or settings.OLLAMA_MODEL
         LOG.debug(f"Calling Ollama model={model}")
         schema_str = json.dumps(tool_schema["input_schema"], indent=2)
         prompt = (

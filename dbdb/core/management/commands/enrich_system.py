@@ -199,7 +199,7 @@ class Command(EnricherBaseCommand):
             raise CommandError(f"No current SystemVersion for '{system.slug}'")
 
         self.stdout.write(f"System: {system.name} (current ver #{current.ver})")
-        enricher = BaseEnricher.create(options['enricher'], model_override)
+        enricher = BaseEnricher.create(options['enricher'])
 
         # --- 2. Identify missing fields ---
         skip_fields = set(options['skip_field'])
@@ -452,4 +452,4 @@ class Command(EnricherBaseCommand):
             self.stdout.write(f"Features set: {', '.join(feat_suggestions.keys())}")
         from django.contrib.sites.models import Site
         domain = Site.objects.get_current().domain
-        self.stdout.write(f"Review and approve: https://{domain}{new_sv.get_diff_url()}")
+        self.stdout.write(f"Review and approve: http://{domain}{new_sv.get_diff_url()}")

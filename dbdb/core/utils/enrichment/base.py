@@ -226,7 +226,7 @@ class BaseEnricher(ABC):
         }
 
     @classmethod
-    def create(cls, enricher_type: str, model_override: str | None = None) -> "BaseEnricher":
+    def create(cls, enricher_type: str) -> "BaseEnricher":
         """Instantiate the named enricher, raising ValueError if its required settings key is absent."""
         from django.conf import settings
 
@@ -243,4 +243,6 @@ class BaseEnricher(ABC):
                 f"enricher {enricher_type!r} requires {required_key} to be set in settings"
             )
 
-        return registry[enricher_type]()
+        obj = registry[enricher_type]()
+        LOG.info(f"Enricher: {obj.__class__!r} [type={enricher_type!r}]")
+        return obj

@@ -20,7 +20,7 @@ _SYSTEM_PROMPTS: dict[str, str] = {
         + " Your task is to fill in missing information about a database management system "
         "based on the page content provided and your training knowledge. "
         "All feature option slugs and attribute option slugs MUST exactly match the "
-        "taxonomy provided — do not invent new slugs."
+        "taxonomy provided - do not invent new slugs."
     ),
     "save_org_enrichment": (
         _SYSTEM_PROMPT_COMMON
