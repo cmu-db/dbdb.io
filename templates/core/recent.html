@@ -68,9 +68,12 @@
                 {% sv_ver version.ver %}
                 {% sv_created version %}
             </a>
+            {% if not version.approved %}
+                <span class="d-inline d-md-none">{% ver_status version.approved %}</span>
+            {% endif %}
         </div>
         <div class="feed-body">
-            <div class="feed-line">
+            <div class="feed-line align-middle">
                 <a href="{% url 'recent' %}?username={{ version.creator.username }}" class="actor">
                     <i class="fa-regular fa-user"></i> {{ version.creator.username }}
                 </a>
@@ -80,7 +83,9 @@
                 </a>
                 <a href="{% url 'system' version.system.slug %}" class="sys" title="View {{ version.system.name }}">{{ version.system.name }}</a>
 
-                {% if not version.approved %}{% ver_status version.approved %}{% endif %}
+                {% if not version.approved %}
+                    <span class="d-none d-md-inline">{% ver_status version.approved %}</span>
+                {% endif %}
 
                 <!-- BEGIN:ACTIONS -->
                 <div class="feed-actions">
