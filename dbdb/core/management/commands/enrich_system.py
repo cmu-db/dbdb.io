@@ -104,6 +104,21 @@ def _crawl_existing_urls(
 
 
 
+def _query_systems_missing_field(field: str):
+    """Return a queryset of Systems whose current version has *field* empty/null."""
+    from django.db.models import Q
+    sv_qs = SystemVersion.objects.filter(is_current=True)
+    if field in URL_FK_FIELDS:
+        sv_qs = sv_qs.filter(**{f'{field}_id__isnull': True})
+    elif field in M2M_ATTR_FIELDS:
+        sv_qs = sv_qs.filter(**{f'{field}__isnull': True})
+    elif field in SIMPLE_TEXT_FIELDS:
+        sv_qs = sv_qs.filter(Q(**{f'{field}__isnull': True}) | Q(**{field: ''}))
+    else:  # INT_FIELDS
+        sv_qs = sv_qs.filter(**{f'{field}__isnull': True})
+    return System.objects.filter(versions__in=sv_qs).order_by('name')
+
+
 def _get_missing_features(version: SystemVersion) -> list[Feature]:
     """Return Features that have no options set on *version*."""
     existing_feature_ids = set(
@@ -122,18 +137,31 @@ class Command(EnricherBaseCommand):
         super().add_arguments(parser)
         parser.add_argument('--per-feature', action='store_true',
                             help='One LLM call per missing Feature (slower, more targeted)')
+        all_fields = list(SIMPLE_TEXT_FIELDS) + list(INT_FIELDS) + list(URL_FK_FIELDS) + list(M2M_ATTR_FIELDS)
+        parser.add_argument('--missing', metavar='FIELD', default=None,
+                            choices=all_fields,
+                            help=f'Process every system whose current version is missing FIELD '
+                                 f'(instead of providing KEYWORDs). '
+                                 f'Valid fields: {", ".join(all_fields)}')
 
     def handle(self, *args, **options):
         seen = {}
-        for keyword in options['keywords']:
-            if keyword.isdigit():
-                qs = System.objects.filter(id=int(keyword))
-            else:
-                qs = System.objects.filter(slug__icontains=keyword)
-            if not qs.exists():
-                raise CommandError(f"No system found with keyword '{keyword}'")
-            for system in qs:
-                seen.setdefault(system.pk, system)
+        missing_field = options.get('missing')
+        if missing_field:
+            for system in _query_systems_missing_field(missing_field):
+                seen[system.pk] = system
+        else:
+            if not options['keywords']:
+                raise CommandError("Provide at least one KEYWORD or use --missing=FIELD")
+            for keyword in options['keywords']:
+                if keyword.isdigit():
+                    qs = System.objects.filter(id=int(keyword))
+                else:
+                    qs = System.objects.filter(slug__icontains=keyword)
+                if not qs.exists():
+                    raise CommandError(f"No system found with keyword '{keyword}'")
+                for system in qs:
+                    seen.setdefault(system.pk, system)
         systems = list(seen.values())
 
         limit = options['limit']
