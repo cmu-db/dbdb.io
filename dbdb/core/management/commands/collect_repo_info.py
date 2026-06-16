@@ -238,16 +238,6 @@ class Command(DbdbBaseCommand):
                 try:
                     branch = snapshot.branch_default_name or None
                     agents_found = scan_coding_agents(citation, branch)
-                    for agent, agent_citation in agents_found.items():
-                        _, created = SystemVersionCodingAgent.objects.update_or_create(
-                            system_version=ver,
-                            agent=agent,
-                            defaults={'citation': agent_citation},
-                        )
-                        self.stdout.write(
-                            f"  coding_agent {'added' if created else 'updated'}: "
-                            f"{agent.name}  {agent_citation.url if agent_citation else '(no url)'}"
-                        )
                     if agents_found and ai_assisted_tag is not None and bot_user is not None:
                         if not ver.tags.filter(pk=ai_assisted_tag.pk).exists():
                             new_ver = clone_system_version(
@@ -258,6 +248,18 @@ class Command(DbdbBaseCommand):
                             new_ver.tags.add(ai_assisted_tag)
                             finalize_new_version(new_ver, old_logo=ver.logo)
                             self.stdout.write(f"  cloned to v{new_ver.ver} and tagged: {ai_assisted_tag.slug}")
+                        else:
+                            new_ver = ver
+                        for agent, agent_citation in agents_found.items():
+                            _, created = SystemVersionCodingAgent.objects.update_or_create(
+                                system_version=new_ver,
+                                agent=agent,
+                                defaults={'citation': agent_citation},
+                            )
+                            self.stdout.write(
+                                f"  coding_agent {'added' if created else 'updated'}: "
+                                f"{agent.name}  {agent_citation.url if agent_citation else '(no url)'}"
+                            )
                 except Exception as exc:
                     self.stderr.write(f"  WARNING — coding agent scan failed: {exc}")
                     LOG.warning("Coding agent scan failed for %s: %s", citation.url, exc)
