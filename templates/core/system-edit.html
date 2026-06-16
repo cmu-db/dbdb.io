@@ -308,7 +308,7 @@
                         <div class="input-group">
                             {{ featureset.system }}
                             <button type="button" class="btn btn-outline-secondary"
-                                    onclick="var s=document.getElementById('{{ featureset.system.html_name }}');s.value='';s.dispatchEvent(new Event('change'));">Clear</button>
+                                    onclick="var s=document.getElementById('{{ featureset.system.auto_id }}');s.selectedIndex=0;s.dispatchEvent(new Event('change'));">Clear</button>
                         </div>
                     </div>
                     {% bootstrap_field featureset.choices form_group_class="form-group multi-select" %}
