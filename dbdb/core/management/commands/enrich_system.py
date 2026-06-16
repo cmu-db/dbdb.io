@@ -169,6 +169,9 @@ class Command(EnricherBaseCommand):
         for system in systems:
             if limit is not None and processed >= limit:
                 break
+            if system.pending_version():
+                LOG.warning("Skipping '%s': has a pending (unapproved) SystemVersion", system.slug)
+                continue
             try:
                 self._enrich_one(system, options)
                 processed += 1
@@ -235,7 +238,7 @@ class Command(EnricherBaseCommand):
             except Exception:
                 LOG.warning("Could not fetch README from %s", sourcerepo.url, exc_info=True)
         else:
-            LOG.warning(f"Not retrieving {system.name} README for {sourcerepo.url}")
+            LOG.warning(f"Not retrieving {system.name} README [sourcerepo={sourcerepo}]")
 
         # --- 4. Load taxonomy ---
         features = list(Feature.objects.prefetch_related('options').order_by('category', 'label'))
