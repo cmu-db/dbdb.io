@@ -16,9 +16,12 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('table', metavar='TABLE',
                             help='Name of the source Postgres table (copy of core_systemvisit)')
+        parser.add_argument('--dry-run', action='store_true',
+                            help='Show how many visits would be imported without writing anything')
 
     def handle(self, *args, **options):
         table = options['table']
+        dry_run = options['dry_run']
 
         cols = ', '.join(VISIT_FIELDS)
         with connection.cursor() as cursor:
@@ -42,12 +45,19 @@ class Command(BaseCommand):
                     LOG.warning("Skipping visit #%s — system_id=%s not found", data['id'], data['system_id'])
                     missing_system += 1
                     continue
-                cursor.execute(
-                    'INSERT INTO core_systemvisit (id, system_id, ip_address, user_agent, created) '
-                    'VALUES (%s, %s, %s, %s, %s)',
-                    [data['id'], data['system_id'], data['ip_address'], data['user_agent'], data['created']],
-                )
+                if not dry_run:
+                    cursor.execute(
+                        'INSERT INTO core_systemvisit (id, system_id, ip_address, user_agent, created) '
+                        'VALUES (%s, %s, %s, %s, %s)',
+                        [data['id'], data['system_id'], data['ip_address'], data['user_agent'], data['created']],
+                    )
                 imported += 1
+
+        if dry_run:
+            self.stdout.write(self.style.SUCCESS(
+                f"DRY RUN: {imported} visits would be imported ({skipped} existing, {missing_system} unknown systems)."
+            ))
+            return
 
         self.stdout.write(f"Imported {imported}, skipped {skipped} existing, {missing_system} unknown systems")
 
