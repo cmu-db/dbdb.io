@@ -76,10 +76,6 @@ SYSTEM_ENRICHMENT_TOOL = {
                 "type": "string",
                 "description": "Official technical documentation URL.",
             },
-            "sourcerepo_url": {
-                "type": "string",
-                "description": "Public source-code repository URL.",
-            },
             "wikipedia_url": {
                 "type": "string",
                 "description": "Wikipedia article URL.",
@@ -111,6 +107,11 @@ SYSTEM_ENRICHMENT_TOOL = {
                 "type": "array",
                 "items": {"type": "string"},
                 "description": "List of programming-language AttributeOption slugs.",
+            },
+            "tags": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "List of tag AttributeOption slugs that categorise the system.",
             },
             "features": {
                 "type": "object",
