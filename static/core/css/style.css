@@ -845,7 +845,7 @@ form.main-search { display: block; padding: 0; }
   padding: .45rem .8rem; display: inline-flex; align-items: center; gap: .4rem; cursor: pointer; white-space: nowrap;
   border-radius: 0px;
 }
-.btn:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink) !important; }
+.btn:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink) !important; text-decoration: none; }
 .btn.ghost { background: transparent; color: var(--ink) !important; border-color: var(--ink); }
 .btn.ghost:hover { background: var(--ink); color: var(--paper) !important; }
 .mini-select {
