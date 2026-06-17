@@ -46,7 +46,7 @@
         </td>
         {% elif col_val.type == 'orgs' %}
         <td class="r-model" data-sort-val="{% for org in col_val.data %}{% if not forloop.first %} {% endif %}{{ org.name }}{% endfor %}">
-            {% for org in col_val.data %}{% if not forloop.first %}, {% endif %}{{ org.name }}{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}
+            {% for org in col_val.data %}{% if not forloop.first %}, {% endif %}{% org_link org %}{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}
         </td>
         {% elif col_val.type == 'systems' %}
         <td class="r-model" data-sort-val="{% for sys in col_val.data %}{% if not forloop.first %} {% endif %}{{ sys.name }}{% endfor %}">

@@ -1,6 +1,7 @@
+from types import SimpleNamespace
 from django import template
 
-from dbdb.core.models import AttributeOption, Organization, System
+from dbdb.core.models import AttributeOption, Organization, OrgType, System
 
 register = template.Library()
 
@@ -12,10 +13,17 @@ def system_link(system: System):
     return {"s": system}
 
 @register.inclusion_tag("components/org_link.html")
-def org_link(org: Organization):
+def org_link(org):
     """
-    Renders a link for an Organization
+    Renders a link for an Organization (accepts model instance or dict from JSONBAgg).
     """
+    if isinstance(org, dict):
+        org_type_int = org.get('org_type')
+        org = SimpleNamespace(
+            name=org['name'],
+            slug=org['slug'],
+            org_type_obj=OrgType(org_type_int) if org_type_int is not None else None,
+        )
     return {"org": org}
 
 @register.inclusion_tag("components/browse_link.html")

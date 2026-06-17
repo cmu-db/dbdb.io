@@ -1,1 +1,4 @@
-<a class="system-link" href="{% url 'organization' org.slug %}" title="View {{ org.name }}"><i class="fa-solid fa-address-book"></i>{{ org.name }}</i></a>
+<a class="system-link"
+   href="{% url 'organization' org.slug %}"
+   title="View {{ org.name }}">
+    <i class="{% if org.org_type_obj.icon %}{{ org.org_type_obj.icon }}{% else %}fa-solid fa-address-book{% endif %}"></i>{{ org.name }}</i></a>

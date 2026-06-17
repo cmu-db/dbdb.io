@@ -824,7 +824,7 @@ class BrowseView(View):
         # Developer orgs column annotation (inline)
         if 'developer-orgs' in active_col_ids:
             results = results.annotate(col_developer_orgs=JSONBAgg(
-                JSONObject(name=F('developer_orgs__name'), slug=F('developer_orgs__slug')),
+                JSONObject(name=F('developer_orgs__name'), slug=F('developer_orgs__slug'), org_type=F('developer_orgs__org_type')),
                 filter=Q(developer_orgs__isnull=False),
                 distinct=True,
             ))
@@ -832,7 +832,7 @@ class BrowseView(View):
         # Acquired-by column annotation (inline)
         if 'acquired-by' in active_col_ids:
             results = results.annotate(col_acquired_by=JSONBAgg(
-                JSONObject(name=F('acquisitions__organization__name'), slug=F('acquisitions__organization__slug')),
+                JSONObject(name=F('acquisitions__organization__name'), slug=F('acquisitions__organization__slug'), org_type=F('acquisitions__organization__org_type')),
                 filter=Q(acquisitions__isnull=False),
                 distinct=True,
             ))
