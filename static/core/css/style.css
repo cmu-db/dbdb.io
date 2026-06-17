@@ -117,6 +117,10 @@ h1 {
 .system-link:active { color: var(--ink) !important; }
 .system-link .icon { transition: transform 0.3s ease; margin-left: -2px; padding-right: 2px; }
 .system-link:hover .icon { transform: translateX(5px); }
+.system-link:hover i {
+  /*filter: drop-shadow(0 0 4px var(--accent));*/
+  filter: drop-shadow(0 0 4px rgb(from var(--accent) r g b / 0.3));
+}
 
 /* Logo sizes — system entry page */
 .logo-thumbnail img { border: none; }
