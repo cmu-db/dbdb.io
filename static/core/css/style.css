@@ -992,8 +992,9 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .tag-badge i { font-size: .7rem; color: var(--muted); }
 
 .rtable .tag-badge { font-size: .65rem; }
-.tag-badge:hover { border-color: var(--accent); color: var(--accent); }
-.tag-badge:hover i { color: var(--accent); text-decoration: none; }
+.tag-badge:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+.tag-badge:hover span { text-decoration: dotted underline; }
+.tag-badge:hover i { color: var(--accent); }
 .tag-badge.danger { border-color: color-mix(in srgb, var(--accent) 35%, var(--rule)); color: var(--accent); }
 .tag-badge.danger i { color: var(--accent); }
 
