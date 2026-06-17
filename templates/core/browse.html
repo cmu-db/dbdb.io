@@ -2,6 +2,7 @@
 {% load humanize %}
 {% load static %}
 {% load countries %}
+{% load links %}
 {% load django_bootstrap5 %}
 {% load page_title %}
 
@@ -204,9 +205,9 @@
     <div class="d-flex align-items-center justify-content-center mt-4">
         <h2 class="results-info">
             No databases found
-            {% if search.query %}for <span class="search-keyword">{{ search.query }}</span>{% endif %}
+            {% if search.query %}for <span class="search-keyword px-1 rounded">{{ search.query }}</span>{% endif %}
             {% if suggestion and not page_error %}
-            <p>Did you mean <a href="{% url 'system' suggestion.slug %}">{{ suggestion.name }}</a>?</p>
+            <p>Did you mean {% system_link suggestion %}?</p>
             {% endif %}
         </h2>
     </div>

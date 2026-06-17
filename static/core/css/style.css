@@ -126,9 +126,8 @@ img.logo-tall   { max-height: 20rem; }
 /* Search keyword highlight in browse results */
 span.search-keyword {
     background-color: var(--surface-2);
+    color: var(--ink);
     font-family: var(--mono);
-    border-radius: 4px;
-    padding: 6px;
 }
 
 /* Browse table rows */

@@ -194,8 +194,8 @@
         {% endif %}
 
         {% if version.oses.all %}
-        <div class="fact"
-            <dt>Operating Systems</dt>
+        <div class="fact">
+            <dt>Operating System{{ version.oses.all|pluralize }}</dt>
             <dd>{% for attropt in version.oses.all %}{% if not forloop.first %}, {% endif %}{% browse_link "os" attropt.slug "That Support "|add:attropt.name attropt.name %}{% endfor %}</dd>
         </div>
         {% endif %}
