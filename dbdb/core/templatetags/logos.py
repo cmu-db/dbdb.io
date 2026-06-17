@@ -4,7 +4,7 @@ register = template.Library()
 
 
 @register.inclusion_tag("components/mono_tile.html")
-def mono_tile(logo, name, alias='thumb', extra_classes='', lazy=True):
+def mono_tile(logo, name:str, alias:str='thumb', extra_classes:str='', lazy:bool=True):
     """
     Renders a mono-tile box containing either a system logo image or the
     system's initial letter as a fallback.

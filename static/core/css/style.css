@@ -969,14 +969,15 @@ table.rtable tbody tr { transition: background .15s; }
 table.rtable tbody tr:hover { background: var(--tint); }
 .r-logo { width: 52px; }
 .r-logo .mono-tile { width: 38px; height: 38px; font-size: .82rem; }
-.r-name { font-family: var(--serif); font-weight: 600; font-size: 1.04rem; color: var(--ink); }
+.r-name { font-family: var(--serif); font-weight: 600; font-size: 1.04rem; color: var(--ink); line-height: 1.2; }
 table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .r-year { font-family: var(--mono); font-size: .8rem; color: var(--ink-soft); white-space: nowrap; }
 .r-country { font-family: var(--mono); font-size: .74rem; color: var(--ink-soft); white-space: nowrap; }
 .r-model, .r-query { font-family: var(--sans); font-size: .86rem; color: var(--ink-soft); }
 .r-dash { color: var(--muted); }
 .tag-cell { width: 1%; }
-.tag-stack { display: flex; flex-wrap: wrap; gap: .35rem; }
+/*.tag-stack { display: flex; flex-wrap: wrap; gap: .35rem; }*/
+.tag-stack .tag-badge { font-size: 0.5rem !important; }
 
 /* tag badges */
 .tag-badge {
@@ -992,7 +993,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 
 .rtable .tag-badge { font-size: .65rem; }
 .tag-badge:hover { border-color: var(--accent); color: var(--accent); }
-.tag-badge:hover i { color: var(--accent); }
+.tag-badge:hover i { color: var(--accent); text-decoration: none; }
 .tag-badge.danger { border-color: color-mix(in srgb, var(--accent) 35%, var(--rule)); color: var(--accent); }
 .tag-badge.danger i { color: var(--accent); }
 

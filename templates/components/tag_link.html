@@ -1,4 +1,4 @@
-<a class="tag-badge"
+<a class="tag-badge{% if extra_classes %} {{ extra_classes }}{% endif %}"
    href="{% url 'browse' %}?tag={{ tag.slug }}"
    title="View Other '{{ tag.name }}' Systems">
     {% if tag.icon %}<i class="{{ tag.icon }}"></i> {% endif %}{{ tag.name }}

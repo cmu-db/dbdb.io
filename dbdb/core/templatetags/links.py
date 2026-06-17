@@ -32,8 +32,11 @@ def browse_link(key: str, value: str, tooltip: str, label: str = None, icon: str
     }
 
 @register.inclusion_tag("components/tag_link.html")
-def tag_link(tag: AttributeOption):
+def tag_link(tag: AttributeOption, extra_classes: str = ''):
     """
     Renders a link for a Tag
     """
-    return {"tag": tag}
+    return {
+        "tag": tag,
+        "extra_classes": extra_classes,
+    }
