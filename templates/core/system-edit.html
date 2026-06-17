@@ -220,8 +220,27 @@
     </div>
 
     <div class="row border-2 border-bottom pt-4">
+        <div class="col-md-3">
+            {% bootstrap_field system_version_form.derived_from form_group_class="form-group multi-select" %}
+        </div>
+
+        <div class="col-md-3">
+            {% bootstrap_field system_version_form.embedded form_group_class="form-group multi-select" %}
+        </div>
+
+        <div class="col-md-3">
+            {% bootstrap_field system_version_form.inspired_by form_group_class="form-group multi-select" %}
+        </div>
+
+        <div class="col-md-3">
+            {% bootstrap_field system_version_form.compatible_with form_group_class="form-group multi-select" %}
+        </div>
+    </div>
+
+    <!-- BEGIN: CODING AGENTS -->
+    <div class="row border-2 border-bottom pt-4">
         <div class="col-12">
-            <!-- BEGIN: CODING AGENTS -->
+
             <div class="mb-3">
                 <label class="form-label">Coding Agents</label>
                 {{ coding_agent_formset.management_form }}
@@ -256,27 +275,10 @@
                     + Add Coding Agent
                 </button>
             </div>
-            <!-- END: CODING AGENTS -->
+
         </div>
     </div>
-
-    <div class="row border-2 border-bottom pt-4">
-        <div class="col-md-3">
-            {% bootstrap_field system_version_form.derived_from form_group_class="form-group multi-select" %}
-        </div>
-
-        <div class="col-md-3">
-            {% bootstrap_field system_version_form.embedded form_group_class="form-group multi-select" %}
-        </div>
-
-        <div class="col-md-3">
-            {% bootstrap_field system_version_form.inspired_by form_group_class="form-group multi-select" %}
-        </div>
-
-        <div class="col-md-3">
-            {% bootstrap_field system_version_form.compatible_with form_group_class="form-group multi-select" %}
-        </div>
-    </div>
+    <!-- END: CODING AGENTS -->
 
     <div class="row border-2 border-bottom pt-4">
         <div class="col-md-6">

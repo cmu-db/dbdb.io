@@ -4,6 +4,7 @@
 {% load thumbnail %}
 {% load page_title %}
 {% load version_tags %}
+{% load links %}
 
 {% block title %}Logo Versions - {{ system.name }} - {% endblock %}
 
@@ -11,7 +12,7 @@
 {% page_title %}
 {% ptitle_kicker %}<a href="{% url 'system' system.slug %}">Database Entry</a>{% endptitle_kicker %}
 {% ptitle_title %}{{ system.name }}: Logo Versions{% endptitle_title %}
-{% ptitle_sub %}All unique logo images uploaded across revisions of <a href="{% url 'system' system.slug %}">{{ system.name }}</a>{% endptitle_sub %}
+{% ptitle_sub %}All unique logo images uploaded across revisions of {% system_link system %}{% endptitle_sub %}
 {% endpage_title %}
 
 <div class="table-responsive mt-3">
