@@ -339,6 +339,8 @@ class Command(EnricherBaseCommand):
                 if field in missing_fields:
                     val = enrichment.get(field, '')
                     if val:
+                        if field == 'twitter_handle' and field[0] != '@':
+                            val = f"@{val}"
                         setattr(new_sv, field, val)
                         dirty = True
 

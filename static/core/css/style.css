@@ -114,8 +114,7 @@ h1 {
 }
 
 /* System link component */
-.system-link { padding-right: 3px; }
-.system-link:active { color: #6d6e71 !important; }
+.system-link:active { color: var(--ink) !important; }
 .system-link .icon { transition: transform 0.3s ease; margin-left: -2px; padding-right: 2px; }
 .system-link:hover .icon { transform: translateX(5px); }
 

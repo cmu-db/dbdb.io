@@ -157,7 +157,10 @@
         {% endif %}
 
         {% if version.project_types.all %}
-        <div class="fact"><dt>Project Type</dt><dd>{% for attropt in version.project_types.all %}{% if not forloop.first %}, {% endif %}{% browse_link "project-type" attropt.slug ": "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
+        <div class="fact">
+            <dt>Project Type{{ version.project_types.all|pluralize }}</dt>
+            <dd>{% for attropt in version.project_types.all %}{% if not forloop.first %}, {% endif %}{% browse_link "project-type" attropt.slug ": "|add:attropt.name attropt.name %}{% endfor %}</dd>
+        </div>
         {% endif %}
 
         {% if version.written_in.all %}
@@ -173,7 +176,10 @@
         {% endif %}
 
         {% if version.embedded.exists %}
-        <div class="fact"><dt>Embeds / Uses</dt><dd>{% for other in version.embedded.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
+        <div class="fact">
+            <dt>Embeds / Uses</dt>
+            <dd>{% for other in version.embedded.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd>
+        </div>
         {% endif %}
 
         {% if version.inspired_by.exists %}
@@ -181,15 +187,24 @@
         {% endif %}
 
         {% if version.compatible_with.exists %}
-        <div class="fact"><dt>Compatible With</dt><dd>{% for other in version.compatible_with.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
+        <div class="fact">
+            <dt>Compatible With</dt>
+            <dd>{% for other in version.compatible_with.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd>
+        </div>
         {% endif %}
 
         {% if version.oses.all %}
-        <div class="fact"><dt>Operating Systems</dt><dd>{% for attropt in version.oses.all %}{% if not forloop.first %}, {% endif %}{% browse_link "os" attropt.slug "That Support "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
+        <div class="fact"
+            <dt>Operating Systems</dt>
+            <dd>{% for attropt in version.oses.all %}{% if not forloop.first %}, {% endif %}{% browse_link "os" attropt.slug "That Support "|add:attropt.name attropt.name %}{% endfor %}</dd>
+        </div>
         {% endif %}
 
         {% if version.licenses.all %}
-        <div class="fact"><dt>Licenses</dt><dd>{% for attropt in version.licenses.all %}{% if not forloop.first %}, {% endif %}{% browse_link "license" attropt.slug "That Use "|add:attropt.name|add:" License" attropt.name %}{% endfor %}</dd></div>
+        <div class="fact">
+            <dt>License{{ version.licenses.all|pluralize }}</dt>
+            <dd>{% for attropt in version.licenses.all %}{% if not forloop.first %}, {% endif %}{% browse_link "license" attropt.slug "That Use "|add:attropt.name|add:" License" attropt.name %}{% endfor %}</dd>
+        </div>
         {% endif %}
 
         {% if version.wikipedia_url %}
@@ -306,7 +321,7 @@
     </div>
     {% endif %}
     {% if sec.system %}
-    <p class="section-sameas fw-bold">⮡ Same as {% system_link sec.system %}</p>
+    <p class="section-sameas fw-bold"><i class="fa-solid fa-circle-right"></i> Same as {% system_link sec.system %}</p>
     {% endif %}
     {{ sec.body|markdownify }}
 </div>
