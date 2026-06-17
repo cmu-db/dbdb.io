@@ -71,7 +71,7 @@ class CitationUrlListField(forms.Field):
     def prepare_value(self, value):
         """Prepare value for display in the widget."""
         if value is not None:
-            return json.dumps([c.url for c in value])
+            return json.dumps([c if isinstance(c, str) else c.url for c in value])
         return []
 
     def clean(self, value):
