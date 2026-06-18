@@ -530,8 +530,8 @@ class SystemEditView(LoginRequiredMixin, View):
                     system.slug = original_slug
                 system.save()
 
-                # handle a redirect for a slug change
-                if system.slug != original_slug:
+                # handle a redirect for a slug change (original_slug is None for new systems)
+                if original_slug and system.slug != original_slug:
                     SystemRedirect.objects.get_or_create(
                         slug=original_slug,
                         defaults=dict(system=system)
