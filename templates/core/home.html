@@ -56,7 +56,7 @@
         <span class="sc-ic">{% if s.icon %}<i class="{{ s.icon }}"></i>{% else %}<i class="fas fa-database"></i>{% endif %}</span>
         <span class="sc-tx">
             <span class="t">{{ s.name }}</span>
-            {% if s.description %}<span class="info-subtitle d-block">{{ s.description|truncatechars:40 }}</span>{% endif %}
+            {% if s.description %}<span class="info-subtitle d-block">{{ s.description|truncatechars:50 }}</span>{% endif %}
         </span>
     </a>
     {% endfor %}

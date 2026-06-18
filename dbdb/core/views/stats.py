@@ -1,6 +1,7 @@
 import collections
 from functools import reduce
 
+from django.conf import settings
 from django.db.models import Count, Q
 from django.shortcuts import render
 from django.views import View
@@ -25,7 +26,6 @@ StatItem = collections.namedtuple('StatItem', ['label', 'value', 'slug', 'url'])
 class StatsView(View):
 
     template_name = 'core/stats.html'
-    default_limit = 10
     is_privileged = False
 
     def get_bycountries(self, limit):
@@ -197,7 +197,7 @@ class StatsView(View):
 
         # Countries
         if stats_type is None or stats_type == "country":
-            limit = -1 if stats_type == "country" else self.default_limit
+            limit = -1 if stats_type == "country" else settings.DBDB_LEADERBOARD_NUM_ENTRIES
             stats.append( self.get_bycountries(limit) )
 
         all_values = System.objects.all()
@@ -206,56 +206,56 @@ class StatsView(View):
 
         # Data Model
         if stats_type is None or stats_type == "data-model":
-            limit = -1 if stats_type == "data-model" else self.default_limit
+            limit = -1 if stats_type == "data-model" else settings.DBDB_LEADERBOARD_NUM_ENTRIES
             stats.append(self.get_feature_stat('Data Model', 'data-model', limit))
 
         # Query Interface
         if stats_type is None or stats_type == "query-interface":
-            limit = -1 if stats_type == "query-interface" else self.default_limit
+            limit = -1 if stats_type == "query-interface" else settings.DBDB_LEADERBOARD_NUM_ENTRIES
             stats.append(self.get_feature_stat('Query Interface', 'query-interface', limit))
 
         # Compatibility
         if stats_type is None or stats_type == "compatible":
-            stats.append( self.get_version_stat('Compatibility', 'compatible_with', 'compatible', labels, slugs, True, self.default_limit) )
+            stats.append( self.get_version_stat('Compatibility', 'compatible_with', 'compatible', labels, slugs, True, settings.DBDB_LEADERBOARD_NUM_ENTRIES) )
 
         # Derived From
         if stats_type is None or stats_type == "derived":
-            stats.append( self.get_version_stat('Derived From', 'derived_from', 'derived', labels, slugs, True, self.default_limit) )
+            stats.append( self.get_version_stat('Derived From', 'derived_from', 'derived', labels, slugs, True, settings.DBDB_LEADERBOARD_NUM_ENTRIES) )
 
         # Embeds
         if stats_type is None or stats_type == "embeds":
-            stats.append( self.get_version_stat('Embeds / Uses', 'embedded', 'embeds', labels, slugs, True, self.default_limit ) )
+            stats.append( self.get_version_stat('Embeds / Uses', 'embedded', 'embeds', labels, slugs, True, settings.DBDB_LEADERBOARD_NUM_ENTRIES ) )
 
         # Hosted By
         if stats_type is None or stats_type == "hosted_by":
-            stats.append( self.get_version_stat('Hosted Offerings', 'hosted_services', 'hosted_by', labels, slugs, True, self.default_limit) )
+            stats.append( self.get_version_stat('Hosted Offerings', 'hosted_services', 'hosted_by', labels, slugs, True, settings.DBDB_LEADERBOARD_NUM_ENTRIES) )
 
         # # Versions
         # if stats_type is None or stats_type == "revisions":
-        #     stats.append( self.get_system_stat('Revisions', 'ver', labels, slugs, self.default_limit ) )
+        #     stats.append( self.get_system_stat('Revisions', 'ver', labels, slugs, settings.DBDB_LEADERBOARD_NUM_ENTRIES ) )
         #
         # # Views
         # if stats_type is None or stats_type == "views":
-        #     stats.append( self.get_system_stat('Views', 'view_count', labels, slugs, self.default_limit ) )
+        #     stats.append( self.get_system_stat('Views', 'view_count', labels, slugs, settings.DBDB_LEADERBOARD_NUM_ENTRIES ) )
 
         # Licenses
         if stats_type is None or stats_type == "license":
-            limit = -1 if stats_type == "license" else self.default_limit
-            stats.append(self.get_attributeoption_stat('License', 'license', 'system_licenses', 'license', limit))
+            limit = -1 if stats_type == "license" else settings.DBDB_LEADERBOARD_NUM_ENTRIES
+            stats.append(self.get_attributeoption_stat('Source Code License', 'license', 'system_licenses', 'license', limit))
 
         # Implementation Language
         if stats_type is None or stats_type == "programming":
-            limit = -1 if stats_type == "programming" else self.default_limit
-            stats.append(self.get_attributeoption_stat('Implementation', 'programming-language', 'system_written_in', 'programming-language', limit))
+            limit = -1 if stats_type == "programming" else settings.DBDB_LEADERBOARD_NUM_ENTRIES
+            stats.append(self.get_attributeoption_stat('Implementation Language', 'programming-language', 'system_written_in', 'programming-language', limit))
 
         # Project Type
         if stats_type is None or stats_type == "project_type":
-            limit = -1 if stats_type == "project_type" else self.default_limit
+            limit = -1 if stats_type == "project_type" else settings.DBDB_LEADERBOARD_NUM_ENTRIES
             stats.append(self.get_attributeoption_stat('Project Type', 'project-type', 'system_project_types', 'project-type', limit))
 
         # Developer Organizations
         if stats_type is None or stats_type == "developer":
-            limit = -1 if stats_type == "developer" else self.default_limit
+            limit = -1 if stats_type == "developer" else settings.DBDB_LEADERBOARD_NUM_ENTRIES
             stats.append(self.get_org_stat(
                 'Developers',
                 'developed_systems',
@@ -266,7 +266,7 @@ class StatsView(View):
 
         # Acquisition Organizations
         if stats_type is None or stats_type == "acquired-by":
-            limit = -1 if stats_type == "acquired-by" else self.default_limit
+            limit = -1 if stats_type == "acquired-by" else settings.DBDB_LEADERBOARD_NUM_ENTRIES
             stats.append(self.get_org_stat(
                 'Acquisitions',
                 'acquisitions',
