@@ -162,7 +162,7 @@ class Command(EnricherBaseCommand):
         )
 
         self.stdout.write(f"Organization: {org.name} (slug: {org.slug})")
-        enricher = BaseEnricher.create(options['enricher'], model_override)
+        enricher = BaseEnricher.create(options['enricher'])
 
         # --- 2. Identify missing fields ---
         skip_fields = set(options['skip_field'])
