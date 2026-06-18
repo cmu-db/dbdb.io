@@ -1071,6 +1071,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .cites a {
   color: var(--accent);
   padding-left: .15rem;
+  white-space: nowrap;
   /*vertical-align: super;*/
 }
 
