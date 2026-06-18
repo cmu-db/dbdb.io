@@ -1028,8 +1028,9 @@ def normalize_url(url: str) -> str:
     # Re-encode path
     path = quote(path, safe="/~:@")
 
-    # 4. Normalize query (sorted)
-    query_params = parse_qsl(parts.query, keep_blank_values=True)
+    # 4. Normalize query (sorted, utm_source stripped)
+    query_params = [(k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True)
+                    if k.lower() != 'utm_source']
     query = urlencode(sorted(query_params), doseq=True)
 
     # 5. Preserve fragment
