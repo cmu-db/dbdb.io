@@ -494,6 +494,12 @@ class SystemEditView(LoginRequiredMixin, View):
         if not is_admin:
             post_data['name'] = system.name
             post_data['slug'] = system.slug
+        # Capture before is_valid() — Django's _post_clean() updates the instance
+        # in-place during validation, so reading system.slug after is_valid() returns
+        # the NEW slug, not the original one.
+        original_slug = system.slug if slug else None
+        original_name = system.name if slug else None
+
         system_form = SystemForm(post_data, instance=system)
         # Bind the pending instance so save() updates it in-place rather than creating a new row
         system_version_form = SystemVersionForm(
@@ -513,8 +519,6 @@ class SystemEditView(LoginRequiredMixin, View):
             coding_agent_formset.is_valid():
 
             if is_admin:
-                original_name = system.name
-                original_slug = system.slug
                 system = system_form.save(commit=False)
                 name_changed = system.name != original_name
                 submitted_slug = system_form.cleaned_data.get('slug', '').strip()
