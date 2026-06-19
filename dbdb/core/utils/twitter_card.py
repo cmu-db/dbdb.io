@@ -59,22 +59,23 @@ def create_twitter_card(ver : SystemVersion):
         logo = Image.open(ver.logo).convert("RGBA")
 
     if not is_text:
-        new_size = (0, 0)
-        if logo.width > logo.height:
-            ratio = (settings.TWITTER_CARD_MAX_WIDTH / float(logo.size[0]))
-            new_size = (settings.TWITTER_CARD_MAX_WIDTH, int(float(logo.size[1]) * float(ratio)))
-        else:
-            ratio = (settings.TWITTER_CARD_MAX_HEIGHT / float(logo.size[1]))
-            new_size = (int(float(logo.size[0]) * float(ratio)), settings.TWITTER_CARD_MAX_HEIGHT)
+        max_w = new_im.width - settings.TWITTER_CARD_BASE_OFFSET_X - 2 * settings.TWITTER_CARD_MARGIN
+        max_h = new_im.height - 2 * settings.TWITTER_CARD_MARGIN
 
-        # Check if either the new width or height exceed the max dimensions
-        # We have to do this because the dimensions are not square
-        if new_size[0] > settings.TWITTER_CARD_MAX_WIDTH:
-            ratio = (settings.TWITTER_CARD_MAX_WIDTH / float(new_size[0]))
-            new_size = (settings.TWITTER_CARD_MAX_WIDTH, int(float(new_size[1]) * float(ratio)))
-        elif new_size[1] > settings.TWITTER_CARD_MAX_HEIGHT:
-            ratio = (settings.TWITTER_CARD_MAX_HEIGHT / float(new_size[1]))
-            new_size = (int(float(new_size[0]) * float(ratio)), settings.TWITTER_CARD_MAX_HEIGHT)
+        if logo.width > logo.height:
+            ratio = max_w / float(logo.size[0])
+            new_size = (max_w, int(logo.size[1] * ratio))
+        else:
+            ratio = max_h / float(logo.size[1])
+            new_size = (int(logo.size[0] * ratio), max_h)
+
+        # Clamp whichever dimension still exceeds its bound after the first scale
+        if new_size[0] > max_w:
+            ratio = max_w / float(new_size[0])
+            new_size = (max_w, int(new_size[1] * ratio))
+        elif new_size[1] > max_h:
+            ratio = max_h / float(new_size[1])
+            new_size = (int(new_size[0] * ratio), max_h)
 
         logo = logo.resize(new_size, Image.Resampling.LANCZOS)
 
