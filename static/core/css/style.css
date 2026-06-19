@@ -464,8 +464,7 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
   transition: background .15s;
 }
 .shortcut:last-child { border-right: 0; }
-.shortcut:hover { background: var(--tint); }
-.shortcut a:hover { text-decoration: none; }
+.shortcut:hover { background: var(--tint); text-decoration: none; }
 .shortcut .sc-ic {
   width: 38px; height: 38px; flex: none;
   display: grid; place-items: center;
@@ -563,7 +562,7 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
 }
 .spotlight .sp-meta .index-chip { pointer-events: none; }
 .spotlight .cta { align-self: center; }
-.spotlight a:hover { text-decoration: none; }
+.spotlight:hover { text-decoration: none; }
 
 /* ============================================================
    RANKED LISTS
@@ -628,7 +627,7 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
   color: var(--ink);
 }
 .db-row:hover .db-name { color: var(--accent); }
-.db-row a:hover { text-decoration: none; }
+.db-row:hover { text-decoration: none; }
 .info-subtitle {
   font-family: var(--mono);
   font-size: .6rem;
@@ -703,6 +702,7 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
   color: var(--ink);
   white-space: nowrap;
 }
+.runhead .wordmark:hover { text-decoration: none; }
 .runhead .wordmark .of { font-style: italic; font-weight: 400; color: var(--accent); margin-right: 0.2rem; }
 .rh-toggle {
   background: transparent; border: 0; padding: .35rem .45rem;
