@@ -1,5 +1,6 @@
 # django imports
 import os
+import re
 import tempfile
 from io import BytesIO
 
@@ -51,7 +52,10 @@ def create_twitter_card(ver : SystemVersion):
     elif ver.logo.path.lower().endswith("svg"):
         temp_name = os.path.join(tempfile.gettempdir(), next(tempfile._get_candidate_names()) + ".png")
         with open(ver.logo.path) as fd:
-            svg2png(bytestring=fd.read(), write_to=temp_name, scale=3, unsafe=True)
+            svg_content = fd.read()
+        # cairosvg chokes on attribute values of literal "null" (e.g. stroke-opacity="null")
+        svg_content = re.sub(r' [\w:-]+="null"', '', svg_content)
+        svg2png(bytestring=svg_content, write_to=temp_name, scale=3, unsafe=True)
         logo = Image.open(temp_name).convert("RGBA")
 
     # PNG
