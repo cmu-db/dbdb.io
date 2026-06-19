@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load page_title %}
+{% load page_title links %}
 
 {% block title %}{{ flatpage.title }} - {% endblock %}
 
@@ -12,7 +12,5 @@
 <div class="flatpage-content fs-5 mt-3">
     {{ flatpage.content }}
 </div>
-{% if flatpage.meta.modified %}
-<p class="flatpage-modified label">Last modified: {{ flatpage.meta.modified }}</p>
-{% endif %}
+{% if flatpage.meta.modified %}{% last_modified flatpage.meta.modified %}{% endif %}
 {% endblock %}

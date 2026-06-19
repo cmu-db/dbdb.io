@@ -334,12 +334,10 @@
     {% include 'core/citations-list.html' %}
 {% endif %}
 
-<div class="entry-foot pt-3 mt-3">
-    <a href="{% url 'system_revision' system.slug %}" class="text-accent" title="View All Revisions for {{ system.name }}">
-        Updated {% sv_created version %}
-    </a>
-    <span>Revision {% sv_ver version.ver %}</span>
-</div>
+{% url 'system_revision' system.slug as revision_url %}
+{% with revision_title="View All Revisions for "|add:system.name %}
+{% last_modified version.created url=revision_url title=revision_title ver=version.ver %}
+{% endwith %}
 {% endblock %}
 
 

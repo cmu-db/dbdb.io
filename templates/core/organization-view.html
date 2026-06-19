@@ -175,7 +175,5 @@
     {% include 'core/citations-list.html' %}
 {% endif %}
 
-<div class="entry-foot">
-    <span><i class="fa-regular fa-clock"></i> Updated {{ org.modified|date:"SHORT_DATETIME_FORMAT" }}</span>
-</div>
+{% last_modified org.modified %}
 {% endblock %}

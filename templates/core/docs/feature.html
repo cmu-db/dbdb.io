@@ -1,5 +1,5 @@
 {% extends 'entry-base.html' %}
-{% load static markdownify page_title %}
+{% load static markdownify page_title links %}
 
 {% block title %}{{ feature.label }} - Documentation - {% endblock %}
 
@@ -88,8 +88,6 @@
 {% endif %}
 {% endwith %}
 
-<div class="entry-foot pt-3 mt-3">
-    <span>Last updated <span class="text-accent">{{ feature.modified|date:"Y-m-d" }}</span></span>
-</div>
+{% last_modified feature.modified %}
 
 {% endblock %}

@@ -1,0 +1,6 @@
+<div class="entry-foot pt-3 mt-3">
+  {% if url %}<a href="{{ url }}" class="text-accent"{% if title %} title="{{ title }}"{% endif %}>{% endif %}
+  Updated <time datetime="{{ timestamp|date:'c' }}"><i class="fa-solid fa-clock-rotate-left"></i> {{ timestamp|date:datetime_format }}</time>
+  {% if url %}</a>{% endif %}
+  {% if ver %}<span>Revision <span class="ver-tag">#{{ ver }}</span></span>{% endif %}
+</div>

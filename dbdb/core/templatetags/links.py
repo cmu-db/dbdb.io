@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 from django import template
+from django.conf import settings as django_settings
 
 from dbdb.core.models import AttributeOption, Organization, OrgType, System
 
@@ -47,4 +48,14 @@ def tag_link(tag: AttributeOption, extra_classes: str = ''):
     return {
         "tag": tag,
         "extra_classes": extra_classes,
+    }
+
+@register.inclusion_tag("components/last_modified.html")
+def last_modified(timestamp, url=None, title=None, ver=None):
+    return {
+        'timestamp': timestamp,
+        'url': url,
+        'title': title,
+        'ver': ver,
+        'datetime_format': getattr(django_settings, 'DBDB_SV_DATETIME_FORMAT', 'Y-m-d H:i'),
     }
