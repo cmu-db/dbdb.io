@@ -25,9 +25,7 @@ def create_twitter_card(ver : SystemVersion):
         name = ver.system.name
         ascent, descent = font.getmetrics()
         # [width, height]
-        text_size = (font.getmask(name).getbbox()[2], font.getmask(name).getbbox()[3] + int(descent*10))
-        print(f"text_size={text_size}")
-        print(f"ascent={ascent}, descent={descent}")
+        text_size = (font.getmask(name).getbbox()[2], font.getmask(name).getbbox()[3] + descent)
         # text_size = font.getbbox(name)
         if name.find(" ") != -1:
             name = name.replace(" ", "\n")
@@ -74,11 +72,12 @@ def create_twitter_card(ver : SystemVersion):
     # Resize the mofo
     logo = logo.resize(new_size, Image.Resampling.LANCZOS)
 
-    # Figure out the center of the white part of the card
-    # Assume that the origin is (0,0). We will adjust by the base offset later
-    offset = (settings.TWITTER_CARD_BASE_OFFSET_X + settings.TWITTER_CARD_MARGIN + (
-                settings.TWITTER_CARD_MAX_WIDTH - logo.width) // 2, \
-              settings.TWITTER_CARD_MARGIN + (settings.TWITTER_CARD_MAX_HEIGHT - logo.height) // 2)
+    # Center the logo in the right panel (which starts at TWITTER_CARD_BASE_OFFSET_X)
+    content_width = new_im.width - settings.TWITTER_CARD_BASE_OFFSET_X
+    offset = (
+        settings.TWITTER_CARD_BASE_OFFSET_X + (content_width - logo.width) // 2,
+        (new_im.height - logo.height) // 2,
+    )
 
     if not os.path.exists(settings.TWITTER_CARD_ROOT):
         os.makedirs(settings.TWITTER_CARD_ROOT)
