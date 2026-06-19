@@ -21,6 +21,7 @@ from django.db import models
 from django.db.models import Count
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 from django_countries.fields import CountryField
 
 from dbdb.core.management.base import EnricherBaseCommand
@@ -70,6 +71,48 @@ def _get_missing_org_fields(org: Organization, requested: list[str] | None) -> l
     if requested:
         return list(requested)
     return [f for f in ORG_ALL_FIELDS if _is_org_field_empty(org, f)]
+
+
+def _generate_unique_org_slug(name: str, exclude_pk: int | None = None) -> str:
+    base = slugify(name)
+    slug = base
+    counter = 1
+    while True:
+        qs = Organization.objects.filter(slug=slug)
+        if exclude_pk:
+            qs = qs.exclude(pk=exclude_pk)
+        if not qs.exists():
+            return slug
+        slug = f"{base}-{counter}"
+        counter += 1
+
+
+def _get_full_company_name(org: Organization, enricher, model_override, dry_run: bool) -> str | None:
+    prompt = (
+        f"# Organization: {org.name}\n\n"
+        f"What is the full legal name of this company, including its corporate suffix "
+        f"(e.g. 'Inc.', 'Corporation', 'Ltd.', 'GmbH')?\n"
+        f"If '{org.name}' is already the complete legal name, return it unchanged. "
+        f"Return null if unknown."
+    )
+    tool = {
+        "name": "save_full_name",
+        "description": "Save the full legal company name with its corporate suffix",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "full_name": {
+                    "type": "string",
+                    "description": (
+                        "Full legal name including suffix such as 'Inc.', 'Corporation', "
+                        "'Ltd.', 'GmbH'. Return null if unknown."
+                    ),
+                }
+            },
+        },
+    }
+    result = enricher.call_llm(prompt, tool, model_override, dry_run=dry_run)
+    return (result.get("full_name") or "").strip() or None
 
 
 def _crawl_org_urls(org: Organization, recrawl_after: int = 7, skip_spamcheck: bool = False) -> dict[str, str]:
@@ -288,6 +331,20 @@ class Command(EnricherBaseCommand):
 
         if dirty:
             org.save()
+
+        # --- Full legal name (Company orgs only) ---
+        if org.org_type == OrgType.COMPANY:
+            full_name = _get_full_company_name(org, enricher, model_override, dry_run)
+            if full_name and full_name != org.name:
+                old_name = org.name
+                new_slug = _generate_unique_org_slug(full_name, exclude_pk=org.pk)
+                org.name = full_name
+                org.slug = new_slug
+                if not dry_run:
+                    org.save()
+                self.stdout.write(
+                    self.style.SUCCESS(f"  Renamed: {old_name!r} → {full_name!r} (slug: {new_slug!r})")
+                )
 
         fields_filled = [f"{f}={enrichment.get(f)}" for f in missing_fields if enrichment.get(f) not in (None, '')]
         self.stdout.write(self.style.SUCCESS(f"\nUpdated organization '{org.name}'"))
