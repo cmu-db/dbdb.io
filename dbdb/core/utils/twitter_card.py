@@ -21,11 +21,13 @@ def create_twitter_card(ver : SystemVersion):
 
     # If there is no logo, then we will create an image of just the name
     if not ver.logo:
-        font = ImageFont.truetype(settings.TWITTER_CARD_FONT_PATH, 128)
+        font = ImageFont.truetype(settings.TWITTER_CARD_FONT_PATH, 512)
         name = ver.system.name
         ascent, descent = font.getmetrics()
         # [width, height]
-        text_size = (font.getmask(name).getbbox()[2], font.getmask(name).getbbox()[3] + descent)
+        text_size = (font.getmask(name).getbbox()[2], font.getmask(name).getbbox()[3] + int(descent*10))
+        print(f"text_size={text_size}")
+        print(f"ascent={ascent}, descent={descent}")
         # text_size = font.getbbox(name)
         if name.find(" ") != -1:
             name = name.replace(" ", "\n")
@@ -39,7 +41,7 @@ def create_twitter_card(ver : SystemVersion):
 
         logo = Image.new('RGBA', text_size)
         text_draw = ImageDraw.Draw(logo)
-        text_draw.text((0, 0), name, font=font, fill=(70, 70, 70, 255))
+        text_draw.text((0, 0), name, font=font, fill=(26, 26, 23, 255)) # --var(ink)
 
     # SVG
     elif ver.logo.path.lower().endswith("svg"):

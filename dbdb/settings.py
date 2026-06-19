@@ -195,7 +195,7 @@ TWITTER_CARD_URL = MEDIA_URL + "twitter/"
 TWITTER_URL = "https://twitter.com/"
 
 TWITTER_CARD_TEMPLATE = os.path.join(STATIC_ROOT, 'core/images/dbdb_io-card-template.svg')
-TWITTER_CARD_FONT_PATH = os.path.join(STATIC_ROOT, 'core/fonts/newsreader.ttf')
+TWITTER_CARD_FONT_PATH = os.path.join(STATIC_ROOT, 'core/fonts/IBMPlexMono-Bold.ttf')
 TWITTER_CARD_BASE_OFFSET_X = 450
 TWITTER_CARD_MARGIN = 40
 TWITTER_CARD_MAX_WIDTH = 1200 - TWITTER_CARD_MARGIN*2
