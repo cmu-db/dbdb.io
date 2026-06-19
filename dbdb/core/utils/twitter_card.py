@@ -19,8 +19,11 @@ def create_twitter_card(ver : SystemVersion):
     new_im = Image.new('RGBA', (im1.width, im1.height))
     new_im.paste(im1, (0, 0))
 
+    is_text = False
+
     # If there is no logo, then we will create an image of just the name
     if not ver.logo:
+        is_text = True
         name = ver.system.name
         lines = name.split() if " " in name else [name]
         display_name = "\n".join(lines)
@@ -55,25 +58,25 @@ def create_twitter_card(ver : SystemVersion):
     else:
         logo = Image.open(ver.logo).convert("RGBA")
 
-    new_size = (0, 0)
-    if logo.width > logo.height:
-        ratio = (settings.TWITTER_CARD_MAX_WIDTH / float(logo.size[0]))
-        new_size = (settings.TWITTER_CARD_MAX_WIDTH, int(float(logo.size[1]) * float(ratio)))
-    else:
-        ratio = (settings.TWITTER_CARD_MAX_HEIGHT / float(logo.size[1]))
-        new_size = (int(float(logo.size[0]) * float(ratio)), settings.TWITTER_CARD_MAX_HEIGHT)
+    if not is_text:
+        new_size = (0, 0)
+        if logo.width > logo.height:
+            ratio = (settings.TWITTER_CARD_MAX_WIDTH / float(logo.size[0]))
+            new_size = (settings.TWITTER_CARD_MAX_WIDTH, int(float(logo.size[1]) * float(ratio)))
+        else:
+            ratio = (settings.TWITTER_CARD_MAX_HEIGHT / float(logo.size[1]))
+            new_size = (int(float(logo.size[0]) * float(ratio)), settings.TWITTER_CARD_MAX_HEIGHT)
 
-    # Check if either the new width or height exceed the max dimensions
-    # We have to do this because the dimensions are not square
-    if new_size[0] > settings.TWITTER_CARD_MAX_WIDTH:
-        ratio = (settings.TWITTER_CARD_MAX_WIDTH / float(new_size[0]))
-        new_size = (settings.TWITTER_CARD_MAX_WIDTH, int(float(new_size[1]) * float(ratio)))
-    elif new_size[1] > settings.TWITTER_CARD_MAX_HEIGHT:
-        ratio = (settings.TWITTER_CARD_MAX_HEIGHT / float(new_size[1]))
-        new_size = (int(float(new_size[0]) * float(ratio)), settings.TWITTER_CARD_MAX_HEIGHT)
+        # Check if either the new width or height exceed the max dimensions
+        # We have to do this because the dimensions are not square
+        if new_size[0] > settings.TWITTER_CARD_MAX_WIDTH:
+            ratio = (settings.TWITTER_CARD_MAX_WIDTH / float(new_size[0]))
+            new_size = (settings.TWITTER_CARD_MAX_WIDTH, int(float(new_size[1]) * float(ratio)))
+        elif new_size[1] > settings.TWITTER_CARD_MAX_HEIGHT:
+            ratio = (settings.TWITTER_CARD_MAX_HEIGHT / float(new_size[1]))
+            new_size = (int(float(new_size[0]) * float(ratio)), settings.TWITTER_CARD_MAX_HEIGHT)
 
-    # Resize the mofo
-    logo = logo.resize(new_size, Image.Resampling.LANCZOS)
+        logo = logo.resize(new_size, Image.Resampling.LANCZOS)
 
     # Center the logo in the right panel (which starts at TWITTER_CARD_BASE_OFFSET_X)
     content_width = new_im.width - settings.TWITTER_CARD_BASE_OFFSET_X
