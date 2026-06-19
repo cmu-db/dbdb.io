@@ -194,11 +194,12 @@ TWITTER_CARD_ROOT = os.path.join(MEDIA_ROOT, 'twitter')
 TWITTER_CARD_URL = MEDIA_URL + "twitter/"
 TWITTER_URL = "https://twitter.com/"
 
-TWITTER_CARD_TEMPLATE = os.path.join(STATIC_ROOT, 'core/images/dbdb_io_card_template.png')
+TWITTER_CARD_TEMPLATE = os.path.join(STATIC_ROOT, 'core/images/dbdb_io-logo-template.svg')
+TWITTER_CARD_FONT_PATH = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
 TWITTER_CARD_BASE_OFFSET_X = 200
 TWITTER_CARD_MARGIN = 40
-TWITTER_CARD_MAX_WIDTH = 600 - TWITTER_CARD_MARGIN*2
-TWITTER_CARD_MAX_HEIGHT = 419 - TWITTER_CARD_MARGIN*2
+TWITTER_CARD_MAX_WIDTH = 1200 - TWITTER_CARD_MARGIN*2
+TWITTER_CARD_MAX_HEIGHT = 630 - TWITTER_CARD_MARGIN*2
 
 LINKEDIN_URL = "https://www.linkedin.com/"
 
@@ -249,7 +250,7 @@ DBDB_FOUNDING_YEAR = 2017
 DBDB_BOT_ACCOUNT = env('DBDB_BOT_ACCOUNT', default='dbdb-bot')
 DBDB_HOME_LISTINGS_NUM_ENTRIES    = 5
 DBDB_HOME_SAVEDSEARCH_NUM_ENTRIES = 3
-DBDB_LEADERBOARD_NUM_ENTRIES      = 10
+DBDB_LEADERBOARD_NUM_ENTRIES      = 30
 
 # Repository scanning (collect_repo_info management command)
 DBDB_SOURCEREPO_DIRECTORY = env('DBDB_SOURCEREPO_DIRECTORY', default='/tmp/dbdb/')

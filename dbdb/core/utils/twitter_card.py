@@ -1,6 +1,7 @@
 # django imports
 import os
 import tempfile
+from io import BytesIO
 
 from cairosvg import svg2png
 from django.conf import settings
@@ -11,15 +12,16 @@ from dbdb.core.models import SystemVersion
 
 def create_twitter_card(ver : SystemVersion):
 
-    # Create a nicely formatted version of the logo for the twitter card
-    template = os.path.join(settings.BASE_DIR, "static", settings.TWITTER_CARD_TEMPLATE)
-    im1 = Image.open(template).convert("RGBA")
+    # Load SVG template and convert to RGBA image
+    with open(settings.TWITTER_CARD_TEMPLATE, 'rb') as f:
+        png_bytes = svg2png(bytestring=f.read())
+    im1 = Image.open(BytesIO(png_bytes)).convert("RGBA")
     new_im = Image.new('RGBA', (im1.width, im1.height))
     new_im.paste(im1, (0, 0))
 
     # If there is no logo, then we will create an image of just the name
     if not ver.logo:
-        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 128)
+        font = ImageFont.truetype(settings.TWITTER_CARD_FONT_PATH, 128)
         name = ver.system.name
         ascent, descent = font.getmetrics()
         # [width, height]
