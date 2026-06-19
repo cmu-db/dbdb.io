@@ -21,25 +21,28 @@ def create_twitter_card(ver : SystemVersion):
 
     # If there is no logo, then we will create an image of just the name
     if not ver.logo:
-        font = ImageFont.truetype(settings.TWITTER_CARD_FONT_PATH, 512)
         name = ver.system.name
+        lines = name.split() if " " in name else [name]
+        display_name = "\n".join(lines)
+
+        # Shrink font until the widest line fits within the right panel
+        max_text_width = new_im.width - settings.TWITTER_CARD_BASE_OFFSET_X - 2 * settings.TWITTER_CARD_MARGIN
+        font_size = 512
+        while font_size > 12:
+            font = ImageFont.truetype(settings.TWITTER_CARD_FONT_PATH, font_size)
+            if max(font.getmask(line).getbbox()[2] for line in lines) <= max_text_width:
+                break
+            font_size -= 8
+
         ascent, descent = font.getmetrics()
-        # [width, height]
-        text_size = (font.getmask(name).getbbox()[2], font.getmask(name).getbbox()[3] + descent)
-        # text_size = font.getbbox(name)
-        if name.find(" ") != -1:
-            name = name.replace(" ", "\n")
-            # Compute dimension of each line
-            text_size = [0, 0]
-            for line in name.split("\n"):
-                width = font.getmask(line).getbbox()[2]
-                height = font.getmask(line).getbbox()[3] + descent
-                text_size[0] = max(text_size[0], width)
-                text_size[1] += height + 5
+        text_size = [0, 0]
+        for line in lines:
+            text_size[0] = max(text_size[0], font.getmask(line).getbbox()[2])
+            text_size[1] += font.getmask(line).getbbox()[3] + descent + 5
 
         logo = Image.new('RGBA', text_size)
         text_draw = ImageDraw.Draw(logo)
-        text_draw.text((0, 0), name, font=font, fill=(26, 26, 23, 255)) # --var(ink)
+        text_draw.text((0, 0), display_name, font=font, fill=(26, 26, 23, 255))
 
     # SVG
     elif ver.logo.path.lower().endswith("svg"):
