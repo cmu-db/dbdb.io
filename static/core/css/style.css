@@ -423,6 +423,7 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
   flex-wrap: wrap;
   gap: .6rem;
 }
+.cta-row a:hover { text-decoration: none; }
 .cta {
   font-family: var(--mono);
   text-transform: uppercase;
@@ -1254,7 +1255,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .feed-item:hover { background: var(--tint); }
 .feed-time { font-family: var(--mono); font-size: .72rem; color: var(--muted); letter-spacing: .02em; padding-top: .35rem; }
 .feed-time a { color: var(--muted); }
-.feed-time a:hover { color: var(--accent); }
+.feed-time a:hover { color: var(--accent); text-decoration: none; }
 .feed-body { min-width: 0; }
 .feed-line { display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; }
 .feed-line .verb { font-family: var(--sans); font-size: .9rem; color: var(--ink-soft); }
@@ -1289,6 +1290,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   background: var(--surface-2);
 }
 .feed-actions { display: inline-flex; align-items: center; gap: .4rem; margin-left: auto; }
+.feed-actions a:hover { text-decoration: none; }
 .compare-select-btn {
   font-size: .58rem; padding: .2rem .5rem; gap: .35rem;
   background: transparent; color: var(--muted) !important; border-color: var(--rule);
@@ -1312,7 +1314,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 }
 .pager .pager-edge { text-transform: uppercase; font-size: .64rem; letter-spacing: .1em; }
 .pager .pager-edge.disabled { opacity: .4; pointer-events: none; }
-.pager .pager-num:hover, .pager .pager-edge:hover { border-color: var(--accent); color: var(--accent); }
+.pager .pager-num:hover, .pager .pager-edge:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
 .pager .pager-num.active { background: var(--ink); border-color: var(--ink); color: var(--paper); }
 .pager .pager-num.active:hover { color: var(--paper); }
 .pager .dots { font-family: var(--mono); color: var(--muted); padding: 0 .3rem; }
