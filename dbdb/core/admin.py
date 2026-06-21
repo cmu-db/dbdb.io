@@ -339,6 +339,20 @@ class OrganizationAdminForm(forms.ModelForm):
         fields = '__all__'
 
 
+class OrgHasLogoFilter(admin.SimpleListFilter):
+    title = 'has logo'
+    parameter_name = 'has_logo'
+
+    def lookups(self, request, model_admin):
+        return [('yes', 'Yes'), ('no', 'No')]
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            return queryset.exclude(logo='')
+        if self.value() == 'no':
+            return queryset.filter(logo='')
+
+
 def _make_set_org_type_action(member: OrgType):
     def _action(modeladmin, request, queryset):
         updated = queryset.update(org_type=member)
@@ -352,7 +366,7 @@ def _make_set_org_type_action(member: OrgType):
 class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
     form = OrganizationAdminForm
     list_display = ('id', 'name', 'slug', 'org_type', 'description', 'stock_symbol', 'countries', 'created', 'modified')
-    list_filter = ['org_type', 'stock_exchange', 'created', 'modified', OrgDevelopedSystemsFilter, OrgAcquisitionsFilter]
+    list_filter = ['org_type', 'stock_exchange', 'created', 'modified', OrgHasLogoFilter, OrgDevelopedSystemsFilter, OrgAcquisitionsFilter]
     search_fields = ('name', 'slug', 'stock_symbol')
     readonly_fields = ('created', 'modified')
     prepopulated_fields = {'slug': ('name',)}
