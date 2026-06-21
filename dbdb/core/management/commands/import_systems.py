@@ -10,7 +10,7 @@ CSV format:
   - All other columns are matched by header name to SystemVersion fields:
 
     URL fields (creates/reuses a CitationUrl):
-      system_url, docs_url, sourcerepo_url, wikipedia_url, linkedin_url
+      system_url, docs_url, sourcerepo_url, wikipedia_url
 
     Country field (2-char ISO code):
       countries
@@ -55,7 +55,7 @@ LOG = logging.getLogger(__name__)
 User = get_user_model()
 
 _LOGO_EXTENSIONS   = ('svg', 'png', 'jpg', 'jpeg')
-_URL_FIELDS        = frozenset({'system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url', 'linkedin_url'})
+_URL_FIELDS        = frozenset({'system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url'})
 _COUNTRY_FIELDS    = frozenset({'countries'})
 _TEXT_FIELDS       = frozenset({'description', 'history', 'twitter_handle'})
 _INT_FIELDS        = frozenset({'start_year', 'end_year'})

@@ -43,7 +43,7 @@ User = get_user_model()
 # separately because they require AttributeOption lookups.
 SIMPLE_TEXT_FIELDS = ('description', 'history', 'twitter_handle')
 INT_FIELDS = ('start_year', 'end_year')
-URL_FK_FIELDS = ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url', 'linkedin_url')
+URL_FK_FIELDS = ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url')
 M2M_ATTR_FIELDS = ('project_types', 'licenses', 'oses', 'written_in', 'tags')
 # Maps M2M field name → Attribute slug
 M2M_ATTR_SLUGS = {

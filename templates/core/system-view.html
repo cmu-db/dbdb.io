@@ -102,10 +102,6 @@
         <div class="fact"><dt>Twitter</dt><dd><a href="{{ version.twitter_handle_url }}"><i class="fa-brands fa-twitter"></i>{{ version.twitter_handle }}</a></dd></div>
         {% endif %}
 
-        {% if version.linkedin_url %}
-        <div class="fact"><dt>LinkedIn</dt><dd><a href="{{ version.linkedin_url.url }}" target="_{{ system.slug }}"><i class="fa-brands fa-linkedin"></i>{{ version.linkedin_handle }}</a>{% if linkedin_url_citation %}<span class="cites">{% citation_footnote linkedin_url_citation %}</span>{% endif %}</dd></div>
-        {% endif %}
-
         {% if developer_orgs %}
         <div class="fact"><dt>Developer{{ developer_orgs|pluralize }}</dt>
             <dd>{% for org in developer_orgs %}<div>{% org_link org %}</div>{% endfor %}</dd>

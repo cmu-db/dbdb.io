@@ -694,12 +694,6 @@ class SystemVersion(LogoMixin, models.Model):
         related_name='version_wikipedia_urls',
         verbose_name="Wikipedia URL")
 
-    linkedin_url = models.ForeignKey(
-        'CitationUrl', blank=True, null=True,
-        on_delete=models.SET_NULL,
-        related_name='version_linkedin_urls',
-        verbose_name="LinkedIn URL")
-
     twitter_handle = models.CharField(
         blank=True, max_length=100,
         help_text="Twitter account for the database (avoid company account if possible)")
@@ -846,15 +840,6 @@ class SystemVersion(LogoMixin, models.Model):
 
     def description_mobile_remainder(self):
         return "\n".join(self.description.split("\n")[1:])
-
-    @property
-    def linkedin_handle(self):
-        if not self.linkedin_url_id:
-            return None
-        m = re.search(r'linkedin\.com(.*)', self.linkedin_url.url)
-        if not m:
-            return None
-        return m.group(1).rstrip('/')
 
     def twitter_handle_url(self):
         if not self.twitter_handle: return None

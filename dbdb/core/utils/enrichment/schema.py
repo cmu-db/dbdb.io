@@ -91,10 +91,6 @@ SYSTEM_ENRICHMENT_TOOL = {
                 "type": "string",
                 "description": "Twitter/X handle (without @).",
             },
-            "linkedin_url": {
-                "type": "string",
-                "description": "Full LinkedIn page URL.",
-            },
             "project_types": {
                 "type": "array",
                 "items": {"type": "string"},

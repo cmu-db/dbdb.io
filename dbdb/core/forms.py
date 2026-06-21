@@ -285,7 +285,7 @@ class SystemVersionForm(forms.ModelForm):
     # CitationUrl FK fields — rendered as URL inputs; view handles get_or_create.
     # Keep this tuple in sync with the field declarations below so the edit view
     # can pass the correct autocomplete selector to the template automatically.
-    CITATION_URL_FIELDS = ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url', 'linkedin_url')
+    CITATION_URL_FIELDS = ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url')
 
     system_url = forms.URLField(
         required=False, label='Website URL',
@@ -299,10 +299,6 @@ class SystemVersionForm(forms.ModelForm):
     wikipedia_url = forms.URLField(
         required=False, label='Wikipedia URL',
         widget=forms.URLInput(attrs={'class': 'form-control'}))
-    linkedin_url = forms.URLField(
-        required=False, label='LinkedIn URL',
-        widget=forms.URLInput(attrs={'class': 'form-control'}))
-
     def clean_twitter_handle(self):
         data = self.cleaned_data['twitter_handle']
         if data and data[0] != '@':
