@@ -53,7 +53,7 @@
         {% if org.url %}
         <div class="fact">
             <dt>Website</dt>
-            <dd><a href="{{ org.url.url }}" target="_{{ org.slug }}">{{ org.url.url }}</a>{% if url_citation %}<span class="cites">{% citation_footnote url_citation %}</span>{% endif %}</dd>
+            <dd><a href="{{ org.url.url }}" target="_{{ org.slug }}">{{ org.url.display_url }}</a>{% if url_citation %}<span class="cites">{% citation_footnote url_citation %}</span>{% endif %}</dd>
         </div>
         {% endif %}
         {% if org.linkedin_url %}
@@ -93,7 +93,7 @@
         {% if org.wikipedia_url %}
         <div class="fact">
             <dt>Wikipedia</dt>
-            <dd><a href="{{ org.wikipedia_url.url }}" target="_{{ org.slug }}"><i class="fa-brands fa-wikipedia-w"></i> {{ org.wikipedia_url.url }}</a>{% if wikipedia_citation %}<span class="cites">{% citation_footnote wikipedia_citation %}</span>{% endif %}</dd>
+            <dd><a href="{{ org.wikipedia_url.url }}" target="_{{ org.slug }}"><i class="fa-brands fa-wikipedia-w"></i> {{ org.wikipedia_url.display_url }}</a>{% if wikipedia_citation %}<span class="cites">{% citation_footnote wikipedia_citation %}</span>{% endif %}</dd>
         </div>
         {% endif %}
     </dl>

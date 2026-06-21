@@ -7,7 +7,7 @@
     {% if c.last_title %}
         <span class="citation-title">{{ c.last_title|escape }}</span>
     {% else %}
-        {{ c.url }}
+        {{ c.display_url }}
     {% endif %}
 {% if c.status != Status.SPAM %}
         <i class="fas fa-external-link-alt"></i>

@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from urllib.parse import unquote
 from django import template
 from django.conf import settings as django_settings
 
@@ -49,6 +50,11 @@ def tag_link(tag: AttributeOption, extra_classes: str = ''):
         "tag": tag,
         "extra_classes": extra_classes,
     }
+
+@register.filter
+def urldecode(value):
+    return unquote(value) if value else value
+
 
 @register.inclusion_tag("components/last_modified.html")
 def last_modified(timestamp, url=None, title=None, ver=None):

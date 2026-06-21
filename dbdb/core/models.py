@@ -1,6 +1,7 @@
 # django imports
 import re
 import tldextract
+from urllib.parse import unquote
 from colorfield.fields import ColorField
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
@@ -84,6 +85,10 @@ class CitationUrl(models.Model):
     last_etag = models.CharField(max_length=100, default=None, blank=True, null=True)
     last_cachecontrol = models.JSONField(default=dict, blank=True, null=True)
     last_statuscode = models.PositiveIntegerField(default=None, blank=True, null=True, db_comment="HTTP Status Code")
+
+    @property
+    def display_url(self):
+        return unquote(self.url)
 
     def get_domain(self, include_suffix:bool = True):
         if self.url.startswith('http'):
