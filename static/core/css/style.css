@@ -271,7 +271,7 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
 
 .edition .user-link, .theme-toggle, .edition .label {
   font-family: var(--mono);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
 }
 
 .theme-toggle {
