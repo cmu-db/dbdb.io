@@ -67,6 +67,20 @@ def _is_org_field_empty(org: Organization, field: str) -> bool:
     return not getattr(org, field, None)
 
 
+def _query_orgs_missing_field(field: str):
+    """Return a queryset of Organizations that have *field* empty/null."""
+    from django.db.models import Q
+    ft = _org_field_type(field)
+    if ft == 'url':
+        return Organization.objects.filter(**{f'{field}_id__isnull': True})
+    if ft == 'choice':
+        return Organization.objects.filter(**{f'{field}__isnull': True})
+    if ft == 'array':
+        return Organization.objects.filter(Q(**{f'{field}__isnull': True}) | Q(**{f'{field}': []}))
+    # text
+    return Organization.objects.filter(Q(**{f'{field}__isnull': True}) | Q(**{field: ''}))
+
+
 def _get_missing_org_fields(org: Organization, requested: list[str] | None) -> list[str]:
     if requested:
         return list(requested)
@@ -145,18 +159,29 @@ class Command(EnricherBaseCommand):
                             metavar='TYPE',
                             help=f'Directly set org_type without invoking the LLM. '
                                  f'Choices: {", ".join(org_type_choices)}')
+        parser.add_argument('--missing', metavar='FIELD', default=None,
+                            choices=list(ORG_ALL_FIELDS),
+                            help=f'Select organizations where FIELD is empty. '
+                                 f'Can be combined with --search-type. '
+                                 f'Valid fields: {", ".join(ORG_ALL_FIELDS)}')
 
     def handle(self, *args, **options):
         seen = {}
+        missing_field = options.get('missing')
 
         if options.get('search_type'):
             org_type = OrgType[options['search_type'].upper()]
             qs = Organization.objects.filter(org_type=org_type)
+            if missing_field:
+                qs = qs & _query_orgs_missing_field(missing_field)
             for org in qs:
+                seen.setdefault(org.pk, org)
+        elif missing_field:
+            for org in _query_orgs_missing_field(missing_field):
                 seen.setdefault(org.pk, org)
         else:
             if not options['keywords']:
-                raise CommandError("Provide at least one KEYWORD or use --search-type")
+                raise CommandError("Provide at least one KEYWORD, --search-type, or --missing=FIELD")
             for keyword in options['keywords']:
                 qs = Organization.objects.filter(slug=keyword)
                 if not qs.exists():
