@@ -389,6 +389,15 @@ class Organization(LogoMixin, models.Model):
     def stock_exchange_obj(self):
         return StockExchange(self.stock_exchange) if self.stock_exchange is not None else None
 
+    @property
+    def linkedin_handle(self):
+        if not self.linkedin_url_id:
+            return None
+        m = re.search(r'linkedin\.com(.*)', self.linkedin_url.url)
+        if not m:
+            return None
+        return m.group(1).rstrip('/')
+
     def get_absolute_url(self):
         return reverse('organization', args=[self.slug])
 

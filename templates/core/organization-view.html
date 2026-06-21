@@ -59,7 +59,7 @@
         {% if org.linkedin_url %}
         <div class="fact">
             <dt>LinkedIn</dt>
-            <dd><a href="{{ org.linkedin_url.url }}" target="_{{ org.slug }}"><i class="fa-brands fa-linkedin"></i> {{ org.linkedin_url.url }}</a>{% if linkedin_citation %}<span class="cites">{% citation_footnote linkedin_citation %}</span>{% endif %}</dd>
+            <dd><a href="{{ org.linkedin_url.url }}" target="_{{ org.slug }}"><i class="fa-brands fa-linkedin"></i>{{ org.linkedin_handle }}</a>{% if linkedin_citation %}<span class="cites">{% citation_footnote linkedin_citation %}</span>{% endif %}</dd>
         </div>
         {% endif %}
         {% if org.countries %}
