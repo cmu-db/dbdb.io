@@ -364,6 +364,10 @@ class Organization(LogoMixin, models.Model):
         max_length=20, blank=True,
         help_text='Ticker symbol (e.g. ORCL, MSFT)')
 
+    stock_delisted = models.BooleanField(
+        null=True, blank=True,
+        help_text='True if the stock is no longer publicly traded')
+
     countries = CountryField(
         blank=True, multiple=True,
         verbose_name='Countries',

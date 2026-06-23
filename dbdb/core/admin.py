@@ -366,7 +366,7 @@ def _make_set_org_type_action(member: OrgType):
 class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
     form = OrganizationAdminForm
     list_display = ('id', 'name', 'slug', 'org_type', 'description', 'stock_symbol', 'countries', 'created', 'modified')
-    list_filter = ['org_type', 'stock_exchange', 'created', 'modified', OrgHasLogoFilter, OrgDevelopedSystemsFilter, OrgAcquisitionsFilter]
+    list_filter = ['org_type', 'stock_exchange', 'stock_delisted', 'created', 'modified', OrgHasLogoFilter, OrgDevelopedSystemsFilter, OrgAcquisitionsFilter]
     search_fields = ('name', 'slug', 'stock_symbol')
     readonly_fields = ('created', 'modified')
     prepopulated_fields = {'slug': ('name',)}
