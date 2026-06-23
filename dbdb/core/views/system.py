@@ -640,7 +640,8 @@ class SystemEditView(LoginRequiredMixin, View):
 
             new_version.save()
 
-            if request.user.is_superuser and pending is not None and request.POST.get('admin_timestamp') == 'original':
+            if (request.user.is_superuser and pending is not None and not keep_pending
+                    and request.POST.get('admin_timestamp') == 'original'):
                 SystemVersion.objects.filter(pk=new_version.pk).update(created=pending.created)
 
             features = {
