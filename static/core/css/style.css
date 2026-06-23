@@ -237,6 +237,7 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
 
 .serif { font-family: var(--serif); }
 .mono  { font-family: var(--mono); }
+.font-monospace { font-family: var(--mono) !important; }
 .text-accent { color: var(--accent) !important; }
 
 .hairline { border: 0; border-top: 1px solid var(--rule); margin: 0; }
