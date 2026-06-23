@@ -221,6 +221,8 @@ class Command(EnricherBaseCommand):
                 self.stderr.write(self.style.ERROR(f"Error enriching '{org.slug}': {e}"))
 
     def _enrich_one(self, org: Organization, options: dict):
+        org.refresh_from_db()
+
         dry_run: bool    = options['dry_run']
         model_override   = options['model']
         include_urls     = options['include_urls']

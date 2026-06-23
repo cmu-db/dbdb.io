@@ -181,6 +181,8 @@ class Command(EnricherBaseCommand):
                 self.stderr.write(self.style.ERROR(f"Error enriching '{system.slug}': {e}"))
 
     def _enrich_one(self, system: System, options: dict):
+        system.refresh_from_db()
+
         dry_run: bool = options['dry_run']
         model_override: str | None = options['model']
         per_feature: bool = options['per_feature']
