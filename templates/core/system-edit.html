@@ -337,6 +337,13 @@
                     <option value="approved">Approved (make live)</option>
                 </select>
             </div>
+            <div class="mb-2">
+                <label for="admin_timestamp" class="form-label small">Approval Timestamp</label>
+                <select name="admin_timestamp" id="admin_timestamp" class="form-select form-select-sm">
+                    <option value="now" selected>Current Timestamp</option>
+                    <option value="original">Original ({{ pending_version.created|date:"Y-m-d H:i" }})</option>
+                </select>
+            </div>
             <div class="mb-0">
                 <label for="admin_creator" class="form-label small">Creator</label>
                 <select name="admin_creator" id="admin_creator" class="form-select form-select-sm">
