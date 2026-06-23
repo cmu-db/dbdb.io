@@ -225,6 +225,88 @@ class AdvancedSearchTestCase(TestCase):
         self.assertContains(response, 'No databases found')
         return
 
+    # --- Existence queries (=*) ---
+
+    def test_existence_feature_returns_results(self):
+        # SQLite has storage-model set, so =* should match it
+        response = self.client.get(reverse('browse'), data={'storage-model': '*'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'SQLite')
+
+    def test_existence_feature_title(self):
+        response = self.client.get(reverse('browse'), data={'storage-model': '*'})
+        self.assertContains(response, 'with Storage Model')
+
+    def test_existence_feature_combined_with_normal_filter(self):
+        # storage-model=* AND joins=hash-join: SQLite matches both
+        response = self.client.get(reverse('browse'), data={
+            'storage-model': '*', 'joins': 'hash-join',
+        })
+        self.assertContains(response, 'SQLite')
+
+    def test_existence_attribute_returns_results(self):
+        # SQLite has license=public-domain, so license=* should match it
+        response = self.client.get(reverse('browse'), data={'license': '*'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'SQLite')
+
+    def test_existence_attribute_title(self):
+        response = self.client.get(reverse('browse'), data={'license': '*'})
+        self.assertContains(response, 'with License')
+
+    def test_existence_attribute_programming_language(self):
+        # SQLite written in C
+        response = self.client.get(reverse('browse'), data={'programming-language': '*'})
+        self.assertContains(response, 'SQLite')
+
+    def test_existence_url_field_returns_results(self):
+        from dbdb.core.models import CitationUrl, SystemVersion
+        sv = SystemVersion.objects.get(system__name='SQLite', is_current=True)
+        url, _ = CitationUrl.objects.get_or_create(url='https://en.wikipedia.org/wiki/SQLite')
+        sv.wikipedia_url = url
+        sv.save()
+        response = self.client.get(reverse('browse'), data={'wikipedia_url': '*'})
+        self.assertContains(response, 'SQLite')
+
+    def test_existence_url_field_title(self):
+        from dbdb.core.models import CitationUrl, SystemVersion
+        sv = SystemVersion.objects.get(system__name='SQLite', is_current=True)
+        url, _ = CitationUrl.objects.get_or_create(url='https://en.wikipedia.org/wiki/SQLite')
+        sv.wikipedia_url = url
+        sv.save()
+        response = self.client.get(reverse('browse'), data={'wikipedia_url': '*'})
+        self.assertContains(response, 'with Wikipedia URL')
+
+    def test_existence_url_field_no_match_when_empty(self):
+        # SQLite has no wikipedia_url in fixture — existence filter returns no results
+        response = self.client.get(reverse('browse'), data={'wikipedia_url': '*'})
+        self.assertContains(response, 'No databases found')
+
+    def test_existence_stacked_filters(self):
+        # Both storage-model=* and license=* must match — SQLite has both
+        response = self.client.get(reverse('browse'), data={
+            'storage-model': '*', 'license': '*',
+        })
+        self.assertContains(response, 'SQLite')
+
+    pass
+
+# ==============================================
+# FieldNameMapTestCase
+# ==============================================
+class FieldNameMapTestCase(TestCase):
+
+    def test_all_exists_params_have_field_name_entry(self):
+        from dbdb.core.views.browse import _EXISTS_FILTER_MAP, _FIELD_NAME_MAP
+        for param in _EXISTS_FILTER_MAP:
+            self.assertIn(param, _FIELD_NAME_MAP,
+                msg=f"_FIELD_NAME_MAP missing entry for '{param}'")
+
+    def test_field_name_map_noun_label_not_empty(self):
+        from dbdb.core.views.browse import _FIELD_NAME_MAP
+        for param, (verb, noun) in _FIELD_NAME_MAP.items():
+            self.assertTrue(noun, msg=f"_FIELD_NAME_MAP['{param}'] has empty noun_label")
+
     pass
 
 # ==============================================

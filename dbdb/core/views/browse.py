@@ -93,6 +93,44 @@ _SEARCH_PARAM_TO_COL = {
     'inspired':    'inspired-by',
 }
 
+# Maps GET param → (verb_phrase, noun_label) for title generation.
+# verb_phrase: prepended to resolved names in normal filter titles (None if only used for existence).
+# noun_label: used in existence-query titles ("with {noun_label}").
+_FIELD_NAME_MAP = {
+    'compatible':     ('Compatible With', 'Compatibility'),
+    'derived':        ('Derived From',    'Derivation'),
+    'embeds':         ('Using',           'Embedded Systems'),
+    'hosted_by':      ('Hosting',         'Hosted Service'),
+    'inspired':       ('Inspired By',     'Inspiration'),
+    'developer':      ('Developed By',    'Developer Organization'),
+    'acquired-by':    ('Acquired By',     'Acquisition'),
+    'country':        ('from',            'Country'),
+    'wikipedia_url':  (None, 'Wikipedia URL'),
+    'system_url':     (None, 'Website URL'),
+    'docs_url':       (None, 'Docs URL'),
+    'sourcerepo_url': (None, 'Source Code URL'),
+    'description':    (None, 'Description'),
+    'history':        (None, 'History'),
+}
+
+# Maps GET param → (orm_lookup, orm_value) for existence queries (param value == '*').
+# Features and attributes are handled dynamically and are not in this map.
+_EXISTS_FILTER_MAP = {
+    'wikipedia_url':  ('wikipedia_url__isnull',  False),
+    'system_url':     ('system_url__isnull',      False),
+    'docs_url':       ('docs_url__isnull',         False),
+    'sourcerepo_url': ('sourcerepo_url__isnull',   False),
+    'description':    ('description__gt',          ''),
+    'history':        ('history__gt',              ''),
+    'developer':      ('developer_orgs__isnull',   False),
+    'acquired-by':    ('acquisitions__isnull',      False),
+    'compatible':     ('compatible_with__isnull',   False),
+    'derived':        ('derived_from__isnull',      False),
+    'embeds':         ('embedded__isnull',          False),
+    'hosted_by':      ('hosted_services__isnull',   False),
+    'inspired':       ('inspired_by__isnull',       False),
+}
+
 _DOI_RE = re.compile(r'\b10\.\d{4,}/\S+', re.IGNORECASE)
 
 def _is_doi_query(q: str) -> bool:
@@ -343,11 +381,15 @@ class BrowseView(View):
         # separate option-slug values from count (+N) values for feature params
         search_fg = {}
         feature_counts = {}
+        feature_exists = {}  # fid → slug, for existence queries (value == '*')
         for k in get_params.keys():
             if k not in features_map:
                 continue
             fid = features_map[k]
             vals = get_params.getlist(k)
+            if vals == ['*']:
+                feature_exists[fid] = k
+                continue
             option_vals = [v for v in vals if not _is_count_val(v)]
             count_vals  = [v for v in vals if _is_count_val(v)]
             if option_vals:
@@ -377,9 +419,13 @@ class BrowseView(View):
         # collect attribute-based search params keyed by Attribute slug
         attr_searches = {}
         attr_count_searches = {}
+        attr_exists = {}  # attr.slug → attr, for existence queries (value == '*')
         for attr in Attribute.objects.filter(sv_field__gt='').only('slug', 'name', 'sv_field', 'search_text'):
             vals = get_params.getlist(attr.slug)
             if not vals:
+                continue
+            if vals == ['*']:
+                attr_exists[attr.slug] = attr
                 continue
             option_vals = [v for v in vals if not _is_count_val(v)]
             count_vals  = [v for v in vals if _is_count_val(v)]
@@ -416,6 +462,13 @@ class BrowseView(View):
             search_mapping[f'{slug}__gte'] = min_count
         for fid, min_count in feature_counts.items():
             search_mapping[f'feature_{fid}__gte'] = min_count
+        for param in _EXISTS_FILTER_MAP:
+            if get_params.get(param) == '*':
+                search_mapping[param] = '*'
+        for slug in attr_exists:
+            search_mapping[slug] = '*'
+        for fid, slug in feature_exists.items():
+            search_mapping[slug] = '*'
 
         if not any(search_mapping.values()) and not any(search_fg):
             return (sqs, { }, 'Browse', None)
@@ -487,7 +540,8 @@ class BrowseView(View):
             country_names = [(countries_map.get(c) if countries_map.get(c) else '') for c in search_country]
             search_countries = ' or '.join(country_names) if len(country_names) < 3 else f"{', '.join(country_names[:-1])}, or {country_names[-1]}"
             if search_countries:
-                search_parts.append(' from ' + search_countries)
+                _v, _ = _FIELD_NAME_MAP['country']
+                search_parts.append(f' {_v} ' + search_countries)
             pass
 
         # search - compatible
@@ -500,7 +554,8 @@ class BrowseView(View):
             system_names = [str(e) for e in search_mapping['compatible']]
             search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
             if search_compatiblewith:
-                search_parts.append(' Compatible With ' + search_compatiblewith)
+                _v, _ = _FIELD_NAME_MAP['compatible']
+                search_parts.append(f' {_v} ' + search_compatiblewith)
             pass
 
         # search - derived from
@@ -512,7 +567,8 @@ class BrowseView(View):
             system_names = [str(e) for e in search_mapping['derived']]
             search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
             if search_compatiblewith:
-                search_parts.append(' Derived From ' + search_compatiblewith)
+                _v, _ = _FIELD_NAME_MAP['derived']
+                search_parts.append(f' {_v} ' + search_compatiblewith)
             pass
 
         # search - embedded
@@ -524,7 +580,8 @@ class BrowseView(View):
             system_names = [str(e) for e in search_mapping['embeds']]
             search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
             if search_compatiblewith:
-                search_parts.append(' Using ' + search_compatiblewith)
+                _v, _ = _FIELD_NAME_MAP['embeds']
+                search_parts.append(f' {_v} ' + search_compatiblewith)
             pass
 
         # search - hosted by
@@ -536,7 +593,8 @@ class BrowseView(View):
             system_names = [str(e) for e in search_mapping['hosted_by']]
             search_hostedby = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
             if search_hostedby:
-                search_parts.append(' Hosting ' + search_hostedby)
+                _v, _ = _FIELD_NAME_MAP['hosted_by']
+                search_parts.append(f' {_v} ' + search_hostedby)
             pass
 
         # search - inspired by
@@ -548,7 +606,8 @@ class BrowseView(View):
             system_names = [str(e) for e in search_mapping['inspired']]
             search_compatiblewith = ' or '.join(system_names) if len(system_names) < 3 else f"{', '.join(system_names[:-1])}, or {system_names[-1]}"
             if search_compatiblewith:
-                search_parts.append(' Inspired By ' + search_compatiblewith)
+                _v, _ = _FIELD_NAME_MAP['inspired']
+                search_parts.append(f' {_v} ' + search_compatiblewith)
             pass
 
         # search - developer orgs
@@ -558,7 +617,8 @@ class BrowseView(View):
             org_names = [o.name for o in orgs]
             joined = ' or '.join(org_names) if len(org_names) < 3 else f"{', '.join(org_names[:-1])}, or {org_names[-1]}"
             if joined:
-                search_parts.append(f' Developed By {joined}')
+                _v, _ = _FIELD_NAME_MAP['developer']
+                search_parts.append(f' {_v} {joined}')
             pass
 
         # search - acquired by
@@ -568,7 +628,8 @@ class BrowseView(View):
             org_names = [o.name for o in orgs]
             joined = ' or '.join(org_names) if len(org_names) < 3 else f"{', '.join(org_names[:-1])}, or {org_names[-1]}"
             if joined:
-                search_parts.append(f' Acquired By {joined}')
+                _v, _ = _FIELD_NAME_MAP['acquired-by']
+                search_parts.append(f' {_v} {joined}')
             pass
 
         # search - attribute options (dynamic: one block per Attribute)
@@ -702,6 +763,36 @@ class BrowseView(View):
         if sqs_filters:
             query = reduce(search_op, sqs_filters)
             sqs = sqs.filter(query)
+
+        # Apply existence filters (=*) — always AND'd, never part of search_op reduce
+        for param, (lookup, val) in _EXISTS_FILTER_MAP.items():
+            if get_params.get(param) == '*':
+                sqs = sqs.filter(id__in=
+                    SystemVersion.objects.filter(is_current=True)
+                    .filter(**{lookup: val}).values('id').distinct()
+                )
+        for fid in feature_exists:
+            sqs = sqs.filter(id__in=
+                SystemFeature.objects.filter(feature_id=fid, version__is_current=True)
+                .values('version_id').distinct()
+            )
+        for slug, attr in attr_exists.items():
+            sqs = sqs.filter(id__in=
+                SystemVersion.objects.filter(is_current=True)
+                .filter(**{f'{attr.sv_field}__isnull': False})
+                .values('id').distinct()
+            )
+
+        # Existence title parts
+        for param, (lookup, val) in _EXISTS_FILTER_MAP.items():
+            if get_params.get(param) == '*':
+                _, noun = _FIELD_NAME_MAP[param]
+                search_parts.append(f' with {noun}')
+        for fid, slug in feature_exists.items():
+            label = slug.replace('-', ' ').title()
+            search_parts.append(f' with {label}')
+        for slug, attr in attr_exists.items():
+            search_parts.append(f' with {attr.name}')
 
         # Build Title with features
         feature_parts = []
