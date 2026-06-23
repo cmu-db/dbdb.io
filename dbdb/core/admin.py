@@ -372,11 +372,21 @@ class OrganizationAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     ordering = ('name',)
     inlines = [OrgDeveloperOrgsInline, OrgAcquisitionInline]
-    actions = ['clear_description'] + [f'set_org_type_{m.name.lower()}' for m in OrgType]
+    actions = ['clear_description', 'set_stock_delisted_true', 'set_stock_delisted_false'] + [f'set_org_type_{m.name.lower()}' for m in OrgType]
 
     @admin.action(description='Clear Description')
     def clear_description(self, request, queryset):
         updated = queryset.update(description='')
+
+    @admin.action(description='Set Stock Delisted → True')
+    def set_stock_delisted_true(self, request, queryset):
+        updated = queryset.update(stock_delisted=True)
+        self.message_user(request, f"Marked {updated} organization(s) as stock delisted.")
+
+    @admin.action(description='Set Stock Delisted → False')
+    def set_stock_delisted_false(self, request, queryset):
+        updated = queryset.update(stock_delisted=False)
+        self.message_user(request, f"Marked {updated} organization(s) as stock not delisted.")
         self.message_user(request, f"Cleared description on {updated} organization(s).")
 
 

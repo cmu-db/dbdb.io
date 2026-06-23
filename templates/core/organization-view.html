@@ -77,16 +77,18 @@
         {% if org.stock_symbol %}
         <div class="fact">
             <dt>Stock</dt>
-            <dd>
+            <dd class="font-monospace">
+                {% if org.stock_delisted %}<s>{% endif %}
                 {% if org.stock_exchange %}
-                    {% if org.stock_exchange_obj.url %}
-                        <a href="{{ org.stock_exchange_obj.url }}{{ org.stock_symbol }}" target="_blank" title="View {{ org.name }} on {{ org.get_stock_exchange_display }}">{{ org.get_stock_exchange_display }}: {{ org.stock_symbol }}</a>
+                    {% if org.stock_exchange_obj.url and not org.stock_delisted %}
+                        <a href="{{ org.stock_exchange_obj.url }}{{ org.stock_symbol }}" target="_blank" title="View {{ org.name }} on {{ org.get_stock_exchange_display }}">{{ org.get_stock_exchange_display }}:{{ org.stock_symbol }}</a>
                     {% else %}
-                        {{ org.get_stock_exchange_display }}
+                        {{ org.get_stock_exchange_display }}:{{ org.stock_symbol }}
                     {% endif %}
                 {% else %}
                     {{ org.stock_symbol }}
                 {% endif %}
+                {% if org.stock_delisted %}</s> <span class="cite-meta ms-1"><i class="fa-solid fa-skull-crossbones"></i>Delisted</span>{% endif %}
             </dd>
         </div>
         {% endif %}
