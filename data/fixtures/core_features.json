@@ -1,0 +1,2219 @@
+[
+  {
+    "model": "core.feature",
+    "pk": 1,
+    "fields": {
+      "slug": "query-interface",
+      "label": "Query Interface",
+      "multivalued": true,
+      "description": "",
+      "category": 2,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 2,
+    "fields": {
+      "slug": "views",
+      "label": "Views",
+      "multivalued": true,
+      "description": "",
+      "category": 2,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 3,
+    "fields": {
+      "slug": "concurrency-control",
+      "label": "Concurrency Control",
+      "multivalued": true,
+      "description": "",
+      "category": 3,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 4,
+    "fields": {
+      "slug": "logging",
+      "label": "Logging",
+      "multivalued": true,
+      "description": "",
+      "category": 3,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 5,
+    "fields": {
+      "slug": "joins",
+      "label": "Joins",
+      "multivalued": true,
+      "description": "",
+      "category": 2,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 6,
+    "fields": {
+      "slug": "storage-model",
+      "label": "Storage Model",
+      "multivalued": true,
+      "description": "",
+      "category": 1,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 7,
+    "fields": {
+      "slug": "isolation-levels",
+      "label": "Isolation Levels",
+      "multivalued": true,
+      "description": "",
+      "category": 3,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 8,
+    "fields": {
+      "slug": "query-execution",
+      "label": "Query Execution",
+      "multivalued": true,
+      "description": "",
+      "category": 2,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 9,
+    "fields": {
+      "slug": "stored-procedures",
+      "label": "Stored Procedures",
+      "multivalued": true,
+      "description": "",
+      "category": 2,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 10,
+    "fields": {
+      "slug": "indexes",
+      "label": "Indexes",
+      "multivalued": true,
+      "description": "",
+      "category": 1,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 11,
+    "fields": {
+      "slug": "storage-architecture",
+      "label": "Storage Architecture",
+      "multivalued": true,
+      "description": "",
+      "category": 1,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 12,
+    "fields": {
+      "slug": "checkpoints",
+      "label": "Checkpoints",
+      "multivalued": true,
+      "description": "",
+      "category": 3,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 13,
+    "fields": {
+      "slug": "foreign-keys",
+      "label": "Foreign Keys",
+      "multivalued": true,
+      "description": "",
+      "category": 3,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 14,
+    "fields": {
+      "slug": "data-model",
+      "label": "Data Model",
+      "multivalued": true,
+      "description": "",
+      "category": 1,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 15,
+    "fields": {
+      "slug": "system-architecture",
+      "label": "System Architecture",
+      "multivalued": true,
+      "description": "",
+      "category": 4,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 16,
+    "fields": {
+      "slug": "query-compilation",
+      "label": "Query Compilation",
+      "multivalued": true,
+      "description": "",
+      "category": 2,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 17,
+    "fields": {
+      "slug": "compression",
+      "label": "Compression",
+      "multivalued": true,
+      "description": "",
+      "category": 1,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 18,
+    "fields": {
+      "slug": "hardware-acceleration",
+      "label": "Hardware Acceleration",
+      "multivalued": true,
+      "description": "",
+      "category": 4,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 19,
+    "fields": {
+      "slug": "storage-organization",
+      "label": "Storage Organization",
+      "multivalued": true,
+      "description": "",
+      "category": 1,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 20,
+    "fields": {
+      "slug": "parallel-execution",
+      "label": "Parallel Execution",
+      "multivalued": true,
+      "description": "",
+      "category": 2,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 21,
+    "fields": {
+      "slug": "storage-format",
+      "label": "Storage Format",
+      "multivalued": true,
+      "description": "",
+      "category": 1,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 22,
+    "fields": {
+      "slug": "fault-tolerance",
+      "label": "Fault Tolerance",
+      "multivalued": true,
+      "description": "How the DBMS achieves high-availability via fault tolerance mechanisms.",
+      "category": 4,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 23,
+    "fields": {
+      "slug": "user-defined-functions",
+      "label": "User-Defined Functions",
+      "multivalued": true,
+      "description": "",
+      "category": 2,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.feature",
+    "pk": 24,
+    "fields": {
+      "slug": "coordination",
+      "label": "Coordination",
+      "multivalued": true,
+      "description": "Coordination protocol for running queries and transactions",
+      "category": 4,
+      "created": "2026-05-29T15:05:47.239Z",
+      "modified": "2026-05-29T15:05:47.248Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 1,
+    "fields": {
+      "feature": 1,
+      "slug": "custom-api",
+      "value": "Custom API",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 2,
+    "fields": {
+      "feature": 2,
+      "slug": "not-supported",
+      "value": "Not Supported",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 3,
+    "fields": {
+      "feature": 3,
+      "slug": "multi-version-concurrency-control-mvcc",
+      "value": "Multi-version Concurrency Control (MVCC)",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 4,
+    "fields": {
+      "feature": 4,
+      "slug": "logical-logging",
+      "value": "Logical Logging",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 5,
+    "fields": {
+      "feature": 5,
+      "slug": "not-supported",
+      "value": "Not Supported",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 6,
+    "fields": {
+      "feature": 6,
+      "slug": "decomposition-storage-model-columnar",
+      "value": "Decomposition Storage Model (Columnar)",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 7,
+    "fields": {
+      "feature": 7,
+      "slug": "read-uncommitted",
+      "value": "Read Uncommitted",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 8,
+    "fields": {
+      "feature": 7,
+      "slug": "read-committed",
+      "value": "Read Committed",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 9,
+    "fields": {
+      "feature": 8,
+      "slug": "tuple-at-a-time-model",
+      "value": "Tuple-at-a-Time Model",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 10,
+    "fields": {
+      "feature": 9,
+      "slug": "not-supported",
+      "value": "Not Supported",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 11,
+    "fields": {
+      "feature": 10,
+      "slug": "btree",
+      "value": "B+Tree",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 12,
+    "fields": {
+      "feature": 11,
+      "slug": "disk-oriented",
+      "value": "Disk-oriented",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 13,
+    "fields": {
+      "feature": 12,
+      "slug": "non-blocking",
+      "value": "Non-Blocking",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 15,
+    "fields": {
+      "feature": 14,
+      "slug": "column-family",
+      "value": "Column Family / Wide-Column",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 16,
+    "fields": {
+      "feature": 15,
+      "slug": "shared-nothing",
+      "value": "Shared-Nothing",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 17,
+    "fields": {
+      "feature": 16,
+      "slug": "not-supported",
+      "value": "Not Supported",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 18,
+    "fields": {
+      "feature": 1,
+      "slug": "sql",
+      "value": "SQL",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 19,
+    "fields": {
+      "feature": 2,
+      "slug": "virtual-views",
+      "value": "Virtual Views",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 20,
+    "fields": {
+      "feature": 4,
+      "slug": "physical-logging",
+      "value": "Physical Logging",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 21,
+    "fields": {
+      "feature": 5,
+      "slug": "nested-loop-join",
+      "value": "Nested Loop Join",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 22,
+    "fields": {
+      "feature": 5,
+      "slug": "hash-join",
+      "value": "Hash Join",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 23,
+    "fields": {
+      "feature": 5,
+      "slug": "sort-merge-join",
+      "value": "Sort-Merge Join",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 24,
+    "fields": {
+      "feature": 5,
+      "slug": "broadcast-join",
+      "value": "Broadcast Join",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 25,
+    "fields": {
+      "feature": 6,
+      "slug": "n-ary-storage-model-rowrecord",
+      "value": "N-ary Storage Model (Row/Record)",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 26,
+    "fields": {
+      "feature": 8,
+      "slug": "vectorized-model",
+      "value": "Vectorized Model",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 27,
+    "fields": {
+      "feature": 10,
+      "slug": "skip-list",
+      "value": "Skip List",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 28,
+    "fields": {
+      "feature": 10,
+      "slug": "hash-table",
+      "value": "Hash Table",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 29,
+    "fields": {
+      "feature": 11,
+      "slug": "in-memory",
+      "value": "In-Memory",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 30,
+    "fields": {
+      "feature": 12,
+      "slug": "consistent",
+      "value": "Consistent",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 31,
+    "fields": {
+      "feature": 14,
+      "slug": "relational",
+      "value": "Relational",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 32,
+    "fields": {
+      "feature": 14,
+      "slug": "keyvalue",
+      "value": "Key/Value",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 33,
+    "fields": {
+      "feature": 16,
+      "slug": "code-generation",
+      "value": "Code Generation",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 34,
+    "fields": {
+      "feature": 16,
+      "slug": "jit-compilation",
+      "value": "JIT Compilation",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 35,
+    "fields": {
+      "feature": 2,
+      "slug": "materialized-views",
+      "value": "Materialized Views",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 36,
+    "fields": {
+      "feature": 3,
+      "slug": "two-phase-locking-deadlock-prevention",
+      "value": "Two-Phase Locking (Deadlock Prevention)",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 37,
+    "fields": {
+      "feature": 3,
+      "slug": "optimistic-concurrency-control-occ",
+      "value": "Optimistic Concurrency Control (OCC)",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 38,
+    "fields": {
+      "feature": 4,
+      "slug": "physiological-logging",
+      "value": "Physiological Logging",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 39,
+    "fields": {
+      "feature": 4,
+      "slug": "command-logging",
+      "value": "Command Logging",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 41,
+    "fields": {
+      "feature": 6,
+      "slug": "hybrid",
+      "value": "Hybrid",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 42,
+    "fields": {
+      "feature": 6,
+      "slug": "custom",
+      "value": "Custom",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 43,
+    "fields": {
+      "feature": 7,
+      "slug": "serializable",
+      "value": "Serializable",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 44,
+    "fields": {
+      "feature": 8,
+      "slug": "materialized-model",
+      "value": "Materialized Model",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 45,
+    "fields": {
+      "feature": 10,
+      "slug": "bitmap",
+      "value": "BitMap",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 47,
+    "fields": {
+      "feature": 12,
+      "slug": "blocking",
+      "value": "Blocking",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 48,
+    "fields": {
+      "feature": 12,
+      "slug": "fuzzy",
+      "value": "Fuzzy",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 49,
+    "fields": {
+      "feature": 3,
+      "slug": "not-supported",
+      "value": "Not Supported",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 51,
+    "fields": {
+      "feature": 10,
+      "slug": "not-supported",
+      "value": "Not Supported",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 53,
+    "fields": {
+      "feature": 7,
+      "slug": "snapshot-isolation",
+      "value": "Snapshot Isolation",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 54,
+    "fields": {
+      "feature": 1,
+      "slug": "plsql",
+      "value": "PL/SQL",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 55,
+    "fields": {
+      "feature": 13,
+      "slug": "supported",
+      "value": "Supported",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 56,
+    "fields": {
+      "feature": 14,
+      "slug": "document-xml",
+      "value": "Document / XML",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 57,
+    "fields": {
+      "feature": 15,
+      "slug": "shared-everything",
+      "value": "Shared-Everything",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 58,
+    "fields": {
+      "feature": 15,
+      "slug": "shared-memory",
+      "value": "Shared-Memory",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 59,
+    "fields": {
+      "feature": 11,
+      "slug": "hybrid",
+      "value": "Hybrid",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 60,
+    "fields": {
+      "feature": 15,
+      "slug": "shared-disk",
+      "value": "Shared-Disk",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 63,
+    "fields": {
+      "feature": 1,
+      "slug": "stored-procedures",
+      "value": "Stored Procedures",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 64,
+    "fields": {
+      "feature": 3,
+      "slug": "deterministic-concurrency-control",
+      "value": "Deterministic Concurrency Control",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 67,
+    "fields": {
+      "feature": 9,
+      "slug": "supported",
+      "value": "Supported",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 70,
+    "fields": {
+      "feature": 16,
+      "slug": "stored-procedure-compilation",
+      "value": "Stored Procedure Compilation",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 71,
+    "fields": {
+      "feature": 7,
+      "slug": "repeatable-read",
+      "value": "Repeatable Read",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 73,
+    "fields": {
+      "feature": 3,
+      "slug": "timestamp-ordering",
+      "value": "Timestamp Ordering",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 75,
+    "fields": {
+      "feature": 10,
+      "slug": "bw-tree",
+      "value": "Bw-Tree",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 76,
+    "fields": {
+      "feature": 5,
+      "slug": "shuffle-join",
+      "value": "Shuffle Join",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 78,
+    "fields": {
+      "feature": 3,
+      "slug": "two-phase-locking-deadlock-detection",
+      "value": "Two-Phase Locking (Deadlock Detection)",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 79,
+    "fields": {
+      "feature": 5,
+      "slug": "semi-join",
+      "value": "Semi Join",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 80,
+    "fields": {
+      "feature": 10,
+      "slug": "r-tree",
+      "value": "R-Tree",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 82,
+    "fields": {
+      "feature": 14,
+      "slug": "graph",
+      "value": "Graph",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 84,
+    "fields": {
+      "feature": 14,
+      "slug": "object-oriented",
+      "value": "Object-Oriented",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 85,
+    "fields": {
+      "feature": 14,
+      "slug": "array-matrix",
+      "value": "Array / Matrix",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 86,
+    "fields": {
+      "feature": 14,
+      "slug": "entity-attribute-value",
+      "value": "Entity-Attribute-Value",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 87,
+    "fields": {
+      "feature": 10,
+      "slug": "t-tree",
+      "value": "T-Tree",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 88,
+    "fields": {
+      "feature": 10,
+      "slug": "masstree",
+      "value": "MassTree",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 89,
+    "fields": {
+      "feature": 14,
+      "slug": "network",
+      "value": "Network",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 90,
+    "fields": {
+      "feature": 14,
+      "slug": "hierarchical",
+      "value": "Hierarchical",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 92,
+    "fields": {
+      "feature": 15,
+      "slug": "embedded",
+      "value": "Embedded",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 93,
+    "fields": {
+      "feature": 10,
+      "slug": "avl-tree",
+      "value": "AVL-Tree",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 94,
+    "fields": {
+      "feature": 14,
+      "slug": "multi-value",
+      "value": "Multi-Value",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 95,
+    "fields": {
+      "feature": 1,
+      "slug": "graphql",
+      "value": "GraphQL",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 96,
+    "fields": {
+      "feature": 1,
+      "slug": "sparql",
+      "value": "SPARQL",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 97,
+    "fields": {
+      "feature": 1,
+      "slug": "rdfs",
+      "value": "RDFS++",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 98,
+    "fields": {
+      "feature": 1,
+      "slug": "xquery",
+      "value": "XQuery",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 99,
+    "fields": {
+      "feature": 1,
+      "slug": "cypher",
+      "value": "Cypher",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 100,
+    "fields": {
+      "feature": 10,
+      "slug": "k-d-tree",
+      "value": "K-D Tree",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 102,
+    "fields": {
+      "feature": 10,
+      "slug": "inverted-index-full-text",
+      "value": "Inverted Index (Full Text)",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 103,
+    "fields": {
+      "feature": 14,
+      "slug": "entity-relationship",
+      "value": "Entity-Relationship",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 104,
+    "fields": {
+      "feature": 17,
+      "slug": "dictionary-encoding",
+      "value": "Dictionary Encoding",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 105,
+    "fields": {
+      "feature": 17,
+      "slug": "delta-encoding",
+      "value": "Delta Encoding",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 106,
+    "fields": {
+      "feature": 17,
+      "slug": "run-length-encoding",
+      "value": "Run-Length Encoding",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 107,
+    "fields": {
+      "feature": 17,
+      "slug": "naive-page-level",
+      "value": "Na\u00efve (Page-Level)",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 108,
+    "fields": {
+      "feature": 17,
+      "slug": "naive-record-level",
+      "value": "Na\u00efve (Record-Level)",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 109,
+    "fields": {
+      "feature": 17,
+      "slug": "bitmap-encoding",
+      "value": "Bitmap Encoding",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 110,
+    "fields": {
+      "feature": 17,
+      "slug": "incremental-encoding",
+      "value": "Incremental Encoding",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 111,
+    "fields": {
+      "feature": 17,
+      "slug": "bit-packing-mostly-encoding",
+      "value": "Bit Packing / Mostly Encoding",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 112,
+    "fields": {
+      "feature": 18,
+      "slug": "gpu",
+      "value": "GPU",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 113,
+    "fields": {
+      "feature": 18,
+      "slug": "fpga",
+      "value": "FPGA",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 114,
+    "fields": {
+      "feature": 18,
+      "slug": "rdma",
+      "value": "RDMA",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 115,
+    "fields": {
+      "feature": 18,
+      "slug": "custom",
+      "value": "Custom",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 116,
+    "fields": {
+      "feature": 1,
+      "slug": "gremlin",
+      "value": "Gremlin",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 117,
+    "fields": {
+      "feature": 14,
+      "slug": "triplestore-rdf",
+      "value": "Triplestore / RDF",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 118,
+    "fields": {
+      "feature": 10,
+      "slug": "red-black-tree",
+      "value": "Red-Black Tree",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 122,
+    "fields": {
+      "feature": 1,
+      "slug": "http-rest",
+      "value": "HTTP / REST",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 123,
+    "fields": {
+      "feature": 1,
+      "slug": "datalog",
+      "value": "Datalog",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 124,
+    "fields": {
+      "feature": 1,
+      "slug": "command-line-shell",
+      "value": "Command-line / Shell",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 125,
+    "fields": {
+      "feature": 19,
+      "slug": "log-structured",
+      "value": "Log-structured",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 126,
+    "fields": {
+      "feature": 19,
+      "slug": "copy-on-write-shadow-paging",
+      "value": "Copy-on-Write / Shadow Paging",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 127,
+    "fields": {
+      "feature": 19,
+      "slug": "heaps",
+      "value": "Heaps",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 128,
+    "fields": {
+      "feature": 19,
+      "slug": "indexed-sequential-access-method-isam",
+      "value": "Indexed Sequential Access Method (ISAM)",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 130,
+    "fields": {
+      "feature": 17,
+      "slug": "null-suppression",
+      "value": "Null Suppression",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 131,
+    "fields": {
+      "feature": 10,
+      "slug": "adaptive-radix-tree-art",
+      "value": "Adaptive Radix Tree (ART)",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 132,
+    "fields": {
+      "feature": 5,
+      "slug": "index-nested-loop-join",
+      "value": "Index Nested Loop Join",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 133,
+    "fields": {
+      "feature": 17,
+      "slug": "prefix-compression",
+      "value": "Prefix Compression",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 134,
+    "fields": {
+      "feature": 10,
+      "slug": "patriciaradix-trie",
+      "value": "Patricia/Radix Trie",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 135,
+    "fields": {
+      "feature": 10,
+      "slug": "log-structured-merge-tree",
+      "value": "Log-Structured Merge Tree",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 136,
+    "fields": {
+      "feature": 4,
+      "slug": "not-supported",
+      "value": "Not Supported",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 137,
+    "fields": {
+      "feature": 4,
+      "slug": "shadow-paging",
+      "value": "Shadow Paging",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 138,
+    "fields": {
+      "feature": 7,
+      "slug": "cursor-stability",
+      "value": "Cursor Stability",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 139,
+    "fields": {
+      "feature": 19,
+      "slug": "sorted-files",
+      "value": "Sorted Files",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 140,
+    "fields": {
+      "feature": 1,
+      "slug": "quel",
+      "value": "QUEL",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 141,
+    "fields": {
+      "feature": 13,
+      "slug": "not-supported",
+      "value": "Not Supported",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 142,
+    "fields": {
+      "feature": 12,
+      "slug": "not-supported",
+      "value": "Not Supported",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 143,
+    "fields": {
+      "feature": 7,
+      "slug": "not-supported",
+      "value": "Not Supported",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 144,
+    "fields": {
+      "feature": 1,
+      "slug": "rpc",
+      "value": "RPC",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 145,
+    "fields": {
+      "feature": 1,
+      "slug": "partiql",
+      "value": "PartiQL",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 146,
+    "fields": {
+      "feature": 10,
+      "slug": "block-range-index",
+      "value": "Block Range Index (BRIN)",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 147,
+    "fields": {
+      "feature": 20,
+      "slug": "intra-operator",
+      "value": "Intra-Operator (Horizontal)",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 148,
+    "fields": {
+      "feature": 20,
+      "slug": "inter-operator",
+      "value": "Inter-Operator (Vertical)",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 149,
+    "fields": {
+      "feature": 20,
+      "slug": "bushy",
+      "value": "Bushy",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 150,
+    "fields": {
+      "feature": 7,
+      "slug": "read-stability",
+      "value": "Read Stability",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 151,
+    "fields": {
+      "feature": 1,
+      "slug": "promql",
+      "value": "PromQL",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 152,
+    "fields": {
+      "feature": 21,
+      "slug": "parquet",
+      "value": "Parquet",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 153,
+    "fields": {
+      "feature": 21,
+      "slug": "orc",
+      "value": "ORC",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 154,
+    "fields": {
+      "feature": 21,
+      "slug": "carbondata",
+      "value": "CarbonData",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 155,
+    "fields": {
+      "feature": 21,
+      "slug": "iceberg",
+      "value": "Iceberg",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 156,
+    "fields": {
+      "feature": 21,
+      "slug": "hdf5",
+      "value": "HDF5",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 157,
+    "fields": {
+      "feature": 21,
+      "slug": "arrow",
+      "value": "Arrow",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 158,
+    "fields": {
+      "feature": 21,
+      "slug": "rcfile",
+      "value": "RCFile",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 159,
+    "fields": {
+      "feature": 21,
+      "slug": "avro",
+      "value": "Avro",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 160,
+    "fields": {
+      "feature": 21,
+      "slug": "hudi",
+      "value": "Hudi",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 161,
+    "fields": {
+      "feature": 21,
+      "slug": "sequencefile",
+      "value": "SequenceFile",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 162,
+    "fields": {
+      "feature": 21,
+      "slug": "n-triples",
+      "value": "N-Triples",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 163,
+    "fields": {
+      "feature": 10,
+      "slug": "b-epsilon-tree",
+      "value": "B-epsilon Tree",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 164,
+    "fields": {
+      "feature": 1,
+      "slug": "xpath",
+      "value": "XPath",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 165,
+    "fields": {
+      "feature": 5,
+      "slug": "worst-case-optimal-join",
+      "value": "Worst-Case Optimal Join",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 166,
+    "fields": {
+      "feature": 21,
+      "slug": "trevni",
+      "value": "Trevni",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 167,
+    "fields": {
+      "feature": 21,
+      "slug": "custom",
+      "value": "Custom",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 168,
+    "fields": {
+      "feature": 21,
+      "slug": "csv",
+      "value": "CSV",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 169,
+    "fields": {
+      "feature": 22,
+      "slug": "quorum-based-replication",
+      "value": "Quorum-based Replication",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 170,
+    "fields": {
+      "feature": 22,
+      "slug": "conflict-resolution",
+      "value": "Conflict Resolution",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 171,
+    "fields": {
+      "feature": 22,
+      "slug": "read-repair",
+      "value": "Read Repair",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 172,
+    "fields": {
+      "feature": 22,
+      "slug": "synchronous-replication",
+      "value": "Synchronous Replication",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 173,
+    "fields": {
+      "feature": 22,
+      "slug": "asynchronous-replication",
+      "value": "Asynchronous Replication",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 174,
+    "fields": {
+      "feature": 10,
+      "slug": "hnsw",
+      "value": "Hierarchical Navigable Small World (HNSW)",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 175,
+    "fields": {
+      "feature": 21,
+      "slug": "datafame",
+      "value": "DataFrame",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 176,
+    "fields": {
+      "feature": 14,
+      "slug": "vector",
+      "value": "Vector",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 177,
+    "fields": {
+      "feature": 23,
+      "slug": "pl-sql",
+      "value": "PL/SQL",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 178,
+    "fields": {
+      "feature": 23,
+      "slug": "t-sql",
+      "value": "T-SQL",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 179,
+    "fields": {
+      "feature": 23,
+      "slug": "python",
+      "value": "Python",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 180,
+    "fields": {
+      "feature": 23,
+      "slug": "java",
+      "value": "Java",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 181,
+    "fields": {
+      "feature": 23,
+      "slug": "perl",
+      "value": "Perl",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 182,
+    "fields": {
+      "feature": 23,
+      "slug": "javascript",
+      "value": "Javascript",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 183,
+    "fields": {
+      "feature": 23,
+      "slug": "rust",
+      "value": "Rust",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 184,
+    "fields": {
+      "feature": 23,
+      "slug": "custom",
+      "value": "Custom Language",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 185,
+    "fields": {
+      "feature": 23,
+      "slug": "ruby",
+      "value": "Ruby",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 186,
+    "fields": {
+      "feature": 23,
+      "slug": "r",
+      "value": "R",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 187,
+    "fields": {
+      "feature": 23,
+      "slug": "php",
+      "value": "PHP",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 188,
+    "fields": {
+      "feature": 23,
+      "slug": "tcl",
+      "value": "TCL",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 189,
+    "fields": {
+      "feature": 24,
+      "slug": "crdt",
+      "value": "Conflict-Free Replicated Data Type (CRDT)",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 190,
+    "fields": {
+      "feature": 24,
+      "slug": "centralized",
+      "value": "Centralized Coordinator",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 191,
+    "fields": {
+      "feature": 24,
+      "slug": "decentralized",
+      "value": "Decentralized",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 192,
+    "fields": {
+      "feature": 21,
+      "slug": "vortex",
+      "value": "Vortex",
+      "description": "",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.featureoption",
+    "pk": 193,
+    "fields": {
+      "feature": 17,
+      "slug": "frame-of-reference",
+      "value": "Frame of Reference (FOR)",
+      "description": "",
+      "citations": []
+    }
+  }
+]

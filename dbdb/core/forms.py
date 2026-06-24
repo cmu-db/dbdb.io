@@ -1,60 +1,97 @@
 # stdlib imports
 # django imports
-from django import forms
-from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
-from django.forms import widgets
-from django.forms.fields import MultipleChoiceField
-from django.forms.widgets import Textarea
+import json
+
+# from django.forms.fields import MultipleChoiceField
+# from django.forms.widgets import Textarea
 # third-party imports
 from captcha.fields import ReCaptchaField
 from captcha.widgets import ReCaptchaV2Invisible
+from django import forms
+from django.contrib.postgres.forms import SimpleArrayField
+from turnstile.fields import TurnstileField
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
+from django.forms import formset_factory, widgets
+
 # project imports
-from dbdb.core.models import CitationUrl
-from dbdb.core.models import Feature
-from dbdb.core.models import FeatureOption
-from dbdb.core.models import System
-from dbdb.core.models import SystemVersion
-from dbdb.core.models import SystemVersionMetadata
+from dbdb.core.models import AttributeOption, CitationUrl, Feature, FeatureOption, System, SystemVersion
+from dbdb.core.utils import citations
+from dbdb.core.widgets import CitationUrlListWidget
 
 
-# fields
+class CitationUrlListField(forms.Field):
+    """
+    A form field that accepts a list of URLs.
+    Each URL is validated individually.
+    """
+    widget = CitationUrlListWidget
 
-class TagFieldM2M(MultipleChoiceField):
+    def __init__(self, *args, **kwargs):
+        self.max_urls = kwargs.pop('max_urls', None)
+        super().__init__(*args, **kwargs)
+        self.url_validator = URLValidator()
 
-    widget = forms.TextInput(attrs={'data-role': 'tagsinput', 'placeholder': ''})
+    def to_python(self, value):
+        """Normalize data to a list of URL strings."""
+        if not value:
+            return []
+
+        if isinstance(value, list):
+            return value
+
+        if isinstance(value, str):
+            try:
+                return json.loads(value)
+            except json.JSONDecodeError:
+                raise ValidationError("Invalid URL list format.")
+
+        return []
+
+    def validate(self, value):
+        """Check if value consists of valid URLs."""
+        super().validate(value)
+
+        if not value and self.required:
+            raise ValidationError("This field is required.")
+
+        if self.max_urls and len(value) > self.max_urls:
+            raise ValidationError(
+                f"You can only enter up to {self.max_urls} URLs."
+            )
+
+        # Validate each URL
+        for url in value:
+            try:
+                self.url_validator(url)
+            except ValidationError:
+                raise ValidationError(f"Invalid URL: {url}")
 
     def prepare_value(self, value):
-        try:
-            return ','.join([x.url for x in value])
-        except (AttributeError, TypeError):
-            if value is not None:
-                return value.split(',')
-            return ''
+        """Prepare value for display in the widget."""
+        if value is not None:
+            return json.dumps([c if isinstance(c, str) else c.url for c in value])
+        return []
 
     def clean(self, value):
-        urls = []
-        if value:
-            urls = map(str.strip, value.split(','))
         url_objs = []
-        for url in urls:
+        for url in map(citations.normalize_url, value):
             cit_url, _ = CitationUrl.objects.get_or_create(url=url)
             url_objs.append(cit_url)
         return url_objs
 
-    pass
-# forms
 
 class SystemFeaturesForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         try:
+            self.system = kwargs.pop('system')
             features = kwargs.pop('features')
         except KeyError:
             features = []
 
-        super(SystemFeaturesForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         initial = {}
 
@@ -69,7 +106,8 @@ class SystemFeaturesForm(forms.Form):
             initial[feature.feature.label] = {
                 'options': o,
                 'description': feature.description,
-                'citations': ','.join(feature.citations.values_list('url', flat=True))
+                'citations': [c for c in feature.citations.all()],
+                'system': feature.system,
             }
             pass
 
@@ -77,11 +115,12 @@ class SystemFeaturesForm(forms.Form):
 
         self.features = []
         for feature in features:
+            field_prefix = feature.get_sanitized_label()
             initial_value = None
             if feature.multivalued:
                 if feature.label in initial:
                     initial_value = initial[feature.label]['options']
-                self.fields[feature.label+'_choices'] = forms.MultipleChoiceField(
+                self.fields[f'{field_prefix}_choices'] = forms.MultipleChoiceField(
                     choices=(
                         (x, x) for x in FeatureOption.objects.filter(feature=feature).order_by('value')
                     ),
@@ -92,7 +131,7 @@ class SystemFeaturesForm(forms.Form):
             else:
                 if feature.label in initial:
                     initial_value = initial[feature.label]['options']
-                self.fields[feature.label+'_choices'] = forms.ChoiceField(
+                self.fields[f'{field_prefix}_choices'] = forms.ChoiceField(
                     choices=(
                         (x, x) for x in FeatureOption.objects.filter(feature=feature).order_by('value')
                     ),
@@ -103,12 +142,14 @@ class SystemFeaturesForm(forms.Form):
 
             initial_desc = None
             initial_cit = None
+            initial_sys = None
             if feature.label in initial:
                 initial_desc = initial[feature.label]['description']
                 initial_cit = initial[feature.label]['citations']
+                initial_sys = initial[feature.label]['system']
                 pass
 
-            self.fields[feature.label+'_description'] = forms.CharField(
+            self.fields[f'{field_prefix}_description'] = forms.CharField(
                 label='Description',
                 help_text="This field supports Markdown Syntax",
                 widget=widgets.Textarea(),
@@ -116,17 +157,33 @@ class SystemFeaturesForm(forms.Form):
                 required=False
             )
 
-            self.fields[feature.label+'_citation'] = forms.CharField(
+            self.fields[f'{field_prefix}_citations'] = CitationUrlListField(
                 label='Citations',
-                help_text="Separate the urls with commas",
-                widget=widgets.TextInput(attrs={'data-role': 'tagsinput', 'placeholder': ''}),
+                help_text="Citations URLs",
                 initial=initial_cit,
                 required=False
             )
 
-            self.fields[feature.label+'_choices'].feature_id = feature.id
-            self.fields[feature.label+'_description'].feature_id = feature.id
-            self.fields[feature.label+'_citation'].feature_id = feature.id
+            all_systems = [(x.id, x.name) for x in System.objects.exclude(id=self.system.id).order_by('name')]
+            derived_ids = set(
+                self.system.current().derived_from.values_list('id', flat=True)
+            ) if self.system.id else set()
+            derived  = [(id_, name) for id_, name in all_systems if id_ in derived_ids]
+            others   = [(id_, name) for id_, name in all_systems if id_ not in derived_ids]
+            systems  = [(None, '')] + derived + ([('', '─────────')] if derived else []) + others
+            self.fields[f'{field_prefix}_system'] = forms.ChoiceField(
+                    label='Inherited from System',
+                    help_text="Whether this system inherits the capabilities from another system.",
+                    choices=systems,
+                    initial=initial_sys.id if initial_sys else None,
+                    widget=forms.Select(attrs={'onchange': f"toggleFields('{feature.label}')", 'class': 'form-select'}),
+                    required=False
+                )
+
+            self.fields[f'{field_prefix}_system'].feature_id = feature.id
+            self.fields[f'{field_prefix}_choices'].feature_id = feature.id
+            self.fields[f'{field_prefix}_description'].feature_id = feature.id
+            self.fields[f'{field_prefix}_citations'].feature_id = feature.id
             pass
         return
 
@@ -151,7 +208,7 @@ class CreateUserForm(forms.ModelForm):
     )
 
     def __init__(self, *args, **kwargs):
-        super(CreateUserForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.initial_email = None
 
@@ -186,39 +243,67 @@ class SystemForm(forms.ModelForm):
 
     class Meta:
         model = System
-        fields = ['name','orig_name']
+        fields = ['name', 'orig_name', 'slug']
 
-    pass
+    def clean_slug(self):
+        slug = self.cleaned_data.get('slug', '').strip()
+        if slug:
+            qs = System.objects.filter(slug=slug)
+            if self.instance and self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise forms.ValidationError(f"A system with slug '{slug}' already exists.")
+        return slug
 
-class SystemVersionEditForm(forms.ModelForm):
+class SystemVersionForm(forms.ModelForm):
 
-    description_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
+    description_citations = CitationUrlListField(
+        help_text="Citations URLs",
         required=False
     )
-    history_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
+    history_citations = CitationUrlListField(
+        help_text="Citations URLs",
         required=False
     )
-    start_year_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
+    start_year_citations = CitationUrlListField(
+        help_text="Citations URLs",
         required=False
     )
-    end_year_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
+    end_year_citations = CitationUrlListField(
+        help_text="Citations URLs",
         required=False
     )
-    acquired_by_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
-        required=False
+
+    former_names = SimpleArrayField(
+        forms.CharField(),
+        delimiter='\n',
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 4}),
+        help_text='Enter one name per line.',
     )
-    
+
+    # CitationUrl FK fields — rendered as URL inputs; view handles get_or_create.
+    # Keep this tuple in sync with the field declarations below so the edit view
+    # can pass the correct autocomplete selector to the template automatically.
+    CITATION_URL_FIELDS = ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url')
+
+    system_url = forms.URLField(
+        required=False, label='Website URL',
+        widget=forms.URLInput(attrs={'class': 'form-control'}))
+    docs_url = forms.URLField(
+        required=False, label='Tech Docs URL',
+        widget=forms.URLInput(attrs={'class': 'form-control'}))
+    sourcerepo_url = forms.URLField(
+        required=False, label='Source Code URL',
+        widget=forms.URLInput(attrs={'class': 'form-control'}))
+    wikipedia_url = forms.URLField(
+        required=False, label='Wikipedia URL',
+        widget=forms.URLInput(attrs={'class': 'form-control'}))
     def clean_twitter_handle(self):
         data = self.cleaned_data['twitter_handle']
         if data and data[0] != '@':
             raise ValidationError("Invalid Twitter handle. Expected to start with '@' character")
         return data
-    
 
     class Meta:
         model = SystemVersion
@@ -228,82 +313,116 @@ class SystemVersionEditForm(forms.ModelForm):
             'description_citations',
             'history',
             'history_citations',
-            'url',
-            'source_url',
-            'tech_docs',
-            'wikipedia_url',
             'twitter_handle',
-            'developer',
             'start_year',
             'start_year_citations',
             'end_year',
             'end_year_citations',
-            'acquired_by',
-            'acquired_by_citations',
             'tags',
+            'governance',
             'project_types',
             'countries',
             'former_names',
-            'comment'
+            'derived_from',
+            'embedded',
+            'inspired_by',
+            'compatible_with',
+            'hosted_services',
+            'licenses',
+            'oses',
+            'supported_languages',
+            'written_in',
+            'comment',
         ]
 
     pass
 
-class SystemVersionForm(forms.ModelForm):
 
-    description_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
-        required=False
+class AcquisitionForm(forms.Form):
+    organization = forms.CharField(
+        max_length=200, required=False,
+        label='Acquired By',
+        widget=forms.TextInput(attrs={'placeholder': 'Organization name', 'class': 'form-control'}))
+    year = forms.IntegerField(
+        required=False, min_value=1800, max_value=2200,
+        label='Year',
+        widget=forms.NumberInput(attrs={'placeholder': 'Year', 'class': 'form-control'}))
+    citation_url = forms.URLField(
+        max_length=500, required=False,
+        label='Citation URL',
+        widget=forms.URLInput(attrs={'placeholder': 'https://…', 'class': 'form-control'}))
+
+    def has_data(self):
+        return bool(self.cleaned_data.get('organization'))
+
+
+AcquisitionFormSet = formset_factory(AcquisitionForm, extra=0, can_delete=True)
+
+
+class SystemSuggestionForm(forms.Form):
+
+    name = forms.CharField(
+        max_length=100,
+        label='System Name',
+        widget=forms.TextInput(attrs={'placeholder': 'e.g. CockroachDB'}),
     )
-    history_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
-        required=False
+    system_url = forms.URLField(
+        max_length=500,
+        label='System URL',
+        widget=forms.URLInput(attrs={'placeholder': 'https://www.example.com'}),
     )
-    start_year_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
-        required=False
+    sourcerepo_url = forms.URLField(
+        max_length=500,
+        required=False,
+        label='Source Code URL',
+        widget=forms.URLInput(attrs={'placeholder': 'https://github.com/org/project'}),
     )
-    end_year_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
-        required=False
+    logo_url = forms.URLField(
+        max_length=500,
+        required=False,
+        label='Logo Image URL',
+        widget=forms.URLInput(attrs={'placeholder': 'https://www.example.com/logo.png'}),
     )
-    acquired_by_citations = TagFieldM2M(
-        help_text="Separate the urls with commas",
-        required=False
+    is_my_system = forms.BooleanField(
+        required=False,
+        label='This is my system and I want to edit the entry',
     )
+    email = forms.EmailField(
+        max_length=100,
+        required=False,
+        label='Your Email',
+        widget=forms.EmailInput(attrs={'placeholder': 'you@example.edu'}),
+    )
+    captcha = TurnstileField()
 
-    class Meta:
-        model = SystemVersion
-        fields = [
-            'logo',
-            'description',
-            'description_citations',
-            'history',
-            'history_citations',
-            'url',
-            'source_url',
-            'tech_docs',
-            'wikipedia_url',
-            'twitter_handle',
-            'developer',
-            'start_year',
-            'start_year_citations',
-            'end_year',
-            'end_year_citations',
-            'acquired_by',
-            'acquired_by_citations',
-            'tags',
-            'project_types',
-            'countries',
-            'former_names',
-        ]
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get('is_my_system') and not cleaned.get('email'):
+            self.add_error('email', 'Email is required when you want to edit the entry.')
+        return cleaned
 
-    pass
 
-class SystemVersionMetadataForm(forms.ModelForm):
+class DeveloperOrgForm(forms.Form):
+    organization = forms.CharField(
+        max_length=200, required=False,
+        label='Developer Organization',
+        widget=forms.TextInput(attrs={'placeholder': 'Organization name', 'class': 'form-control'}))
 
-    class Meta:
-        model = SystemVersionMetadata
-        exclude = ['system']
 
-    pass
+DeveloperOrgFormSet = formset_factory(DeveloperOrgForm, extra=0, can_delete=True)
+
+
+class CodingAgentForm(forms.Form):
+    agent = forms.ModelChoiceField(
+        queryset=AttributeOption.objects.filter(attribute__slug='agent').order_by('name'),
+        required=False,
+        label='Agent',
+        widget=forms.Select(attrs={'class': 'form-select'}))
+    citation_url = forms.URLField(
+        max_length=500, required=False,
+        label='Citation URL',
+        widget=forms.URLInput(attrs={'placeholder': 'https://…', 'class': 'form-control'}))
+
+
+CodingAgentFormSet = formset_factory(CodingAgentForm, extra=0, can_delete=True)
+

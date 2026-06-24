@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load alerts %}
+{% load page_title %}
+
+{% block title %}Suggest a System - {% endblock %}
+
+{% block content %}
+{% page_title %}
+{% ptitle_kicker %}Contribute{% endptitle_kicker %}
+{% ptitle_title %}Suggest a System{% endptitle_title %}
+{% ptitle_sub %}Know a database we&rsquo;re missing? Tell us the essentials and a curator will review it for inclusion in the encyclopedia.{% endptitle_sub %}
+{% endpage_title %}
+
+<div class="row justify-content-center">
+<div class="col-12 col-lg-8 col-xl-7">
+
+{% if existing_system %}
+{% alert type="error" icon="fa-solid fa-circle-xmark" %}
+A system with that URL already exists: <strong><a href="{{ existing_system.get_absolute_url }}">{{ existing_system.name }}</a></strong>.
+If you believe the entry is incorrect or incomplete, you can view it and request editor access.
+{% endalert %}
+{% endif %}
+
+<form method="post" id="suggest-form" novalidate>
+    {% csrf_token %}
+
+    <div class="block">
+        <div class="block-h">System Details</div>
+        <div class="block-body">
+
+            <div class="ed-field">
+                <label for="id_name">System Name <span class="text-accent">*</span></label>
+                {{ form.name }}
+                {% if form.name.errors %}<div class="suggest-error">{{ form.name.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="ed-field">
+                <label for="id_system_url">System URL <span class="text-accent">*</span></label>
+                {{ form.system_url }}
+                <div class="form-text">Official homepage or project website.</div>
+                {% if form.system_url.errors %}<div class="suggest-error">{{ form.system_url.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="ed-field">
+                <label for="id_sourcerepo_url">Source Code URL <span class="text-muted fw-normal">&mdash; Optional</span></label>
+                {{ form.sourcerepo_url }}
+                {% if form.sourcerepo_url.errors %}<div class="suggest-error">{{ form.sourcerepo_url.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="ed-field mb-0">
+                <label for="id_logo_url">Logo Image URL <span class="text-muted fw-normal">&mdash; Optional</span></label>
+                {{ form.logo_url }}
+                <div class="form-text">Direct link to a PNG or SVG, ideally on a transparent background.</div>
+                {% if form.logo_url.errors %}<div class="suggest-error">{{ form.logo_url.errors.0 }}</div>{% endif %}
+            </div>
+
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-body">
+
+            <label class="col-check" for="id_is_my_system">
+                {{ form.is_my_system }}
+                <span>{{ form.is_my_system.label }}</span>
+            </label>
+
+            <div class="ed-field d-none mt-3 mb-0" id="emailField">
+                <label for="id_email">Your Email <span class="text-accent">*</span></label>
+                {{ form.email }}
+                <div class="form-text">We&rsquo;ll use this to grant you edit access once the entry is approved.</div>
+                {% if form.email.errors %}<div class="suggest-error">{{ form.email.errors.0 }}</div>{% endif %}
+            </div>
+
+        </div>
+    </div>
+
+    <div class="ed-field">
+        <label>Spam Check <span class="text-accent">*</span></label>
+        {{ form.captcha }}
+        {% if form.captcha.errors %}<div class="suggest-error">{{ form.captcha.errors.0 }}</div>{% endif %}
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="suggest-error mb-3">{{ form.non_field_errors.0 }}</div>
+    {% endif %}
+
+    <div class="d-flex align-items-center gap-3">
+        <button type="submit" class="btn btn-solid" id="btn_suggest_submit">Submit Suggestion</button>
+        <a href="{% url 'browse' %}" class="text-muted text-decoration-none">Cancel</a>
+    </div>
+
+</form>
+
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    var checkbox = document.getElementById('id_is_my_system');
+    var wrapper  = document.getElementById('emailField');
+    var emailInput = document.getElementById('id_email');
+
+    function toggle() {
+        var show = checkbox.checked;
+        wrapper.classList.toggle('d-none', !show);
+        emailInput.required = show;
+        if (show) emailInput.focus();
+        if (!show) emailInput.value = '';
+    }
+
+    checkbox.addEventListener('change', toggle);
+    if (checkbox.checked) toggle();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,5 @@
+<a class="tag-badge{% if extra_classes %} {{ extra_classes }}{% endif %}"
+   href="{% url 'browse' %}?tag={{ tag.slug }}"
+   title="View '{{ tag.name }}' Systems">
+    {% if tag.icon %}<i class="{{ tag.icon }}"></i> {% endif %}<span>{{ tag.name }}</span>
+</a>

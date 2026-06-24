@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+{% load alerts %}
+
+{% block title %}Request Editor Access{% endblock %}
+
+{% block content %}
+<div style="max-width:540px;margin:3rem auto;">
+    <h1 class="mb-2">Request Editor Access</h1>
+    <p class="text-muted mb-4">
+        Enter your work email address. If the domain of your email matches a database
+        system's website URL (e.g., <code>alice@mongodb.com</code> matches
+        <code>mongodb.com</code>), we'll send you a verification link that lets you
+        create an account and edit that system's entry.
+    </p>
+
+    {% if error %}
+    {% alert type="error" %}{{ error }}{% endalert %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <button type="submit" class="btn btn-primary w-100">Send Verification Email</button>
+    </form>
+
+    <p class="text-muted mt-3 small text-center">
+        Already have an account? <a href="/login/">Log in</a>.
+    </p>
+</div>
+{% endblock %}

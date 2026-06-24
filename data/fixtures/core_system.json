@@ -5,9 +5,9 @@
   "fields": {
     "name": "SQLite",
     "created": "2017-10-30T23:26:31.207Z",
-    "ver": 0,
-    "slug": "sqlite",
-    "secret_key": "d11e7a07-4c80-44bc-86e4-68e491fe45a8"
+    "modified": "2017-10-30T23:26:31.207Z",
+    "ver": 1,
+    "slug": "sqlite"
   }
 },
 {
@@ -15,68 +15,42 @@
   "pk": 1,
   "fields": {
     "system": 1,
+    "creator": 1,
     "ver": 1,
     "is_current": true,
-    "created": "2017-10-30T23:26:31.231Z",
-    "creator": 1,
+    "approved": true,
     "comment": "",
+    "created": "2017-10-30T23:26:31.231Z",
     "description": "Nice description",
     "history": "",
-    "url": "http://sqlite.com",
-    "tech_docs": "http://docs.sqlite.com",
-    "developer": "Sqlite Developer",
-    "start_year": "2001",
+    "start_year": 2001,
     "end_year": null,
-    "logo": "",
-    "meta": 1,
-    "project_types": [
-      1
-    ]
-  }
-},
-{
-  "model": "core.systemversionmetadata",
-  "pk": 1,
-  "fields": {
-    "written_in": [
-      1
-    ],
-    "supported_languages": [
-      1
-    ],
-    "oses": [
-      1
-    ],
-    "licenses": [
-      1
-    ],
-    "publications": [
-      1
-    ]
+    "project_types": [33],
+    "licenses": [61],
+    "oses": [76],
+    "written_in": [89]
   }
 },
 {
   "model": "core.systemfeature",
   "pk": 1,
   "fields": {
-    "system": 1,
-    "feature": 1,
-    "options": [
-      2,
-      3
-    ]
+    "version": 1,
+    "feature": 6,
+    "options": [25],
+    "system": null,
+    "description": ""
   }
 },
 {
   "model": "core.systemfeature",
   "pk": 2,
   "fields": {
-    "system": 1,
-    "feature": 2,
-    "options": [
-      4,
-      5
-    ]
+    "version": 1,
+    "feature": 5,
+    "options": [21, 22, 23],
+    "system": null,
+    "description": ""
   }
 },
 {
@@ -85,9 +59,9 @@
   "fields": {
     "name": "XXX",
     "created": "2019-10-30T23:26:31.207Z",
-    "ver": 0,
-    "slug": "xxx",
-    "secret_key": "d11e7a07-4c80-44bc-86e4-68e491fe45a9"
+    "modified": "2019-10-30T23:26:31.207Z",
+    "ver": 1,
+    "slug": "xxx"
   }
 },
 {
@@ -95,56 +69,16 @@
   "pk": 2,
   "fields": {
     "system": 2,
+    "creator": 1,
     "ver": 1,
     "is_current": true,
-    "created": "2017-10-30T23:26:31.231Z",
-    "creator": 1,
+    "approved": true,
     "comment": "",
+    "created": "2019-10-30T23:26:31.231Z",
     "description": "Nice description",
     "history": "",
-    "url": "http://xxx.com",
-    "tech_docs": "http://xxx.com/docs",
-    "developer": "XXXX Developer",
-    "start_year": "2019",
-    "end_year": null,
-    "logo": "",
-    "meta": 1,
-    "project_types": [
-      1
-    ]
-  }
-},
-{
-  "model": "core.systemversionmetadata",
-  "pk": 2,
-  "fields": {
-    "written_in": [
-      1
-    ],
-    "supported_languages": [
-      1
-    ],
-    "oses": [
-      1
-    ],
-    "licenses": [
-      1
-    ],
-    "derived_from": [
-      1
-    ],
-    "embedded": [
-      1
-    ],
-    "inspired_by": [
-      1
-    ],
-    "compatible_with": [
-      1
-    ],
-    "publications": [
-      1
-    ]
+    "start_year": 2019,
+    "end_year": null
   }
 }
 ]

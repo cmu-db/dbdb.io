@@ -1,17 +1,20 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load bootstrap4 %}
+{% load page_title %}
+{% load version_tags %}
 
-{% block title %}
-Field Checker
-{% endblock %}
+{% block title %}Field Checker - {% endblock %}
 
 {% block content %}
-<div class="main">
+{% page_title %}
+{% ptitle_kicker %}Admin Tool{% endptitle_kicker %}
+{% ptitle_title %}Empty Fields{% endptitle_title %}
+{% ptitle_sub %}Find entries missing required fields{% endptitle_sub %}
+{% endpage_title %}
+
     <div class="container">
         <div class="row">
             <div class="col">
-                <h1>Show Empty Fields</h1>
                 Use this form to identify which entries are missing certain fields.
                 We use this because we want to make sure that each database has at least a logo, website, and country of origin.
                 The "Reverse" option allows you to find the entries that do have a field populated.
@@ -58,7 +61,7 @@ Field Checker
                                     {{ version.value }}
                                 {% endif %}
                             </td>
-                            <td>{{ version.created }}</td>
+                            <td>{% sv_created version %}</td>
                     {% endfor %}
                     </tbody>
                 </table>
@@ -66,5 +69,4 @@ Field Checker
         </div>
         {% endif %}
     </div>
-</div>
 {% endblock %}

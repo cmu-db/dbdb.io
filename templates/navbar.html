@@ -1,0 +1,44 @@
+<div class="edition">
+    <div class="container">
+        <span class="label">
+            <span class="d-inline d-md-none">DBDB.io</span>
+            <span class="d-none d-md-inline">The Encyclopedia of Database Systems</span>
+            &middot; Est. {{ DBDB_FOUNDING_YEAR }}
+        </span>
+        <div class="edition-actions">
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" type="button" title="Toggle Theme">
+{#                <span class="dot"></span>#}
+                <i id="themeLabel" class="fa-solid fa-moon fa-xs"></i>
+            </button>
+            {% if user.is_authenticated %}
+            <div class="dropdown">
+                <a class="user-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa-regular fa-user fa-xs"></i> {{ user.username }}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    {% if user.is_superuser %}
+                    <li><a class="dropdown-item" href="{% url 'create_system' %}">Add System</a></li>
+                    <li><a class="dropdown-item" href="{% url 'create_user' %}">Create Account</a></li>
+                    {% endif %}
+                    {% if user.is_superuser or user.is_staff %}
+                    <li><a class="dropdown-item" href="{% url 'empty_fields' %}">Empty Fields</a></li>
+                    {% endif %}
+                    {% if user.is_staff %}
+                    <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a></li>
+                    {% endif %}
+                    <li><a class="dropdown-item" href="{% url 'user_profile' %}">Profile</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item">Logout</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            {% else %}
+            <a class="user-link" href="{% url 'login' %}"><i class="fa-regular fa-user fa-xs"></i> Login</a>
+            {% endif %}
+        </div>
+    </div>
+</div>

@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load humanize %}
+{% load alerts %}
+{% load links %}
+{% load page_title %}
+{% load version_status %}
+{% load version_tags %}
+
+{% block title %}Diff: {{ system.name }} #{{ v1.ver }} → #{{ v2.ver }}{% endblock %}
+
+{% block content %}
+{% page_title %}
+{% ptitle_kicker %}<a href="{% url 'system' system.slug %}">Database Entry</a>{% endptitle_kicker %}
+{% ptitle_title %}{{ system.name }}: Version Comparison{% endptitle_title %}
+{% endpage_title %}
+
+{% if can_approve %}
+{% alert type="info" icon="fa-solid fa-circle-check" extra_classes="mb-4" %}
+<div class="d-flex align-items-center gap-3 flex-wrap">
+    <div class="flex-grow-1">
+        <strong>#{{ v2.ver }} is pending approval.</strong>
+        Approving will make it the live version of {{ system.name }}.
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-solid"><i class="fa-solid fa-circle-check"></i> Approve #{{ v2.ver }}</button>
+    </form>
+    <a href="{% url 'system_edit' system.slug %}" class="btn btn-solid"><i class="fa-solid fa-pen-to-square"></i> Edit #{{ v2.ver }}</a>
+    <form method="post" action="{% url 'system_version_delete' system.slug v2.ver %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-solid danger"
+                onclick="return confirm('Are you sure you want to delete version #{{ v2.ver }}? This cannot be undone.')">
+            <i class="fa-solid fa-circle-xmark"></i> Delete #{{ v2.ver }}
+        </button>
+    </form>
+</div>
+{% endalert %}
+{% endif %}
+
+<div class="d-flex justify-content-end mb-2">
+    <button type="button" class="btn btn-outline-secondary" id="diff-toggle-btn">
+        <i class="fa-solid fa-eye-slash"></i> Hide Unchanged
+    </button>
+</div>
+<div class="table-responsive">
+<table class="diff-table table table-bordered">
+    <colgroup>
+        <col class="diff-col-label">
+        <col>
+        <col>
+    </colgroup>
+    <thead>
+        <tr>
+            <th></th>
+            <th>
+                <div class="diff-version-header">
+                    <a href="{{ v1.get_absolute_url }}">
+                        {% sv_ver v1.ver %}
+                        <span class="ver-meta">
+                            - {% sv_created v1 %} by {{ v1.creator.username }}
+                            <i class="fa-solid fa-share-from-square"></i>
+                            {% if not v1.approved %}{% ver_status v1.approved %}{% endif %}
+                        </span>
+                    </a>
+                </div>
+            </th>
+            <th>
+                <div class="diff-version-header">
+                    <a href="{{ v2.get_absolute_url }}">
+                        {% sv_ver v2.ver %}
+                        <span class="ver-meta">
+                            - {% sv_created v2 %} by {{ v2.creator.username }}
+                            <i class="fa-solid fa-share-from-square"></i>
+                            {% if not v2.approved %}{% ver_status v2.approved %}{% endif %}
+                        </span>
+                    </a>
+                </div>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+
+    {% for diff in diffs %}
+
+    {# ── Features block ── #}
+    {% if diff.type == 'features' %}
+    {% for fd in diff.feature_diffs %}
+    <tr class="{% if fd.changed %}diff-changed{% else %}diff-unchanged{% endif %}">
+        <td class="diff-label ps-3">{{ fd.name }}</td>
+
+        {# v1 column #}
+        <td>
+            {% if fd.v1.options %}
+            <div class="diff-badges mb-1">
+                {% for o in fd.v1.options %}
+                <span class="badge-section{% if o in fd.options_removed %} diff-badge-add{% endif %}">{{ o }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if fd.v1.system %}
+            <div class="diff-col-text small text-muted">Inherits: {{ fd.v1.system }}</div>
+            {% endif %}
+            {% if fd.v1.description %}
+            <div class="diff-col-text">{% if fd.v1_desc_html %}{{ fd.v1_desc_html|safe }}{% else %}{{ fd.v1.description }}{% endif %}</div>
+            {% endif %}
+            {% if fd.citations.v1_items %}
+            <ol class="diff-cite-list border-top">
+                {% for item in fd.citations.v1_items %}
+                <li><a href="{{ item.url }}" target="_blank" rel="noopener" class="diff-cite-url">{{ item.url|urldecode }}</a></li>
+                {% endfor %}
+            </ol>
+            {% endif %}
+            {% if not fd.v1.options and not fd.v1.system and not fd.v1.description and not fd.citations.v1_items %}<span class="text-muted">&mdash;</span>{% endif %}
+        </td>
+
+        {# v2 column #}
+        <td>
+            {% if fd.options_removed or fd.options_unchanged or fd.options_added %}
+            <div class="diff-badges mb-1">
+                {% for o in fd.options_removed %}<span class="diff-badge-del badge-section"><del>{{ o }}</del></span>{% endfor %}
+                {% for o in fd.options_unchanged %}<span class="badge-section">{{ o }}</span>{% endfor %}
+                {% for o in fd.options_added %}<span class="diff-badge-add badge-section"><ins>{{ o }}</ins></span>{% endfor %}
+            </div>
+            {% endif %}
+            {% if fd.v1.system != fd.v2.system %}
+                {% if fd.v1.system %}<div class="small"><del>Inherits: {{ fd.v1.system }}</del></div>{% endif %}
+                {% if fd.v2.system %}<div class="small"><ins>Inherits: {{ fd.v2.system }}</ins></div>{% endif %}
+            {% elif fd.v2.system %}
+            <div class="diff-col-text small text-muted">Inherits: {{ fd.v2.system }}</div>
+            {% endif %}
+            {% if fd.v2.description %}
+            <div class="diff-col-text">{% if fd.v2_desc_html %}{{ fd.v2_desc_html|safe }}{% else %}{{ fd.v2.description }}{% endif %}</div>
+            {% elif fd.v1.description and not fd.v2.description %}
+            <span class="text-muted fst-italic">removed</span>
+            {% endif %}
+            {% if fd.citations.v2_items %}
+            <ol class="diff-cite-list citations-list border-top">
+                {% for item in fd.citations.v2_items %}
+                <li><a href="{{ item.url }}" target="_blank" rel="noopener"
+                    class="diff-cite-url">{% if item.status == 'removed' %}<del>{{ item.url|urldecode }}</del>{% elif item.status == 'added' %}<ins>{{ item.url|urldecode }}</ins>{% else %}{{ item.url|urldecode }}{% endif %}</a></li>
+                {% endfor %}
+            </ol>
+            {% endif %}
+            {% if not fd.options_removed and not fd.options_unchanged and not fd.options_added and not fd.v2.system and not fd.v2.description and not fd.citations.v2_items %}<span class="text-muted">&mdash;</span>{% endif %}
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td class="diff-label"></td><td colspan="2" class="text-muted">No feature data.</td></tr>
+    {% endfor %}
+
+    {# ── Acquisitions ── #}
+    {% elif diff.type == 'acquisitions' %}
+    <tr class="{% if diff.changed %}diff-changed{% else %}diff-unchanged{% endif %}">
+        <td class="diff-label">{{ diff.label }}</td>
+        <td>
+            {% for item in diff.v1_val %}
+            <div class="small">
+                {{ item.0 }}{% if item.1 %} ({{ item.1 }}){% endif %}
+                {% if item.2 %} &mdash; <a href="{{ item.2 }}" target="_blank" rel="noopener" class="diff-cite-url">{{ item.2|urldecode }}</a>{% endif %}
+            </div>
+            {% empty %}<span class="text-muted">&mdash;</span>
+            {% endfor %}
+        </td>
+        <td>
+            {% for item in diff.removed %}<div class="small"><del>{{ item.0 }}{% if item.1 %} ({{ item.1 }}){% endif %}</del></div>{% endfor %}
+            {% for item in diff.unchanged %}<div class="small">{{ item.0 }}{% if item.1 %} ({{ item.1 }}){% endif %}{% if item.2 %} &mdash; <a href="{{ item.2 }}" target="_blank" rel="noopener" class="diff-cite-url">{{ item.2|urldecode }}</a>{% endif %}</div>{% endfor %}
+            {% for item in diff.added %}<div class="small"><ins>{{ item.0 }}{% if item.1 %} ({{ item.1 }}){% endif %}</ins>{% if item.2 %} &mdash; <a href="{{ item.2 }}" target="_blank" rel="noopener" class="diff-cite-url">{{ item.2|urldecode }}</a>{% endif %}</div>{% endfor %}
+            {% if not diff.removed and not diff.unchanged and not diff.added %}<span class="text-muted">&mdash;</span>{% endif %}
+        </td>
+    </tr>
+
+    {# ── Set / M2M ── #}
+    {% elif diff.type == 'set' %}
+    <tr class="{% if diff.changed %}diff-changed{% else %}diff-unchanged{% endif %}">
+        <td class="diff-label">{{ diff.label }}</td>
+        <td>
+            {% if diff.v1_val %}
+            <div class="diff-badges">
+                {% for item in diff.v1_val %}
+                <span class="badge-section{% if item in diff.removed %} diff-badge-add{% endif %}">{{ item }}</span>
+                {% endfor %}
+            </div>
+            {% else %}<span class="text-muted">&mdash;</span>{% endif %}
+        </td>
+        <td>
+            {% if diff.removed or diff.unchanged or diff.added %}
+            <div class="diff-badges">
+                {% for item in diff.removed %}<span class="diff-badge-del badge-section"><del>{{ item }}</del></span>{% endfor %}
+                {% for item in diff.unchanged %}<span class="badge-section">{{ item }}</span>{% endfor %}
+                {% for item in diff.added %}<span class="diff-badge-add badge-section"><ins>{{ item }}</ins></span>{% endfor %}
+            </div>
+            {% else %}<span class="text-muted">&mdash;</span>{% endif %}
+        </td>
+    </tr>
+
+    {# ── Text fields (inline word diff) — citations rendered inside same row ── #}
+    {% elif diff.type == 'text' %}
+    <tr class="{% if diff.changed %}diff-changed{% else %}diff-unchanged{% endif %}">
+        <td class="diff-label">{{ diff.label }}</td>
+        <td>
+            {% if diff.v1_val %}
+            <div class="diff-col-text">{% if diff.v1_html %}{{ diff.v1_html|safe }}{% else %}{{ diff.v1_val }}{% endif %}</div>
+            {% else %}<span class="text-muted">&mdash;</span>{% endif %}
+            {% if diff.citations.v1_items %}
+            <ol class="diff-cite-list border-top">
+                {% for item in diff.citations.v1_items %}
+                <li><a href="{{ item.url }}" target="_blank" rel="noopener" class="diff-cite-url">{{ item.url|urldecode }}</a></li>
+                {% endfor %}
+            </ol>
+            {% endif %}
+        </td>
+        <td>
+            {% if diff.v2_val %}
+            <div class="diff-col-text">{% if diff.v2_html %}{{ diff.v2_html|safe }}{% else %}{{ diff.v2_val }}{% endif %}</div>
+            {% else %}<span class="text-muted">&mdash;</span>{% endif %}
+            {% if diff.citations.v2_items %}
+            <ol class="diff-cite-list border-top">
+                {% for item in diff.citations.v2_items %}
+                <li><a href="{{ item.url }}" target="_blank" rel="noopener"
+                    class="diff-cite-url">{% if item.status == 'removed' %}<del>{{ item.url|urldecode }}</del>{% elif item.status == 'added' %}<ins>{{ item.url|urldecode }}</ins>{% else %}{{ item.url|urldecode }}{% endif %}</a></li>
+                {% endfor %}
+            </ol>
+            {% endif %}
+        </td>
+    </tr>
+
+    {# ── Scalar fields — citations rendered inside same row when present ── #}
+    {% elif diff.type == 'scalar' %}
+    <tr class="{% if diff.changed %}diff-changed{% else %}diff-unchanged{% endif %}">
+        <td class="diff-label">{{ diff.label }}</td>
+        <td>
+            {% if diff.v1_val %}<span>{{ diff.v1_val }}</span>{% else %}<span class="text-muted">&mdash;</span>{% endif %}
+            {% if diff.citations.v1_items %}
+            <ol class="diff-cite-list border-top">
+                {% for item in diff.citations.v1_items %}
+                <li><a href="{{ item.url }}" target="_blank" rel="noopener" class="diff-cite-url">{{ item.url|urldecode }}</a></li>
+                {% endfor %}
+            </ol>
+            {% endif %}
+        </td>
+        <td>
+            {% if diff.v2_val %}{% if diff.v1_val != diff.v2_val %}<ins>{{ diff.v2_val }}</ins>{% else %}<span>{{ diff.v2_val }}</span>{% endif %}{% else %}<span class="text-muted">&mdash;</span>{% endif %}
+            {% if diff.citations.v2_items %}
+            <ol class="diff-cite-list border-top">
+                {% for item in diff.citations.v2_items %}
+                <li><a href="{{ item.url }}" target="_blank" rel="noopener"
+                    class="diff-cite-url">{% if item.status == 'removed' %}<del>{{ item.url|urldecode }}</del>{% elif item.status == 'added' %}<ins>{{ item.url|urldecode }}</ins>{% else %}{{ item.url|urldecode }}{% endif %}</a></li>
+                {% endfor %}
+            </ol>
+            {% endif %}
+        </td>
+    </tr>
+
+    {# ── URL fields ── #}
+    {% elif diff.type == 'url' %}
+    <tr class="{% if diff.changed %}diff-changed{% else %}diff-unchanged{% endif %}">
+        <td class="diff-label">{{ diff.label }}</td>
+        <td>
+            {% if diff.v1_val %}<a href="{{ diff.v1_val }}" target="_blank" rel="noopener" class="diff-cite-url">{{ diff.v1_val|urldecode }}</a>{% else %}<span class="text-muted">&mdash;</span>{% endif %}
+        </td>
+        <td>
+            {% if diff.v2_val %}<a href="{{ diff.v2_val }}" target="_blank" rel="noopener" class="diff-cite-url">{% if diff.changed %}<ins>{{ diff.v2_val|urldecode }}</ins>{% else %}{{ diff.v2_val|urldecode }}{% endif %}</a>{% else %}<span class="text-muted">&mdash;</span>{% endif %}
+        </td>
+    </tr>
+
+    {# ── Image fields ── #}
+    {% elif diff.type == 'image' %}
+    <tr class="{% if diff.changed %}diff-changed{% else %}diff-unchanged{% endif %}">
+        <td class="diff-label">{{ diff.label }}</td>
+        <td>
+            {% if diff.v1_url %}<img src="{{ diff.v1_url }}" class="diff-logo-img" alt="v1 logo">{% else %}<span class="text-muted">&mdash;</span>{% endif %}
+        </td>
+        <td>
+            {% if diff.v2_url %}<img src="{{ diff.v2_url }}" class="diff-logo-img" alt="v2 logo">{% else %}<span class="text-muted">&mdash;</span>{% endif %}
+        </td>
+    </tr>
+
+    {% endif %}
+    {% endfor %}
+
+    </tbody>
+</table>
+</div>
+<script>
+(function () {
+    const btn = document.getElementById('diff-toggle-btn');
+    let hidden = false;
+    btn.addEventListener('click', function () {
+        hidden = !hidden;
+        document.querySelectorAll('.diff-table .diff-unchanged').forEach(function (row) {
+            row.classList.toggle('d-none', hidden);
+        });
+        btn.innerHTML = hidden
+            ? '<i class="fa-solid fa-eye"></i> Show Unchanged'
+            : '<i class="fa-solid fa-eye-slash"></i> Hide Unchanged';
+    });
+}());
+</script>
+{% endblock %}

@@ -1,0 +1,181 @@
+{% extends 'entry-base.html' %}
+{% load static %}
+{% load logos %}
+{% load markdownify %}
+{% load thumbnail %}
+{% load citations %}
+{% load links %}
+{% load page_title %}
+
+{% block title %}{{ org.name }} ({% if org.type %}{{ org.type }}{% else %}Organization{% endif %}) - {% endblock %}
+
+{% block content %}
+{# Register partials before block.super renders the layout and calls them. #}
+{% partialdef page_heading %}
+{% page_title %}
+    {% ptitle_kicker %}Organization Entry{% endptitle_kicker %}
+    {% ptitle_title %}{{ org.name }}{% endptitle_title %}
+    {% ptitle_action %}
+        {% if user.is_superuser %}
+        <a class="btn btn-edit" href="{% url 'admin:core_organization_change' org.pk %}">
+            <i class="fa-solid fa-pen-to-square"></i> Edit
+        </a>
+        {% endif %}
+    {% endptitle_action %}
+{% endpage_title %}
+{% if org.description %}
+<div class="entry-lead-block fs-5 mt-3">
+    {{ org.description|markdownify }}
+</div>
+{% endif %}
+{% endpartialdef %}
+
+{% partialdef factbox %}
+<div class="factbox">
+    <div class="fb-logo text-center">
+        {% if org.logo %}
+        <a href="{{ org.logo.url }}" class="logo-thumbnail">
+            <img class="{% if org.logo_height > org.logo_width %}logo-tall{% else %}logo-normal{% endif %}"
+                 src="{% if org.logo.url.lower|slice:"-3:" == "svg" %}{{ org.logo.url }}{% else %}{{ org.logo|thumbnail_url:'thumb' }}{% endif %}"
+                 alt="{{ org.name }} Logo" title="{{ org.name }}">
+        </a>
+        {% else %}
+        {% mono_tile org.logo org.name lazy=False %}
+        {% endif %}
+    </div>
+    <dl>
+        {% if org.org_type %}
+        <div class="fact">
+            <dt>Org Type</dt>
+            <dd>{% if org.org_type_obj.icon %}<i class="{{ org.org_type_obj.icon }}"></i> {% endif %}{{ org.get_org_type_display }}</dd>
+        </div>
+        {% endif %}
+        {% if org.url %}
+        <div class="fact">
+            <dt>Website</dt>
+            <dd><a href="{{ org.url.url }}" target="_{{ org.slug }}">{{ org.url.display_url }}</a>{% if url_citation %}<span class="cites">{% citation_footnote url_citation %}</span>{% endif %}</dd>
+        </div>
+        {% endif %}
+        {% if org.linkedin_url %}
+        <div class="fact">
+            <dt>LinkedIn</dt>
+            <dd><a href="{{ org.linkedin_url.url }}" target="_{{ org.slug }}"><i class="fa-brands fa-linkedin"></i>{{ org.linkedin_handle }}</a>{% if linkedin_citation %}<span class="cites">{% citation_footnote linkedin_citation %}</span>{% endif %}</dd>
+        </div>
+        {% endif %}
+        {% if org.countries %}
+        <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
+        <div class="fact">
+            <dt>Country of Origin</dt>
+            <dd>{% for country in org.countries %}{% if not forloop.first %}, {% endif %}<i class="{{ country.flag_css }}"></i> {{ country }}{% endfor %}</dd></div>
+        {% endif %}
+        {% if org.former_names %}
+        <div class="fact">
+            <dt>Former Name{{ org.former_names|pluralize }}</dt>
+            <dd>{{ org.former_names|join:", " }}</dd>
+        </div>
+        {% endif %}
+        {% if org.stock_symbol %}
+        <div class="fact">
+            <dt>Stock</dt>
+            <dd class="font-monospace">
+                {% if org.stock_delisted %}<s>{% endif %}
+                {% if org.stock_exchange %}
+                    {% if org.stock_exchange_obj.url and not org.stock_delisted %}
+                        <a href="{{ org.stock_exchange_obj.url }}{{ org.stock_symbol }}" target="_blank" title="View {{ org.name }} on {{ org.get_stock_exchange_display }}">{{ org.get_stock_exchange_display }}:{{ org.stock_symbol }}</a>
+                    {% else %}
+                        {{ org.get_stock_exchange_display }}:{{ org.stock_symbol }}
+                    {% endif %}
+                {% else %}
+                    {{ org.stock_symbol }}
+                {% endif %}
+                {% if org.stock_delisted %}</s> <span class="cite-meta ms-1"><i class="fa-solid fa-skull-crossbones"></i>Delisted</span>{% endif %}
+            </dd>
+        </div>
+        {% endif %}
+        {% if org.wikipedia_url %}
+        <div class="fact">
+            <dt>Wikipedia</dt>
+            <dd><a href="{{ org.wikipedia_url.url }}" target="_{{ org.slug }}"><i class="fa-brands fa-wikipedia-w"></i> {{ org.wikipedia_url.display_url }}</a>{% if wikipedia_citation %}<span class="cites">{% citation_footnote wikipedia_citation %}</span>{% endif %}</dd>
+        </div>
+        {% endif %}
+    </dl>
+</div>
+{% endpartialdef %}
+
+{{ block.super }}
+{% endblock %}
+
+{% block mobile %}
+{% partial page_heading %}
+{% partial factbox %}
+{% endblock %}
+
+{% block sidebar %}
+{% partial factbox %}
+{% endblock %}
+
+{% block desktop_intro %}
+{% partial page_heading %}
+{% endblock %}
+
+{% block main_content %}
+{% if acquisitions %}
+<div class="entry-section" id="acquisitions">
+    <div class="sec-head">
+        <h2>Acquisitions</h2>
+        <span class="rule"></span>
+        <a href="{% url 'browse' %}?acquired-by={{ org.slug }}" class="view-all">View List <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-2">
+        {% for acq in acquisitions %}
+        <div class="col">
+            <div class="position-relative h-100">
+                <a href="{{ acq.system.get_absolute_url }}" class="sys-card d-flex align-items-center gap-3 p-3 h-100 text-decoration-none">
+                    {% with ver=acq.version %}
+                    {% mono_tile ver.logo acq.system.name 'thumb' %}
+                    {% endwith %}
+                    <span class="d-flex flex-column">
+                        <span class="ln">{{ acq.system.name }}</span>
+                        {% if acq.year %}<span class="label">{{ acq.year }}</span>{% endif %}
+                    </span>
+                </a>
+                {% if acq.citation %}<span class="cites position-absolute top-0 end-0 p-1">{% citation_footnote acq.citation %}</span>{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if developed %}
+<div class="entry-section" id="developed-systems">
+    <div class="sec-head">
+        <h2>Developed Systems</h2>
+        <span class="rule"></span>
+        <a href="{% url 'browse' %}?developer={{ org.slug }}" class="view-all">View List <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-2">
+        {% for ver in developed %}
+        <div class="col">
+            <a href="{{ ver.system.get_absolute_url }}" class="sys-card d-flex align-items-center gap-3 p-3 h-100 text-decoration-none">
+                {% mono_tile ver.logo ver.system.name 'thumb' %}
+                <span class="db-info">
+                    <span class="ln">{{ ver.system.name }}</span>
+                    {% if ver.all_data_models %}
+                    <span class="info-subtitle d-block">{{ ver.all_data_models|join:" · " }}</span>{% endif %}
+                </span>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if citations %}
+    {% include 'core/citations-list.html' %}
+{% endif %}
+
+{% last_modified org.modified %}
+{% endblock %}

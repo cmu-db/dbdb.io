@@ -1,0 +1,46 @@
+{% spaceless %}
+{% if c.status != Status.SPAM %}
+    <a href="{{ c.url }}" target="_cite{{ c.id }}" class="citation-link">
+{% else %}
+    <span class="text-muted text-decoration-line-through me-1" title="Disabled URL because it was flagged as spam">
+{% endif %}
+    {% if c.last_title %}
+        <span class="citation-title">{{ c.last_title|escape }}</span>
+    {% else %}
+        {{ c.display_url }}
+    {% endif %}
+{% if c.status != Status.SPAM %}
+        <i class="fas fa-external-link-alt"></i>
+    </a>
+{% else %}
+    </span>
+{% endif %}
+{% endspaceless %}
+{% if c.get_domain %}
+    <em>{{ c.get_domain }}</em>
+{% endif %}
+{% if c.status == Status.DEAD or c.status == Status.SPAM %}
+    <a href="https://web.archive.org/web/*/{{ c.url }}*" class="citation-archive" target="_archive{{ c.id }}" title="URL is Not Available - Check archive.org">
+    <span class="cite-meta me-1">
+        {% if c.status == Status.DEAD %}
+            <i class="fa-solid fa-skull-crossbones"></i>Dead
+        {% elif c.status == Status.SPAM %}
+            <i class="fa-solid fa-poo"></i>Spam
+        {% endif %}
+        &mdash;
+        Check Archive <i class="fas fa-external-link-alt"></i>
+    </span>
+    </a>
+{% endif %}
+{% if c.last_modified and c.status != Status.SPAM %}
+    <time datetime="{{ c.last_modified|date:"c" }}"><span class="cite-meta">Modified: {{ c.last_modified|date }}</span></time>
+{% endif %}
+{% if c.last_checked %}
+    <time datetime="{{ c.last_checked|date:"c" }}"><span class="cite-meta">Accessed: {{ c.last_checked|date }}</span></time>
+{% endif %}
+
+
+
+
+
+

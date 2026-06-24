@@ -1,0 +1,58 @@
+{% extends 'entry-base.html' %}
+{% load static page_title %}
+
+{% block title %}System Attributes - Documentation - {% endblock %}
+
+{% block content %}
+{% partialdef page_heading %}
+{% page_title %}
+    {% ptitle_kicker %}Documentation · Reference{% endptitle_kicker %}
+    {% ptitle_title %}System Attributes{% endptitle_title %}
+{% endpage_title %}
+<div class="doc-lead">
+    Beyond the architectural <a href="{% url 'docs' %}" class="doc-lnk">features</a>, every
+    entry records a set of descriptive <b>attributes</b> — the identity, provenance, and
+    relationships of a system. Most are free-form facts captured directly on the entry; a
+    smaller group is <em>classified</em> against controlled vocabularies so that systems can
+    be filtered and compared. See the <a href="{% url 'browse' %}" class="doc-lnk">Browse</a>
+    page to filter systems by any of these attributes.
+</div>
+{% endpartialdef %}
+{{ block.super }}
+{% endblock %}
+
+{% block sidebar %}
+{% include 'core/docs/_sidebar.html' with doc_active='sys-attrs' %}
+{% endblock %}
+
+{% block mobile %}
+{% partial page_heading %}
+{% endblock %}
+
+{% block desktop_intro %}
+{% partial page_heading %}
+{% endblock %}
+
+{% block main_content %}
+
+<div class="sec-head">
+    <h2 class="serif m-0">General Attributes</h2>
+    <span class="rule"></span>
+    <span class="num">{{ fields|length }} fields</span>
+</div>
+<p class="text-muted">Descriptive facts recorded on each system&rsquo;s entry. These are free-form values rather than controlled options.</p>
+
+<dl class="row g-0 mt-1">
+    {% for field in fields %}
+    <div class="col-12 col-md-6 doc-attr-def pe-md-4">
+        <dt><span class="an">{{ forloop.counter|stringformat:"02d" }}</span> {{ field.title }}</dt>
+        <dd>{{ field.description }}</dd>
+    </div>
+    {% endfor %}
+</dl>
+
+<div class="entry-foot pt-3 mt-3">
+    <span>System entry fields <span class="text-accent">·</span> Reference</span>
+</div>
+
+{% endblock %}

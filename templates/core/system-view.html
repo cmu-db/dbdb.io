@@ -1,0 +1,349 @@
+{% extends 'entry-base.html' %}
+{% load static %}
+{% load logos %}
+{% load markdownify %}
+{% load thumbnail %}
+{% load citations %}
+{% load links %}
+{% load alerts %}
+{% load page_title %}
+{% load version_tags %}
+
+{% block twitter %}
+    <meta property="og:title" content="Database of Databases - {{ system.name }}" />
+    <meta property="og:description" content="{{ version.description|truncatechars:300 }}" />
+    <meta property="og:type" content="article" />
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ version.twitter_card_url }}" />
+    <meta name="twitter:title" content="Database of Databases - {{ system.name }}" />
+    <meta name="twitter:description" content="{{ version.description|truncatechars:200 }}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ version.twitter_card_url }}" />
+{% endblock %}
+
+{% block navbuttons %}
+{% if user.is_authenticated and user_can_edit %}
+    <li class="nav-item">
+        <a class="nav-link {% if activate == 'create' %} active{% endif %}" href="{% url 'system_edit' system.slug %}">Edit</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if activate == 'create' %} active{% endif %}" href="{% url 'system_revision' system.slug %}">Revision List</a>
+    </li>
+{% endif %}
+{% endblock %}
+
+{% block title %}{{ system.name }}{% if has_revision %} - Revision #{{ version.ver }}{% endif %} - {% endblock %}
+
+{% block content %}
+{# Register partials before block.super renders the layout and calls them. #}
+{% partialdef revision_notice %}
+  {% if has_revision %}
+  {% if not version.approved %}
+  {% alert type="warning" icon="fa-solid fa-clock-rotate-left" extra_classes="mt-3" %}
+  <strong>Pending:</strong> {% sv_ver version.ver %} from {% sv_created version %} is awaiting approval and is not publicly visible.
+  {% if approved_ver %}
+  <a href="{% url 'system_version' system.slug approved_ver %}" class="btn btn-edit ms-2">View Approved</a>
+  {% else %}
+  <a href="{{ system.get_absolute_url }}" class="btn btn-edit ms-2">View Approved</a>
+  {% endif %}
+  {% endalert %}
+  {% else %}
+  {% alert type="info" icon="fa-solid fa-eye" extra_classes="mt-3" %}
+  Viewing Revision {% sv_ver version.ver %} from {% sv_created version %}
+  <a href="{{ system.get_absolute_url }}" class="btn btn-edit ms-2">View Current</a>
+  {% if not version.is_current and user.is_authenticated %}
+  <form class="d-inline ms-2" action="{% url 'system_revision' system.slug %}" method="POST">
+      {% csrf_token %}
+      <input type="hidden" value="{{ version.id }}" name="current_version">
+      <button type="submit" class="btn btn-solid">Set As Current</button>
+  </form>
+  {% endif %}
+  {% endalert %}
+  {% endif %}
+  {% endif %}
+{% endpartialdef %}
+
+{% partialdef factbox %}
+<div class="factbox">
+    <div class="fb-logo text-center">
+        {% if version.logo %}
+        <a href="{% url 'system_logos' system.slug %}" class="logo-thumbnail" title="View All Logos for {{ system.name }}">
+        <img class="{% if version.logo_height > version.logo_width %}logo-tall{% else %}logo-normal{% endif %}"
+                 src="{% if version.logo.url.lower|slice:"-3:" == "svg" %}{{ version.logo.url }}{% else %}{{ version.logo|thumbnail_url:'thumb' }}{% endif %}"
+                 alt="{{ system.name }} Logo">
+        </a>
+        <a class="d-block logo-versions-link text-muted text-uppercase mt-2" href="{% url 'system_logos' system.slug %}" title="View All Logos for {{ system.name }}">
+            <i class="fa-solid fa-images"></i>Logo Versions
+        </a>
+        {% else %}
+            {% mono_tile version.logo system.name lazy=False %}
+        {% endif %}
+    </div>
+    <dl>
+        {% if version.system_url %}
+        <div class="fact"><dt>Website</dt><dd><a href="{{ version.system_url.url }}" target="_{{ system.slug }}">{{ version.system_url.display_url }}</a>{% if system_url_citation %}<span class="cites">{% citation_footnote system_url_citation %}</span>{% endif %}</dd></div>
+        {% endif %}
+
+        {% if version.sourcerepo_url %}
+        <div class="fact"><dt>Source Code</dt><dd>
+            <a href="{{ version.sourcerepo_url.url }}" target="_src_{{ system.slug }}">{{ version.sourcerepo_url.display_url }}</a>{% if sourcerepo_url_citation %}<span class="cites">{% citation_footnote sourcerepo_url_citation %}</span>{% endif %}
+            {% if repo_snapshot %}
+              <span class="d-block small text-muted"><time datetime="{{ repo_snapshot.created|date:"c" }}">Accessed: {{ repo_snapshot.created|date:"M j, Y" }}</time></span>
+              {% if repo_snapshot.archival_timestamp %}
+              <span class="d-block small text-muted"><time datetime="{{ repo_snapshot.archival_timestamp|date:"c" }}">Archived: {{ repo_snapshot.archival_timestamp|date:"M j, Y" }}</time></span>
+              {% elif repo_snapshot.last_commit_timestamp %}
+              <span class="d-block small text-muted"><time datetime="{{ repo_snapshot.last_commit_timestamp|date:"c" }}">Last Commit: {{ repo_snapshot.last_commit_timestamp|date:"M j, Y" }}</time></span>
+              {% endif %}
+            {% endif %}
+        </dd></div>
+        {% endif %}
+
+        {% if version.docs_url %}
+        <div class="fact"><dt>Tech Docs</dt><dd><a href="{{ version.docs_url.url }}" target="_docs_{{ system.slug }}">{{ version.docs_url.display_url }}</a>{% if docs_url_citation %}<span class="cites">{% citation_footnote docs_url_citation %}</span>{% endif %}</dd></div>
+        {% endif %}
+
+        {% if version.twitter_handle %}
+        <div class="fact"><dt>Twitter</dt><dd><a href="{{ version.twitter_handle_url }}" target="_twitter_{{ system.slug }}"><i class="fa-brands fa-twitter"></i>{{ version.twitter_handle }}</a></dd></div>
+        {% endif %}
+
+        {% if developer_orgs %}
+        <div class="fact"><dt>Developer{{ developer_orgs|pluralize }}</dt>
+            <dd>{% for org in developer_orgs %}<div>{% org_link org %}</div>{% endfor %}</dd>
+        </div>
+        {% endif %}
+
+        {% if version.governance.all %}
+        <div class="fact"><dt>Governance</dt><dd>{% for f in version.governance.all %}{% if not forloop.first %}, {% endif %}{% browse_link "governance" f.slug "" f.name %}{% endfor %}</dd></div>
+        {% endif %}
+        {% if version.countries %}
+        <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
+        <div class="fact">
+            <dt>Country of Origin</dt>
+            <dd>{% for country in version.countries %}{% if not forloop.first %}, {% endif %}<a href="{% url 'browse' %}?country={{ country.code }}" title="View Systems from {{ country.name }}"><i class="{{ country.flag_css }}"></i> {{ country }}</a>{% endfor %}</dd></div>
+        {% endif %}
+
+        {% if version.start_year %}
+            <div class="fact"><dt>Start Year</dt><dd>{{ version.start_year }} {% if start_year_citations %} <span class="cites">{% for c in start_year_citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</dd></div>
+        {% endif %}
+
+        {% if version.end_year %}
+            <div class="fact"><dt>End Year</dt><dd>{{ version.end_year }}{% if end_year_citations %} <span class="cites">{% for c in end_year_citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</dd></div>
+        {% endif %}
+        {% if version.former_names %}
+        <div class="fact">
+            <dt>Former Name{{ version.former_names|pluralize }}</dt>
+            <dd>{{ version.former_names|join:", " }}</dd>
+        </div>
+        {% endif %}
+
+        {% if acquisitions %}
+        <div class="fact"><dt>Acquired By</dt>
+            <dd>
+            {% for acq in acquisitions %}<div>{% if acq.year %}<span class="text-muted me-1">{{ acq.year }}</span>{% endif %}{% org_link acq.organization %}{% for c in acq.citations %}{% citation_footnote c %}{% endfor %}</div>{% endfor %}
+            </dd>
+        </div>
+        {% elif version.acquired_by %}
+        <div class="fact"><dt>Acquired By</dt><dd>{{ version.acquired_by }}</dd></div>
+        {% endif %}
+
+        {% if coding_agents %}
+        <div class="fact"><dt>Coding Agent{{ coding_agents|pluralize }}</dt>
+            <dd>{% for entry in coding_agents %}<div>
+                {% browse_link "agent" entry.agent.slug "Using "|add:entry.agent.name entry.agent.name entry.agent.icon %}
+                {% if entry.citation %}<span class="cites">{% citation_footnote entry.citation %}</span>{% endif %}
+                </div>{% endfor %}
+            </dd>
+        </div>
+        {% endif %}
+
+        {% if version.project_types.all %}
+        <div class="fact">
+            <dt>Project Type{{ version.project_types.all|pluralize }}</dt>
+            <dd>{% for attropt in version.project_types.all %}{% if not forloop.first %}, {% endif %}{% browse_link "project-type" attropt.slug ": "|add:attropt.name attropt.name %}{% endfor %}</dd>
+        </div>
+        {% endif %}
+
+        {% if version.written_in.all %}
+        <div class="fact"><dt>Written in</dt><dd>{% for attropt in version.written_in.all %}{% if not forloop.first %}, {% endif %}{% browse_link "programming-language" attropt.slug "Written In "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
+        {% endif %}
+
+        {% if version.supported_languages.all %}
+        <div class="fact"><dt>Supported Languages</dt><dd>{% for attropt in version.supported_languages.all %}{% if not forloop.first %}, {% endif %}{% browse_link "programming-language" attropt.slug "Supporting "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
+        {% endif %}
+
+        {% if version.derived_from.exists %}
+        <div class="fact"><dt>Derived From</dt><dd>{% for other in version.derived_from.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
+        {% endif %}
+
+        {% if version.embedded.exists %}
+        <div class="fact">
+            <dt>Embeds / Uses</dt>
+            <dd>{% for other in version.embedded.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd>
+        </div>
+        {% endif %}
+
+        {% if version.inspired_by.exists %}
+        <div class="fact"><dt>Inspired By</dt><dd>{% for other in version.inspired_by.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
+        {% endif %}
+
+        {% if version.compatible_with.exists %}
+        <div class="fact">
+            <dt>Compatible With</dt>
+            <dd>{% for other in version.compatible_with.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd>
+        </div>
+        {% endif %}
+
+        {% if version.oses.all %}
+        <div class="fact">
+            <dt>Operating System{{ version.oses.all|pluralize }}</dt>
+            <dd>{% for attropt in version.oses.all %}{% if not forloop.first %}, {% endif %}{% browse_link "os" attropt.slug "That Support "|add:attropt.name attropt.name %}{% endfor %}</dd>
+        </div>
+        {% endif %}
+
+        {% if version.licenses.all %}
+        <div class="fact">
+            <dt>License{{ version.licenses.all|pluralize }}</dt>
+            <dd>{% for attropt in version.licenses.all %}{% if not forloop.first %}, {% endif %}{% browse_link "license" attropt.slug "That Use "|add:attropt.name|add:" License" attropt.name %}{% endfor %}</dd>
+        </div>
+        {% endif %}
+
+        {% if version.wikipedia_url %}
+        <div class="fact"><dt>Wikipedia</dt><dd><a href="{{ version.wikipedia_url.url }}" target="_{{ system.slug }}"><i class="fa-brands fa-wikipedia-w"></i> {{ version.wikipedia_url.display_url }}</a>{% if wikipedia_url_citation %}<span class="cites">{% citation_footnote wikipedia_url_citation %}</span>{% endif %}</dd></div>
+        {% endif %}
+    </dl>
+</div>
+{% endpartialdef %}
+
+{% partialdef page_heading %}
+{% page_title %}
+    {% ptitle_kicker %}<a href="{% url 'system' system.slug %}">Database Entry</a>{% endptitle_kicker %}
+    {% ptitle_title %}{{ system.name }}{% endptitle_title %}
+    {% ptitle_action %}
+        {% if user.is_authenticated and user_can_edit %}
+        <a class="btn btn-edit" href="{% url 'system_edit' system.slug %}">
+            <i class="fa-solid fa-pen-to-square"></i> Edit
+        </a>
+        {% endif %}
+    {% endptitle_action %}
+    {% ptitle_extra %}{% partial revision_notice %}{% endptitle_extra %}
+{% endpage_title %}
+{% if version.tags.all %}
+<div class="entry-tags">
+    {% for tag in version.tags.all %}{% tag_link tag %}{% endfor %}
+</div>
+{% endif %}
+{% endpartialdef %}
+
+{% if request.GET.noperms and request.GET.noperms == '1' %}
+{% alert type="error" extra_classes="mb-3" %}You do not have permission to edit this entry.{% endalert %}
+{% endif %}
+
+{{ block.super }}
+{% endblock %}
+
+{% block mobile %}
+{% partial page_heading %}
+<div class="entry-lead-block fs-5 mt-3">
+    {% markdownify_with_cites version.description_mobile_intro description_citations %}
+</div>
+{% partial factbox %}
+{% if version.description_mobile_remainder %}
+<div class="entry-lead-block fs-5 mt-3">
+    {{ version.description_mobile_remainder|markdownify }}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block sidebar %}
+{% partial factbox %}
+
+{% partialdef related inline %}
+    {% if compatible %}
+        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}</div>
+    {% endif %}
+    {% if derived %}
+        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}</div>
+    {% endif %}
+    {% if embeds %}
+        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}</div>
+    {% endif %}
+    {% if hosted_by %}
+        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Hosted By' systems=hosted_by limit=3 %}</div>
+    {% endif %}
+    {% if recommendations %}
+        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='People Also Viewed' systems=recommendations %}</div>
+    {% endif %}
+{% endpartialdef %}
+{% endblock %}
+
+{% block desktop_intro %}
+{% partial page_heading %}
+<div class="entry-lead-block fs-5 mt-3">
+    {% markdownify_with_cites version.description description_citations %}
+</div>
+{% endblock %}
+
+{% block main_content %}
+{% if hosted_services %}
+<div id="hosted-services" class="entry-section">
+    <h2>Hosted Systems</h2>
+    <hr class="sec-rule">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-2">
+        {% for hosted_sys in hosted_services %}
+        <div class="col">
+            <a href="{{ hosted_sys.get_absolute_url }}" class="sys-card d-flex align-items-center gap-3 p-3 h-100 text-decoration-none" title="View {{ hosted_sys.name }}">
+                {% with hosted_ver=hosted_sys.current %}
+                {% mono_tile hosted_ver.logo hosted_sys.name 'thumb' %}
+                {% endwith %}
+                <span class="db-info">
+                    <span class="ln">{{ hosted_sys.name }}</span>
+                    {% if hosted_sys.all_data_models %}
+                    <span class="info-subtitle d-block">{{ hosted_sys.all_data_models|join:" · " }}</span>{% endif %}
+                </span>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% for sec in sections %}
+<div id="{{ sec.id }}" class="entry-section">
+    {% if sec.title %}
+        <h2>{{ sec.title }}{% if sec.citations %}<span class="cites">{% for c in sec.citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</h2>
+    <hr class="sec-rule">
+    {% endif %}
+    {% if sec.options %}
+    <div class="badges">
+        {% for o in sec.options %}
+        <a class="badge-section" href="{% url 'browse' %}?{{ sec.id }}={{ o.slug }}" title="View Other '{{ o.value }}' Systems">{{ o.value }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% if sec.system %}
+    <p class="section-sameas fw-bold"><i class="fa-solid fa-circle-right"></i> Same as {% system_link sec.system %}</p>
+    {% endif %}
+    {{ sec.body|markdownify }}
+</div>
+{% endfor %}
+
+<!-- Mobile: related cards above citations -->
+<div class="d-md-none mt-3">{% partial related %}</div>
+
+{% if citations %}
+    {% include 'core/citations-list.html' %}
+{% endif %}
+
+{% url 'system_revision' system.slug as revision_url %}
+{% with revision_title="View All Revisions for "|add:system.name %}
+{% last_modified version.created url=revision_url title=revision_title ver=version.ver %}
+{% endwith %}
+{% endblock %}
+
+
+{% block scripts %}
+{% if user.is_superuser %}
+<script>(function(){var m=document.querySelector('meta[name="counter"]');if(m)m.remove();}());</script>
+{% endif %}
+<script src="{% static 'lib/js/bootstrap.bundle.js' %}"></script>
+<script src="{% static 'core/js/system.js' %}"></script>
+{% endblock %}

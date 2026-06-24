@@ -1,15 +1,12 @@
-{% load static %}
-{% load thumbnail %}
+{% load logos %}
 
-<tr>
-    <td>
-        <a href="{{ item.get_absolute_url }}">
-        {% if item.current.logo %}
-        <img class="logo-homepage" src="{% if item.current.logo.url|lower|slice:"-3:" == "svg" %}{{ item.current.logo.url }}{% else %}{{ item.current.logo|thumbnail_url:'thumb' }}{% endif %}" alt="{{ item.name }}" />
-        {% else %}
-        <img class="logo-homepage" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ item.name }}" />
-        {% endif %}
-        </a>
-    </td>
-    <td class="homepage-system"><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></td>
-</tr>
+<a href="{{ item.get_absolute_url }}" class="db-row">
+    <span class="rank">{{ forloop.counter|stringformat:"02d" }}</span>
+    {% mono_tile item.current.logo item.name %}
+    <span class="db-info">
+        <span class="db-name">{{ item.name }}</span>
+        {% if item.all_data_models %}
+        <span class="info-subtitle d-block">{{ item.all_data_models|join:" · " }}</span>{% endif %}
+    </span>
+    {% if item.metric %}<span class="db-metric">{{ item.metric }}{% if item.visits_delta > 0 %} <i class="fa-solid fa-up-long"></i>{% elif item.visits_delta < 0 %} <i class="fa-solid fa-down-long"></i>{% endif %}</span>{% endif %}
+</a>

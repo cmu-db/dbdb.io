@@ -16,6 +16,7 @@ __pycache__/
 core/static/admin
 
 *.sqlite3
+*.csv
 dbdb_io/local_settings.py
 dbdb_io/settings.py
 media
@@ -24,3 +25,4 @@ static-live
 
 data/db.sqlite3.*
 data/xapian
+.aider*

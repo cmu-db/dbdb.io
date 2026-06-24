@@ -1,19 +1,17 @@
 {% extends 'base.html' %}
-
-{% load bootstrap4 %}
-
+{% load django_bootstrap5 %}
+{% load alerts %}
 
 {% block title %}Login{% endblock %}
-
 
 {% block css %}
 <style>
 @media screen and (min-width: 992px) {
-    html,
-    body {
-        height: 100%;
-        position: relative;
-    }
+    {#html,#}
+    {#body {#}
+    {#    height: 100%;#}
+    {#    position: relative;#}
+    {#}#}
     div.container-fluid {
         background-color: #e9ecef;
         padding: 4rem 2rem;
@@ -29,46 +27,39 @@
         max-width: 600px;
         padding: 2rem 2rem;
     }
-    footer {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-    }
+    {#footer {#}
+    {#    position: absolute;#}
+    {#    bottom: 0;#}
+    {#    width: 100%;#}
+    {#}#}
 }
 </style>
 {% endblock %}
 
 
 {% block content %}
-    <div class="container-fluid">
-        <div class="row justify-content-md-center">
-            <div class="col-md-6">
+    <div class="row justify-content-md-center">
+        <div class="col-md-6">
 
-                {% if request.GET.status and request.GET.status == 'success' %}
-                <div class="alert alert-info alert-link alert-dismissable">
-                    <button class="close" type="button" data-dismiss="alert" aria-hidden="true">&#215;</button>
-                    Your account was successfully created!
+            {% if request.GET.status and request.GET.status == 'success' %}
+            {% alert type="success" %}Your account was successfully created!{% endalert %}
+            {% endif %}
+
+            {% if request.user.is_authenticated %}
+            {% alert type="warning" %}You are already logged in. Please <a href="{% url 'logout' %}?next={{ request.get_full_path|urlencode }}">log out</a> first.{% endalert %}
+            {% else %}
+            <form action="." method="POST">
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                <p class="small text-right"><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
+
+                <div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Login
+                    </button>
                 </div>
-                {% endif %}
-
-                {% if request.user.is_authenticated %}
-                <div class="alert alert-warning alert-link">
-                    You already logged in. Please <a href="{% url 'logout' %}?next={{ request.get_full_path|urlencode }}">logout</a> first.
-                </div>
-                {% else %}
-                <form action="." method="POST">
-                    {% csrf_token %}
-                    {% bootstrap_form form %}
-                    <p class="small text-right"><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
-
-                    <div>
-                        <button type="submit" class="btn btn-primary btn-block">
-                            Login
-                        </button>
-                    </div>
-                </form>
-                {% endif %}
-            </div>
+            </form>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

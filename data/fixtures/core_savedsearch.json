@@ -1,0 +1,12 @@
+[
+{
+  "model": "core.savedsearch",
+  "pk": 1,
+  "fields": {
+    "name": "Relational Databases",
+    "description": "Traditional RDBMS",
+    "icon": "fas fa-table",
+    "search_params": "feature1=option3"
+  }
+}
+]

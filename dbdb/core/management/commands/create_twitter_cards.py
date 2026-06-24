@@ -1,18 +1,17 @@
 # stdlib imports
+import logging
 import os
-import sys
+
+from django.conf import settings
 
 # django imports
 from django.core.management import BaseCommand
-from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.db.models import Q
 
-from dbdb.core.models import System
-from dbdb.core.models import SystemFeature
 from dbdb.core.models import SystemVersion
-from dbdb.core.models import SystemVersionMetadata
-from dbdb.core.views import EmptyFieldsView
+from dbdb.core.utils.twitter_card import create_twitter_card
+
+LOG = logging.getLogger(__name__)
+
 
 class Command(BaseCommand):
 
@@ -53,11 +52,11 @@ class Command(BaseCommand):
                 elif os.path.exists(card_img):
                     continue
             try:
-                ver.create_twitter_card()
+                create_twitter_card(ver)
             except:
-                self.stdout.write("FAIL: %s -> %s" % (ver.system.name, card_img))
+                LOG.error("FAIL: %s -> %s" % (ver.system.name, card_img))
                 if not options['skip_errors']: raise
-            self.stdout.write("%s -> %s" % (ver.system.name, card_img))
+            LOG.info("%s -> %s" % (ver.system.name, card_img))
         # FOR
         return
 

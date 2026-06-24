@@ -2,217 +2,223 @@
 {% load humanize %}
 {% load static %}
 {% load countries %}
-{% load bootstrap4 %}
+{% load links %}
+{% load django_bootstrap5 %}
+{% load page_title %}
 
-{% block title %}Browse{% endblock %}
+{% block title %}{% if saved_search %}{{ saved_search.name }} - {% elif title %}{{title}} - {% endif %}{% endblock %}
 
 {% block css %}
 <link rel="stylesheet" type="text/css" href="{% static 'lib/css/nouislider.min.css' %}">
-<style>
-#content { padding:40px 0; }
-
-nav.letters { text-align: center; }
-nav.letters.no-results { display:table; width:100%; vertical-align:center; }
-nav.letters.no-results div.letters { display:table-cell; height: 75vh; text-align: center; vertical-align:middle; }
-
-form.main-search > div.filters > div.filter-group-range { margin-bottom:30px; }
-form.main-search > div.filters > div.filter-group-range > h3 { font-weight:bold; margin-bottom:15px; }
-form.main-search > div.filters > div.filter-group-range > h3 span.years { display:none; font-size:0.85em; font-weight:normal; padding-left:0.5em; }
-form.main-search > div.filters > div.filter-group-range > h3 span.years var { font-style:normal; }
-form.main-search > div.filters > div.filter-group-range > h3 button.btn { float:right; font-size:12px; padding:1px 6px; }
-form.main-search > div.filters > div.filter-group-range > h3 button.btn-apply { background-color:#49AA55; color:#fff; display:none; margin-right:5px; }
-form.main-search > div.filters > div.filter-group-range > h3 button.btn-toggle { background-color:#6c757d; color:#fff; }
-form.main-search > div.filters > div.filter-group-range.active > h3 button.btn-toggle { background-color:#244A64; }
-form.main-search > div.filters > div.filter-group-range.active > h3 span.years { display:inline; }
-form.main-search > div.filters > div.filter-group-range.changed > h3 button.btn-apply { display:inline; }
-form.main-search > div.filters > div.filter-group-range > div.range-container { padding:0 20px; }
-form.main-search > div.filters > div.filter-group-range > div.range-container .noUi-connect { background-color:#007bff; }
-
-div.search-badges { margin: 40px auto 40px auto; text-align:center; width: 80%; }
-div.search-badges a.badge { font-size:100%; line-height: 1.5; padding-right: .75em; padding-left: .75em; }
-div.search-badges a.badge em { font-weight: normal; }
-
-div.results { min-height: 60vh; padding:40px 40px 30px 40px; }
-div.results div.version { margin-bottom:20px; max-width:800px; }
-div.results div.version h3 { font-size:20px; margin:0; }
-div.results div.version cite { color:#006621; font-size:13px; font-style:normal; }
-div.results div.version p { margin:0; }
-
-#filter_modal { }
-#filter_modal form.modal-content div.modal-body { align-items:stretch; border-radius:0px; flex-direction:row; flex-wrap:nowrap; display:flex; height:60vh; padding:0; }
-#filter_modal form.modal-content div.modal-body ul.nav-tabs { display:block; overflow-y:scroll; width:200px; }
-#filter_modal form.modal-content div.modal-body ul.nav-tabs li { border-bottom:1px solid #ddd; display:block; }
-#filter_modal form.modal-content div.modal-body ul.nav-tabs li a { color:#555; display:block; font-size:13px; font-weight:bold; padding:10px 0px 10px 30px; }
-#filter_modal form.modal-content div.modal-body ul.nav-tabs li a.active { background-color:#DDDDDD; }
-#filter_modal form.modal-content div.modal-body ul.nav-tabs li a:hover { color:#0645BA; text-decoration:none; }
-#filter_modal form.modal-content div.modal-body div.tab-content { display:block; flex-grow:1; overflow-y:auto; padding:30px 30px; width:400px; }
-#filter_modal form.modal-content div.modal-body div.tab-content ul.checkbox-list { list-style-type:none; margin:0; padding:0; }
-#filter_modal form.modal-content div.modal-footer { padding:0.5rem 1rem; }
-</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+{% if 'country' in active_col_ids %}<link rel="stylesheet" href="{% static 'flags/sprite.css' %}">{% endif %}
 {% endblock %}
-
 
 {% block content %}
-<form id="mainsearch" class="main main-search">
 
-    <div class="filters">
+{{ filtergroupsjson|json_script:"filterdata" }}
+{{ years|json_script:"years" }}
 
-        <h2>Refine by</h2>
+{% page_title %}
+{% ptitle_kicker %}{{ num_results|intcomma }} System{{ num_results|pluralize }} Found{% endptitle_kicker %}
+{% ptitle_title %}{{ title }}{% endptitle_title %}
+{% endpage_title %}
 
-        <div class="filter-group filter-group-range" id="start_year" data-min="{{ years.min_start_year }}" data-max="{{ years.max_start_year }}">
-            <h3>
-                Start Year
-                <span class="years">(<var for="min"></var> &ndash; <var for="max"></var>)</span>
-                <button type="button" class="btn btn-xs btn-toggle"></button>
-                <button type="submit" class="btn btn-xs btn-apply">Apply</button>
-            </h3>
-            <div class="range-container">
-                <div class="range"></div>
-            </div>
-            <input type="hidden" name="start-min" for="min" value="{{ search.start_min }}" />
-            <input type="hidden" name="start-max" for="max" value="{{ search.start_max }}" />
-        </div>
+{% if request.user.is_superuser %}
+    {% partialdef save_search %}
+    <!-- BEGIN:SAVE-SEARCH -->
+{#    <div class="text-end mb-2 ">#}
+      <a id="btn-save-search" class="btn" href="#">
+        <i class="fas fa-bookmark"></i> Save Search
+      </a>
+{#    </div>#}
+    <script>
+    document.getElementById('btn-save-search').addEventListener('click', function(e) {
+        e.preventDefault();
+        var params = new URLSearchParams(window.location.search);
+        if (!params.get('q')) params.delete('q');
+        window.location.href = '{% url "admin:core_savedsearch_add" %}?search_params=' + encodeURIComponent(params.toString());
+    });
+    </script>
+    <!-- END:SAVE-SEARCH -->
+    {% endpartialdef %}
+{% endif %}
 
-        <div class="filter-group filter-group-range" id="end_year" data-min="{{ years.min_end_year }}" data-max="{{ years.max_end_year }}">
-            <h3>
-                End Year
-                <span class="years">(<var for="min"></var> &ndash; <var for="max"></var>)</span>
-                <button type="button" class="btn btn-xs btn-toggle"></button>
-                <button type="submit" class="btn btn-xs btn-apply">Apply</button>
-            </h3>
-            <div class="range-container">
-                <div class="range"></div>
-            </div>
-            <input type="hidden" name="end-min" for="min" value="{{ search.end_min }}" />
-            <input type="hidden" name="end-max" for="max" value="{{ search.end_max }}" />
-        </div>
-
-        {% for filtergroup in filtergroups %}
-        <div class="filter-group" id="filtergroup_{{ filtergroup.id }}">
-
-            <h3>
-                {{ filtergroup.label }}
-
-                <a href="javascript:;" class="clear" title="clear selected"><i class="fas fa-eraser"></i> clear </a>
-            </h3>
-
-            <ul>
-                {% for choice in filtergroup.choices %}
-                <li {% if choice.is_hidden %}class="more"{% endif %}><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" {% if choice.checked %}checked="checked"{% endif %}> {{ choice.label }}</label></li>
-                {% endfor %}
-
-                {% if filtergroup.has_more %}
-                <li class="see-more">
-                    <a href="javascript:;">Show more</a>
-                </li>
-                {% endif %}
-
-            </ul>
-
-        </div>
-        {% endfor %}
-
+<div class="browse-wrap">
+<form id="mainsearch" class="main main-search mx-0 mx-md-3 mx-lg-5">
+    <div class="bsearch">
+        <span class="ic"><i class="fas fa-search"></i></span>
+        <input type="text" placeholder="Search by name, keyword, or feature..." aria-label="Search" id="mainsearch-q" name="q" value="{{ query }}">
+        <span class="count">{% if num_results != 0 %}{{ num_results|intcomma }}{% else %}No{% endif %} result{% if num_results != 1 %}s{% endif %}</span>
+        <button class="go" type="submit">Search</button>
     </div>
 
-    <div class="search-results">
-
-        <div class="input-group input-group-lg">
-            <input type="text" class="form-control" placeholder="Search name, keywords, features..." aria-label="Search name, keywords, features..." aria-describedby="search" id="mainsearch-q" name="q" value="{{ query }}">
-            <span class="input-group-btn">
-                <button class="btn btn-default" type="submit" id="search">Search</button>
-            </span>
-        </div>
-
-        {% if has_search %}
-        <div class="search-badges">
-            {% for b in badges %}
-            <a class="badge badge-pill badge-info" href="{{ b.get_removal_url }}">
-                <em>{{ b.group_name }}</em>:
-                <span>{{ b.badge_name }}</span>
-                <i class="fas fa-times-circle" style="padding-left:2px;"></i>
-            </a>
-            {% endfor %}
-        </div>
-        <p class="results-info">
-            {% if results %}
-            Found {{ results|length|intcomma }} database{% if results|length > 1 %}s{% endif %}
-            {% else %}
-            No databases found
-            {% endif %}
-
-            {% if search.query %}
-            <!-- query -->
-                for <span class="search-keyword">{{ search.query }}</span>
-            <!-- /query -->
-            {% endif %}
-            {% if suggestion %}
-                </BR>Did you mean <a href="{% url 'system' suggestion.slug %}">{{ suggestion.name }}</a>?
-            {%  endif %}
-        </p>
-        {% else %}
-        <nav class="letters {% if not has_results %}no-results{% endif %}" aria-label="Page Navigation">
-            <div class="letters">
-                {% for page in pagination %}
-                <button type="submit" class="btn {% if page.is_active %}btn-primary active{% else %}btn-secondary{% endif %} {% if page.is_disabled %}disabled{% endif %}" name="letter" value="{{ page.letter }}">{{ page.letter }}</button>
-                {% endfor %}
-            </div>
-        </nav>
-        {% endif %}
-
-        <!-- RESULTS -->
-        <div class="card-columns">
-            {% for result in results %}
-            {% include 'core/browse-card.html' %}
-            {% endfor %}
-        </div>
-        <!-- END: CARD-COLUMNS -->
-
-    </div>
-
-</form>
-
-<div class="modal" tabindex="-1" role="dialog" id="filter_modal">
-    <div class="modal-dialog modal-lg" role="document">
-        <form class="modal-content">
-        <!-- BEGIN: modal-body -->
-        <div class="modal-body">
-            <ul class="nav nav-tabs" role="tablist">
-                {% for filtergroup in filtergroups %}
-                <li role="presentation"><a {% if forloop.first %}class="active"{% endif %} href="#{{ filtergroup.id }}" aria-controls="{{ filtergroup.id }}" role="tab" data-toggle="tab">{{ filtergroup.label }}</a></li>
-                {% endfor %}
-            </ul>
-            <div class="tab-content">
-                {% for filtergroup in filtergroups %}
-                <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ filtergroup.id }}">
-                    <ul class="checkbox-list">
-                        {% for choice in filtergroup.choices %}
-                        <li><label><input type="checkbox" name="{{ filtergroup.id }}" value="{{ choice.id }}" {% if choice.checked %}checked="checked"{% endif %}> {{ choice.label }}</label></li>
-                        {% endfor %}
+    <!-- FILTER PANEL -->
+    <div class="panel">
+        <button class="panel-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#filter" id="advanced-search-button" aria-expanded="false" aria-controls="filter">
+            <i class="fas fa-sliders"></i> Advanced Search
+            <i class="fas fa-chevron-down chev"></i>
+        </button>
+        <div class="collapse" id="filter">
+          <div class="panel-body">
+            <div class="filter-row d-none flex-row flex-wrap align-items-center gap-3 mb-2" id="template">
+                <div class="dropdown">
+                    <button class="field-pick dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Search Fields <i class="fas fa-chevron-down chev"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        {% for label in dropdown_fields %}<li class="dropdown-item">{{ label }}</li>{% endfor %}
                     </ul>
                 </div>
-                {% endfor %}
+                <a href="javascript:;" class="row-remove d-md-none"><i class="fas fa-xmark"></i> Remove</a>
+                <a href="javascript:;" class="row-remove row-remove-desktop d-none d-md-inline-flex"><i class="fas fa-xmark"></i> Remove</a>
             </div>
-        </div>
-        <!-- END: modal-body -->
 
-        <div class="modal-footer">
-            <button type="button" class="btn btn-link" data-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-primary" onclick="apply_refinements()">Apply</button>
+            <div class="filter-row d-flex flex-row flex-wrap align-items-center gap-3 mb-2" id="filter-none">
+                <div class="dropdown">
+                    <button class="field-pick dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Search Fields <i class="fas fa-chevron-down chev"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        {% for label in dropdown_fields %}<li class="dropdown-item">{{ label }}</li>{% endfor %}
+                    </ul>
+                </div>
+                <a href="javascript:;" class="row-remove d-md-none"><i class="fas fa-xmark"></i> Remove</a>
+                <a href="javascript:;" class="row-remove row-remove-desktop d-none d-md-inline-flex"><i class="fas fa-xmark"></i> Remove</a>
+            </div>
+
+            <div class="filter-actions" id="advanced-search-btn-container">
+                <button class="btn" type="button" id="add_field">
+                    <i class="fas fa-plus fa-xs"></i> Add Field
+                </button>
+                <select class="mini-select" name="search_op" aria-label="Match mode">
+                    <option value="and" {% if search_op == 'and' %}selected{% endif %}>Match All</option>
+                    <option value="or"  {% if search_op == 'or'  %}selected{% endif %}>Match Any</option>
+                </select>
+                <span class="spacer"></span>
+                {% if show_all_url %}
+                <a class="btn" href="{{ show_all_url }}">Show All Results</a>
+                {% endif %}
+                {% partial save_search %}
+                <button class="btn ghost" type="button" id="advanced-search-clear">Clear</button>
+            </div>
+          </div>
         </div>
-        </form>
     </div>
+
+    <!-- COLUMNS PANEL -->
+    <div class="panel">
+        <button class="panel-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#columns-panel" id="columns-button" aria-expanded="false" aria-controls="columns-panel">
+            <i class="fas fa-table-columns"></i> Columns
+            <i class="fas fa-chevron-down chev"></i>
+        </button>
+        <div class="collapse" id="columns-panel">
+          <div class="panel-body">
+            <div class="row row-cols-1 row-cols-md-3 gx-4 gy-3 pt-1">
+                <div class="col">
+                    <div class="grp-h">General</div>
+                    <div class="row row-cols-2 row-cols-md-1 g-0">
+                    {% for col in available_builtin %}
+                    <div class="col">
+                    <label class="col-check">
+                        <input class="col-checkbox" type="checkbox" value="{{ col.col_id }}" {% if col.col_id in active_col_ids %}checked{% endif %}>
+                        {{ col.label }}
+                    </label>
+                    </div>
+                    {% endfor %}
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="grp-h">Implementation Features</div>
+                    <div class="col-feat">
+                    {% for col in available_features %}
+                    <label class="col-check">
+                        <input class="col-checkbox" type="checkbox" value="{{ col.col_id }}" {% if col.col_id in active_col_ids %}checked{% endif %}>
+                        {{ col.label }}
+                    </label>
+                    {% endfor %}
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="grp-h">Attributes</div>
+                    <div class="row row-cols-2 row-cols-md-1 g-0">
+                    {% for col in available_attributes %}
+                    <div class="col">
+                    <label class="col-check">
+                        <input class="col-checkbox" type="checkbox" value="{{ col.col_id }}" {% if col.col_id in active_col_ids %}checked{% endif %}>
+                        {{ col.label }}
+                    </label>
+                    </div>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+    </div>
+</form>
+
+<!-- RESULTS TABLE -->
+<div class="results">
+    {% if results %}
+    <div class="table-responsive w-100">
+        <table id="results-table" class="rtable">
+            <thead>
+                <tr>
+                    <th class="r-logo"></th>
+                    <th>
+                        <button type="button" class="sort-btn" data-sort-col="1" data-sort-type="text" data-col-id="name">
+                            Name <i class="fas fa-sort caret sort-arrow"></i>
+                        </button>
+                    </th>
+                    {% for col in active_columns %}
+                    <th {% if col.col_id == 'tags' %}class="d-none d-md-table-cell"{% endif %}>
+                        <button type="button" class="sort-btn"
+                                data-sort-col="{{ forloop.counter0|add:2 }}"
+                                data-sort-type="{% if col.col_id == 'start-year' or col.col_id == 'end-year' %}numeric{% else %}text{% endif %}"
+                                data-col-id="{{ col.col_id }}">
+                            {# Start / End Year #}
+                            {% if col.label|slice:"-4:" == 'Year' %}
+                                <span class="d-none d-md-inline">{{ col.label }}</span>
+                                {% if col.label == 'End Year' %}
+                                <span class="d-inline d-md-none">{{ col.label|slice:":3" }}</span>
+                                {% else %}
+                                <span class="d-inline d-md-none">{{ col.label|slice:":5" }}</span>
+                                {% endif %}
+                            {% else %}
+                                {{ col.label }}
+                            {% endif %}
+                            <i class="fas fa-sort caret sort-arrow"></i>
+                        </button>
+                    </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                {% for result in results %}
+                {% include 'core/browse-row.html' %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="d-flex align-items-center justify-content-center mt-4">
+        <h2 class="results-info">
+            No databases found
+            {% if search.query %}for <span class="search-keyword px-1 rounded">{{ search.query }}</span>{% endif %}
+            {% if suggestion and not page_error %}
+            <p>Did you mean {% system_link suggestion %}?</p>
+            {% endif %}
+        </h2>
+    </div>
+    {% endif %}
 </div>
+</div>{# /browse-wrap #}
 
 {% endblock %}
 
-
 {% block scripts %}
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.10/jquery.lazy.min.js" integrity="sha256-ZPvH+DBiXs1v8yk7lmZa6+wqm+kzbwL9R1COtZ9+wjo=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.10/jquery.lazy.plugins.min.js" integrity="sha256-VYuzzxzkmIY1LtJUW3CU83sP845Dy2h2Otbvh4ecIEA=" crossorigin="anonymous"></script>
--->
-
-<script type="text/javascript" src="{% static 'lib/js/bootstrap-select.js' %}"></script>
 <script type="text/javascript" src="{% static 'lib/js/nouislider.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'core/js/browse.js' %}"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script type="text/javascript" src="{% static 'core/js/browse.js' %}?v=3"></script>
 {% endblock %}

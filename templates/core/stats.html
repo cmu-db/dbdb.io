@@ -1,95 +1,59 @@
 {% extends 'base.html' %}
+{% load humanize %}
 {% load static %}
 {% load countries %}
-{% load thumbnail %}
-{% load bootstrap4 %}
+{% load logos %}
+{% load django_bootstrap5 %}
+{% load page_title %}
 
-{% block title %}
-Leaderboards
-{% endblock %}
-
+{% block title %}Leaderboards - {% endblock %}
 
 {% block css %}
-<style>
-table.table-stats { }
-table.table-stats tbody { }
-table.table-stats tbody tr { }
-table.table-stats tbody tr td.stat-label { text-align:left; }
-table.table-stats tbody tr td.stat-value { text-align:right; }
-</style>
 <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
 {% endblock %}
 
-
 {% block content %}
-<div class="main">
-    <div class="container">
-        <div class="row justify-content-md-center homepage-header">
-            <div class="col col-md-12 col-sm-12 text-center">
-                <h1 class="display-3">Leaderboards</h1>
-                <p class="lead">Category Statistics</p>
-            </div>
-        </div>
-    </div>
-    <div class="container">
-        <div class="row">
-            {% for stat in stats %}
-            <!-- BEGIN: {{ stat.label|upper }} -->
-            <div class="card d-md-block mx-4 mb-4 text-center mx-auto" style="width: 18rem;">
-                <div class="card-header">
-                    <h4>{{ stat.label }}</h4>
-                </div>
-                <table class="table table-hover table-stats">
-                    <tbody>
-                        {% for item in stat.items %}
-                        <tr>
-                            <td class="stat-label">
-                            {% if stat.search_field == "country" %}
-                                {% get_country item.label as country %}
-                                <a href="{% url 'browse' %}?country={{ country.code }}" title="View other systems from {{ country.name }}"><i class="{{ country.flag_css }}"></i> {{ country.name }}
-                            {% elif stat.systems %}
-                                <a href="{% if item.url %}
-                                {{ item.url }}
-                                {% else %}
-                                {% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}
-                                {% endif %}">
-                                {% if item.label.current.logo %}
-                                    <img src="{% if item.label.current.logo.url.lower|slice:"-3:" == "svg" %}{{ item.label.current.logo.url }}{% else %}{{ item.label.current.logo|thumbnail_url:'stats' }}{% endif %}" alt="{{ item.label.name }}" class="logo-stats" />
-                                {% else %}
-                                    <img src="{% static 'core/images/database-nologo.svg' %}" alt="{{ item.label.name }}" class="logo-stats" />
-                                {% endif %}
-                                {{ item.label.name }}
-                                </a>
-                            {% else %}
-                                <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}">{{ item.label }}</a>
-                            {% endif %}
-                            </td>
-                            <td class="stat-value">{{ item.value }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <!--
-                {% if stats_type == stats.search_field %}
-                <div class="card-footer text-muted p-1 font-weight-bold">
-                    <a href="{% url 'stats' %}/{{ stat.search_field }}">View All ({{ stat.count }})</a>
-                </div>
-                {% endif %}
-                -->
-            </div>
+{% page_title %}
+{% ptitle_kicker %}{{ num_systems|intcomma }} Systems Ranked{% endptitle_kicker %}
+{% ptitle_title %}Leaderboards{% endptitle_title %}
+{% ptitle_sub %}Category statistics across the encyclopedia{% endptitle_sub %}
+{% endpage_title %}
 
-            <!-- END: {{ stat.label|upper }} -->
-            {% endfor %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 align-items-start">
+    {% for stat in stats %}
+    <div class="col">
+    <div class="lb-card">
+        <div class="lb-h py-2 px-1 fs-5 fw-bold">{{ stat.label }}</div>
+        {% for item in stat.items %}
+        <div class="lb-row py-2 px-3">
+            <span class="lb-rank">{{ forloop.counter }}</span>
+            {% if stat.search_field == "country" %}
+                {% get_country item.label as country %}
+                <a href="{% url 'browse' %}?country={{ country.code }}" class="lb-tile mono-tile" title="{{ country.name }}"><i class="{{ country.flag_css }}"></i></a>
+                <a href="{% url 'browse' %}?country={{ country.code }}" class="lb-name">{{ country.name }}</a>
+            {% elif stat.systems %}
+                <a href="{% if item.url %}{{ item.url }}{% else %}{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}{% endif %}">
+                    {% mono_tile item.label.current.logo item.label.name 'stats' extra_classes='lb-tile' lazy=False %}
+                </a>
+                <a href="{% if item.url %}{{ item.url }}{% else %}{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}{% endif %}" class="lb-name">{{ item.label.name }}</a>
+            {% elif stat.organizations %}
+                <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}">
+                    {% mono_tile item.label.logo item.label.name 'stats' extra_classes='lb-tile' lazy=False %}
+                </a>
+                <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}" class="lb-name">{{ item.label.name }}</a>
+            {% else %}
+                <span class="lb-tile mono-tile">{{ item.label|slice:":2"|upper }}</span>
+                <a href="{% url 'browse' %}?{{ stat.search_field }}={{ item.slug }}" class="lb-name">{{ item.label }}</a>
+            {% endif %}
+            <span class="lb-count">{{ item.value }}</span>
         </div>
+        {% endfor %}
     </div>
+    </div>
+    {% endfor %}
 </div>
 {% endblock %}
 
-
 {% block scripts %}
-<script>
-$(document).ready(function () {
-
-});
-</script>
+<script>$(document).ready(function () {});</script>
 {% endblock %}

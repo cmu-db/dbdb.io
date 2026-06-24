@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load page_title links %}
+
+{% block title %}{{ flatpage.title }} - {% endblock %}
+
+{% block content %}
+{% page_title %}
+{% ptitle_kicker %}{% if flatpage.meta.kicker %}{{ flatpage.meta.kicker }}{% else %}Reference{% endif %}{% endptitle_kicker %}
+{% ptitle_title %}{{ flatpage.title }}{% endptitle_title %}
+{% ptitle_sub %}{% if flatpage.meta.subtitle %}{{ flatpage.meta.subtitle }}{% endif %}{% endptitle_sub %}
+{% endpage_title %}
+<div class="flatpage-content fs-5 mt-3">
+    {{ flatpage.content }}
+</div>
+{% if flatpage.meta.modified %}{% last_modified flatpage.meta.modified %}{% endif %}
+{% endblock %}

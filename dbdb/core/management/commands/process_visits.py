@@ -1,28 +1,16 @@
 # stdlib imports
-import glob
-import gzip
-import re
-import os
-import sys
-import operator
-import dateutil.parser
-from pprint import pprint
+import logging
 
 # django imports
-from django.core.management import BaseCommand
-from django.conf import settings
-from django.db import connection
-from django.db.models import Q, Count
-
-from dbdb.core.models import System
-from dbdb.core.models import SystemFeature
-from dbdb.core.models import SystemVersion
-from dbdb.core.models import SystemVisit
-from dbdb.core.models import SystemRecommendation
-
 import numpy as np
-import pandas as pd
+from django.core.management import BaseCommand
+from django.db import connection
+from django.db.models import Q
 from sklearn.metrics import mean_squared_error
+
+from dbdb.core.models import System, SystemRecommendation, SystemVisit
+
+LOG = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -50,12 +38,12 @@ class Command(BaseCommand):
                     .distinct() \
                     .order_by("name")
 
-        self.stdout.write("No Recommendations [%d]" % systems.count())
+        LOG.info("No Recommendations [%d]" % systems.count())
         for system in systems:
             num_visits = SystemVisit.objects.filter(system=system)
             if options['ignore']:
                 num_visits = num_visits.filter(~Q(ip_address__in=options['ignore']))
-            self.stdout.write(" + %s [num_visits=%d]" % (system.name, num_visits.count()))
+            LOG.info(" + %s [num_visits=%d]" % (system.name, num_visits.count()))
 
         return
 
@@ -82,64 +70,72 @@ class Command(BaseCommand):
             #print(system, "=>", visits_per_system[system_id])
         #sys.exit(0)
 
-        # Get the list of all unique IPs
-        sqs = SystemVisit.objects.all()
+        # For each unique (ip, user_agent) pair, get the systems that they viewed.
+        # A single CTE query handles all three filters:
+        #   - ignore list applied once in filtered_visits
+        #   - valid_users: total visits between min/max threshold
+        #   - valid_systems: total visits >= min_visit
+        params = {
+            'min_threshold': options['min_threshold'],
+            'max_threshold': options['max_threshold'],
+            'min_visit': options['min_visit'],
+        }
+        ignore_clause = ""
         if options['ignore']:
-            sqs = sqs.exclude(ip_address__in=options['ignore'])
-        sqs = sqs.values("ip_address", "user_agent").annotate(total=Count('id'))\
-                    .filter(total__gte=options['min_threshold'])\
-                    .filter(total__lte=options['max_threshold'])
-        ip_addresses = set([(x["ip_address"], x["user_agent"]) for x in sqs])
+            ignore_clause = "WHERE ip_address NOT IN %(ignore_list)s"
+            params['ignore_list'] = tuple(options['ignore'])
 
-        # Get the # of visits per system
-        sqs = SystemVisit.objects.all()
-        if options['ignore']:
-            sqs = sqs.exclude(ip_address__in=options['ignore'])
-        sqs = sqs.values("system_id").annotate(total=Count('id'))
-        if options['min_visit']:
-            sqs = sqs.filter(total__gte=options['min_visit'])
-        visits_per_system = dict([(x["system_id"], x["total"]) for x in sqs])
+        sql = f"""
+            WITH filtered_visits AS (
+                SELECT ip_address, user_agent, system_id
+                FROM core_systemvisit
+                {ignore_clause}
+            ),
+            valid_users AS (
+                SELECT ip_address, user_agent
+                FROM filtered_visits
+                GROUP BY ip_address, user_agent
+                HAVING COUNT(*) BETWEEN %(min_threshold)s AND %(max_threshold)s
+            ),
+            valid_systems AS (
+                SELECT system_id
+                FROM filtered_visits
+                GROUP BY system_id
+                HAVING COUNT(*) >= %(min_visit)s
+            )
+            SELECT DISTINCT fv.ip_address, fv.user_agent, fv.system_id
+            FROM filtered_visits fv
+            JOIN valid_users vu USING (ip_address, user_agent)
+            JOIN valid_systems vs USING (system_id)
+            ORDER BY fv.ip_address, fv.user_agent
+        """
 
-        #for system_id in sorted(visits_per_system.keys(), key=lambda x: -1*visits_per_system[x]):
-            #self.stdout.write(System.objects.get(id=system_id), "=>", visits_per_system[system_id])
-        #sys.exit(1)
-
-        # For each ip/user pair, get the systems that they viewed
-        all_visits = { }
-        user_info = { }
-        system_idx_xref = { }
-        idx_system_xref = { }
+        all_visits = {}
+        user_info = {}
+        system_idx_xref = {}
+        idx_system_xref = {}
         next_user_idx = 0
         next_system_idx = 0
-        for ip, ua in ip_addresses:
-            systems = list()
-            #systems = set()
-            visits = SystemVisit.objects.filter(ip_address=ip, user_agent=ua)
+        current_user_key = None
 
-            for v in visits:
-                # Skip anything that did not have enough total visits
-                if not v.system.id in visits_per_system: continue
-
-                if not v.system.id in system_idx_xref:
-                    system_idx_xref[v.system.id] = next_system_idx
-                    idx_system_xref[next_system_idx] = v.system.id
+        with connection.cursor() as cursor:
+            cursor.execute(sql, params)
+            for ip, ua, system_id in cursor.fetchall():
+                if system_id not in system_idx_xref:
+                    system_idx_xref[system_id] = next_system_idx
+                    idx_system_xref[next_system_idx] = system_id
                     next_system_idx += 1
-                if type(systems) is set:
-                    systems.add(system_idx_xref[v.system.id])
-                else:
-                    systems.append(system_idx_xref[v.system.id])
 
-            # Skip any user that visits only systems not above our threshold
-            # Otherwise we will have all zeros for the systems and this will
-            # break numpy when we split our training set
-            if len(systems) > 0:
-                all_visits[next_user_idx] = systems
-                user_info[next_user_idx] = (ip, ua)
-                next_user_idx += 1
-        ## FOR
-        print("visits_per_system:", len(visits_per_system))
-        print("idx_system_xref:", len(idx_system_xref))
-        assert len(visits_per_system) == len(idx_system_xref)
+                user_key = (ip, ua)
+                if user_key != current_user_key:
+                    current_user_key = user_key
+                    all_visits[next_user_idx] = []
+                    user_info[next_user_idx] = user_key
+                    next_user_idx += 1
+
+                all_visits[next_user_idx - 1].append(system_idx_xref[system_id])
+
+        LOG.info("idx_system_xref: %d", len(idx_system_xref))
         system_cnt = System.objects.all().count()
         #sys.exit(1)
 
@@ -147,26 +143,26 @@ class Command(BaseCommand):
             #self.stdout.write(user_info[user_idx], "=>", len(all_visits[user_idx]))
         #sys.exit(1)
 
-        self.stdout.write("# of Users: %d" % next_user_idx)
-        self.stdout.write("# of Sytems: %d (total=%d)" % (next_system_idx, system_cnt))
+        LOG.info("# of Users: %d" % next_user_idx)
+        LOG.info("# of Sytems: %d (total=%d)" % (next_system_idx, system_cnt))
 
         data = np.zeros((next_user_idx, next_system_idx))
         for user_idx in all_visits.keys():
             for system_idx in all_visits[user_idx]:
                 data[user_idx, system_idx] += 1
-        self.stdout.write(str(data))
+        LOG.info(str(data))
         sparsity = float(len(data.nonzero()[0]))
         sparsity /= (data.shape[0] * data.shape[1])
         sparsity *= 100
-        self.stdout.write('Sparsity: {:4.2f}%'.format(sparsity))
+        LOG.info(f'Sparsity: {sparsity:4.2f}%')
 
         train_data, test_data = self.train_test_split(data)
 
         similarity = self.compute_similarity(train_data)
-        self.stdout.write(str(similarity[:4, :4]))
+        LOG.info(str(similarity[:4, :4]))
         pred = data.dot(similarity) / np.array([np.abs(similarity).sum(axis=1)])
 
-        self.stdout.write('MSE: ' + str(self.get_mse(pred, test_data)))
+        LOG.info('MSE: ' + str(self.get_mse(pred, test_data)))
 
         #self.stdout.write("# of IPs: %s" % len(ip_addresses))
 
@@ -202,7 +198,7 @@ class Command(BaseCommand):
                 left = ""
                 if i < len(before_output): left = before_output[i]
                 if i < len(new_output): right = new_output[i]
-                output_buffer += '  {0:30}  {1}\n'.format(left, right)
+                output_buffer += f'  {left:30}  {right}\n'
             ## FOR
             output[system.name] = output_buffer
         ## FOR

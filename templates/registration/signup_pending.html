@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Check Your Email{% endblock %}
+
+{% block content %}
+<div style="max-width:540px;margin:4rem auto;text-align:center;">
+    <i class="fa-regular fa-envelope fa-3x text-primary mb-3"></i>
+    <h1 class="mb-2">Check Your Email</h1>
+    <p class="text-muted">
+        We've sent a verification link to your email address. Click the link to
+        create your account — it expires in <strong>24 hours</strong>.
+    </p>
+    <p class="text-muted small mt-3">
+        Didn't receive it? Check your spam folder, or
+        <a href="{% url 'signup_request' %}">try again</a>.
+    </p>
+</div>
+{% endblock %}

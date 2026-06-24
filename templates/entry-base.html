@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- MOBILE: full-width stack -->
+<div class="d-md-none">
+    {% block mobile %}{% endblock %}
+</div>
+
+<!-- DESKTOP: float layout — sidebar floats right, content wraps around it -->
+<div class="entry-main clearfix">
+    <div class="d-none d-md-block">
+        <aside class="entry-sidebar float-end ms-4 mb-3">
+            {% block sidebar %}{% endblock %}
+        </aside>
+        {% block desktop_intro %}{% endblock %}
+    </div>
+    {% block main_content %}{% endblock %}
+</div>
+{% endblock %}

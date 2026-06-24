@@ -1,0 +1,273 @@
+import datetime
+import logging
+import time
+
+from django.conf import settings
+from dbdb.core.management.base import DbdbBaseCommand
+from django.db.models import Q
+from django.utils import timezone
+
+from django.contrib.auth import get_user_model
+
+from dbdb.core.models import AttributeOption, RepositoryInfo, RepositorySnapshot, SystemVersion, SystemVersionCodingAgent
+from dbdb.core.utils.repository import check_abandoned, fetch_snapshot_data, scan_coding_agents
+from dbdb.core.utils.versions import clone_system_version, finalize_new_version
+
+_FAILED_DISABLE_THRESHOLD = 3
+
+LOG = logging.getLogger(__name__)
+
+
+class Command(DbdbBaseCommand):
+    help = "Collect repository statistics for systems that have a source-repo URL"
+
+    def add_arguments(self, parser):
+        super().add_arguments(parser)
+        parser.add_argument(
+            'keyword', metavar='KEYWORD', type=str, nargs='?',
+            help='Filter repos to process: numeric value matches System.id, '
+                 'otherwise matches System.name (case-insensitive) or CitationUrl.url (substring)')
+        parser.add_argument(
+            '--sleep', type=int, default=0, metavar='SECONDS',
+            help='Seconds to sleep between repositories (default: 0)')
+        parser.add_argument(
+            '--ignore-last-checked', type=int, default=None, metavar='DAYS',
+            help='Skip repositories scanned in the last N days')
+        parser.add_argument(
+            '--limit', type=int, default=None, metavar='N',
+            help='Stop after successfully retrieving information for N repositories')
+        parser.add_argument(
+            '--check-abandoned', action='store_true',
+            help='After each snapshot, check whether the repo should be marked abandoned')
+        parser.add_argument(
+            '--no-collect', action='store_true',
+            help='Skip fetch_snapshot_data(); reuse the existing last RepositorySnapshot instead. '
+                 'Still prints status and runs --check-abandoned.')
+        parser.add_argument(
+            '--check-last-commit-older', type=int, default=None, metavar='DAYS',
+            help='Only examine repos whose latest snapshot has a last_commit_timestamp '
+                 'older than DAYS days. Repos with no snapshots or with enabled=False are skipped.')
+        parser.add_argument(
+            '--no-agents', action='store_true',
+            help='Skip coding-agent co-authorship scan after each snapshot.')
+        return
+
+    def handle(self, *args, **options):
+
+        versions = (
+            SystemVersion.objects
+            .filter(is_current=True, sourcerepo_url__isnull=False)
+            .select_related('sourcerepo_url', 'system')
+            .order_by('system__name')
+        )
+
+        if options.get('keyword'):
+            keyword = options['keyword'].strip()
+            LOG.debug(f"Filtering repos by keyword '{keyword}'")
+            if keyword.isdigit():
+                versions = versions.filter(system__id=int(keyword))
+            else:
+                versions = versions.filter(
+                    Q(system__name__icontains=keyword) |
+                    Q(sourcerepo_url__url__icontains=keyword)
+                )
+
+        check_older_days = options['check_last_commit_older']
+        if check_older_days is not None:
+            cutoff = timezone.now() - datetime.timedelta(days=check_older_days)
+            eligible_citation_ids = (
+                RepositoryInfo.objects
+                .filter(
+                    enabled=True,
+                    current__isnull=False,
+                )
+                .filter(
+                    Q(current__last_commit_timestamp__lt=cutoff) |
+                    Q(current__last_commit_timestamp__isnull=True)
+                )
+                .values_list('sourcerepo_url_id', flat=True)
+            )
+            versions = versions.filter(sourcerepo_url_id__in=eligible_citation_ids)
+            LOG.debug(
+                "--check-last-commit-older=%d: %d eligible repos (cutoff %s)",
+                check_older_days, eligible_citation_ids.count(), cutoff.date(),
+            )
+
+        ignore_days = options['ignore_last_checked']
+        sleep_secs = options['sleep']
+        limit = options['limit']
+        do_check_abandoned = options['check_abandoned']
+        no_collect = options['no_collect']
+        no_agents = options['no_agents']
+        inactivity_days = settings.REPOSITORY_INACTIVITY_DAYS
+
+        ai_assisted_tag = None
+        bot_user = None
+        if not no_agents:
+            try:
+                ai_assisted_tag = AttributeOption.objects.get(
+                    attribute__slug='tag', slug='ai-assisted'
+                )
+            except AttributeOption.DoesNotExist:
+                LOG.warning("AttributeOption 'ai-assisted' (tag) not found; tag will not be applied")
+            try:
+                bot_user = get_user_model().objects.get(username=settings.DBDB_BOT_ACCOUNT)
+            except Exception as exc:
+                LOG.warning("Bot user '%s' not found; ai-assisted tagging will be skipped: %s", settings.DBDB_BOT_ACCOUNT, exc)
+
+        seen_citation_ids: set[int] = set()
+        ok = err = skipped = 0
+        first = True
+
+        if versions.count() == 0:
+            LOG.warning(f"No systems found!")
+
+        for ver in versions.order_by("system__name"):
+            citation = ver.sourcerepo_url
+            if citation.id in seen_citation_ids:
+                LOG.debug("Skipping duplicate citation: %s", citation.url)
+                continue
+            seen_citation_ids.add(citation.id)
+
+            repo_info, _ = RepositoryInfo.objects.get_or_create(sourcerepo_url=citation)
+            if not repo_info.enabled:
+                LOG.debug("Skipping disabled repo: %s", citation.url)
+                skipped += 1
+                continue
+
+            if ignore_days is not None and repo_info.last_snapshot is not None:
+                age = timezone.now() - repo_info.last_snapshot
+                if age.days < ignore_days:
+                    LOG.debug(
+                        "Skipping recently checked repo (%d days ago): %s",
+                        age.days, citation.url,
+                    )
+                    skipped += 1
+                    continue
+
+            if sleep_secs > 0 and not first:
+                LOG.debug("Sleeping %d seconds before next repo...", sleep_secs)
+                time.sleep(sleep_secs)
+            first = False
+            self.stdout.write(f"{ver.system.name}  {citation.url}")
+
+            if no_collect:
+                snapshot = repo_info.current
+                if snapshot is None:
+                    self.stderr.write(f"  Skipped — no existing snapshot")
+                    skipped += 1
+                    continue
+                self.stdout.write(f"  (reusing snapshot #{snapshot.id} from {snapshot.created})")
+                ok += 1
+            else:
+                try:
+                    snap = fetch_snapshot_data(citation)
+                except ValueError as exc:
+                    self.stderr.write(f"  Skipped — {exc}")
+                    skipped += 1
+                    continue
+                except Exception as exc:
+                    self.stderr.write(f"  ERROR — {exc}")
+                    LOG.exception("Failed to fetch repo data for %s", citation.url)
+                    err += 1
+                    continue
+
+                fetch_errors = snap.errors
+                for exc in fetch_errors:
+                    self.stderr.write(f"  WARNING — partial data: {exc}")
+                    LOG.warning("Partial repo data for %s: %s", citation.url, exc)
+
+                if fetch_errors:
+                    computed_status = (
+                        RepositorySnapshot.Status.ERROR
+                        if snap.has_data
+                        else RepositorySnapshot.Status.FAILED
+                    )
+                else:
+                    computed_status = RepositorySnapshot.Status.VALID
+
+                snapshot = RepositorySnapshot.objects.create(
+                    repo=repo_info,
+                    status=computed_status,
+                    **snap.to_model_kwargs(),
+                )
+                repo_info.current = snapshot
+                repo_info.last_snapshot = timezone.now()
+                repo_info.save(update_fields=['current', 'last_snapshot', 'modified'])
+                ok += 1
+            self.stdout.write(
+                f"  commits={snapshot.commit_count}  "
+                f"last_commit={snapshot.last_commit_timestamp}  "
+                f"open_prs={snapshot.open_pr_count}  merged_prs={snapshot.merged_pr_count}  "
+                f"open_issues={snapshot.open_issue_count}  closed_issues={snapshot.closed_issue_count}  "
+                f"stars={snapshot.star_count}  forks={snapshot.fork_count}  "
+                f"branches={snapshot.branch_count}  branch_default={snapshot.branch_default_name}  "
+                f"status={snapshot.get_status_display()}"
+            )
+
+            if snapshot.status == RepositorySnapshot.Status.FAILED:
+                recent = list(
+                    repo_info.snapshots
+                    .order_by('-created')
+                    .values_list('status', flat=True)[:_FAILED_DISABLE_THRESHOLD]
+                )
+                if (
+                    len(recent) == _FAILED_DISABLE_THRESHOLD
+                    and all(s == RepositorySnapshot.Status.FAILED for s in recent)
+                ):
+                    repo_info.enabled = False
+                    repo_info.save(update_fields=['enabled', 'modified'])
+                    self.stderr.write(
+                        f"  Disabled {citation.url} — "
+                        f"{_FAILED_DISABLE_THRESHOLD} consecutive FAILED snapshots"
+                    )
+
+            if do_check_abandoned:
+                try:
+                    was_abandoned = check_abandoned(
+                        ver.system, inactivity_days=inactivity_days
+                    )
+                    if was_abandoned:
+                        self.stdout.write(
+                            f"  Marked as abandoned (no activity in {inactivity_days}+ days)"
+                        )
+                except ValueError as exc:
+                    LOG.debug("check_abandoned skipped for %s: %s", ver.system.slug, exc)
+
+            if not no_agents:
+                try:
+                    branch = snapshot.branch_default_name or None
+                    agents_found = scan_coding_agents(citation, branch)
+                    if agents_found and ai_assisted_tag is not None and bot_user is not None:
+                        if not ver.tags.filter(pk=ai_assisted_tag.pk).exists():
+                            new_ver = clone_system_version(
+                                ver,
+                                creator=bot_user,
+                                comment="Detected coding agents in source code and added AI tag",
+                            )
+                            new_ver.tags.add(ai_assisted_tag)
+                            finalize_new_version(new_ver, old_logo=ver.logo)
+                            self.stdout.write(f"  cloned to v{new_ver.ver} and tagged: {ai_assisted_tag.slug}")
+                        else:
+                            new_ver = ver
+                        for agent, agent_citation in agents_found.items():
+                            _, created = SystemVersionCodingAgent.objects.update_or_create(
+                                system_version=new_ver,
+                                agent=agent,
+                                defaults={'citation': agent_citation},
+                            )
+                            self.stdout.write(
+                                f"  coding_agent {'added' if created else 'updated'}: "
+                                f"{agent.name}  {agent_citation.url if agent_citation else '(no url)'}"
+                            )
+                except Exception as exc:
+                    self.stderr.write(f"  WARNING — coding agent scan failed: {exc}")
+                    LOG.warning("Coding agent scan failed for %s: %s", citation.url, exc)
+
+            if limit is not None and ok >= limit:
+                self.stdout.write(f"Limit of {limit} reached, stopping.")
+                break
+
+        self.stdout.write(
+            self.style.SUCCESS(f"\nDone: {ok} updated, {skipped} skipped, {err} errors")
+        )

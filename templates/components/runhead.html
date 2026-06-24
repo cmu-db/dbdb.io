@@ -1,0 +1,38 @@
+{% load static %}
+<header class="runhead">
+    <div class="container">
+        <a class="wordmark" href="{% url 'home' %}">Database <span class="of">of</span> Databases</a>
+        <button class="rh-toggle d-md-none" id="rh-hamburger"
+                aria-expanded="false" aria-controls="rh-nav" aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+        <nav id="rh-nav" class="rh-nav">
+            <a class="{% if activate == 'browse' %}active{% endif %}" href="{% url 'browse' %}">Browse</a>
+            <a class="{% if activate == 'stats' %}active{% endif %}" href="{% url 'stats' %}">Leaderboards</a>
+            <a class="{% if activate == 'recent' %}active{% endif %}" href="{% url 'recent' %}">Recent</a>
+            <a class="{% if activate == 'docs' %}active{% endif %}" href="{% url 'docs' %}">Docs</a>
+            {% for page in navbar_flatpages %}
+            <a class="{% if request.path == page.url %}active{% endif %}" href="{{ page.url }}">{{ page.title }}</a>
+            {% endfor %}
+            {% if not no_nav_search %}
+            <form id="runhead-search" class="rh-search" action="{% url 'browse' %}" method="GET">
+                <input type="search" name="q" placeholder="Search…" value="{% if query %}{{ query }}{% endif %}">
+                <button type="submit" aria-label="Search"><i class="fas fa-search"></i></button>
+            </form>
+            {% endif %}
+        </nav>
+    </div>
+</header>
+<script>
+(function () {
+    var btn = document.getElementById('rh-hamburger');
+    var nav = document.getElementById('rh-nav');
+    if (btn && nav) {
+        btn.addEventListener('click', function () {
+            var open = nav.classList.toggle('rh-open');
+            btn.setAttribute('aria-expanded', open);
+        });
+    }
+
+}());
+</script>

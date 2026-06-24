@@ -1,77 +1,156 @@
 {% extends 'base.html' %}
 {% load humanize %}
+{% load logos %}
 {% load static %}
 {% load thumbnail %}
+{% load savedsearch_tags %}
 
-{% block title %}Home{% endblock %}
+{% block title %}{% endblock %}
+{% block title_suffix %} - The Encyclopedia of Database Systems{% endblock %}
+
+{% block page_header %}
+<header class="masthead">
+    <div class="container mt-1 mt-md-4">
+        <h1 class="nameplate">Database <span class="of">of</span> Databases</h1>
+    </div>
+    <nav class="topnav">
+        <div class="container">
+            <a class="active" href="{% url 'home' %}">Home</a>
+            <a href="{% url 'browse' %}">Browse</a>
+            <a href="{% url 'stats' %}">Leaderboards</a>
+            <a href="{% url 'recent' %}">Recent</a>
+            <a href="{% url 'docs' %}">Docs</a>
+            {% for page in navbar_flatpages %}
+            <a class="{% if request.path == page.url %}active{% endif %}" href="{{ page.url }}">{{ page.title }}</a>
+            {% endfor %}
+        </div>
+    </nav>
+</header>
+{% endblock %}
 
 {% block content %}
-<div class="main">
-<div class="container">
-    <div class="row justify-content-md-center homepage-header">
-        <div class="col col-md-12 col-sm-12 text-center">
-            <h1 class="display-3">Database of Databases</h1>
-            <p class="lead">Discover and learn about <b>{{ num_systems|intcomma }}</b> database management systems</p>
-            <form id="mainsearch" action="{% url 'browse' %}" method="GET" >
-                <div class="form-group mb-1">
-                    <input autofocus type="text" name="q" class="form-control form-control-lg" aria-describedby="Search field" placeholder="Search" style="max-width:700px;margin:0 auto;">
-                </div>
-                <p class="lead">
-                    <a href="{% url 'browse' %}" class="btn btn-secondary active mt-2" role="button" aria-pressed="true"><i class="fas fa-th"></i> Browse</a>
-                    &nbsp;
-                    <a href="{% url 'stats' %}" class="btn btn-secondary active mt-2" role="button" aria-pressed="true"><i class="far fa-chart-bar"></i> Leaderboards</a>
-                    &nbsp;
-                    <a href="{% url 'browse' %}?start-year={% now "Y" %}" class="btn btn-secondary active mt-2" role="button" aria-pressed="true"><i class="fas fa-trophy"></i> New in {% now "Y" %}</a>
-                </p>
-            </form>
-        </div>
+
+<div class="hero my-4 my-md-5">
+    <p class="lead-line">A curated reference guide for implementations of the world's most important type of software.</p>
+    <div class="search-wrap">
+        <form id="mainsearch" action="{% url 'browse' %}" method="GET">
+            <div class="search-field">
+                <span class="ic"><i class="fas fa-search"></i></span>
+                <input type="text" name="q" placeholder="Search {{ num_systems|intcomma }} systems..." aria-label="Search">
+                <span class="kbd">↵ to browse</span>
+            </div>
+        </form>
+    </div>
+    <div class="cta-row pt-3 pb-4">
+        <a href="{% url 'browse' %}" class="cta"><i class="fas fa-th"></i> Browse All</a>
+        <a href="{% url 'stats' %}" class="cta cta-ghost"><i class="far fa-chart-bar"></i> Leaderboards</a>
+        <a href="{% url 'browse' %}?start-year={{ new_in_year }}" class="cta cta-ghost"><i class="fas fa-trophy"></i> New in {{ new_in_year }}</a>
     </div>
 </div>
-<div class="container">
-    <div class="row homepage-list">
-        <div class="col-md-4 text-center">
-            <h3>Most Recent</h3>
-            <table class="table table-hover">
-                <tbody>
-                {% for item in most_recent %}
-                    {% include 'core/home-listitem.html' %}
-                {% endfor %}
-                </tbody>
-            </table>
+
+{% if featured_searches %}
+<div class="shortcuts my-4 my-md-5">
+    {% for s in featured_searches %}
+    <a href="{% url 'browse' %}?{{ s.search_params }}&ss={{ s.id|ss_token }}" class="shortcut"
+       {% if s.description %}title="{{ s.description }}"{% endif %}>
+        <span class="sc-ic">{% if s.icon %}<i class="{{ s.icon }}"></i>{% else %}<i class="fas fa-database"></i>{% endif %}</span>
+        <span class="sc-tx">
+            <span class="t">{{ s.name }}</span>
+            {% if s.description %}<span class="info-subtitle d-block">{{ s.description|truncatechars:50 }}</span>{% endif %}
+        </span>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if data_models %}
+<section class="my-4 my-md-5">
+    <div class="sec-head">
+        <h2>Browse by Data Model</h2>
+        <span class="rule"></span>
+        <span class="num">{{ data_models|length }} Model{{ data_models|length|pluralize }}</span>
+    </div>
+    <div class="index-rail">
+        {% for dm in data_models %}
+        <a href="{% url 'browse' %}?data-model={{ dm.slug }}" class="index-chip">
+            {{ dm.value }} <span class="ct">{{ dm.system_count }}</span>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if spotlight_version %}
+<section class="my-4 my-md-5">
+    <div class="sec-head">
+        <h2>Featured System</h2>
+        <span class="rule"></span>
+        <span class="num">Updated Weekly</span>
+    </div>
+    <a href="{{ spotlight_version.system.get_absolute_url }}" class="spotlight">
+        {% mono_tile spotlight_version.logo spotlight_version.system.name extra_classes="d-none d-md-inline" %}
+        <span>
+            <h3 class="m-0">{{ spotlight_version.system.name }}</h3>
+            {% if spotlight_data_model %}
+                <span class="info-subtitle d-block mt-0 mb-1">{{ spotlight_data_model }} Database System</span>
+            {% endif %}
+            <p>{{ spotlight_version.description|truncatechars:200 }}</p>
+            <span class="sp-meta">
+                {% if spotlight_version.start_year %}
+                <span class="index-chip">Since {{ spotlight_version.start_year }}</span>
+                {% endif %}
+                {% with spotlight_version.tags.all|first as tag %}
+                {% if tag %}<span class="index-chip">{{ tag.name }}</span>{% endif %}
+                {% endwith %}
+                {% with spotlight_version.licenses.all|first as license %}
+                {% if license %}<span class="index-chip">{{ license.name }}</span>{% endif %}
+                {% endwith %}
+            </span>
+        </span>
+        <span class="cta cta-ghost d-none d-lg-inline-flex">Read entry <i class="fa-solid fa-arrow-right"></i></span>
+    </a>
+</section>
+{% endif %}
+
+<section class="my-4 my-md-5">
+    <div class="sec-head">
+        <h2>The Leaderboards</h2>
+        <span class="rule"></span>
+        <span class="num">Updated Daily</span>
+    </div>
+
+    <div class="row g-4 g-lg-5">
+        <div class="col-md-4 list-col">
+            <h3 class="col-title">Most Recent</h3>
+            <div class="col-sub">Newly modified entries</div>
+            <div class="col-rule"></div>
+            {% for item in most_recent %}{% include 'core/home-listitem.html' %}{% endfor %}
         </div>
-        <div class="col-md-4 text-center">
-            <h3>Most Viewed</h3>
-            <table class="table table-hover">
-                <tbody>
-                {% for item in most_visits %}
-                    {% include 'core/home-listitem.html' %}
-                {% endfor %}
-                </tbody>
-            </table>
+        <div class="col-md-4 list-col">
+            <h3 class="col-title">Most Viewed</h3>
+            <div class="col-sub">Last 30 days</div>
+            <div class="col-rule"></div>
+            {% for item in most_visits %}{% include 'core/home-listitem.html' %}{% endfor %}
         </div>
-        <div class="col-md-4 text-center">
-            <h3>Most Edited</h3>
-            <table class="table table-hover">
-                <tbody>
-                {% for item in most_versions %}
-                    {% include 'core/home-listitem.html' %}
-                {% endfor %}
-                </tbody>
-            </table>
+        <div class="col-md-4 list-col">
+            <h3 class="col-title">Most Edited</h3>
+            <div class="col-sub">Last 30 days</div>
+            <div class="col-rule"></div>
+            {% for item in most_versions %}{% include 'core/home-listitem.html' %}{% endfor %}
         </div>
     </div>
-</div>
-</div>
+</section>
 
 {% endblock %}
 
 {% block scripts %}
 <script type="text/javascript">
-    // Homepage Search Box
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+
     $("#mainsearch").find('input[name="q"]').autoComplete({
         minChars: 3,
         source: function(term, response) {
-            $.getJSON('/search/autocomplete/', { q: term }, function(data) { response(data); });
+            $.getJSON('/api/systems/autocomplete/', { q: term }, function(data) { response(data); });
         },
         onSelect: function(e, term, item) { window.location.href = "/db/" + convertToSlug(term); }
     });

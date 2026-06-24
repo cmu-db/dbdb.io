@@ -1,68 +1,164 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load thumbnail %}
-{% load bootstrap4 %}
+{% load logos %}
+{% load django_bootstrap5 %}
+{% load humanize %}
+{% load page_title %}
+{% load alerts %}
+{% load links %}
+{% load version_status %}
+{% load version_tags %}
 
-{% block title %}
-Recent Changes
-{% endblock %}
+{% block title %}Recent Changes - {% endblock %}
 
 {% block content %}
-<div class="jumbotron col-md-8" style="background-color:#ffffff;">
 
-    <div class="row">
-        <h1 class="offset-md-2">
-            Recent Changes{% if lookup_user %}: {{ lookup_user.username }}{% endif %}
-        </h1>
-    </div>
+{% if system %}
+    {# System Revision List #}
+    {% page_title %}
+    {% ptitle_kicker %}<a href="{% url 'system' system.slug %}">Database Entry</a>{% endptitle_kicker %}
+    {% ptitle_title %}{{ system.name }}: Recent Changes{% endptitle_title %}
+    {% ptitle_sub %}Revision history for {% system_link system %}{% endptitle_sub %}
+    {% endpage_title %}
+{% else %}
+    {# Glboal Revision List #}
+    {% page_title %}
+    {% ptitle_kicker %}{{ total_revisions|intcomma }} Revision{{ total_revisions|pluralize }}{% endptitle_kicker %}
+    {% ptitle_title %}Recent Changes{% if lookup_user %}: {{ lookup_user.username }}{% endif %}{% endptitle_title %}
+    {% ptitle_sub %}{% if lookup_user %}All revisions by user '{{ lookup_user.username }}'{% else %}Every revision across the encyclopedia, newest first{% endif %}{% endptitle_sub %}
+    {% endpage_title %}
+{% endif %}
 
-    <div class="row justify-content-center">
-        <table class="table table-striped table-responsive-sm offset-md-2 changelist">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>System</th>
-<!--                     <th>Version</th> -->
-                    <th>Edited By</th>
-                    <th>Comments</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for version in versions %}
-                <tr>
-                    <td><a href="{{ version.get_absolute_url }}">{{ version.created }}</a></td>
-                    <td>
-                        <a href="{{ version.system.get_absolute_url }}">
-                        {% if version.system.current.logo %}
-                            <img class="logo-recent" src="{% if version.system.current.logo.url.lower|slice:"-3:" == "svg" %}{{ version.system.current.logo.url }}{% else %}{{ version.system.current.logo|thumbnail_url:'thumb' }}{% endif %}" alt="{{ version.system.name }}" />
-                        {% else %}
-                            <img class="logo-recent" src="{% static 'core/images/database-nologo.svg' %}" alt="{{ version.system.name }}" />
-                        {% endif %}
-                        {{ version.system.name }}
-                        </a>
-                    </td>
-<!--                     <td>#{{ version.ver }}</td> -->
-                    <td><a href="{% url 'recent' %}?username={{ version.creator.username }}">{{ version.creator.username }}</a></td>
-                    <td>{{ version.comment }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
 
-        <div class="text-center pagination">
-            <span class="step-links">
-                {% if versions.has_previous %}<a href="?page=1{% if lookup_user %}&username={{ lookup_user }}{% endif %}">{% endif %}&laquo; first{% if versions.has_previous %}</a>{% endif %}
-                {% if versions.has_previous %}<a href="?page={{ versions.previous_page_number }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}">{% endif %}previous{% if versions.has_previous %}</a>{% endif %}
+{% for message in messages %}
+{% alert type=message.tags %}{{ message }}{% endalert %}
+{% endfor %}
 
-                <span class="current">
-                    &bullet;
-                    Page {{ versions.number }} of {{ versions.paginator.num_pages }}
-                    &bullet;
-                </span>
-                {% if versions.has_next %}<a href="?page={{ versions.next_page_number }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}">{% endif %}next{% if versions.has_next %}</a>{% endif %}
-                {% if versions.has_next %}<a href="?page={{ versions.paginator.num_pages }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}">{% endif %}last &raquo;{% if versions.has_next %}</a>{% endif %}
-            </span>
+<div class="feed-wrap">
+
+{% if request.user.is_superuser %}
+<form method="get" class="d-flex align-items-center gap-2 mb-3">
+    {% if lookup_user %}<input type="hidden" name="username" value="{{ lookup_user.username }}">{% endif %}
+    <label for="show-filter" class="form-label mb-0 text-nowrap small fw-semibold">Show:</label>
+    <select id="show-filter" name="show" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+        <option value="all" {% if show_filter == 'all' %}selected{% endif %}>All (Approved + Pending)</option>
+        <option value="approved" {% if show_filter == 'approved' %}selected{% endif %}>Approved Only</option>
+        <option value="pending" {% if show_filter == 'pending' %}selected{% endif %}>Pending Only</option>
+    </select>
+</form>
+{% endif %}
+
+{% if not revision_list %}
+{% include "core/pagination.html" %}
+{% endif %}
+
+{% if revision_list %}
+<div class="compare-bar">
+    <span class="hint">Select two versions to compare</span>
+    <button id="compareBtn" class="btn compare-btn" type="button" disabled>
+        <i class="fa-solid fa-code-compare"></i> Compare (<span id="compareCount">0</span>/2)
+    </button>
+</div>
+{% endif %}
+
+<div class="feed">
+    {% for version in versions %}
+    <div class="feed-item">
+        <div class="feed-time">
+            <a href="{{ version.get_absolute_url }}" title="View Revision #{{ version.ver }} for {{ version.system.name }}">
+                {% sv_ver version.ver %}
+                {% sv_created version %}
+            </a>
+            {% if not version.approved %}
+                <!-- BEGIN:PENDING-MOBILE -->
+                <span class="d-inline d-md-none">{% ver_status version.approved %}</span>
+                <!-- END:PENDING-MOBILE -->
+            {% endif %}
+        </div>
+        <div class="feed-body">
+            <div class="feed-line align-middle">
+                <a href="{% url 'recent' %}?username={{ version.creator.username }}" class="actor">
+                    <i class="fa-regular fa-user"></i> {{ version.creator.username }}
+                </a>
+                <span class="verb">{% if version.ver == 1 %}created{% else %}updated{% endif %}</span>
+                <a href="{% url 'system' version.system.slug %}" title="View {{ version.system.name }}">
+                    {% mono_tile version.logo version.system.name 'recent' extra_classes='feed-tile' %}
+                </a>
+                <a href="{% url 'system' version.system.slug %}" class="sys" title="View {{ version.system.name }}">{{ version.system.name }}</a>
+
+                {% if not version.approved %}
+                    <!-- BEGIN:PENDING-DESKTOP -->
+                    <span class="d-none d-md-inline align-middle">{% ver_status version.approved %}</span>
+                    <!-- END:PENDING-DESKTOP -->
+                {% endif %}
+
+                <!-- BEGIN:ACTIONS -->
+                <div class="feed-actions">
+                    {% if revision_list %}
+                    <button class="btn compare-select-btn" data-ver="{{ version.ver }}" type="button">+ Compare</button>
+                    {% endif %}
+                    {% if version.diff_prev_ver %}
+                    <a href="{% url 'system_diff' version.system.slug version.diff_prev_ver version.ver %}" class="diff-link" title="Recent Difference With Previous Revision"><i class="fa-solid fa-code-compare"></i> Diff</a>
+                    {% endif %}
+                </div>
+                <!-- END:ACTIONS -->
+            </div>
+            {% if version.comment %}
+            <p class="feed-comment">{{ version.comment }}</p>
+            {% endif %}
         </div>
     </div>
+    {% endfor %}
 </div>
+
+{% if not revision_list %}
+{% include "core/pagination.html" %}
+{% endif %}
+
+</div>
+
+{% if revision_list %}
+<script>
+(function () {
+    var slug = '{{ system.slug|escapejs }}';
+    var btns = Array.prototype.slice.call(document.querySelectorAll('.compare-select-btn'));
+    var compareBtn = document.getElementById('compareBtn');
+    var countEl = document.getElementById('compareCount');
+    var selected = [];
+
+    function sync() {
+        countEl.textContent = selected.length;
+        var ready = selected.length === 2;
+        compareBtn.disabled = !ready;
+        compareBtn.classList.toggle('ready', ready);
+    }
+
+    btns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var ver = this.dataset.ver;
+            var item = this.closest('.feed-item');
+            if (this.classList.contains('selected')) {
+                this.classList.remove('selected');
+                var i = selected.indexOf(ver);
+                if (i > -1) selected.splice(i, 1);
+                if (item) item.classList.remove('checked');
+            } else {
+                if (selected.length >= 2) return;
+                this.classList.add('selected');
+                selected.push(ver);
+                if (item) item.classList.add('checked');
+            }
+            sync();
+        });
+    });
+
+    compareBtn.addEventListener('click', function () {
+        if (selected.length !== 2) return;
+        var pair = selected.map(Number).sort(function (a, b) { return a - b; });
+        window.location.href = '/db/' + slug + '/diff/' + pair[0] + '/' + pair[1];
+    });
+})();
+</script>
+{% endif %}
+
 {% endblock %}

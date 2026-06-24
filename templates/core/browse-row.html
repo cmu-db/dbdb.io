@@ -1,0 +1,77 @@
+{% load logos %}
+{% load links %}
+
+<tr class="browse-row"
+    data-href="{% url 'system' result.slug %}"
+    data-name="{{ result.name }}"
+    data-start-year="{{ result.start_year|default:'' }}"
+    data-end-year="{{ result.end_year|default:'' }}">
+    <td class="r-logo">
+        {% mono_tile result.logo result.name 'recent' %}
+    </td>
+    <td data-sort-val="{{ result.name }}">
+        <a href="{% url 'system' result.slug %}" class="r-name">{{ result.name }}</a>
+        <div class="tag-stack d-md-none" style="flex-direction:column;">
+        {% for tag in result.system_tags %}
+            {% if tag.name %}
+                {% if not forloop.first %}
+                    {% tag_link tag "mt-1"%}
+                {% else %}
+                    {% tag_link tag %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        </div>
+    </td>
+    {% for col_val in result.col_values %}
+        {% if col_val.type == 'tags' %}
+        <td class="tag-cell d-none d-md-table-cell" data-sort-val="{% for tag in col_val.data %}{% if tag.name %}{% if not forloop.first %} {% endif %}{{ tag.name }}{% endif %}{% endfor %}">
+            <div class="tag-stack" style="flex-direction:column;align-items:flex-start;">
+            {% for tag in col_val.data %}
+                {% if tag.name %}{% tag_link tag %}{% endif %}
+            {% endfor %}
+            </div>
+        </td>
+        {% elif col_val.type == 'year' %}
+        <td class="r-year" data-sort-val="{{ col_val.data }}">
+            {% if col_val.data %}{{ col_val.data }}{% else %}<span class="r-dash">&mdash;</span>{% endif %}
+        </td>
+        {% elif col_val.type == 'feature_opts' %}
+        <td class="r-model" data-sort-val="{% for opt in col_val.data %}{% if not forloop.first %} {% endif %}{{ opt.value }}{% endfor %}">
+            {% for opt in col_val.data %}{% if not forloop.first %}, {% endif %}{{ opt.value }}{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}
+        </td>
+        {% elif col_val.type == 'attr_opts' %}
+        <td class="r-model" data-sort-val="{% for opt in col_val.data %}{% if not forloop.first %} {% endif %}{{ opt.name }}{% endfor %}">
+            {% for opt in col_val.data %}{% if not forloop.first %}, {% endif %}{% if opt.icon %}<i class="{{ opt.icon }}"></i>{% endif %}{{ opt.name }}{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}
+        </td>
+        {% elif col_val.type == 'orgs' %}
+        <td class="r-model" data-sort-val="{% for org in col_val.data %}{% if not forloop.first %} {% endif %}{{ org.name }}{% endfor %}">
+            {% for org in col_val.data %}{% if not forloop.first %}, {% endif %}{% org_link org %}{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}
+        </td>
+        {% elif col_val.type == 'systems' %}
+        <td class="r-model" data-sort-val="{% for sys in col_val.data %}{% if not forloop.first %} {% endif %}{{ sys.name }}{% endfor %}">
+            {% for sys in col_val.data %}{% if not forloop.first %}, {% endif %}<a href="{% url 'system' sys.slug %}">{{ sys.name }}</a>{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}
+        </td>
+        {% elif col_val.type == 'countries' %}
+        <td class="r-country" data-sort-val="{% for c in col_val.data %}{% if not forloop.first %} {% endif %}{{ c.name }}{% endfor %}">
+            {% for c in col_val.data %}{% if not forloop.first %}, {% endif %}<span title="{{ c.name }}"><i class="{{ c.flag_css }}"></i> {{ c.code }}</span>{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}
+        </td>
+        {% elif col_val.type == 'url' %}
+        <td class="r-model" data-sort-val="{{ col_val.data }}">
+            {% if col_val.data %}<a href="{{ col_val.data }}" target="_blank" rel="noopener noreferrer">{{ col_val.data|urldecode }}<i class="fas fa-external-link-alt"></i></a>{% else %}<span class="r-dash">&mdash;</span>{% endif %}
+        </td>
+        {% elif col_val.type == 'twitter' %}
+        <td class="r-model" data-sort-val="{{ col_val.data }}">
+            {% if col_val.data %}<a href="https://twitter.com/{{ col_val.data }}" target="_blank" rel="noopener noreferrer">@{{ col_val.data }}</a>{% else %}<span class="r-dash">&mdash;</span>{% endif %}
+        </td>
+        {% elif col_val.type == 'linkedin' %}
+        <td class="r-model" data-sort-val="{{ col_val.data }}">
+            {% if col_val.url %}<a href="{{ col_val.url }}" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-linkedin"></i>{{ col_val.data }}</a>{% else %}<span class="r-dash">&mdash;</span>{% endif %}
+        </td>
+        {% else %}
+        <td class="r-model" data-sort-val="{{ col_val.data }}">
+            {% if col_val.data %}{{ col_val.data }}{% else %}<span class="r-dash">&mdash;</span>{% endif %}
+        </td>
+        {% endif %}
+    {% endfor %}
+</tr>

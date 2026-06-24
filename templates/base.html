@@ -1,23 +1,28 @@
-{% load static %}<!DOCTYPE html>
-<html lang="en">
+{% load static %}
+{% load django_bootstrap5 %}
+{% load alerts %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}{% if title %}{{ title }}{% endif %}{% endblock %} - Database of Databases</title>
+    <title>{% block title %}{% endblock %}Database of Databases{% block title_suffix %}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% if counter_token %}
     <meta name="counter" content="{{ counter_token }}">
     {% endif %}
-    <link href="{% static 'core/images/favicon.ico' %}" rel="shortcut icon" type="image/png" />
-    <link rel="apple-touch-icon" sizes="32x32" href="{% static 'core/images/dbdb_io-32x32.png' %}">
-    <link rel="apple-touch-icon" sizes="90x90" href="{% static 'core/images/dbdb_io-90x90.png' %}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'core/images/dbdb_io-180x180.png' %}">
+    <link rel="icon" type="image/png" href="{% static 'core/images/favicon-96x96.png' %}" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="{% static 'core/images/favicon.svg' %}" />
+    <link rel="shortcut icon" href="{% static 'core/images/favicon.ico' %}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'core/images/apple-touch-icon.png' %}" />
+    <meta name="apple-mobile-web-app-title" content="dbdb.io" />
+    <link rel="manifest" href="{% static 'core/images/site.webmanifest' %}" />
 
-    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,700,800">
-    <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.9.0/css/all.css">
-    <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="{% static 'lib/css/bootstrap-select.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'core/css/base.css' %}?v=2">
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'core/css/jquery.auto-complete.css' %}">
+    <link rel="stylesheet" href="{{ FONTAWESOME_CSS_URL }}">
 
     <meta property="og:site_name" content="Database of Databases" />
     <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
@@ -34,149 +39,84 @@
 
     {% block css %}{% endblock %}
 </head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <a class="navbar-brand" href="{%  url 'home' %}">Database of Databases</a>
+<body class="d-flex flex-column min-vh-100">
 
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+{% include "navbar.html" %}
+{% block page_header %}{% include "components/runhead.html" %}{% endblock %}
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-        <li class="nav-item{% if activate == 'browse' %} active{% endif %}">
-                <a class="nav-link btn btn-outline-secondary" href="{% url 'browse' %}">Browse</a>
-            </li>
-            <li class="nav-item{% if activate == 'stats' %} active{% endif %}">
-                <a class="nav-link btn btn-outline-secondary" href="{% url 'stats' %}">Leaderboards</a>
-            </li>
-            <li class="nav-item{% if activate == 'recent' %} active{% endif %}">
-                <a class="nav-link btn btn-outline-secondary" href="{% url 'recent' %}">Recent</a>
-            </li>
-            {% if user.is_authenticated %}
-                {% if user.is_superuser %}
-                <li class="nav-item{% if activate == 'create' %} active{% endif %}">
-                    <a class="nav-link btn btn-outline-secondary" href="{% url 'create_database' %}">Create</a>
-                </li>
-                {% endif %}
-                {% if user.is_superuser or user.is_staff %}
-                <li class="nav-item{% if activate == 'empty' %} active{% endif %}">
-                    <a class="nav-link btn btn-outline-secondary" href="{% url 'empty_fields' %}">EmptyFields</a>
-                </li>
-                {% endif %}
-            {% endif %}
-            {% block navbuttons %}{% endblock %}
-        </ul>
+<main class="container pb-4 pt-3 page-{{ activate }}">
+    {% if page_error %}
+    {% alert type="error" %}{{ page_error|safe }}{% endalert %}
+    {% endif %}
+    {% block content %}{% endblock %}
+</main>
 
-        {% if not no_nav_search %}
-        <form action="{% url 'browse' %}" method="GET" id="topsearch" class="form-inline form-search my-2 my-lg-0 mr-4">
-            <div class="input-group">
-                <input type="search" class="form-control" placeholder="Search" aria-label="Search" id="top-searchbox" name="q" value="{% if query %}{{ query }}{% endif %}">
-                <div class="input-group-append">
-                    <button class="btn" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div>
-        </form>
-        {% endif %}
-
-        <ul class="navbar-nav my-2 my-lg-0 mr-4">
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {% if user.is_authenticated %}
-                    {{ user.username }}
-                    {% else %}
-                    Accounts
-                    {% endif %}
-                </a>
-
-                {% if user.is_authenticated %}
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="#">Profile</a>
-
-                    {% if user.is_staff %}
-                    <a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a>
-                    {% endif %}
-
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
-                </div>
-                {% else %}
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="{% url "login" %}">Login</a>
-                    <!-- <div class="dropdown-divider"></div> -->
-                    <!-- <a class="dropdown-item" href="{% url "create_user" %}">Create Account</a> -->
-                </div>
-                {% endif %}
-            </li>
-        </ul>
+<footer class="site-footer mt-auto">
+    <div class="container align-top d-md-none border-bottom mb-2">
+        {% block footer %}{% endblock %}
     </div>
-</nav>
-
-{% block content %}{% endblock %}
-
-<footer class="font-small mdb-color pt-4">
-    <div class="container align-top">
-        <div class="row d-flex align-items-center ">
-            <div class="col-md-7 col-lg-8 footer-text">
-                <p class="text-center text-md-left">
-                    Copyright &copy; {% now "Y" %}
-                    &bullet;
-                    <a target="_blank" href="https://db.cs.cmu.edu">Carnegie Mellon Database Group</a>
-                </p>
-            </div>
-            <div class="col-md-5 col-lg-4">
-                <div class="text-center text-md-right footer-text">
-                    <a href="mailto:mail@dbdb.io" class="btn-floating btn-sm rgba-white-slight"><i class="fa fa-envelope"></i> Contact</a>
-                    <a href="https://github.com/cmu-db/dbdb.io" class="btn-floating btn-sm"><i class="fab fa-github"></i> Github</a>
-                </div>
-            </div>
-        </div>
-    </div>
+    {% include "footer.html" %}
 </footer>
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 {% if not user.is_superuser %}
-<!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-4067813-21"></script>
 <script>
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
-
 gtag('config', 'UA-4067813-21');
 </script>
 {% endif %}
 
-<!-- Slugify -->
 <script type="text/javascript">
     function convertToSlug(text) {
         return text
             .toLowerCase()
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .normalize("NFD").replace(/[̀-ͯ]/g, "")
             .replace(/[^\w -]+/g,'')
             .replace(/ +/g,'-');
     }
 </script>
 
-<!-- Search Box Autocomplete -->
 <script src="{% static 'core/js/jquery.auto-complete.min.js' %}"></script>
 {% if not no_nav_search %}
 <script type="text/javascript">
-    // Top Search Box
-    $("#topsearch").find('input[name="q"]').autoComplete({
+    $("#runhead-search").find('input[name="q"]').autoComplete({
         minChars: 3,
         source: function(term, response) {
-            $.getJSON('/search/autocomplete/', { q: term }, function(data) { response(data); });
+            $.getJSON('/api/systems/autocomplete/', { q: term }, function(data) { response(data); });
         },
         onSelect: function(e, term, item) { window.location.href = "/db/" + convertToSlug(term); }
     });
 </script>
 {% endif %}
+
+<script type="text/javascript">
+(function() {
+    var stored = localStorage.getItem('dbdb-theme');
+    var preferred = stored || 'light';
+    document.documentElement.setAttribute('data-bs-theme', preferred);
+    var label = document.getElementById('themeLabel');
+    if (label) {
+        label.classList.toggle('fa-moon', preferred !== 'dark');
+        label.classList.toggle('fa-sun',  preferred === 'dark');
+    }
+})();
+
+function toggleTheme() {
+    var current = document.documentElement.getAttribute('data-bs-theme') || 'light';
+    var next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-bs-theme', next);
+    localStorage.setItem('dbdb-theme', next);
+    var label = document.getElementById('themeLabel');
+    if (label) {
+        label.classList.toggle('fa-moon', next !== 'dark');
+        label.classList.toggle('fa-sun',  next === 'dark');
+    }
+}
+</script>
 
 {% block scripts %}{% endblock %}
 

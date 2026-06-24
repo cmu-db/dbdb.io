@@ -1,0 +1,4 @@
+{% load thumbnail %}
+<span class="mono-tile{% if extra_classes %} {{ extra_classes }}{% endif %}">
+    {% if logo %}<img src="{% if is_svg %}{{ logo_url }}{% else %}{{ logo|thumbnail_url:alias }}{% endif %}" alt="{{ name }}"{% if lazy %} loading="lazy"{% endif %}>{% else %}{{ name|slice:":2"|upper }}{% endif %}
+</span>

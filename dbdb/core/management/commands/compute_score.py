@@ -1,14 +1,10 @@
 # stdlib imports
 # django imports
 from django.core.management import BaseCommand
-from django.conf import settings
-from django.contrib.auth import get_user_model
 
-from dbdb.core.models import System
-from dbdb.core.models import SystemFeature
 from dbdb.core.models import SystemVersion
-from dbdb.core.models import SystemVersionMetadata
 from dbdb.core.views import EmptyFieldsView
+
 
 class Command(BaseCommand):
 
@@ -36,14 +32,14 @@ class Command(BaseCommand):
                     print(" +", field, "=>", val)
                     score += self.CITATION_REWARD
 
-                elif not val is None and val != '':
+                elif val is not None and val != '':
                     score += self.FIELD_REWARD
                     print(" +", field)
             # FOR
 
             for field in sorted(meta_fields):
                 val = getattr(ver.meta, field)
-                if not val is None and val != '':
+                if val is not None and val != '':
                     score += self.FIELD_REWARD
                     print(" +", field)
             # FOR

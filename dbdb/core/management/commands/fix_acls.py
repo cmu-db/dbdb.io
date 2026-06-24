@@ -1,13 +1,10 @@
 # stdlib imports
 # django imports
-from django.core.management import BaseCommand
-from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.management import BaseCommand
 
-from dbdb.core.models import System
-from dbdb.core.models import SystemFeature
-from dbdb.core.models import SystemVersion
-from dbdb.core.models import SystemACL
+from dbdb.core.models import SystemACL, SystemVersion
+
 
 class Command(BaseCommand):
 
@@ -19,7 +16,7 @@ class Command(BaseCommand):
             systems = set()
             # Find what systems this user has editted
             for ver in SystemVersion.objects.filter(creator=user):
-                if not ver.system in systems:
+                if ver.system not in systems:
                     acl = SystemACL(system=ver.system, user=user)
                     acl.save()
                     print(acl)

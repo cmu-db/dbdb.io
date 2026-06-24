@@ -1,22 +1,20 @@
 # stdlib imports
 import glob
 import gzip
-import re
+import logging
 import os
+import re
 import sys
+
 import dateutil.parser
 
 # django imports
 from django.core.management import BaseCommand
 from django.db.models import Q
-from django.conf import settings
-from django.contrib.auth import get_user_model
 
-from dbdb.core.models import System
-from dbdb.core.models import SystemFeature
-from dbdb.core.models import SystemVersion
-from dbdb.core.models import SystemVisit
+from dbdb.core.models import System, SystemVersion, SystemVisit
 
+LOG = logging.getLogger(__name__)
 
 MANUAL_FIXES = {
     "firstsql": "firstsqlj",
@@ -71,7 +69,7 @@ class Command(BaseCommand):
         assert os.path.exists(log_dir)
 
         for x in glob.glob(os.path.join(log_dir, "*.gz")):
-            self.stdout.write(x)
+            LOG.info(x)
             with gzip.open(x, 'r') as fd:
                 for line in fd:
                     if not line: continue
@@ -79,7 +77,7 @@ class Command(BaseCommand):
 
                     m = APACHE_REGEX.match(line)
                     if not m:
-                        self.stdout.write(line)
+                        LOG.warning(line)
                         continue
                         #sys.exit(1)
 
@@ -129,7 +127,7 @@ class Command(BaseCommand):
                         # Check the slug and former name
                         try:
                             vers = SystemVersion.objects.filter( \
-                                Q(former_names__icontains=keyword)
+                                Q(former_names__contains=[keyword])
                             #| Q(former_names__icontains=keyword)
                             ).order_by('-id')
                             if len(vers) > 0:
@@ -140,7 +138,7 @@ class Command(BaseCommand):
                             #pass
                         pass
                     if not system:
-                        self.stdout.write("Bad Slug: %s (orig=%s)" % (keyword, orig_keyword))
+                        LOG.warning("Bad Slug: %s (orig=%s)" % (keyword, orig_keyword))
                         sys.exit(1)
                         #self.stdout.write("MISSING: slug = " + keyword)
 

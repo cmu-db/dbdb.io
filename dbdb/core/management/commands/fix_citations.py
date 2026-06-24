@@ -1,24 +1,16 @@
-import sys
 
-from django.db import connection, transaction
-from django.core.management import BaseCommand
-from django.conf import settings
-from django.contrib.auth import get_user_model
-from pprint import pprint
 import logging
+
+from django.core.management import BaseCommand
+from django.db import connection, transaction
 
 from dbdb.core.models import *
 
-LOG = logging.getLogger('console')
+LOG = logging.getLogger(__name__)
 
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        LOG.setLevel(logging.DEBUG)
-        console = logging.StreamHandler()
-        console.setLevel(logging.DEBUG)
-        console.setFormatter(logging.Formatter('%(levelname)s - %(message)s'))
-        LOG.addHandler(console)
 
         # I used SQL to clean up a bunch of malformed citation urls
         # But then this created a bunch of duplicates and there are other parts of the code
@@ -64,7 +56,7 @@ class Command(BaseCommand):
             # And then delete the rest. But we need to go through and update any references to them
             with (transaction.atomic()):
                 placeholders = ', '.join(['%s'] * len(url_ids[1:]))  # "%s, %s, %s, ... %s"
-                where = ' citationurl_id IN ({})'.format(placeholders)
+                where = f' citationurl_id IN ({placeholders})'
                 for table in tables:
                     with connection.cursor() as cursor:
                         # Check whether there is already an entry for the url_id that we want to keep.
@@ -74,8 +66,8 @@ class Command(BaseCommand):
                             info_column = "systemfeature_id"
                         else:
                             info_column = "systemversion_id"
-                        sql = "SELECT id, {} AS system_info_id, citationurl_id FROM {} WHERE "\
-                            .format(info_column, table)
+                        sql = f"SELECT id, {info_column} AS system_info_id, citationurl_id FROM {table} WHERE "\
+                            
                         sql += where
                         print(sql)
 
@@ -89,13 +81,13 @@ class Command(BaseCommand):
                         # Delete!
                         # if url_id_to_keep in info_ids[info_id]:
                         if url_id_to_keep not in table_url_ids:
-                            sql = "UPDATE {} SET citationurl_id = {} WHERE ".format(table, url_id_to_keep)
-                            sql += "id = (SELECT id FROM {} WHERE ".format(table)
+                            sql = f"UPDATE {table} SET citationurl_id = {url_id_to_keep} WHERE "
+                            sql += f"id = (SELECT id FROM {table} WHERE "
                             sql += where
                             sql += " LIMIT 1)"
                             cursor.execute(sql, tuple(url_ids[1:]))
                             assert cursor.rowcount > 0
-                            LOG.info("Modified {} records in table '{}".format(cursor.rowcount, table))
+                            LOG.info(f"Modified {cursor.rowcount} records in table '{table}")
 
                 # It is now safe to delete the duplicate entries
                 result, _ = CitationUrl.objects.filter(id__in=url_ids[1:]).delete()

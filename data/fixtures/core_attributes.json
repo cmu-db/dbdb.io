@@ -1,0 +1,2492 @@
+[
+  {
+    "model": "core.attribute",
+    "pk": 1,
+    "fields": {
+      "slug": "tag",
+      "name": "Tag",
+      "description": "",
+      "icon": "fa-solid fa-tags",
+      "sv_field": "tags",
+      "search_text": "Tagged with {names}",
+      "created": "2026-05-26T13:49:01.384Z",
+      "modified": "2026-05-28T17:48:09.737Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attribute",
+    "pk": 2,
+    "fields": {
+      "slug": "project-type",
+      "name": "Project Type",
+      "description": "",
+      "icon": "fa-solid fa-diagram-project",
+      "sv_field": "project_types",
+      "search_text": "Classified as {names}",
+      "created": "2026-05-26T13:49:01.690Z",
+      "modified": "2026-05-28T17:51:02.122Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attribute",
+    "pk": 3,
+    "fields": {
+      "slug": "license",
+      "name": "License",
+      "description": "",
+      "icon": "fa-solid fa-id-card",
+      "sv_field": "licenses",
+      "search_text": "Licensed Under {names}",
+      "created": "2026-05-26T13:49:02.691Z",
+      "modified": "2026-05-28T17:49:26.678Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attribute",
+    "pk": 4,
+    "fields": {
+      "slug": "os",
+      "name": "Operating System",
+      "description": "",
+      "icon": "fa-solid fa-brain",
+      "sv_field": "oses",
+      "search_text": "Available for {names}",
+      "created": "2026-05-26T13:49:03.479Z",
+      "modified": "2026-05-28T17:52:30.144Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attribute",
+    "pk": 5,
+    "fields": {
+      "slug": "programming-language",
+      "name": "Programming Language",
+      "description": "",
+      "icon": "fa-solid fa-code",
+      "sv_field": "written_in",
+      "search_text": "Written in {names}",
+      "created": "2026-05-26T13:49:04.482Z",
+      "modified": "2026-05-28T17:51:26.953Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attribute",
+    "pk": 6,
+    "fields": {
+      "slug": "governance",
+      "name": "Governing Foundation",
+      "description": "",
+      "icon": "fa-solid fa-building-columns",
+      "sv_field": "governance",
+      "search_text": "Governed by {names}",
+      "created": "2026-05-28T03:57:29.407Z",
+      "modified": "2026-05-29T19:04:53.336Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attribute",
+    "pk": 7,
+    "fields": {
+      "slug": "stock-exchange",
+      "name": "Stock Exchange",
+      "description": "",
+      "icon": "",
+      "sv_field": "",
+      "search_text": "",
+      "created": "2026-06-02T20:23:24.253Z",
+      "modified": "2026-06-02T20:23:24.253Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 1,
+    "fields": {
+      "attribute": 1,
+      "slug": "abandoned",
+      "name": "Abandoned Project",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-heart-crack",
+      "created": "2026-05-26T13:49:01.386Z",
+      "modified": "2026-05-26T13:49:01.386Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 2,
+    "fields": {
+      "attribute": 1,
+      "slug": "acquired-company",
+      "name": "Acquired Company",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-handshake",
+      "created": "2026-05-26T13:49:01.387Z",
+      "modified": "2026-05-26T13:49:01.387Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 3,
+    "fields": {
+      "attribute": 1,
+      "slug": "blockchain",
+      "name": "Blockchain",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-link",
+      "created": "2026-05-26T13:49:01.388Z",
+      "modified": "2026-05-26T13:49:01.388Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 4,
+    "fields": {
+      "attribute": 1,
+      "slug": "cache",
+      "name": "Cache",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-bolt",
+      "created": "2026-05-26T13:49:01.388Z",
+      "modified": "2026-05-26T13:49:01.388Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 5,
+    "fields": {
+      "attribute": 1,
+      "slug": "failed-company",
+      "name": "Failed Company",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-skull-crossbones",
+      "created": "2026-05-26T13:49:01.389Z",
+      "modified": "2026-05-26T13:49:01.389Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 6,
+    "fields": {
+      "attribute": 1,
+      "slug": "forked-code",
+      "name": "Forked Code",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-code-branch",
+      "created": "2026-05-26T13:49:01.389Z",
+      "modified": "2026-05-26T13:49:01.389Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 7,
+    "fields": {
+      "attribute": 1,
+      "slug": "immutable",
+      "name": "Immutable",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-lock",
+      "created": "2026-05-26T13:49:01.389Z",
+      "modified": "2026-05-26T13:49:01.390Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 8,
+    "fields": {
+      "attribute": 1,
+      "slug": "middleware",
+      "name": "Middleware",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-puzzle-piece",
+      "created": "2026-05-26T13:49:01.390Z",
+      "modified": "2026-05-26T13:49:01.390Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 9,
+    "fields": {
+      "attribute": 1,
+      "slug": "mmap",
+      "name": "MMAP",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-memory",
+      "created": "2026-05-26T13:49:01.390Z",
+      "modified": "2026-05-26T13:49:01.390Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 10,
+    "fields": {
+      "attribute": 1,
+      "slug": "mobile",
+      "name": "Mobile",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-mobile-screen",
+      "created": "2026-05-26T13:49:01.391Z",
+      "modified": "2026-05-26T13:49:01.391Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 11,
+    "fields": {
+      "attribute": 1,
+      "slug": "multi-model",
+      "name": "Multi-Model",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-cubes",
+      "created": "2026-05-26T13:49:01.391Z",
+      "modified": "2026-05-26T13:49:01.391Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 12,
+    "fields": {
+      "attribute": 1,
+      "slug": "nearest-neighbor-search",
+      "name": "Nearest Neighbor Search",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-location-crosshairs",
+      "created": "2026-05-26T13:49:01.392Z",
+      "modified": "2026-05-26T13:49:01.392Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 13,
+    "fields": {
+      "attribute": 1,
+      "slug": "newsql",
+      "name": "NewSQL",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-database",
+      "created": "2026-05-26T13:49:01.392Z",
+      "modified": "2026-05-26T13:49:01.392Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 14,
+    "fields": {
+      "attribute": 1,
+      "slug": "nosql",
+      "name": "NoSQL",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-table-cells-large",
+      "created": "2026-05-26T13:49:01.393Z",
+      "modified": "2026-05-26T13:49:01.393Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 15,
+    "fields": {
+      "attribute": 1,
+      "slug": "olap",
+      "name": "OLAP",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-chart-pie",
+      "created": "2026-05-26T13:49:01.393Z",
+      "modified": "2026-05-26T13:49:01.393Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 16,
+    "fields": {
+      "attribute": 1,
+      "slug": "oltp",
+      "name": "OLTP",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-list-check",
+      "created": "2026-05-26T13:49:01.394Z",
+      "modified": "2026-05-26T13:49:01.394Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 17,
+    "fields": {
+      "attribute": 1,
+      "slug": "parody",
+      "name": "Parody / Joke",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-face-laugh-beam",
+      "created": "2026-05-26T13:49:01.394Z",
+      "modified": "2026-05-26T13:49:01.394Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 18,
+    "fields": {
+      "attribute": 1,
+      "slug": "p2p",
+      "name": "Peer-to-Peer",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-people-arrows",
+      "created": "2026-05-26T13:49:01.395Z",
+      "modified": "2026-05-26T13:49:01.395Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 19,
+    "fields": {
+      "attribute": 1,
+      "slug": "query-engine",
+      "name": "Query Engine",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-filter",
+      "created": "2026-05-26T13:49:01.395Z",
+      "modified": "2026-05-26T13:49:01.395Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 20,
+    "fields": {
+      "attribute": 1,
+      "slug": "search-engine",
+      "name": "Search Engine",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-magnifying-glass",
+      "created": "2026-05-26T13:49:01.396Z",
+      "modified": "2026-05-26T13:49:01.396Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 21,
+    "fields": {
+      "attribute": 1,
+      "slug": "serverless",
+      "name": "Serverless",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-cloud",
+      "created": "2026-05-26T13:49:01.396Z",
+      "modified": "2026-05-26T13:49:01.396Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 22,
+    "fields": {
+      "attribute": 1,
+      "slug": "streaming",
+      "name": "Streaming",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-water",
+      "created": "2026-05-26T13:49:01.396Z",
+      "modified": "2026-05-26T13:49:01.396Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 23,
+    "fields": {
+      "attribute": 1,
+      "slug": "time-series",
+      "name": "Time-Series",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-chart-line",
+      "created": "2026-05-26T13:49:01.397Z",
+      "modified": "2026-05-26T13:49:01.397Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 24,
+    "fields": {
+      "attribute": 1,
+      "slug": "versioning",
+      "name": "Versioning",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-code-compare",
+      "created": "2026-05-26T13:49:01.397Z",
+      "modified": "2026-05-26T13:49:01.397Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 25,
+    "fields": {
+      "attribute": 1,
+      "slug": "web-browser",
+      "name": "Web Browser",
+      "url": "",
+      "description": "",
+      "icon": "fas fa-globe",
+      "created": "2026-05-26T13:49:01.398Z",
+      "modified": "2026-05-26T13:49:01.398Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 26,
+    "fields": {
+      "attribute": 1,
+      "slug": "xbase",
+      "name": "xBase",
+      "url": "https://en.wikipedia.org/wiki/XBase",
+      "description": "",
+      "icon": "fas fa-book",
+      "created": "2026-05-26T13:49:01.398Z",
+      "modified": "2026-05-26T13:49:01.398Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 27,
+    "fields": {
+      "attribute": 2,
+      "slug": "academic",
+      "name": "Academic",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:01.691Z",
+      "modified": "2026-05-26T13:49:01.691Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 28,
+    "fields": {
+      "attribute": 2,
+      "slug": "commercial",
+      "name": "Commercial",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:01.692Z",
+      "modified": "2026-05-26T13:49:01.692Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 29,
+    "fields": {
+      "attribute": 2,
+      "slug": "educational",
+      "name": "Educational",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:01.693Z",
+      "modified": "2026-05-26T13:49:01.693Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 30,
+    "fields": {
+      "attribute": 2,
+      "slug": "hobby",
+      "name": "Hobby",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:01.693Z",
+      "modified": "2026-05-26T13:49:01.693Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 31,
+    "fields": {
+      "attribute": 2,
+      "slug": "industrial-research",
+      "name": "Industrial Research",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:01.694Z",
+      "modified": "2026-05-26T13:49:01.694Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 32,
+    "fields": {
+      "attribute": 2,
+      "slug": "internal",
+      "name": "Internal / Non-Public",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:01.694Z",
+      "modified": "2026-05-26T13:49:01.694Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 33,
+    "fields": {
+      "attribute": 2,
+      "slug": "open-source",
+      "name": "Open Source",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:01.695Z",
+      "modified": "2026-05-26T13:49:01.695Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 34,
+    "fields": {
+      "attribute": 3,
+      "slug": "agpl-v3",
+      "name": "AGPL v3",
+      "url": "https://www.gnu.org/licenses/agpl-3.0.en.html",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.693Z",
+      "modified": "2026-05-26T13:49:02.693Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 35,
+    "fields": {
+      "attribute": 3,
+      "slug": "apache-v2",
+      "name": "Apache v2",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.693Z",
+      "modified": "2026-05-26T13:49:02.693Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 36,
+    "fields": {
+      "attribute": 3,
+      "slug": "boost-software-license",
+      "name": "Boost Software License",
+      "url": "https://www.boost.org/LICENSE_1_0.txt",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.694Z",
+      "modified": "2026-05-26T13:49:02.694Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 37,
+    "fields": {
+      "attribute": 3,
+      "slug": "bsd",
+      "name": "BSD",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.694Z",
+      "modified": "2026-05-26T13:49:02.694Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 38,
+    "fields": {
+      "attribute": 3,
+      "slug": "business-source-license",
+      "name": "Business Source License",
+      "url": "https://enterprise.dejacode.com/licenses/public/bsl-1.0/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.695Z",
+      "modified": "2026-05-26T13:49:02.695Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 39,
+    "fields": {
+      "attribute": 3,
+      "slug": "cpol",
+      "name": "Code Project Open License",
+      "url": "https://www.codeproject.com/info/cpol10.aspx",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.695Z",
+      "modified": "2026-05-26T13:49:02.695Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 40,
+    "fields": {
+      "attribute": 3,
+      "slug": "ccl",
+      "name": "Commons Clause License",
+      "url": "https://commonsclause.com/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.696Z",
+      "modified": "2026-05-26T13:49:02.696Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 41,
+    "fields": {
+      "attribute": 3,
+      "slug": "confluent-community-license",
+      "name": "Confluent Community License",
+      "url": "https://www.confluent.io/confluent-community-license/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.696Z",
+      "modified": "2026-05-26T13:49:02.696Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 42,
+    "fields": {
+      "attribute": 3,
+      "slug": "creative-commons",
+      "name": "Creative Commons License",
+      "url": "https://creativecommons.org/licenses/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.696Z",
+      "modified": "2026-05-26T13:49:02.697Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 43,
+    "fields": {
+      "attribute": 3,
+      "slug": "epl",
+      "name": "Eclipse Public License",
+      "url": "https://www.eclipse.org/legal/epl-2.0/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.697Z",
+      "modified": "2026-05-26T13:49:02.697Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 44,
+    "fields": {
+      "attribute": 3,
+      "slug": "el-v2",
+      "name": "Elastic License v2",
+      "url": "https://www.elastic.co/licensing/elastic-license",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.697Z",
+      "modified": "2026-05-26T13:49:02.697Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 45,
+    "fields": {
+      "attribute": 3,
+      "slug": "fair-source-license",
+      "name": "Fair Source License",
+      "url": "https://fair.io/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.698Z",
+      "modified": "2026-05-26T13:49:02.698Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 46,
+    "fields": {
+      "attribute": 3,
+      "slug": "fsl",
+      "name": "Functional Source License",
+      "url": "https://fsl.software/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.698Z",
+      "modified": "2026-05-26T13:49:02.698Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 47,
+    "fields": {
+      "attribute": 3,
+      "slug": "gpl-v2",
+      "name": "GPL v2",
+      "url": "https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.699Z",
+      "modified": "2026-05-26T13:49:02.699Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 48,
+    "fields": {
+      "attribute": 3,
+      "slug": "gpl-v3",
+      "name": "GPL v3",
+      "url": "https://www.gnu.org/licenses/gpl-3.0.en.html",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.699Z",
+      "modified": "2026-05-26T13:49:02.699Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 49,
+    "fields": {
+      "attribute": 3,
+      "slug": "isc-license",
+      "name": "ISC License",
+      "url": "http://www.isc.org/downloads/software-support-policy/isc-license/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.700Z",
+      "modified": "2026-05-26T13:49:02.700Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 50,
+    "fields": {
+      "attribute": 3,
+      "slug": "lgpl-v2",
+      "name": "LGPL v2",
+      "url": "https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.700Z",
+      "modified": "2026-05-26T13:49:02.700Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 51,
+    "fields": {
+      "attribute": 3,
+      "slug": "lgpl-v3",
+      "name": "LGPL v3",
+      "url": "https://www.gnu.org/licenses/lgpl-3.0.en.html",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.701Z",
+      "modified": "2026-05-26T13:49:02.701Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 52,
+    "fields": {
+      "attribute": 3,
+      "slug": "ms-rl",
+      "name": "Microsoft Reference Source License",
+      "url": "https://referencesource.microsoft.com/license.html",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.701Z",
+      "modified": "2026-05-26T13:49:02.701Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 53,
+    "fields": {
+      "attribute": 3,
+      "slug": "mit",
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.702Z",
+      "modified": "2026-05-26T13:49:02.702Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 54,
+    "fields": {
+      "attribute": 3,
+      "slug": "mpl",
+      "name": "Mozilla Public License",
+      "url": "https://www.mozilla.org/en-US/MPL/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.702Z",
+      "modified": "2026-05-26T13:49:02.702Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 55,
+    "fields": {
+      "attribute": 3,
+      "slug": "mulan-v2",
+      "name": "Mulan PubL v2",
+      "url": "http://license.coscl.org.cn/MulanPubL-2.0/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.702Z",
+      "modified": "2026-05-26T13:49:02.702Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 56,
+    "fields": {
+      "attribute": 3,
+      "slug": "openldap-public-license",
+      "name": "OpenLDAP Public License",
+      "url": "https://www.openldap.org/software/release/license.html",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.703Z",
+      "modified": "2026-05-26T13:49:02.703Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 57,
+    "fields": {
+      "attribute": 3,
+      "slug": "osl-v3",
+      "name": "Open Software License 3.0",
+      "url": "https://opensource.org/licenses/OSL-3.0",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.703Z",
+      "modified": "2026-05-26T13:49:02.703Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 58,
+    "fields": {
+      "attribute": 3,
+      "slug": "ppl",
+      "name": "Parity Public License",
+      "url": "https://paritylicense.com",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.704Z",
+      "modified": "2026-05-26T13:49:02.704Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 59,
+    "fields": {
+      "attribute": 3,
+      "slug": "postgresql-license",
+      "name": "PostgreSQL License",
+      "url": "https://www.postgresql.org/about/licence/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.704Z",
+      "modified": "2026-05-26T13:49:02.704Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 60,
+    "fields": {
+      "attribute": 3,
+      "slug": "proprietary",
+      "name": "Proprietary",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.705Z",
+      "modified": "2026-05-26T13:49:02.705Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 61,
+    "fields": {
+      "attribute": 3,
+      "slug": "public-domain",
+      "name": "Public Domain",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.705Z",
+      "modified": "2026-05-26T13:49:02.705Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 62,
+    "fields": {
+      "attribute": 3,
+      "slug": "python-license",
+      "name": "Python License",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.706Z",
+      "modified": "2026-05-26T13:49:02.706Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 63,
+    "fields": {
+      "attribute": 3,
+      "slug": "server-side-public-license",
+      "name": "Server Side Public License",
+      "url": "https://www.mongodb.com/licensing/server-side-public-license",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.706Z",
+      "modified": "2026-05-26T13:49:02.706Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 64,
+    "fields": {
+      "attribute": 3,
+      "slug": "voltdb-proprietary-license",
+      "name": "VoltDB Proprietary License",
+      "url": "https://www.voltactivedata.com/license-agreement/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.707Z",
+      "modified": "2026-05-26T13:49:02.707Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 65,
+    "fields": {
+      "attribute": 3,
+      "slug": "zope-public-license",
+      "name": "Zope Public License",
+      "url": "https://opensource.org/licenses/ZPL-2.0",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:02.707Z",
+      "modified": "2026-05-26T13:49:02.707Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 66,
+    "fields": {
+      "attribute": 4,
+      "slug": "aix",
+      "name": "AIX",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.480Z",
+      "modified": "2026-05-26T13:49:03.480Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 67,
+    "fields": {
+      "attribute": 4,
+      "slug": "all-os-with-java-vm",
+      "name": "All OS with Java VM",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.481Z",
+      "modified": "2026-05-26T13:49:03.481Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 68,
+    "fields": {
+      "attribute": 4,
+      "slug": "android",
+      "name": "Android",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.481Z",
+      "modified": "2026-05-26T13:49:03.481Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 69,
+    "fields": {
+      "attribute": 4,
+      "slug": "bsd",
+      "name": "BSD",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.482Z",
+      "modified": "2026-05-26T13:49:03.482Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 70,
+    "fields": {
+      "attribute": 4,
+      "slug": "cpm",
+      "name": "CP/M",
+      "url": "https://en.wikipedia.org/wiki/CP/M",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.483Z",
+      "modified": "2026-05-26T13:49:03.483Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 71,
+    "fields": {
+      "attribute": 4,
+      "slug": "dos",
+      "name": "DOS",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.483Z",
+      "modified": "2026-05-26T13:49:03.483Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 72,
+    "fields": {
+      "attribute": 4,
+      "slug": "hosted",
+      "name": "Hosted",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.484Z",
+      "modified": "2026-05-26T13:49:03.484Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 73,
+    "fields": {
+      "attribute": 4,
+      "slug": "hp-ux",
+      "name": "HP-UX",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.485Z",
+      "modified": "2026-05-26T13:49:03.485Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 74,
+    "fields": {
+      "attribute": 4,
+      "slug": "illumos",
+      "name": "Illumos",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.486Z",
+      "modified": "2026-05-26T13:49:03.486Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 75,
+    "fields": {
+      "attribute": 4,
+      "slug": "ios",
+      "name": "iOS",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.486Z",
+      "modified": "2026-05-26T13:49:03.486Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 76,
+    "fields": {
+      "attribute": 4,
+      "slug": "linux",
+      "name": "Linux",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.487Z",
+      "modified": "2026-05-26T13:49:03.487Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 77,
+    "fields": {
+      "attribute": 4,
+      "slug": "nextstep",
+      "name": "NeXTSTEP",
+      "url": "https://en.wikipedia.org/wiki/NeXTSTEP",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.488Z",
+      "modified": "2026-05-26T13:49:03.488Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 78,
+    "fields": {
+      "attribute": 4,
+      "slug": "openvms",
+      "name": "OpenVMS",
+      "url": "https://www.hpe.com/us/en/servers/openvms.html",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.489Z",
+      "modified": "2026-05-26T13:49:03.489Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 79,
+    "fields": {
+      "attribute": 4,
+      "slug": "os-x",
+      "name": "OS X",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.490Z",
+      "modified": "2026-05-26T13:49:03.490Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 80,
+    "fields": {
+      "attribute": 4,
+      "slug": "qnx",
+      "name": "QNX",
+      "url": "https://blackberry.qnx.com/en",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.491Z",
+      "modified": "2026-05-26T13:49:03.491Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 81,
+    "fields": {
+      "attribute": 4,
+      "slug": "solaris",
+      "name": "Solaris",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.492Z",
+      "modified": "2026-05-26T13:49:03.492Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 82,
+    "fields": {
+      "attribute": 4,
+      "slug": "unixware",
+      "name": "UnixWare",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.493Z",
+      "modified": "2026-05-26T13:49:03.493Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 83,
+    "fields": {
+      "attribute": 4,
+      "slug": "vxworks",
+      "name": "VxWorks",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.494Z",
+      "modified": "2026-05-26T13:49:03.494Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 84,
+    "fields": {
+      "attribute": 4,
+      "slug": "windows",
+      "name": "Windows",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.494Z",
+      "modified": "2026-05-26T13:49:03.494Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 85,
+    "fields": {
+      "attribute": 4,
+      "slug": "zos",
+      "name": "z/OS",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:03.495Z",
+      "modified": "2026-05-26T13:49:03.495Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 86,
+    "fields": {
+      "attribute": 5,
+      "slug": "actionscript",
+      "name": "ActionScript",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.483Z",
+      "modified": "2026-05-26T13:49:04.483Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 87,
+    "fields": {
+      "attribute": 5,
+      "slug": "assembly",
+      "name": "Assembly",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.484Z",
+      "modified": "2026-05-26T13:49:04.484Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 88,
+    "fields": {
+      "attribute": 5,
+      "slug": "bash",
+      "name": "Bash",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.484Z",
+      "modified": "2026-05-26T13:49:04.484Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 89,
+    "fields": {
+      "attribute": 5,
+      "slug": "c",
+      "name": "C",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.485Z",
+      "modified": "2026-05-26T13:49:04.485Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 90,
+    "fields": {
+      "attribute": 5,
+      "slug": "csharp",
+      "name": "C#",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.485Z",
+      "modified": "2026-05-26T13:49:04.485Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 91,
+    "fields": {
+      "attribute": 5,
+      "slug": "cplusplus",
+      "name": "C++",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.486Z",
+      "modified": "2026-05-26T13:49:04.486Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 92,
+    "fields": {
+      "attribute": 5,
+      "slug": "clojure",
+      "name": "Clojure",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.486Z",
+      "modified": "2026-05-26T13:49:04.486Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 93,
+    "fields": {
+      "attribute": 5,
+      "slug": "cobol",
+      "name": "COBOL",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.487Z",
+      "modified": "2026-05-26T13:49:04.487Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 94,
+    "fields": {
+      "attribute": 5,
+      "slug": "cocoa",
+      "name": "Cocoa",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.487Z",
+      "modified": "2026-05-26T13:49:04.487Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 95,
+    "fields": {
+      "attribute": 5,
+      "slug": "crystal",
+      "name": "Crystal",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.488Z",
+      "modified": "2026-05-26T13:49:04.488Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 96,
+    "fields": {
+      "attribute": 5,
+      "slug": "d",
+      "name": "D",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.488Z",
+      "modified": "2026-05-26T13:49:04.488Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 97,
+    "fields": {
+      "attribute": 5,
+      "slug": "dart",
+      "name": "Dart",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.489Z",
+      "modified": "2026-05-26T13:49:04.489Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 98,
+    "fields": {
+      "attribute": 5,
+      "slug": "delphi",
+      "name": "Delphi",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.489Z",
+      "modified": "2026-05-26T13:49:04.489Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 99,
+    "fields": {
+      "attribute": 5,
+      "slug": "eiffel",
+      "name": "Eiffel",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.490Z",
+      "modified": "2026-05-26T13:49:04.490Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 100,
+    "fields": {
+      "attribute": 5,
+      "slug": "elixir",
+      "name": "Elixir",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.490Z",
+      "modified": "2026-05-26T13:49:04.490Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 101,
+    "fields": {
+      "attribute": 5,
+      "slug": "erlang",
+      "name": "Erlang",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.491Z",
+      "modified": "2026-05-26T13:49:04.491Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 102,
+    "fields": {
+      "attribute": 5,
+      "slug": "fsharp",
+      "name": "F#",
+      "url": "https://fsharp.org/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.491Z",
+      "modified": "2026-05-26T13:49:04.491Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 103,
+    "fields": {
+      "attribute": 5,
+      "slug": "fancy",
+      "name": "Fancy",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.491Z",
+      "modified": "2026-05-26T13:49:04.491Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 104,
+    "fields": {
+      "attribute": 5,
+      "slug": "go-lang",
+      "name": "Go",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.492Z",
+      "modified": "2026-05-26T13:49:04.492Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 105,
+    "fields": {
+      "attribute": 5,
+      "slug": "groovy",
+      "name": "Groovy",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.492Z",
+      "modified": "2026-05-26T13:49:04.492Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 106,
+    "fields": {
+      "attribute": 5,
+      "slug": "haskell",
+      "name": "Haskell",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.493Z",
+      "modified": "2026-05-26T13:49:04.493Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 107,
+    "fields": {
+      "attribute": 5,
+      "slug": "haxe",
+      "name": "Haxe",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.493Z",
+      "modified": "2026-05-26T13:49:04.493Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 108,
+    "fields": {
+      "attribute": 5,
+      "slug": "io",
+      "name": "Io",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.494Z",
+      "modified": "2026-05-26T13:49:04.494Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 109,
+    "fields": {
+      "attribute": 5,
+      "slug": "java",
+      "name": "Java",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.494Z",
+      "modified": "2026-05-26T13:49:04.494Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 110,
+    "fields": {
+      "attribute": 5,
+      "slug": "javascript",
+      "name": "JavaScript",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.495Z",
+      "modified": "2026-05-26T13:49:04.495Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 111,
+    "fields": {
+      "attribute": 5,
+      "slug": "julia",
+      "name": "Julia",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.495Z",
+      "modified": "2026-05-26T13:49:04.495Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 112,
+    "fields": {
+      "attribute": 5,
+      "slug": "kl1",
+      "name": "KL1",
+      "url": "https://en.wikipedia.org/wiki/KL1",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.495Z",
+      "modified": "2026-05-26T13:49:04.495Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 113,
+    "fields": {
+      "attribute": 5,
+      "slug": "kotlin",
+      "name": "Kotlin",
+      "url": "https://kotlinlang.org/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.496Z",
+      "modified": "2026-05-26T13:49:04.496Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 114,
+    "fields": {
+      "attribute": 5,
+      "slug": "lisp",
+      "name": "Lisp",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.496Z",
+      "modified": "2026-05-26T13:49:04.496Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 115,
+    "fields": {
+      "attribute": 5,
+      "slug": "lua",
+      "name": "Lua",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.497Z",
+      "modified": "2026-05-26T13:49:04.497Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 116,
+    "fields": {
+      "attribute": 5,
+      "slug": "matlab",
+      "name": "Matlab",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.497Z",
+      "modified": "2026-05-26T13:49:04.497Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 117,
+    "fields": {
+      "attribute": 5,
+      "slug": "nim",
+      "name": "Nim",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.498Z",
+      "modified": "2026-05-26T13:49:04.498Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 118,
+    "fields": {
+      "attribute": 5,
+      "slug": "objective-c",
+      "name": "Objective-C",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.498Z",
+      "modified": "2026-05-26T13:49:04.498Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 119,
+    "fields": {
+      "attribute": 5,
+      "slug": "ocaml",
+      "name": "Ocaml",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.499Z",
+      "modified": "2026-05-26T13:49:04.499Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 120,
+    "fields": {
+      "attribute": 5,
+      "slug": "pascal",
+      "name": "Pascal",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.499Z",
+      "modified": "2026-05-26T13:49:04.499Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 121,
+    "fields": {
+      "attribute": 5,
+      "slug": "perl",
+      "name": "Perl",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.500Z",
+      "modified": "2026-05-26T13:49:04.500Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 122,
+    "fields": {
+      "attribute": 5,
+      "slug": "php",
+      "name": "PHP",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.500Z",
+      "modified": "2026-05-26T13:49:04.500Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 123,
+    "fields": {
+      "attribute": 5,
+      "slug": "plsql",
+      "name": "PL/SQL",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.500Z",
+      "modified": "2026-05-26T13:49:04.500Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 124,
+    "fields": {
+      "attribute": 5,
+      "slug": "prolog",
+      "name": "Prolog",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.501Z",
+      "modified": "2026-05-26T13:49:04.501Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 125,
+    "fields": {
+      "attribute": 5,
+      "slug": "proprietary",
+      "name": "Proprietary",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.501Z",
+      "modified": "2026-05-26T13:49:04.501Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 126,
+    "fields": {
+      "attribute": 5,
+      "slug": "python",
+      "name": "Python",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.502Z",
+      "modified": "2026-05-26T13:49:04.502Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 127,
+    "fields": {
+      "attribute": 5,
+      "slug": "r",
+      "name": "R",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.511Z",
+      "modified": "2026-05-26T13:49:04.511Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 128,
+    "fields": {
+      "attribute": 5,
+      "slug": "racket",
+      "name": "Racket",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.512Z",
+      "modified": "2026-05-26T13:49:04.512Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 129,
+    "fields": {
+      "attribute": 5,
+      "slug": "rebol",
+      "name": "Rebol",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.512Z",
+      "modified": "2026-05-26T13:49:04.512Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 130,
+    "fields": {
+      "attribute": 5,
+      "slug": "ruby",
+      "name": "Ruby",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.513Z",
+      "modified": "2026-05-26T13:49:04.513Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 131,
+    "fields": {
+      "attribute": 5,
+      "slug": "rust",
+      "name": "Rust",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.513Z",
+      "modified": "2026-05-26T13:49:04.513Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 132,
+    "fields": {
+      "attribute": 5,
+      "slug": "scala",
+      "name": "Scala",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.514Z",
+      "modified": "2026-05-26T13:49:04.514Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 133,
+    "fields": {
+      "attribute": 5,
+      "slug": "scheme",
+      "name": "Scheme",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.514Z",
+      "modified": "2026-05-26T13:49:04.514Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 134,
+    "fields": {
+      "attribute": 5,
+      "slug": "skip",
+      "name": "Skip",
+      "url": "https://skiplang.com/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.515Z",
+      "modified": "2026-05-26T13:49:04.515Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 135,
+    "fields": {
+      "attribute": 5,
+      "slug": "smalltalk",
+      "name": "Smalltalk",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.515Z",
+      "modified": "2026-05-26T13:49:04.515Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 136,
+    "fields": {
+      "attribute": 5,
+      "slug": "solidity",
+      "name": "Solidity",
+      "url": "https://soliditylang.org/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.516Z",
+      "modified": "2026-05-26T13:49:04.516Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 137,
+    "fields": {
+      "attribute": 5,
+      "slug": "sql",
+      "name": "SQL",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.516Z",
+      "modified": "2026-05-26T13:49:04.516Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 138,
+    "fields": {
+      "attribute": 5,
+      "slug": "swift",
+      "name": "Swift",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.517Z",
+      "modified": "2026-05-26T13:49:04.517Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 139,
+    "fields": {
+      "attribute": 5,
+      "slug": "tcl",
+      "name": "Tcl",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.517Z",
+      "modified": "2026-05-26T13:49:04.517Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 140,
+    "fields": {
+      "attribute": 5,
+      "slug": "typescript",
+      "name": "TypeScript",
+      "url": "https://www.typescriptlang.org/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.518Z",
+      "modified": "2026-05-26T13:49:04.518Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 141,
+    "fields": {
+      "attribute": 5,
+      "slug": "v-lang",
+      "name": "V",
+      "url": "https://vlang.io/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.519Z",
+      "modified": "2026-05-26T13:49:04.519Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 142,
+    "fields": {
+      "attribute": 5,
+      "slug": "vcl",
+      "name": "VCL",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.520Z",
+      "modified": "2026-05-26T13:49:04.520Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 143,
+    "fields": {
+      "attribute": 5,
+      "slug": "visual-basic",
+      "name": "Visual Basic",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.520Z",
+      "modified": "2026-05-26T13:49:04.520Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 144,
+    "fields": {
+      "attribute": 5,
+      "slug": "zig",
+      "name": "Zig",
+      "url": "https://ziglang.org/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-26T13:49:04.521Z",
+      "modified": "2026-05-26T13:49:04.521Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 145,
+    "fields": {
+      "attribute": 6,
+      "slug": "apache",
+      "name": "Apache Software Foundation",
+      "url": "https://apache.org/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-28T11:14:03.715Z",
+      "modified": "2026-05-28T11:14:03.715Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 146,
+    "fields": {
+      "attribute": 6,
+      "slug": "cncf",
+      "name": "Cloud Native Computing Foundation",
+      "url": "https://www.cncf.io/",
+      "description": "",
+      "icon": "",
+      "created": "2026-05-28T11:14:03.721Z",
+      "modified": "2026-05-28T11:14:03.721Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 147,
+    "fields": {
+      "attribute": 6,
+      "slug": "lf-ai-data-foundation",
+      "name": "LF AI & Data Foundation",
+      "url": "https://lfaidata.foundation/",
+      "description": "",
+      "icon": "fa-regular fa-square",
+      "created": "2026-06-01T12:05:46.274Z",
+      "modified": "2026-06-01T12:05:46.274Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 148,
+    "fields": {
+      "attribute": 6,
+      "slug": "linux-foundation",
+      "name": "Linux Foundation",
+      "url": "https://www.linuxfoundation.org/",
+      "description": "",
+      "icon": "",
+      "created": "2026-06-02T11:24:52.573Z",
+      "modified": "2026-06-02T11:24:52.573Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 149,
+    "fields": {
+      "attribute": 7,
+      "slug": "nyse",
+      "name": "NYSE",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-06-02T20:23:24.256Z",
+      "modified": "2026-06-02T20:23:24.256Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 150,
+    "fields": {
+      "attribute": 7,
+      "slug": "nasdaq",
+      "name": "NASDAQ",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-06-02T20:23:24.258Z",
+      "modified": "2026-06-02T20:23:24.258Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 151,
+    "fields": {
+      "attribute": 7,
+      "slug": "lse",
+      "name": "LSE",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-06-02T20:23:24.259Z",
+      "modified": "2026-06-02T20:23:24.259Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 152,
+    "fields": {
+      "attribute": 7,
+      "slug": "tse",
+      "name": "TSE",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-06-02T20:23:24.261Z",
+      "modified": "2026-06-02T20:23:24.261Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 153,
+    "fields": {
+      "attribute": 7,
+      "slug": "hkex",
+      "name": "HKEX",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-06-02T20:23:24.263Z",
+      "modified": "2026-06-02T20:23:24.263Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 154,
+    "fields": {
+      "attribute": 7,
+      "slug": "asx",
+      "name": "ASX",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-06-02T20:23:24.265Z",
+      "modified": "2026-06-02T20:23:24.265Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 155,
+    "fields": {
+      "attribute": 7,
+      "slug": "tsx",
+      "name": "TSX",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-06-02T20:23:24.267Z",
+      "modified": "2026-06-02T20:23:24.267Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 156,
+    "fields": {
+      "attribute": 7,
+      "slug": "euronext",
+      "name": "Euronext",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-06-02T20:23:24.268Z",
+      "modified": "2026-06-02T20:23:24.268Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 157,
+    "fields": {
+      "attribute": 7,
+      "slug": "other",
+      "name": "Other",
+      "url": "",
+      "description": "",
+      "icon": "",
+      "created": "2026-06-02T20:23:24.270Z",
+      "modified": "2026-06-02T20:23:24.270Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 162,
+    "fields": {
+      "attribute": 1,
+      "slug": "revival",
+      "name": "Revival Project",
+      "url": "",
+      "description": "",
+      "icon": "fa-solid fa-person-arrow-up-from-line",
+      "created": "2026-06-05T03:51:33.224Z",
+      "modified": "2026-06-05T03:51:33.224Z",
+      "citations": []
+    }
+  },
+  {
+    "model": "core.attributeoption",
+    "pk": 163,
+    "fields": {
+      "attribute": 1,
+      "slug": "hosting-service",
+      "name": "Hosting Service",
+      "url": "",
+      "description": "The system is a platform that hosts other database systems without making substantial changes to those system's implementations.",
+      "icon": "fa-solid fa-server",
+      "created": "2026-06-07T20:28:13.894Z",
+      "modified": "2026-06-07T20:28:13.894Z",
+      "citations": []
+    }
+  }
+]

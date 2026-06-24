@@ -2,24 +2,28 @@
 import csv
 import json
 import os
+
 # django imports
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand
 from django.db import transaction
 from django.utils.text import slugify
+
 # project imports
-from dbdb.core.models import CitationUrl
-from dbdb.core.models import Feature
-from dbdb.core.models import FeatureOption
-from dbdb.core.models import License
-from dbdb.core.models import OperatingSystem
-from dbdb.core.models import ProgrammingLanguage
-from dbdb.core.models import ProjectType
-from dbdb.core.models import System
-from dbdb.core.models import SystemFeature
-from dbdb.core.models import SystemVersion
-from dbdb.core.models import SystemVersionMetadata
+from dbdb.core.models import (
+    CitationUrl,
+    Feature,
+    FeatureOption,
+    License,
+    OperatingSystem,
+    ProgrammingLanguage,
+    ProjectType,
+    System,
+    SystemFeature,
+    SystemVersion,
+    SystemVersionMetadata,
+)
 
 
 class Command(BaseCommand):
@@ -63,7 +67,7 @@ class Command(BaseCommand):
 
         slugs = set()
 
-        with open(path, 'r') as fin:
+        with open(path) as fin:
             reader = csv.reader(fin)
 
             for name,url,tech_docs,description in reader:
@@ -95,7 +99,7 @@ class Command(BaseCommand):
 
         print(path)
 
-        with open(path, 'r') as fin:
+        with open(path) as fin:
             db = json.load(fin)
 
             slug = slugify( db['Name'] )

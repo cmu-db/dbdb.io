@@ -1,0 +1,653 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+{% load static %}
+{% load alerts %}
+{% load page_title %}
+
+{% block title %}{% if system.slug %}Edit {{ system.name }}{% else %}Create Database{% endif %} — {% endblock %}
+
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'lib/css/tagsinput.css' %}">
+<style>
+.md-textarea textarea { height:8em; resize:vertical; }
+.multi-select select { font-size:0.85em; }
+.edit-savebox { position: static; width: 100%; margin-top: 2rem; }
+@media (min-width: 768px) {
+    .edit-savebox { position: fixed; top: 5.5rem; right: 2rem; width: 20rem; margin-top: 0; }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+{% page_title %}
+{% ptitle_kicker %}{% if system.slug %}<a href="{% url 'system' system.slug %}">{% endif %}Database Entry{% if system.slug %}</a>{% endif %}{% endptitle_kicker %}
+{% ptitle_title %}{% if system.slug %}{{ system.name }}: Edit Entry{% else %}Add Database System{% endif %}{% endptitle_title %}
+{% endpage_title %}
+
+    <form method="POST" enctype="multipart/form-data" id="edit-form" novalidate>
+
+    {% if suggestion %}
+    {% alert type="info" icon="fa-solid fa-database" %}
+    Pre-filled from system suggestion <strong>#{{ suggestion.id }}: {{ suggestion.name }}</strong>.
+    {% if suggestion.logo_url %}Logo URL: <a href="{{ suggestion.logo_url }}" target="_blank">{{ suggestion.logo_url }}</a> &mdash; upload the logo manually above.{% endif %}
+    {% if suggestion.email %}Suggested by: {{ suggestion.email }}{% endif %}
+    {% endalert %}
+    {% endif %}
+
+    {% if pending_version %}
+    {% alert type="warning" icon="fa-solid fa-clock-rotate-left" %}
+    <strong>Editing a pending (unapproved) version</strong> &mdash; v{{ pending_version.ver }},
+    saved {{ pending_version.created|timesince }} ago.
+    Your changes will not be visible publicly until an administrator approves them.
+    {% endalert %}
+    {% endif %}
+
+    {% bootstrap_form_errors system_form type='all' %}
+    {% bootstrap_form_errors system_version_form type='all' %}
+    {% bootstrap_form system_form %}
+
+    <div class="row border-2 border-bottom">
+        <div class="col-lg-7">
+            {% bootstrap_field system_version_form.logo %}
+        </div>
+        <div class="col-lg-5">
+            {% bootstrap_field system_version_form.tags form_group_class="form-group multi-select" %}
+        </div>
+    </div>
+
+    <div class="row border-2 border-bottom pt-4">
+        <div class="col-lg-6">
+            {% bootstrap_field system_version_form.system_url %}
+            {% bootstrap_field system_version_form.sourcerepo_url %}
+            {% bootstrap_field system_version_form.docs_url %}
+            {% bootstrap_field system_version_form.wikipedia_url %}
+            {% bootstrap_field system_version_form.twitter_handle placeholder='@account_name' %}
+        </div>
+
+        <div class="col-lg-6">
+            <div class="row">
+                <div class="col-md-6">
+                    {% bootstrap_field system_version_form.start_year %}
+                </div>
+                <div class="col-md-6">
+                    {% bootstrap_field system_version_form.end_year %}
+                </div>
+            </div>
+
+            {% bootstrap_field system_version_form.start_year_citations %}
+            {% bootstrap_field system_version_form.end_year_citations %}
+
+
+            <!-- BEGIN: FORMER NAMES -->
+            <div class="mb-3">
+                <label class="form-label">Former Names</label>
+                {{ system_version_form.former_names }}
+                <div id="former-name-rows"></div>
+                <template id="former-name-row-template">
+                    <div class="former-name-row row g-2 mb-2 align-items-center">
+                        <div class="col-11">
+                            <input type="text" class="form-control" placeholder="Former name">
+                        </div>
+                        <div class="col-1 text-center">
+                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                    onclick="removeFormerNameRow(this)" title="Remove">×</button>
+                        </div>
+                    </div>
+                </template>
+                <button type="button" class="btn btn-sm btn-outline-secondary mt-1"
+                        onclick="addFormerNameRow()">+ Add Former Name</button>
+            </div>
+            <!-- END: FORMER NAMES -->
+        </div>
+    </div>
+    <div class="row border-2 border-bottom pt-4">
+        <div class="col-lg-6">
+            <!-- BEGIN: DEVELOPER ORGANIZATIONS -->
+            <div class="mb-3">
+                <label class="form-label">Developer Organizations</label>
+                {{ developer_org_formset.management_form }}
+                <div id="developer-org-rows">
+                {% for form in developer_org_formset %}
+                <div class="developer-org-row row g-2 mb-2 align-items-center">
+                    <div class="col-11">{{ form.organization }}</div>
+                    <div class="col-1 text-center">
+                        <button type="button" class="btn-row-remove" onclick="removeDeveloperOrgRow(this)" title="Remove"><i class="fa-solid fa-circle-xmark"></i></button>
+                        <span class="d-none">{{ form.DELETE }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+                <template id="developer-org-row-template">
+                    <div class="developer-org-row row g-2 mb-2 align-items-center">
+                        <div class="col-11"><input type="text" name="developer_orgs-__prefix__-organization" class="form-control" placeholder="Organization name" id="id_developer_orgs-__prefix__-organization"></div>
+                        <div class="col-1 text-center">
+                            <button type="button" class="btn-row-remove" onclick="removeDeveloperOrgRow(this)" title="Remove"><i class="fa-solid fa-circle-xmark"></i></button>
+                            <span class="d-none"><input type="checkbox" name="developer_orgs-__prefix__-DELETE" id="id_developer_orgs-__prefix__-DELETE"></span>
+                        </div>
+                    </div>
+                </template>
+                <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="addDeveloperOrgRow()">
+                    + Add Organization
+                </button>
+            </div>
+            <!-- END: DEVELOPER ORGANIZATIONS -->
+
+            {% bootstrap_field system_version_form.governance form_group_class="form-group multi-select mt-3" %}
+        </div>
+
+        <div class="col-lg-6">
+            <!-- BEGIN: ACQUISITIONS -->
+            <div class="mb-3">
+                <label class="form-label">Acquisitions</label>
+                {{ acquisition_formset.management_form }}
+                <div id="acquisition-rows">
+                {% for form in acquisition_formset %}
+                <div class="acquisition-row row g-2 mb-2 align-items-center {% if not forloop.first %}mt-1 border-top{% endif %}">
+                    <div class="col-11 col-md-5">{{ form.organization }}</div>
+                    <div class="col-1 d-md-none text-center">
+                        <button type="button" class="btn-row-remove" onclick="removeAcquisitionRow(this)" title="Remove"><i class="fa-solid fa-circle-xmark"></i></button>
+                        <span class="d-none">{{ form.DELETE }}</span>
+                    </div>
+                    <div class="col-12 col-md-2">{{ form.year }}</div>
+                    <div class="col-12 col-md-4">{{ form.citation_url }}</div>
+                    <div class="d-none d-md-block col-md-1 text-center">
+                        <button type="button" class="btn-row-remove" onclick="removeAcquisitionRow(this)" title="Remove"><i class="fa-solid fa-circle-xmark"></i></button>
+                        <span class="d-none">{{ form.DELETE }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+                <template id="acquisition-row-template">
+                    <div class="acquisition-row row g-2 mb-2 align-items-center">
+                        <div class="col-md-5"><input type="text"   name="acquisitions-__prefix__-organization"  class="form-control" placeholder="Organization name" id="id_acquisitions-__prefix__-organization"></div>
+                        <div class="col-md-2"><input type="number" name="acquisitions-__prefix__-year"          class="form-control" placeholder="Year"              id="id_acquisitions-__prefix__-year"></div>
+                        <div class="col-md-4"><input type="url"    name="acquisitions-__prefix__-citation_url"  class="form-control" placeholder="https://…"         id="id_acquisitions-__prefix__-citation_url"></div>
+                        <div class="col-1 text-center">
+                            <button type="button" class="btn-row-remove" onclick="removeAcquisitionRow(this)" title="Remove"><i class="fa-solid fa-circle-xmark"></i></button>
+                            <span class="d-none"><input type="checkbox" name="acquisitions-__prefix__-DELETE" id="id_acquisitions-__prefix__-DELETE"></span>
+                        </div>
+                    </div>
+                </template>
+                <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="addAcquisitionRow()">
+                    + Add Acquisition
+                </button>
+            </div>
+            <!-- END: ACQUISITIONS -->
+
+        </div>
+    </div>
+
+    <div class="row border-2 border-bottom pt-4">
+        <div class="col-lg-6">
+            {% bootstrap_field system_version_form.project_types form_group_class="form-group multi-select" %}
+        </div>
+        <div class="col-lg-6">
+            {% bootstrap_field system_version_form.countries %}
+        </div>
+    </div>
+
+    <div class="row border-2 border-bottom pt-4">
+        <fieldset class="form-group col-lg-6">
+            {% bootstrap_field system_version_form.description form_group_class="form-group md-textarea" %}
+            {% bootstrap_field system_version_form.description_citations %}
+        </fieldset>
+
+        <fieldset class="form-group col-lg-6">
+            {% bootstrap_field system_version_form.history form_group_class="form-group md-textarea" %}
+            {% bootstrap_field system_version_form.history_citations %}
+        </fieldset>
+    </div>
+
+    <div class="row border-2 border-bottom pt-4">
+        <div class="col-md-3">
+            {% bootstrap_field system_version_form.licenses form_group_class="form-group multi-select" %}
+        </div>
+
+        <div class="col-md-3">
+            {% bootstrap_field system_version_form.oses form_group_class="form-group multi-select" %}
+        </div>
+
+        <div class="col-md-3">
+            {% bootstrap_field system_version_form.supported_languages form_group_class="form-group multi-select" %}
+        </div>
+
+        <div class="col-md-3">
+            {% bootstrap_field system_version_form.written_in form_group_class="form-group multi-select" %}
+        </div>
+    </div>
+
+    <div class="row border-2 border-bottom pt-4">
+        <div class="col-md-3">
+            {% bootstrap_field system_version_form.derived_from form_group_class="form-group multi-select" %}
+        </div>
+
+        <div class="col-md-3">
+            {% bootstrap_field system_version_form.embedded form_group_class="form-group multi-select" %}
+        </div>
+
+        <div class="col-md-3">
+            {% bootstrap_field system_version_form.inspired_by form_group_class="form-group multi-select" %}
+        </div>
+
+        <div class="col-md-3">
+            {% bootstrap_field system_version_form.compatible_with form_group_class="form-group multi-select" %}
+        </div>
+    </div>
+
+    <!-- BEGIN: CODING AGENTS -->
+    <div class="row border-2 border-bottom pt-4">
+        <div class="col-12">
+
+            <div class="mb-3">
+                <label class="form-label">Coding Agents</label>
+                {{ coding_agent_formset.management_form }}
+                <div id="coding-agent-rows">
+                {% for form in coding_agent_formset %}
+                <div class="coding-agent-row row g-2 mb-2 align-items-center">
+                    <div class="col-md-5">{{ form.agent }}</div>
+                    <div class="col-md-6">{{ form.citation_url }}</div>
+                    <div class="col-md-1 text-center">
+                        <button type="button" class="btn-row-remove" onclick="removeCodingAgentRow(this)" title="Remove"><i class="fa-solid fa-circle-xmark"></i></button>
+                        <span class="d-none">{{ form.DELETE }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+                <template id="coding-agent-row-template">
+                    <div class="coding-agent-row row g-2 mb-2 align-items-center">
+                        <div class="col-md-5">
+                            <select name="coding_agents-__prefix__-agent" class="form-select" id="id_coding_agents-__prefix__-agent">
+                                <option value="">---------</option>
+                                {% for opt in agent_options %}<option value="{{ opt.pk }}">{{ opt.name }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6"><input type="url" name="coding_agents-__prefix__-citation_url" class="form-control" placeholder="https://…" id="id_coding_agents-__prefix__-citation_url"></div>
+                        <div class="col-md-1 text-center">
+                            <button type="button" class="btn-row-remove" onclick="removeCodingAgentRow(this)" title="Remove"><i class="fa-solid fa-circle-xmark"></i></button>
+                            <span class="d-none"><input type="checkbox" name="coding_agents-__prefix__-DELETE" id="id_coding_agents-__prefix__-DELETE"></span>
+                        </div>
+                    </div>
+                </template>
+                <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="addCodingAgentRow()">
+                    + Add Coding Agent
+                </button>
+            </div>
+
+        </div>
+    </div>
+    <!-- END: CODING AGENTS -->
+
+    <div class="row border-2 border-bottom pt-4">
+        <div class="col-md-6">
+            {% bootstrap_field system_version_form.hosted_services form_group_class="form-group multi-select" %}
+        </div>
+    </div>
+
+    <div class="d-block d-md-flex align-items-center justify-content-between pt-4 mb-0">
+        <h2 class="mb-0">Features</h2>
+        <div class="d-flex align-items-center mt-3 mt-md-0 gap-2">
+            <select id="apply-all-system" class="form-select form-select-sm w-auto">
+                <option value="">&mdash; Select System &mdash;</option>
+            </select>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="apply-all-system-btn">Apply to All</button>
+        </div>
+    </div>
+    <div class="accordion mt-3" id="features">
+        {% for featureset in features.values %}
+        <div class="accordion-item" id="{{ featureset.id }}">
+            <h2 class="accordion-header" id="{{ featureset.id }}_header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#{{ featureset.id }}_body" aria-expanded="false" aria-controls="#{{ featureset.id }}_body">
+                        {{ featureset.label }}
+                    </button>
+            </h2>
+            <div id="{{ featureset.id }}_body" class="accordion-collapse collapse" aria-labelledby="{{ featureset.id }}_header" data-bs-parent="#features">
+                <div class="accordion-body">
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ featureset.system.html_name }}">{{ featureset.system.label }}</label>
+                        <div class="input-group">
+                            {{ featureset.system }}
+                            <button type="button" class="btn btn-outline-secondary"
+                                    onclick="var s=document.getElementById('{{ featureset.system.auto_id }}');s.selectedIndex=0;s.dispatchEvent(new Event('change'));">Clear</button>
+                        </div>
+                    </div>
+                    {% bootstrap_field featureset.choices form_group_class="form-group multi-select" %}
+                    {% bootstrap_field featureset.description form_group_class="form-group md-textarea" %}
+                    {% bootstrap_field featureset.citations %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- BEGIN: SAVEBOX -->
+    <div class="edit-savebox card shadow p-3" id="savebox">
+        <div class="form-group mb-3">
+            <label for="id_comment" class="form-label">Revision Comment</label>
+            <textarea name="comment" rows="4" class="form-control" placeholder="Describe your changes…" id="id_comment">{% if pending_version %}{{ pending_version.comment }}{% endif %}</textarea>
+            {% alert type="error" id="comment-error" icon="" extra_classes="mt-2 small d-none" %}Please enter a revision comment before saving.{% endalert %}
+        </div>
+        {% if request.user.is_superuser and pending_version %}
+        <div class="border-top pt-3 mb-3">
+            <div class="mb-2">
+                <label for="admin_approved" class="form-label small">Version Status</label>
+                <select name="admin_approved" id="admin_approved" class="form-select form-select-sm">
+                    <option value="pending" selected>Pending (unapproved)</option>
+                    <option value="approved">Approved (make live)</option>
+                </select>
+            </div>
+            <div class="mb-2">
+                <label for="admin_timestamp" class="form-label small">Approval Timestamp</label>
+                <select name="admin_timestamp" id="admin_timestamp" class="form-select form-select-sm">
+                    <option value="now" selected>Current Timestamp</option>
+                    <option value="original">Original ({{ pending_version.created|date:"Y-m-d H:i" }})</option>
+                </select>
+            </div>
+            <div class="mb-0">
+                <label for="admin_creator" class="form-label small">Creator</label>
+                <select name="admin_creator" id="admin_creator" class="form-select form-select-sm">
+                    <option value="{{ pending_version.creator.pk }}" selected>{{ pending_version.creator.username }} (current)</option>
+                    {% if request.user.pk != pending_version.creator.pk %}
+                    <option value="{{ request.user.pk }}">{{ request.user.username }} (you)</option>
+                    {% endif %}
+                </select>
+            </div>
+        </div>
+        {% endif %}
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary" name="action" value="save" id="btn-save">
+                <i class="fa-solid fa-floppy-disk me-1"></i> Save
+            </button>
+            <button type="submit" class="btn btn-outline-secondary" name="action" value="cancel" id="btn-cancel">
+                Cancel
+            </button>
+        </div>
+    </div>
+    <!-- END: SAVEBOX -->
+
+{% csrf_token %}
+</form>
+
+<!-- BEGIN: JUMP-TO-BOTTOM -->
+<a href="#savebox"
+   class="fab-save d-md-none position-fixed bottom-0 end-0 m-3 btn btn-primary rounded-circle shadow d-flex align-items-center justify-content-center opacity-75"
+   aria-label="Jump to save" title="Jump to save">
+    <i class="fa-solid fa-arrow-down"></i>
+</a>
+<!-- END:JUMP-TO-BOTTOM -->
+{% endblock %}
+
+
+{% block scripts %}
+<script src="{% static 'lib/js/tagsinput.js' %}"></script>
+
+<script>
+    $(function(){
+        $('textarea[data-role="tagsinput"]').tagsinput();
+    });
+    // --- Org autocomplete (shared) ---
+    function initOrgAutocomplete(input) {
+        $(input).autoComplete({
+            minChars: 1,
+            source: function(term, response) {
+                $.getJSON('/api/organizations/autocomplete/', { q: term }, function(data) { response(data); });
+            }
+        });
+    }
+
+    // --- Citation URL autocomplete (shared) ---
+    function initCitationUrlAutocomplete(input) {
+        $(input).autoComplete({
+            minChars: 4,
+            source: function(term, response) {
+                $.getJSON('/api/citation-urls/autocomplete/', { q: term }, function(data) { response(data); });
+            },
+            onSelect: function() {
+                const widget = $(input).closest('.citation-url-list-widget')[0];
+                if (widget) syncCitationHidden(widget);
+            }
+        });
+    }
+
+    // --- Citation URL list widget helpers ---
+    function syncCitationHidden(widget) {
+        const urls = Array.from(widget.querySelectorAll('.citation-url-input'))
+            .map(i => i.value.trim()).filter(v => v);
+        const hidden = document.getElementById(widget.dataset.hiddenId);
+        if (hidden) hidden.value = JSON.stringify(urls);
+    }
+
+    function addCitationRow(btn) {
+        const widget = btn.closest('.citation-url-list-widget');
+        const rows = widget.querySelector('.citation-url-rows');
+        const row = document.createElement('div');
+        row.className = 'citation-url-row row g-2 mb-1 align-items-center';
+        row.innerHTML = '<div class="col"><input type="text" class="form-control citation-url-input" placeholder="https://…"></div>'
+                      + '<div class="col-auto"><button type="button" class="btn-row-remove" onclick="removeCitationRow(this)"><i class="fa-solid fa-circle-xmark"></i></button></div>';
+        rows.appendChild(row);
+        const input = row.querySelector('.citation-url-input');
+        initCitationUrlAutocomplete(input);
+        input.focus();
+    }
+
+    function removeCitationRow(btn) {
+        const row = btn.closest('.citation-url-row');
+        const widget = row.closest('.citation-url-list-widget');
+        row.remove();
+        syncCitationHidden(widget);
+    }
+
+    $(function() {
+        // Keep hidden JSON inputs in sync as the user types
+        $(document).on('input', '.citation-url-input', function() {
+            syncCitationHidden(this.closest('.citation-url-list-widget'));
+        });
+        // Sync all widgets before form submit (catches any unfired input events)
+        $('form').on('submit', function() {
+            document.querySelectorAll('.citation-url-list-widget').forEach(w => syncCitationHidden(w));
+        });
+        // Init autocomplete on all citation list widget inputs
+        $('.citation-url-input').each(function() { initCitationUrlAutocomplete(this); });
+        // Init autocomplete on SystemVersionForm URL FK fields
+        $('{{ citation_url_selector }}').each(function() { initCitationUrlAutocomplete(this); });
+        // Init autocomplete on acquisition citation_url fields
+        $('#acquisition-rows input[name$="-citation_url"]').each(function() { initCitationUrlAutocomplete(this); });
+    });
+
+    // --- Former Name rows ---
+    (function initFormerNames() {
+        const textarea = document.getElementById('id_former_names');
+        if (!textarea) return;
+        textarea.style.display = 'none';
+        const rows = document.getElementById('former-name-rows');
+
+        function syncToTextarea() {
+            const vals = Array.from(rows.querySelectorAll('input[type="text"]'))
+                             .map(i => i.value.trim()).filter(v => v);
+            textarea.value = vals.join('\n');
+        }
+
+        function addRow(value) {
+            const tmpl = document.getElementById('former-name-row-template');
+            const clone = tmpl.content.cloneNode(true);
+            const input = clone.querySelector('input[type="text"]');
+            if (value) input.value = value;
+            input.addEventListener('blur', syncToTextarea);
+            rows.appendChild(clone);
+        }
+
+        (textarea.value || '').split('\n').filter(v => v.trim()).forEach(addRow);
+
+        window.addFormerNameRow = function() {
+            addRow('');
+            rows.querySelector('.former-name-row:last-child input').focus();
+        };
+        window.removeFormerNameRow = function(btn) {
+            btn.closest('.former-name-row').remove();
+            syncToTextarea();
+        };
+
+        document.querySelector('form').addEventListener('submit', syncToTextarea);
+    })();
+
+    // --- Developer Organization rows ---
+    function addDeveloperOrgRow() {
+        const template = document.getElementById('developer-org-row-template');
+        const totalInput = document.querySelector('input[name="developer_orgs-TOTAL_FORMS"]');
+        const idx = parseInt(totalInput.value);
+        const clone = template.content.cloneNode(true);
+        const row = clone.querySelector('.developer-org-row');
+        row.innerHTML = row.innerHTML.replaceAll('__prefix__', idx);
+        document.getElementById('developer-org-rows').appendChild(clone);
+        totalInput.value = idx + 1;
+        initOrgAutocomplete(document.getElementById('id_developer_orgs-' + idx + '-organization'));
+    }
+
+    function removeDeveloperOrgRow(btn) {
+        const row = btn.closest('.developer-org-row');
+        const del = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+        if (del) del.checked = true;
+        row.style.display = 'none';
+    }
+
+    $(function() {
+        $('#developer-org-rows input[name$="-organization"]').each(function() { initOrgAutocomplete(this); });
+    });
+
+    // --- Acquisition rows ---
+    function addAcquisitionRow() {
+        const template = document.getElementById('acquisition-row-template');
+        const totalInput = document.querySelector('input[name="acquisitions-TOTAL_FORMS"]');
+        const idx = parseInt(totalInput.value);
+        const clone = template.content.cloneNode(true);
+        const row = clone.querySelector('.acquisition-row');
+        row.innerHTML = row.innerHTML.replaceAll('__prefix__', idx);
+        document.getElementById('acquisition-rows').appendChild(clone);
+        totalInput.value = idx + 1;
+        initOrgAutocomplete(document.getElementById('id_acquisitions-' + idx + '-organization'));
+        initCitationUrlAutocomplete(document.getElementById('id_acquisitions-' + idx + '-citation_url'));
+    }
+
+    function removeAcquisitionRow(btn) {
+        const row = btn.closest('.acquisition-row');
+        const del = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+        if (del) del.checked = true;
+        row.querySelectorAll('input[type="url"], input[type="number"]').forEach(el => { el.value = ''; });
+        row.style.display = 'none';
+    }
+
+    $(function() {
+        $('#acquisition-rows input[name$="-organization"]').each(function() { initOrgAutocomplete(this); });
+    });
+
+    // --- Coding Agent rows ---
+    function addCodingAgentRow() {
+        const template = document.getElementById('coding-agent-row-template');
+        const totalInput = document.querySelector('input[name="coding_agents-TOTAL_FORMS"]');
+        const idx = parseInt(totalInput.value);
+        const clone = template.content.cloneNode(true);
+        const row = clone.querySelector('.coding-agent-row');
+        row.innerHTML = row.innerHTML.replaceAll('__prefix__', idx);
+        document.getElementById('coding-agent-rows').appendChild(clone);
+        totalInput.value = idx + 1;
+        initCitationUrlAutocomplete(document.getElementById('id_coding_agents-' + idx + '-citation_url'));
+    }
+
+    function removeCodingAgentRow(btn) {
+        const row = btn.closest('.coding-agent-row');
+        const del = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+        if (del) del.checked = true;
+        row.querySelectorAll('input[type="url"]').forEach(el => { el.value = ''; });
+        row.style.display = 'none';
+    }
+
+    $(function() {
+        $('#coding-agent-rows input[name$="-citation_url"]').each(function() { initCitationUrlAutocomplete(this); });
+    });
+
+    // --- Apply system to all featuresets ---
+    (function() {
+        const applySelect = document.getElementById('apply-all-system');
+        const applyBtn    = document.getElementById('apply-all-system-btn');
+        const firstSysSel = document.querySelector('#features select[id$="_system"]');
+        if (firstSysSel) {
+            Array.from(firstSysSel.options).forEach(function(opt) {
+                if (opt.value !== '') applySelect.appendChild(opt.cloneNode(true));
+            });
+        }
+        applyBtn.addEventListener('click', function() {
+            const val = applySelect.value;
+            if (!val) return;
+            document.querySelectorAll('#features select[id$="_system"]').forEach(function(sel) {
+                sel.value = val;
+                sel.dispatchEvent(new Event('change'));
+            });
+        });
+    })();
+
+    function toggleFields(featureName) {
+            const systemSelect = document.getElementById('id_' + featureName + '_system');
+            const choicesSelect = document.getElementById('id_' + featureName + '_choices');
+            {#const descriptionTextarea = document.getElementById('id_' + featureName + '_description');#}
+
+            if (systemSelect.value != '') {
+                choicesSelect.disabled = true;
+                {#descriptionTextarea.disabled = true;#}
+            } else {
+                choicesSelect.disabled = false;
+                {#descriptionTextarea.disabled = false;#}
+            }
+        }
+
+
+</script>
+
+<script>
+(function () {
+    const form      = document.getElementById('edit-form');
+    const commentEl = document.getElementById('id_comment');
+    const errorEl   = document.getElementById('comment-error');
+    const saveBtn   = document.getElementById('btn-save');
+    const cancelBtn = document.getElementById('btn-cancel');
+
+    // --- Dirty-form guard ---
+    let isDirty = false;
+    let submitting = false;
+
+    form.addEventListener('input', () => { isDirty = true; });
+    form.addEventListener('change', () => { isDirty = true; });
+
+    window.addEventListener('beforeunload', (e) => {
+        if (isDirty && !submitting) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    // Cancel clears the dirty flag so navigation goes through cleanly.
+    cancelBtn.addEventListener('click', () => { submitting = true; });
+
+    // --- Comment validation on Save ---
+    saveBtn.addEventListener('click', (e) => {
+        if (commentEl.value.trim() === '') {
+            e.preventDefault();
+            errorEl.classList.remove('d-none');
+            commentEl.classList.add('is-invalid');
+            commentEl.focus();
+        } else {
+            errorEl.classList.add('d-none');
+            commentEl.classList.remove('is-invalid');
+            submitting = true;
+        }
+    });
+
+    commentEl.addEventListener('input', () => {
+        if (commentEl.value.trim() !== '') {
+            errorEl.classList.add('d-none');
+            commentEl.classList.remove('is-invalid');
+        }
+    });
+})();
+</script>
+{% endblock %}

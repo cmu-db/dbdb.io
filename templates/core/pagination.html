@@ -1,0 +1,31 @@
+<div class="pager">
+    {% if versions.has_previous %}
+    <a href="?page=1{% if lookup_user %}&username={{ lookup_user }}{% endif %}{% if show_filter and show_filter != 'all' %}&show={{ show_filter }}{% endif %}" class="pager-edge">&laquo; First</a>
+    <a href="?page={{ versions.previous_page_number }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}{% if show_filter and show_filter != 'all' %}&show={{ show_filter }}{% endif %}" class="pager-edge">&lsaquo; Prev</a>
+    {% else %}
+    <span class="pager-edge disabled">&laquo; First</span>
+    <span class="pager-edge disabled">&lsaquo; Prev</span>
+    {% endif %}
+
+    {% for num in page_range %}
+        {% if num == versions.number %}
+            <span class="pager-num active">{{ num }}</span>
+        {% else %}
+            {% if num == page_range.start and num > 1 %}
+                <span class="dots">…</span>
+            {% elif num|add:1 == page_range.stop and num < versions.paginator.num_pages %}
+                <span class="dots">…</span>
+            {% else %}
+                <a href="?page={{ num }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}{% if show_filter and show_filter != 'all' %}&show={{ show_filter }}{% endif %}" class="pager-num">{{ num }}</a>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
+    {% if versions.has_next %}
+    <a href="?page={{ versions.next_page_number }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}{% if show_filter and show_filter != 'all' %}&show={{ show_filter }}{% endif %}" class="pager-edge">Next &rsaquo;</a>
+    <a href="?page={{ versions.paginator.num_pages }}{% if lookup_user %}&username={{ lookup_user }}{% endif %}{% if show_filter and show_filter != 'all' %}&show={{ show_filter }}{% endif %}" class="pager-edge">Last &raquo;</a>
+    {% else %}
+    <span class="pager-edge disabled">Next &rsaquo;</span>
+    <span class="pager-edge disabled">Last &raquo;</span>
+    {% endif %}
+</div>
