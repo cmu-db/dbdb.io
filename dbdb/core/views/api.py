@@ -14,7 +14,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
 # project imports
-from dbdb.core.models import CitationUrl, Organization, System, SystemVisit
+from dbdb.core.models import CitationUrl, Organization, System, SystemVersion, SystemVisit
 
 
 # ==============================================
@@ -119,8 +119,34 @@ def system_autocomplete(request):
                 default=Value(1),
                 output_field=IntegerField(),
             )).order_by('exact_match', 'name')
-        sqs = sqs.values('name')[:8]
-        suggestions = [system["name"] for system in sqs]
+        sqs = list(sqs.values('id', 'name')[:8])
+
+        # Detect name collisions within the result set — rare, so only fetch
+        # developer orgs when at least one duplicate name is present.
+        name_counts = {}
+        for row in sqs:
+            name_counts[row['name']] = name_counts.get(row['name'], 0) + 1
+        duplicate_names = {name for name, count in name_counts.items() if count > 1}
+
+        if duplicate_names:
+            duplicate_ids = [row['id'] for row in sqs if row['name'] in duplicate_names]
+            dev_org_map = {}
+            for sv in (SystemVersion.objects
+                       .filter(system_id__in=duplicate_ids, is_current=True)
+                       .prefetch_related('developer_orgs')
+                       .only('system_id')):
+                orgs = list(sv.developer_orgs.all())
+                if orgs:
+                    dev_org_map[sv.system_id] = orgs[0].name
+
+        suggestions = []
+        for row in sqs:
+            if row['name'] in duplicate_names:
+                org_name = dev_org_map.get(row['id'])
+                label = f"{row['name']} ({org_name})" if org_name else row['name']
+            else:
+                label = row['name']
+            suggestions.append(label)
     else:
         suggestions = [ ]
 
