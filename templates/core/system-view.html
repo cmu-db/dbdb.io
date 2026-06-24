@@ -85,21 +85,24 @@
 
         {% if version.sourcerepo_url %}
         <div class="fact"><dt>Source Code</dt><dd>
-            <a href="{{ version.sourcerepo_url.url }}" target="_{{ system.slug }}">{{ version.sourcerepo_url.display_url }}</a>{% if sourcerepo_url_citation %}<span class="cites">{% citation_footnote sourcerepo_url_citation %}</span>{% endif %}
-            {% if repo_snapshot and repo_snapshot.archival_timestamp %}
-            <span class="d-block small text-muted"><time datetime="{{ repo_snapshot.archival_timestamp|date:"c" }}">Archived: {{ repo_snapshot.archival_timestamp|date:"M j, Y" }}</time></span>
-            {% elif repo_snapshot and repo_snapshot.last_commit_timestamp %}
-            <span class="d-block small text-muted"><time datetime="{{ repo_snapshot.last_commit_timestamp|date:"c" }}">Last Commit: {{ repo_snapshot.last_commit_timestamp|date:"M j, Y" }}</time></span>
+            <a href="{{ version.sourcerepo_url.url }}" target="_src_{{ system.slug }}">{{ version.sourcerepo_url.display_url }}</a>{% if sourcerepo_url_citation %}<span class="cites">{% citation_footnote sourcerepo_url_citation %}</span>{% endif %}
+            {% if repo_snapshot %}
+              <span class="d-block small text-muted"><time datetime="{{ repo_snapshot.created|date:"c" }}">Accessed: {{ repo_snapshot.created|date:"M j, Y" }}</time></span>
+              {% if repo_snapshot.archival_timestamp %}
+              <span class="d-block small text-muted"><time datetime="{{ repo_snapshot.archival_timestamp|date:"c" }}">Archived: {{ repo_snapshot.archival_timestamp|date:"M j, Y" }}</time></span>
+              {% elif repo_snapshot.last_commit_timestamp %}
+              <span class="d-block small text-muted"><time datetime="{{ repo_snapshot.last_commit_timestamp|date:"c" }}">Last Commit: {{ repo_snapshot.last_commit_timestamp|date:"M j, Y" }}</time></span>
+              {% endif %}
             {% endif %}
         </dd></div>
         {% endif %}
 
         {% if version.docs_url %}
-        <div class="fact"><dt>Tech Docs</dt><dd><a href="{{ version.docs_url.url }}" target="_{{ system.slug }}">{{ version.docs_url.display_url }}</a>{% if docs_url_citation %}<span class="cites">{% citation_footnote docs_url_citation %}</span>{% endif %}</dd></div>
+        <div class="fact"><dt>Tech Docs</dt><dd><a href="{{ version.docs_url.url }}" target="_docs_{{ system.slug }}">{{ version.docs_url.display_url }}</a>{% if docs_url_citation %}<span class="cites">{% citation_footnote docs_url_citation %}</span>{% endif %}</dd></div>
         {% endif %}
 
         {% if version.twitter_handle %}
-        <div class="fact"><dt>Twitter</dt><dd><a href="{{ version.twitter_handle_url }}"><i class="fa-brands fa-twitter"></i>{{ version.twitter_handle }}</a></dd></div>
+        <div class="fact"><dt>Twitter</dt><dd><a href="{{ version.twitter_handle_url }}" target="_twitter_{{ system.slug }}"><i class="fa-brands fa-twitter"></i>{{ version.twitter_handle }}</a></dd></div>
         {% endif %}
 
         {% if developer_orgs %}
