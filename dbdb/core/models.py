@@ -864,20 +864,20 @@ class SystemVersion(LogoMixin, models.Model):
         if _visited_system_ids is None:
             _visited_system_ids = set()
         if self.system_id in _visited_system_ids:
-            return []
+            return set()
         _visited_system_ids.add(self.system_id)
 
-        options = []
+        options = set()
         try:
             sf = self.features.get(feature__slug='data-model')
-            options.extend(sf.get_my_or_parent_options())
+            options.update(sf.get_my_or_parent_options())
         except SystemFeature.DoesNotExist:
             pass
 
         if not options:
             for hosted_system in self.hosted_services.all():
                 try:
-                    options.extend(hosted_system.current().all_data_models(_visited_system_ids))
+                    options.update(hosted_system.current().all_data_models(_visited_system_ids))
                 except SystemVersion.DoesNotExist:
                     pass
 

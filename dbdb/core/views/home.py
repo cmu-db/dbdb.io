@@ -24,7 +24,7 @@ def _attach_data_models(systems):
     for sf in (SystemFeature.objects
                .filter(version__is_current=True, version__system_id__in=ids, feature__slug='data-model')
                .prefetch_related('options', 'system')):
-        opts = sf.get_my_or_parent_options()
+        opts = set(sf.get_my_or_parent_options())
         if opts:
             sf_map[sf.version.system_id] = opts
     for s in systems:
@@ -40,7 +40,7 @@ def _attach_data_models(systems):
                     sv = s.current()
                 except SystemVersion.DoesNotExist:
                     pass
-            s.all_data_models = sv.all_data_models() if sv else []
+            s.all_data_models = sv.all_data_models() if sv else set()
     return systems
 
 
