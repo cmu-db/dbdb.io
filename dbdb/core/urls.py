@@ -42,10 +42,10 @@ urlpatterns = [
     path('suggest', views.SystemSuggestionView.as_view(), name='system_suggestion'),
     path('suggest/success', views.SystemSuggestionSuccessView.as_view(), name='system_suggestion_success'),
 
-    path('docs/', views.DocOverviewView.as_view(), name='docs'),
-    path('docs/feature/<slug:slug>/', views.DocFeatureView.as_view(), name='docs-feature'),
-    path('docs/attribute/<slug:slug>/', views.DocAttributeView.as_view(), name='docs-attribute'),
-    path('docs/system-attributes/', views.DocSysAttrsView.as_view(), name='docs-sys-attrs'),
+    # path('docs/', views.DocOverviewView.as_view(), name='docs'),
+    # path('docs/feature/<slug:slug>/', views.DocFeatureView.as_view(), name='docs-feature'),
+    # path('docs/attribute/<slug:slug>/', views.DocAttributeView.as_view(), name='docs-attribute'),
+    # path('docs/system-attributes/', views.DocSysAttrsView.as_view(), name='docs-sys-attrs'),
 
     path('counter', views.CounterView.as_view(), name='counter'),
     path('sitemap.xml', views.SitemapView.as_view(), name='sitemap'),

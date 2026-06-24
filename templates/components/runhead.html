@@ -10,7 +10,7 @@
             <a class="{% if activate == 'browse' %}active{% endif %}" href="{% url 'browse' %}">Browse</a>
             <a class="{% if activate == 'stats' %}active{% endif %}" href="{% url 'stats' %}">Leaderboards</a>
             <a class="{% if activate == 'recent' %}active{% endif %}" href="{% url 'recent' %}">Recent</a>
-            <a class="{% if activate == 'docs' %}active{% endif %}" href="{% url 'docs' %}">Docs</a>
+            {# <a class="{% if activate == 'docs' %}active{% endif %}" href="{% url 'docs' %}">Docs</a> #}
             {% for page in navbar_flatpages %}
             <a class="{% if request.path == page.url %}active{% endif %}" href="{{ page.url }}">{{ page.title }}</a>
             {% endfor %}
