@@ -189,7 +189,11 @@ class RepoCollector(ABC):
         all_branches: bool = False,
         pull: bool = False,
     ) -> None:
-        """Clone or fetch *url* into /tmp/dbdb/<reponame> using gitpython.
+        """Clone or fetch *url* into <CLONE_ROOT>/org/repo using gitpython.
+
+        The local path uses the last two URL path segments as org/repo so that
+        repos from different organizations with the same name don't collide
+        (e.g. ClickHouse/ClickHouse vs Altinity/ClickHouse).
 
         If the directory already exists it is reused without re-cloning.
         Pass pull=True to fetch the latest commits when reusing an existing clone.
@@ -197,14 +201,21 @@ class RepoCollector(ABC):
         Call with all_branches=True to clone every branch (for email harvesting).
         The clone is only removed on instance destruction when delete_on_exit=True.
         """
+        from urllib.parse import urlparse
         import git as gitpkg
 
-        # Derive a stable name from the last path component of the URL.
-        name = url.rstrip('/').split('/')[-1]
-        if name.endswith('.git'):
-            name = name[:-4]
+        # Derive a stable org/repo name from the last two URL path components.
+        parsed = urlparse(url)
+        path_parts = [p for p in parsed.path.strip('/').split('/') if p]
+        if path_parts and path_parts[-1].endswith('.git'):
+            path_parts[-1] = path_parts[-1][:-4]
+        if len(path_parts) >= 2:
+            name = '/'.join(path_parts[-2:])
+        else:
+            name = path_parts[-1] if path_parts else url.rstrip('/').split('/')[-1]
+
         repo_dir = os.path.join(self._CLONE_ROOT, name)
-        os.makedirs(self._CLONE_ROOT, exist_ok=True)
+        os.makedirs(os.path.dirname(repo_dir), exist_ok=True)
 
         self._repo_dir = repo_dir
 
