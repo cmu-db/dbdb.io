@@ -3,8 +3,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path
+from django.views.generic import RedirectView
 
 urlpatterns = [
+    path('favicon.ico', RedirectView.as_view(url=f'{settings.STATIC_URL}core/images/favicon.ico', permanent=True)),
+
     path('', include('django.contrib.auth.urls')),
     path('', include('dbdb.core.urls')),
 
