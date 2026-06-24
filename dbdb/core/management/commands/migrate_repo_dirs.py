@@ -120,8 +120,17 @@ class Command(BaseCommand):
                 f"    → {new}"
             )
             if not dry_run:
-                os.makedirs(os.path.dirname(new), exist_ok=True)
-                os.rename(old, new)
+                # When org == repo (e.g. github.com/4store/4store), new is a
+                # subdirectory of old. Move to a sibling temp path first, then
+                # into the final location.
+                if new.startswith(old + os.sep):
+                    tmp = old + '.__migrate_tmp__'
+                    os.rename(old, tmp)
+                    os.makedirs(os.path.dirname(new), exist_ok=True)
+                    os.rename(tmp, new)
+                else:
+                    os.makedirs(os.path.dirname(new), exist_ok=True)
+                    os.rename(old, new)
             moved += 1
 
         self.stdout.write(self.style.SUCCESS(
