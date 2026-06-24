@@ -34,7 +34,7 @@ class CitationUrlListWidget(Widget):
         rows_html = ''.join(
             '<div class="citation-url-row row g-2 mb-1 align-items-center">'
             '<div class="col">'
-            f'<input type="url" class="form-control citation-url-input" value="{html_lib.escape(url)}" placeholder="https://…">'
+            f'<input type="text" class="form-control citation-url-input" value="{html_lib.escape(url)}" placeholder="https://…">'
             '</div>'
             '<div class="col-auto">'
             '<button type="button" class="btn-row-remove" onclick="removeCitationRow(this)"><i class="fa-solid fa-circle-xmark"></i></button>'

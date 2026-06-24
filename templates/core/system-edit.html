@@ -26,7 +26,7 @@
 {% ptitle_title %}{% if system.slug %}{{ system.name }}: Edit Entry{% else %}Add Database System{% endif %}{% endptitle_title %}
 {% endpage_title %}
 
-    <form method="POST" enctype="multipart/form-data" id="edit-form">
+    <form method="POST" enctype="multipart/form-data" id="edit-form" novalidate>
 
     {% if suggestion %}
     {% alert type="info" icon="fa-solid fa-database" %}
@@ -423,7 +423,7 @@
         const rows = widget.querySelector('.citation-url-rows');
         const row = document.createElement('div');
         row.className = 'citation-url-row row g-2 mb-1 align-items-center';
-        row.innerHTML = '<div class="col"><input type="url" class="form-control citation-url-input" placeholder="https://…"></div>'
+        row.innerHTML = '<div class="col"><input type="text" class="form-control citation-url-input" placeholder="https://…"></div>'
                       + '<div class="col-auto"><button type="button" class="btn-row-remove" onclick="removeCitationRow(this)"><i class="fa-solid fa-circle-xmark"></i></button></div>';
         rows.appendChild(row);
         const input = row.querySelector('.citation-url-input');
@@ -533,6 +533,7 @@
         const row = btn.closest('.acquisition-row');
         const del = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
         if (del) del.checked = true;
+        row.querySelectorAll('input[type="url"], input[type="number"]').forEach(el => { el.value = ''; });
         row.style.display = 'none';
     }
 
@@ -557,6 +558,7 @@
         const row = btn.closest('.coding-agent-row');
         const del = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
         if (del) del.checked = true;
+        row.querySelectorAll('input[type="url"]').forEach(el => { el.value = ''; });
         row.style.display = 'none';
     }
 
