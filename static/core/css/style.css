@@ -199,9 +199,14 @@ tr.browse-row:hover { background-color: var(--browse-hover-color); }
 .citation-expand-link:hover { color: #fff; }
 
 /* Autocomplete suggestions */
-.autocomplete-suggestion { font-family: var(--mono); }
+.autocomplete-suggestion {
+  font-family: var(--mono);
+  background-color: var(--surface);
+  border: 1px solid var(--ink-soft);
+}
 .autocomplete-suggestion b {
     color: var(--accent) !important;
+    font-weight: bold;
     background-color: var(--highlight-color);
 }
 

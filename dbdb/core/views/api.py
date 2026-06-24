@@ -94,7 +94,7 @@ def citation_url_autocomplete(request):
         CitationUrl.objects
         .filter(url__icontains=q, status=CitationUrl.Status.VALID)
         .order_by('url')
-        .values_list('url', flat=True)[:12]
+        .values_list('url', flat=True)[:settings.DBDB_AUTOCOMPLETE_CITATION_NUM_ENTRIES]
     ) if q else []
     return JsonResponse(list(urls), safe=False)
 
@@ -105,7 +105,7 @@ def organization_autocomplete(request):
         Organization.objects
         .filter(name__icontains=q)
         .order_by('name')
-        .values_list('name', flat=True)[:12]
+        .values_list('name', flat=True)[:settings.DBDB_AUTOCOMPLETE_ORGANIZATION_NUM_ENTRIES]
     ) if q else []
     return JsonResponse(list(names), safe=False)
 
@@ -119,7 +119,7 @@ def system_autocomplete(request):
                 default=Value(1),
                 output_field=IntegerField(),
             )).order_by('exact_match', 'name')
-        sqs = list(sqs.values('id', 'name')[:8])
+        sqs = list(sqs.values('id', 'name')[:settings.DBDB_AUTOCOMPLETE_SYSTEM_NUM_ENTRIES])
 
         # Detect name collisions within the result set — rare, so only fetch
         # developer orgs when at least one duplicate name is present.
