@@ -293,8 +293,8 @@
                 {% endwith %}
                 <span class="db-info">
                     <span class="ln">{{ hosted_sys.name }}</span>
-                    {% if hosted_sys.data_model_str %}
-                    <span class="info-subtitle d-block">{{ hosted_sys.data_model_str }}</span>{% endif %}
+                    {% if hosted_sys.all_data_models %}
+                    <span class="info-subtitle d-block">{{ hosted_sys.all_data_models|join:" · " }}</span>{% endif %}
                 </span>
             </a>
         </div>

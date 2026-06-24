@@ -163,8 +163,8 @@
                 {% mono_tile ver.logo ver.system.name 'thumb' %}
                 <span class="db-info">
                     <span class="ln">{{ ver.system.name }}</span>
-                    {% if ver.data_model_str %}
-                    <span class="info-subtitle d-block">{{ ver.data_model_str }}</span>{% endif %}
+                    {% if ver.all_data_models %}
+                    <span class="info-subtitle d-block">{{ ver.all_data_models|join:" · " }}</span>{% endif %}
                 </span>
             </a>
         </div>

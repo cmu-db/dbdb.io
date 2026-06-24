@@ -24,11 +24,23 @@ def _attach_data_models(systems):
     for sf in (SystemFeature.objects
                .filter(version__is_current=True, version__system_id__in=ids, feature__slug='data-model')
                .prefetch_related('options', 'system')):
-        vals = [o.value for o in sf.get_my_or_parent_options()]
-        if vals:
-            sf_map[sf.version.system_id] = ' · '.join(vals[:2])
+        opts = sf.get_my_or_parent_options()
+        if opts:
+            sf_map[sf.version.system_id] = opts
     for s in systems:
-        s.data_model_str = sf_map.get(_sys_id(s), '')
+        sid = _sys_id(s)
+        if sid in sf_map:
+            s.all_data_models = sf_map[sid]
+        else:
+            # No direct data-model feature; fall back to all_data_models() which
+            # recurses into hosted_services.
+            sv = s if isinstance(s, SystemVersion) else None
+            if sv is None:
+                try:
+                    sv = s.current()
+                except SystemVersion.DoesNotExist:
+                    pass
+            s.all_data_models = sv.all_data_models() if sv else []
     return systems
 
 

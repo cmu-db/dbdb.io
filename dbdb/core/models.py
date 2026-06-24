@@ -860,6 +860,29 @@ class SystemVersion(LogoMixin, models.Model):
     def get_twitter_card_image(self):
         return self.system.slug + ".png"
 
+    def all_data_models(self, _visited_system_ids=None):
+        if _visited_system_ids is None:
+            _visited_system_ids = set()
+        if self.system_id in _visited_system_ids:
+            return []
+        _visited_system_ids.add(self.system_id)
+
+        options = []
+        try:
+            sf = self.features.get(feature__slug='data-model')
+            options.extend(sf.get_my_or_parent_options())
+        except SystemFeature.DoesNotExist:
+            pass
+
+        if not options:
+            for hosted_system in self.hosted_services.all():
+                try:
+                    options.extend(hosted_system.current().all_data_models(_visited_system_ids))
+                except SystemVersion.DoesNotExist:
+                    pass
+
+        return options
+
     pass
 
 
