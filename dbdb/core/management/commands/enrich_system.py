@@ -20,6 +20,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import CommandError
+from django.db.models import Q
 from django.utils import timezone
 from dbdb.core.management.base import EnricherBaseCommand
 from django.db import transaction
@@ -32,7 +33,7 @@ from dbdb.core.models import (
 from dbdb.core.utils.citations import crawl_citation_url, normalize_url, process_citation_url
 from dbdb.core.utils.enrichment import BaseEnricher, SYSTEM_ENRICHMENT_TOOL
 from dbdb.core.utils.repositories import GitHubCollector
-from dbdb.core.utils.versions import clone_system_version
+from dbdb.core.utils.versions import clone_system_version, finalize_new_version
 
 LOG = logging.getLogger(__name__)
 User = get_user_model()
@@ -143,10 +144,28 @@ class Command(EnricherBaseCommand):
                             help=f'Process every system whose current version is missing FIELD '
                                  f'(instead of providing KEYWORDs). '
                                  f'Valid fields: {", ".join(all_fields)}')
+        parser.add_argument('--add-tag', metavar='TAG', default=None,
+                            help='Create a new approved SystemVersion adding TAG to the target '
+                                 'systems (matched by name or slug). Skips LLM enrichment.')
 
     def handle(self, *args, **options):
         seen = {}
         missing_field = options.get('missing')
+        add_tag = options.get('add_tag')
+
+        # Resolve tag option before building the system list
+        tag_option = None
+        if add_tag:
+            tag_option = (
+                AttributeOption.objects
+                .filter(attribute__slug='tag')
+                .filter(Q(name=add_tag) | Q(slug=add_tag))
+                .first()
+            )
+            if tag_option is None:
+                raise CommandError(f"No tag found with name or slug '{add_tag}'")
+            self.stdout.write(f"Tag: {tag_option.name} (slug={tag_option.slug})")
+
         if missing_field:
             for system in _query_systems_missing_field(missing_field):
                 seen[system.pk] = system
@@ -173,12 +192,48 @@ class Command(EnricherBaseCommand):
                 LOG.warning("Skipping '%s': has a pending (unapproved) SystemVersion", system.slug)
                 continue
             try:
-                self._enrich_one(system, options)
+                if add_tag:
+                    self._add_tag_one(system, tag_option, options)
+                else:
+                    self._enrich_one(system, options)
                 processed += 1
             except Exception as e:
                 if not options['skip_errors']:
                     raise
                 self.stderr.write(self.style.ERROR(f"Error enriching '{system.slug}': {e}"))
+
+    def _add_tag_one(self, system: System, tag_option: AttributeOption, options: dict):
+        system.refresh_from_db()
+        dry_run: bool = options['dry_run']
+
+        try:
+            current = SystemVersion.objects.get(system=system, is_current=True)
+        except SystemVersion.DoesNotExist:
+            raise CommandError(f"No current SystemVersion for '{system.slug}'")
+
+        if current.tags.filter(pk=tag_option.pk).exists():
+            self.stdout.write(f"  '{system.name}' already has tag '{tag_option.name}', skipping")
+            return
+
+        self.stdout.write(f"  Adding tag '{tag_option.name}' to '{system.name}'...")
+
+        if dry_run:
+            self.stdout.write(self.style.WARNING("  [DRY RUN] Would create new approved SystemVersion"))
+            return
+
+        with transaction.atomic():
+            new_sv = clone_system_version(
+                current,
+                username=settings.DBDB_BOT_ACCOUNT,
+                comment=f"Added tag '{tag_option.name}'",
+                approved=True,
+                attribute_options=[tag_option],
+            )
+            finalize_new_version(new_sv)
+
+        self.stdout.write(self.style.SUCCESS(
+            f"  Created SystemVersion #{new_sv.ver} for '{system.name}'"
+        ))
 
     def _enrich_one(self, system: System, options: dict):
         system.refresh_from_db()
