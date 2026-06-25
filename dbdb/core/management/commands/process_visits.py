@@ -3,19 +3,20 @@ import logging
 
 # django imports
 import numpy as np
-from django.core.management import BaseCommand
 from django.db import connection
 from django.db.models import Q
 from sklearn.metrics import mean_squared_error
 
+from dbdb.core.management.base import DbdbBaseCommand
 from dbdb.core.models import System, SystemRecommendation, SystemVisit
 
 LOG = logging.getLogger(__name__)
 
 
-class Command(BaseCommand):
+class Command(DbdbBaseCommand):
 
     def add_arguments(self, parser):
+        super().add_arguments(parser)
         parser.add_argument('--max-threshold', type=int, default=99999,
                             help="Max visit count threshold per user")
         parser.add_argument('--min-threshold', type=int, default=2,
