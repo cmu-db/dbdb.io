@@ -81,6 +81,9 @@ h1 {
 }
 
 /* Bootstrap focus ring colour */
+.form-control {
+  border: var(--bs-border-width) solid var(--rule);
+}
 .form-control:focus,
 .form-select:focus {
     border-color: #ff6400;
