@@ -364,7 +364,7 @@ class SystemSuggestionForm(forms.Form):
     name = forms.CharField(
         max_length=100,
         label='System Name',
-        widget=forms.TextInput(attrs={'placeholder': 'e.g. CockroachDB'}),
+        widget=forms.TextInput(attrs={'placeholder': 'e.g., WuTangClanDB'}),
     )
     system_url = forms.URLField(
         max_length=500,
@@ -381,7 +381,7 @@ class SystemSuggestionForm(forms.Form):
         max_length=500,
         required=False,
         label='Logo Image URL',
-        widget=forms.URLInput(attrs={'placeholder': 'https://www.example.com/logo.png'}),
+        widget=forms.URLInput(attrs={'placeholder': 'https://www.example.com/logo.svg'}),
     )
     is_my_system = forms.BooleanField(
         required=False,

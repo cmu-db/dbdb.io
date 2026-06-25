@@ -50,7 +50,7 @@ If you believe the entry is incorrect or incomplete, you can view it and request
             <div class="ed-field mb-0">
                 <label for="id_logo_url">Logo Image URL <span class="text-muted fw-normal">&mdash; Optional</span></label>
                 {{ form.logo_url }}
-                <div class="form-text">Direct link to a PNG or SVG, ideally on a transparent background.</div>
+                <div class="form-text">Direct link to a SVG (preferred) or PNG.</div>
                 {% if form.logo_url.errors %}<div class="suggest-error">{{ form.logo_url.errors.0 }}</div>{% endif %}
             </div>
 
