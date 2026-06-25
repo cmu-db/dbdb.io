@@ -42,6 +42,8 @@ class Command(DbdbBaseCommand):
                     help="Skip spam checks")
         parser.add_argument('--dry-run', action='store_true',
                     help="Print what would be changed without writing to the database")
+        parser.add_argument('--skip-errors', action='store_true',
+                    help="Log exceptions and continue to the next citation instead of stopping")
 
         agroup = parser.add_argument_group('URL Overrides')
         agroup.add_argument('--set-status', metavar='STATUS', default=None,
@@ -176,9 +178,10 @@ class Command(DbdbBaseCommand):
             except KeyboardInterrupt:
                 sys.exit(0)
 
-            except:
-                LOG.error(f"Failed: {c}")
-                raise
+            except Exception:
+                LOG.error(f"Failed: {c}", exc_info=True)
+                if not options['skip_errors']:
+                    raise
             finally:
                 if not merged:
                     if dry_run:
