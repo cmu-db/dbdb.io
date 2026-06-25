@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.http.response import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_control
@@ -31,7 +32,7 @@ _REVERSE_FK_FIELDS = frozenset({
     'acquisitions',
 })
 
-@method_decorator(cache_control(private=True))
+@method_decorator(cache_control(private=True), name='dispatch')
 class EmptyFieldsView(View):
 
     template_name = 'core/empty-fields.html'
@@ -71,6 +72,7 @@ class EmptyFieldsView(View):
         version_fields.extend(_REVERSE_FK_FIELDS)
         return version_fields
 
+    @method_decorator(login_required)
     def get(self, request):
         import django.db.models.fields
 
