@@ -187,7 +187,7 @@ class RepoCollector(ABC):
         depth: int | None = None,
         commit: str | None = None,
         all_branches: bool = False,
-        pull: bool = False,
+        pull: bool = True,
     ) -> None:
         """Clone or fetch *url* into <CLONE_ROOT>/org/repo using gitpython.
 
@@ -220,11 +220,17 @@ class RepoCollector(ABC):
         self._repo_dir = repo_dir
 
         if os.path.isdir(repo_dir):
-            self.log.debug("clone_url: reusing existing clone at %s", repo_dir)
-            self._repo = gitpkg.Repo(repo_dir)
-            if pull:
-                self.fetch_latest()
-            return
+            try:
+                self.log.debug("clone_url: reusing existing clone at %s", repo_dir)
+                self._repo = gitpkg.Repo(repo_dir)
+                if pull:
+                    self.log.debug("clone_url: pulling latest commit into %s", repo_dir)
+                    self.fetch_latest()
+                return
+            except gitpkg.InvalidGitRepositoryError:
+                import shutil
+                self.log.warning("clone_url: invalid repo at %s, removing and re-cloning", repo_dir)
+                shutil.rmtree(repo_dir)
 
         self.log.debug(f"clone_url: cloning repo to {repo_dir}")
 

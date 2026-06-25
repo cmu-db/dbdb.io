@@ -874,11 +874,15 @@ def process_citation_url(
         info = {"status": CitationUrl.Status.IGNORE, "title": None}
 
     except:
-        info["status"] = CitationUrl.Status.DEAD
+        if info is None:
+            info = {"status": CitationUrl.Status.DEAD, "title": None}
+        else:
+            info["status"] = CitationUrl.Status.DEAD
         raise
 
     finally:
-        citation_url.status = info["status"]
+        if info is not None:
+            citation_url.status = info["status"]
         citation_url.last_checked = timezone.now()
         citation_url.save()
 
