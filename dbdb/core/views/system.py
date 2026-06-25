@@ -63,7 +63,7 @@ class SystemView(MetadataMixin, View):
     def get_meta_title(self, context=None):
         sv = getattr(self, '_system_version', None)
         name = sv.system.name if sv else 'Database'
-        return f'Database of Databases - {name}'
+        return f'{name} - Database of Databases'
 
     def get_meta_description(self, context=None):
         from django.utils.text import Truncator

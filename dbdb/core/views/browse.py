@@ -499,17 +499,27 @@ class BrowseView(MetadataMixin, View):
         # apply keyword search to name (require all terms)
         if search_q:
             search_vector = SearchVector('search_text', config='simple')
-            # Use prefix matching (term:*) so partial inputs like "Citrus" match
-            # lexemes like "Citrusleaf" in search_text. The existing GIN index
-            # supports :* natively, so no index change is needed.
-            raw_tsquery = ' & '.join(f'{term}:*' for term in search_q.split())
-            search_query = SearchQuery(raw_tsquery, config='simple', search_type='raw')
+            # Sanitize: split each whitespace token on non-word characters so
+            # URLs/DOIs like "https://doi.org/10.1145/3786704" don't produce
+            # invalid tsquery syntax (the colon in particular is a tsquery
+            # operator).  name__icontains still runs against the raw search_q.
+            fts_terms = [
+                part
+                for token in search_q.split()
+                for part in re.split(r'\W+', token)
+                if part
+            ]
+            fts_filter = Q(name__icontains=search_q)
+            if fts_terms:
+                # Use prefix matching (term:*) so partial inputs like "Citrus"
+                # match lexemes like "Citrusleaf". The GIN index supports :*.
+                raw_tsquery = ' & '.join(f'{t}:*' for t in fts_terms)
+                search_query = SearchQuery(raw_tsquery, config='simple', search_type='raw')
+                fts_filter |= Q(search=search_query)
 
-            # name__icontains keeps mid-word partial matches on the system name
-            # (e.g. "iger" → WiredTiger) that prefix FTS would miss.
             matches = SystemSearchText.objects \
                 .annotate(search=search_vector) \
-                .filter(Q(name__icontains=search_q) | Q(search=search_query)) \
+                .filter(fts_filter) \
                 .values('system_id')
             sqs = sqs.filter(system_id__in=[x['system_id'] for x in matches])
 

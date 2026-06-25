@@ -60,6 +60,12 @@ class SearchTestCase(TestCase):
         self.assertContains(response, 'No databases found', html=False)
         return
 
+    def test_search_doi_url_does_not_crash(self):
+        # A DOI URL as the search term contains ":" which is a tsquery operator
+        # and previously caused a ProgrammingError (syntax error in tsquery).
+        response = self.client.get(reverse('browse'), data={'q': 'https://doi.org/10.1145/3786704'})
+        self.assertEqual(response.status_code, 200)
+
     pass
 
 # ==============================================

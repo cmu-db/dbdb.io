@@ -19,14 +19,23 @@ class OrganizationView(MetadataMixin, View):
     def get_meta_title(self, context=None):
         name = getattr(self, '_org_name')
         org_type = getattr(self, '_org_type', 'Organization')
-        return f'{org_type}: {name} - Database of Databases'
+        return f'{org_type} Profile for {name} - Database of Databases'
 
     def get_meta_description(self, context=None):
-        name = getattr(self, '_org_name', 'Organization')
-        return f'{name} organization profile on the Database of Databases encyclopedia.'
+        if self._org_developed:
+            desc = "developer of " + ", ".join([o.system.name for o in self._org_developed]) + " database system"
+            if len(self._org_developed) > 1: desc += "s"
+        elif self._org_acquisitions:
+            desc = "acquirer of " + ", ".join([o.system.name for o in self._org_acquisitions]) + " database system"
+            if len(self._org_acquisitions) > 1: desc += "s"
+        else:
+            desc = "database systems developer"
+
+        return f'Information about the {desc}.'
 
     def get(self, request, slug):
         org = get_object_or_404(Organization, slug=slug)
+        # django-meta fields
         self._org_name = org.name
         self._org_type = org.get_org_type_display()
 
@@ -47,14 +56,14 @@ class OrganizationView(MetadataMixin, View):
         linkedin_citation  = process(org.linkedin_url)
 
         # Systems this org has acquired (via Acquisition → SystemVersion → System)
-        acquisitions = []
+        self._org_acquisitions = []
         for acq in (
             org.acquisitions
                .filter(version__is_current=True)
                .select_related('version__system', 'citation')
                .order_by('year', 'version__system__name')
         ):
-            acquisitions.append({
+            self._org_acquisitions.append({
                 'system':   acq.version.system,
                 'version':  acq.version,
                 'year':     acq.year,
@@ -62,13 +71,13 @@ class OrganizationView(MetadataMixin, View):
             })
 
         # Systems this org developed (current SystemVersion only)
-        developed = list(
+        self._org_developed = list(
             org.developed_systems
                .filter(is_current=True)
                .select_related('system')
                .order_by('system__name')
         )
-        _attach_data_models(developed)
+        _attach_data_models(self._org_developed)
 
         return render(request, self.template_name, {
             'meta': self.get_meta(),
@@ -76,8 +85,8 @@ class OrganizationView(MetadataMixin, View):
             'url_citation':       url_citation,
             'wikipedia_citation': wikipedia_citation,
             'linkedin_citation':  linkedin_citation,
-            'acquisitions':      acquisitions,
-            'developed':         developed,
+            'acquisitions':      self._org_acquisitions,
+            'developed':         self._org_developed,
             'citations':         all_citations,
             'Status':            CitationUrl.Status,
         })
