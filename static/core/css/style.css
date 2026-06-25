@@ -17,14 +17,14 @@
   --mono:  'IBM Plex Mono', ui-monospace, 'SF Mono', monospace;
 
   /* Light — warm paper */
-  --paper:    #faf8f3;
+  --paper:    #f4f4f4;
   --surface:  #ffffff;
-  --surface-2:#f3f0e9;
+  --surface-2:#e3e3e3;
   --ink:      #1c1a17;
   --ink-soft: #514c44;
   --muted:    #8a8378;
-  --rule:     #e4ded2;
-  --rule-soft:#efeade;
+  --rule:     #adadad;
+  --rule-soft:#cecece;
   /*--accent:   #C41230; This is the true CMU red */
   --accent:   #c8102e;
   --accent-2: #a50d26;
