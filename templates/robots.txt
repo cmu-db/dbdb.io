@@ -1,0 +1,14 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /api/
+Disallow: /citation/
+Disallow: /counter
+Disallow: /create
+Disallow: /fields
+Disallow: /user/
+Disallow: /db/*/edit
+Disallow: /db/*/logos
+Disallow: /db/*/diff/
+Disallow: /db/*/revisions/*/delete
+
+Sitemap: https://dbdb.io/sitemap.xml
