@@ -54,6 +54,7 @@ from .api import CounterView
 # ==============================================
 # SystemView
 # ==============================================
+@method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
 class SystemView(View):
 
     template_name = 'core/system-view.html'
@@ -803,6 +804,7 @@ class SystemEditView(LoginRequiredMixin, View):
 # ==============================================
 # RecentChangesView
 # ==============================================
+@method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
 class RecentChangesView(View):
     template_name = "core/recent.html"
 

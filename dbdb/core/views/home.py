@@ -8,7 +8,9 @@ from django.db.models import Count, Q
 from django.db.models.aggregates import Max
 from django.shortcuts import render
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import cache_control
 
 from dbdb.core.models import Feature, SavedSearch, System, SystemFeature, SystemVersion
 
@@ -47,6 +49,7 @@ def _attach_data_models(systems):
 # ==============================================
 # HomeView
 # ==============================================
+@method_decorator(cache_control(public=True, max_age=3600), name='dispatch')
 class HomeView(View):
 
     template_name = 'core/home.html'

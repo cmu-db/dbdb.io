@@ -4,7 +4,9 @@ from functools import reduce
 from django.conf import settings
 from django.db.models import Count, Q
 from django.shortcuts import render
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import cache_control
 
 from dbdb.core.models import (
     AttributeOption,
@@ -23,6 +25,7 @@ StatItem = collections.namedtuple('StatItem', ['label', 'value', 'slug', 'url'])
 # ==============================================
 # StatsView
 # ==============================================
+@method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
 class StatsView(View):
 
     template_name = 'core/stats.html'

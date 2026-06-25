@@ -6,7 +6,9 @@ from django.http import HttpResponse
 from django.http.response import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import cache_control
 
 from lxml import etree
 
@@ -151,6 +153,7 @@ class EmptyFieldsView(View):
 # ==============================================
 # SitemapView
 # ==============================================
+@method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
 class SitemapView(View):
 
     def get(self, request):

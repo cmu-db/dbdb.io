@@ -11,8 +11,10 @@ from django.db.models import Count, F, Max, Min, Q
 from django.db.models.expressions import RawSQL
 from django.db.models.functions import JSONObject
 from django.shortcuts import redirect, render
+from django.utils.decorators import method_decorator
 from django.utils.html import mark_safe
 from django.views import View
+from django.views.decorators.cache import cache_control
 
 from django_countries import countries
 from django_countries.fields import Country as CountryObj
@@ -170,6 +172,7 @@ _ORDER_BY_MAP = {
 # ==============================================
 # BrowseView
 # ==============================================
+@method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
 class BrowseView(View):
 
     template_name = 'core/browse.html'

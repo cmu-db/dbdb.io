@@ -1,5 +1,7 @@
 from django.shortcuts import get_object_or_404, render
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import cache_control
 
 from dbdb.core.models import Attribute, DocPage, Feature
 
@@ -21,6 +23,7 @@ def _sidebar_context():
 # ==============================================
 # DocOverviewView
 # ==============================================
+@method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
 class DocOverviewView(View):
 
     template_name = 'core/docs/overview.html'
@@ -40,6 +43,7 @@ class DocOverviewView(View):
 # ==============================================
 # DocFeatureView
 # ==============================================
+@method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
 class DocFeatureView(View):
 
     template_name = 'core/docs/feature.html'
@@ -62,6 +66,7 @@ class DocFeatureView(View):
 # ==============================================
 # DocAttributeView
 # ==============================================
+@method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
 class DocAttributeView(View):
 
     template_name = 'core/docs/attribute.html'
@@ -84,6 +89,7 @@ class DocAttributeView(View):
 # ==============================================
 # DocSysAttrsView
 # ==============================================
+@method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
 class DocSysAttrsView(View):
 
     template_name = 'core/docs/system-attributes.html'

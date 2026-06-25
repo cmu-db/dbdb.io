@@ -1,11 +1,14 @@
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404, render
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import cache_control
 
 from dbdb.core.models import CitationUrl, Organization
 from dbdb.core.views.home import _attach_data_models
 
 
+@method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
 class OrganizationView(View):
 
     template_name = 'core/organization-view.html'
