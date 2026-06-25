@@ -9,16 +9,6 @@
 {% load page_title %}
 {% load version_tags %}
 
-{% block twitter %}
-    <meta property="og:title" content="Database of Databases - {{ system.name }}" />
-    <meta property="og:description" content="{{ version.description|truncatechars:300 }}" />
-    <meta property="og:type" content="article" />
-    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ version.twitter_card_url }}" />
-    <meta name="twitter:title" content="Database of Databases - {{ system.name }}" />
-    <meta name="twitter:description" content="{{ version.description|truncatechars:200 }}" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ version.twitter_card_url }}" />
-{% endblock %}
 
 {% block navbuttons %}
 {% if user.is_authenticated and user_can_edit %}

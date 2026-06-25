@@ -17,6 +17,7 @@ from django.utils.decorators import method_decorator
 from django.utils.text import slugify
 from django.views import View
 from django.views.decorators.cache import cache_control
+from meta.views import MetadataMixin
 
 from dbdb.core.views.home import _attach_data_models
 
@@ -55,9 +56,34 @@ from .api import CounterView
 # SystemView
 # ==============================================
 @method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
-class SystemView(View):
+class SystemView(MetadataMixin, View):
 
     template_name = 'core/system-view.html'
+
+    def get_meta_title(self, context=None):
+        sv = getattr(self, '_system_version', None)
+        name = sv.system.name if sv else 'Database'
+        return f'Database of Databases - {name}'
+
+    def get_meta_description(self, context=None):
+        from django.utils.text import Truncator
+        sv = getattr(self, '_system_version', None)
+        return Truncator(sv.description or '').chars(300) if sv else ''
+
+    def get_meta_image(self, context=None):
+        sv = getattr(self, '_system_version', None)
+        if sv:
+            return self.request.build_absolute_uri(sv.twitter_card_url())
+        return None
+
+    def get_meta_object_type(self, context=None):
+        return 'article'
+
+    def get_meta_twitter_type(self, context=None):
+        return 'summary_large_image'
+
+    def get_meta_url(self, context=None):
+        return self.request.build_absolute_uri()
 
     def process_citations(self, citations) -> list(int):
         citation_offsets = [ ]
@@ -262,7 +288,9 @@ class SystemView(View):
 
         hosted_services = _attach_data_models(list(system_version.hosted_services.all()))
 
+        self._system_version = system_version
         return render(request, self.template_name, {
+            'meta': self.get_meta(),
             'activate': 'system',  # NAV-LINKS
             'system': system,
             'version': system_version,
@@ -805,8 +833,11 @@ class SystemEditView(LoginRequiredMixin, View):
 # RecentChangesView
 # ==============================================
 @method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
-class RecentChangesView(View):
+class RecentChangesView(MetadataMixin, View):
     template_name = "core/recent.html"
+    title = 'Recent Changes — Database of Databases'
+    description = 'Recent edits and revisions to database system pages in the Database of Databases encyclopedia.'
+    twitter_type = 'summary'
 
     def get(self, request, slug=None):
         from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -903,6 +934,7 @@ class RecentChangesView(View):
             context["versions"] = versions
             context["page_range"] = page_range
 
+        context['meta'] = self.get_meta()
         return render(request, self.template_name, context)
 
     @method_decorator(login_required)
@@ -1275,6 +1307,7 @@ class SystemVersionDiffView(View):
 # ==============================================
 class CitationResetStatusView(View):
 
+    @method_decorator(login_required)
     def post(self, request, pk):
         if not request.user.is_superuser:
             return HttpResponseForbidden()

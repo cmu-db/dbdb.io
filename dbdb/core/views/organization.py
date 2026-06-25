@@ -3,18 +3,32 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_control
+from meta.views import MetadataMixin
 
 from dbdb.core.models import CitationUrl, Organization
 from dbdb.core.views.home import _attach_data_models
 
 
 @method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
-class OrganizationView(View):
+class OrganizationView(MetadataMixin, View):
 
     template_name = 'core/organization-view.html'
 
+    twitter_type = 'summary'
+
+    def get_meta_title(self, context=None):
+        name = getattr(self, '_org_name')
+        org_type = getattr(self, '_org_type', 'Organization')
+        return f'{org_type}: {name} - Database of Databases'
+
+    def get_meta_description(self, context=None):
+        name = getattr(self, '_org_name', 'Organization')
+        return f'{name} organization profile on the Database of Databases encyclopedia.'
+
     def get(self, request, slug):
         org = get_object_or_404(Organization, slug=slug)
+        self._org_name = org.name
+        self._org_type = org.get_org_type_display()
 
         # Build a numbered citation list (same mechanic as SystemView)
         all_citations = []
@@ -57,6 +71,7 @@ class OrganizationView(View):
         _attach_data_models(developed)
 
         return render(request, self.template_name, {
+            'meta': self.get_meta(),
             'org':               org,
             'url_citation':       url_citation,
             'wikipedia_citation': wikipedia_citation,

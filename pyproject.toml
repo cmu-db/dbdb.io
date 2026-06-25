@@ -31,6 +31,7 @@ dependencies = [
     "django-countries==8.2.0",
     "django-environ==0.12.0",
     "django-markdownify==0.9.6",
+    "django-meta>=2.5.1",
     "django-recaptcha==3.0.0",
     "django-turnstile>=0.1.3",
     "django-upgrade==1.29.1",

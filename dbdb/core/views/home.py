@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_control
+from meta.views import MetadataMixin
 
 from dbdb.core.models import Feature, SavedSearch, System, SystemFeature, SystemVersion
 
@@ -50,9 +51,12 @@ def _attach_data_models(systems):
 # HomeView
 # ==============================================
 @method_decorator(cache_control(public=True, max_age=3600), name='dispatch')
-class HomeView(View):
+class HomeView(MetadataMixin, View):
 
     template_name = 'core/home.html'
+    title = 'Database of Databases'
+    description = 'The on-line encyclopedia of database systems from Carnegie Mellon University.'
+    twitter_type = 'summary'
 
     def get(self, request):
         # calculate date window
@@ -190,6 +194,7 @@ class HomeView(View):
                     break
 
         return render(request, self.template_name, {
+            'meta': self.get_meta(),
             'activate': "home",
             'most_recent': most_recent,
             'most_versions': most_versions,

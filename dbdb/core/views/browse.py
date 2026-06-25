@@ -15,6 +15,7 @@ from django.utils.decorators import method_decorator
 from django.utils.html import mark_safe
 from django.views import View
 from django.views.decorators.cache import cache_control
+from meta.views import MetadataMixin
 
 from django_countries import countries
 from django_countries.fields import Country as CountryObj
@@ -173,9 +174,23 @@ _ORDER_BY_MAP = {
 # BrowseView
 # ==============================================
 @method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
-class BrowseView(View):
+class BrowseView(MetadataMixin, View):
 
     template_name = 'core/browse.html'
+
+    twitter_type = 'summary'
+
+    def get_meta_title(self, context=None):
+        t = getattr(self, '_browse_title', 'Browse')
+        if t and t != 'Browse':
+            return f'{t} — Database of Databases'
+        return 'Browse — Database of Databases'
+
+    def get_meta_description(self, context=None):
+        t = getattr(self, '_browse_title', 'Browse')
+        if t and t != 'Browse':
+            return f'Database systems matching: {t}.'
+        return 'Search and filter the Database of Databases encyclopedia of database systems.'
 
     def build_filter_group_for_field(self, field, search_field, label, all_systems, querydict):
         empty_set = set()
@@ -1085,7 +1100,9 @@ class BrowseView(View):
             ['Start Year', 'End Year'] + [fg.label for fg in filter_groups],
             key=str.casefold,
         )
+        self._browse_title = title
         return render(request, self.template_name, {
+            'meta': self.get_meta(),
             'title': title,
             'activate': 'browse',
             'page_error': search_error or (_doi_warning_html(search_q) if _is_doi_query(search_q) else None),

@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'turnstile',
     'rest_framework', # djangorestframework
     'markdownify.apps.MarkdownifyConfig',
+    'meta',
 
     'dbdb.core'
 ]
@@ -276,3 +277,12 @@ CRAWLER_SPAM_CHECKER_MODEL            = env('CRAWLER_SPAM_CHECKER_MODEL', defaul
 CRAWLER_SPAM_CHECKER_FALLBACK_MODEL_A = env('CRAWLER_SPAM_CHECKER_FALLBACK_MODEL_A', default='qwen3.6:35b')
 CRAWLER_SPAM_CHECKER_FALLBACK_MODEL_B = env('CRAWLER_SPAM_CHECKER_FALLBACK_MODEL_B', default='qwen3.6:35b')
 CRAWLER_SPAM_VALIDATION_MODEL         = env('CRAWLER_SPAM_VALIDATION_MODEL', default='qwen3.6:35b')
+
+# django-meta
+META_SITE_PROTOCOL      = env('META_SITE_PROTOCOL', default='https')
+META_SITE_DOMAIN        = env('META_SITE_DOMAIN',   default='dbdb.io')
+META_USE_OG_PROPERTIES  = True
+META_USE_TWITTER_PROPERTIES = True
+META_TWITTER_TYPE       = 'summary'
+META_USE_TITLE_TAG      = False
+META_INCLUDE_KEYWORDS   = False

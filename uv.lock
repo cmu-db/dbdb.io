@@ -259,6 +259,7 @@ dependencies = [
     { name = "django-countries" },
     { name = "django-environ" },
     { name = "django-markdownify" },
+    { name = "django-meta" },
     { name = "django-recaptcha" },
     { name = "django-turnstile" },
     { name = "django-upgrade" },
@@ -362,6 +363,7 @@ requires-dist = [
     { name = "django-countries", specifier = "==8.2.0" },
     { name = "django-environ", specifier = "==0.12.0" },
     { name = "django-markdownify", specifier = "==0.9.6" },
+    { name = "django-meta", specifier = ">=2.5.1" },
     { name = "django-recaptcha", specifier = "==3.0.0" },
     { name = "django-turnstile", specifier = ">=0.1.3" },
     { name = "django-upgrade", specifier = "==1.29.1" },
@@ -548,6 +550,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/45/65/f3630c4cc20511b9c9f222a9005373a7fbd303e3233befd7a163200e631a/django_markdownify-0.9.6.tar.gz", hash = "sha256:edcf47b2026d55a8439049d35c8b54e11066a4856c4fad1060e139cb3d2eee52", size = 8069, upload-time = "2025-12-06T10:25:19.716Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/67/e1/fafee8ffd7b5a1c4fd5eaf303a00c8bbbf38a90eae940823146c38b9a188/django_markdownify-0.9.6-py3-none-any.whl", hash = "sha256:9863b2bfa6d159ad1423dc93bf0d6eadc6413776de304049aa9fcfa5edd2ce1c", size = 10449, upload-time = "2025-12-06T10:25:17.818Z" },
+]
+
+[[package]]
+name = "django-meta"
+version = "2.5.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b7/a3/4cf42f67c44e193db994aad15732aedce1e94e94ab21dcfe93e233b1cf40/django_meta-2.5.1.tar.gz", hash = "sha256:0699e585444d59286c25bc301b865e56814e2473a069cd1046840669204cec2a", size = 29308, upload-time = "2026-02-17T10:33:29.162Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f2/3d/d839a42f52187c05abe9b8e517a98a71baff5241222dfb36792d2818c8c6/django_meta-2.5.1-py2.py3-none-any.whl", hash = "sha256:35941347c39fa69139cdede3fe39f408330eb586819c7a9c4610991479e1ae57", size = 27935, upload-time = "2026-02-17T10:33:28.124Z" },
 ]
 
 [[package]]

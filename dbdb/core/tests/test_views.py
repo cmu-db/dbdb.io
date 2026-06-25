@@ -456,3 +456,86 @@ class LoginTestCase(TestCase):
         )
         return
     pass
+
+
+# ==============================================
+# MetaTagsTestCase
+# ==============================================
+class MetaTagsTestCase(TestCase):
+
+    fixtures = [
+        'adminuser.json',
+        'testuser.json',
+        'core_features.json',
+        'core_attributes.json',
+        'core_system.json'
+    ]
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        for ver in SystemVersion.objects.filter(is_current=True):
+            sst, _ = SystemSearchText.objects.update_or_create(system=ver.system)
+            sst.name = ver.system.name
+            sst.search_text = generate_searchtext(ver)
+            sst.save()
+
+    # --- System page ---
+
+    def test_system_og_title_contains_system_name(self):
+        response = self.client.get(reverse('system', kwargs={'slug': 'sqlite'}))
+        self.assertContains(response, 'property="og:title"')
+        self.assertContains(response, 'Database of Databases - SQLite')
+
+    def test_system_twitter_card_is_large_image(self):
+        response = self.client.get(reverse('system', kwargs={'slug': 'sqlite'}))
+        self.assertContains(response, 'name="twitter:card"')
+        self.assertContains(response, 'summary_large_image')
+
+    def test_system_og_description_present(self):
+        response = self.client.get(reverse('system', kwargs={'slug': 'sqlite'}))
+        self.assertContains(response, 'property="og:description"')
+
+    def test_system_og_type_is_article(self):
+        response = self.client.get(reverse('system', kwargs={'slug': 'sqlite'}))
+        self.assertContains(response, 'property="og:type"')
+        self.assertContains(response, 'article')
+
+    # --- Home page ---
+
+    def test_home_og_title(self):
+        response = self.client.get(reverse('home'))
+        self.assertContains(response, 'property="og:title"')
+        self.assertContains(response, 'Database of Databases')
+
+    def test_home_og_description(self):
+        response = self.client.get(reverse('home'))
+        self.assertContains(response, 'property="og:description"')
+        self.assertContains(response, 'encyclopedia of database systems')
+
+    def test_home_twitter_card_is_summary(self):
+        response = self.client.get(reverse('home'))
+        self.assertContains(response, 'name="twitter:card"')
+        self.assertContains(response, 'summary')
+
+    # --- Browse page ---
+
+    def test_browse_og_title_no_filter(self):
+        response = self.client.get(reverse('browse'))
+        self.assertContains(response, 'property="og:title"')
+        self.assertContains(response, 'Browse — Database of Databases')
+
+    def test_browse_og_title_with_keyword(self):
+        response = self.client.get(reverse('browse'), data={'q': 'sql'})
+        self.assertContains(response, 'property="og:title"')
+        self.assertContains(response, 'Database of Databases')
+
+    def test_browse_og_description_with_filter(self):
+        response = self.client.get(
+            reverse('browse'),
+            data={'storage-model': ['n-ary-storage-model-rowrecord']},
+        )
+        self.assertContains(response, 'property="og:description"')
+        self.assertContains(response, 'Database systems matching')
+
+    pass

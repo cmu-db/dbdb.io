@@ -7,6 +7,7 @@ from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_control
+from meta.views import MetadataMixin
 
 from dbdb.core.models import (
     AttributeOption,
@@ -26,10 +27,13 @@ StatItem = collections.namedtuple('StatItem', ['label', 'value', 'slug', 'url'])
 # StatsView
 # ==============================================
 @method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
-class StatsView(View):
+class StatsView(MetadataMixin, View):
 
     template_name = 'core/stats.html'
     is_privileged = False
+    title = 'Leaderboards — Database of Databases'
+    description = 'Leaderboards and statistics for the Database of Databases encyclopedia of database systems.'
+    twitter_type = 'summary'
 
     def get_bycountries(self, limit):
         def reduce_countries(mapping, item):
@@ -281,6 +285,7 @@ class StatsView(View):
         num_systems = SystemVersion.objects.filter(is_current=True).count()
 
         return render(request, self.template_name, context={
+            'meta': self.get_meta(),
             'activate': 'stats', # NAV-LINKS
             'stats': stats,
             'stats_type': stats_type,
