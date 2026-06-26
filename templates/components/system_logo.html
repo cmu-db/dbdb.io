@@ -1,0 +1,13 @@
+{% load logos thumbnail %}
+{% if logo %}
+<a href="{% url 'system_logos' system.slug %}" class="logo-thumbnail" title="View All Logos for {{ system.name }}">
+    <img class="{% if is_tall %}logo-tall{% else %}logo-normal{% endif %}"
+         src="{% if is_svg %}{{ logo_url }}{% else %}{{ logo|thumbnail_url:'thumb' }}{% endif %}"
+         alt="{{ system.name }} Logo">
+</a>
+<a class="d-block logo-versions-link text-muted text-uppercase mt-2" href="{% url 'system_logos' system.slug %}" title="View All Logos for {{ system.name }}">
+    <i class="fa-solid fa-images"></i>Logo Versions
+</a>
+{% else %}
+{% mono_tile logo system.name lazy=False %}
+{% endif %}

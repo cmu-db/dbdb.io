@@ -3,6 +3,36 @@ from django import template
 register = template.Library()
 
 
+@register.inclusion_tag("components/system_logo.html")
+def system_logo(version, system):
+    """
+    Renders the factbox logo block for a SystemVersion.
+
+    When a logo exists: wraps it in a link to the logos page and shows a
+    "Logo Versions" link below, sizing the image with logo-tall/logo-normal
+    based on aspect ratio.
+    When no logo: falls back to the mono-tile initials box.
+    """
+    logo = version.logo
+    logo_url = None
+    is_svg = False
+    is_tall = False
+    if logo:
+        logo_url = logo.url
+        is_svg = logo_url.lower().endswith('.svg')
+        h = getattr(version, 'logo_height', 0) or 0
+        w = getattr(version, 'logo_width', 0) or 0
+        is_tall = h > w
+    return {
+        'logo': logo,
+        'logo_url': logo_url,
+        'is_svg': is_svg,
+        'is_tall': is_tall,
+        'system': system,
+        'version': version,
+    }
+
+
 @register.inclusion_tag("components/mono_tile.html")
 def mono_tile(logo, name:str, alias:str='thumb', extra_classes:str='', lazy:bool=True):
     """
