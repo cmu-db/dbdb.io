@@ -6,7 +6,7 @@
 <html lang="en" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}{% endblock %}Database of Databases{% block title_suffix %}{% endblock %}</title>
+    <title>{% if meta %}{{ meta.title }}{% else %}{% block title %}{% endblock %}{{ DBDB_SITE_NAME }}{% endif %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% if counter_token %}
     <meta name="counter" content="{{ counter_token }}">
@@ -25,19 +25,19 @@
     <link rel="stylesheet" type="text/css" href="{% static 'core/css/jquery.auto-complete.css' %}">
     <link rel="stylesheet" href="{{ FONTAWESOME_CSS_URL }}">
 
-    <meta property="og:site_name" content="Database of Databases" />
+    <meta property="og:site_name" content="{{ DBDB_SITE_NAME }}" />
     {% block twitter %}
     {% if meta %}
     {% include "meta/meta.html" %}
     {% else %}
     <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
     <meta name="twitter:card" content="summary" />
-    <meta property="og:title" content="Database of Databases" />
+    <meta property="og:title" content="{{ DBDB_SITE_NAME }}" />
     <meta property="og:description" content="The on-line encyclopedia of databases systems from Carnegie Mellon University." />
-    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'core/images/favicon.png' %}" />
-    <meta name="twitter:title" content="Database of Databases" />
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static DBDB_SITE_FAVICON %}" />
+    <meta name="twitter:title" content="{{ DBDB_SITE_NAME }}" />
     <meta name="twitter:description" content="Encyclopedia of {% if num_systems %}{{ num_systems }} {% endif %}databases systems from Carnegie Mellon University. Curated by @andy_pavlo" />
-    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'core/images/favicon.png' %}" />
+    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static DBDB_SITE_FAVICON %}" />
     {% endif %}
     {% endblock %}
 

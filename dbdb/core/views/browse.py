@@ -5,6 +5,7 @@ from dataclasses import asdict
 from functools import reduce
 from operator import and_, or_
 
+from django.conf import settings
 from django.contrib.postgres.aggregates import JSONBAgg
 from django.contrib.postgres.search import SearchQuery
 from django.db.models import Count, F, Max, Min, Q
@@ -182,15 +183,17 @@ class BrowseView(MetadataMixin, View):
 
     def get_meta_title(self, context=None):
         t = getattr(self, '_browse_title', 'Browse')
+        sep = settings.DBDB_TITLE_SEPARATOR
+        site = settings.DBDB_SITE_NAME
         if t and t != 'Browse':
-            return f'{t} — Database of Databases'
-        return 'Browse — Database of Databases'
+            return f'{t}{sep}{site}'
+        return f'Browse{sep}{site}'
 
     def get_meta_description(self, context=None):
         t = getattr(self, '_browse_title', 'Browse')
         if t and t != 'Browse':
             return f'Database systems matching: {t}.'
-        return 'Search and filter the Database of Databases encyclopedia of database systems.'
+        return f'Search and filter the {settings.DBDB_SITE_NAME} encyclopedia of database systems.'
 
     def build_filter_group_for_field(self, field, search_field, label, all_systems, querydict):
         empty_set = set()

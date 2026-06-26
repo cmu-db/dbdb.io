@@ -21,8 +21,6 @@
 {% endif %}
 {% endblock %}
 
-{% block title %}{{ system.name }}{% if has_revision %} - Revision #{{ version.ver }}{% endif %} - {% endblock %}
-
 {% block content %}
 {# Register partials before block.super renders the layout and calls them. #}
 {% partialdef revision_notice %}

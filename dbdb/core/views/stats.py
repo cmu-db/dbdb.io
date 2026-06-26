@@ -31,8 +31,8 @@ class StatsView(MetadataMixin, View):
 
     template_name = 'core/stats.html'
     is_privileged = False
-    title = 'Leaderboards — Database of Databases'
-    description = 'Leaderboards and statistics for the Database of Databases encyclopedia of database systems.'
+    title = f'Leaderboards{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
+    description = f'Leaderboards and statistics for the {settings.DBDB_SITE_NAME} encyclopedia of database systems.'
     twitter_type = 'summary'
 
     def get_bycountries(self, limit):

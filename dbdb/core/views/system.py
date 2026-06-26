@@ -63,7 +63,7 @@ class SystemView(MetadataMixin, View):
     def get_meta_title(self, context=None):
         sv = getattr(self, '_system_version', None)
         name = sv.system.name if sv else 'Database'
-        return f'{name} - Database of Databases'
+        return f'{name}{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
 
     def get_meta_description(self, context=None):
         from django.utils.text import Truncator
@@ -835,8 +835,8 @@ class SystemEditView(LoginRequiredMixin, View):
 @method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
 class RecentChangesView(MetadataMixin, View):
     template_name = "core/recent.html"
-    title = 'Recent Changes — Database of Databases'
-    description = 'Recent edits and revisions to database system pages in the Database of Databases encyclopedia.'
+    title = f'Recent Changes{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
+    description = f'Recent edits and revisions to database system pages in the {settings.DBDB_SITE_NAME} encyclopedia.'
     twitter_type = 'summary'
 
     def get(self, request, slug=None):

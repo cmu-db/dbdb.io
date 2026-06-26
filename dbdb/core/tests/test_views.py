@@ -1,6 +1,7 @@
 # stdlib imports
 # django imports
 import environ
+from django.conf import settings
 from django.contrib.auth import get_user
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
@@ -491,7 +492,7 @@ class MetaTagsTestCase(TestCase):
     def test_system_og_title_contains_system_name(self):
         response = self.client.get(reverse('system', kwargs={'slug': 'sqlite'}))
         self.assertContains(response, 'property="og:title"')
-        self.assertContains(response, 'Database of Databases - SQLite')
+        self.assertContains(response, f'SQLite{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}')
 
     def test_system_twitter_card_is_large_image(self):
         response = self.client.get(reverse('system', kwargs={'slug': 'sqlite'}))
@@ -529,7 +530,7 @@ class MetaTagsTestCase(TestCase):
     def test_browse_og_title_no_filter(self):
         response = self.client.get(reverse('browse'))
         self.assertContains(response, 'property="og:title"')
-        self.assertContains(response, 'Browse — Database of Databases')
+        self.assertContains(response, f'Browse{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}')
 
     def test_browse_og_title_with_keyword(self):
         response = self.client.get(reverse('browse'), data={'q': 'sql'})

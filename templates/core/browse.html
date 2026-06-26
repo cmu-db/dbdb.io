@@ -6,8 +6,6 @@
 {% load django_bootstrap5 %}
 {% load page_title %}
 
-{% block title %}{% if saved_search %}{{ saved_search.name }} - {% elif title %}{{title}} - {% endif %}{% endblock %}
-
 {% block css %}
 <link rel="stylesheet" type="text/css" href="{% static 'lib/css/nouislider.min.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />

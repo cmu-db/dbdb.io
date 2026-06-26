@@ -7,8 +7,6 @@
 {% load links %}
 {% load page_title %}
 
-{% block title %}{{ org.name }} ({% if org.type %}{{ org.type }}{% else %}Organization{% endif %}) - {% endblock %}
-
 {% block content %}
 {# Register partials before block.super renders the layout and calls them. #}
 {% partialdef page_heading %}

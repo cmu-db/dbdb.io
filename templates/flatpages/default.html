@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load page_title links %}
 
-{% block title %}{{ flatpage.title }} - {% endblock %}
+{% block title %}{{ flatpage.title }}{{ DBDB_TITLE_SEPARATOR }}{% endblock %}
 
 {% block content %}
 {% page_title %}

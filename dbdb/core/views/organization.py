@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
@@ -19,7 +20,7 @@ class OrganizationView(MetadataMixin, View):
     def get_meta_title(self, context=None):
         name = getattr(self, '_org_name')
         org_type = getattr(self, '_org_type', 'Organization')
-        return f'{org_type} Profile for {name} - Database of Databases'
+        return f'{org_type} Profile for {name}{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
 
     def get_meta_description(self, context=None):
         if self._org_developed:

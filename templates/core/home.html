@@ -5,9 +5,6 @@
 {% load thumbnail %}
 {% load savedsearch_tags %}
 
-{% block title %}{% endblock %}
-{% block title_suffix %} - The Encyclopedia of Database Systems{% endblock %}
-
 {% block page_header %}
 <header class="masthead">
     <div class="container mt-1 mt-md-4">
@@ -90,6 +87,9 @@
     <a href="{{ spotlight_version.system.get_absolute_url }}" class="spotlight">
         {% mono_tile spotlight_version.logo spotlight_version.system.name extra_classes="d-none d-md-inline" %}
         <span>
+            {% if spotlight_version.system.logo %}
+            {% mono_tile spotlight_version.logo spotlight_version.system.name extra_classes="d-inline d-md-none" %}
+            {% endif %}
             <h3 class="m-0">{{ spotlight_version.system.name }}</h3>
             {% if spotlight_data_model %}
                 <span class="info-subtitle d-block mt-0 mb-1">{{ spotlight_data_model }} Database System</span>

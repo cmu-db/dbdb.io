@@ -54,7 +54,7 @@ def _attach_data_models(systems):
 class HomeView(MetadataMixin, View):
 
     template_name = 'core/home.html'
-    title = 'Database of Databases'
+    title = f'{settings.DBDB_SITE_NAME}{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_TAGLINE}'
     description = 'The on-line encyclopedia of database systems from Carnegie Mellon University.'
     twitter_type = 'summary'
 
