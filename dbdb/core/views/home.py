@@ -66,11 +66,15 @@ class HomeView(MetadataMixin, View):
 
         now = timezone.now()
 
-        # get top systems by modified date
-        most_recent = list(System.objects.order_by('-modified')[:settings.DBDB_HOME_LISTINGS_NUM_ENTRIES])
+        # get top systems by current SystemVersion creation date
+        most_recent = list(
+            System.objects
+            .annotate(sv_created=Max('versions__created', filter=Q(versions__is_current=True)))
+            .order_by('-sv_created')[:settings.DBDB_HOME_LISTINGS_NUM_ENTRIES]
+        )
         _attach_data_models(most_recent)
         for s in most_recent:
-            delta = (now - s.modified).days
+            delta = (now - s.sv_created).days
             if delta == 0:
                 s.metric = "today"
             elif delta == 1:
