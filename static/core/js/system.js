@@ -3,7 +3,7 @@
 	
 	if ( $token.length == 1 ) {
 		var token = $token.attr('content');
-		jQuery.post('/counter', { token:token });
+		jQuery.post('/api/db/counter', { token:token });
 	}
 
 	$('.markdown-area').each(function () {

@@ -391,7 +391,7 @@
         $(input).autoComplete({
             minChars: 1,
             source: function(term, response) {
-                $.getJSON('/api/organizations/autocomplete/', { q: term }, function(data) { response(data); });
+                $.getJSON('/api/org/autocomplete', { q: term }, function(data) { response(data); });
             }
         });
     }

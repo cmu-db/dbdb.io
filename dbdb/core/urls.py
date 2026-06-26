@@ -19,8 +19,8 @@ urlpatterns = [
 
     path('browse', views.BrowseView.as_view(), name='browse'),
     path('search', views.BrowseView.as_view(), name='search'),
-    path('api/systems/autocomplete/', views.system_autocomplete, name='system_autocomplete'),
-    path('api/organizations/autocomplete/', views.organization_autocomplete, name='organization_autocomplete'),
+    path('api/db/autocomplete', views.system_autocomplete, name='system_autocomplete'),
+    path('api/org/autocomplete', views.organization_autocomplete, name='organization_autocomplete'),
     path('api/citation-urls/autocomplete/', views.citation_url_autocomplete, name='citation_url_autocomplete'),
     path('search/advanced', views.BrowseView.as_view(), name='advanced_search'),
 
@@ -47,7 +47,7 @@ urlpatterns = [
     # path('docs/attribute/<slug:slug>/', views.DocAttributeView.as_view(), name='docs-attribute'),
     # path('docs/system-attributes/', views.DocSysAttrsView.as_view(), name='docs-sys-attrs'),
 
-    path('counter', views.CounterView.as_view(), name='counter'),
+    path('api/db/counter', views.CounterView.as_view(), name='system_counter'),
     path('sitemap.xml', views.SitemapView.as_view(), name='sitemap'),
 
     path('citation/<int:pk>/reset-status', views.CitationResetStatusView.as_view(), name='citation_reset_status'),

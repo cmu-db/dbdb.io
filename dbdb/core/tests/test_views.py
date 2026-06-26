@@ -131,7 +131,7 @@ class SystemViewTestCase(TestCase):
         orig_visits = SystemVisit.objects.filter(system=system).count()
 
         data = {"token": CounterView.build_token('system', pk=system.id)}
-        response = self.client.post(reverse('counter'), data)
+        response = self.client.post(reverse('system_counter'), data)
         result = response.json()
         self.assertTrue("status" in result)
         self.assertEqual(result["status"], "ok")
@@ -149,7 +149,7 @@ class SystemViewTestCase(TestCase):
         c = Client(HTTP_USER_AGENT='(KHTML, like Gecko; compatible; Googlebot/2.1)')
 
         data = {"token": CounterView.build_token('system', pk=system.id)}
-        response = c.post(reverse('counter'), data)
+        response = c.post(reverse('system_counter'), data)
         result = response.json()
         self.assertTrue("status" in result)
         self.assertEqual(result["status"], "bot")
