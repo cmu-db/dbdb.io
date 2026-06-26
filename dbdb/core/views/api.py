@@ -9,6 +9,7 @@ from django.conf import settings
 from django.db.models import Case, IntegerField, Value, When
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -36,6 +37,7 @@ class CounterView(View):
             s = s.decode('utf-8')
         return s
 
+    @method_decorator(never_cache)
     def post(self, request):
         token = request.POST.get('token')
 
