@@ -448,12 +448,20 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
   color: var(--paper);
   transition: background .15s, color .15s, border-color .15s;
 }
-.cta:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.cta:hover, .cta.cta-ghost:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
 .cta.cta-ghost {
-  background: transparent;
+  background: var(--surface);
   color: var(--ink);
 }
-.cta.cta-ghost:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+/*.cta.cta-ghost:hover {*/
+/*  background: var(--accent);*/
+/*  color: var(--paper);*/
+/*  border-color: var(--ink);*/
+/*}*/
 
 /* ============================================================
    SHORTCUT CARDS
