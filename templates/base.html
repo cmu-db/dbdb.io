@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="{{ FONTAWESOME_CSS_URL }}">
 
     {% if meta %}{% include "meta/meta.html" %}{% endif %}
+    {% block head_meta %}{% endblock %}
 
     {% block css %}{% endblock %}
 </head>

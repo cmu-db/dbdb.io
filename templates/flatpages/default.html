@@ -1,7 +1,17 @@
 {% extends 'base.html' %}
-{% load page_title links %}
+{% load static dates page_title links %}
 
 {% block title %}{{ flatpage.title }}{{ DBDB_TITLE_SEPARATOR }}{% endblock %}
+{% block head_meta %}
+<meta property="og:title" content="{{ flatpage.title }}{{ DBDB_TITLE_SEPARATOR }}{{ DBDB_SITE_NAME }}" />
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static DBDB_SITE_FAVICON %}" />
+{% if flatpage.meta.description %}<meta name="description" content="{{ flatpage.meta.description }}" />
+<meta property="og:description" content="{{ flatpage.meta.description }}" />{% endif %}
+{% if flatpage.meta.modified %}<meta name="twitter:label1" content="Last Updated" />
+<meta name="twitter:data1" content="{{ flatpage.meta.modified|strftime:DBDB_META_DATETIME_FORMAT }}" />{% endif %}
+{% if flatpage.meta.kicker %}<meta name="twitter:label2" content="Section" />
+<meta name="twitter:data2" content="{{ flatpage.meta.kicker }}" />{% endif %}
+{% endblock %}
 
 {% block content %}
 {% page_title %}

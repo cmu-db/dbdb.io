@@ -126,7 +126,7 @@ class SystemView(MetadataMixin, View):
             return None
         return {
             'twitter:label1': 'Last Updated',
-            'twitter:data1': f'{sv.created:%B %-d, %Y}',
+            'twitter:data1': f'{sv.created:{settings.DBDB_META_DATETIME_FORMAT}}',
             'twitter:label2': 'License',
             'twitter:data2': sv.licenses.first().name if sv.licenses.exists() else None,
         }

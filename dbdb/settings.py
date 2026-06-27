@@ -248,10 +248,11 @@ MARKDOWNIFY = {
     }
 }
 
-DBDB_SITE_NAME       = 'Database of Databases'
-DBDB_SITE_TAGLINE    = 'The Encyclopedia of Database Systems'
-DBDB_SITE_FAVICON    = 'core/images/favicon.png'
-DBDB_TITLE_SEPARATOR = ' · '
+DBDB_SITE_NAME            = 'Database of Databases'
+DBDB_SITE_TAGLINE         = 'The Encyclopedia of Database Systems'
+DBDB_SITE_FAVICON         = 'core/images/favicon.png'
+DBDB_TITLE_SEPARATOR      = ' · '
+DBDB_META_DATETIME_FORMAT = '%B %-d, %Y'
 
 DBDB_FOUNDING_YEAR = 2017
 DBDB_BOT_ACCOUNT = env('DBDB_BOT_ACCOUNT', default='dbdb-bot')
