@@ -814,36 +814,6 @@ class SystemVersion(LogoMixin, models.Model):
     def get_diff_url(self):
         return reverse('system_diff', args=[self.system.slug, self.system.current().ver, self.ver])
 
-    def tags_str(self):
-        return ', '.join( self.tags.values_list('name', flat=True) )
-
-    def project_types_str(self):
-        return ', '.join( self.project_types.values_list('name', flat=True) )
-
-    def derived_from_str(self):
-        return ', '.join([str(l) for l in self.derived_from.all()])
-
-    def embedded_str(self):
-        return ', '.join([str(l) for l in self.embedded.all()])
-
-    def compatible_with_str(self):
-        return ', '.join([str(l) for l in self.compatible_with.all()])
-
-    def inspired_by_str(self):
-        return ', '.join([str(l) for l in self.inspired_by.all()])
-
-    def licenses_str(self):
-        return ', '.join([str(l) for l in self.licenses.all()])
-
-    def oses_str(self):
-        return ', '.join([str(l) for l in self.oses.all()])
-
-    def supported_languages_str(self):
-        return ', '.join([str(l) for l in self.supported_languages.all()])
-
-    def written_in_str(self):
-        return ', '.join([str(l) for l in self.written_in.all()])
-
     def description_mobile_intro(self):
         return self.description.split("\n")[0]
 

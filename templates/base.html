@@ -1,5 +1,4 @@
-{% load static django_bootstrap5 alerts meta %}
-<!DOCTYPE html>
+{% load static django_bootstrap5 alerts meta %}<!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -23,20 +22,7 @@
     <link rel="stylesheet" href="{{ FONTAWESOME_CSS_URL }}">
 
     <meta property="og:site_name" content="{{ DBDB_SITE_NAME }}" />
-    {% block twitter %}
-    {% if meta %}
-    {% include "meta/meta.html" %}
-    {% else %}
-    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
-    <meta name="twitter:card" content="summary" />
-    <meta property="og:title" content="{{ DBDB_SITE_NAME }}" />
-    <meta property="og:description" content="The on-line encyclopedia of databases systems from Carnegie Mellon University." />
-    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static DBDB_SITE_FAVICON %}" />
-    <meta name="twitter:title" content="{{ DBDB_SITE_NAME }}" />
-    <meta name="twitter:description" content="Encyclopedia of {% if num_systems %}{{ num_systems }} {% endif %}databases systems from Carnegie Mellon University. Curated by @andy_pavlo" />
-    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static DBDB_SITE_FAVICON %}" />
-    {% endif %}
-    {% endblock %}
+    {% if meta %}{% include "meta/meta.html" %}{% endif %}
 
     {% block css %}{% endblock %}
 </head>

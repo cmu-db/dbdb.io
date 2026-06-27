@@ -68,7 +68,42 @@ class SystemView(MetadataMixin, View):
     def get_meta_description(self, context=None):
         from django.utils.text import Truncator
         sv = getattr(self, '_system_version', None)
-        return Truncator(sv.description or '').chars(300) if sv else ''
+        assert sv is not None
+
+        desc = "Info about the "
+
+        # Data Model
+        # We will prefer 'Relational' over the others
+        data_models = sv.all_data_models()
+        if data_models:
+            main_dm = data_models.pop()
+            is_relational = False
+            for dm in data_models:
+                if dm.value == 'Relational':
+                    main_dm = dm
+                    is_relational = True
+                    break
+            if not is_relational and len(data_models) > 1:
+                desc += 'multi-model '
+            else:
+                desc += f'{main_dm.value} '
+        desc += 'database management system'
+
+        # Start / End Year
+        if sv.start_year:
+            if sv.end_year:
+                desc += f' ({sv.start_year} - {sv.end_year})'
+            else:
+                desc += f' (Since {sv.start_year})'
+        elif sv.end_year:
+            desc += f' (Ended in {sv.start_year})'
+        desc += "."
+
+        # Tags
+        if sv.tags:
+            desc += " Features: " + ", ".join([t.name for t in reversed(sv.tags.all())])
+
+        return Truncator(desc).chars(300)
 
     def get_meta_image(self, context=None):
         sv = getattr(self, '_system_version', None)
@@ -84,6 +119,17 @@ class SystemView(MetadataMixin, View):
 
     def get_meta_url(self, context=None):
         return self.request.build_absolute_uri()
+
+    def get_meta_extra_props(self, context=None):
+        sv = getattr(self, '_system_version', None)
+        if not sv:
+            return None
+        return {
+            'twitter:label1': 'Last Updated',
+            'twitter:data1': f'{sv.created:%B %-d, %Y}',
+            'twitter:label2': 'License',
+            'twitter:data2': sv.licenses.first().name if sv.licenses.exists() else None,
+        }
 
     def process_citations(self, citations) -> list(int):
         citation_offsets = [ ]

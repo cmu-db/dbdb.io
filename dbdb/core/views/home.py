@@ -55,8 +55,17 @@ class HomeView(MetadataMixin, View):
 
     template_name = 'core/home.html'
     title = f'{settings.DBDB_SITE_NAME}{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_TAGLINE}'
-    description = 'The on-line encyclopedia of database systems from Carnegie Mellon University.'
+    description = 'The encyclopedia of database systems from Carnegie Mellon University.'
     twitter_type = 'summary'
+
+    def get_meta_extra_props(self, context=None):
+        from django.contrib.humanize.templatetags.humanize import intcomma
+        return {
+            'twitter:label1': '# of Systems',
+            'twitter:data1': intcomma(self.num_systems),
+            'twitter:label2': 'Last Updated',
+            'twitter:data2': f'{self.newest_sv.created:%B %-d, %Y}' if self.newest_sv else "-",
+        }
 
     def get(self, request):
         # calculate date window
@@ -81,6 +90,7 @@ class HomeView(MetadataMixin, View):
                 s.metric = "1d ago"
             else:
                 s.metric = f"{delta}d ago"
+        self.newest_sv = most_recent[0].current()
 
         # get top systems by number of (windowed) versions
         most_versions = list(
@@ -123,7 +133,7 @@ class HomeView(MetadataMixin, View):
                 s.metric = f"+{pct}%" if pct >= 0 else f"{pct}%"
 
         # count num systems
-        num_systems = System.objects.all().count()
+        self.num_systems = System.objects.all().count()
 
         # find the most recent year that has at least one SystemVersion
         years_start = SystemVersion.objects.filter(is_current=True, start_year__gt=0).aggregate(
@@ -205,7 +215,7 @@ class HomeView(MetadataMixin, View):
             'most_visits': most_visits,
 
             'no_nav_search': True,
-            'num_systems': num_systems,
+            'num_systems': self.num_systems,
             'featured_searches': featured_searches,
             'new_in_year': new_in_year,
             'data_models': data_models,

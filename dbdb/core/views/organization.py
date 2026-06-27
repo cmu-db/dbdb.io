@@ -23,6 +23,7 @@ class OrganizationView(MetadataMixin, View):
         return f'{org_type} Profile for {name}{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
 
     def get_meta_description(self, context=None):
+        from django.utils.text import Truncator
         if self._org_developed:
             desc = "developer of " + ", ".join([o.system.name for o in self._org_developed]) + " database system"
             if len(self._org_developed) > 1: desc += "s"
@@ -32,7 +33,18 @@ class OrganizationView(MetadataMixin, View):
         else:
             desc = "database systems developer"
 
-        return f'Information about the {desc}.'
+        return Truncator(f'Info about the {desc}.').chars(300)
+
+    def get_meta_extra_props(self, context=None):
+        org = getattr(self, '_org', None)
+        if not org:
+            return None
+        return {
+            'twitter:label1': 'Last Updated',
+            'twitter:data1': f'{org.modified:%B %-d, %Y}',
+            # 'twitter:label2': 'License',
+            # 'twitter:data2': sv.licenses.first().name if sv.licenses.exists() else None,
+        }
 
     def get(self, request, slug):
         org = get_object_or_404(Organization, slug=slug)
@@ -80,6 +92,7 @@ class OrganizationView(MetadataMixin, View):
         )
         _attach_data_models(self._org_developed)
 
+        self._org = org
         return render(request, self.template_name, {
             'meta': self.get_meta(),
             'org':               org,
