@@ -58,6 +58,10 @@ class HomeView(MetadataMixin, View):
     description = 'The encyclopedia of database systems from Carnegie Mellon University.'
     twitter_type = 'summary'
 
+    def get_meta_image(self, context=None):
+        from django.templatetags.static import static
+        return self.request.build_absolute_uri(static(settings.DBDB_SITE_FAVICON))
+
     def get_meta_extra_props(self, context=None):
         from django.contrib.humanize.templatetags.humanize import intcomma
         return {
