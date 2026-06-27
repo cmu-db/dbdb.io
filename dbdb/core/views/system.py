@@ -88,7 +88,6 @@ class SystemView(MetadataMixin, View):
     def process_citations(self, citations) -> list(int):
         citation_offsets = [ ]
         for c in citations:
-            offset = None
             try:
                 offset = self.all_citations.index(c) + 1
             except:

@@ -480,6 +480,7 @@ class SystemSearchTextAdmin(admin.ModelAdmin):
 class SystemVisitAdmin(admin.ModelAdmin):
     list_display = ('system', 'ip_address', 'created')
     list_filter = ['created', 'system']
+    search_fields = ('ip_address', 'system__name')
     readonly_fields=('created',)
     ordering = ('-created',)
 
@@ -527,7 +528,7 @@ class RepositorySnapshotInline(admin.TabularInline):
 
 @admin.register(RepositoryInfo)
 class RepositoryInfoAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
-    list_display = ('sourcerepo_url', 'enabled', 'last_snapshot', 'snapshot_count', 'current__last_commit_timestamp', 'modified')
+    list_display = ('sourcerepo_url', 'enabled', 'sourcerepo_url__url', 'last_snapshot', 'snapshot_count', 'current__last_commit_timestamp', 'modified')
     list_filter = ('enabled', 'last_snapshot', 'modified')
     readonly_fields = ('created', 'modified', 'last_snapshot', 'current')
     search_fields = ('sourcerepo_url__url',)

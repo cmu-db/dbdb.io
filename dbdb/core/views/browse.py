@@ -142,8 +142,9 @@ def _is_doi_query(q: str) -> bool:
 
 def _doi_warning_html(q: str):
     return mark_safe(
-        'This site is for searching database management systems, not academic publications. '
-        'If you are looking for a paper, please use '
+        'This site is for searching database management systems, <u>not</u> academic publications. '
+        'It <u>cannot</u> search for publications using DOI numbers. '
+        '<p class="mb-0">If you are looking for a paper, please use '
         '<a href="https://scholar.google.com/" target="_blank" rel="noopener">Google Scholar</a> or '
         '<a href="https://www.semanticscholar.org/" target="_blank" rel="noopener">Semantic Scholar</a>.'
     )
