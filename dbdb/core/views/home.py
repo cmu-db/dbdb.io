@@ -90,7 +90,7 @@ class HomeView(MetadataMixin, View):
                 s.metric = "1d ago"
             else:
                 s.metric = f"{delta}d ago"
-        self.newest_sv = most_recent[0].current()
+        self.newest_sv = most_recent[0].current() if most_recent else None
 
         # get top systems by number of (windowed) versions
         most_versions = list(
