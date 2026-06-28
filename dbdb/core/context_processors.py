@@ -12,6 +12,7 @@ def navbar_flatpages(request):
         'navbar_flatpages':     pages,
         'DBDB_SITE_NAME':            settings.DBDB_SITE_NAME,
         'DBDB_SITE_TAGLINE':         settings.DBDB_SITE_TAGLINE,
+        'DBDB_SITE_OGIMAGE':         settings.DBDB_SITE_OGIMAGE,
         'DBDB_SITE_FAVICON':         settings.DBDB_SITE_FAVICON,
         'DBDB_TITLE_SEPARATOR':      settings.DBDB_TITLE_SEPARATOR,
         'DBDB_META_DATETIME_FORMAT': settings.DBDB_META_DATETIME_FORMAT,
