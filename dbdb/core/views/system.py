@@ -884,6 +884,10 @@ class RecentChangesView(MetadataMixin, View):
     description = f'Recent edits and revisions to database system pages in the {settings.DBDB_SITE_NAME} encyclopedia.'
     twitter_type = 'summary'
 
+    def get_meta_image(self, context=None):
+        from django.templatetags.static import static
+        return self.request.build_absolute_uri(static(settings.DBDB_SITE_OGIMAGE))
+
     def get(self, request, slug=None):
         from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 

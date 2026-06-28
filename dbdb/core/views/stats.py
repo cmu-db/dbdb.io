@@ -35,6 +35,10 @@ class StatsView(MetadataMixin, View):
     description = f'Leaderboards and statistics for the {settings.DBDB_SITE_NAME} encyclopedia of database systems.'
     twitter_type = 'summary'
 
+    def get_meta_image(self, context=None):
+        from django.templatetags.static import static
+        return self.request.build_absolute_uri(static(settings.DBDB_SITE_OGIMAGE))
+
     def get_bycountries(self, limit):
         def reduce_countries(mapping, item):
             countries = item.countries.split(',')

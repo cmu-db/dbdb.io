@@ -190,6 +190,10 @@ class BrowseView(MetadataMixin, View):
             return f'{t}{sep}{site}'
         return f'Browse{sep}{site}'
 
+    def get_meta_image(self, context=None):
+        from django.templatetags.static import static
+        return self.request.build_absolute_uri(static(settings.DBDB_SITE_OGIMAGE))
+
     def get_meta_description(self, context=None):
         t = getattr(self, '_browse_title', 'Browse')
         if t and t != 'Browse':
