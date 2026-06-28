@@ -18,6 +18,13 @@
 {% ptitle_kicker %}{% if flatpage.meta.kicker %}{{ flatpage.meta.kicker }}{% else %}Reference{% endif %}{% endptitle_kicker %}
 {% ptitle_title %}{{ flatpage.title }}{% endptitle_title %}
 {% ptitle_sub %}{% if flatpage.meta.subtitle %}{{ flatpage.meta.subtitle }}{% endif %}{% endptitle_sub %}
+{% ptitle_action %}
+    {% if user.is_superuser %}
+    <a class="btn btn-edit" href="{% url 'admin:flatpages_flatpage_change' flatpage.pk %}">
+        <i class="fa-solid fa-pen-to-square"></i> Edit
+    </a>
+    {% endif %}
+{% endptitle_action %}
 {% endpage_title %}
 <div class="flatpage-content fs-5 mt-3">
     {{ flatpage.content }}
