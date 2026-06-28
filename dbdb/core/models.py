@@ -922,10 +922,6 @@ class FlatPageMeta(models.Model):
         blank=True,
         help_text="Italic subheading shown below the page title.",
     )
-    description = models.TextField(
-        blank=True,
-        help_text="Short description for search engines and social media previews (og:description).",
-    )
     modified = models.DateTimeField(
         auto_now=True,
         help_text="Automatically updated whenever this record is saved.",

@@ -7,6 +7,10 @@
 <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static DBDB_SITE_FAVICON %}" />
 {% if flatpage.meta.subtitle %}<meta name="description" content="{{ flatpage.meta.subtitle }}" />
 <meta property="og:description" content="{{ flatpage.meta.subtitle }}" />{% endif %}
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="{{ flatpage.title }}{{ DBDB_TITLE_SEPARATOR }}{{ DBDB_SITE_NAME }}" />
+{% if flatpage.meta.subtitle %}<meta name="twitter:description" content="{{ flatpage.meta.subtitle }}" />{% endif %}
+<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static DBDB_SITE_FAVICON %}" />
 {% if flatpage.meta.modified %}<meta name="twitter:label1" content="Last Updated" />
 <meta name="twitter:data1" content="{{ flatpage.meta.modified|strftime:DBDB_META_DATETIME_FORMAT }}" />{% endif %}
 {% if flatpage.meta.kicker %}<meta name="twitter:label2" content="Section" />
