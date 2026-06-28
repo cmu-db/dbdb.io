@@ -195,6 +195,9 @@ class BrowseView(MetadataMixin, View):
         return self.request.build_absolute_uri(static(settings.DBDB_SITE_OGIMAGE))
 
     def get_meta_description(self, context=None):
+        ss = getattr(self, '_saved_search', None)
+        if ss and ss.description:
+            return ss.description
         t = getattr(self, '_browse_title', 'Browse')
         if t and t != 'Browse':
             return f'Database systems matching: {t}.'
@@ -1104,6 +1107,7 @@ class BrowseView(MetadataMixin, View):
                 saved_search = SavedSearch.objects.filter(pk=pk).first()
                 if saved_search:
                     title = saved_search.name
+                    self._saved_search = saved_search
 
         show_all_url = None
         if limit:
