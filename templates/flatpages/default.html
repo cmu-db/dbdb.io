@@ -3,6 +3,7 @@
 
 {% block title %}{{ flatpage.title }}{{ DBDB_TITLE_SEPARATOR }}{% endblock %}
 {% block head_meta %}
+<meta property="og:site_name" content="{{ DBDB_SITE_NAME }}" />
 <meta property="og:title" content="{{ flatpage.title }}{{ DBDB_TITLE_SEPARATOR }}{{ DBDB_SITE_NAME }}" />
 <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static DBDB_SITE_OGIMAGE %}" />
 {% if flatpage.meta.subtitle %}<meta name="description" content="{{ flatpage.meta.subtitle }}" />
