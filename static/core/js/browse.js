@@ -280,8 +280,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (Object.keys(filters).length > 0) {
-        const collapse = document.getElementById('filter');
-        collapse.classList.add('show');
         const first_field = document.getElementById('filter-none');
         first_field.remove();
     }
