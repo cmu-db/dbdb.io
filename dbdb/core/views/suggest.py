@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.shortcuts import redirect, render
 from django.views import View
+from meta.views import MetadataMixin
 
 from dbdb.core.forms import SystemSuggestionForm
 from dbdb.core.models import CitationUrl, SystemSuggestion, SystemVersion
@@ -12,17 +13,24 @@ from dbdb.core.utils.citations import normalize_url
 LOG = logging.getLogger(__name__)
 
 
-class SystemSuggestionView(View):
+class SystemSuggestionView(MetadataMixin, View):
 
     template_name = 'core/system-suggest.html'
+    title = f'Suggest a System{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
+    description = f'Suggest a new database system to add to the {settings.DBDB_SITE_NAME} encyclopedia.'
+    twitter_type = 'summary'
+
+    def get_meta_image(self, context=None):
+        from django.templatetags.static import static
+        return self.request.build_absolute_uri(static(settings.DBDB_SITE_OGIMAGE))
 
     def get(self, request):
-        return render(request, self.template_name, {'form': SystemSuggestionForm()})
+        return render(request, self.template_name, {'meta': self.get_meta(), 'form': SystemSuggestionForm()})
 
     def post(self, request):
         form = SystemSuggestionForm(request.POST)
         if not form.is_valid():
-            return render(request, self.template_name, {'form': form})
+            return render(request, self.template_name, {'meta': self.get_meta(), 'form': form})
 
         system_url = normalize_url(form.cleaned_data['system_url'])
 
@@ -41,6 +49,7 @@ class SystemSuggestionView(View):
 
         if existing_system:
             return render(request, self.template_name, {
+                'meta': self.get_meta(),
                 'form': form,
                 'existing_system': existing_system,
             })
@@ -77,9 +86,16 @@ class SystemSuggestionView(View):
         return redirect('system_suggestion_success')
 
 
-class SystemSuggestionSuccessView(View):
+class SystemSuggestionSuccessView(MetadataMixin, View):
 
     template_name = 'core/system-suggest-success.html'
+    title = f'Suggestion Received{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
+    description = f'Thank you for suggesting a database system to the {settings.DBDB_SITE_NAME} encyclopedia.'
+    twitter_type = 'summary'
+
+    def get_meta_image(self, context=None):
+        from django.templatetags.static import static
+        return self.request.build_absolute_uri(static(settings.DBDB_SITE_OGIMAGE))
 
     def get(self, request):
-        return render(request, self.template_name, {})
+        return render(request, self.template_name, {'meta': self.get_meta()})

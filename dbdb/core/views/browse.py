@@ -137,6 +137,20 @@ _EXISTS_FILTER_MAP = {
 
 _DOI_RE = re.compile(r'\b10\.\d{4,}/\S+', re.IGNORECASE)
 
+_NAME_WILDCARD_MAX_LEN = 200
+
+def _wildcard_to_iregex(pattern):
+    """Convert a %-wildcard pattern to an anchored case-insensitive regex.
+
+    Segments between % are re.escape()'d so user input cannot inject regex
+    metacharacters.  Examples:
+        %sqlite%   → ^.*sqlite.*$
+        %brick%db% → ^.*brick.*db.*$
+        sqlite     → ^sqlite$   (exact, case-insensitive)
+    """
+    parts = pattern.split('%')
+    return '^' + '.*'.join(re.escape(p) for p in parts) + '$'
+
 def _is_doi_query(q: str) -> bool:
     return 'doi.org' in q.lower() or bool(_DOI_RE.search(q))
 
@@ -190,7 +204,20 @@ class BrowseView(MetadataMixin, View):
             return f'{t}{sep}{site}'
         return f'Browse{sep}{site}'
 
+    def get_meta_image(self, context=None):
+        from django.templatetags.static import static
+        from django.urls import reverse
+        q = getattr(self, '_search_q', '')
+        if q and not getattr(self, '_saved_search', None):
+            n = getattr(self, '_num_results', 0)
+            params = urllib.parse.urlencode({'q': q, 'n': n})
+            return self.request.build_absolute_uri(reverse('og_image_search') + '?' + params)
+        return self.request.build_absolute_uri(static(settings.DBDB_SITE_OGIMAGE))
+
     def get_meta_description(self, context=None):
+        ss = getattr(self, '_saved_search', None)
+        if ss and ss.description:
+            return ss.description
         t = getattr(self, '_browse_title', 'Browse')
         if t and t != 'Browse':
             return f'Database systems matching: {t}.'
@@ -437,6 +464,7 @@ class BrowseView(MetadataMixin, View):
         search_hosted_by = get_params.getlist('hosted_by')
         search_inspired = get_params.getlist('inspired')
         search_suffix = get_params.getlist('suffix')
+        search_name = get_params.get('name', '').strip()[:_NAME_WILDCARD_MAX_LEN]
 
         # collect attribute-based search params keyed by Attribute slug
         attr_searches = {}
@@ -476,6 +504,7 @@ class BrowseView(MetadataMixin, View):
             'hosted_by': search_hosted_by,
             'inspired': search_inspired,
             'suffix': search_suffix,
+            'name': search_name,
         }
         # Include attribute and count params so the early-return check counts them
         for slug, (attr, vals) in attr_searches.items():
@@ -564,6 +593,11 @@ class BrowseView(MetadataMixin, View):
             else:
                 title += f' Ended Before {search_end_max}'
             pass
+
+        # apply name wildcard filter (always AND'd, not part of search_op)
+        if search_name:
+            sqs = sqs.filter(system__name__iregex=_wildcard_to_iregex(search_name))
+            title += f' named "{search_name}"'
 
         search_parts = []
         # search - country
@@ -1100,6 +1134,7 @@ class BrowseView(MetadataMixin, View):
                 saved_search = SavedSearch.objects.filter(pk=pk).first()
                 if saved_search:
                     title = saved_search.name
+                    self._saved_search = saved_search
 
         show_all_url = None
         if limit:
@@ -1114,6 +1149,8 @@ class BrowseView(MetadataMixin, View):
             ['Start Year', 'End Year'] + [fg.label for fg in filter_groups],
             key=str.casefold,
         )
+        self._search_q = search_q
+        self._num_results = num_results
         self._browse_title = title
         return render(request, self.template_name, {
             'meta': self.get_meta(),
