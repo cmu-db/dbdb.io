@@ -545,4 +545,38 @@ class MetaTagsTestCase(TestCase):
         self.assertContains(response, 'property="og:description"')
         self.assertContains(response, 'Database systems matching')
 
+    def test_browse_og_image_is_dynamic_when_query_set(self):
+        response = self.client.get(reverse('browse'), data={'q': 'sqlite'})
+        self.assertContains(response, 'og:image')
+        self.assertContains(response, 'api/og-image')
+        self.assertContains(response, 'q=sqlite')
+
+    def test_browse_og_image_is_static_when_no_query(self):
+        response = self.client.get(reverse('browse'))
+        self.assertContains(response, 'og:image')
+        self.assertNotContains(response, 'api/og-image')
+
     pass
+
+
+class OGImageTestCase(TestCase):
+
+    def test_og_image_returns_png(self):
+        response = self.client.get(reverse('og_image_search'), {'q': 'sqlite', 'n': 3})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'image/png')
+
+    def test_og_image_empty_query(self):
+        response = self.client.get(reverse('og_image_search'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'image/png')
+
+    def test_og_image_zero_results(self):
+        response = self.client.get(reverse('og_image_search'), {'q': 'sqlite', 'n': 0})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'image/png')
+
+    def test_og_image_long_query_does_not_crash(self):
+        response = self.client.get(reverse('og_image_search'), {'q': 'a' * 200, 'n': 0})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'image/png')

@@ -192,6 +192,12 @@ class BrowseView(MetadataMixin, View):
 
     def get_meta_image(self, context=None):
         from django.templatetags.static import static
+        from django.urls import reverse
+        q = getattr(self, '_search_q', '')
+        if q and not getattr(self, '_saved_search', None):
+            n = getattr(self, '_num_results', 0)
+            params = urllib.parse.urlencode({'q': q, 'n': n})
+            return self.request.build_absolute_uri(reverse('og_image_search') + '?' + params)
         return self.request.build_absolute_uri(static(settings.DBDB_SITE_OGIMAGE))
 
     def get_meta_description(self, context=None):
@@ -1122,6 +1128,8 @@ class BrowseView(MetadataMixin, View):
             ['Start Year', 'End Year'] + [fg.label for fg in filter_groups],
             key=str.casefold,
         )
+        self._search_q = search_q
+        self._num_results = num_results
         self._browse_title = title
         return render(request, self.template_name, {
             'meta': self.get_meta(),

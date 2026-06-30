@@ -48,6 +48,7 @@ urlpatterns = [
     # path('docs/system-attributes/', views.DocSysAttrsView.as_view(), name='docs-sys-attrs'),
 
     path('api/db/counter', views.CounterView.as_view(), name='system_counter'),
+    path('api/og-image', views.OGImageSearchView.as_view(), name='og_image_search'),
     path('sitemap.xml', views.SitemapView.as_view(), name='sitemap'),
 
     path('citation/<int:pk>/reset-status', views.CitationResetStatusView.as_view(), name='citation_reset_status'),
