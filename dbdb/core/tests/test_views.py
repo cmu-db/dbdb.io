@@ -299,6 +299,71 @@ class AdvancedSearchTestCase(TestCase):
     pass
 
 # ==============================================
+# WildcardNameSearchTestCase
+# ==============================================
+class WildcardNameSearchTestCase(TestCase):
+
+    fixtures = [
+        'adminuser.json',
+        'testuser.json',
+        'core_features.json',
+        'core_attributes.json',
+        'core_system.json',
+    ]
+
+    def test_wildcard_both_ends_matches(self):
+        response = self.client.get(reverse('browse'), data={'name': '%qlite%'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'SQLite')
+
+    def test_wildcard_suffix_only_matches(self):
+        # "S%" — starts with "S", case-insensitive → matches SQLite
+        response = self.client.get(reverse('browse'), data={'name': 's%'})
+        self.assertContains(response, 'SQLite')
+
+    def test_wildcard_prefix_only_matches(self):
+        # "%ite" — ends with "ite" → matches SQLite
+        response = self.client.get(reverse('browse'), data={'name': '%ite'})
+        self.assertContains(response, 'SQLite')
+
+    def test_wildcard_multiple_wildcards(self):
+        # "%S%ite%" — contains "S" then "ite" → matches SQLite
+        response = self.client.get(reverse('browse'), data={'name': '%S%ite%'})
+        self.assertContains(response, 'SQLite')
+
+    def test_wildcard_no_match(self):
+        response = self.client.get(reverse('browse'), data={'name': '%XXXX_no_such_system%'})
+        self.assertContains(response, 'No databases found')
+
+    def test_wildcard_combined_with_feature_filter(self):
+        # name matches SQLite AND storage-model is n-ary (which SQLite is) → SQLite in results
+        response = self.client.get(reverse('browse'), data={
+            'name': '%qlite%',
+            'storage-model': ['n-ary-storage-model-rowrecord'],
+        })
+        self.assertContains(response, 'SQLite')
+
+    def test_wildcard_name_excludes_non_matching(self):
+        # name doesn't match even though feature filter would pass
+        response = self.client.get(reverse('browse'), data={
+            'name': '%XXXX_no_such_system%',
+            'storage-model': ['n-ary-storage-model-rowrecord'],
+        })
+        self.assertContains(response, 'No databases found')
+
+    def test_wildcard_regex_special_chars_are_safe(self):
+        # "+" and "." are regex metacharacters — must be escaped, not crash
+        response = self.client.get(reverse('browse'), data={'name': '%s.l+ite%'})
+        self.assertEqual(response.status_code, 200)
+
+    def test_wildcard_appears_in_title(self):
+        response = self.client.get(reverse('browse'), data={'name': '%qlite%'})
+        self.assertIn('named "%qlite%"', response.context['title'])
+
+    pass
+
+
+# ==============================================
 # FieldNameMapTestCase
 # ==============================================
 class FieldNameMapTestCase(TestCase):
