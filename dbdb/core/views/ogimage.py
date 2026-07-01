@@ -10,20 +10,27 @@ from django.views.decorators.cache import cache_control
 from PIL import Image, ImageDraw, ImageFont
 
 _TEXT_COLOR   = (26, 26, 23, 255)
-_QUERY_FONT_MAX = 96
-_COUNT_FONT_RATIO = 0.42
+_COUNT_COLOR  = (130, 130, 127, 255)
+_QUERY_FONT_MAX = 120
+_COUNT_FONT_RATIO = 0.38
 _LINE_GAP = 28
-_ICON_SIZE = 72
+_LINE_SPACING = 10
+_ICON_SIZE = 100
+
+# Lazy-loaded FA icon data — loaded on first use so a missing setting or file
+# at import time does not permanently break icon rendering.
+_FA_ICONS_CACHE = None
 
 
-def _load_fa_icons():
-    try:
-        with open(settings.TWITTER_CARD_FA_ICONS_JSON) as f:
-            return json.load(f)
-    except Exception:
-        return {}
-
-_FA_ICONS_DATA = _load_fa_icons()
+def _fa_icons():
+    global _FA_ICONS_CACHE
+    if _FA_ICONS_CACHE is None:
+        try:
+            with open(settings.TWITTER_CARD_FA_ICONS_JSON) as f:
+                _FA_ICONS_CACHE = json.load(f)
+        except Exception:
+            return {}
+    return _FA_ICONS_CACHE
 
 
 def _render_fa_icon(fa_class, size_px, color=_TEXT_COLOR[:3]):
@@ -34,7 +41,7 @@ def _render_fa_icon(fa_class, size_px, color=_TEXT_COLOR[:3]):
     icon_name = next((p[3:] for p in parts if p.startswith('fa-')), None)
     if not icon_name:
         return None
-    svg_styles = _FA_ICONS_DATA.get(icon_name, {}).get('svg', {})
+    svg_styles = _fa_icons().get(icon_name, {}).get('svg', {})
     svg_entry = svg_styles.get(style) or next(iter(svg_styles.values()), None)
     if not svg_entry:
         return None
@@ -64,16 +71,49 @@ def _panel_geometry(im):
     return panel_w, panel_cx
 
 
-def _render_text_line(text, max_w, start_size):
-    """Return (font, text_w, text_h) with font shrunk to fit max_w."""
-    font_size = start_size
-    while font_size > 18:
+def _wrap_text(text, max_w, start_size, max_lines=3):
+    """
+    Return (font, lines) using the largest font size where the text wraps
+    into at most max_lines lines, each fitting within max_w pixels.
+    """
+    words = text.split()
+    for font_size in range(start_size, 17, -4):
         font = ImageFont.truetype(settings.TWITTER_CARD_FONT_PATH, font_size)
-        if font.getmask(text).getbbox()[2] <= max_w:
-            break
-        font_size -= 8
-    bbox = font.getmask(text).getbbox()
-    return font, bbox[2], bbox[3]
+        lines = []
+        current = ''
+        for word in words:
+            candidate = (current + ' ' + word).strip()
+            if font.getmask(candidate).getbbox()[2] <= max_w:
+                current = candidate
+            else:
+                if current:
+                    lines.append(current)
+                current = word
+        if current:
+            lines.append(current)
+        if len(lines) <= max_lines:
+            return font, lines
+    font = ImageFont.truetype(settings.TWITTER_CARD_FONT_PATH, 18)
+    return font, [text]
+
+
+def _text_block_height(font, lines):
+    """Total pixel height of a block of lines rendered with the given font."""
+    if not lines:
+        return 0
+    line_h = max(font.getmask(l).getbbox()[3] for l in lines)
+    return line_h * len(lines) + _LINE_SPACING * (len(lines) - 1)
+
+
+def _draw_text_block(draw, font, lines, panel_cx, y, color):
+    """Draw centered multi-line text, returning the y position after the block."""
+    line_h = max(font.getmask(l).getbbox()[3] for l in lines)
+    for i, line in enumerate(lines):
+        w = font.getmask(line).getbbox()[2]
+        draw.text((panel_cx - w // 2, y), line, font=font, fill=color)
+        if i < len(lines) - 1:
+            y += line_h + _LINE_SPACING
+    return y + line_h
 
 
 def _count_text(n_str):
@@ -99,8 +139,8 @@ class OGImageSearchView(View):
         draw = ImageDraw.Draw(im)
         panel_w, panel_cx = _panel_geometry(im)
 
-        query_text = f'"{q}"' if q else settings.DBDB_SITE_NAME
-        font, q_w, q_h = _render_text_line(query_text, panel_w, _QUERY_FONT_MAX)
+        raw_text = f'"{q}"' if q else settings.DBDB_SITE_NAME
+        font, lines = _wrap_text(raw_text, panel_w, _QUERY_FONT_MAX)
 
         count_text = _count_text(n_str)
         c_w = c_h = 0
@@ -111,14 +151,16 @@ class OGImageSearchView(View):
             c_w = count_font.getmask(count_text).getbbox()[2]
             c_h = count_font.getmask(count_text).getbbox()[3]
 
-        total_h = q_h + (_LINE_GAP + c_h if count_text else 0)
-        y0 = (im.height - total_h) // 2
+        title_h = _text_block_height(font, lines)
+        total_h = title_h + (_LINE_GAP + c_h if count_text else 0)
+        y = (im.height - total_h) // 2
 
-        draw.text((panel_cx - q_w // 2, y0), query_text, font=font, fill=_TEXT_COLOR)
+        y = _draw_text_block(draw, font, lines, panel_cx, y, _TEXT_COLOR)
+
         if count_text and count_font:
             draw.text(
-                (panel_cx - c_w // 2, y0 + q_h + _LINE_GAP),
-                count_text, font=count_font, fill=_TEXT_COLOR,
+                (panel_cx - c_w // 2, y + _LINE_GAP),
+                count_text, font=count_font, fill=_COUNT_COLOR,
             )
 
         buf = BytesIO()
@@ -142,41 +184,39 @@ class OGImageSavedSearchView(View):
         draw = ImageDraw.Draw(im)
         panel_w, panel_cx = _panel_geometry(im)
 
-        # Render FA icon from SVG (may be None if icon blank/unknown)
+        # FA icon rendered from SVG path data
         icon_img = _render_fa_icon(ss.icon, _ICON_SIZE) if ss.icon else None
 
-        # Name line
-        name_font, name_w, name_h = _render_text_line(ss.name, panel_w, _QUERY_FONT_MAX)
+        # Name — wrapped to fill the panel width
+        font, lines = _wrap_text(ss.name, panel_w, _QUERY_FONT_MAX)
 
         # Count line
         count_text = _count_text(n_str)
         c_w = c_h = 0
         count_font = None
         if count_text:
-            count_font_size = max(24, int(name_font.size * _COUNT_FONT_RATIO))
+            count_font_size = max(24, int(font.size * _COUNT_FONT_RATIO))
             count_font = ImageFont.truetype(settings.TWITTER_CARD_FONT_PATH, count_font_size)
             c_w = count_font.getmask(count_text).getbbox()[2]
             c_h = count_font.getmask(count_text).getbbox()[3]
 
-        # Stack: [icon?] + name + [count?]
         icon_h = icon_img.height if icon_img else 0
+        title_h = _text_block_height(font, lines)
         total_h = (
-            icon_h + (_LINE_GAP if icon_img else 0)
-            + name_h
+            (icon_h + _LINE_GAP if icon_img else 0)
+            + title_h
             + (_LINE_GAP + c_h if count_text else 0)
         )
         y = (im.height - total_h) // 2
 
         if icon_img:
-            x_icon = panel_cx - icon_img.width // 2
-            im.paste(icon_img, (x_icon, y), icon_img)
+            im.paste(icon_img, (panel_cx - icon_img.width // 2, y), icon_img)
             y += icon_h + _LINE_GAP
 
-        draw.text((panel_cx - name_w // 2, y), ss.name, font=name_font, fill=_TEXT_COLOR)
-        y += name_h
+        y = _draw_text_block(draw, font, lines, panel_cx, y, _TEXT_COLOR)
 
         if count_text and count_font:
-            draw.text((panel_cx - c_w // 2, y + _LINE_GAP), count_text, font=count_font, fill=_TEXT_COLOR)
+            draw.text((panel_cx - c_w // 2, y + _LINE_GAP), count_text, font=count_font, fill=_COUNT_COLOR)
 
         buf = BytesIO()
         im.save(buf, format='PNG')
