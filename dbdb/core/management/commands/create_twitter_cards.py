@@ -4,18 +4,17 @@ import os
 
 from django.conf import settings
 
-# django imports
-from django.core.management import BaseCommand
-
+from dbdb.core.management.base import DbdbBaseCommand
 from dbdb.core.models import SystemVersion
 from dbdb.core.utils.twitter_card import create_twitter_card
 
 LOG = logging.getLogger(__name__)
 
 
-class Command(BaseCommand):
+class Command(DbdbBaseCommand):
 
     def add_arguments(self, parser):
+        super().add_arguments(parser)
         parser.add_argument('system', metavar='S', type=str, nargs='?',
                     help='System to force twiter card creation')
         parser.add_argument('--force', action='store_true',
