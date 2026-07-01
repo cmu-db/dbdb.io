@@ -18,6 +18,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('system', metavar='S', type=str, nargs='?',
                     help='System to force twiter card creation')
+        parser.add_argument('--force', action='store_true',
+                            help="Recreate all Twitter card images, even if up to date")
         parser.add_argument('--skip-errors', action='store_true',
                             help="Ignore errors and keep processing")
         return
@@ -27,7 +29,7 @@ class Command(BaseCommand):
         assert os.path.exists(template), "Missing: " + template
 
         versions = SystemVersion.objects.filter(is_current=True)
-        force = False
+        force = options['force']
         if options['system']:
             keyword = options['system']
             if keyword.isdigit():
