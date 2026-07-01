@@ -207,8 +207,15 @@ class BrowseView(MetadataMixin, View):
     def get_meta_image(self, context=None):
         from django.templatetags.static import static
         from django.urls import reverse
+        ss = getattr(self, '_saved_search', None)
+        if ss:
+            n = getattr(self, '_num_results', 0)
+            params = urllib.parse.urlencode({'n': n})
+            return self.request.build_absolute_uri(
+                reverse('og_image_ss', kwargs={'pk': ss.pk}) + '?' + params
+            )
         q = getattr(self, '_search_q', '')
-        if q and not getattr(self, '_saved_search', None):
+        if q:
             n = getattr(self, '_num_results', 0)
             params = urllib.parse.urlencode({'q': q, 'n': n})
             return self.request.build_absolute_uri(reverse('og_image_search') + '?' + params)

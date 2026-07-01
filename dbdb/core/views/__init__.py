@@ -1,7 +1,7 @@
 from .api import CounterView, citation_url_autocomplete, organization_autocomplete, system_autocomplete
 from .auth import CreateUserView, SetupUserView, SignupRequestView, SignupPendingView, ProfileView
 from .browse import BrowseView
-from .ogimage import OGImageSearchView
+from .ogimage import OGImageSearchView, OGImageSavedSearchView
 from .docs import DocOverviewView, DocFeatureView, DocAttributeView, DocSysAttrsView
 from .home import HomeView
 from .misc import EmptyFieldsView, SitemapView

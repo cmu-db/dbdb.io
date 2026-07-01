@@ -645,3 +645,91 @@ class OGImageTestCase(TestCase):
         response = self.client.get(reverse('og_image_search'), {'q': 'a' * 200, 'n': 0})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'image/png')
+
+
+class OGImageSavedSearchTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        from dbdb.core.models import SavedSearch
+        cls.ss_with_icon = SavedSearch.objects.create(
+            name='Relational Systems',
+            description='All relational database systems',
+            icon='fas fa-database',
+            search_params='data-model=relational',
+        )
+        cls.ss_no_icon = SavedSearch.objects.create(
+            name='Ghost Dog Systems',
+            description='No icon on this one',
+            icon='',
+            search_params='data-model=relational',
+        )
+        cls.ss_bad_icon = SavedSearch.objects.create(
+            name='Ol Dirty Systems',
+            description='Unknown icon class',
+            icon='fas fa-nonexistent-icon-xyzzy',
+            search_params='data-model=relational',
+        )
+
+    def test_returns_png_with_icon_and_count(self):
+        response = self.client.get(
+            reverse('og_image_ss', kwargs={'pk': self.ss_with_icon.pk}),
+            {'n': 42},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'image/png')
+
+    def test_returns_png_with_no_icon(self):
+        response = self.client.get(
+            reverse('og_image_ss', kwargs={'pk': self.ss_no_icon.pk}),
+            {'n': 7},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'image/png')
+
+    def test_returns_png_with_unknown_icon(self):
+        response = self.client.get(
+            reverse('og_image_ss', kwargs={'pk': self.ss_bad_icon.pk}),
+            {'n': 0},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'image/png')
+
+    def test_returns_png_without_count(self):
+        response = self.client.get(
+            reverse('og_image_ss', kwargs={'pk': self.ss_with_icon.pk}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'image/png')
+
+    def test_returns_404_for_missing_pk(self):
+        response = self.client.get(reverse('og_image_ss', kwargs={'pk': 99999}))
+        self.assertEqual(response.status_code, 404)
+
+
+class BrowseSavedSearchMetaTestCase(TestCase):
+
+    fixtures = [
+        'adminuser.json',
+        'testuser.json',
+        'core_features.json',
+        'core_attributes.json',
+        'core_system.json',
+    ]
+
+    @classmethod
+    def setUpTestData(cls):
+        from dbdb.core.models import SavedSearch
+        from dbdb.core.templatetags.savedsearch_tags import ss_token
+        super().setUpTestData()
+        cls.ss = SavedSearch.objects.create(
+            name='Method Man Systems',
+            icon='fas fa-database',
+            search_params='data-model=relational',
+        )
+        cls.ss_token = ss_token(cls.ss.pk)
+
+    def test_browse_with_ss_token_uses_og_image_ss(self):
+        response = self.client.get(reverse('browse'), {'ss': self.ss_token})
+        self.assertContains(response, 'og:image')
+        self.assertContains(response, f'api/og-image/ss/{self.ss.pk}')
