@@ -22,9 +22,9 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="1.1337354"
-     inkscape:cx="210.80756"
-     inkscape:cy="261.96588"
+     inkscape:zoom="0.69949691"
+     inkscape:cx="584.70594"
+     inkscape:cy="258.7574"
      inkscape:window-width="1782"
      inkscape:window-height="1134"
      inkscape:window-x="0"
@@ -43,11 +43,12 @@
      d="M0 0h317.5v166.688H0z"
      fill="#faf8f3"
      id="path1"
-     style="fill:#f4f4f4;fill-opacity:1" />
+     style="fill:#c8102e;fill-opacity:1" />
   <path
-     id="rect2"
-     style="fill:#c8102e;fill-opacity:1;stroke-width:0.294347"
-     d="M 60.872764 -0.070279941 C 60.575403 -0.070279941 60.284207 -0.046162317 60.000466 0.00051676427 L 0 0.00051676427 L 0 166.688 L 60.642804 166.688 L 60.642804 166.68283 C 60.719026 166.68606 60.795721 166.68748 60.872764 166.68748 C 63.805586 166.68748 66.167014 164.32657 66.167014 161.39375 L 66.167014 5.2234533 C 66.167014 2.2906319 63.805586 -0.070279941 60.872764 -0.070279941 z " />
+     d="M 63.499994,3.9690173 H 313.53122 V 162.719 H 63.499994 Z"
+     fill="#faf8f3"
+     id="path1-6"
+     style="fill:#f4f4f4;fill-opacity:1;stroke-width:0.866024" />
   <g
      transform="matrix(.9 0 0 .9 130.298501 -156.101617)"
      id="g6">

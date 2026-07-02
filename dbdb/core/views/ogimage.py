@@ -123,7 +123,7 @@ def _count_text(n_str):
     try:
         n = int(n_str)
         label = 'Database System'
-        if n != 1: label += 's'
+        if n != 1: label += 's  '
         return f'{n:,} {label} Found'
     except ValueError:
         return ''
