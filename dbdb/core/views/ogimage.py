@@ -41,9 +41,16 @@ def _fa_icons():
 def _render_fa_icon(fa_class, size_px, color=_TEXT_COLOR[:3]):
     """Render an FA icon class string to a PIL RGBA Image, or return None."""
     parts = fa_class.split()
-    style = 'regular' if parts and parts[0] == 'far' else \
-            'brands'  if parts and parts[0] == 'fab' else 'solid'
-    icon_name = next((p[3:] for p in parts if p.startswith('fa-')), None)
+    parts_set = set(parts)
+    # Support both legacy (fas/far/fab) and current (fa-solid/fa-regular/fa-brands) prefixes
+    _STYLE_TOKENS = {'fa-solid', 'fas', 'fa-regular', 'far', 'fa-brands', 'fab', 'fa'}
+    if 'fa-regular' in parts_set or 'far' in parts_set:
+        style = 'regular'
+    elif 'fa-brands' in parts_set or 'fab' in parts_set:
+        style = 'brands'
+    else:
+        style = 'solid'
+    icon_name = next((p[3:] for p in parts if p.startswith('fa-') and p not in _STYLE_TOKENS), None)
     if not icon_name:
         LOG.debug('FA icon: no fa-* class found in %r', fa_class)
         return None
