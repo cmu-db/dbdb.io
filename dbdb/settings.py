@@ -192,8 +192,8 @@ STATIC_URL = '/static/'
 FONTAWESOME_CSS_URL = '//use.fontawesome.com/releases/v7.2.0/css/all.css'
 
 # Custom Twitter Cards
-TWITTER_CARD_ROOT = os.path.join(MEDIA_ROOT, 'twitter')
-TWITTER_CARD_URL = MEDIA_URL + "twitter/"
+TWITTER_CARD_ROOT = os.path.join(MEDIA_ROOT, 'cards')
+TWITTER_CARD_URL  = MEDIA_URL + "cards/"
 TWITTER_URL = "https://twitter.com/"
 
 TWITTER_CARD_TEMPLATE = os.path.join(STATIC_ROOT, '../static/core/images/dbdb_io-card-template.svg')
