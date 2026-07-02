@@ -1,4 +1,5 @@
 import json
+import logging
 from io import BytesIO
 
 from cairosvg import svg2png
@@ -8,6 +9,8 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_control
 from PIL import Image, ImageDraw, ImageFont
+
+LOG = logging.getLogger(__name__)
 
 _TEXT_COLOR   = (26, 26, 23, 255)
 _COUNT_COLOR  = (130, 130, 127, 255)
@@ -28,7 +31,9 @@ def _fa_icons():
         try:
             with open(settings.TWITTER_CARD_FA_ICONS_JSON) as f:
                 _FA_ICONS_CACHE = json.load(f)
+            LOG.debug('FA icons loaded: %d icons from %s', len(_FA_ICONS_CACHE), settings.TWITTER_CARD_FA_ICONS_JSON)
         except Exception:
+            LOG.debug('FA icons failed to load from %s', settings.TWITTER_CARD_FA_ICONS_JSON, exc_info=True)
             return {}
     return _FA_ICONS_CACHE
 
@@ -40,11 +45,14 @@ def _render_fa_icon(fa_class, size_px, color=_TEXT_COLOR[:3]):
             'brands'  if parts and parts[0] == 'fab' else 'solid'
     icon_name = next((p[3:] for p in parts if p.startswith('fa-')), None)
     if not icon_name:
+        LOG.debug('FA icon: no fa-* class found in %r', fa_class)
         return None
     svg_styles = _fa_icons().get(icon_name, {}).get('svg', {})
     svg_entry = svg_styles.get(style) or next(iter(svg_styles.values()), None)
     if not svg_entry:
+        LOG.debug('FA icon: %r (style=%s) not found in icons data', icon_name, style)
         return None
+    LOG.debug('FA icon: rendering %r style=%s at %dpx', icon_name, style, size_px)
     vb = ' '.join(str(v) for v in svg_entry['viewBox'])
     r, g, b = color
     svg = (
@@ -92,8 +100,10 @@ def _wrap_text(text, max_w, start_size, max_lines=3):
         if current:
             lines.append(current)
         if len(lines) <= max_lines:
+            LOG.debug('wrap_text: %r -> %d lines at %dpx font', text, len(lines), font_size)
             return font, lines
     font = ImageFont.truetype(settings.TWITTER_CARD_FONT_PATH, 18)
+    LOG.debug('wrap_text: %r -> fallback 18px, 1 line', text)
     return font, [text]
 
 
@@ -135,10 +145,12 @@ class OGImageSearchView(View):
     def get(self, request):
         q = request.GET.get('q', '').strip()
         n_str = request.GET.get('n', '').strip()
+        LOG.debug('OGImageSearchView: q=%r n=%r', q, n_str)
 
         im = _load_template_image()
         draw = ImageDraw.Draw(im)
         panel_w, panel_cx = _panel_geometry(im)
+        LOG.debug('OGImageSearchView: canvas=%s panel_w=%d panel_cx=%d', im.size, panel_w, panel_cx)
 
         raw_text = f'"{q}"' if q else settings.DBDB_SITE_NAME
         font, lines = _wrap_text(raw_text, panel_w, _QUERY_FONT_MAX)
@@ -151,10 +163,12 @@ class OGImageSearchView(View):
             count_font = ImageFont.truetype(settings.TWITTER_CARD_FONT_PATH, count_font_size)
             c_w = count_font.getmask(count_text).getbbox()[2]
             c_h = count_font.getmask(count_text).getbbox()[3]
+            LOG.debug('OGImageSearchView: count=%r font_size=%d', count_text, count_font_size)
 
         title_h = _text_block_height(font, lines)
         total_h = title_h + (_LINE_GAP + c_h if count_text else 0)
         y = (im.height - total_h) // 2
+        LOG.debug('OGImageSearchView: title_h=%d total_h=%d y_start=%d', title_h, total_h, y)
 
         y = _draw_text_block(draw, font, lines, panel_cx, y, _TEXT_COLOR)
 
@@ -166,6 +180,7 @@ class OGImageSearchView(View):
 
         buf = BytesIO()
         im.save(buf, format='PNG')
+        LOG.debug('OGImageSearchView: done, PNG size=%d bytes', len(buf.getvalue()))
         return HttpResponse(buf.getvalue(), content_type='image/png')
 
 
@@ -177,16 +192,20 @@ class OGImageSavedSearchView(View):
         try:
             ss = SavedSearch.objects.get(pk=pk)
         except SavedSearch.DoesNotExist:
+            LOG.debug('OGImageSavedSearchView: pk=%d not found', pk)
             raise Http404
 
         n_str = request.GET.get('n', '').strip()
+        LOG.debug('OGImageSavedSearchView: pk=%d name=%r icon=%r n=%r', pk, ss.name, ss.icon, n_str)
 
         im = _load_template_image()
         draw = ImageDraw.Draw(im)
         panel_w, panel_cx = _panel_geometry(im)
+        LOG.debug('OGImageSavedSearchView: canvas=%s panel_w=%d panel_cx=%d', im.size, panel_w, panel_cx)
 
         # FA icon rendered from SVG path data
         icon_img = _render_fa_icon(ss.icon, _ICON_SIZE) if ss.icon else None
+        LOG.debug('OGImageSavedSearchView: icon_img=%s', icon_img.size if icon_img else None)
 
         # Name — wrapped to fill the panel width
         font, lines = _wrap_text(ss.name, panel_w, _QUERY_FONT_MAX)
@@ -200,6 +219,7 @@ class OGImageSavedSearchView(View):
             count_font = ImageFont.truetype(settings.TWITTER_CARD_FONT_PATH, count_font_size)
             c_w = count_font.getmask(count_text).getbbox()[2]
             c_h = count_font.getmask(count_text).getbbox()[3]
+            LOG.debug('OGImageSavedSearchView: count=%r font_size=%d', count_text, count_font_size)
 
         icon_h = icon_img.height if icon_img else 0
         title_h = _text_block_height(font, lines)
@@ -209,6 +229,7 @@ class OGImageSavedSearchView(View):
             + (_LINE_GAP + c_h if count_text else 0)
         )
         y = (im.height - total_h) // 2
+        LOG.debug('OGImageSavedSearchView: icon_h=%d title_h=%d total_h=%d y_start=%d', icon_h, title_h, total_h, y)
 
         if icon_img:
             im.paste(icon_img, (panel_cx - icon_img.width // 2, y), icon_img)
@@ -221,4 +242,5 @@ class OGImageSavedSearchView(View):
 
         buf = BytesIO()
         im.save(buf, format='PNG')
+        LOG.debug('OGImageSavedSearchView: done, PNG size=%d bytes', len(buf.getvalue()))
         return HttpResponse(buf.getvalue(), content_type='image/png')
