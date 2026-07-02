@@ -13,8 +13,8 @@ _TEXT_COLOR   = (26, 26, 23, 255)
 _COUNT_COLOR  = (130, 130, 127, 255)
 _QUERY_FONT_MAX = 120
 _COUNT_FONT_RATIO = 0.38
-_LINE_GAP = 28
-_LINE_SPACING = 10
+_LINE_GAP = 64
+_LINE_SPACING = 4
 _ICON_SIZE = 100
 
 # Lazy-loaded FA icon data — loaded on first use so a missing setting or file
@@ -122,7 +122,8 @@ def _count_text(n_str):
         return ''
     try:
         n = int(n_str)
-        label = 'System' if n == 1 else 'Systems'
+        label = 'Database System'
+        if n != 1: label += 's'
         return f'{n:,} {label} Found'
     except ValueError:
         return ''
