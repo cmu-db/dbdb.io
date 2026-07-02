@@ -1,3 +1,5 @@
+import os
+
 from django.conf import settings
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404, render
@@ -15,7 +17,15 @@ class OrganizationView(MetadataMixin, View):
 
     template_name = 'core/organization-view.html'
 
-    twitter_type = 'summary'
+    twitter_type = 'summary_large_image'
+
+    def get_meta_image(self, context=None):
+        org = getattr(self, '_org', None)
+        if org and org.logo:
+            card_path = os.path.join(settings.TWITTER_CARD_ROOT, org.get_twitter_card_image())
+            if os.path.exists(card_path):
+                return self.request.build_absolute_uri(org.twitter_card_url())
+        return None
 
     def get_meta_title(self, context=None):
         name = getattr(self, '_org_name')
