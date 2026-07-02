@@ -17,6 +17,7 @@ _COUNT_COLOR  = (130, 130, 127, 255)
 _QUERY_FONT_MAX = 120
 _COUNT_FONT_RATIO = 0.38
 _LINE_GAP = 64
+_ICON_GAP = 16
 _LINE_SPACING = 4
 _ICON_SIZE = 100
 
@@ -231,7 +232,7 @@ class OGImageSavedSearchView(View):
         icon_h = icon_img.height if icon_img else 0
         title_h = _text_block_height(font, lines)
         total_h = (
-            (icon_h + _LINE_GAP if icon_img else 0)
+            (icon_h + _ICON_GAP if icon_img else 0)
             + title_h
             + (_LINE_GAP + c_h if count_text else 0)
         )
@@ -240,7 +241,7 @@ class OGImageSavedSearchView(View):
 
         if icon_img:
             im.paste(icon_img, (panel_cx - icon_img.width // 2, y), icon_img)
-            y += icon_h + _LINE_GAP
+            y += icon_h + _ICON_GAP
 
         y = _draw_text_block(draw, font, lines, panel_cx, y, _TEXT_COLOR)
 
