@@ -1,7 +1,6 @@
 # stdlib imports
 import os
 import re
-import tempfile
 from io import BytesIO
 
 from cairosvg import svg2png
@@ -53,15 +52,16 @@ def create_twitter_card(obj):
         text_draw = ImageDraw.Draw(logo)
         text_draw.text((0, 0), display_name, font=font, fill=(26, 26, 23, 255))
 
-    # SVG logo
+    # SVG logo — rasterize at the panel dimensions so PIL only ever scales down
     elif obj.logo.path.lower().endswith("svg"):
-        temp_name = os.path.join(tempfile.gettempdir(), next(tempfile._get_candidate_names()) + ".png")
+        panel_w = new_im.width - settings.TWITTER_CARD_BASE_OFFSET_X - 2 * settings.TWITTER_CARD_MARGIN
+        panel_h = new_im.height - 2 * settings.TWITTER_CARD_MARGIN
         with open(obj.logo.path) as fd:
             svg_content = fd.read()
         # cairosvg chokes on attribute values of literal "null" (e.g. stroke-opacity="null")
         svg_content = re.sub(r' [\w:-]+="null"', '', svg_content)
-        svg2png(bytestring=svg_content, write_to=temp_name, scale=3, unsafe=True)
-        logo = Image.open(temp_name).convert("RGBA")
+        png_bytes = svg2png(bytestring=svg_content.encode(), output_width=panel_w, output_height=panel_h, unsafe=True)
+        logo = Image.open(BytesIO(png_bytes)).convert("RGBA")
 
     # PNG logo
     else:
