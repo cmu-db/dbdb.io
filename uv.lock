@@ -372,7 +372,7 @@ requires-dist = [
     { name = "easy-thumbnails", specifier = "==2.10.1" },
     { name = "filelock", specifier = "==3.8.0" },
     { name = "gitpython", specifier = ">=3.1.50" },
-    { name = "gunicorn", specifier = "==20.1.0" },
+    { name = "gunicorn", specifier = "==22.0.0" },
     { name = "h11", specifier = "==0.16.0" },
     { name = "httpcore", specifier = "==1.0.9" },
     { name = "httpx", specifier = "==0.28.1" },
@@ -729,14 +729,14 @@ wheels = [
 
 [[package]]
 name = "gunicorn"
-version = "20.1.0"
+version = "22.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "setuptools" },
+    { name = "packaging" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/28/5b/0d1f0296485a6af03366604142ea8f19f0833894db3512a40ed07b2a56dd/gunicorn-20.1.0.tar.gz", hash = "sha256:e0a968b5ba15f8a328fdfd7ab1fcb5af4470c28aaf7e55df02a99bc13138e6e8", size = 370601, upload-time = "2021-03-27T01:54:37.202Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1e/88/e2f93c5738a4c1f56a458fc7a5b1676fc31dcdbb182bef6b40a141c17d66/gunicorn-22.0.0.tar.gz", hash = "sha256:4a0b436239ff76fb33f11c07a16482c521a7e09c1ce3cc293c2330afe01bec63", size = 3639760, upload-time = "2024-04-16T22:58:19.218Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e4/dd/5b190393e6066286773a67dfcc2f9492058e9b57c4867a95f1ba5caf0a83/gunicorn-20.1.0-py3-none-any.whl", hash = "sha256:9dcc4547dbb1cb284accfb15ab5667a0e5d1881cc443e0677b4882a4067a807e", size = 79531, upload-time = "2021-04-27T12:16:23.375Z" },
+    { url = "https://files.pythonhosted.org/packages/29/97/6d610ae77b5633d24b69c2ff1ac3044e0e565ecbd1ec188f02c45073054c/gunicorn-22.0.0-py3-none-any.whl", hash = "sha256:350679f91b24062c86e386e198a15438d53a7a8207235a78ba1b53df4c4378d9", size = 84443, upload-time = "2024-04-16T22:58:15.233Z" },
 ]
 
 [[package]]
