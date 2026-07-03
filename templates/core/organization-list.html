@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load page_title %}
+
+{% block content %}
+
+{% page_title %}
+{% ptitle_kicker %}{{ organizations|length }} Organization{{ organizations|length|pluralize }}{% endptitle_kicker %}
+{% ptitle_title %}Organizations{% endptitle_title %}
+{% ptitle_sub %}Database system organizations on {{ request.site.name }}{% endptitle_sub %}
+{% endpage_title %}
+
+{% if suggest %}
+<div class="alert alert-info mt-3" role="alert">
+    Did you mean <a href="{{ suggest.get_absolute_url }}">{{ suggest.name }}</a>?
+</div>
+{% endif %}
+
+<div class="row row-cols-1 row-cols-md-3 g-3 mt-2">
+    {% for org in organizations %}
+    <div class="col">
+        <a href="{{ org.get_absolute_url }}" class="org-list-item">{{ org.name }}</a>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

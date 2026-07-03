@@ -1,8 +1,9 @@
 import os
 
 from django.conf import settings
-from django.http.response import Http404
-from django.shortcuts import get_object_or_404, render
+from django.db.models.expressions import RawSQL
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_control
@@ -10,6 +11,33 @@ from meta.views import MetadataMixin
 
 from dbdb.core.models import CitationUrl, Organization
 from dbdb.core.views.home import _attach_data_models
+
+
+@method_decorator(cache_control(public=True, max_age=3600), name='dispatch')
+class OrganizationListView(MetadataMixin, View):
+
+    template_name = 'core/organization-list.html'
+    title = f'Organizations{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
+    twitter_type = 'summary'
+
+    def get_meta_image(self, context=None):
+        from django.templatetags.static import static
+        return self.request.build_absolute_uri(static(settings.DBDB_SITE_OGIMAGE))
+
+    def get_meta_description(self, context=None):
+        return f'A directory of organizations that develop or acquire database systems on {settings.DBDB_SITE_NAME}.'
+
+    def get(self, request):
+        orgs = Organization.objects.all()
+        suggest = None
+        suggest_slug = request.GET.get('suggest', '').strip()
+        if suggest_slug:
+            suggest = Organization.objects.filter(slug=suggest_slug).first()
+        return render(request, self.template_name, {
+            'meta': self.get_meta(),
+            'organizations': orgs,
+            'suggest': suggest,
+        })
 
 
 @method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
@@ -59,7 +87,22 @@ class OrganizationView(MetadataMixin, View):
         }
 
     def get(self, request, slug):
-        org = get_object_or_404(Organization, slug=slug)
+        try:
+            org = Organization.objects.get(slug=slug)
+        except Organization.DoesNotExist:
+            prefix = slug.split('-')[0]
+            match = (
+                Organization.objects
+                .annotate(dist=RawSQL("split_part(slug, '-', 1) <-> %s", [prefix]))
+                .filter(dist__lt=0.5)
+                .order_by('dist')
+                .values('slug')
+                .first()
+            )
+            url = reverse('organization_list')
+            if match:
+                url += f'?suggest={match["slug"]}'
+            return redirect(url)
         # django-meta fields
         self._org_name = org.name
         self._org_type = org.get_org_type_display()
