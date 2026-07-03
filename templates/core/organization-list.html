@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load alerts %}
+{% load links %}
 {% load page_title %}
 
 {% block content %}
@@ -19,7 +20,7 @@ Did you mean <a href="{{ suggest.get_absolute_url }}">{{ suggest.name }}</a>?
 <div class="row row-cols-1 row-cols-md-3 g-3 mt-2">
     {% for org in organizations %}
     <div class="col">
-        <a href="{{ org.get_absolute_url }}" class="org-list-item">{{ org.name }}</a>
+        {% org_link org %}
     </div>
     {% endfor %}
 </div>
