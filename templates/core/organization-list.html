@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load alerts %}
 {% load page_title %}
 
 {% block content %}
@@ -10,9 +11,9 @@
 {% endpage_title %}
 
 {% if suggest %}
-<div class="alert alert-info mt-3" role="alert">
-    Did you mean <a href="{{ suggest.get_absolute_url }}">{{ suggest.name }}</a>?
-</div>
+{% alert type="info" icon="fa-solid fa-circle-question" %}
+Did you mean <a href="{{ suggest.get_absolute_url }}">{{ suggest.name }}</a>?
+{% endalert %}
 {% endif %}
 
 <div class="row row-cols-1 row-cols-md-3 g-3 mt-2">
