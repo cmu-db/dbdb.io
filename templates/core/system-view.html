@@ -10,17 +10,6 @@
 {% load version_tags %}
 
 
-{% block navbuttons %}
-{% if user.is_authenticated and user_can_edit %}
-    <li class="nav-item">
-        <a class="nav-link {% if activate == 'create' %} active{% endif %}" href="{% url 'system_edit' system.slug %}">Edit</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link {% if activate == 'create' %} active{% endif %}" href="{% url 'system_revision' system.slug %}">Revision List</a>
-    </li>
-{% endif %}
-{% endblock %}
-
 {% block content %}
 {# Register partials before block.super renders the layout and calls them. #}
 {% partialdef revision_notice %}

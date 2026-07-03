@@ -1,15 +1,63 @@
 import os
+from itertools import groupby
 
 from django.conf import settings
-from django.http.response import Http404
-from django.shortcuts import get_object_or_404, render
+from django.db import models
+from django.db.models.expressions import RawSQL
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_control
 from meta.views import MetadataMixin
 
-from dbdb.core.models import CitationUrl, Organization
+from dbdb.core.models import CitationUrl, Organization, OrgType
 from dbdb.core.views.home import _attach_data_models
+
+
+@method_decorator(cache_control(public=True, max_age=3600), name='dispatch')
+class OrganizationListView(MetadataMixin, View):
+
+    template_name = 'core/organization-list.html'
+    title = f'Organizations{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
+    twitter_type = 'summary'
+
+    def get_meta_image(self, context=None):
+        from django.templatetags.static import static
+        return self.request.build_absolute_uri(static(settings.DBDB_SITE_OGIMAGE))
+
+    def get_meta_description(self, context=None):
+        return f'A directory of organizations that develop or acquire database systems on {settings.DBDB_SITE_NAME}.'
+
+    def get(self, request):
+        orgs = (
+            Organization.objects
+            .filter(
+                models.Q(developed_systems__is_current=True) |
+                models.Q(acquisitions__version__is_current=True)
+            )
+            .distinct()
+            .order_by(models.F('org_type').asc(nulls_last=True), 'name')
+        )
+
+        org_groups = []
+        for org_type_val, group in groupby(orgs, key=lambda o: o.org_type):
+            label = OrgType(org_type_val).label if org_type_val is not None else 'Other'
+            org_groups.append({'label': label, 'orgs': list(group)})
+
+        total_count = sum(len(g['orgs']) for g in org_groups)
+
+        suggest = None
+        suggest_slug = request.GET.get('suggest', '').strip()
+        if suggest_slug:
+            suggest = Organization.objects.filter(slug=suggest_slug).first()
+
+        return render(request, self.template_name, {
+            'meta': self.get_meta(),
+            'org_groups': org_groups,
+            'total_count': total_count,
+            'suggest': suggest,
+        })
 
 
 @method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
@@ -40,7 +88,7 @@ class OrganizationView(MetadataMixin, View):
             desc = "developer of " + ", ".join([o.system.name for o in self._org_developed]) + " database system"
             if len(self._org_developed) > 1: desc += "s"
         elif self._org_acquisitions:
-            desc = "acquirer of " + ", ".join([o.system.name for o in self._org_acquisitions]) + " database system"
+            desc = "acquirer of " + ", ".join([o['system'].name for o in self._org_acquisitions]) + " database system"
             if len(self._org_acquisitions) > 1: desc += "s"
         else:
             desc = "database systems developer"
@@ -59,7 +107,22 @@ class OrganizationView(MetadataMixin, View):
         }
 
     def get(self, request, slug):
-        org = get_object_or_404(Organization, slug=slug)
+        try:
+            org = Organization.objects.get(slug=slug)
+        except Organization.DoesNotExist:
+            prefix = slug.split('-')[0]
+            match = (
+                Organization.objects
+                .annotate(dist=RawSQL("split_part(slug, '-', 1) <-> %s", [prefix]))
+                .filter(dist__lt=0.5)
+                .order_by('dist')
+                .values('slug')
+                .first()
+            )
+            url = reverse('organization_list')
+            if match:
+                url += f'?suggest={match["slug"]}'
+            return redirect(url)
         # django-meta fields
         self._org_name = org.name
         self._org_type = org.get_org_type_display()

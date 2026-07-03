@@ -194,7 +194,7 @@ class BrowseView(MetadataMixin, View):
 
     template_name = 'core/browse.html'
 
-    twitter_type = 'summary'
+    twitter_type = 'summary_large_image'
 
     def get_meta_title(self, context=None):
         t = getattr(self, '_browse_title', 'Browse')

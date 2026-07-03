@@ -1,0 +1,74 @@
+[
+{
+  "model": "core.organization",
+  "pk": 100,
+  "fields": {
+    "slug": "wu-tang-financial",
+    "name": "Wu-Tang Financial",
+    "url": null,
+    "wikipedia_url": null,
+    "linkedin_url": null,
+    "org_type": null,
+    "stock_exchange": null,
+    "stock_symbol": "",
+    "stock_delisted": null,
+    "countries": [],
+    "former_names": [],
+    "description": "",
+    "created": "2024-01-01T00:00:00Z",
+    "modified": "2024-01-01T00:00:00Z",
+    "logo": "",
+    "logo_color": null,
+    "logo_width": null,
+    "logo_height": null
+  }
+},
+{
+  "model": "core.organization",
+  "pk": 101,
+  "fields": {
+    "slug": "shaolin-systems",
+    "name": "Shaolin Systems",
+    "url": null,
+    "wikipedia_url": null,
+    "linkedin_url": null,
+    "org_type": null,
+    "stock_exchange": null,
+    "stock_symbol": "",
+    "stock_delisted": null,
+    "countries": [],
+    "former_names": [],
+    "description": "",
+    "created": "2024-01-01T00:00:00Z",
+    "modified": "2024-01-01T00:00:00Z",
+    "logo": "",
+    "logo_color": null,
+    "logo_width": null,
+    "logo_height": null
+  }
+},
+{
+  "model": "core.organization",
+  "pk": 102,
+  "fields": {
+    "slug": "staten-island-capital",
+    "name": "Staten Island Capital",
+    "url": null,
+    "wikipedia_url": null,
+    "linkedin_url": null,
+    "org_type": null,
+    "stock_exchange": null,
+    "stock_symbol": "",
+    "stock_delisted": null,
+    "countries": [],
+    "former_names": [],
+    "description": "",
+    "created": "2024-01-01T00:00:00Z",
+    "modified": "2024-01-01T00:00:00Z",
+    "logo": "",
+    "logo_color": null,
+    "logo_width": null,
+    "logo_height": null
+  }
+}
+]

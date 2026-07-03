@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load alerts %}
+{% load links %}
+{% load page_title %}
+
+{% block content %}
+
+{% page_title %}
+{% ptitle_kicker %}{{ total_count }} Organization{{ total_count|pluralize }}{% endptitle_kicker %}
+{% ptitle_title %}Organizations{% endptitle_title %}
+{% ptitle_sub %}Database system organizations on {{ DBDB_SITE_NAME }}{% endptitle_sub %}
+{% endpage_title %}
+
+{% if suggest %}
+{% alert type="info" icon="fa-solid fa-circle-question" %}
+    Did you mean {% org_link suggest %}?
+{% endalert %}
+{% endif %}
+
+{% for group in org_groups %}
+<div class="entry-section">
+    <div class="sec-head">
+        <h2>{{ group.label }}</h2>
+        <span class="rule"></span>
+        <span class="num">{{ group.orgs|length }} organization{{ group.orgs|length|pluralize }}</span>
+    </div>
+    <div class="row row-cols-1 row-cols-md-3 g-3">
+        {% for org in group.orgs %}
+        <div class="col">
+            {% org_link org %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

@@ -5,7 +5,7 @@ from .ogimage import OGImageSearchView, OGImageSavedSearchView
 from .docs import DocOverviewView, DocFeatureView, DocAttributeView, DocSysAttrsView
 from .home import HomeView
 from .misc import EmptyFieldsView, SitemapView
-from .organization import OrganizationView
+from .organization import OrganizationListView, OrganizationView
 from .stats import StatsView
 from .suggest import SystemSuggestionView, SystemSuggestionSuccessView
 from .system import (
