@@ -158,6 +158,34 @@ class SwapVersionsValidationTestCase(TestCase):
         self.assertEqual(SystemVersion.objects.get(pk=self.live.pk).ver, live_ver)
 
 
+class CheckFlagTestCase(TestCase):
+
+    fixtures = _FIXTURES
+
+    def _call_check(self):
+        from io import StringIO
+        from django.core.management import call_command
+        out = StringIO()
+        call_command('swap_versions', '--check', stdout=out)
+        return out.getvalue()
+
+    def test_check_reports_out_of_order_system(self):
+        system = System.objects.get(slug='sqlite')
+        _make_broken_state(system)
+        output = self._call_check()
+        self.assertIn('sqlite', output)
+
+    def test_check_reports_nothing_when_no_problems(self):
+        output = self._call_check()
+        self.assertIn('No out-of-order', output)
+
+    def test_check_output_includes_swap_command_hint(self):
+        system = System.objects.get(slug='sqlite')
+        pending, live = _make_broken_state(system)
+        output = self._call_check()
+        self.assertIn(f'swap_versions {system.slug} {pending.ver} {live.ver}', output)
+
+
 class PendingGuardTestCase(TestCase):
 
     fixtures = _FIXTURES
