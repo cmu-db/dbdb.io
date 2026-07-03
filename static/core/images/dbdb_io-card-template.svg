@@ -22,9 +22,9 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="0.69949691"
-     inkscape:cx="584.70594"
-     inkscape:cy="258.7574"
+     inkscape:zoom="0.54284332"
+     inkscape:cx="628.17389"
+     inkscape:cy="661.33263"
      inkscape:window-width="1782"
      inkscape:window-height="1134"
      inkscape:window-x="0"
@@ -44,11 +44,15 @@
      fill="#faf8f3"
      id="path1"
      style="fill:#c8102e;fill-opacity:1" />
-  <path
-     d="M 63.499994,3.9690173 H 313.53122 V 162.719 H 63.499994 Z"
-     fill="#faf8f3"
-     id="path1-6"
-     style="fill:#f4f4f4;fill-opacity:1;stroke-width:0.866024" />
+  <rect
+     style="fill:#f4f4f4;fill-opacity:1;stroke-width:0.549283"
+     id="rect1"
+     width="250.03122"
+     height="158.74998"
+     x="63.499992"
+     y="3.9690173"
+     rx="4.7624993"
+     ry="4.7624993" />
   <g
      transform="matrix(.9 0 0 .9 130.298501 -156.101617)"
      id="g6">
