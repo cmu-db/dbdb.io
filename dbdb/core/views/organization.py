@@ -68,7 +68,7 @@ class OrganizationView(MetadataMixin, View):
             desc = "developer of " + ", ".join([o.system.name for o in self._org_developed]) + " database system"
             if len(self._org_developed) > 1: desc += "s"
         elif self._org_acquisitions:
-            desc = "acquirer of " + ", ".join([o.system.name for o in self._org_acquisitions]) + " database system"
+            desc = "acquirer of " + ", ".join([o['system'].name for o in self._org_acquisitions]) + " database system"
             if len(self._org_acquisitions) > 1: desc += "s"
         else:
             desc = "database systems developer"
