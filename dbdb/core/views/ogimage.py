@@ -12,14 +12,14 @@ from PIL import Image, ImageDraw, ImageFont
 
 LOG = logging.getLogger(__name__)
 
-_TEXT_COLOR   = (26, 26, 23, 255)
-_COUNT_COLOR  = (130, 130, 127, 255)
-_QUERY_FONT_MAX = 120
-_COUNT_FONT_RATIO = 0.38
-_LINE_GAP = 48
-_ICON_GAP = 0
-_LINE_SPACING = 4
-_ICON_SIZE = 120
+_TEXT_COLOR   = (26, 26, 23, 255)   # RGBA — main title text (near-black)
+_COUNT_COLOR  = (130, 130, 127, 255) # RGBA — "N Systems Found" subtitle (muted gray)
+_QUERY_FONT_MAX = 120    # largest font size (px) tried when fitting title text
+_COUNT_FONT_RATIO = 0.38 # subtitle font size as a fraction of the title font size
+_LINE_GAP = 48           # vertical gap (px) between the title block and the count line
+_ICON_GAP = 0            # vertical gap (px) between the FA icon and the title block
+_LINE_SPACING = 4        # vertical gap (px) between wrapped title lines
+_ICON_SIZE = 120         # FA icon render size (px); square
 
 # Lazy-loaded FA icon data — loaded on first use so a missing setting or file
 # at import time does not permanently break icon rendering.
