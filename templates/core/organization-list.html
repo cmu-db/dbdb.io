@@ -6,7 +6,7 @@
 {% block content %}
 
 {% page_title %}
-{% ptitle_kicker %}{{ organizations|length }} Organization{{ organizations|length|pluralize }}{% endptitle_kicker %}
+{% ptitle_kicker %}{{ total_count }} Organization{{ total_count|pluralize }}{% endptitle_kicker %}
 {% ptitle_title %}Organizations{% endptitle_title %}
 {% ptitle_sub %}Database system organizations on {{ DBDB_SITE_NAME }}{% endptitle_sub %}
 {% endpage_title %}
@@ -17,12 +17,20 @@ Did you mean <a href="{{ suggest.get_absolute_url }}">{{ suggest.name }}</a>?
 {% endalert %}
 {% endif %}
 
-<div class="row row-cols-1 row-cols-md-3 g-3 mt-2">
-    {% for org in organizations %}
-    <div class="col">
-        {% org_link org %}
+{% for group in org_groups %}
+<div class="entry-section">
+    <div class="sec-head">
+        <h2>{{ group.label }}</h2>
+        <span class="rule"></span>
     </div>
-    {% endfor %}
+    <div class="row row-cols-1 row-cols-md-3 g-3">
+        {% for org in group.orgs %}
+        <div class="col">
+            {% org_link org %}
+        </div>
+        {% endfor %}
+    </div>
 </div>
+{% endfor %}
 
 {% endblock %}

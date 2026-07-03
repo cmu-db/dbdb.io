@@ -1,4 +1,5 @@
 import os
+from itertools import groupby
 
 from django.conf import settings
 from django.db import models
@@ -10,7 +11,7 @@ from django.views import View
 from django.views.decorators.cache import cache_control
 from meta.views import MetadataMixin
 
-from dbdb.core.models import CitationUrl, Organization
+from dbdb.core.models import CitationUrl, Organization, OrgType
 from dbdb.core.views.home import _attach_data_models
 
 
@@ -29,17 +30,32 @@ class OrganizationListView(MetadataMixin, View):
         return f'A directory of organizations that develop or acquire database systems on {settings.DBDB_SITE_NAME}.'
 
     def get(self, request):
-        orgs = Organization.objects.filter(
-            models.Q(developed_systems__is_current=True) |
-            models.Q(acquisitions__version__is_current=True)
-        ).distinct()
+        orgs = (
+            Organization.objects
+            .filter(
+                models.Q(developed_systems__is_current=True) |
+                models.Q(acquisitions__version__is_current=True)
+            )
+            .distinct()
+            .order_by(models.F('org_type').asc(nulls_last=True), 'name')
+        )
+
+        org_groups = []
+        for org_type_val, group in groupby(orgs, key=lambda o: o.org_type):
+            label = OrgType(org_type_val).label if org_type_val is not None else 'Other'
+            org_groups.append({'label': label, 'orgs': list(group)})
+
+        total_count = sum(len(g['orgs']) for g in org_groups)
+
         suggest = None
         suggest_slug = request.GET.get('suggest', '').strip()
         if suggest_slug:
             suggest = Organization.objects.filter(slug=suggest_slug).first()
+
         return render(request, self.template_name, {
             'meta': self.get_meta(),
-            'organizations': orgs,
+            'org_groups': org_groups,
+            'total_count': total_count,
             'suggest': suggest,
         })
 
