@@ -662,25 +662,6 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
 }
 
 /* ============================================================
-   ORGANIZATION LIST
-   ============================================================ */
-.org-list-item {
-  display: block;
-  padding: .6rem .75rem;
-  border: 1px solid var(--rule);
-  border-radius: .25rem;
-  font-family: var(--serif);
-  font-size: 1rem;
-  color: var(--ink);
-  transition: background .15s, color .15s;
-}
-.org-list-item:hover {
-  background: var(--tint);
-  color: var(--accent);
-  text-decoration: none;
-}
-
-/* ============================================================
    FOOTER
    ============================================================ */
 .site-footer {
