@@ -1,18 +1,33 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from dbdb.core.models import Organization
+from dbdb.core.models import Organization, SystemVersion
+
+
+_FIXTURES = [
+    'adminuser.json',
+    'core_features.json',
+    'core_attributes.json',
+    'core_system.json',
+    'core_organizations.json',
+]
+
+
+def _link_fixture_orgs_to_sv():
+    """Link all three fixture orgs to the SQLite SystemVersion so they pass the list filter."""
+    sv = SystemVersion.objects.get(system__slug='sqlite', is_current=True)
+    for slug in ('wu-tang-financial', 'shaolin-systems', 'staten-island-capital'):
+        sv.developer_orgs.add(Organization.objects.get(slug=slug))
 
 
 class OrganizationListViewTestCase(TestCase):
 
-    fixtures = [
-        'adminuser.json',
-        'core_features.json',
-        'core_attributes.json',
-        'core_system.json',
-        'core_organizations.json',
-    ]
+    fixtures = _FIXTURES
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        _link_fixture_orgs_to_sv()
 
     def test_list_returns_200(self):
         response = self.client.get('/org/')
@@ -35,13 +50,12 @@ class OrganizationListViewTestCase(TestCase):
 
 class OrganizationDidYouMeanTestCase(TestCase):
 
-    fixtures = [
-        'adminuser.json',
-        'core_features.json',
-        'core_attributes.json',
-        'core_system.json',
-        'core_organizations.json',
-    ]
+    fixtures = _FIXTURES
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        _link_fixture_orgs_to_sv()
 
     def test_missing_slug_redirects_to_list(self):
         response = self.client.get('/org/nope/')
