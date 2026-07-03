@@ -13,7 +13,7 @@
 
 {% if suggest %}
 {% alert type="info" icon="fa-solid fa-circle-question" %}
-Did you mean <a href="{{ suggest.get_absolute_url }}">{{ suggest.name }}</a>?
+    Did you mean {% org_link suggest %}?
 {% endalert %}
 {% endif %}
 
