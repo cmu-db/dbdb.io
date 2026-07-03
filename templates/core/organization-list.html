@@ -22,6 +22,7 @@ Did you mean <a href="{{ suggest.get_absolute_url }}">{{ suggest.name }}</a>?
     <div class="sec-head">
         <h2>{{ group.label }}</h2>
         <span class="rule"></span>
+        <span class="num">{{ group.orgs|length }} organization{{ group.orgs|length|pluralize }}</span>
     </div>
     <div class="row row-cols-1 row-cols-md-3 g-3">
         {% for org in group.orgs %}
