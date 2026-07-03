@@ -1,6 +1,7 @@
 import os
 
 from django.conf import settings
+from django.db import models
 from django.db.models.expressions import RawSQL
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -28,7 +29,10 @@ class OrganizationListView(MetadataMixin, View):
         return f'A directory of organizations that develop or acquire database systems on {settings.DBDB_SITE_NAME}.'
 
     def get(self, request):
-        orgs = Organization.objects.all()
+        orgs = Organization.objects.filter(
+            models.Q(developed_systems__is_current=True) |
+            models.Q(acquisitions__version__is_current=True)
+        ).distinct()
         suggest = None
         suggest_slug = request.GET.get('suggest', '').strip()
         if suggest_slug:
