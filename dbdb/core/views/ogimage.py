@@ -16,10 +16,10 @@ _TEXT_COLOR   = (26, 26, 23, 255)
 _COUNT_COLOR  = (130, 130, 127, 255)
 _QUERY_FONT_MAX = 120
 _COUNT_FONT_RATIO = 0.38
-_LINE_GAP = 64
-_ICON_GAP = 16
+_LINE_GAP = 48
+_ICON_GAP = 0
 _LINE_SPACING = 4
-_ICON_SIZE = 100
+_ICON_SIZE = 120
 
 # Lazy-loaded FA icon data — loaded on first use so a missing setting or file
 # at import time does not permanently break icon rendering.
