@@ -80,7 +80,7 @@ class OrganizationView(MetadataMixin, View):
         org_type = getattr(self, '_org_type', None)
         if not org_type:
             org_type = 'Organization'
-        return f'{org_type} Profile for {name}{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
+        return f'{name}{settings.DBDB_TITLE_SEPARATOR}{org_type} Profile{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
 
     def get_meta_description(self, context=None):
         from django.utils.text import Truncator
