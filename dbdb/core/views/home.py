@@ -105,7 +105,8 @@ class HomeView(MetadataMixin, View):
         )
         _attach_data_models(most_versions)
         for s in most_versions:
-            s.metric = f"{s.num_versions} ✎"
+            s.metric = f"{s.num_versions}"
+            s.is_versions = True
 
         # get top systems by number of (windowed) visits
         prev_start_date = start_date - datetime.timedelta(days=30)

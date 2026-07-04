@@ -8,5 +8,13 @@
         {% if item.all_data_models %}
         <span class="info-subtitle d-block">{{ item.all_data_models|join:" · " }}</span>{% endif %}
     </span>
-    {% if item.metric %}<span class="db-metric">{{ item.metric }}{% if item.visits_delta > 0 %} <i class="fa-solid fa-up-long"></i>{% elif item.visits_delta < 0 %} <i class="fa-solid fa-down-long"></i>{% endif %}</span>{% endif %}
+    {% if item.metric %}<span class="db-metric">{{ item.metric }}
+        {% if item.visits_delta or item.is_versions %}
+            <i class="fa-solid
+            {% if item.visits_delta > 0 %}fa-up-long
+            {% elif item.visits_delta < 0 %}fa-down-long
+            {% elif item.is_versions %}fa-file-pen
+            {% endif %}
+            "></i>
+        {% endif %}</span>{% endif %}
 </a>
