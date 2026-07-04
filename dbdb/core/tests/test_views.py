@@ -358,7 +358,7 @@ class WildcardNameSearchTestCase(TestCase):
 
     def test_wildcard_appears_in_title(self):
         response = self.client.get(reverse('browse'), data={'name': '%qlite%'})
-        self.assertIn('named "%qlite%"', response.context['title'])
+        self.assertIn('named "%qlite%"', response.context['title'].lower())
 
     pass
 

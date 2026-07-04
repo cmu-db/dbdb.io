@@ -1126,6 +1126,13 @@ def systemversion_pre_save(sender, **kwargs):
     created = instance.id is None
 
     if created:
+        if instance.approved:
+            if SystemVersion.objects.filter(system=instance.system, approved=False).exists():
+                raise ValueError(
+                    f"Cannot create an approved SystemVersion for '{instance.system}': "
+                    f"a pending version already exists. Approve or discard it first."
+                )
+
         aggregates = SystemVersion.objects.filter(system=instance.system).aggregate(max_ver=Max('ver'))
         max_ver = aggregates['max_ver']
 

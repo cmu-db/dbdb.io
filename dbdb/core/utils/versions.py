@@ -2,6 +2,10 @@ from __future__ import annotations
 
 import copy
 import io
+import sys
+
+from django.db import transaction
+from django.db.models import Max
 
 from dbdb.core.models import SystemVersion, SystemVersionCodingAgent
 from dbdb.core.utils.searchtext import generate_searchtext
@@ -448,3 +452,149 @@ def clone_system_version(
             sf.options.add(fo)
 
     return new_version
+
+
+_TEXT_FIELDS = ('description', 'history')
+_FK_CITATION_FIELDS = ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url')
+
+
+def swap_versions(system, pending_ver_num: int, live_ver_num: int,
+                  *, dry_run: bool = False, out=None) -> None:
+    """
+    Fix the out-of-order version numbering that occurs when a bot creates a live
+    version (higher ver) after a pending version (lower ver) already exists.
+
+    Steps:
+    1. Validate that ver1 is the pending and ver2 is the live version.
+    2. Merge the live version's additive changes into the pending version so
+       no content from the live version is lost when pending is approved later.
+    3. Swap their ver numbers so pending gets the higher number and live gets
+       the lower number (correct order).
+
+    Assumptions: changes in the live version are purely additive (new options,
+    citations, text appended) — nothing was removed relative to the pending version.
+    """
+    from dbdb.core.models import Acquisition, System, SystemFeature
+
+    if out is None:
+        out = sys.stdout
+
+    prefix = '[DRY RUN] ' if dry_run else ''
+
+    def log(msg):
+        out.write(prefix + msg + '\n')
+
+    # ── Validate ──────────────────────────────────────────────────────────────
+    if pending_ver_num >= live_ver_num:
+        raise ValueError(
+            f"ver1 ({pending_ver_num}) must be less than ver2 ({live_ver_num})."
+        )
+
+    try:
+        pending = SystemVersion.objects.get(system=system, ver=pending_ver_num)
+    except SystemVersion.DoesNotExist:
+        raise ValueError(f"No SystemVersion with ver={pending_ver_num} for {system}.")
+
+    try:
+        live = SystemVersion.objects.get(system=system, ver=live_ver_num)
+    except SystemVersion.DoesNotExist:
+        raise ValueError(f"No SystemVersion with ver={live_ver_num} for {system}.")
+
+    if pending.approved:
+        raise ValueError(
+            f"ver {pending_ver_num} is approved — it is not the pending version."
+        )
+    if not live.approved:
+        raise ValueError(
+            f"ver {live_ver_num} is not approved — it is not the live version."
+        )
+
+    log(f"System  : {system.name}")
+    log(f"Pending : ver {pending.ver} (approved=no, is_current={'yes' if pending.is_current else 'no'})")
+    log(f"Live    : ver {live.ver}    (approved=yes, is_current={'yes' if live.is_current else 'no'})")
+
+    if dry_run:
+        log("No changes made.")
+        return
+
+    # ── Merge live's additive changes into pending ────────────────────────────
+    scalar_changed = []
+
+    # Text fields: append live content if not already present in pending
+    for field in _TEXT_FIELDS:
+        live_text    = (getattr(live, field) or '').strip()
+        pending_text = (getattr(pending, field) or '').strip()
+        if live_text and live_text not in pending_text:
+            merged = (pending_text + '\n\n' + live_text).strip()
+            setattr(pending, field, merged)
+            scalar_changed.append(field)
+
+    # FK citation fields: copy from live if pending has none
+    for fk in _FK_CITATION_FIELDS:
+        if getattr(live, f'{fk}_id') and not getattr(pending, f'{fk}_id'):
+            setattr(pending, fk, getattr(live, fk))
+            scalar_changed.append(fk)
+
+    if scalar_changed:
+        pending.save(update_fields=scalar_changed)
+
+    # M2M fields: additive union (add() is idempotent)
+    for field_name in _VERSION_M2M:
+        items = list(getattr(live, field_name).all())
+        if items:
+            getattr(pending, field_name).add(*items)
+
+    # SystemFeature rows: merge options, citations, and description
+    for live_sf in live.features.prefetch_related('options', 'citations').select_related('feature'):
+        pending_sf, _ = SystemFeature.objects.get_or_create(
+            version=pending, feature=live_sf.feature
+        )
+        options  = list(live_sf.options.all())
+        citations = list(live_sf.citations.all())
+        if options:
+            pending_sf.options.add(*options)
+        if citations:
+            pending_sf.citations.add(*citations)
+        live_desc = (live_sf.description or '').strip()
+        if live_desc and live_desc not in (pending_sf.description or ''):
+            pending_sf.description = ((pending_sf.description or '') + '\n\n' + live_desc).strip()
+            pending_sf.save(update_fields=['description'])
+
+    # Acquisitions: add any from live not already on pending
+    existing_org_ids = set(pending.acquisitions.values_list('organization_id', flat=True))
+    for acq in live.acquisitions.select_related('organization', 'citation'):
+        if acq.organization_id not in existing_org_ids:
+            Acquisition.objects.create(
+                version=pending,
+                organization=acq.organization,
+                year=acq.year,
+                citation=acq.citation,
+            )
+
+    # CodingAgents: add any from live not already on pending
+    existing_agent_ids = set(pending.coding_agent_entries.values_list('agent_id', flat=True))
+    for entry in live.coding_agent_entries.select_related('agent', 'citation'):
+        if entry.agent_id not in existing_agent_ids:
+            SystemVersionCodingAgent.objects.create(
+                system_version=pending,
+                agent=entry.agent,
+                citation=entry.citation,
+            )
+
+    # ── Swap ver numbers ──────────────────────────────────────────────────────
+    # unique_together ('system', 'ver') is a DB constraint so we use a three-step
+    # swap via a temp ver to avoid a transient uniqueness violation.
+    max_ver  = SystemVersion.objects.filter(system=system).aggregate(m=Max('ver'))['m']
+    temp_ver = max_ver + 1
+
+    with transaction.atomic():
+        SystemVersion.objects.filter(pk=pending.pk).update(ver=temp_ver)
+        SystemVersion.objects.filter(pk=live.pk).update(ver=pending_ver_num)
+        SystemVersion.objects.filter(pk=pending.pk).update(ver=live_ver_num)
+        if live.is_current:
+            System.objects.filter(pk=system.pk).update(ver=pending_ver_num)
+
+    log(
+        f"Swapped : ver {pending_ver_num} (pending) ↔ ver {live_ver_num} (live)\n"
+        f"          pending is now ver {live_ver_num}, live is now ver {pending_ver_num}"
+    )

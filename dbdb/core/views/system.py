@@ -935,7 +935,7 @@ class RecentChangesView(MetadataMixin, View):
                 if not viewing_own:
                     versions = versions.filter(approved=True)
 
-        versions = versions.order_by("-created")
+        versions = versions.order_by("-ver" if slug is not None else "-created")
         total_revisions = versions.count()
 
         can_edit_system = user_can_edit_system(request.user, system) if system else False
