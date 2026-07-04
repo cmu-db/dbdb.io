@@ -85,12 +85,19 @@
         <span class="num">Updated Weekly</span>
     </div>
     <a href="{{ spotlight_version.system.get_absolute_url }}" class="spotlight">
-        {% mono_tile spotlight_version.logo spotlight_version.system.name %}
+        {% mono_tile spotlight_version.logo spotlight_version.system.name extra_classes="d-none d-md-inline" %}
         <div>
-            <h3 class="m-0">{{ spotlight_version.system.name }}</h3>
-            {% if spotlight_data_model %}
-                <span class="info-subtitle d-block mt-0 mb-1">{{ spotlight_data_model }} Database System</span>
-            {% endif %}
+            <div class="d-flex d-md-block align-items-center gap-2">
+                {% if spotlight_version.system.logo %}
+                {% mono_tile spotlight_version.logo spotlight_version.system.name extra_classes="d-md-none" %}
+                {% endif %}
+                <div>
+                    <h3 class="m-0">{{ spotlight_version.system.name }}</h3>
+                    {% if spotlight_data_model %}
+                        <span class="info-subtitle d-block mt-0 mb-1">{{ spotlight_data_model }} Database System</span>
+                    {% endif %}
+                </div>
+            </div>
             <p>{{ spotlight_version.description|truncatechars:200 }}</p>
             <span class="sp-meta">
                 {% if spotlight_version.start_year %}
