@@ -568,43 +568,43 @@ class BrowseView(MetadataMixin, View):
         # apply year limits
         if search_start_year.isdigit():
             sqs = sqs.filter(start_year=int(search_start_year))
-            title += f' Started in {search_start_year}'
+            title += f' Started in {search_start_year} '
             pass
         if search_start_min.isdigit():
             sqs = sqs.filter(start_year__gte=int(search_start_min))
-            title += f' Started in {search_start_min}'
+            title += f' Started in {search_start_min} '
             pass
         if search_start_max.isdigit():
             sqs = sqs.filter(start_year__lte=int(search_start_max))
 
             if search_start_min.isdigit():
-                title += f'-{search_start_max}'
+                title += f'-{search_start_max} '
             else:
-                title += f' Started Before {search_start_max}'
+                title += f' Started Before {search_start_max} '
             pass
         if search_end_year.isdigit():
             sqs = sqs.filter(end_year=int(search_end_year))
-            title += f' Ended in {search_end_year}'
+            title += f' Ended in {search_end_year} '
             pass
         if search_end_min.isdigit():
             sqs = sqs.filter(end_year__gte=int(search_end_min))
             if search_start_min or search_start_max:
-                title += f' and Ended in {search_end_min}'
+                title += f' and Ended in {search_end_min} '
             else:
-                title += f' Ended in {search_end_min}'
+                title += f' Ended in {search_end_min} '
             pass
         if search_end_max.isdigit():
             sqs = sqs.filter(end_year__lte=int(search_end_max))
             if search_end_min.isdigit():
-                title += f'-{search_end_max}'
+                title += f'-{search_end_max} '
             else:
-                title += f' Ended Before {search_end_max}'
+                title += f' Ended Before {search_end_max} '
             pass
 
         # apply name wildcard filter (always AND'd, not part of search_op)
         if search_name:
             sqs = sqs.filter(system__name__iregex=_wildcard_to_iregex(search_name))
-            title += f' named "{search_name}"'
+            title += f' Named "{search_name}" '
 
         search_parts = []
         # search - country
