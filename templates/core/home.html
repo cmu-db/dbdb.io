@@ -86,14 +86,16 @@
     </div>
     <a href="{{ spotlight_version.system.get_absolute_url }}" class="spotlight">
         {% mono_tile spotlight_version.logo spotlight_version.system.name extra_classes="d-none d-md-inline" %}
-        <span>
-            {% if spotlight_version.system.logo %}
-            {% mono_tile spotlight_version.logo spotlight_version.system.name extra_classes="d-inline d-md-none" %}
-            {% endif %}
-            <h3 class="m-0">{{ spotlight_version.system.name }}</h3>
-            {% if spotlight_data_model %}
-                <span class="info-subtitle d-block mt-0 mb-1">{{ spotlight_data_model }} Database System</span>
-            {% endif %}
+        <div>
+            <div class="d-flex d-md-block align-items-center gap-2 mb-2 mb-md-0">
+                {% mono_tile spotlight_version.logo spotlight_version.system.name extra_classes="d-md-none" %}
+                <div>
+                    <h3 class="m-0">{{ spotlight_version.system.name }}</h3>
+                    {% if spotlight_data_model %}
+                        <span class="info-subtitle d-block mt-0 mb-1">{{ spotlight_data_model }} Database System</span>
+                    {% endif %}
+                </div>
+            </div>
             <p>{{ spotlight_version.description|truncatechars:200 }}</p>
             <span class="sp-meta">
                 {% if spotlight_version.start_year %}
@@ -106,7 +108,7 @@
                 {% if license %}<span class="index-chip">{{ license.name }}</span>{% endif %}
                 {% endwith %}
             </span>
-        </span>
+        </div>
         <span class="cta cta-ghost d-none d-lg-inline-flex">Read entry <i class="fa-solid fa-arrow-right"></i></span>
     </a>
 </section>

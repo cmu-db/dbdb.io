@@ -22,6 +22,7 @@ dbdb_io/settings.py
 media
 .env
 static-live
+**/*.kate-swp
 
 data/db.sqlite3.*
 data/xapian
