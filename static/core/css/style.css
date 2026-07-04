@@ -1343,7 +1343,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   .shortcuts { grid-template-columns: 1fr; }
   .shortcut { border-right: 0; border-bottom: 1px solid var(--rule); }
   .shortcut:last-child { border-bottom: 0; }
-  .spotlight { grid-template-columns: 1fr; text-align: left; }
+  .spotlight { grid-template-columns: 84px 1fr; text-align: left; align-items: start; }
   .spotlight .mono-tile { width: 84px; height: 84px; }
   .masthead-meta .edge { display: none; }
   .search-field .kbd { display: none; }
