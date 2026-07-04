@@ -28,6 +28,16 @@
         {% for org in group.orgs %}
         <div class="col">
             {% org_link org %}
+            {% if request.user.is_superuser %}
+            <ul class="list-unstyled small text-muted mt-1 mb-0 ps-1">
+                {% if org.url %}<li><i class="fa-solid fa-check text-success me-1"></i>url</li>{% endif %}
+                {% if org.wikipedia_url %}<li><i class="fa-solid fa-check text-success me-1"></i>wikipedia_url</li>{% endif %}
+                {% if org.linkedin_url %}<li><i class="fa-solid fa-check text-success me-1"></i>linkedin_url</li>{% endif %}
+                {% if org.countries %}<li><i class="fa-solid fa-check text-success me-1"></i>countries</li>{% endif %}
+                {% if org.description %}<li><i class="fa-solid fa-check text-success me-1"></i>description</li>{% endif %}
+                {% if org.logo %}<li><i class="fa-solid fa-check text-success me-1"></i>logo</li>{% endif %}
+            </ul>
+            {% endif %}
         </div>
         {% endfor %}
     </div>
