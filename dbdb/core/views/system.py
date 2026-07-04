@@ -714,9 +714,11 @@ class SystemEditView(LoginRequiredMixin, View):
 
             new_version.save()
 
-            if (request.user.is_superuser and pending is not None and not keep_pending
-                    and request.POST.get('admin_timestamp') == 'original'):
-                SystemVersion.objects.filter(pk=new_version.pk).update(created=pending.created)
+            if request.user.is_superuser and pending is not None and not keep_pending:
+                if request.POST.get('admin_timestamp') == 'original':
+                    SystemVersion.objects.filter(pk=new_version.pk).update(created=pending.created)
+                else:  # 'now' — Current Timestamp (default)
+                    SystemVersion.objects.filter(pk=new_version.pk).update(created=timezone.now())
 
             features = {
                 f.label : f
