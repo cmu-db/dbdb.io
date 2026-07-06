@@ -14,6 +14,7 @@ For each empty field on the current SystemVersion, the command:
 import logging
 import re
 import sys
+import time
 from argparse import ArgumentParser
 
 from datetime import timedelta
@@ -199,13 +200,18 @@ class Command(EnricherBaseCommand):
         do_extract_urls = mode in ('extract-urls', 'both')
 
         limit = options['limit']
+        sleep_secs = options['sleep']
         processed = 0
+        first = True
         for system in systems:
             if limit is not None and processed >= limit:
                 break
             if do_enrich and system.pending_version():
                 LOG.warning("Skipping '%s': has a pending (unapproved) SystemVersion", system.slug)
                 continue
+            if sleep_secs and not first:
+                time.sleep(sleep_secs)
+            first = False
             try:
                 if add_tag:
                     self._add_tag_one(system, tag_option, options)

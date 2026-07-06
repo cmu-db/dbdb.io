@@ -1,4 +1,5 @@
 import logging
+import time
 
 from django.core.management.base import BaseCommand
 
@@ -73,4 +74,8 @@ class EnricherBaseCommand(DbdbBaseCommand):
                 "'extract-urls': LLM scans the target's homepage HTML for specific missing URLs. "
                 "'both': run both modes (Systems will create only one pending version)."
             ),
+        )
+        parser.add_argument(
+            '--sleep', type=float, default=0, metavar='SECONDS',
+            help='Sleep this many seconds before processing each entry (default: 0)',
         )

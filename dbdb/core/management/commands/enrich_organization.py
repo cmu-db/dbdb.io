@@ -13,6 +13,7 @@ For each empty field on the Organization, the command:
 """
 import logging
 import re
+import time
 from argparse import ArgumentParser
 from datetime import timedelta
 
@@ -226,10 +227,15 @@ class Command(EnricherBaseCommand):
         do_extract_urls = mode in ('extract-urls', 'both')
 
         limit = options['limit']
+        sleep_secs = options['sleep']
         processed = 0
+        first = True
         for org in orgs:
             if limit is not None and processed >= limit:
                 break
+            if sleep_secs and not first:
+                time.sleep(sleep_secs)
+            first = False
             try:
                 if do_enrich:
                     self._enrich_one(org, options)
@@ -447,7 +453,14 @@ class Command(EnricherBaseCommand):
         prompts = enricher.build_homepage_url_prompt(org.name, raw_html, ['linkedin_url'])
         result = {}
         for prompt in prompts:
-            chunk_result = enricher.call_llm(prompt, tool, model_override=options.get('model'), dry_run=dry_run)
+            try:
+                chunk_result = enricher.call_llm(prompt, tool, model_override=options.get('model'), dry_run=dry_run)
+            except Exception as e:
+                LOG.warning(f"Unexpected error: {e}")
+                if not options['skip_errors']:
+                    raise
+                continue
+
             for key, val in chunk_result.items():
                 if val and key not in result:
                     result[key] = val
