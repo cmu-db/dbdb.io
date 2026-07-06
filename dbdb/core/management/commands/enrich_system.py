@@ -276,7 +276,7 @@ class Command(EnricherBaseCommand):
             return False
 
         if current.system_url.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
-            LOG.info("Skipping '%s': system_url status is %s", system.slug, current.system_url.status)
+            LOG.info("Skipping '%s': system_url status is %s", system.slug, current.system_url.status.name)
             return False
 
         # Determine which URL fields are missing on the current version.

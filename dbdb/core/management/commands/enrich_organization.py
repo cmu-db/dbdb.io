@@ -420,7 +420,7 @@ class Command(EnricherBaseCommand):
             return False
 
         if org.url.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
-            LOG.info("Skipping '%s': url status is %s", org.slug, org.url.status)
+            LOG.info("Skipping '%s': url status is %s", org.slug, org.url.status.name)
             return False
 
         if org.linkedin_url_id is not None:
