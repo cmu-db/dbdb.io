@@ -293,9 +293,20 @@ class Command(EnricherBaseCommand):
         try:
             raw_html = current.system_url.content.raw
         except AttributeError:
-            LOG.info("Skipping '%s': no cached content for homepage", system.slug)
-            return
+            raw_html = ''
+
         if not raw_html:
+            # crawl_citation_url may have served cached text without saving raw HTML
+            # (e.g. URLs crawled before the raw field existed). Force a fresh fetch.
+            _, info = process_citation_url(
+                current.system_url,
+                system=system,
+                skip_spamcheck=options['skip_spamcheck'],
+            )
+            raw_html = (info or {}).get('raw') or ''
+
+        if not raw_html:
+            LOG.info("Skipping '%s': could not retrieve homepage content", system.slug)
             return
 
         if enricher is None:
