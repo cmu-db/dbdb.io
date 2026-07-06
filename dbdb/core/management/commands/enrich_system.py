@@ -299,8 +299,16 @@ class Command(EnricherBaseCommand):
         enricher.set_context(name=system.name)
 
         tool = build_url_extraction_tool(system, missing)
-        prompt = enricher.build_homepage_url_prompt(system.name, raw_html, missing)
-        result = enricher.call_llm(prompt, tool, model_override=options.get('model'), dry_run=dry_run)
+        expected_keys = set(tool['input_schema']['properties'].keys())
+        prompts = enricher.build_homepage_url_prompt(system.name, raw_html, missing)
+        result = {}
+        for prompt in prompts:
+            chunk_result = enricher.call_llm(prompt, tool, model_override=options.get('model'), dry_run=dry_run)
+            for key, val in chunk_result.items():
+                if val and key not in result:
+                    result[key] = val
+            if all(result.get(k) for k in expected_keys):
+                break
 
         new_docs_url = None
         new_twitter_handle = None

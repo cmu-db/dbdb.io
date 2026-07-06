@@ -429,8 +429,16 @@ class Command(EnricherBaseCommand):
             enricher = BaseEnricher.create(options['enricher'])
 
         tool = build_url_extraction_tool(org, ['linkedin_url'])
-        prompt = enricher.build_homepage_url_prompt(org.name, raw_html, ['linkedin_url'])
-        result = enricher.call_llm(prompt, tool, model_override=options.get('model'), dry_run=dry_run)
+        expected_keys = set(tool['input_schema']['properties'].keys())
+        prompts = enricher.build_homepage_url_prompt(org.name, raw_html, ['linkedin_url'])
+        result = {}
+        for prompt in prompts:
+            chunk_result = enricher.call_llm(prompt, tool, model_override=options.get('model'), dry_run=dry_run)
+            for key, val in chunk_result.items():
+                if val and key not in result:
+                    result[key] = val
+            if all(result.get(k) for k in expected_keys):
+                break
 
         if dry_run:
             self.stdout.write(f"  [DRY RUN] linkedin_url={result.get('linkedin_url')!r}")
