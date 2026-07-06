@@ -155,12 +155,16 @@ class BaseEnricher(ABC):
         `missing_fields` are the human-readable field names shown to the model.
         """
         chunk_size = settings.DBDB_ENRICHMENT_HOMEPAGE_CHARS
-        chunks = [
-            homepage_content[i:i + chunk_size]
-            for i in range(0, len(homepage_content), chunk_size)
-        ]
+        # Split from the end so every chunk is full-sized except the last one
+        # in the list (the top of the page), which holds the remainder.
+        chunks = []
+        end = len(homepage_content)
+        while end > 0:
+            start = max(0, end - chunk_size)
+            chunks.append(homepage_content[start:end])
+            end = start
         total = len(chunks)
-        chunks.reverse()  # footer-first
+        # chunks is already footer-first; no reverse needed
 
         field_desc = ', '.join(missing_fields)
         return [
