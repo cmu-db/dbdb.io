@@ -50,7 +50,7 @@ def _collect_version_deletions(version):
 
     # ── Gather all CitationUrl PKs referenced by this version ────────────────
     all_cite_ids: set[int] = set()
-    for fk in ('system_url_id', 'docs_url_id', 'sourcerepo_url_id', 'wikipedia_url_id'):
+    for fk in ('system_url_id', 'docs_url_id', 'blog_url_id', 'sourcerepo_url_id', 'wikipedia_url_id'):
         val = getattr(version, fk)
         if val is not None:
             all_cite_ids.add(val)
@@ -74,7 +74,7 @@ def _collect_version_deletions(version):
     still_cite: set[int] = set()
     if all_cite_ids:
         # FK fields on other SystemVersions
-        for fk in ('system_url_id', 'docs_url_id', 'sourcerepo_url_id', 'wikipedia_url_id'):
+        for fk in ('system_url_id', 'docs_url_id', 'blog_url_id', 'sourcerepo_url_id', 'wikipedia_url_id'):
             still_cite |= set(
                 SystemVersion.objects
                 .exclude(pk=version.pk)
@@ -455,7 +455,7 @@ def clone_system_version(
 
 
 _TEXT_FIELDS = ('description', 'history')
-_FK_CITATION_FIELDS = ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url')
+_FK_CITATION_FIELDS = ('system_url', 'docs_url', 'blog_url', 'sourcerepo_url', 'wikipedia_url')
 
 
 def swap_versions(system, pending_ver_num: int, live_ver_num: int,

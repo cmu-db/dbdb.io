@@ -83,6 +83,10 @@ SYSTEM_ENRICHMENT_TOOL = {
                 "type": "string",
                 "description": "Official technical documentation URL.",
             },
+            "blog_url": {
+                "type": "string",
+                "description": "Engineering blog URL for the database system.",
+            },
             "wikipedia_url": {
                 "type": "string",
                 "description": "Wikipedia article URL.",
@@ -162,6 +166,10 @@ _ORG_FIELD_SCHEMAS: dict[str, dict] = {
     "linkedin_url": {
         "type": "string",
         "description": "Organization's LinkedIn page URL.",
+    },
+    "crunchbase_url": {
+        "type": "string",
+        "description": "Organization's Crunchbase page URL.",
     },
     "wikipedia_url": {
         "type": "string",
@@ -252,6 +260,10 @@ _SYSTEM_URL_EXTRACTION_FIELDS: dict[str, dict] = {
         "type": "string",
         "description": "URL of the official documentation site, if linked from this page.",
     },
+    "blog_url": {
+        "type": "string",
+        "description": "URL of the engineering blog for the database system, if linked from this page.",
+    },
     "twitter_url": {
         "type": "string",
         "description": (
@@ -268,6 +280,13 @@ _ORG_URL_EXTRACTION_FIELDS: dict[str, dict] = {
         "description": (
             "LinkedIn company, school, or personal page URL "
             "(e.g. https://www.linkedin.com/company/handle)."
+        ),
+    },
+    "crunchbase_url": {
+        "type": "string",
+        "description": (
+            "Crunchbase organization page URL "
+            "(e.g. https://www.crunchbase.com/organization/handle)."
         ),
     },
 }
@@ -291,7 +310,7 @@ def build_url_extraction_tool(
     from dbdb.core.models import System, Organization
     if isinstance(entity, System):
         # 'twitter_handle' in the SV model → 'twitter_url' in the LLM schema
-        field_map = {"docs_url": "docs_url", "twitter_handle": "twitter_url"}
+        field_map = {"docs_url": "docs_url", "blog_url": "blog_url", "twitter_handle": "twitter_url"}
         props = {
             field_map[f]: _SYSTEM_URL_EXTRACTION_FIELDS[field_map[f]]
             for f in missing_fields if f in field_map

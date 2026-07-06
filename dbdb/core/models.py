@@ -352,6 +352,12 @@ class Organization(LogoMixin, models.Model):
         related_name='org_linkedin_urls',
         help_text="URL of the organization's LinkedIn page")
 
+    crunchbase_url = models.ForeignKey(
+        'CitationUrl', models.SET_NULL,
+        blank=True, null=True,
+        related_name='org_crunchbase_urls',
+        help_text="URL of the organization's Crunchbase page")
+
     org_type = models.IntegerField(
         choices=OrgType.choices, null=True, blank=True,
         verbose_name='Organization Type')
@@ -699,6 +705,12 @@ class SystemVersion(LogoMixin, models.Model):
         on_delete=models.SET_NULL,
         related_name='version_docs_urls',
         verbose_name="Tech Docs URL")
+
+    blog_url = models.ForeignKey(
+        'CitationUrl', blank=True, null=True,
+        on_delete=models.SET_NULL,
+        related_name='version_blog_urls',
+        verbose_name="Engineering Blog URL")
 
     sourcerepo_url = models.ForeignKey(
         'CitationUrl', blank=True, null=True,

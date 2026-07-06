@@ -18,6 +18,7 @@ from dbdb.core.management.commands.enrich_system import (
 )
 from dbdb.core.management.commands.enrich_organization import (
     Command as EnrichOrgCommand,
+    _validate_crunchbase_url,
     _validate_linkedin_url,
 )
 from dbdb.core.models import Attribute, CitationUrl, CitationUrlContent, Organization, System, SystemVersion
@@ -165,6 +166,31 @@ class ValidateLinkedInUrlTestCase(TestCase):
 
 
 # ---------------------------------------------------------------------------
+# _validate_crunchbase_url unit tests
+# ---------------------------------------------------------------------------
+
+class ValidateCrunchbaseUrlTestCase(TestCase):
+
+    def test_organization_url_accepted(self):
+        result = _validate_crunchbase_url('https://www.crunchbase.com/organization/ol-dirty-bastard-corp')
+        self.assertEqual(result, 'https://www.crunchbase.com/organization/ol-dirty-bastard-corp')
+
+    def test_person_url_accepted(self):
+        result = _validate_crunchbase_url('https://crunchbase.com/person/rza')
+        self.assertEqual(result, 'https://www.crunchbase.com/person/rza')
+
+    def test_trailing_slash_stripped(self):
+        result = _validate_crunchbase_url('https://www.crunchbase.com/organization/wu-tang/')
+        self.assertEqual(result, 'https://www.crunchbase.com/organization/wu-tang')
+
+    def test_non_crunchbase_returns_none(self):
+        self.assertIsNone(_validate_crunchbase_url('https://example.com/organization/foo'))
+
+    def test_empty_returns_none(self):
+        self.assertIsNone(_validate_crunchbase_url(''))
+
+
+# ---------------------------------------------------------------------------
 # HomepageUrlSystemExtractionTestCase
 # ---------------------------------------------------------------------------
 
@@ -235,9 +261,14 @@ class HomepageUrlSystemExtractionTestCase(TestCase):
             url='https://sqlite.org/docs',
             status=CitationUrl.Status.VALID,
         )
+        blog_citation = CitationUrl.objects.create(
+            url='https://sqlite.org/blog',
+            status=CitationUrl.Status.VALID,
+        )
         self.current.docs_url = docs_citation
+        self.current.blog_url = blog_citation
         self.current.twitter_handle = '@sqlite'
-        self.current.save(update_fields=['docs_url', 'twitter_handle'])
+        self.current.save(update_fields=['docs_url', 'blog_url', 'twitter_handle'])
 
         enricher = MockEnricher({'docs_url': 'https://sqlite.org/docs', 'twitter_url': 'https://twitter.com/sqlite'})
         self._call(enricher)
@@ -276,6 +307,18 @@ class HomepageUrlSystemExtractionTestCase(TestCase):
         self.assertEqual(all_pending.count(), 1, "Only one pending SystemVersion should exist")
         pending.refresh_from_db()
         self.assertEqual(pending.twitter_handle, '@sqlite')
+
+    def test_extracts_blog_url_creates_pending_version(self):
+        blog_citation = CitationUrl.objects.create(
+            url='https://sqlite.org/blog',
+            status=CitationUrl.Status.VALID,
+        )
+        enricher = MockEnricher({'blog_url': 'https://sqlite.org/blog'})
+        self._call(enricher)
+
+        pending = self.system.pending_version()
+        self.assertIsNotNone(pending, "A pending SystemVersion should have been created")
+        self.assertEqual(pending.blog_url_id, blog_citation.pk)
 
     def test_invalid_docs_url_not_saved(self):
         # Patch process_citation_url to simulate an unreachable URL
@@ -348,6 +391,42 @@ class HomepageUrlOrgExtractionTestCase(TestCase):
 
         self.org.refresh_from_db()
         self.assertIsNone(self.org.linkedin_url_id)
+
+    def test_extracts_crunchbase_url(self):
+        crunchbase_url = 'https://www.crunchbase.com/organization/wu-tang-financial'
+        enricher = MockEnricher({'crunchbase_url': crunchbase_url})
+        self._call(enricher)
+
+        self.org.refresh_from_db()
+        self.assertIsNotNone(self.org.crunchbase_url_id)
+        self.assertEqual(self.org.crunchbase_url.url, crunchbase_url)
+
+    def test_rejects_invalid_crunchbase_url(self):
+        enricher = MockEnricher({'crunchbase_url': 'https://example.com/org/foo'})
+        self._call(enricher)
+
+        self.org.refresh_from_db()
+        self.assertIsNone(self.org.crunchbase_url_id)
+
+    def test_skips_when_both_urls_already_set(self):
+        linkedin = CitationUrl.objects.create(
+            url='https://www.linkedin.com/company/wu-tang-financial',
+            status=CitationUrl.Status.VALID,
+        )
+        crunchbase = CitationUrl.objects.create(
+            url='https://www.crunchbase.com/organization/wu-tang-financial',
+            status=CitationUrl.Status.IGNORE,
+        )
+        self.org.linkedin_url = linkedin
+        self.org.crunchbase_url = crunchbase
+        self.org.save(update_fields=['linkedin_url', 'crunchbase_url'])
+
+        did_work = False
+        opts = _options()
+        with _NO_OP_ORG_CRAWL:
+            did_work = self.cmd._extract_urls_one(self.org, opts, enricher=MockEnricher({}))
+
+        self.assertFalse(did_work, "_extract_urls_one should return False when all fields are set")
 
     def test_skips_when_linkedin_already_set(self):
         existing = CitationUrl.objects.create(

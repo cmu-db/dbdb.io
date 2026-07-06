@@ -46,7 +46,7 @@ User = get_user_model()
 # separately because they require AttributeOption lookups.
 SIMPLE_TEXT_FIELDS = ('description', 'history', 'twitter_handle')
 INT_FIELDS = ('start_year', 'end_year')
-URL_FK_FIELDS = ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url')
+URL_FK_FIELDS = ('system_url', 'docs_url', 'blog_url', 'sourcerepo_url', 'wikipedia_url')
 M2M_ATTR_FIELDS = ('project_types', 'licenses', 'oses', 'written_in', 'tags')
 # Maps M2M field name → Attribute slug
 M2M_ATTR_SLUGS = {
@@ -282,7 +282,7 @@ class Command(EnricherBaseCommand):
         # Determine which URL fields are missing on the current version.
         # Also check the existing pending version so we don't overwrite fields
         # that were already filled by a prior _enrich_one() call.
-        url_fields = ['docs_url', 'twitter_handle']
+        url_fields = ['docs_url', 'blog_url', 'twitter_handle']
         missing = [f for f in url_fields if _is_field_empty(current, f)]
         pending = system.pending_version()
         if pending:
@@ -336,6 +336,7 @@ class Command(EnricherBaseCommand):
                 break
 
         new_docs_url = None
+        new_blog_url = None
         new_twitter_handle = None
 
         if 'docs_url' in missing:
@@ -359,6 +360,27 @@ class Command(EnricherBaseCommand):
                 except Exception as e:
                     LOG.warning("docs_url: could not validate %r: %s", url_str, e)
 
+        if 'blog_url' in missing:
+            url_str = (result.get('blog_url') or '').strip()
+            if url_str:
+                try:
+                    norm = normalize_url(url_str)
+                    existing = CitationUrl.objects.filter(url=norm).first()
+                    if existing:
+                        new_blog_url = existing
+                    else:
+                        citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
+                        citation, info = process_citation_url(citation, system=system, skip_spamcheck=options['skip_spamcheck'])
+                        if info is None or info['status'] == CitationUrl.Status.VALID:
+                            if info is not None:
+                                citation.save()
+                            new_blog_url = citation
+                        else:
+                            LOG.warning("blog_url: %r is unreachable, skipping", url_str)
+                            citation.delete()
+                except Exception as e:
+                    LOG.warning("blog_url: could not validate %r: %s", url_str, e)
+
         if 'twitter_handle' in missing:
             raw_twitter = (result.get('twitter_url') or '').strip()
             if raw_twitter:
@@ -366,11 +388,12 @@ class Command(EnricherBaseCommand):
 
         if dry_run:
             self.stdout.write(
-                f"  [DRY RUN] docs_url={new_docs_url!r}, twitter_handle={new_twitter_handle!r}"
+                f"  [DRY RUN] docs_url={new_docs_url!r}, blog_url={new_blog_url!r}, "
+                f"twitter_handle={new_twitter_handle!r}"
             )
             return True
 
-        if new_docs_url is None and new_twitter_handle is None:
+        if new_docs_url is None and new_blog_url is None and new_twitter_handle is None:
             self.stdout.write(f"  '{system.name}': nothing extracted from homepage")
             return True
 
@@ -389,13 +412,15 @@ class Command(EnricherBaseCommand):
                 )
             if new_docs_url is not None:
                 new_sv.docs_url = new_docs_url
+            if new_blog_url is not None:
+                new_sv.blog_url = new_blog_url
             if new_twitter_handle is not None:
                 new_sv.twitter_handle = new_twitter_handle
             new_sv.save()
 
         self.stdout.write(self.style.SUCCESS(
             f"  Extracted for '{system.name}': "
-            f"docs_url={new_docs_url}, twitter_handle={new_twitter_handle}"
+            f"docs_url={new_docs_url}, blog_url={new_blog_url}, twitter_handle={new_twitter_handle}"
         ))
         return True
 
