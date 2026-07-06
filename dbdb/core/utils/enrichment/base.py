@@ -137,6 +137,31 @@ class BaseEnricher(ABC):
         )
         return "".join(parts)
 
+    def build_homepage_url_prompt(
+        self,
+        entity_name: str,
+        homepage_content: str,
+        missing_fields: list[str],
+    ) -> str:
+        """
+        Build the user prompt that asks the LLM to find specific URLs in homepage HTML.
+
+        `homepage_content` is CitationUrlContent.raw (the raw HTML).  We truncate
+        it to 8 000 chars to stay within typical context budgets while still
+        covering the page header/nav where social and docs links usually live.
+        `missing_fields` are the human-readable field names shown to the model so
+        it knows exactly what to look for.  The caller must pass the matching
+        build_url_extraction_tool() schema so the model uses the right tool.
+        """
+        field_desc = ', '.join(missing_fields)
+        return (
+            f"# Entity: {entity_name}\n\n"
+            f"## Homepage HTML\n{homepage_content[:8000]}\n\n"
+            f"Scan the HTML above and use the save_url_extraction tool to return "
+            f"the following fields if they appear as explicit links in the page: {field_desc}. "
+            f"Only return URLs you find literally in the HTML — do not guess or invent them."
+        )
+
     def build_doc_prompt(
         self,
         entity,

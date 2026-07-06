@@ -240,6 +240,79 @@ def build_org_enrichment_tool(missing_fields: list[str]) -> dict:
     }
 
 # ---------------------------------------------------------------------------
+# Homepage URL extraction schema
+# ---------------------------------------------------------------------------
+
+# Per-field LLM property definitions for System homepage URL extraction.
+# 'twitter_handle' is exposed as 'twitter_url' so the LLM returns the full URL
+# (e.g. https://twitter.com/handle), which we then parse to extract the handle
+# reliably via regex rather than trusting the model to strip it cleanly.
+_SYSTEM_URL_EXTRACTION_FIELDS: dict[str, dict] = {
+    "docs_url": {
+        "type": "string",
+        "description": "URL of the official documentation site, if linked from this page.",
+    },
+    "twitter_url": {
+        "type": "string",
+        "description": (
+            "Full Twitter or X.com profile URL found on the page "
+            "(e.g. https://twitter.com/handle). Return the full URL, not just the handle."
+        ),
+    },
+}
+
+# Per-field LLM property definitions for Organization homepage URL extraction.
+_ORG_URL_EXTRACTION_FIELDS: dict[str, dict] = {
+    "linkedin_url": {
+        "type": "string",
+        "description": (
+            "LinkedIn company, school, or personal page URL "
+            "(e.g. https://www.linkedin.com/company/handle)."
+        ),
+    },
+}
+
+
+def build_url_extraction_tool(
+    entity: "System | Organization",
+    missing_fields: list[str],
+) -> dict:
+    """
+    Build the LLM tool schema for homepage URL extraction.
+
+    Dispatches on the concrete model type so callers pass the entity instance
+    directly rather than a magic string, giving Python's type checker something
+    to verify.  For Systems, `missing_fields` uses the SystemVersion field names
+    ('docs_url', 'twitter_handle'); the schema renames 'twitter_handle' →
+    'twitter_url' so the LLM returns a full URL the caller can parse with regex.
+    An unsupported type raises TypeError immediately rather than silently
+    returning an empty tool.
+    """
+    from dbdb.core.models import System, Organization
+    if isinstance(entity, System):
+        # 'twitter_handle' in the SV model → 'twitter_url' in the LLM schema
+        field_map = {"docs_url": "docs_url", "twitter_handle": "twitter_url"}
+        props = {
+            field_map[f]: _SYSTEM_URL_EXTRACTION_FIELDS[field_map[f]]
+            for f in missing_fields if f in field_map
+        }
+    elif isinstance(entity, Organization):
+        props = {
+            f: _ORG_URL_EXTRACTION_FIELDS[f]
+            for f in missing_fields if f in _ORG_URL_EXTRACTION_FIELDS
+        }
+    else:
+        raise TypeError(
+            f"build_url_extraction_tool: unsupported entity type {type(entity)!r}"
+        )
+    return {
+        "name": "save_url_extraction",
+        "description": "Save URLs found on the entity's homepage.",
+        "input_schema": {"type": "object", "properties": props},
+    }
+
+
+# ---------------------------------------------------------------------------
 # Documentation enrichment schema (Feature / Attribute descriptions)
 # ---------------------------------------------------------------------------
 

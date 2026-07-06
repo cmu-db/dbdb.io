@@ -64,3 +64,13 @@ class EnricherBaseCommand(DbdbBaseCommand):
                             help='Print errors from individual enrichments and continue instead of stopping')
         parser.add_argument('--limit', type=int, default=None, metavar='N',
                             help='Stop after successfully enriching N entries')
+        parser.add_argument(
+            '--mode',
+            choices=['enrich', 'extract-urls', 'both'],
+            default='enrich',
+            help=(
+                "'enrich' (default): LLM fills missing fields from search/crawl. "
+                "'extract-urls': LLM scans the target's homepage HTML for specific missing URLs. "
+                "'both': run both modes (Systems will create only one pending version)."
+            ),
+        )

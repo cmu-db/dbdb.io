@@ -12,6 +12,7 @@ For each empty field on the Organization, the command:
   5. Saves directly to the Organization row (no versioning / pending flow)
 """
 import logging
+import re
 from argparse import ArgumentParser
 from datetime import timedelta
 
@@ -27,7 +28,7 @@ from django_countries.fields import CountryField
 from dbdb.core.management.base import EnricherBaseCommand
 from dbdb.core.models import CitationUrl, Organization, OrgType, StockExchange, SystemVersion
 from dbdb.core.utils.citations import crawl_citation_url, normalize_url, process_citation_url
-from dbdb.core.utils.enrichment import BaseEnricher, build_org_enrichment_tool
+from dbdb.core.utils.enrichment import BaseEnricher, build_org_enrichment_tool, build_url_extraction_tool
 
 LOG = logging.getLogger(__name__)
 
@@ -129,6 +130,19 @@ def _get_full_company_name(org: Organization, enricher, model_override, dry_run:
     return (result.get("full_name") or "").strip() or None
 
 
+_LINKEDIN_RE = re.compile(
+    r'^https?://(?:www\.)?linkedin\.com/(company|in|school)/([A-Za-z0-9_\-\.%]+)/?$'
+)
+
+
+def _validate_linkedin_url(url: str) -> str | None:
+    """Return a canonical LinkedIn URL, or None if the format is not recognized."""
+    m = _LINKEDIN_RE.match(url.strip())
+    if m:
+        return f'https://www.linkedin.com/{m.group(1)}/{m.group(2)}'
+    return None
+
+
 def _crawl_org_urls(org: Organization, recrawl_after: int = 7, skip_spamcheck: bool = False) -> dict[str, str]:
     """Crawl the org's CitationUrl FK fields; return {url: text_excerpt}."""
     crawled: dict[str, str] = {}
@@ -207,13 +221,20 @@ class Command(EnricherBaseCommand):
         if not options['enricher']:
             raise CommandError("--enricher is required when --set-type is not used")
 
+        mode = options['mode']
+        do_enrich = mode in ('enrich', 'both')
+        do_extract_urls = mode in ('extract-urls', 'both')
+
         limit = options['limit']
         processed = 0
         for org in orgs:
             if limit is not None and processed >= limit:
                 break
             try:
-                self._enrich_one(org, options)
+                if do_enrich:
+                    self._enrich_one(org, options)
+                if do_extract_urls:
+                    self._extract_urls_one(org, options)
                 processed += 1
             except Exception as e:
                 if not options['skip_errors']:
@@ -380,3 +401,62 @@ class Command(EnricherBaseCommand):
         from django.contrib.sites.models import Site
         domain = Site.objects.get_current().domain
         self.stdout.write(self.style.SUCCESS(f"\nhttps://{domain}{reverse('organization', args=[org.slug])}"))
+
+    def _extract_urls_one(self, org: Organization, options: dict, *, enricher=None):
+        org.refresh_from_db()
+        dry_run: bool = options['dry_run']
+
+        if org.url_id is None:
+            LOG.info("Skipping '%s': no url set", org.slug)
+            return
+
+        if org.linkedin_url_id is not None:
+            LOG.info("Skipping '%s': linkedin_url already set", org.slug)
+            return
+
+        cutoff = timezone.now() - timedelta(days=options['recrawl_after'])
+        crawl_citation_url(org.url, recrawl_cutoff=cutoff, skip_spamcheck=options['skip_spamcheck'])
+
+        try:
+            raw_html = org.url.content.raw
+        except AttributeError:
+            LOG.info("Skipping '%s': no cached content for homepage", org.slug)
+            return
+        if not raw_html:
+            return
+
+        if enricher is None:
+            enricher = BaseEnricher.create(options['enricher'])
+
+        tool = build_url_extraction_tool(org, ['linkedin_url'])
+        prompt = enricher.build_homepage_url_prompt(org.name, raw_html, ['linkedin_url'])
+        result = enricher.call_llm(prompt, tool, model_override=options.get('model'), dry_run=dry_run)
+
+        if dry_run:
+            self.stdout.write(f"  [DRY RUN] linkedin_url={result.get('linkedin_url')!r}")
+            return
+
+        linkedin_url = _validate_linkedin_url(result.get('linkedin_url') or '')
+        if not linkedin_url:
+            LOG.warning("Skipping '%s': extracted linkedin_url is invalid: %r", org.slug, result.get('linkedin_url'))
+            return
+
+        try:
+            norm = normalize_url(linkedin_url)
+            existing = CitationUrl.objects.filter(url=norm).first()
+            if existing:
+                citation = existing
+            else:
+                citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
+                citation, info = process_citation_url(citation, skip_spamcheck=options['skip_spamcheck'])
+                if info is not None and info['status'] != CitationUrl.Status.VALID:
+                    LOG.warning("linkedin_url: %r is unreachable, skipping", linkedin_url)
+                    citation.delete()
+                    return
+                if info is not None:
+                    citation.save()
+            org.linkedin_url = citation
+            org.save(update_fields=['linkedin_url'])
+            self.stdout.write(self.style.SUCCESS(f"  Set linkedin_url={linkedin_url} for '{org.name}'"))
+        except Exception as e:
+            LOG.warning("linkedin_url: could not validate %r: %s", linkedin_url, e)
