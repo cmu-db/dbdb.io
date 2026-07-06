@@ -202,31 +202,33 @@ class Command(EnricherBaseCommand):
         limit = options['limit']
         sleep_secs = options['sleep']
         processed = 0
-        first = True
+        prev_did_work = False
         for system in systems:
             if limit is not None and processed >= limit:
                 break
             if do_enrich and system.pending_version():
                 LOG.warning("Skipping '%s': has a pending (unapproved) SystemVersion", system.slug)
                 continue
-            if sleep_secs and not first:
+            if sleep_secs and prev_did_work:
                 time.sleep(sleep_secs)
-            first = False
+            did_work = False
             try:
                 if add_tag:
-                    self._add_tag_one(system, tag_option, options)
+                    did_work = self._add_tag_one(system, tag_option, options)
                 else:
                     if do_enrich:
-                        self._enrich_one(system, options)
+                        did_work |= self._enrich_one(system, options)
                     if do_extract_urls:
-                        self._extract_urls_one(system, options)
+                        did_work |= self._extract_urls_one(system, options)
                 processed += 1
             except Exception as e:
+                did_work = True  # work was started before the failure
                 if not options['skip_errors']:
                     raise
                 self.stderr.write(self.style.ERROR(f"Error enriching '{system.slug}': {e}"))
+            prev_did_work = did_work
 
-    def _add_tag_one(self, system: System, tag_option: AttributeOption, options: dict):
+    def _add_tag_one(self, system: System, tag_option: AttributeOption, options: dict) -> bool:
         system.refresh_from_db()
         dry_run: bool = options['dry_run']
 
@@ -237,13 +239,13 @@ class Command(EnricherBaseCommand):
 
         if current.tags.filter(pk=tag_option.pk).exists():
             self.stdout.write(f"  '{system.name}' already has tag '{tag_option.name}', skipping")
-            return
+            return False
 
         self.stdout.write(f"  Adding tag '{tag_option.name}' to '{system.name}'...")
 
         if dry_run:
             self.stdout.write(self.style.WARNING("  [DRY RUN] Would create new approved SystemVersion"))
-            return
+            return True
 
         with transaction.atomic():
             new_sv = clone_system_version(
@@ -258,8 +260,9 @@ class Command(EnricherBaseCommand):
         self.stdout.write(self.style.SUCCESS(
             f"  Created SystemVersion #{new_sv.ver} for '{system.name}'"
         ))
+        return True
 
-    def _extract_urls_one(self, system: System, options: dict, *, enricher=None):
+    def _extract_urls_one(self, system: System, options: dict, *, enricher=None) -> bool:
         system.refresh_from_db()
         dry_run: bool = options['dry_run']
 
@@ -270,11 +273,11 @@ class Command(EnricherBaseCommand):
 
         if current.system_url_id is None:
             LOG.info("Skipping '%s': no system_url to crawl", system.slug)
-            return
+            return False
 
         if current.system_url.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
             LOG.info("Skipping '%s': system_url status is %s", system.slug, current.system_url.status)
-            return
+            return False
 
         # Determine which URL fields are missing on the current version.
         # Also check the existing pending version so we don't overwrite fields
@@ -286,8 +289,9 @@ class Command(EnricherBaseCommand):
             missing = [f for f in missing if _is_field_empty(pending, f)]
         if not missing:
             self.stdout.write(f"  '{system.name}': all URL fields already set, skipping extraction")
-            return
+            return False
 
+        # Past this point we crawl the homepage and call the LLM.
         cutoff = timezone.now() - timedelta(days=options['recrawl_after'])
         crawl_citation_url(
             current.system_url,
@@ -313,7 +317,7 @@ class Command(EnricherBaseCommand):
 
         if not raw_html:
             LOG.info("Skipping '%s': could not retrieve homepage content", system.slug)
-            return
+            return True  # crawling was attempted; count as work to avoid rapid retries
 
         if enricher is None:
             enricher = BaseEnricher.create(options['enricher'])
@@ -364,11 +368,11 @@ class Command(EnricherBaseCommand):
             self.stdout.write(
                 f"  [DRY RUN] docs_url={new_docs_url!r}, twitter_handle={new_twitter_handle!r}"
             )
-            return
+            return True
 
         if new_docs_url is None and new_twitter_handle is None:
             self.stdout.write(f"  '{system.name}': nothing extracted from homepage")
-            return
+            return True
 
         bot_user = User.objects.get(username=settings.DBDB_BOT_ACCOUNT)
         with transaction.atomic():
@@ -393,8 +397,9 @@ class Command(EnricherBaseCommand):
             f"  Extracted for '{system.name}': "
             f"docs_url={new_docs_url}, twitter_handle={new_twitter_handle}"
         ))
+        return True
 
-    def _enrich_one(self, system: System, options: dict):
+    def _enrich_one(self, system: System, options: dict) -> bool:
         system.refresh_from_db()
 
         dry_run: bool = options['dry_run']
@@ -424,7 +429,7 @@ class Command(EnricherBaseCommand):
 
         if not missing_fields and not missing_features:
             self.stdout.write(self.style.SUCCESS("All fields are already filled. Nothing to do."))
-            return
+            return False
 
         if missing_fields:
             self.stdout.write(f"Missing fields: {', '.join(missing_fields)}")
@@ -676,3 +681,4 @@ class Command(EnricherBaseCommand):
         from django.contrib.sites.models import Site
         domain = Site.objects.get_current().domain
         self.stdout.write(f"Review and approve: http://{domain}{new_sv.get_diff_url()}")
+        return True

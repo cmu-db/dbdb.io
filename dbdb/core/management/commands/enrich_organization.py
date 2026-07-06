@@ -229,25 +229,27 @@ class Command(EnricherBaseCommand):
         limit = options['limit']
         sleep_secs = options['sleep']
         processed = 0
-        first = True
+        prev_did_work = False
         for org in orgs:
             if limit is not None and processed >= limit:
                 break
-            if sleep_secs and not first:
+            if sleep_secs and prev_did_work:
                 time.sleep(sleep_secs)
-            first = False
+            did_work = False
             try:
                 if do_enrich:
-                    self._enrich_one(org, options)
+                    did_work |= self._enrich_one(org, options)
                 if do_extract_urls:
-                    self._extract_urls_one(org, options)
+                    did_work |= self._extract_urls_one(org, options)
                 processed += 1
             except Exception as e:
+                did_work = True  # work was started before the failure
                 if not options['skip_errors']:
                     raise
                 self.stderr.write(self.style.ERROR(f"Error enriching '{org.slug}': {e}"))
+            prev_did_work = did_work
 
-    def _enrich_one(self, org: Organization, options: dict):
+    def _enrich_one(self, org: Organization, options: dict) -> bool:
         org.refresh_from_db()
 
         dry_run: bool    = options['dry_run']
@@ -269,7 +271,7 @@ class Command(EnricherBaseCommand):
         ]
         if not missing_fields:
             self.stdout.write(self.style.SUCCESS("All fields are already filled. Nothing to do."))
-            return
+            return False
         self.stdout.write(f"Missing fields: {', '.join(missing_fields)}")
 
         # --- 3. Crawl existing URLs (opt-in via --include-urls) ---
@@ -407,23 +409,25 @@ class Command(EnricherBaseCommand):
         from django.contrib.sites.models import Site
         domain = Site.objects.get_current().domain
         self.stdout.write(self.style.SUCCESS(f"\nhttps://{domain}{reverse('organization', args=[org.slug])}"))
+        return True
 
-    def _extract_urls_one(self, org: Organization, options: dict, *, enricher=None):
+    def _extract_urls_one(self, org: Organization, options: dict, *, enricher=None) -> bool:
         org.refresh_from_db()
         dry_run: bool = options['dry_run']
 
         if org.url_id is None:
             LOG.info("Skipping '%s': no url set", org.slug)
-            return
+            return False
 
         if org.url.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
             LOG.info("Skipping '%s': url status is %s", org.slug, org.url.status)
-            return
+            return False
 
         if org.linkedin_url_id is not None:
             LOG.info("Skipping '%s': linkedin_url already set", org.slug)
-            return
+            return False
 
+        # Past this point we crawl the homepage and call the LLM.
         cutoff = timezone.now() - timedelta(days=options['recrawl_after'])
         crawl_citation_url(org.url, recrawl_cutoff=cutoff, skip_spamcheck=options['skip_spamcheck'])
 
@@ -443,7 +447,7 @@ class Command(EnricherBaseCommand):
 
         if not raw_html:
             LOG.info("Skipping '%s': could not retrieve homepage content", org.slug)
-            return
+            return True  # crawling was attempted; count as work to avoid rapid retries
 
         if enricher is None:
             enricher = BaseEnricher.create(options['enricher'])
@@ -469,12 +473,12 @@ class Command(EnricherBaseCommand):
 
         if dry_run:
             self.stdout.write(f"  [DRY RUN] linkedin_url={result.get('linkedin_url')!r}")
-            return
+            return True
 
         linkedin_url = _validate_linkedin_url(result.get('linkedin_url') or '')
         if not linkedin_url:
             LOG.warning("Skipping '%s': extracted linkedin_url is invalid: %r", org.slug, result.get('linkedin_url'))
-            return
+            return True
 
         try:
             norm = normalize_url(linkedin_url)
@@ -487,7 +491,7 @@ class Command(EnricherBaseCommand):
                 if info is not None and info['status'] != CitationUrl.Status.VALID:
                     LOG.warning("linkedin_url: %r is unreachable, skipping", linkedin_url)
                     citation.delete()
-                    return
+                    return True
                 if info is not None:
                     citation.save()
             org.linkedin_url = citation
@@ -495,3 +499,4 @@ class Command(EnricherBaseCommand):
             self.stdout.write(self.style.SUCCESS(f"  Set linkedin_url={linkedin_url} for '{org.name}'"))
         except Exception as e:
             LOG.warning("linkedin_url: could not validate %r: %s", linkedin_url, e)
+        return True
