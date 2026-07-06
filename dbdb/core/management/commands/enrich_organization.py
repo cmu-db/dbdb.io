@@ -410,6 +410,10 @@ class Command(EnricherBaseCommand):
             LOG.info("Skipping '%s': no url set", org.slug)
             return
 
+        if org.url.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
+            LOG.info("Skipping '%s': url status is %s", org.slug, org.url.status)
+            return
+
         if org.linkedin_url_id is not None:
             LOG.info("Skipping '%s': linkedin_url already set", org.slug)
             return

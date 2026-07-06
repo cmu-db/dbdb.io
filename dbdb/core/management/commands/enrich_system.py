@@ -266,6 +266,10 @@ class Command(EnricherBaseCommand):
             LOG.info("Skipping '%s': no system_url to crawl", system.slug)
             return
 
+        if current.system_url.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
+            LOG.info("Skipping '%s': system_url status is %s", system.slug, current.system_url.status)
+            return
+
         # Determine which URL fields are missing on the current version.
         # Also check the existing pending version so we don't overwrite fields
         # that were already filled by a prior _enrich_one() call.
