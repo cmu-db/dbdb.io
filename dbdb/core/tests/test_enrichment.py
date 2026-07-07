@@ -332,6 +332,26 @@ class HomepageUrlSystemExtractionTestCase(TestCase):
 
         self.assertIsNone(self.system.pending_version())
 
+    def test_dead_existing_docs_url_not_assigned(self):
+        CitationUrl.objects.create(
+            url='https://sqlite.org/docs',
+            status=CitationUrl.Status.DEAD,
+        )
+        enricher = MockEnricher({'docs_url': 'https://sqlite.org/docs'})
+        self._call(enricher)
+
+        self.assertIsNone(self.system.pending_version())
+
+    def test_dead_existing_blog_url_not_assigned(self):
+        CitationUrl.objects.create(
+            url='https://sqlite.org/blog',
+            status=CitationUrl.Status.DEAD,
+        )
+        enricher = MockEnricher({'blog_url': 'https://sqlite.org/blog'})
+        self._call(enricher)
+
+        self.assertIsNone(self.system.pending_version())
+
 
 # ---------------------------------------------------------------------------
 # HomepageUrlOrgExtractionTestCase

@@ -276,7 +276,7 @@ class Command(EnricherBaseCommand):
             return False
 
         if current.system_url.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
-            LOG.info("Skipping '%s': system_url status is %s", system.slug, current.system_url.status.name)
+            LOG.info("Skipping '%s': system_url status is %s", system.slug, CitationUrl.Status(current.system_url.status).name)
             return False
 
         # Determine which URL fields are missing on the current version.
@@ -335,65 +335,47 @@ class Command(EnricherBaseCommand):
             if all(result.get(k) for k in expected_keys):
                 break
 
-        new_docs_url = None
-        new_blog_url = None
+        # Resolve CitationUrl FK fields via a shared loop
+        url_fk_fields = [f for f in ('docs_url', 'blog_url') if f in missing]
+        new_urls: dict = {}
+        for field in url_fk_fields:
+            url_str = (result.get(field) or '').strip()
+            if not url_str:
+                continue
+            try:
+                norm = normalize_url(url_str)
+                existing = CitationUrl.objects.filter(url=norm).first()
+                if existing:
+                    if existing.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
+                        LOG.warning("%s: %r has status %s, skipping", field, url_str, CitationUrl.Status(existing.status).name)
+                    else:
+                        new_urls[field] = existing
+                else:
+                    citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
+                    citation, info = process_citation_url(citation, system=system, skip_spamcheck=options['skip_spamcheck'])
+                    if info is None or info['status'] == CitationUrl.Status.VALID:
+                        if info is not None:
+                            citation.save()
+                        new_urls[field] = citation
+                    else:
+                        LOG.warning("%s: %r is unreachable, skipping", field, url_str)
+                        citation.delete()
+            except Exception as e:
+                LOG.warning("%s: could not validate %r: %s", field, url_str, e)
+
+        # twitter_handle is a plain string field, not a CitationUrl FK
         new_twitter_handle = None
-
-        if 'docs_url' in missing:
-            url_str = (result.get('docs_url') or '').strip()
-            if url_str:
-                try:
-                    norm = normalize_url(url_str)
-                    existing = CitationUrl.objects.filter(url=norm).first()
-                    if existing:
-                        new_docs_url = existing
-                    else:
-                        citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
-                        citation, info = process_citation_url(citation, system=system, skip_spamcheck=options['skip_spamcheck'])
-                        if info is None or info['status'] == CitationUrl.Status.VALID:
-                            if info is not None:
-                                citation.save()
-                            new_docs_url = citation
-                        else:
-                            LOG.warning("docs_url: %r is unreachable, skipping", url_str)
-                            citation.delete()
-                except Exception as e:
-                    LOG.warning("docs_url: could not validate %r: %s", url_str, e)
-
-        if 'blog_url' in missing:
-            url_str = (result.get('blog_url') or '').strip()
-            if url_str:
-                try:
-                    norm = normalize_url(url_str)
-                    existing = CitationUrl.objects.filter(url=norm).first()
-                    if existing:
-                        new_blog_url = existing
-                    else:
-                        citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
-                        citation, info = process_citation_url(citation, system=system, skip_spamcheck=options['skip_spamcheck'])
-                        if info is None or info['status'] == CitationUrl.Status.VALID:
-                            if info is not None:
-                                citation.save()
-                            new_blog_url = citation
-                        else:
-                            LOG.warning("blog_url: %r is unreachable, skipping", url_str)
-                            citation.delete()
-                except Exception as e:
-                    LOG.warning("blog_url: could not validate %r: %s", url_str, e)
-
         if 'twitter_handle' in missing:
             raw_twitter = (result.get('twitter_url') or '').strip()
             if raw_twitter:
                 new_twitter_handle = _extract_twitter_handle(raw_twitter)
 
         if dry_run:
-            self.stdout.write(
-                f"  [DRY RUN] docs_url={new_docs_url!r}, blog_url={new_blog_url!r}, "
-                f"twitter_handle={new_twitter_handle!r}"
-            )
+            url_parts = [f"{f}={new_urls.get(f)!r}" for f in ('docs_url', 'blog_url')]
+            self.stdout.write(f"  [DRY RUN] {', '.join(url_parts)}, twitter_handle={new_twitter_handle!r}")
             return True
 
-        if new_docs_url is None and new_blog_url is None and new_twitter_handle is None:
+        if not new_urls and new_twitter_handle is None:
             self.stdout.write(f"  '{system.name}': nothing extracted from homepage")
             return True
 
@@ -410,17 +392,15 @@ class Command(EnricherBaseCommand):
                     creator=bot_user,
                     comment='Auto URL extraction by enrich_system command',
                 )
-            if new_docs_url is not None:
-                new_sv.docs_url = new_docs_url
-            if new_blog_url is not None:
-                new_sv.blog_url = new_blog_url
+            for field, citation in new_urls.items():
+                setattr(new_sv, field, citation)
             if new_twitter_handle is not None:
                 new_sv.twitter_handle = new_twitter_handle
             new_sv.save()
 
+        url_parts = [f"{f}={new_urls.get(f)}" for f in ('docs_url', 'blog_url')]
         self.stdout.write(self.style.SUCCESS(
-            f"  Extracted for '{system.name}': "
-            f"docs_url={new_docs_url}, blog_url={new_blog_url}, twitter_handle={new_twitter_handle}"
+            f"  Extracted for '{system.name}': {', '.join(url_parts)}, twitter_handle={new_twitter_handle}"
         ))
         return True
 
@@ -611,8 +591,11 @@ class Command(EnricherBaseCommand):
                     norm = normalize_url(url_str)
                     existing = CitationUrl.objects.filter(url=norm).first()
                     if existing:
-                        setattr(new_sv, field, existing)
-                        dirty = True
+                        if existing.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
+                            LOG.warning(f"  {field}: existing citation {url_str!r} has status {CitationUrl.Status(existing.status).name}, skipping")
+                        else:
+                            setattr(new_sv, field, existing)
+                            dirty = True
                         continue
                     # New URL: create, validate, keep only if reachable
                     citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)

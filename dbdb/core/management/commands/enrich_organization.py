@@ -346,8 +346,11 @@ class Command(EnricherBaseCommand):
                     norm = normalize_url(url_str)
                     existing = CitationUrl.objects.filter(url=norm).first()
                     if existing:
-                        setattr(org, field, existing)
-                        dirty = True
+                        if existing.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
+                            LOG.warning(f"  {field}: existing citation {url_str!r} has status {CitationUrl.Status(existing.status).name}, skipping")
+                        else:
+                            setattr(org, field, existing)
+                            dirty = True
                         continue
                     citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
                     citation, info = process_citation_url(citation, skip_spamcheck=options['skip_spamcheck'])
@@ -502,7 +505,11 @@ class Command(EnricherBaseCommand):
                     norm = normalize_url(linkedin_url)
                     existing = CitationUrl.objects.filter(url=norm).first()
                     if existing:
-                        citation = existing
+                        if existing.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
+                            LOG.warning("linkedin_url: %r has status %s, skipping", linkedin_url, CitationUrl.Status(existing.status).name)
+                            citation = None
+                        else:
+                            citation = existing
                     else:
                         citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
                         citation, info = process_citation_url(citation, skip_spamcheck=options['skip_spamcheck'])
