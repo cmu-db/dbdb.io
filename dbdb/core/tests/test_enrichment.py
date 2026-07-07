@@ -352,6 +352,18 @@ class HomepageUrlSystemExtractionTestCase(TestCase):
 
         self.assertIsNone(self.system.pending_version())
 
+    def test_relative_docs_url_resolved_against_homepage(self):
+        docs_citation = CitationUrl.objects.create(
+            url='https://sqlite.org/docs',
+            status=CitationUrl.Status.VALID,
+        )
+        enricher = MockEnricher({'docs_url': '/docs'})
+        self._call(enricher)
+
+        pending = self.system.pending_version()
+        self.assertIsNotNone(pending)
+        self.assertEqual(pending.docs_url_id, docs_citation.pk)
+
 
 # ---------------------------------------------------------------------------
 # HomepageUrlOrgExtractionTestCase
@@ -475,6 +487,15 @@ class HomepageUrlOrgExtractionTestCase(TestCase):
     def test_dry_run_does_not_save(self):
         enricher = MockEnricher({'linkedin_url': 'https://www.linkedin.com/company/wu-tang-financial'})
         self._call(enricher, dry_run=True)
+
+        self.org.refresh_from_db()
+        self.assertIsNone(self.org.linkedin_url_id)
+
+    def test_relative_url_rejected_by_validator(self):
+        # Relative paths can't resolve to a valid linkedin/crunchbase URL, so
+        # they are logged as invalid and the field is left unset.
+        enricher = MockEnricher({'linkedin_url': '/company/wu-tang-financial'})
+        self._call(enricher)
 
         self.org.refresh_from_db()
         self.assertIsNone(self.org.linkedin_url_id)

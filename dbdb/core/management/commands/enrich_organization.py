@@ -14,6 +14,7 @@ For each empty field on the Organization, the command:
 import logging
 import re
 import time
+from urllib.parse import urljoin
 from argparse import ArgumentParser
 from datetime import timedelta
 
@@ -506,6 +507,8 @@ class Command(EnricherBaseCommand):
             if validator is None:
                 continue
             raw = result.get(field) or ''
+            if raw and not raw.startswith(('http://', 'https://')):
+                raw = urljoin(org.url.url, raw)
             validated = validator(raw)
             if not validated:
                 LOG.warning("Skipping '%s': extracted %s is invalid: %r", org.slug, field, raw)

@@ -15,6 +15,7 @@ import logging
 import re
 import sys
 import time
+from urllib.parse import urljoin
 from argparse import ArgumentParser
 
 from datetime import timedelta
@@ -342,6 +343,8 @@ class Command(EnricherBaseCommand):
             url_str = (result.get(field) or '').strip()
             if not url_str:
                 continue
+            if not url_str.startswith(('http://', 'https://')):
+                url_str = urljoin(current.system_url.url, url_str)
             try:
                 norm = normalize_url(url_str)
                 existing = CitationUrl.objects.filter(url=norm).first()
