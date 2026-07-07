@@ -28,7 +28,7 @@ django-upgrade==1.29.1
 djangorestframework==3.16.1
 docutils==0.16
 easy-thumbnails==2.10.1
-filelock==3.8.0
+filelock==3.20.3
 greenlet==3.5.1
 gunicorn==22.0.0
 h11==0.16.0
