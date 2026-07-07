@@ -265,6 +265,10 @@ DBDB_AUTOCOMPLETE_CITATION_NUM_ENTRIES      = 12
 DBDB_AUTOCOMPLETE_ORGANIZATION_NUM_ENTRIES  = 12
 DBDB_AUTOCOMPLETE_SYSTEM_NUM_ENTRIES        = 10
 
+# LLM prompt truncation limits for the enrichment commands
+DBDB_ENRICHMENT_CRAWLED_CHARS  = 3000   # per crawled page excerpt passed to LLM prompts
+DBDB_ENRICHMENT_HOMEPAGE_CHARS = 8000   # full homepage HTML passed for URL extraction
+
 # Repository scanning (collect_repo_info management command)
 DBDB_SOURCEREPO_DIRECTORY = env('DBDB_SOURCEREPO_DIRECTORY', default='/tmp/dbdb/')
 GITHUB_API_TOKEN   = env('GITHUB_API_TOKEN',   default='')

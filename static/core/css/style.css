@@ -5,7 +5,7 @@
    ============================================================ */
 
 /* ---- Fonts ---- */
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 /* ============================================================
    DESIGN TOKENS
@@ -321,21 +321,23 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
 }
 .masthead .rule-thick { border-top: 2px solid var(--ink); }
 
-.nameplate {
+.wordmark {
   font-family: var(--serif);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 0.94;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--ink);
+}
+.wordmark > .wordmark-of {
+  font-style: italic;
+  font-weight: 600;
+  color: var(--accent);
+  margin-right: 0.15em;
+}
+.wordmark-hero {
+  line-height: 0.94;
   text-align: center;
   font-size: clamp(3rem, 8.5vw, 6.2rem);
   margin: 0;
-}
-.nameplate .of {
-  font-style: italic;
-  font-weight: 400;
-  color: var(--accent);
-  margin-right: 0.8rem;
 }
 
 .masthead-meta {
@@ -712,16 +714,11 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
   padding-top: .6rem;
   padding-bottom: .6rem;
 }
-.runhead .wordmark {
-  font-family: var(--serif);
-  font-weight: 600;
-  font-size: 1.5rem;
-  letter-spacing: -0.01em;
-  color: var(--ink);
+.wordmark-runhead {
+  font-size: 1.4rem;
   white-space: nowrap;
 }
 .runhead .wordmark:hover { text-decoration: none; }
-.runhead .wordmark .of { font-style: italic; font-weight: 400; color: var(--accent); margin-right: 0.2rem; }
 .rh-toggle {
   background: transparent; border: 0; padding: .35rem .45rem;
   color: var(--ink); font-size: 1.15rem; cursor: pointer; line-height: 1;

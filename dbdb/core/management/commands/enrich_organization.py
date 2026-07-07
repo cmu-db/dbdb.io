@@ -12,6 +12,8 @@ For each empty field on the Organization, the command:
   5. Saves directly to the Organization row (no versioning / pending flow)
 """
 import logging
+import re
+import time
 from argparse import ArgumentParser
 from datetime import timedelta
 
@@ -27,14 +29,14 @@ from django_countries.fields import CountryField
 from dbdb.core.management.base import EnricherBaseCommand
 from dbdb.core.models import CitationUrl, Organization, OrgType, StockExchange, SystemVersion
 from dbdb.core.utils.citations import crawl_citation_url, normalize_url, process_citation_url
-from dbdb.core.utils.enrichment import BaseEnricher, build_org_enrichment_tool
+from dbdb.core.utils.enrichment import BaseEnricher, build_org_enrichment_tool, build_url_extraction_tool
 
 LOG = logging.getLogger(__name__)
 
 # Ordered list of all fields the command can enrich.
 ORG_ALL_FIELDS = (
     'description', 'stock_symbol',
-    'url', 'wikipedia_url', 'linkedin_url',
+    'url', 'wikipedia_url', 'linkedin_url', 'crunchbase_url',
     'org_type', 'stock_exchange',
     'countries', 'former_names',
 )
@@ -129,6 +131,32 @@ def _get_full_company_name(org: Organization, enricher, model_override, dry_run:
     return (result.get("full_name") or "").strip() or None
 
 
+_LINKEDIN_RE = re.compile(
+    r'^https?://(?:www\.)?linkedin\.com/(company|in|school)/([A-Za-z0-9_\-\.%]+)/?$'
+)
+
+
+def _validate_linkedin_url(url: str) -> str | None:
+    """Return a canonical LinkedIn URL, or None if the format is not recognized."""
+    m = _LINKEDIN_RE.match(url.strip())
+    if m:
+        return f'https://www.linkedin.com/{m.group(1)}/{m.group(2)}'
+    return None
+
+
+_CRUNCHBASE_RE = re.compile(
+    r'^https?://(?:www\.)?crunchbase\.com/(organization|person)/([A-Za-z0-9_\-\.]+)/?$'
+)
+
+
+def _validate_crunchbase_url(url: str) -> str | None:
+    """Return a canonical Crunchbase URL, or None if the format is not recognized."""
+    m = _CRUNCHBASE_RE.match(url.strip())
+    if m:
+        return f'https://www.crunchbase.com/{m.group(1)}/{m.group(2)}'
+    return None
+
+
 def _crawl_org_urls(org: Organization, recrawl_after: int = 7, skip_spamcheck: bool = False) -> dict[str, str]:
     """Crawl the org's CitationUrl FK fields; return {url: text_excerpt}."""
     crawled: dict[str, str] = {}
@@ -207,20 +235,34 @@ class Command(EnricherBaseCommand):
         if not options['enricher']:
             raise CommandError("--enricher is required when --set-type is not used")
 
+        mode = options['mode']
+        do_enrich = mode in ('enrich', 'both')
+        do_extract_urls = mode in ('extract-urls', 'both')
+
         limit = options['limit']
+        sleep_secs = options['sleep']
         processed = 0
+        prev_did_work = False
         for org in orgs:
             if limit is not None and processed >= limit:
                 break
+            if sleep_secs and prev_did_work:
+                time.sleep(sleep_secs)
+            did_work = False
             try:
-                self._enrich_one(org, options)
+                if do_enrich:
+                    did_work |= self._enrich_one(org, options)
+                if do_extract_urls:
+                    did_work |= self._extract_urls_one(org, options)
                 processed += 1
             except Exception as e:
+                did_work = True  # work was started before the failure
                 if not options['skip_errors']:
                     raise
                 self.stderr.write(self.style.ERROR(f"Error enriching '{org.slug}': {e}"))
+            prev_did_work = did_work
 
-    def _enrich_one(self, org: Organization, options: dict):
+    def _enrich_one(self, org: Organization, options: dict) -> bool:
         org.refresh_from_db()
 
         dry_run: bool    = options['dry_run']
@@ -242,7 +284,7 @@ class Command(EnricherBaseCommand):
         ]
         if not missing_fields:
             self.stdout.write(self.style.SUCCESS("All fields are already filled. Nothing to do."))
-            return
+            return False
         self.stdout.write(f"Missing fields: {', '.join(missing_fields)}")
 
         # --- 3. Crawl existing URLs (opt-in via --include-urls) ---
@@ -380,3 +422,120 @@ class Command(EnricherBaseCommand):
         from django.contrib.sites.models import Site
         domain = Site.objects.get_current().domain
         self.stdout.write(self.style.SUCCESS(f"\nhttps://{domain}{reverse('organization', args=[org.slug])}"))
+        return True
+
+    def _extract_urls_one(self, org: Organization, options: dict, *, enricher=None) -> bool:
+        org.refresh_from_db()
+        dry_run: bool = options['dry_run']
+
+        if org.url_id is None:
+            LOG.info("Skipping '%s': no url set", org.slug)
+            return False
+
+        if org.url.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
+            LOG.info("Skipping '%s': url status is %s", org.slug, org.url.status.name)
+            return False
+
+        url_fields = ['linkedin_url', 'crunchbase_url']
+        missing = [f for f in url_fields if getattr(org, f'{f}_id') is None]
+        if not missing:
+            LOG.info("Skipping '%s': all URL fields already set", org.slug)
+            return False
+
+        # Past this point we crawl the homepage and call the LLM.
+        cutoff = timezone.now() - timedelta(days=options['recrawl_after'])
+        crawl_citation_url(org.url, recrawl_cutoff=cutoff, skip_spamcheck=options['skip_spamcheck'])
+
+        try:
+            raw_html = org.url.content.raw
+        except AttributeError:
+            raw_html = ''
+
+        if not raw_html:
+            # crawl_citation_url may have served cached text without saving raw HTML
+            # (e.g. URLs crawled before the raw field existed). Force a fresh fetch.
+            _, info = process_citation_url(
+                org.url,
+                skip_spamcheck=options['skip_spamcheck'],
+            )
+            raw_html = (info or {}).get('raw') or ''
+
+        if not raw_html:
+            LOG.info("Skipping '%s': could not retrieve homepage content", org.slug)
+            return True  # crawling was attempted; count as work to avoid rapid retries
+
+        if enricher is None:
+            enricher = BaseEnricher.create(options['enricher'])
+
+        tool = build_url_extraction_tool(org, missing)
+        expected_keys = set(tool['input_schema']['properties'].keys())
+        prompts = enricher.build_homepage_url_prompt(org.name, raw_html, missing)
+        result = {}
+        for prompt in prompts:
+            try:
+                chunk_result = enricher.call_llm(prompt, tool, model_override=options.get('model'), dry_run=dry_run)
+            except Exception as e:
+                LOG.warning(f"Unexpected error: {e}")
+                if not options['skip_errors']:
+                    raise
+                continue
+
+            for key, val in chunk_result.items():
+                if val and key not in result:
+                    result[key] = val
+            if all(result.get(k) for k in expected_keys):
+                break
+
+        if dry_run:
+            self.stdout.write(
+                f"  [DRY RUN] linkedin_url={result.get('linkedin_url')!r}, "
+                f"crunchbase_url={result.get('crunchbase_url')!r}"
+            )
+            return True
+
+        if 'linkedin_url' in missing:
+            linkedin_url = _validate_linkedin_url(result.get('linkedin_url') or '')
+            if not linkedin_url:
+                LOG.warning("Skipping '%s': extracted linkedin_url is invalid: %r", org.slug, result.get('linkedin_url'))
+            else:
+                try:
+                    norm = normalize_url(linkedin_url)
+                    existing = CitationUrl.objects.filter(url=norm).first()
+                    if existing:
+                        citation = existing
+                    else:
+                        citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
+                        citation, info = process_citation_url(citation, skip_spamcheck=options['skip_spamcheck'])
+                        if info is not None and info['status'] != CitationUrl.Status.VALID:
+                            LOG.warning("linkedin_url: %r is unreachable, skipping", linkedin_url)
+                            citation.delete()
+                            citation = None
+                        elif info is not None:
+                            citation.save()
+                    if citation is not None:
+                        org.linkedin_url = citation
+                        org.save(update_fields=['linkedin_url'])
+                        self.stdout.write(self.style.SUCCESS(f"  Set linkedin_url={linkedin_url} for '{org.name}'"))
+                except Exception as e:
+                    LOG.warning("linkedin_url: could not validate %r: %s", linkedin_url, e)
+
+        if 'crunchbase_url' in missing:
+            # crunchbase.com is in SKIP_DOMAINS so process_citation_url returns IGNORE.
+            # Validate URL format only; get-or-create the CitationUrl without HTTP fetch.
+            crunchbase_url = _validate_crunchbase_url(result.get('crunchbase_url') or '')
+            if not crunchbase_url:
+                LOG.warning("Skipping '%s': extracted crunchbase_url is invalid: %r", org.slug, result.get('crunchbase_url'))
+            else:
+                try:
+                    norm = normalize_url(crunchbase_url)
+                    citation, created = CitationUrl.objects.get_or_create(
+                        url=norm,
+                        defaults={'status': CitationUrl.Status.IGNORE},
+                    )
+                    org.crunchbase_url = citation
+                    org.save(update_fields=['crunchbase_url'])
+                    self.stdout.write(self.style.SUCCESS(f"  Set crunchbase_url={crunchbase_url} for '{org.name}'"))
+                except Exception as e:
+                    LOG.warning("crunchbase_url: could not save %r: %s", crunchbase_url, e)
+
+        return True

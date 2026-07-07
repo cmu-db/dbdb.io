@@ -199,6 +199,7 @@ class SystemView(MetadataMixin, View):
         system_url_citation     = _url_citation('system_url')
         sourcerepo_url_citation = _url_citation('sourcerepo_url')
         docs_url_citation       = _url_citation('docs_url')
+        blog_url_citation       = _url_citation('blog_url')
         wikipedia_url_citation  = _url_citation('wikipedia_url')
 
         sections = []
@@ -361,6 +362,7 @@ class SystemView(MetadataMixin, View):
             'end_year_citations': end_year_citations,
             'system_url_citation':     system_url_citation,
             'docs_url_citation':       docs_url_citation,
+            'blog_url_citation':       blog_url_citation,
             'sourcerepo_url_citation': sourcerepo_url_citation,
             'wikipedia_url_citation':  wikipedia_url_citation,
             'page_error': version_error,
@@ -1172,6 +1174,7 @@ def _compute_version_diff(v1, v2):
         ('system_url',      'Website URL'),
         ('docs_url',        'Docs URL'),
         ('sourcerepo_url',  'Source Repo URL'),
+        ('blog_url',        'Blog URL'),
         ('wikipedia_url',   'Wikipedia URL'),
     ]:
         a = _url_str(getattr(v1, field))

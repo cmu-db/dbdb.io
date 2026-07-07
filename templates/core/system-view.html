@@ -67,6 +67,10 @@
         <div class="fact"><dt>Tech Docs</dt><dd><a href="{{ version.docs_url.url }}" target="_docs_{{ system.slug }}">{{ version.docs_url.display_url }}</a>{% if docs_url_citation %}<span class="cites">{% citation_footnote docs_url_citation %}</span>{% endif %}</dd></div>
         {% endif %}
 
+        {% if version.blog_url %}
+        <div class="fact"><dt>Blog</dt><dd><a href="{{ version.blog_url.url }}" target="_blog_{{ system.slug }}">{{ version.blog_url.display_url }}</a>{% if blog_url_citation %}<span class="cites">{% citation_footnote blog_url_citation %}</span>{% endif %}</dd></div>
+        {% endif %}
+
         {% if version.twitter_handle %}
         <div class="fact"><dt>Twitter</dt><dd><a href="{{ version.twitter_handle_url }}" target="_twitter_{{ system.slug }}"><i class="fa-brands fa-twitter"></i>{{ version.twitter_handle }}</a></dd></div>
         {% endif %}
