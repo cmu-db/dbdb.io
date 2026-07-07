@@ -4,6 +4,8 @@ BaseEnricher ABC — prompt builders, citation validator, and provider factory.
 import logging
 from abc import ABC, abstractmethod
 
+from django.conf import settings
+
 from dbdb.core.models import Attribute, CitationUrl, Feature, System, SystemVersion
 from dbdb.core.utils.citations import normalize_url, process_citation_url
 
@@ -70,7 +72,7 @@ class BaseEnricher(ABC):
         if crawled_pages:
             parts.append("## Crawled Pages\n")
             for url, text in crawled_pages.items():
-                parts.append(f"### {url}\n{text[:3000]}\n")
+                parts.append(f"### {url}\n{text[:settings.DBDB_ENRICHMENT_CRAWLED_CHARS]}\n")
 
         if active_fields:
             parts.append(f"## Missing Fields to Fill\n{', '.join(active_fields)}\n")
@@ -110,7 +112,7 @@ class BaseEnricher(ABC):
         if crawled_pages:
             parts.append("## Crawled Pages\n")
             for url, text in crawled_pages.items():
-                parts.append(f"### {url}\n{text[:3000]}\n")
+                parts.append(f"### {url}\n{text[:settings.DBDB_ENRICHMENT_CRAWLED_CHARS]}\n")
         parts.append(
             "\nUse the save_enrichment tool. Only fill the 'features' key for this feature, "
             "provide citations, and use only neutral, factual language."
@@ -127,7 +129,7 @@ class BaseEnricher(ABC):
         if crawled_pages:
             parts.append("## Crawled Pages\n")
             for url, text in crawled_pages.items():
-                parts.append(f"### {url}\n{text[:3000]}\n")
+                parts.append(f"### {url}\n{text[:settings.DBDB_ENRICHMENT_CRAWLED_CHARS]}\n")
         parts.append(f"## Missing Fields to Fill\n{', '.join(missing_fields)}\n")
         parts.append(
             "\nUse the save_org_enrichment tool to return your answer. "
@@ -136,6 +138,44 @@ class BaseEnricher(ABC):
             "Use only neutral, factual language — no marketing copy or subjective assessments."
         )
         return "".join(parts)
+
+    def build_homepage_url_prompt(
+        self,
+        entity_name: str,
+        homepage_content: str,
+        missing_fields: list[str],
+    ) -> list[str]:
+        """
+        Build one prompt per DBDB_ENRICHMENT_HOMEPAGE_CHARS-sized chunk of the
+        homepage HTML, returned in reverse order so the page footer (where social
+        and directory links usually live) is the first item in the list.
+
+        Callers iterate the list, merge results, and stop as soon as all needed
+        fields are found — so pages with footer links only cost one LLM call.
+        `missing_fields` are the human-readable field names shown to the model.
+        """
+        chunk_size = settings.DBDB_ENRICHMENT_HOMEPAGE_CHARS
+        # Split from the end so every chunk is full-sized except the last one
+        # in the list (the top of the page), which holds the remainder.
+        chunks = []
+        end = len(homepage_content)
+        while end > 0:
+            start = max(0, end - chunk_size)
+            chunks.append(homepage_content[start:end])
+            end = start
+        total = len(chunks)
+        # chunks is already footer-first; no reverse needed
+
+        field_desc = ', '.join(missing_fields)
+        return [
+            f"# Entity: {entity_name}\n\n"
+            f"## Homepage HTML (part {idx + 1} of {total}, reading from bottom of page)\n"
+            f"{chunk}\n\n"
+            f"Scan the HTML above and use the save_url_extraction tool to return "
+            f"the following fields if they appear as explicit links in this section: {field_desc}. "
+            f"Only return URLs you find literally in the HTML — do not guess or invent them."
+            for idx, chunk in enumerate(chunks)
+        ]
 
     def build_doc_prompt(
         self,
@@ -146,7 +186,7 @@ class BaseEnricher(ABC):
         if crawled_pages:
             parts.append("## Crawled Pages\n")
             for url, text in crawled_pages.items():
-                parts.append(f"### {url}\n{text[:3000]}\n")
+                parts.append(f"### {url}\n{text[:settings.DBDB_ENRICHMENT_CRAWLED_CHARS]}\n")
         parts.append(
             "\nUse the save_doc_enrichment tool to return a clear description "
             "with concrete examples and citations. "
