@@ -60,6 +60,12 @@
             <dd><a href="{{ org.linkedin_url.url }}" target="_{{ org.slug }}"><i class="fa-brands fa-linkedin"></i>{{ org.linkedin_handle }}</a>{% if linkedin_citation %}<span class="cites">{% citation_footnote linkedin_citation %}</span>{% endif %}</dd>
         </div>
         {% endif %}
+        {% if org.crunchbase_url %}
+        <div class="fact">
+            <dt>Crunchbase</dt>
+            <dd><a href="{{ org.crunchbase_url.url }}" target="_{{ org.slug }}">{{ org.crunchbase_url.display_url }}</a>{% if crunchbase_citation %}<span class="cites">{% citation_footnote crunchbase_citation %}</span>{% endif %}</dd>
+        </div>
+        {% endif %}
         {% if org.countries %}
         <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
         <div class="fact">

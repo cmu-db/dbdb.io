@@ -13,6 +13,7 @@ from .schema import (
     get_system_prompt,
     SYSTEM_ENRICHMENT_TOOL,
     build_org_enrichment_tool,
+    build_url_extraction_tool,
     DOC_ENRICHMENT_TOOL,
 )
 
@@ -25,6 +26,7 @@ __all__ = [
     "get_system_prompt",
     "SYSTEM_ENRICHMENT_TOOL",
     "build_org_enrichment_tool",
+    "build_url_extraction_tool",
     "DOC_ENRICHMENT_TOOL",
     "call_llm",
     "validate_citations",
