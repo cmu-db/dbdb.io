@@ -157,6 +157,13 @@ def _validate_crunchbase_url(url: str) -> str | None:
     return None
 
 
+# Maps each extractable URL field to its format validator.
+_URL_FIELD_VALIDATORS = {
+    'linkedin_url': _validate_linkedin_url,
+    'crunchbase_url': _validate_crunchbase_url,
+}
+
+
 def _crawl_org_urls(org: Organization, recrawl_after: int = 7, skip_spamcheck: bool = False) -> dict[str, str]:
     """Crawl the org's CitationUrl FK fields; return {url: text_excerpt}."""
     crawled: dict[str, str] = {}
@@ -436,7 +443,7 @@ class Command(EnricherBaseCommand):
             return False
 
         if org.url.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
-            LOG.info("Skipping '%s': url status is %s", org.slug, org.url.status.name)
+            LOG.info("Skipping '%s': url status is %s", org.slug, CitationUrl.Status(org.url.status).name)
             return False
 
         url_fields = ['linkedin_url', 'crunchbase_url']
@@ -490,59 +497,42 @@ class Command(EnricherBaseCommand):
                 break
 
         if dry_run:
-            self.stdout.write(
-                f"  [DRY RUN] linkedin_url={result.get('linkedin_url')!r}, "
-                f"crunchbase_url={result.get('crunchbase_url')!r}"
-            )
+            parts = [f"{f}={result.get(f)!r}" for f in ('linkedin_url', 'crunchbase_url')]
+            self.stdout.write(f"  [DRY RUN] {', '.join(parts)}")
             return True
 
-        if 'linkedin_url' in missing:
-            linkedin_url = _validate_linkedin_url(result.get('linkedin_url') or '')
-            if not linkedin_url:
-                LOG.warning("Skipping '%s': extracted linkedin_url is invalid: %r", org.slug, result.get('linkedin_url'))
-            else:
-                try:
-                    norm = normalize_url(linkedin_url)
-                    existing = CitationUrl.objects.filter(url=norm).first()
-                    if existing:
-                        if existing.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
-                            LOG.warning("linkedin_url: %r has status %s, skipping", linkedin_url, CitationUrl.Status(existing.status).name)
-                            citation = None
-                        else:
-                            citation = existing
+        for field in missing:
+            validator = _URL_FIELD_VALIDATORS.get(field)
+            if validator is None:
+                continue
+            raw = result.get(field) or ''
+            validated = validator(raw)
+            if not validated:
+                LOG.warning("Skipping '%s': extracted %s is invalid: %r", org.slug, field, raw)
+                continue
+            try:
+                norm = normalize_url(validated)
+                existing = CitationUrl.objects.filter(url=norm).first()
+                if existing:
+                    if existing.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
+                        LOG.warning("%s: %r has status %s, skipping", field, validated, CitationUrl.Status(existing.status).name)
+                        continue
+                    citation = existing
+                else:
+                    citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
+                    citation, info = process_citation_url(citation, skip_spamcheck=options['skip_spamcheck'])
+                    if info is None:
+                        pass  # merged into an existing CitationUrl
+                    elif info['status'] in (CitationUrl.Status.VALID, CitationUrl.Status.IGNORE):
+                        citation.save()
                     else:
-                        citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
-                        citation, info = process_citation_url(citation, skip_spamcheck=options['skip_spamcheck'])
-                        if info is not None and info['status'] != CitationUrl.Status.VALID:
-                            LOG.warning("linkedin_url: %r is unreachable, skipping", linkedin_url)
-                            citation.delete()
-                            citation = None
-                        elif info is not None:
-                            citation.save()
-                    if citation is not None:
-                        org.linkedin_url = citation
-                        org.save(update_fields=['linkedin_url'])
-                        self.stdout.write(self.style.SUCCESS(f"  Set linkedin_url={linkedin_url} for '{org.name}'"))
-                except Exception as e:
-                    LOG.warning("linkedin_url: could not validate %r: %s", linkedin_url, e)
-
-        if 'crunchbase_url' in missing:
-            # crunchbase.com is in SKIP_DOMAINS so process_citation_url returns IGNORE.
-            # Validate URL format only; get-or-create the CitationUrl without HTTP fetch.
-            crunchbase_url = _validate_crunchbase_url(result.get('crunchbase_url') or '')
-            if not crunchbase_url:
-                LOG.warning("Skipping '%s': extracted crunchbase_url is invalid: %r", org.slug, result.get('crunchbase_url'))
-            else:
-                try:
-                    norm = normalize_url(crunchbase_url)
-                    citation, created = CitationUrl.objects.get_or_create(
-                        url=norm,
-                        defaults={'status': CitationUrl.Status.IGNORE},
-                    )
-                    org.crunchbase_url = citation
-                    org.save(update_fields=['crunchbase_url'])
-                    self.stdout.write(self.style.SUCCESS(f"  Set crunchbase_url={crunchbase_url} for '{org.name}'"))
-                except Exception as e:
-                    LOG.warning("crunchbase_url: could not save %r: %s", crunchbase_url, e)
+                        LOG.warning("%s: %r is unreachable, skipping", field, validated)
+                        citation.delete()
+                        continue
+                setattr(org, field, citation)
+                org.save(update_fields=[field])
+                self.stdout.write(self.style.SUCCESS(f"  Set {field}={validated} for '{org.name}'"))
+            except Exception as e:
+                LOG.warning("%s: could not save %r: %s", field, validated, e)
 
         return True
