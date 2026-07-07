@@ -378,18 +378,27 @@ class Command(EnricherBaseCommand):
             self.stdout.write(f"  '{system.name}': nothing extracted from homepage")
             return True
 
+        extracted_fields = list(new_urls.keys())
+        if new_twitter_handle is not None:
+            extracted_fields.append('twitter_handle')
+        new_comment = f"URL extraction by enrich_system: {', '.join(extracted_fields)}"
+
         bot_user = User.objects.get(username=settings.DBDB_BOT_ACCOUNT)
         with transaction.atomic():
             pending = system.pending_version()
             if pending:
                 new_sv = pending
                 self.stdout.write(f"  Reusing existing pending SystemVersion #{new_sv.ver}")
+                if new_sv.comment:
+                    new_sv.comment = f"{new_sv.comment}\n{new_comment}"
+                else:
+                    new_sv.comment = new_comment
             else:
                 new_sv = clone_system_version(
                     current,
                     approved=False,
                     creator=bot_user,
-                    comment='Auto URL extraction by enrich_system command',
+                    comment=new_comment,
                 )
             for field, citation in new_urls.items():
                 setattr(new_sv, field, citation)
@@ -537,22 +546,20 @@ class Command(EnricherBaseCommand):
 
         with transaction.atomic():
             last_model = enricher.get_last_model()
-            enrichment_comment = f"Auto-enriched by enrich_system command (model: {last_model})"
             existing_pending = system.pending_version()
             if existing_pending:
                 new_sv = existing_pending
-                new_sv.comment = enrichment_comment
                 self.stdout.write(f"Reusing existing pending SystemVersion #{new_sv.ver}")
             else:
                 new_sv = clone_system_version(
                     current,
                     approved=False,
                     creator=bot_user,
-                    comment=enrichment_comment,
+                    comment=f"Auto-enriched by enrich_system (model: {last_model})",
                 )
 
             # Apply simple text / int fields
-            dirty = False
+            changed_fields: list[str] = []
             for field in SIMPLE_TEXT_FIELDS:
                 if field in missing_fields:
                     val = enrichment.get(field, '')
@@ -560,7 +567,7 @@ class Command(EnricherBaseCommand):
                         if field == 'twitter_handle' and field[0] != '@':
                             val = f"@{val}"
                         setattr(new_sv, field, val)
-                        dirty = True
+                        changed_fields.append(field)
 
             for field in INT_FIELDS:
                 if field in missing_fields:
@@ -568,7 +575,7 @@ class Command(EnricherBaseCommand):
                     if val:
                         try:
                             setattr(new_sv, field, int(val))
-                            dirty = True
+                            changed_fields.append(field)
                         except (TypeError, ValueError):
                             LOG.warning(f"  {field}: LLM returned non-integer {val!r}, skipping")
 
@@ -587,7 +594,7 @@ class Command(EnricherBaseCommand):
                             LOG.warning(f"  {field}: existing citation {url_str!r} has status {CitationUrl.Status(existing.status).name}, skipping")
                         else:
                             setattr(new_sv, field, existing)
-                            dirty = True
+                            changed_fields.append(field)
                         continue
                     # New URL: create, validate, keep only if reachable
                     citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
@@ -595,19 +602,16 @@ class Command(EnricherBaseCommand):
                     if info is None:
                         # Merged into an existing CitationUrl
                         setattr(new_sv, field, citation)
-                        dirty = True
+                        changed_fields.append(field)
                     elif info['status'] == CitationUrl.Status.VALID:
                         citation.save()
                         setattr(new_sv, field, citation)
-                        dirty = True
+                        changed_fields.append(field)
                     else:
                         LOG.warning(f"  {field}: {url_str!r} is unreachable (status={citation.get_status_display()}), skipping")
                         citation.delete()
                 except Exception as e:
                     LOG.warning(f"  {field}: could not validate {url_str!r}: {e}")
-
-            if dirty:
-                new_sv.save()
 
             # Apply M2M attribute fields
             for field, attr_slug in M2M_ATTR_SLUGS.items():
@@ -626,6 +630,7 @@ class Command(EnricherBaseCommand):
                 if opts:
                     getattr(new_sv, field).add(*opts)
                     self.stdout.write(f"  attr  {field}: {', '.join(o.name for o in opts)}")
+                    changed_fields.append(field)
                 else:
                     self.stdout.write(f"  attr  {field}: no matching options for slugs {slugs}")
 
@@ -663,6 +668,17 @@ class Command(EnricherBaseCommand):
                 sf.options.set(opts)
                 self.stdout.write(f"  feat  {feature.label}: {', '.join(o.value for o in opts)}")
                 features_filled.append(feature.slug)
+
+            # Update comment with the list of changed fields, appending to any existing text
+            all_changed = changed_fields + [f"feature:{s}" for s in features_filled]
+            new_comment = f"Auto-enriched by enrich_system (model: {last_model})"
+            if all_changed:
+                new_comment += f": {', '.join(all_changed)}"
+            if existing_pending and new_sv.comment:
+                new_sv.comment = f"{new_sv.comment}\n{new_comment}"
+            else:
+                new_sv.comment = new_comment
+            new_sv.save()
 
         verb = "Updated" if existing_pending else "Created"
         self.stdout.write(self.style.SUCCESS(
