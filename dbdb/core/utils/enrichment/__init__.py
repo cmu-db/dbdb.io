@@ -11,7 +11,7 @@ from .chatgpt import ChatGPTEnricher
 from .perplexity import PerplexityEnricher
 from .schema import (
     get_system_prompt,
-    SYSTEM_ENRICHMENT_TOOL,
+    build_system_enrichment_tool,
     build_org_enrichment_tool,
     build_url_extraction_tool,
     DOC_ENRICHMENT_TOOL,
@@ -24,11 +24,10 @@ __all__ = [
     "ChatGPTEnricher",
     "PerplexityEnricher",
     "get_system_prompt",
-    "SYSTEM_ENRICHMENT_TOOL",
+    "build_system_enrichment_tool",
     "build_org_enrichment_tool",
     "build_url_extraction_tool",
     "DOC_ENRICHMENT_TOOL",
-    "call_llm",
     "validate_citations",
     "build_full_prompt",
     "build_feature_prompt",
@@ -38,12 +37,6 @@ __all__ = [
 # ---------------------------------------------------------------------------
 # Backward-compat module-level wrappers
 # ---------------------------------------------------------------------------
-
-def call_llm(enricher_type: str, user_prompt: str, model_override: str | None = None) -> dict:
-    return BaseEnricher.create(enricher_type, model_override).call_llm(
-        user_prompt, SYSTEM_ENRICHMENT_TOOL, model_override
-    )
-
 
 def validate_citations(enricher_type: str, raw_citations: list, system) -> dict:
     return BaseEnricher.create(enricher_type).validate_citations(raw_citations, system)

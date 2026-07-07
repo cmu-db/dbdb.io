@@ -49,104 +49,125 @@ def get_system_prompt(tool_name: str, name: str = '', organization: str = '') ->
 # System enrichment schema
 # ---------------------------------------------------------------------------
 
-SYSTEM_ENRICHMENT_TOOL = {
-    "name": "save_enrichment",
-    "description": (
-        "Save extracted information about a database system. "
-        "Only include fields you are confident about. "
-        "All option slugs must match exactly the provided taxonomy."
-    ),
-    "input_schema": {
+_SYSTEM_FIELD_SCHEMAS: dict[str, dict] = {
+    "description": {
+        "type": "string",
+        "description": "Prose summary of what the system is and the workloads it targets.",
+    },
+    "history": {
+        "type": "string",
+        "description": "Narrative of the system's origins, milestones, and lineage.",
+    },
+    "start_year": {
+        "type": "integer",
+        "description": "Year the project was first released or publicly announced.",
+    },
+    "end_year": {
+        "type": ["integer", "null"],
+        "description": "Year active development ceased, or null if still active.",
+    },
+    "system_url": {
+        "type": "string",
+        "description": "Official homepage URL.",
+    },
+    "docs_url": {
+        "type": "string",
+        "description": "Official technical documentation URL.",
+    },
+    "blog_url": {
+        "type": "string",
+        "description": "Engineering blog URL for the database system.",
+    },
+    "sourcerepo_url": {
+        "type": "string",
+        "description": "Source code repository URL (e.g. GitHub).",
+    },
+    "wikipedia_url": {
+        "type": "string",
+        "description": "Wikipedia article URL.",
+    },
+    "twitter_handle": {
+        "type": "string",
+        "description": "Twitter/X handle (without @).",
+    },
+}
+
+_SYSTEM_CITATIONS_SCHEMA = {
+    "type": "array",
+    "description": "URLs that support the provided information.",
+    "items": {
         "type": "object",
+        "required": ["url", "fields"],
         "properties": {
-            "description": {
-                "type": "string",
-                "description": "Prose summary of what the system is and the workloads it targets.",
-            },
-            "history": {
-                "type": "string",
-                "description": "Narrative of the system's origins, milestones, and lineage.",
-            },
-            "start_year": {
-                "type": "integer",
-                "description": "Year the project was first released or publicly announced.",
-            },
-            "end_year": {
-                "type": ["integer", "null"],
-                "description": "Year active development ceased, or null if still active.",
-            },
-            "system_url": {
-                "type": "string",
-                "description": "Official homepage URL.",
-            },
-            "docs_url": {
-                "type": "string",
-                "description": "Official technical documentation URL.",
-            },
-            "blog_url": {
-                "type": "string",
-                "description": "Engineering blog URL for the database system.",
-            },
-            "wikipedia_url": {
-                "type": "string",
-                "description": "Wikipedia article URL.",
-            },
-            "twitter_handle": {
-                "type": "string",
-                "description": "Twitter/X handle (without @).",
-            },
-            "project_types": {
+            "url": {"type": "string"},
+            "fields": {
                 "type": "array",
                 "items": {"type": "string"},
-                "description": "List of project-type AttributeOption slugs.",
-            },
-            "licenses": {
-                "type": "array",
-                "items": {"type": "string"},
-                "description": "List of license AttributeOption slugs.",
-            },
-            "oses": {
-                "type": "array",
-                "items": {"type": "string"},
-                "description": "List of OS AttributeOption slugs.",
-            },
-            "written_in": {
-                "type": "array",
-                "items": {"type": "string"},
-                "description": "List of programming-language AttributeOption slugs.",
-            },
-            "tags": {
-                "type": "array",
-                "items": {"type": "string"},
-                "description": "List of tag AttributeOption slugs that categorise the system.",
-            },
-            "features": {
-                "type": "object",
-                "description": "Map of feature_slug → [option_slug, …]. Only include features you are confident about.",
-                "additionalProperties": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                },
-            },
-            "citations": {
-                "type": "array",
-                "description": "URLs that support the provided information.",
-                "items": {
-                    "type": "object",
-                    "required": ["url", "fields"],
-                    "properties": {
-                        "url": {"type": "string"},
-                        "fields": {
-                            "type": "array",
-                            "items": {"type": "string"},
-                            "description": "Field names this URL supports (e.g. ['description', 'start_year']).",
-                        },
-                    },
-                },
+                "description": "Field names this URL supports (e.g. ['description', 'start_year']).",
             },
         },
     },
 }
+
+
+def build_system_enrichment_tool(
+    missing_fields: list[str],
+    missing_features: list,
+    attributes: list,
+) -> dict:
+    """Return a save_enrichment tool schema scoped to missing fields and features.
+
+    missing_features: list[Feature] with options prefetched
+    attributes:       list[Attribute] with options prefetched
+    """
+    properties: dict = {}
+
+    # Static scalar / URL fields
+    for field in missing_fields:
+        if field in _SYSTEM_FIELD_SCHEMAS:
+            properties[field] = _SYSTEM_FIELD_SCHEMAS[field]
+
+    # M2M attribute fields — descriptions and option enums from the DB
+    attr_by_sv_field = {attr.sv_field: attr for attr in attributes}
+    for field in missing_fields:
+        attr = attr_by_sv_field.get(field)
+        if attr is None:
+            continue
+        slugs = [opt.slug for opt in attr.options.all()]
+        properties[field] = {
+            "type": "array",
+            "items": {"type": "string", "enum": slugs},
+            "description": attr.description or f"Select {attr.name} options.",
+        }
+
+    # Individual feature properties — flat keys, descriptions and option enums from the DB
+    for feature in missing_features:
+        key = f"feature_{feature.get_sanitized_label()}"
+        slugs = [opt.slug for opt in feature.options.all()]
+        if feature.multivalued:
+            properties[key] = {
+                "type": "array",
+                "items": {"type": "string", "enum": slugs},
+                "description": feature.description or feature.label,
+            }
+        else:
+            properties[key] = {
+                "type": "string",
+                "enum": slugs,
+                "description": feature.description or feature.label,
+            }
+
+    properties["citations"] = _SYSTEM_CITATIONS_SCHEMA
+
+    return {
+        "name": "save_enrichment",
+        "description": (
+            "Save extracted information about a database system. "
+            "Only include fields you are confident about. "
+            "All option slugs must match exactly the provided taxonomy."
+        ),
+        "input_schema": {"type": "object", "properties": properties},
+    }
 
 # ---------------------------------------------------------------------------
 # Organization enrichment schema

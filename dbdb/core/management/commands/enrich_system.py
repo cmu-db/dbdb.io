@@ -34,7 +34,7 @@ from dbdb.core.models import (
     System, SystemFeature, SystemVersion, AttributeOption,
 )
 from dbdb.core.utils.citations import crawl_citation_url, normalize_url, process_citation_url
-from dbdb.core.utils.enrichment import BaseEnricher, SYSTEM_ENRICHMENT_TOOL, build_url_extraction_tool
+from dbdb.core.utils.enrichment import BaseEnricher, build_system_enrichment_tool, build_url_extraction_tool
 from dbdb.core.utils.repositories import GitHubCollector
 from dbdb.core.utils.versions import clone_system_version, finalize_new_version
 
@@ -480,7 +480,8 @@ class Command(EnricherBaseCommand):
             LOG.debug(prompt)
             # sys.exit(1)
             try:
-                enrichment = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override, dry_run=dry_run)
+                tool = build_system_enrichment_tool(missing_fields, missing_features, attributes)
+                enrichment = enricher.call_llm(prompt, tool, model_override, dry_run=dry_run)
             except Exception as e:
                 raise CommandError(f"LLM call failed: {e}")
         else:
@@ -490,18 +491,21 @@ class Command(EnricherBaseCommand):
                 prompt = enricher.build_system_prompt(system=system, current_version=current, fields=missing_fields,
                                                       features=[], attributes=attributes, crawled_pages=crawled_pages)
                 try:
-                    enrichment = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override, dry_run=dry_run)
+                    tool = build_system_enrichment_tool(missing_fields, [], attributes)
+                    enrichment = enricher.call_llm(prompt, tool, model_override, dry_run=dry_run)
                 except Exception as e:
                     raise CommandError(f"LLM call failed: {e}")
 
-            enrichment.setdefault('features', {})
             enrichment.setdefault('citations', [])
             for feature in missing_features:
                 self.stdout.write(f"  Calling LLM for feature: {feature.label}")
                 prompt = enricher.build_feature_prompt(system, feature, crawled_pages)
                 try:
-                    result = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override, dry_run=dry_run)
-                    enrichment['features'].update(result.get('features', {}))
+                    feature_tool = build_system_enrichment_tool([], [feature], [])
+                    result = enricher.call_llm(prompt, feature_tool, model_override, dry_run=dry_run)
+                    key = f"feature_{feature.get_sanitized_label()}"
+                    if key in result:
+                        enrichment[key] = result[key]
                     enrichment['citations'].extend(result.get('citations', []))
                 except Exception as e:
                     LOG.warning(f"LLM call failed for feature {feature.slug}: {e}")
@@ -634,25 +638,22 @@ class Command(EnricherBaseCommand):
                         self.stdout.write(f"  cite  {field}: {norm_url}")
 
             # Create SystemFeature rows for suggested features
-            feat_suggestions = enrichment.get('features', {})
-            if not isinstance(feat_suggestions, dict):
-                LOG.warning(f"LLM returned non-dict for 'features': {type(feat_suggestions).__name__} — skipping")
-                feat_suggestions = {}
-            features_by_slug = {f.slug: f for f in features}
-            for feat_slug, option_slugs in feat_suggestions.items():
-                feature = features_by_slug.get(feat_slug)
-                if feature is None:
-                    LOG.warning(f"Unknown feature keyword from LLM: {feat_slug}")
+            features_filled = []
+            for feature in missing_features:
+                key = f"feature_{feature.get_sanitized_label()}"
+                option_slugs = enrichment.get(key, [])
+                if isinstance(option_slugs, str):
+                    option_slugs = [option_slugs]
+                if not option_slugs:
                     continue
                 opts = list(
                     FeatureOption.objects.filter(
                         feature=feature,
-                        slug__in=option_slugs,
+                        slug__in=[s.lower() for s in option_slugs],
                     )
                 )
                 if not opts:
-                    self.stdout.write(f"  feat  {feat_slug}: no matching options for slugs {option_slugs}")
-                    LOG.warning(f"No matching options for feature {feat_slug}: {option_slugs}")
+                    LOG.warning(f"No matching options for feature {feature.slug}: {option_slugs}")
                     continue
                 sf, _ = SystemFeature.objects.get_or_create(
                     version=new_sv,
@@ -661,6 +662,7 @@ class Command(EnricherBaseCommand):
                 )
                 sf.options.set(opts)
                 self.stdout.write(f"  feat  {feature.label}: {', '.join(o.value for o in opts)}")
+                features_filled.append(feature.slug)
 
         verb = "Updated" if existing_pending else "Created"
         self.stdout.write(self.style.SUCCESS(
@@ -672,8 +674,8 @@ class Command(EnricherBaseCommand):
         ]
         if fields_filled:
             self.stdout.write(f"Fields filled: {', '.join(fields_filled)}")
-        if feat_suggestions:
-            self.stdout.write(f"Features set: {', '.join(feat_suggestions.keys())}")
+        if features_filled:
+            self.stdout.write(f"Features set: {', '.join(features_filled)}")
         from django.contrib.sites.models import Site
         domain = Site.objects.get_current().domain
         self.stdout.write(f"Review and approve: http://{domain}{new_sv.get_diff_url()}")
