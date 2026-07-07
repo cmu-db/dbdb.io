@@ -1174,6 +1174,7 @@ def _compute_version_diff(v1, v2):
         ('system_url',      'Website URL'),
         ('docs_url',        'Docs URL'),
         ('sourcerepo_url',  'Source Repo URL'),
+        ('blog_url',        'Blog URL'),
         ('wikipedia_url',   'Wikipedia URL'),
     ]:
         a = _url_str(getattr(v1, field))
