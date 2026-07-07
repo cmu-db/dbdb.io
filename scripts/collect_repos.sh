@@ -5,5 +5,5 @@
 
 uv run ./manage.py collect_repo_info --debug \
   --check-abandoned \
-  --ignore-last-checked=7 \
+  --ignore-last-checked=2 \
   --sleep=300
