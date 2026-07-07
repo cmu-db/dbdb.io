@@ -214,13 +214,21 @@ class Command(EnricherBaseCommand):
                 time.sleep(sleep_secs)
             did_work = False
             try:
+                system.refresh_from_db()
+                try:
+                    current = SystemVersion.objects.prefetch_related(
+                        'project_types', 'licenses', 'oses', 'written_in',
+                        'features', 'features__options',
+                    ).get(system=system, is_current=True)
+                except SystemVersion.DoesNotExist:
+                    raise CommandError(f"No current SystemVersion for '{system.slug}'")
                 if add_tag:
-                    did_work = self._add_tag_one(system, tag_option, options)
+                    did_work = self._add_tag_one(system, current, tag_option, options)
                 else:
                     if do_enrich:
-                        did_work |= self._enrich_one(system, options)
+                        did_work |= self._enrich_one(system, current, options)
                     if do_extract_urls:
-                        did_work |= self._extract_urls_one(system, options)
+                        did_work |= self._extract_urls_one(system, current, options)
                 processed += 1
             except Exception as e:
                 did_work = True  # work was started before the failure
@@ -229,14 +237,8 @@ class Command(EnricherBaseCommand):
                 self.stderr.write(self.style.ERROR(f"Error enriching '{system.slug}': {e}"))
             prev_did_work = did_work
 
-    def _add_tag_one(self, system: System, tag_option: AttributeOption, options: dict) -> bool:
-        system.refresh_from_db()
+    def _add_tag_one(self, system: System, current: SystemVersion, tag_option: AttributeOption, options: dict) -> bool:
         dry_run: bool = options['dry_run']
-
-        try:
-            current = SystemVersion.objects.get(system=system, is_current=True)
-        except SystemVersion.DoesNotExist:
-            raise CommandError(f"No current SystemVersion for '{system.slug}'")
 
         if current.tags.filter(pk=tag_option.pk).exists():
             self.stdout.write(f"  '{system.name}' already has tag '{tag_option.name}', skipping")
@@ -263,14 +265,8 @@ class Command(EnricherBaseCommand):
         ))
         return True
 
-    def _extract_urls_one(self, system: System, options: dict, *, enricher=None) -> bool:
-        system.refresh_from_db()
+    def _extract_urls_one(self, system: System, current: SystemVersion, options: dict, *, enricher=None) -> bool:
         dry_run: bool = options['dry_run']
-
-        try:
-            current = SystemVersion.objects.get(system=system, is_current=True)
-        except SystemVersion.DoesNotExist:
-            raise CommandError(f"No current SystemVersion for '{system.slug}'")
 
         if current.system_url_id is None:
             LOG.info("Skipping '%s': no system_url to crawl", system.slug)
@@ -407,9 +403,7 @@ class Command(EnricherBaseCommand):
         ))
         return True
 
-    def _enrich_one(self, system: System, options: dict) -> bool:
-        system.refresh_from_db()
-
+    def _enrich_one(self, system: System, current: SystemVersion, options: dict) -> bool:
         dry_run: bool = options['dry_run']
         model_override: str | None = options['model']
         per_feature: bool = options['per_feature']
@@ -417,15 +411,6 @@ class Command(EnricherBaseCommand):
             [f.strip() for f in options['fields'].split(',')]
             if options['fields'] else None
         )
-
-        # --- 1. Load current version ---
-        try:
-            current = SystemVersion.objects.prefetch_related(
-                'project_types', 'licenses', 'oses', 'written_in',
-                'features', 'features__options',
-            ).get(system=system, is_current=True)
-        except SystemVersion.DoesNotExist:
-            raise CommandError(f"No current SystemVersion for '{system.slug}'")
 
         self.stdout.write(f"System: {system.name} (current ver #{current.ver})")
         enricher = BaseEnricher.create(options['enricher'])

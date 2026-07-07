@@ -233,7 +233,7 @@ class HomepageUrlSystemExtractionTestCase(TestCase):
     def _call(self, enricher, **opt_overrides):
         opts = _options(**opt_overrides)
         with _NO_OP_CRAWL:
-            self.cmd._extract_urls_one(self.system, opts, enricher=enricher)
+            self.cmd._extract_urls_one(self.system, self.current, opts, enricher=enricher)
 
     def test_extracts_docs_url_creates_pending_version(self):
         # Pre-create the docs CitationUrl so the code reuses it (bypasses HTTP)
