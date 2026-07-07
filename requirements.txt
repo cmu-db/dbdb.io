@@ -34,7 +34,7 @@ gunicorn==22.0.0
 h11==0.16.0
 httpcore==1.0.9
 httpx==0.28.1
-idna==2.9
+idna==3.15
 imagesize==1.2.0
 importlib-metadata==1.6.1
 jinja2==2.11.3
