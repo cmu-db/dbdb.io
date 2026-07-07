@@ -331,7 +331,7 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
   font-style: italic;
   font-weight: 600;
   color: var(--accent);
-  margin-right: 0.2rem;
+  margin-right: 0.15em;
 }
 .wordmark-hero {
   line-height: 0.94;
@@ -715,7 +715,7 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
   padding-bottom: .6rem;
 }
 .wordmark-runhead {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   white-space: nowrap;
 }
 .runhead .wordmark:hover { text-decoration: none; }
