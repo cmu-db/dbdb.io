@@ -258,6 +258,7 @@ class Command(EnricherBaseCommand):
                 time.sleep(sleep_secs)
             did_work = False
             try:
+                org.refresh_from_db()
                 if do_enrich:
                     did_work |= self._enrich_one(org, options)
                 if do_extract_urls:
@@ -271,8 +272,6 @@ class Command(EnricherBaseCommand):
             prev_did_work = did_work
 
     def _enrich_one(self, org: Organization, options: dict) -> bool:
-        org.refresh_from_db()
-
         dry_run: bool    = options['dry_run']
         model_override   = options['model']
         include_urls     = options['include_urls']
@@ -436,7 +435,6 @@ class Command(EnricherBaseCommand):
         return True
 
     def _extract_urls_one(self, org: Organization, options: dict, *, enricher=None) -> bool:
-        org.refresh_from_db()
         dry_run: bool = options['dry_run']
 
         if org.url_id is None:
