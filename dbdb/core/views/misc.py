@@ -1,7 +1,7 @@
 import datetime
 
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import OuterRef, Q, Subquery
 from django.http import HttpResponse
 from django.http.response import Http404
 from django.shortcuts import redirect, render
@@ -173,16 +173,29 @@ class SitemapView(View):
         changefreq = etree.SubElement(url, 'changefreq')
         changefreq.text = 'weekly'
 
-        # Systems
-        for system in System.objects.order_by('name').iterator():
+        # Suggest System page
+        url = etree.SubElement(root, 'url')
+        loc = etree.SubElement(url, 'loc')
+        loc.text = request.build_absolute_uri(reverse('system_suggestion'))
+        changefreq = etree.SubElement(url, 'changefreq')
+        changefreq.text = 'monthly'
+
+        # Systems — lastmod from the current approved SystemVersion's created date
+        sv_created_sq = Subquery(
+            SystemVersion.objects.filter(
+                system=OuterRef('pk'),
+                is_current=True,
+            ).values('created')[:1]
+        )
+        systems_qs = System.objects.annotate(sv_created=sv_created_sq).order_by('name')
+        for system in systems_qs.iterator():
             url = etree.SubElement(root, 'url')
             loc = etree.SubElement(url, 'loc')
             loc.text = request.build_absolute_uri( reverse('system', args=[system.slug]) )
             lastmod = etree.SubElement(url, 'lastmod')
-            lastmod.text = system.modified.date().isoformat()
+            lastmod.text = (system.sv_created or system.modified).date().isoformat()
             changefreq = etree.SubElement(url, 'changefreq')
             changefreq.text = 'weekly'
-            pass
 
         # Organizations
         for org in Organization.objects.order_by('name').iterator():
@@ -190,7 +203,7 @@ class SitemapView(View):
             loc = etree.SubElement(url, 'loc')
             loc.text = request.build_absolute_uri( reverse('organization', args=[org.slug]) )
             lastmod = etree.SubElement(url, 'lastmod')
-            lastmod.text = org.created.date().isoformat()
+            lastmod.text = org.modified.date().isoformat()
             changefreq = etree.SubElement(url, 'changefreq')
             changefreq.text = 'monthly'
 
