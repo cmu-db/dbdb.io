@@ -92,11 +92,17 @@
         {% endif %}
 
         {% if version.start_year %}
-            <div class="fact"><dt>Start Year</dt><dd>{{ version.start_year }} {% if start_year_citations %} <span class="cites">{% for c in start_year_citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</dd></div>
+            <div class="fact">
+                <dt>Start Year</dt>
+                <dd>{{ version.start_year }} {% if start_year_citations %} <span class="cites">{% for c in start_year_citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</dd>
+            </div>
         {% endif %}
 
         {% if version.end_year %}
-            <div class="fact"><dt>End Year</dt><dd>{{ version.end_year }}{% if end_year_citations %} <span class="cites">{% for c in end_year_citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</dd></div>
+            <div class="fact">
+                <dt>End Year</dt>
+                <dd>{{ version.end_year }}{% if end_year_citations %} <span class="cites">{% for c in end_year_citations %}{% citation_footnote c %}{% endfor %}</span>{% endif %}</dd>
+            </div>
         {% endif %}
         {% if version.former_names %}
         <div class="fact">
@@ -106,13 +112,14 @@
         {% endif %}
 
         {% if acquisitions %}
-        <div class="fact"><dt>Acquired By</dt>
+        <div class="fact">
+            <dt>Acquired By</dt>
             <dd>
-            {% for acq in acquisitions %}<div>{% if acq.year %}<span class="text-muted me-1">{{ acq.year }}</span>{% endif %}{% org_link acq.organization %}{% for c in acq.citations %}{% citation_footnote c %}{% endfor %}</div>{% endfor %}
+                {% for acq in acquisitions %}
+                <div>{% if acq.year %}<span class="me-1">{{ acq.year }}</span>{% endif %}{% org_link acq.organization %}{% for c in acq.citations %}{% citation_footnote c %}{% endfor %}</div>
+                {% endfor %}
             </dd>
         </div>
-        {% elif version.acquired_by %}
-        <div class="fact"><dt>Acquired By</dt><dd>{{ version.acquired_by }}</dd></div>
         {% endif %}
 
         {% if coding_agents %}
@@ -141,7 +148,9 @@
         {% endif %}
 
         {% if version.derived_from.exists %}
-        <div class="fact"><dt>Derived From</dt><dd>{% for other in version.derived_from.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
+        <div class="fact">
+            <dt>Derived From</dt><dd>{% for other in version.derived_from.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd>
+        </div>
         {% endif %}
 
         {% if version.embedded.exists %}
@@ -152,7 +161,10 @@
         {% endif %}
 
         {% if version.inspired_by.exists %}
-        <div class="fact"><dt>Inspired By</dt><dd>{% for other in version.inspired_by.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd></div>
+        <div class="fact">
+            <dt>Inspired By</dt>
+            <dd>{% for other in version.inspired_by.all %}{% if not forloop.first %}, {% endif %}{% system_link other %}{% endfor %}</dd>
+        </div>
         {% endif %}
 
         {% if version.compatible_with.exists %}
@@ -177,7 +189,10 @@
         {% endif %}
 
         {% if version.wikipedia_url %}
-        <div class="fact"><dt>Wikipedia</dt><dd><a href="{{ version.wikipedia_url.url }}" target="_{{ system.slug }}"><i class="fa-brands fa-wikipedia-w"></i> {{ version.wikipedia_url.display_url }}</a>{% if wikipedia_url_citation %}<span class="cites">{% citation_footnote wikipedia_url_citation %}</span>{% endif %}</dd></div>
+        <div class="fact">
+            <dt>Wikipedia</dt>
+            <dd><a href="{{ version.wikipedia_url.url }}" target="_{{ system.slug }}"><i class="fa-brands fa-wikipedia-w me-1"></i>{{ version.wikipedia_url.display_url }}</a>{% if wikipedia_url_citation %}<span class="cites">{% citation_footnote wikipedia_url_citation %}</span>{% endif %}</dd>
+        </div>
         {% endif %}
     </dl>
 </div>
