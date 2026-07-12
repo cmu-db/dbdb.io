@@ -51,8 +51,9 @@ _BUILTIN_COLUMNS = [
     ColumnDef('country',          'Country of Origin', 'builtin'),
     ColumnDef('system-url',       'Website URL',       'builtin'),
     ColumnDef('docs-url',         'Documentation',     'builtin'),
-    ColumnDef('sourcerepo-url',   'Source Repo',       'builtin'),
-    ColumnDef('wikipedia-url',    'Wikipedia',         'builtin'),
+    ColumnDef('blog-url',         'Blog URL',          'builtin'),
+    ColumnDef('sourcerepo-url',   'Source Repo URL',   'builtin'),
+    ColumnDef('wikipedia-url',    'Wikipedia URL',     'builtin'),
     ColumnDef('twitter-handle',   'Twitter',           'builtin'),
     ColumnDef('former-names',     'Former Names',      'builtin'),
 ]
@@ -61,6 +62,7 @@ _BUILTIN_COLUMNS = [
 _URL_COL_FIELDS = {
     'system-url':     'system_url__url',
     'docs-url':       'docs_url__url',
+    'blog-url':       'blog_url__url',
     'sourcerepo-url': 'sourcerepo_url__url',
     'wikipedia-url':  'wikipedia_url__url',
 }
@@ -1114,7 +1116,7 @@ class BrowseView(MetadataMixin, View):
                     col_values.append({'type': 'countries', 'data': country_data})
                 elif col.col_id in _URL_COL_FIELDS:
                     key = 'col_' + col.col_id.replace('-', '_')
-                    col_values.append({'type': 'url', 'data': r.get(key) or ''})
+                    col_values.append({'type': 'url', 'col_id': col.col_id, 'data': r.get(key) or ''})
                 elif col.col_id == 'twitter-handle':
                     col_values.append({'type': 'twitter', 'data': r.get('twitter_handle') or ''})
                 elif col.col_id == 'former-names':
