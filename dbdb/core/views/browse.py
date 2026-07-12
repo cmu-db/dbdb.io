@@ -135,7 +135,11 @@ _EXISTS_FILTER_MAP = {
     'inspired':       ('inspired_by__isnull',       False),
 }
 
-_DOI_RE = re.compile(r'\b10\.\d{4,}/\S+', re.IGNORECASE)
+_DOI_RE = re.compile(
+    r'doi[:]?\d+\.\d+/\S+'  # DOI: or DOI prefix (with optional colon)
+    r'|\b10\.\d{4,}/\S+',   # bare DOI number at a word boundary
+    re.IGNORECASE
+)
 
 _NAME_WILDCARD_MAX_LEN = 200
 

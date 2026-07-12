@@ -10,6 +10,7 @@ from django.urls import reverse
 from dbdb.core.models import Attribute, Feature, System, SystemSearchText, SystemVersion, SystemVisit
 from dbdb.core.utils.searchtext import generate_searchtext
 from dbdb.core.views import CounterView
+from dbdb.core.views.browse import _is_doi_query
 
 root = environ.Path(__file__) - 4
 
@@ -733,3 +734,29 @@ class BrowseSavedSearchMetaTestCase(TestCase):
         response = self.client.get(reverse('browse'), {'ss': self.ss_token})
         self.assertContains(response, 'og:image')
         self.assertContains(response, f'api/og-image/ss/{self.ss.pk}')
+
+
+# ==============================================
+# IsDoiQueryTestCase
+# ==============================================
+class IsDoiQueryTestCase(TestCase):
+
+    DOI_QUERIES = [
+        'doi:10.1007/978-3-031-75016-8_12',
+        'DOI10.1007/s11356-023-28793-2',
+        'doi.org/10.1177/00218286211070275',
+        'doi:10.1123/ijspp.2022-0018',
+        'doi:10.1016/j.yjpso.2023.100105',
+        'doi.org/10.1016/j.encep.2025.02.002',
+        'doi:10.1109/icaice68195.2025.11382395',
+    ]
+
+    def test_doi_queries_detected(self):
+        for q in self.DOI_QUERIES:
+            with self.subTest(q=q):
+                self.assertTrue(_is_doi_query(q), msg=f"Expected DOI match for: {q!r}")
+
+    def test_non_doi_queries_not_detected(self):
+        for q in ['postgresql', 'sqlite relational', '10.5 release notes', 'doi information']:
+            with self.subTest(q=q):
+                self.assertFalse(_is_doi_query(q), msg=f"Unexpected DOI match for: {q!r}")
