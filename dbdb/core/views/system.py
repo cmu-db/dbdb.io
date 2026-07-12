@@ -1272,9 +1272,27 @@ def _compute_version_diff(v1, v2):
 # ==============================================
 # SystemVersionDiffView
 # ==============================================
-class SystemLogosView(View):
+class SystemLogosView(MetadataMixin, View):
 
     template_name = 'core/system-logos.html'
+
+    def get_meta_title(self, context=None):
+        system = getattr(self, '_system', None)
+        name = system.name if system else 'Database'
+        return f'{name}{settings.DBDB_TITLE_SEPARATOR}Logo History{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
+
+    def get_meta_description(self, context=None):
+        system = getattr(self, '_system', None)
+        versions = getattr(self, '_logo_versions', None)
+        name = system.name if system else 'Database'
+        count = len(versions) if versions is not None else 0
+        return f'All {count} unique logo image{"s" if count != 1 else ""} used across revisions of {name}.'
+
+    def get_meta_image(self, context=None):
+        sv = getattr(self, '_system_version', None)
+        if sv:
+            return self.request.build_absolute_uri(sv.twitter_card_url())
+        return None
 
     def get(self, request, slug):
         system = get_object_or_404(System, slug=slug)
@@ -1290,7 +1308,11 @@ class SystemLogosView(View):
             if v.logo.name not in seen:
                 seen.add(v.logo.name)
                 versions.append(v)
+        self._system = system
+        self._logo_versions = versions
+        self._system_version = SystemVersion.objects.filter(system=system, is_current=True).first()
         return render(request, self.template_name, {
+            'meta': self.get_meta(),
             'system': system,
             'versions': versions,
         })
@@ -1299,9 +1321,33 @@ class SystemLogosView(View):
 # ==============================================
 # SystemVersionDiffView
 # ==============================================
-class SystemVersionDiffView(View):
+class SystemVersionDiffView(MetadataMixin, View):
 
     template_name = 'core/system-diff.html'
+
+    def get_meta_title(self, context=None):
+        system = getattr(self, '_system', None)
+        v1 = getattr(self, '_v1', None)
+        v2 = getattr(self, '_v2', None)
+        name = system.name if system else 'Database'
+        if v1 and v2:
+            return f'{name}{settings.DBDB_TITLE_SEPARATOR}Diff #{v1.ver} → #{v2.ver}{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
+        return f'{name}{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
+
+    def get_meta_description(self, context=None):
+        system = getattr(self, '_system', None)
+        v1 = getattr(self, '_v1', None)
+        v2 = getattr(self, '_v2', None)
+        name = system.name if system else 'Database'
+        if v1 and v2:
+            return f'Field-by-field comparison of {name} revision #{v1.ver} and #{v2.ver}.'
+        return f'Version comparison for {name}.'
+
+    def get_meta_image(self, context=None):
+        sv = getattr(self, '_system_version', None)
+        if sv:
+            return self.request.build_absolute_uri(sv.twitter_card_url())
+        return None
 
     def get(self, request, slug, ver1, ver2):
         from django.contrib import messages
@@ -1325,7 +1371,12 @@ class SystemVersionDiffView(View):
         )
         diffs = _compute_version_diff(v1, v2)
 
+        self._system = system
+        self._v1 = v1
+        self._v2 = v2
+        self._system_version = v2
         return render(request, self.template_name, {
+            'meta': self.get_meta(),
             'activate': 'revisions',
             'system': system,
             'v1': v1,
