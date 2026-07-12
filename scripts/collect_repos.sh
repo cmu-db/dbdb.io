@@ -10,4 +10,4 @@ flock --nonblock 9 || { echo "collect_repos.sh: already running, exiting." >&2; 
 uv run ./manage.py collect_repo_info --debug \
   --check-abandoned \
   --ignore-last-checked=2 \
-  --sleep=300
+  --sleep=180

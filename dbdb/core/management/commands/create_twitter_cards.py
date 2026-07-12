@@ -26,8 +26,8 @@ class Command(DbdbBaseCommand):
                             help='Ignore errors and keep processing')
 
     def handle(self, *args, **options):
-        assert os.path.exists(settings.TWITTER_CARD_TEMPLATE), \
-            "Missing: " + settings.TWITTER_CARD_TEMPLATE
+        assert os.path.exists(settings.OG_CARD_TEMPLATE), \
+            "Missing: " + settings.OG_CARD_TEMPLATE
 
         card_type = options['card_type']
         force = options['force']
@@ -49,7 +49,7 @@ class Command(DbdbBaseCommand):
                 versions = versions.filter(system__name__icontains=name_filter)
 
         for ver in versions:
-            card_img = os.path.join(settings.TWITTER_CARD_ROOT, ver.get_twitter_card_image())
+            card_img = os.path.join(settings.OG_CARD_ROOT, ver.get_card_image())
             logo_img = os.path.join(settings.MEDIA_ROOT, ver.logo.name) if ver.logo else None
 
             if not force:
@@ -61,10 +61,10 @@ class Command(DbdbBaseCommand):
             try:
                 create_twitter_card(ver)
             except Exception:
-                LOG.error("FAIL: %s -> %s", ver.get_twitter_card_name(), card_img)
+                LOG.error("FAIL: %s -> %s", ver.get_card_name(), card_img)
                 if not skip_errors:
                     raise
-            LOG.info("%s -> %s", ver.get_twitter_card_name(), card_img)
+            LOG.info("%s -> %s", ver.get_card_name(), card_img)
 
     def _process_orgs(self, name_filter, force, skip_errors):
         orgs = Organization.objects.exclude(logo='').exclude(logo__isnull=True)
@@ -78,7 +78,7 @@ class Command(DbdbBaseCommand):
                 )
 
         for org in orgs:
-            card_img = os.path.join(settings.TWITTER_CARD_ROOT, org.get_twitter_card_image())
+            card_img = os.path.join(settings.OG_CARD_ROOT, org.get_card_image())
             logo_img = os.path.join(settings.MEDIA_ROOT, org.logo.name)
 
             if not force:
@@ -90,7 +90,7 @@ class Command(DbdbBaseCommand):
             try:
                 create_twitter_card(org)
             except Exception:
-                LOG.error("FAIL: %s -> %s", org.get_twitter_card_name(), card_img)
+                LOG.error("FAIL: %s -> %s", org.get_card_name(), card_img)
                 if not skip_errors:
                     raise
-            LOG.info("%s -> %s", org.get_twitter_card_name(), card_img)
+            LOG.info("%s -> %s", org.get_card_name(), card_img)

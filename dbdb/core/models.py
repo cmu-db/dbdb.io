@@ -416,14 +416,14 @@ class Organization(LogoMixin, models.Model):
     def get_absolute_url(self):
         return reverse('organization', args=[self.slug])
 
-    def get_twitter_card_image(self):
+    def get_card_image(self):
         return f"org/{self.slug}.png"
 
-    def get_twitter_card_name(self):
+    def get_card_name(self):
         return self.name
 
-    def twitter_card_url(self):
-        return settings.TWITTER_CARD_URL + self.get_twitter_card_image()
+    def card_url(self):
+        return settings.OG_CARD_URL + self.get_card_image()
 
 # ==============================================
 # System
@@ -845,13 +845,13 @@ class SystemVersion(LogoMixin, models.Model):
         if not self.twitter_handle: return None
         return settings.TWITTER_URL + self.twitter_handle.replace('@', '')
 
-    def twitter_card_url(self):
-        return settings.TWITTER_CARD_URL + self.get_twitter_card_image()
+    def card_url(self):
+        return settings.OG_CARD_URL + self.get_card_image()
 
-    def get_twitter_card_image(self):
+    def get_card_image(self):
         return f"db/{self.system.slug}.png"
 
-    def get_twitter_card_name(self):
+    def get_card_name(self):
         return self.system.name
 
     def all_data_models(self, _visited_system_ids=None):

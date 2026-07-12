@@ -560,7 +560,7 @@ class MetaTagsTestCase(TestCase):
         self.assertContains(response, 'property="og:title"')
         self.assertContains(response, f'SQLite{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}')
 
-    def test_system_twitter_card_is_large_image(self):
+    def test_system_card_is_large_image(self):
         response = self.client.get(reverse('system', kwargs={'slug': 'sqlite'}))
         self.assertContains(response, 'name="twitter:card"')
         self.assertContains(response, 'summary_large_image')
@@ -586,7 +586,7 @@ class MetaTagsTestCase(TestCase):
         self.assertContains(response, 'property="og:description"')
         self.assertContains(response, 'encyclopedia of database systems')
 
-    def test_home_twitter_card_is_summary(self):
+    def test_home_card_is_summary(self):
         response = self.client.get(reverse('home'))
         self.assertContains(response, 'name="twitter:card"')
         self.assertContains(response, 'summary')

@@ -191,19 +191,18 @@ STATIC_URL = '/static/'
 
 FONTAWESOME_CSS_URL = '//use.fontawesome.com/releases/v7.2.0/css/all.css'
 
-# Custom Twitter Cards
-TWITTER_CARD_ROOT = os.path.join(MEDIA_ROOT, 'cards')
-TWITTER_CARD_URL  = MEDIA_URL + "cards/"
+# Custom OG Meta-data Cards
+OG_CARD_ROOT           = os.path.join(MEDIA_ROOT, 'cards')
+OG_CARD_URL            = MEDIA_URL + "cards/"
+OG_CARD_TEMPLATE       = os.path.join(STATIC_ROOT, '../static/core/images/dbdb_io-card-template.svg')
+OG_CARD_FONT_PATH      = os.path.join(STATIC_ROOT, 'core/fonts/IBMPlexMono-Bold.ttf')
+OG_CARD_FA_ICONS_JSON  = os.path.join(STATIC_ROOT, '../static/core/fonts/icons.json')
+OG_CARD_BASE_OFFSET_X  = 250
+OG_CARD_MARGIN         = 40
+OG_CARD_MAX_WIDTH      = 1200 - OG_CARD_MARGIN*2
+OG_CARD_MAX_HEIGHT     = 630 - OG_CARD_MARGIN*2
+
 TWITTER_URL = "https://twitter.com/"
-
-TWITTER_CARD_TEMPLATE = os.path.join(STATIC_ROOT, '../static/core/images/dbdb_io-card-template.svg')
-TWITTER_CARD_FONT_PATH    = os.path.join(STATIC_ROOT, 'core/fonts/IBMPlexMono-Bold.ttf')
-TWITTER_CARD_FA_ICONS_JSON = os.path.join(STATIC_ROOT, '../static/core/fonts/icons.json')
-TWITTER_CARD_BASE_OFFSET_X = 250
-TWITTER_CARD_MARGIN = 40
-TWITTER_CARD_MAX_WIDTH = 1200 - TWITTER_CARD_MARGIN*2
-TWITTER_CARD_MAX_HEIGHT = 630 - TWITTER_CARD_MARGIN*2
-
 LINKEDIN_URL = "https://www.linkedin.com/"
 
 # Logos

@@ -108,7 +108,7 @@ class SystemView(MetadataMixin, View):
     def get_meta_image(self, context=None):
         sv = getattr(self, '_system_version', None)
         if sv:
-            return self.request.build_absolute_uri(sv.twitter_card_url())
+            return self.request.build_absolute_uri(sv.card_url())
         return None
 
     def get_meta_object_type(self, context=None):
@@ -1291,7 +1291,7 @@ class SystemLogosView(MetadataMixin, View):
     def get_meta_image(self, context=None):
         sv = getattr(self, '_system_version', None)
         if sv:
-            return self.request.build_absolute_uri(sv.twitter_card_url())
+            return self.request.build_absolute_uri(sv.card_url())
         return None
 
     def get(self, request, slug):
@@ -1346,7 +1346,7 @@ class SystemVersionDiffView(MetadataMixin, View):
     def get_meta_image(self, context=None):
         sv = getattr(self, '_system_version', None)
         if sv:
-            return self.request.build_absolute_uri(sv.twitter_card_url())
+            return self.request.build_absolute_uri(sv.card_url())
         return None
 
     def get(self, request, slug, ver1, ver2):
