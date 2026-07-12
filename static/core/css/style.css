@@ -1179,12 +1179,12 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 /* citations */
 .citations-block { margin-top: 3rem; }
 .citations-list { list-style: none; counter-reset: cite; padding: 0; margin: 0; }
-.citations-list li {
+.citations-list > li {
   counter-increment: cite; display: flex; gap: .8rem; align-items: baseline;
   padding: .5rem 0; border-bottom: 1px solid var(--rule-soft);
   font-family: var(--sans); font-size: .84rem; color: var(--ink-soft);
 }
-.citations-list li::before {
+.citations-list > li::before {
   content: counter(cite, decimal-leading-zero) "."; font-family: var(--mono); color: var(--muted);
   font-size: .72rem; flex: none; width: 2rem; text-align: right;
 }

@@ -6,8 +6,26 @@
         {% for c in citations %}
         <li id="citation{{ forloop.counter }}">
             <span class="cite-body">{% citation_link c %}
-                {% if request.user.is_superuser and c.status != Status.UNKNOWN %}
-                    <form method="post" action="{% url 'citation_reset_status' c.id %}" class="d-inline">{% csrf_token %}<input type="hidden" name="counter" value="{{ forloop.counter }}"><button type="submit" class="cite-meta btn" title="Reset status to Unknown"><i class="fas fa-rotate-left"></i> Reset Status</button></form>
+                {% if request.user.is_superuser %}
+                    <form method="post" action="{% url 'citation_reset_status' c.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="counter" value="{{ forloop.counter }}">
+                        <div class="btn-group">
+                            <button type="button" class="cite-meta btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-rotate-left"></i> Set Status
+                            </button>
+                            <ul class="dropdown-menu">
+                                {% for val, label in Status.choices %}
+                                <li>
+                                    <button type="submit" name="status" value="{{ val }}" class="dropdown-item{% if c.status == val %} active{% endif %}">
+                                        {{ label }}
+                                    </button>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </form>
+                    <a href="{% url 'admin:core_citationurl_change' c.id %}" class="cite-meta btn ms-1" target="_blank"><i class="fas fa-pencil-alt"></i> Edit</a>
                 {% endif %}
             </span>
         </li>

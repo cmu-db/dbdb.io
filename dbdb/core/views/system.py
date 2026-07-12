@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.db.models import OuterRef, Prefetch, Subquery
 from django.forms import HiddenInput
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -1366,7 +1366,11 @@ class CitationResetStatusView(View):
         if not request.user.is_superuser:
             return HttpResponseForbidden()
         citation = get_object_or_404(CitationUrl, pk=pk)
-        citation.status = CitationUrl.Status.UNKNOWN
+        try:
+            new_status = CitationUrl.Status(int(request.POST['status']))
+        except (KeyError, ValueError):
+            return HttpResponseBadRequest()
+        citation.status = new_status
         citation.save(update_fields=['status'])
         counter = request.POST.get('counter', '')
         fragment = f"citation{counter}" if counter else ''
