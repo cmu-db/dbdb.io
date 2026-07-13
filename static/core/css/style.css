@@ -47,10 +47,11 @@
   --ok:   #1f8a5b;
   --warn: #7a5a00;
 
-  /* Bootstrap focus ring override */
+  /* Bootstrap override */
   --bs-focus-ring-color: color-mix(in srgb, var(--accent) 60%, transparent);
   --bs-focus-ring-width: 0.25rem;
   --bs-focus-ring-blur:  0.25rem;
+  --bs-border-color: var(--rule-soft);
 }
 
 [data-bs-theme="dark"] {
@@ -1179,7 +1180,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .citations-list { list-style: none; counter-reset: cite; padding: 0; margin: 0; }
 .citations-list > li {
   counter-increment: cite; display: flex; gap: .8rem; align-items: baseline;
-  padding: .5rem 0; border-bottom: 1px solid var(--rule-soft);
+  padding: .5rem 0;
   font-family: var(--sans); font-size: .84rem; color: var(--ink-soft);
 }
 .citations-list > li::before {

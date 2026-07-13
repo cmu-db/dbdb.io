@@ -4,7 +4,7 @@
     <div class="sec-head"><h2>Citations</h2><span class="rule"></span><span class="num">{{ citations|length }} source{% if citations|length != 1 %}s{% endif %}</span></div>
     <ol class="citations-list">
         {% for c in citations %}
-        <li id="citation{{ forloop.counter }}">
+        <li id="citation{{ forloop.counter }}" {% if not forloop.first %}class="border-top"{% endif %}>
             <span class="cite-body">{% citation_link c %}
                 {% if request.user.is_superuser %}
                     <form method="post" action="{% url 'citation_reset_status' c.id %}" class="d-inline">
