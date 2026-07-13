@@ -56,7 +56,7 @@ pydantic==2.12.5
 pydantic-core==2.41.5
 pyee==13.0.1
 pygments==2.20.0
-pyjwt==1.7.1
+pyjwt==2.13.0
 pyparsing==2.4.7
 pypdf2==3.0.1
 pyquery==1.4.1
