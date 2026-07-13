@@ -1,4 +1,5 @@
 # stdlib imports
+import re
 # django imports
 import json
 
@@ -10,6 +11,7 @@ from captcha.widgets import ReCaptchaV2Invisible
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
 from turnstile.fields import TurnstileField
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
@@ -285,7 +287,7 @@ class SystemVersionForm(forms.ModelForm):
     # CitationUrl FK fields — rendered as URL inputs; view handles get_or_create.
     # Keep this tuple in sync with the field declarations below so the edit view
     # can pass the correct autocomplete selector to the template automatically.
-    CITATION_URL_FIELDS = ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url')
+    CITATION_URL_FIELDS = ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url', 'twitter_url')
 
     system_url = forms.URLField(
         required=False, label='Website URL',
@@ -299,11 +301,18 @@ class SystemVersionForm(forms.ModelForm):
     wikipedia_url = forms.URLField(
         required=False, label='Wikipedia URL',
         widget=forms.URLInput(attrs={'class': 'form-control'}))
-    def clean_twitter_handle(self):
-        data = self.cleaned_data['twitter_handle']
-        if data and data[0] != '@':
-            raise ValidationError("Invalid Twitter handle. Expected to start with '@' character")
-        return data
+    twitter_url = forms.URLField(
+        required=False, label='Twitter/X URL',
+        widget=forms.URLInput(attrs={'class': 'form-control'}))
+
+    def clean_twitter_url(self):
+        url = self.cleaned_data.get('twitter_url', '').strip()
+        if not url:
+            return url
+        url = re.sub(r'^https?://(?:www\.)?x\.com/', 'https://twitter.com/', url)
+        if not url.startswith(settings.TWITTER_URL):
+            raise ValidationError(f"Twitter URL must start with {settings.TWITTER_URL}")
+        return url
 
     class Meta:
         model = SystemVersion
@@ -313,7 +322,6 @@ class SystemVersionForm(forms.ModelForm):
             'description_citations',
             'history',
             'history_citations',
-            'twitter_handle',
             'start_year',
             'start_year_citations',
             'end_year',

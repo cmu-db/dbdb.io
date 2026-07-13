@@ -86,9 +86,9 @@ _SYSTEM_FIELD_SCHEMAS: dict[str, dict] = {
         "type": "string",
         "description": "Wikipedia article URL.",
     },
-    "twitter_handle": {
+    "twitter_url": {
         "type": "string",
-        "description": "Twitter/X handle (without @).",
+        "description": "Full Twitter or X.com profile URL (e.g. https://twitter.com/handle).",
     },
 }
 
@@ -273,9 +273,7 @@ def build_org_enrichment_tool(missing_fields: list[str]) -> dict:
 # ---------------------------------------------------------------------------
 
 # Per-field LLM property definitions for System homepage URL extraction.
-# 'twitter_handle' is exposed as 'twitter_url' so the LLM returns the full URL
-# (e.g. https://twitter.com/handle), which we then parse to extract the handle
-# reliably via regex rather than trusting the model to strip it cleanly.
+# Per-field LLM property definitions for System homepage URL extraction.
 _SYSTEM_URL_EXTRACTION_FIELDS: dict[str, dict] = {
     "docs_url": {
         "type": "string",
@@ -322,19 +320,14 @@ def build_url_extraction_tool(
 
     Dispatches on the concrete model type so callers pass the entity instance
     directly rather than a magic string, giving Python's type checker something
-    to verify.  For Systems, `missing_fields` uses the SystemVersion field names
-    ('docs_url', 'twitter_handle'); the schema renames 'twitter_handle' →
-    'twitter_url' so the LLM returns a full URL the caller can parse with regex.
-    An unsupported type raises TypeError immediately rather than silently
-    returning an empty tool.
+    to verify.  An unsupported type raises TypeError immediately rather than
+    silently returning an empty tool.
     """
     from dbdb.core.models import System, Organization
     if isinstance(entity, System):
-        # 'twitter_handle' in the SV model → 'twitter_url' in the LLM schema
-        field_map = {"docs_url": "docs_url", "blog_url": "blog_url", "twitter_handle": "twitter_url"}
         props = {
-            field_map[f]: _SYSTEM_URL_EXTRACTION_FIELDS[field_map[f]]
-            for f in missing_fields if f in field_map
+            f: _SYSTEM_URL_EXTRACTION_FIELDS[f]
+            for f in missing_fields if f in _SYSTEM_URL_EXTRACTION_FIELDS
         }
     elif isinstance(entity, Organization):
         props = {

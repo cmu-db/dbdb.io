@@ -70,9 +70,9 @@ class OrganizationView(MetadataMixin, View):
     def get_meta_image(self, context=None):
         org = getattr(self, '_org', None)
         if org and org.logo:
-            card_path = os.path.join(settings.TWITTER_CARD_ROOT, org.get_twitter_card_image())
+            card_path = os.path.join(settings.OG_CARD_ROOT, org.get_card_image())
             if os.path.exists(card_path):
-                return self.request.build_absolute_uri(org.twitter_card_url())
+                return self.request.build_absolute_uri(org.card_url())
         return None
 
     def get_meta_title(self, context=None):

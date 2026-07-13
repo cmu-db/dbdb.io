@@ -427,7 +427,7 @@ class SystemVersionCodingAgentInline(admin.TabularInline):
 
 
 @admin.register(SystemVersion)
-class SystemVersionAdmin(admin.ModelAdmin):
+class SystemVersionAdmin(CitationUrlAutocompleteMixin, admin.ModelAdmin):
     form = SystemVersionAdminForm
     inlines = [SystemVersionCodingAgentInline]
     empty_value_display = 'unknown'

@@ -58,11 +58,21 @@
         </td>
         {% elif col_val.type == 'url' %}
         <td class="r-model" data-sort-val="{{ col_val.data }}">
-            {% if col_val.data %}<a href="{{ col_val.data }}" target="_blank" rel="noopener noreferrer">{{ col_val.data|urldecode }}<i class="fas fa-external-link-alt"></i></a>{% else %}<span class="r-dash">&mdash;</span>{% endif %}
+            {% if col_val.data %}
+                <a href="{{ col_val.data }}" target="_blank" rel="noopener noreferrer">
+                {% if col_val.col_id == 'wikipedia-url' %}
+                    <i class="fa-brands fa-wikipedia-w me-1"></i>{{ col_val.data|urldecode }}
+                {% else %}
+                    {{ col_val.data|urldecode }}<i class="fas fa-external-link-alt ms-1"></i>
+                {% endif %}
+                </a>
+            {% else %}
+                <span class="r-dash">&mdash;</span>
+            {% endif %}
         </td>
         {% elif col_val.type == 'twitter' %}
         <td class="r-model" data-sort-val="{{ col_val.data }}">
-            {% if col_val.data %}<a href="https://twitter.com/{{ col_val.data }}" target="_blank" rel="noopener noreferrer">@{{ col_val.data }}</a>{% else %}<span class="r-dash">&mdash;</span>{% endif %}
+            {% if col_val.data %}<a href="{{ col_val.url }}" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-twitter"></i>{{ col_val.data }}</a>{% else %}<span class="r-dash">&mdash;</span>{% endif %}
         </td>
         {% elif col_val.type == 'linkedin' %}
         <td class="r-model" data-sort-val="{{ col_val.data }}">

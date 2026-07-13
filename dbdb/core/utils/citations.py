@@ -49,6 +49,7 @@ REQUEST_TIMEOUT = 15 # seconds
 SKIP_DOMAINS = {
     "//www.crunchbase.com/", # Recaptcha blocks
     "//twitter.com",
+    "//x.com",
     "//www.bloomberg.com/",
     "//dl.acm.org/",
     "//dbdb.io/",
@@ -761,6 +762,11 @@ def merge_citations(merge_to: CitationUrl, merge_from: list[CitationUrl]) -> Cit
                 LOG.debug("  SystemVersion #%d .wikipedia_url", obj.pk)
             svs.update(wikipedia_url=merge_to)
 
+            svs = SystemVersion.objects.filter(twitter_url=citation)
+            for obj in svs:
+                LOG.debug("  SystemVersion #%d .twitter_url", obj.pk)
+            svs.update(twitter_url=merge_to)
+
             # RepositoryInfo is OneToOne with CASCADE — reassign or drop duplicate
             try:
                 ri = RepositoryInfo.objects.get(sourcerepo_url=citation)
@@ -954,6 +960,7 @@ def get_systems(c: CitationUrl,
         Q(docs_url=c) |
         Q(sourcerepo_url=c) |
         Q(wikipedia_url=c) |
+        Q(twitter_url=c) |
         # Developer org URLs
         Q(developer_orgs__url=c) |
         Q(developer_orgs__linkedin_url=c) |
