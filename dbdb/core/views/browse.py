@@ -65,6 +65,7 @@ _URL_COL_FIELDS = {
     'blog-url':       'blog_url__url',
     'sourcerepo-url': 'sourcerepo_url__url',
     'wikipedia-url':  'wikipedia_url__url',
+    'twitter-handle': 'twitter_url__url',
 }
 
 _RELATIONSHIP_COLUMNS = [
@@ -1036,8 +1037,6 @@ class BrowseView(MetadataMixin, View):
         for col_id in _URL_COL_FIELDS:
             if col_id in active_col_ids:
                 value_fields.append('col_' + col_id.replace('-', '_'))
-        if 'twitter-handle' in active_col_ids:
-            value_fields.append('twitter_handle')
         if 'former-names' in active_col_ids:
             value_fields.append('former_names')
 
@@ -1084,6 +1083,16 @@ class BrowseView(MetadataMixin, View):
                     key = 'col_' + col.col_id.replace('-', '_')
                     r[key] = feat_data[r['id']].get(col.col_id, [])
 
+        # Twitter handle — post-query fetch using the model property to avoid duplicating regex
+        twitter_handles = {}
+        if 'twitter-handle' in active_col_ids:
+            sv_ids = [r['id'] for r in results]
+            for sv in (SystemVersion.objects
+                       .filter(pk__in=sv_ids, twitter_url__isnull=False)
+                       .select_related('twitter_url')
+                       .only('id', 'twitter_url_id')):
+                twitter_handles[sv.id] = sv.twitter_handle or ''
+
         # Build col_values list for each result (one entry per active column)
         for r in results:
             col_values = []
@@ -1114,11 +1123,12 @@ class BrowseView(MetadataMixin, View):
                         for c in codes if c
                     ]
                     col_values.append({'type': 'countries', 'data': country_data})
+                elif col.col_id == 'twitter-handle':
+                    url = r.get('col_twitter_handle') or ''
+                    col_values.append({'type': 'twitter', 'data': twitter_handles.get(r['id'], ''), 'url': url})
                 elif col.col_id in _URL_COL_FIELDS:
                     key = 'col_' + col.col_id.replace('-', '_')
                     col_values.append({'type': 'url', 'col_id': col.col_id, 'data': r.get(key) or ''})
-                elif col.col_id == 'twitter-handle':
-                    col_values.append({'type': 'twitter', 'data': r.get('twitter_handle') or ''})
                 elif col.col_id == 'former-names':
                     names = r.get('former_names') or []
                     col_values.append({'type': 'former-names', 'data': ', '.join(names)})

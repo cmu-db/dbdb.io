@@ -724,9 +724,11 @@ class SystemVersion(LogoMixin, models.Model):
         related_name='version_wikipedia_urls',
         verbose_name="Wikipedia URL")
 
-    twitter_handle = models.CharField(
-        blank=True, max_length=100,
-        help_text="Twitter account for the database (avoid company account if possible)")
+    twitter_url = models.ForeignKey(
+        'CitationUrl', blank=True, null=True,
+        on_delete=models.SET_NULL,
+        related_name='version_twitter_urls',
+        verbose_name="Twitter/X URL")
 
     derived_from = models.ManyToManyField(
         'System', blank=True,
@@ -841,9 +843,14 @@ class SystemVersion(LogoMixin, models.Model):
     def description_mobile_remainder(self):
         return "\n".join(self.description.split("\n")[1:])
 
-    def twitter_handle_url(self):
-        if not self.twitter_handle: return None
-        return settings.TWITTER_URL + self.twitter_handle.replace('@', '')
+    @property
+    def twitter_handle(self):
+        if not self.twitter_url_id:
+            return None
+        m = re.search(r'(?:twitter|x)\.com/@?(\w+)', self.twitter_url.url)
+        if not m:
+            return None
+        return f'@{m.group(1)}'
 
     def card_url(self):
         return settings.OG_CARD_URL + self.get_card_image()

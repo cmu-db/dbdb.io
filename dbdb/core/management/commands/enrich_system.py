@@ -45,9 +45,9 @@ User = get_user_model()
 # Fields the command can fill — text, integer, simple char, and URL-FK fields.
 # M2M attribute fields (project_types, licenses, oses, written_in) are handled
 # separately because they require AttributeOption lookups.
-SIMPLE_TEXT_FIELDS = ('description', 'history', 'twitter_handle')
+SIMPLE_TEXT_FIELDS = ('description', 'history')
 INT_FIELDS = ('start_year', 'end_year')
-URL_FK_FIELDS = ('system_url', 'docs_url', 'blog_url', 'sourcerepo_url', 'wikipedia_url')
+URL_FK_FIELDS = ('system_url', 'docs_url', 'blog_url', 'sourcerepo_url', 'wikipedia_url', 'twitter_url')
 M2M_ATTR_FIELDS = ('project_types', 'licenses', 'oses', 'written_in', 'tags')
 # Maps M2M field name → Attribute slug
 M2M_ATTR_SLUGS = {
@@ -87,15 +87,6 @@ def _get_missing_fields(version: SystemVersion, requested: list[str] | None) -> 
     all_fields = list(SIMPLE_TEXT_FIELDS) + list(INT_FIELDS) + list(URL_FK_FIELDS) + list(M2M_ATTR_FIELDS)
     return [f for f in all_fields if _is_field_empty(version, f)]
 
-
-def _extract_twitter_handle(val: str) -> str | None:
-    """Return '@handle' from a twitter.com/x.com URL or bare handle string."""
-    m = re.match(r'https?://(?:www\.)?(?:twitter|x)\.com/([A-Za-z0-9_]{1,50})', val)
-    if m:
-        return f'@{m.group(1)}'
-    if re.match(r'^@?[A-Za-z0-9_]{1,50}$', val.strip()):
-        return f'@{val.strip().lstrip("@")}'
-    return None
 
 
 def _crawl_existing_urls(
@@ -279,7 +270,7 @@ class Command(EnricherBaseCommand):
         # Determine which URL fields are missing on the current version.
         # Also check the existing pending version so we don't overwrite fields
         # that were already filled by a prior _enrich_one() call.
-        url_fields = ['docs_url', 'blog_url', 'twitter_handle']
+        url_fields = ['docs_url', 'blog_url', 'twitter_url']
         missing = [f for f in url_fields if _is_field_empty(current, f)]
         pending = system.pending_version()
         if pending:
@@ -333,7 +324,7 @@ class Command(EnricherBaseCommand):
                 break
 
         # Resolve CitationUrl FK fields via a shared loop
-        url_fk_fields = [f for f in ('docs_url', 'blog_url') if f in missing]
+        url_fk_fields = [f for f in ('docs_url', 'blog_url', 'twitter_url') if f in missing]
         new_urls: dict = {}
         for field in url_fk_fields:
             url_str = (result.get(field) or '').strip()
@@ -362,26 +353,16 @@ class Command(EnricherBaseCommand):
             except Exception as e:
                 LOG.warning("%s: could not validate %r: %s", field, url_str, e)
 
-        # twitter_handle is a plain string field, not a CitationUrl FK
-        new_twitter_handle = None
-        if 'twitter_handle' in missing:
-            raw_twitter = (result.get('twitter_url') or '').strip()
-            if raw_twitter:
-                new_twitter_handle = _extract_twitter_handle(raw_twitter)
-
         if dry_run:
-            url_parts = [f"{f}={new_urls.get(f)!r}" for f in ('docs_url', 'blog_url')]
-            self.stdout.write(f"  [DRY RUN] {', '.join(url_parts)}, twitter_handle={new_twitter_handle!r}")
+            url_parts = [f"{f}={new_urls.get(f)!r}" for f in ('docs_url', 'blog_url', 'twitter_url')]
+            self.stdout.write(f"  [DRY RUN] {', '.join(url_parts)}")
             return True
 
-        if not new_urls and new_twitter_handle is None:
+        if not new_urls:
             self.stdout.write(f"  '{system.name}': nothing extracted from homepage")
             return True
 
-        extracted_fields = list(new_urls.keys())
-        if new_twitter_handle is not None:
-            extracted_fields.append('twitter_handle')
-        new_comment = f"URL extraction by enrich_system: {', '.join(extracted_fields)}"
+        new_comment = f"URL extraction by enrich_system: {', '.join(new_urls.keys())}"
 
         bot_user = User.objects.get(username=settings.DBDB_BOT_ACCOUNT)
         with transaction.atomic():
@@ -402,13 +383,11 @@ class Command(EnricherBaseCommand):
                 )
             for field, citation in new_urls.items():
                 setattr(new_sv, field, citation)
-            if new_twitter_handle is not None:
-                new_sv.twitter_handle = new_twitter_handle
             new_sv.save()
 
-        url_parts = [f"{f}={new_urls.get(f)}" for f in ('docs_url', 'blog_url')]
+        url_parts = [f"{f}={new_urls.get(f)}" for f in ('docs_url', 'blog_url', 'twitter_url')]
         self.stdout.write(self.style.SUCCESS(
-            f"  Extracted for '{system.name}': {', '.join(url_parts)}, twitter_handle={new_twitter_handle}"
+            f"  Extracted for '{system.name}': {', '.join(url_parts)}"
         ))
         return True
 
@@ -564,8 +543,6 @@ class Command(EnricherBaseCommand):
                 if field in missing_fields:
                     val = enrichment.get(field, '')
                     if val:
-                        if field == 'twitter_handle' and field[0] != '@':
-                            val = f"@{val}"
                         setattr(new_sv, field, val)
                         changed_fields.append(field)
 

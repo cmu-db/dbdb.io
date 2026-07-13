@@ -201,6 +201,7 @@ class SystemView(MetadataMixin, View):
         docs_url_citation       = _url_citation('docs_url')
         blog_url_citation       = _url_citation('blog_url')
         wikipedia_url_citation  = _url_citation('wikipedia_url')
+        twitter_url_citation    = _url_citation('twitter_url')
 
         sections = []
 
@@ -365,6 +366,7 @@ class SystemView(MetadataMixin, View):
             'blog_url_citation':       blog_url_citation,
             'sourcerepo_url_citation': sourcerepo_url_citation,
             'wikipedia_url_citation':  wikipedia_url_citation,
+            'twitter_url_citation':    twitter_url_citation,
             'page_error': version_error,
         })
 
@@ -503,6 +505,7 @@ class SystemEditView(LoginRequiredMixin, View):
             'docs_url':       version.docs_url.url       if version.docs_url       else '',
             'sourcerepo_url': version.sourcerepo_url.url if version.sourcerepo_url else '',
             'wikipedia_url':  version.wikipedia_url.url  if version.wikipedia_url  else '',
+            'twitter_url':    version.twitter_url.url    if version.twitter_url    else '',
         }
         if suggestion:
             version_initial['system_url'] = suggestion.system_url
@@ -665,7 +668,7 @@ class SystemEditView(LoginRequiredMixin, View):
             # URLField normalizes bare domains by adding a trailing slash (e.g.
             # "https://mongodb.com" → "https://mongodb.com/").  Try the exact
             # normalized form first, then the slash-stripped form, before creating.
-            for fk_field in ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url'):
+            for fk_field in ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url', 'twitter_url'):
                 url_str = (system_version_form.cleaned_data.get(fk_field) or '').strip()
                 if url_str:
                     citation = CitationUrl.objects.filter(url=url_str).first()
@@ -1156,7 +1159,7 @@ def _compute_version_diff(v1, v2):
 
     # --- remaining scalar fields ---
     for field, label in [
-        ('twitter_handle',   'Twitter Handle'),
+        ('twitter_url_id',   'Twitter URL'),
         ('countries',        'Countries'),
     ]:
         a = _str(getattr(v1, field))

@@ -71,10 +71,6 @@
         <div class="fact"><dt>Blog</dt><dd><a href="{{ version.blog_url.url }}" target="_blog_{{ system.slug }}">{{ version.blog_url.display_url }}</a>{% if blog_url_citation %}<span class="cites">{% citation_footnote blog_url_citation %}</span>{% endif %}</dd></div>
         {% endif %}
 
-        {% if version.twitter_handle %}
-        <div class="fact"><dt>Twitter</dt><dd><a href="{{ version.twitter_handle_url }}" target="_twitter_{{ system.slug }}"><i class="fa-brands fa-twitter"></i>{{ version.twitter_handle }}</a></dd></div>
-        {% endif %}
-
         {% if developer_orgs %}
         <div class="fact"><dt>Developer{{ developer_orgs|pluralize }}</dt>
             <dd>{% for org in developer_orgs %}<div>{% org_link org %}</div>{% endfor %}</dd>
@@ -185,6 +181,13 @@
         <div class="fact">
             <dt>License{{ version.licenses.all|pluralize }}</dt>
             <dd>{% for attropt in version.licenses.all %}{% if not forloop.first %}, {% endif %}{% browse_link "license" attropt.slug "That Use "|add:attropt.name|add:" License" attropt.name %}{% endfor %}</dd>
+        </div>
+        {% endif %}
+
+        {% if version.twitter_url %}
+        <div class="fact">
+            <dt>Twitter</dt>
+            <dd><a href="{{ version.twitter_url.url }}" target="_twitter_{{ system.slug }}"><i class="fa-brands fa-twitter"></i>{{ version.twitter_handle }}</a>{% if twitter_url_citation %}<span class="cites">{% citation_footnote twitter_url_citation %}</span>{% endif %}</dd>
         </div>
         {% endif %}
 
