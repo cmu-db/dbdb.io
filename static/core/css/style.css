@@ -349,13 +349,13 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
 .masthead-meta .edge { flex: none; }
 
 /* primary nav row */
-.topnav { background: var(--paper); }
-.topnav .container {
+.homepage-nav { background: var(--paper); }
+.homepage-nav .container {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
 }
-.topnav a {
+.homepage-nav a {
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: .14em;
@@ -365,10 +365,10 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
   padding: .85rem 1.25rem;
   position: relative;
 }
-.topnav a:hover { color: var(--accent); }
-.topnav a.active { color: var(--ink); }
-.topnav a.active:hover { text-decoration: none !important; }
-.topnav a.active::after {
+.homepage-nav a:hover { color: var(--accent); }
+.homepage-nav a.active { color: var(--ink); }
+.homepage-nav a.active:hover { text-decoration: none !important; }
+.homepage-nav a.active::after {
   content: "";
   position: absolute; left: 1.25rem; right: 1.25rem; bottom: -1px;
   height: 2px; background: var(--accent);
@@ -719,14 +719,14 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
   white-space: nowrap;
 }
 .runhead .wordmark:hover { text-decoration: none; }
-.rh-toggle {
+.innerpage-toggle {
   background: transparent; border: 0; padding: .35rem .45rem;
   color: var(--ink); font-size: 1.15rem; cursor: pointer; line-height: 1;
 }
-.rh-toggle:hover { color: var(--accent); }
+.innerpage-toggle:hover { color: var(--accent); }
 
-.rh-nav { display: flex; flex-wrap: wrap; align-items: center; }
-.rh-nav a {
+.innerpage-nav { display: flex; flex-wrap: wrap; align-items: center; }
+.innerpage-nav a {
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: .14em;
@@ -736,41 +736,41 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
   padding: .5rem .9rem;
   position: relative;
 }
-.rh-nav a:hover { color: var(--accent); }
-.rh-nav a.active:hover { text-decoration: none !important; }
-.rh-nav a.active { color: var(--ink); }
-.rh-nav a.active::after {
+.innerpage-nav a:hover { color: var(--accent); }
+.innerpage-nav a.active:hover { text-decoration: none !important; }
+.innerpage-nav a.active { color: var(--ink); }
+.innerpage-nav a.active::after {
   content: ""; position: absolute; left: .9rem; right: .9rem; bottom: -.65rem;
   height: 4px; background: var(--accent);
 }
 
 /* Inline search form in the runhead */
-.rh-search {
+.innerpage-search {
   display: inline-flex; align-items: center; margin-left: .5rem;
   background: var(--surface); border: 1.5px solid var(--ink);
 }
-.rh-search input {
+.innerpage-search input {
   font-family: var(--serif); font-size: .95rem; font-style: italic;
   border: 0; background: transparent; color: var(--ink);
   padding: .3rem .5rem .3rem .7rem; outline: none; width: 160px;
 }
-.rh-search input::placeholder { color: var(--muted); }
-.rh-search button {
+.innerpage-search input::placeholder { color: var(--muted); }
+.innerpage-search button {
   background: transparent; border: 0; color: var(--ink-soft);
   padding: .2rem .5rem; cursor: pointer; font-size: .8rem;
 }
-.rh-search button:hover { color: var(--accent); }
+.innerpage-search button:hover { color: var(--accent); }
 
 /* Desktop: always show nav regardless of Bootstrap collapse state */
 @media (min-width: 768px) {
-  .rh-nav { display: flex !important; }
+  .innerpage-nav { display: flex !important; }
 }
 
 /* Mobile: expanded nav sits below the wordmark row as a vertical list */
 @media (max-width: 767.98px) {
   .runhead .container { flex-wrap: wrap; }
-  .rh-nav { display: none; }
-  .rh-nav.rh-open {
+  .innerpage-nav { display: none; }
+  .innerpage-nav.innerpage-open {
     display: flex;
     width: 100%;
     flex-direction: column;
@@ -778,15 +778,15 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
     border-top: 1px solid var(--rule-soft);
     padding: .4rem 0 .8rem;
   }
-  .rh-nav.rh-open a {
+  .innerpage-nav.innerpage-open a {
     padding: .55rem .25rem;
     width: 100%;
   }
-  .rh-nav.rh-open a.active::after { display: none; }
-  .rh-nav.rh-open .rh-search {
+  .innerpage-nav.innerpage-open a.active::after { display: none; }
+  .innerpage-nav.innerpage-open .innerpage-search {
     margin-left: 0; margin-top: .4rem; width: 100%;
   }
-  .rh-nav.rh-open .rh-search input { width: 100%; }
+  .innerpage-nav.innerpage-open .innerpage-search input { width: 100%; }
 }
 
 /* ============================================================
