@@ -1157,9 +1157,18 @@ def _compute_version_diff(v1, v2):
                   'changed': a != b or cite['changed'],
                   'citations': cite})
 
+    # --- twitter handle (clickable @handle link) ---
+    a_handle = v1.twitter_handle or ''
+    b_handle = v2.twitter_handle or ''
+    a_url = v1.twitter_url.url if v1.twitter_url else ''
+    b_url = v2.twitter_url.url if v2.twitter_url else ''
+    diffs.append({'field': 'twitter_url', 'label': 'Twitter URL', 'type': 'twitter',
+                  'v1_val': a_handle, 'v2_val': b_handle,
+                  'v1_url': a_url, 'v2_url': b_url,
+                  'changed': a_handle != b_handle})
+
     # --- remaining scalar fields ---
     for field, label in [
-        ('twitter_url_id',   'Twitter URL'),
         ('countries',        'Countries'),
     ]:
         a = _str(getattr(v1, field))

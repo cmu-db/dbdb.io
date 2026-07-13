@@ -263,6 +263,18 @@
         </td>
     </tr>
 
+    {# ── Twitter handle link ── #}
+    {% elif diff.type == 'twitter' %}
+    <tr class="{% if diff.changed %}diff-changed{% else %}diff-unchanged{% endif %}">
+        <td class="diff-label">{{ diff.label }}</td>
+        <td>
+            {% if diff.v1_val %}<a href="{{ diff.v1_url }}" target="_blank" rel="noopener" class="diff-cite-url"><i class="fa-brands fa-twitter me-1"></i>{{ diff.v1_val }}</a>{% else %}<span class="text-muted">&mdash;</span>{% endif %}
+        </td>
+        <td>
+            {% if diff.v2_val %}<a href="{{ diff.v2_url }}" target="_blank" rel="noopener" class="diff-cite-url">{% if diff.changed %}<ins><i class="fa-brands fa-twitter me-1"></i>{{ diff.v2_val }}</ins>{% else %}<i class="fa-brands fa-twitter me-1"></i>{{ diff.v2_val }}{% endif %}</a>{% else %}<span class="text-muted">&mdash;</span>{% endif %}
+        </td>
+    </tr>
+
     {# ── Image fields ── #}
     {% elif diff.type == 'image' %}
     <tr class="{% if diff.changed %}diff-changed{% else %}diff-unchanged{% endif %}">
