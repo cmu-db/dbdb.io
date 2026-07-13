@@ -1,31 +1,44 @@
 {% extends 'base.html' %}
-{% load django_bootstrap5 %}
 {% load alerts %}
+{% load page_title %}
 
 {% block title %}Request Editor Access{{ DBDB_TITLE_SEPARATOR }}{% endblock %}
 
 {% block content %}
-<div style="max-width:540px;margin:3rem auto;">
-    <h1 class="mb-2">Request Editor Access</h1>
-    <p class="text-muted mb-4">
-        Enter your work email address. If the domain of your email matches a database
-        system's website URL (e.g., <code>alice@mongodb.com</code> matches
-        <code>mongodb.com</code>), we'll send you a verification link that lets you
-        create an account and edit that system's entry.
-    </p>
+{% page_title %}
+{% ptitle_kicker %}Account{% endptitle_kicker %}
+{% ptitle_title %}Request Editor Access{% endptitle_title %}
+{% ptitle_sub %}Enter your work email. If its domain matches a database system&rsquo;s website URL, we&rsquo;ll send a verification link so you can edit that entry.{% endptitle_sub %}
+{% endpage_title %}
 
-    {% if error %}
-    {% alert type="error" %}{{ error }}{% endalert %}
-    {% endif %}
+<div class="row justify-content-center">
+<div class="col-12 col-lg-8 col-xl-7">
 
-    <form method="post">
-        {% csrf_token %}
-        {% bootstrap_form form %}
-        <button type="submit" class="btn btn-primary w-100">Send Verification Email</button>
-    </form>
+{% if error %}
+{% alert type="error" %}{{ error }}{% endalert %}
+{% endif %}
 
-    <p class="text-muted mt-3 small text-center">
-        Already have an account? <a href="/login/">Log in</a>.
-    </p>
+<form method="POST">
+    {% csrf_token %}
+
+    <div class="block">
+        <div class="block-body">
+            <div class="ed-field mb-0">
+                <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                {{ form.email }}
+                <div class="form-text">Example: <code>ghostface@mysql.com</code> grants edit access to the MySQL entry.</div>
+                {% if form.email.errors %}<div class="suggest-error">{{ form.email.errors.0 }}</div>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-3">
+        <button type="submit" class="btn btn-solid">Send Verification Email</button>
+        <a href="{% url 'login' %}" class="text-muted text-decoration-none">Already have an account?</a>
+    </div>
+
+</form>
+
+</div>
 </div>
 {% endblock %}

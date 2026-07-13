@@ -1,18 +1,24 @@
 {% extends 'base.html' %}
+{% load page_title %}
 
 {% block title %}Check Your Email{{ DBDB_TITLE_SEPARATOR }}{% endblock %}
 
 {% block content %}
-<div style="max-width:540px;margin:4rem auto;text-align:center;">
-    <i class="fa-regular fa-envelope fa-3x text-primary mb-3"></i>
-    <h1 class="mb-2">Check Your Email</h1>
-    <p class="text-muted">
-        We've sent a verification link to your email address. Click the link to
-        create your account — it expires in <strong>24 hours</strong>.
-    </p>
-    <p class="text-muted small mt-3">
-        Didn't receive it? Check your spam folder, or
-        <a href="{% url 'signup_request' %}">try again</a>.
-    </p>
+{% page_title %}
+{% ptitle_kicker %}Account{% endptitle_kicker %}
+{% ptitle_title %}Check Your Email{% endptitle_title %}
+{% ptitle_sub %}We&rsquo;ve sent a verification link to your email address.{% endptitle_sub %}
+{% endpage_title %}
+
+<div class="row justify-content-center">
+<div class="col-12 col-lg-8 col-xl-7">
+
+<div class="block">
+    <div class="block-body">
+        <p class="mb-0">Click the link to create your account &mdash; it expires in <strong>24 hours</strong>. Didn&rsquo;t receive it? Check your spam folder, or <a href="{% url 'signup_request' %}">try again</a>.</p>
+    </div>
+</div>
+
+</div>
 </div>
 {% endblock %}

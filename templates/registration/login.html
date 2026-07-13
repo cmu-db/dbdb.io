@@ -1,33 +1,53 @@
 {% extends 'base.html' %}
-{% load django_bootstrap5 %}
 {% load alerts %}
+{% load page_title %}
 
-{% block title %}Login{{ DBDB_TITLE_SEPARATOR }}{% endblock %}
-
+{% block title %}Log In{{ DBDB_TITLE_SEPARATOR }}{% endblock %}
 
 {% block content %}
-    <div class="row justify-content-md-center">
-        <div class="col-md-6">
+{% page_title %}
+{% ptitle_kicker %}Account{% endptitle_kicker %}
+{% ptitle_title %}Log In{% endptitle_title %}
+{% endpage_title %}
 
-            {% if request.GET.status and request.GET.status == 'success' %}
-            {% alert type="success" %}Your account was successfully created!{% endalert %}
-            {% endif %}
+<div class="row justify-content-center">
+<div class="col-12 col-lg-8 col-xl-7">
 
-            {% if request.user.is_authenticated %}
-            {% alert type="warning" %}You are already logged in. Please <a href="{% url 'logout' %}?next={{ request.get_full_path|urlencode }}">log out</a> first.{% endalert %}
-            {% else %}
-            <form action="." method="POST">
-                {% csrf_token %}
-                {% bootstrap_form form %}
-                <p class="small text-right"><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
+{% if request.user.is_authenticated %}
+{% alert type="warning" %}You are already logged in. Please <a href="{% url 'logout' %}?next={{ request.get_full_path|urlencode }}">log out</a> first.{% endalert %}
+{% else %}
 
-                <div>
-                    <button type="submit" class="btn btn-primary btn-block">
-                        Login
-                    </button>
-                </div>
-            </form>
-            {% endif %}
+{% if form.non_field_errors %}
+{% alert type="error" %}{{ form.non_field_errors.0 }}{% endalert %}
+{% endif %}
+
+<form method="POST">
+    {% csrf_token %}
+
+    <div class="block">
+        <div class="block-h">Credentials</div>
+        <div class="block-body">
+            <div class="ed-field">
+                <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                {{ form.username }}
+                {% if form.username.errors %}<div class="suggest-error">{{ form.username.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="ed-field mb-0">
+                <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                {{ form.password }}
+                {% if form.password.errors %}<div class="suggest-error">{{ form.password.errors.0 }}</div>{% endif %}
+            </div>
         </div>
     </div>
+
+    <div class="d-flex align-items-center gap-3">
+        <button type="submit" class="btn btn-solid">Log In</button>
+        <a href="{% url 'password_reset' %}" class="text-muted text-decoration-none">Forgot your password?</a>
+    </div>
+
+</form>
+{% endif %}
+
+</div>
+</div>
 {% endblock %}
