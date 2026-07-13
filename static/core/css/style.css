@@ -1207,7 +1207,17 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .entry-foot {
   border-top: 1px solid var(--rule);
   font-family: var(--mono); font-size: .8rem; letter-spacing: .05em; color: var(--muted);
-  display: flex; justify-content: flex-end; gap: 1.2rem;
+  display: flex; justify-content: flex-end; gap: 1.2rem; flex-wrap: wrap;
+}
+.entry-foot .entry-revision,
+.entry-foot .entry-timestamp {
+  min-width: 0;
+}
+@media (max-width: 767.98px) {
+  .entry-foot {
+    flex-direction: column;
+    gap: .4rem;
+  }
 }
 .entry-foot .text-accent { color: var(--accent); }
 
