@@ -1,7 +1,7 @@
 {% load logos %}
 
 <a href="{{ item.get_absolute_url }}" class="db-row">
-    <span class="rank">{{ forloop.counter|stringformat:"02d" }}</span>
+    <span class="rank"></span>
     {% mono_tile item.current.logo item.name %}
     <span class="db-info">
         <span class="db-name">{{ item.name }}</span>
