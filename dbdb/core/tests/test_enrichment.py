@@ -14,7 +14,6 @@ from django.test import TestCase, override_settings
 from dbdb.core.management.commands.enrich_system import (
     M2M_ATTR_SLUGS,
     Command as EnrichSystemCommand,
-    _extract_twitter_handle,
 )
 from dbdb.core.management.commands.enrich_organization import (
     Command as EnrichOrgCommand,
@@ -116,28 +115,40 @@ class EnrichSystemAttributeLoadingTestCase(TestCase):
 
 
 # ---------------------------------------------------------------------------
-# _extract_twitter_handle unit tests
+# SystemVersion.twitter_handle property tests
 # ---------------------------------------------------------------------------
 
-class ExtractTwitterHandleTestCase(TestCase):
+class TwitterHandlePropertyTestCase(TestCase):
 
-    def test_full_twitter_url(self):
-        self.assertEqual(_extract_twitter_handle('https://twitter.com/sqlite'), '@sqlite')
+    fixtures = _FIXTURES
 
-    def test_full_x_url(self):
-        self.assertEqual(_extract_twitter_handle('https://x.com/sqlite'), '@sqlite')
+    def _make_sv_with_url(self, url):
+        citation = CitationUrl.objects.create(url=url, status=CitationUrl.Status.UNKNOWN)
+        sv = SystemVersion.objects.filter(is_current=True).first()
+        sv.twitter_url = citation
+        return sv
 
-    def test_bare_handle_with_at(self):
-        self.assertEqual(_extract_twitter_handle('@sqlite'), '@sqlite')
+    def test_twitter_com_url(self):
+        sv = self._make_sv_with_url('https://twitter.com/sqlite')
+        self.assertEqual(sv.twitter_handle, '@sqlite')
 
-    def test_bare_handle_without_at(self):
-        self.assertEqual(_extract_twitter_handle('sqlite'), '@sqlite')
+    def test_x_com_url(self):
+        sv = self._make_sv_with_url('https://x.com/sqlite')
+        self.assertEqual(sv.twitter_handle, '@sqlite')
 
-    def test_invalid_returns_none(self):
-        self.assertIsNone(_extract_twitter_handle('https://example.com/nottwitter'))
+    def test_url_with_at_prefix(self):
+        sv = self._make_sv_with_url('https://twitter.com/@sqlite')
+        self.assertEqual(sv.twitter_handle, '@sqlite')
 
-    def test_empty_returns_none(self):
-        self.assertIsNone(_extract_twitter_handle(''))
+    def test_unrecognised_domain_returns_none(self):
+        sv = self._make_sv_with_url('https://example.com/nottwitter')
+        self.assertIsNone(sv.twitter_handle)
+
+    def test_no_twitter_url_returns_none(self):
+        sv = SystemVersion.objects.filter(is_current=True).first()
+        sv.twitter_url = None
+        sv.twitter_url_id = None
+        self.assertIsNone(sv.twitter_handle)
 
 
 # ---------------------------------------------------------------------------
@@ -249,6 +260,10 @@ class HomepageUrlSystemExtractionTestCase(TestCase):
         self.assertEqual(pending.docs_url_id, docs_citation.pk)
 
     def test_extracts_twitter_handle_from_url(self):
+        CitationUrl.objects.create(
+            url='https://twitter.com/sqlite',
+            status=CitationUrl.Status.VALID,
+        )
         enricher = MockEnricher({'twitter_url': 'https://twitter.com/sqlite'})
         self._call(enricher)
 
@@ -265,10 +280,14 @@ class HomepageUrlSystemExtractionTestCase(TestCase):
             url='https://sqlite.org/blog',
             status=CitationUrl.Status.VALID,
         )
+        twitter_citation = CitationUrl.objects.create(
+            url='https://twitter.com/sqlite',
+            status=CitationUrl.Status.VALID,
+        )
         self.current.docs_url = docs_citation
         self.current.blog_url = blog_citation
-        self.current.twitter_handle = '@sqlite'
-        self.current.save(update_fields=['docs_url', 'blog_url', 'twitter_handle'])
+        self.current.twitter_url = twitter_citation
+        self.current.save(update_fields=['docs_url', 'blog_url', 'twitter_url'])
 
         enricher = MockEnricher({'docs_url': 'https://sqlite.org/docs', 'twitter_url': 'https://twitter.com/sqlite'})
         self._call(enricher)
@@ -291,6 +310,10 @@ class HomepageUrlSystemExtractionTestCase(TestCase):
         self.assertIsNone(self.system.pending_version())
 
     def test_both_modes_share_single_pending_version(self):
+        CitationUrl.objects.create(
+            url='https://twitter.com/sqlite',
+            status=CitationUrl.Status.VALID,
+        )
         # Simulate what _enrich_one() would create: a pending SystemVersion
         pending = clone_system_version(
             self.current,

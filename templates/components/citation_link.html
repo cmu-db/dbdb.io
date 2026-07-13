@@ -4,7 +4,7 @@
 {% else %}
     <span class="text-muted text-decoration-line-through me-1" title="Disabled URL because it was flagged as spam">
 {% endif %}
-    {% if c.last_title %}
+    {% if c.last_title and c.status != Status.SPAM %}
         <span class="citation-title">{{ c.last_title|escape }}</span>
     {% else %}
         {{ c.display_url }}
@@ -17,7 +17,7 @@
 {% endif %}
 {% endspaceless %}
 {% if c.get_domain %}
-    <em>{{ c.get_domain }}</em>
+    <em class="me-1">{{ c.get_domain }}</em>
 {% endif %}
 {% if c.status == Status.DEAD or c.status == Status.SPAM %}
     <a href="https://web.archive.org/web/*/{{ c.url }}*" class="citation-archive" target="_archive{{ c.id }}" title="URL is Not Available - Check archive.org">

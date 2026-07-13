@@ -59,7 +59,7 @@ class TwitterCardCreationTestCase(TestCase):
 
     def test_db_card_created_in_db_subdir(self):
         sv = self._sqlite_sv()
-        with self.settings(TWITTER_CARD_ROOT=self._tmp.name):
+        with self.settings(OG_CARD_ROOT=self._tmp.name):
             card = create_twitter_card(sv)
         expected = os.path.join(self._tmp.name, 'db', 'sqlite.png')
         self.assertEqual(card, expected)
@@ -73,7 +73,7 @@ class TwitterCardCreationTestCase(TestCase):
         org = Organization(name='Ol Dirty Bastard', slug='odb')
         org.logo = _FakeLogo(logo_path)
 
-        with self.settings(TWITTER_CARD_ROOT=self._tmp.name):
+        with self.settings(OG_CARD_ROOT=self._tmp.name):
             card = create_twitter_card(org)
         expected = os.path.join(self._tmp.name, 'org', 'odb.png')
         self.assertEqual(card, expected)
@@ -81,7 +81,7 @@ class TwitterCardCreationTestCase(TestCase):
 
     def test_card_has_group_write_permission(self):
         sv = self._sqlite_sv()
-        with self.settings(TWITTER_CARD_ROOT=self._tmp.name):
+        with self.settings(OG_CARD_ROOT=self._tmp.name):
             card = create_twitter_card(sv)
         mode = stat.S_IMODE(os.stat(card).st_mode)
         self.assertEqual(mode & 0o664, 0o664,
@@ -90,7 +90,7 @@ class TwitterCardCreationTestCase(TestCase):
     def test_db_card_no_logo_text_fallback(self):
         sv = self._sqlite_sv()
         self.assertFalse(sv.logo, "Fixture should have no logo for sqlite")
-        with self.settings(TWITTER_CARD_ROOT=self._tmp.name):
+        with self.settings(OG_CARD_ROOT=self._tmp.name):
             card = create_twitter_card(sv)
         self.assertTrue(os.path.exists(card))
         img = Image.open(card)
@@ -182,7 +182,7 @@ class OrganizationViewMetaTestCase(TestCase):
         super().setUpTestData()
         cls.org = Organization.objects.create(name='Raekwon', slug='raekwon')
 
-    def test_twitter_card_type_is_large_image(self):
+    def test_card_type_is_large_image(self):
         response = self.client.get(reverse('organization', args=['raekwon']))
         self.assertContains(response, 'summary_large_image')
 
@@ -194,12 +194,12 @@ class OrganizationViewMetaTestCase(TestCase):
             os.makedirs(card_dir)
             with open(os.path.join(card_dir, 'raekwon.png'), 'wb') as f:
                 f.write(_tiny_png())
-            with self.settings(TWITTER_CARD_ROOT=tmp, TWITTER_CARD_URL='/media/cards/'):
+            with self.settings(OG_CARD_ROOT=tmp, OG_CARD_URL='/media/cards/'):
                 response = self.client.get(reverse('organization', args=['raekwon']))
         self.assertContains(response, 'cards/org/raekwon.png')
 
     def test_og_image_absent_when_no_card_file(self):
         with tempfile.TemporaryDirectory() as tmp:
-            with self.settings(TWITTER_CARD_ROOT=tmp, TWITTER_CARD_URL='/media/cards/'):
+            with self.settings(OG_CARD_ROOT=tmp, OG_CARD_URL='/media/cards/'):
                 response = self.client.get(reverse('organization', args=['raekwon']))
         self.assertNotContains(response, 'cards/org/raekwon.png')

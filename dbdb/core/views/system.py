@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.db.models import OuterRef, Prefetch, Subquery
 from django.forms import HiddenInput
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -108,7 +108,7 @@ class SystemView(MetadataMixin, View):
     def get_meta_image(self, context=None):
         sv = getattr(self, '_system_version', None)
         if sv:
-            return self.request.build_absolute_uri(sv.twitter_card_url())
+            return self.request.build_absolute_uri(sv.card_url())
         return None
 
     def get_meta_object_type(self, context=None):
@@ -201,6 +201,7 @@ class SystemView(MetadataMixin, View):
         docs_url_citation       = _url_citation('docs_url')
         blog_url_citation       = _url_citation('blog_url')
         wikipedia_url_citation  = _url_citation('wikipedia_url')
+        twitter_url_citation    = _url_citation('twitter_url')
 
         sections = []
 
@@ -365,6 +366,7 @@ class SystemView(MetadataMixin, View):
             'blog_url_citation':       blog_url_citation,
             'sourcerepo_url_citation': sourcerepo_url_citation,
             'wikipedia_url_citation':  wikipedia_url_citation,
+            'twitter_url_citation':    twitter_url_citation,
             'page_error': version_error,
         })
 
@@ -503,6 +505,7 @@ class SystemEditView(LoginRequiredMixin, View):
             'docs_url':       version.docs_url.url       if version.docs_url       else '',
             'sourcerepo_url': version.sourcerepo_url.url if version.sourcerepo_url else '',
             'wikipedia_url':  version.wikipedia_url.url  if version.wikipedia_url  else '',
+            'twitter_url':    version.twitter_url.url    if version.twitter_url    else '',
         }
         if suggestion:
             version_initial['system_url'] = suggestion.system_url
@@ -665,7 +668,7 @@ class SystemEditView(LoginRequiredMixin, View):
             # URLField normalizes bare domains by adding a trailing slash (e.g.
             # "https://mongodb.com" → "https://mongodb.com/").  Try the exact
             # normalized form first, then the slash-stripped form, before creating.
-            for fk_field in ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url'):
+            for fk_field in ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url', 'twitter_url'):
                 url_str = (system_version_form.cleaned_data.get(fk_field) or '').strip()
                 if url_str:
                     citation = CitationUrl.objects.filter(url=url_str).first()
@@ -1156,7 +1159,7 @@ def _compute_version_diff(v1, v2):
 
     # --- remaining scalar fields ---
     for field, label in [
-        ('twitter_handle',   'Twitter Handle'),
+        ('twitter_url_id',   'Twitter URL'),
         ('countries',        'Countries'),
     ]:
         a = _str(getattr(v1, field))
@@ -1272,9 +1275,27 @@ def _compute_version_diff(v1, v2):
 # ==============================================
 # SystemVersionDiffView
 # ==============================================
-class SystemLogosView(View):
+class SystemLogosView(MetadataMixin, View):
 
     template_name = 'core/system-logos.html'
+
+    def get_meta_title(self, context=None):
+        system = getattr(self, '_system', None)
+        name = system.name if system else 'Database'
+        return f'{name}{settings.DBDB_TITLE_SEPARATOR}Logo History{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
+
+    def get_meta_description(self, context=None):
+        system = getattr(self, '_system', None)
+        versions = getattr(self, '_logo_versions', None)
+        name = system.name if system else 'Database'
+        count = len(versions) if versions is not None else 0
+        return f'All {count} unique logo image{"s" if count != 1 else ""} used across revisions of {name}.'
+
+    def get_meta_image(self, context=None):
+        sv = getattr(self, '_system_version', None)
+        if sv:
+            return self.request.build_absolute_uri(sv.card_url())
+        return None
 
     def get(self, request, slug):
         system = get_object_or_404(System, slug=slug)
@@ -1290,7 +1311,11 @@ class SystemLogosView(View):
             if v.logo.name not in seen:
                 seen.add(v.logo.name)
                 versions.append(v)
+        self._system = system
+        self._logo_versions = versions
+        self._system_version = SystemVersion.objects.filter(system=system, is_current=True).first()
         return render(request, self.template_name, {
+            'meta': self.get_meta(),
             'system': system,
             'versions': versions,
         })
@@ -1299,9 +1324,33 @@ class SystemLogosView(View):
 # ==============================================
 # SystemVersionDiffView
 # ==============================================
-class SystemVersionDiffView(View):
+class SystemVersionDiffView(MetadataMixin, View):
 
     template_name = 'core/system-diff.html'
+
+    def get_meta_title(self, context=None):
+        system = getattr(self, '_system', None)
+        v1 = getattr(self, '_v1', None)
+        v2 = getattr(self, '_v2', None)
+        name = system.name if system else 'Database'
+        if v1 and v2:
+            return f'{name}{settings.DBDB_TITLE_SEPARATOR}Diff #{v1.ver} → #{v2.ver}{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
+        return f'{name}{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
+
+    def get_meta_description(self, context=None):
+        system = getattr(self, '_system', None)
+        v1 = getattr(self, '_v1', None)
+        v2 = getattr(self, '_v2', None)
+        name = system.name if system else 'Database'
+        if v1 and v2:
+            return f'Field-by-field comparison of {name} revision #{v1.ver} and #{v2.ver}.'
+        return f'Version comparison for {name}.'
+
+    def get_meta_image(self, context=None):
+        sv = getattr(self, '_system_version', None)
+        if sv:
+            return self.request.build_absolute_uri(sv.card_url())
+        return None
 
     def get(self, request, slug, ver1, ver2):
         from django.contrib import messages
@@ -1325,7 +1374,12 @@ class SystemVersionDiffView(View):
         )
         diffs = _compute_version_diff(v1, v2)
 
+        self._system = system
+        self._v1 = v1
+        self._v2 = v2
+        self._system_version = v2
         return render(request, self.template_name, {
+            'meta': self.get_meta(),
             'activate': 'revisions',
             'system': system,
             'v1': v1,
@@ -1366,7 +1420,11 @@ class CitationResetStatusView(View):
         if not request.user.is_superuser:
             return HttpResponseForbidden()
         citation = get_object_or_404(CitationUrl, pk=pk)
-        citation.status = CitationUrl.Status.UNKNOWN
+        try:
+            new_status = CitationUrl.Status(int(request.POST['status']))
+        except (KeyError, ValueError):
+            return HttpResponseBadRequest()
+        citation.status = new_status
         citation.save(update_fields=['status'])
         counter = request.POST.get('counter', '')
         fragment = f"citation{counter}" if counter else ''
