@@ -1,15 +1,18 @@
 # stdlib imports
+import datetime
 # django imports
 import environ
+import jwt
 from django.conf import settings
 from django.contrib.auth import get_user
-from django.test import Client, TestCase, override_settings
+from django.test import Client, RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
 # local imports
 from dbdb.core.models import Attribute, Feature, System, SystemSearchText, SystemVersion, SystemVisit
 from dbdb.core.utils.searchtext import generate_searchtext
 from dbdb.core.views import CounterView
+from dbdb.core.views.auth import CreateUserView, SetupUserView, SignupRequestView
 from dbdb.core.views.browse import _is_doi_query
 
 root = environ.Path(__file__) - 4
@@ -160,6 +163,38 @@ class SystemViewTestCase(TestCase):
         self.assertEqual(new_count, orig_count)
         return
 
+    def test_counter_missing_token(self):
+        response = self.client.post(reverse('system_counter'), {})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['status'], 'missing token')
+
+    def test_counter_invalid_token(self):
+        response = self.client.post(reverse('system_counter'), {'token': 'notavalidjwttoken'})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['status'], 'invalid token')
+
+    def test_counter_expired_token(self):
+        system = System.objects.get(name='SQLite')
+        expired_token = jwt.encode(
+            {
+                'iss': 'counter:system',
+                'pk': system.id,
+                'nbf': datetime.datetime.utcnow() - datetime.timedelta(seconds=30),
+                'exp': datetime.datetime.utcnow() - datetime.timedelta(seconds=10),
+            },
+            settings.SECRET_KEY,
+            algorithm='HS256',
+        )
+        response = self.client.post(reverse('system_counter'), {'token': expired_token})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['status'], 'expired counter')
+
+    def test_counter_wrong_issuer(self):
+        system = System.objects.get(name='SQLite')
+        token = CounterView.build_token('bogus', pk=system.id)
+        response = self.client.post(reverse('system_counter'), {'token': token})
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('unrecognized', response.json()['status'])
 
     pass
 
@@ -760,3 +795,64 @@ class IsDoiQueryTestCase(TestCase):
         for q in ['postgresql', 'sqlite relational', '10.5 release notes', 'doi information']:
             with self.subTest(q=q):
                 self.assertFalse(_is_doi_query(q), msg=f"Unexpected DOI match for: {q!r}")
+
+
+# ==============================================
+# JwtAuthTestCase
+# ==============================================
+class JwtAuthTestCase(TestCase):
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.create_view = CreateUserView()
+
+    def _decode(self, token=None):
+        """Call decode_token on a fake GET request, optionally with a token param."""
+        url = '/'
+        if token is not None:
+            url = f'/?token={token}'
+        request = self.factory.get(url)
+        return self.create_view.decode_token(request)
+
+    def test_decode_token_missing(self):
+        self.assertIsNone(self._decode())
+
+    def test_decode_token_valid(self):
+        email = 'rza@wutang.com'
+        token = SetupUserView().build_token(email, [])
+        result = self._decode(token)
+        self.assertIsNotNone(result)
+        self.assertEqual(result['sub'], email)
+
+    def test_decode_token_expired(self):
+        expired = jwt.encode(
+            {
+                'iss': 'setup_user',
+                'sub': 'ghostface@wutang.com',
+                'nbf': datetime.datetime.utcnow() - datetime.timedelta(seconds=30),
+                'exp': datetime.datetime.utcnow() - datetime.timedelta(seconds=10),
+            },
+            settings.SECRET_KEY,
+            algorithm='HS256',
+        )
+        self.assertIs(self._decode(expired), False)
+
+    def test_decode_token_invalid(self):
+        self.assertIsNone(self._decode('notavalidtoken'))
+
+    def test_setup_build_token_is_string(self):
+        token = SetupUserView().build_token('methodman@wutang.com', [])
+        self.assertIsInstance(token, str)
+
+    def test_signup_build_token_is_string(self):
+        token = SignupRequestView()._build_token('raekwon@wutang.com', [])
+        self.assertIsInstance(token, str)
+
+    def test_setup_token_roundtrip(self):
+        email = 'odb@wutang.com'
+        system_ids = [42]
+        token = SetupUserView().build_token(email, system_ids)
+        result = self._decode(token)
+        self.assertIsNotNone(result)
+        self.assertEqual(result['sub'], email)
+        self.assertEqual(result['systems'], system_ids)
