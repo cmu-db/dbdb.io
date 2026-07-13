@@ -7,7 +7,7 @@
 {% load version_status %}
 {% load version_tags %}
 
-{% block title %}Profile — {{ profile_user.username }}{% endblock %}
+{% block title %}{{ profile_user.username }}{{ DBDB_TITLE_SEPARATOR }}Profile{{ DBDB_TITLE_SEPARATOR }}{% endblock %}
 
 {% block content %}
 {% page_title %}
