@@ -45,7 +45,6 @@ class CreateUserView(View):
                 token.encode('utf-8'),
                 settings.SECRET_KEY,
                 algorithms=['HS256'],
-                verify=True
             )
             pass
         except jwt.exceptions.ExpiredSignatureError:
@@ -147,7 +146,8 @@ class SetupUserView(UserPassesTestMixin, View):
         }
 
         s = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-        s = s.decode('utf-8')
+        if isinstance(s, bytes):
+            s = s.decode('utf-8')
 
         return s
 

@@ -587,6 +587,7 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
 /* ============================================================
    RANKED LISTS
    ============================================================ */
+.list-col { counter-reset: db-rank; }
 .list-col h3.col-title {
   font-family: var(--serif);
   font-size: 1.22rem;
@@ -611,15 +612,18 @@ a:hover { color: var(--accent-2); text-decoration: dotted underline; }
   padding: .7rem .25rem;
   border-bottom: 1px solid var(--rule-soft);
   transition: background .15s;
+  counter-increment: db-rank;
 }
 .db-row:hover { background: var(--tint); }
 .db-row .rank {
   font-family: var(--mono);
   font-size: .72rem;
   color: var(--muted);
-  width: 1.4rem;
+  width: 2rem;
   flex: none;
+  text-align: right;
 }
+.db-row .rank::before { content: counter(db-rank, decimal-leading-zero) "."; }
 .db-row:hover .rank { color: var(--accent); }
 
 .mono-tile {
@@ -1244,7 +1248,7 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 /* ============================================================
    LEADERBOARDS — stat cards
    ============================================================ */
-.lb-card { border: 1px solid var(--rule); background: var(--surface); display: flex; flex-direction: column; }
+.lb-card { border: 1px solid var(--rule); background: var(--surface); display: flex; flex-direction: column; counter-reset: lb-rank; }
 .lb-h {
   font-family: var(--serif);
   color: var(--ink);
@@ -1254,10 +1258,12 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .lb-row {
   display: flex; align-items: center; gap: .7rem;
   border-bottom: 1px solid var(--rule-soft); transition: background .15s;
+  counter-increment: lb-rank;
 }
 .lb-row:last-child { border-bottom: 0; }
 .lb-row:hover { background: var(--tint); }
-.lb-rank { font-family: var(--mono); font-size: .64rem; color: var(--muted); width: 1.4rem; flex: none; }
+.lb-rank { font-family: var(--mono); font-size: .64rem; color: var(--muted); width: 2rem; flex: none; text-align: right; }
+.lb-rank::before { content: counter(lb-rank, decimal-leading-zero) "."; }
 .lb-row:hover .lb-rank { color: var(--accent); }
 .lb-tile { width: 30px; height: 30px; flex: none; font-size: .7rem; }
 .lb-name { font-family: var(--serif); font-weight: 600; font-size: .96rem; color: var(--ink); flex: 1; min-width: 0; }
@@ -1552,12 +1558,14 @@ div.systems-extra { margin-top: 20px; }
 
 .doc-attr-def { padding: .9rem 0; border-bottom: 1px solid var(--rule); }
 .doc-attr-def dt { font-family: var(--serif); font-weight: 600; font-size: 1.02rem; color: var(--ink); display: flex; gap: .55rem; align-items: baseline; margin: 0; }
-.doc-attr-def dt .an { font-family: var(--mono); font-size: .62rem; color: var(--muted); min-width: 1.5rem; flex: none; }
+.doc-attr-def dt .an { font-family: var(--mono); font-size: .62rem; color: var(--muted); min-width: 2rem; flex: none; }
+.doc-attr-def dt .an::after { content: "."; }
 .doc-attr-def dd { margin: .3rem 0 0 2.05rem; font-size: .85rem; color: var(--muted); line-height: 1.5; }
 
 .doc-attr-option { border: 1px solid var(--rule); background: var(--surface); padding: 1.1rem 1.35rem; margin-top: .9rem; }
 .doc-attr-option h3 { font-family: var(--serif); font-weight: 600; font-size: 1.18rem; margin: 0; color: var(--ink); line-height: 1.2; }
 .doc-attr-option .ao-num { font-family: var(--mono); font-size: .62rem; color: var(--muted); margin-right: .6rem; vertical-align: 2px; }
+.doc-attr-option .ao-num::after { content: "."; }
 .doc-attr-option .ao-desc { font-size: .87rem; color: var(--muted); margin: .35rem 0 .85rem; line-height: 1.5; }
 
 .doc-nav { padding: .4rem 0; }
@@ -1575,7 +1583,10 @@ div.systems-extra { margin-top: 20px; }
 /* Logo Versions table */
 .logo-swatch { display: inline-block; width: 1.5rem; height: 1.5rem; border-radius: .2rem; border: 1px solid var(--rule); background: var(--swatch-color, #ccc); vertical-align: middle; }
 .logo-ver-col-num { width: 3.5rem; }
+.logo-ver-table { counter-reset: logo-ver-rank; }
+.logo-ver-table tbody tr { counter-increment: logo-ver-rank; }
 .logo-ver-num { font-family: var(--mono); font-size: .8rem; color: var(--muted); text-align: left; padding-right: 1.25rem; }
+.logo-ver-num::before { content: counter(logo-ver-rank, decimal-leading-zero) "."; }
 .logo-ver-tile .mono-tile { width: 5rem; height: 5rem; font-size: 1.2rem; }
 .logo-ver-ext { font-family: var(--mono); font-size: .8rem; color: var(--ink-soft); text-transform: uppercase; }
 .logo-ver-dim { font-family: var(--mono); font-size: .8rem; color: var(--ink-soft); }
