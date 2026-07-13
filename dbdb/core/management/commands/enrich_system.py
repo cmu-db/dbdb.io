@@ -15,6 +15,7 @@ import logging
 import re
 import sys
 import time
+from urllib.parse import urljoin
 from argparse import ArgumentParser
 
 from datetime import timedelta
@@ -33,7 +34,7 @@ from dbdb.core.models import (
     System, SystemFeature, SystemVersion, AttributeOption,
 )
 from dbdb.core.utils.citations import crawl_citation_url, normalize_url, process_citation_url
-from dbdb.core.utils.enrichment import BaseEnricher, SYSTEM_ENRICHMENT_TOOL, build_url_extraction_tool
+from dbdb.core.utils.enrichment import BaseEnricher, build_system_enrichment_tool, build_url_extraction_tool
 from dbdb.core.utils.repositories import GitHubCollector
 from dbdb.core.utils.versions import clone_system_version, finalize_new_version
 
@@ -44,9 +45,9 @@ User = get_user_model()
 # Fields the command can fill — text, integer, simple char, and URL-FK fields.
 # M2M attribute fields (project_types, licenses, oses, written_in) are handled
 # separately because they require AttributeOption lookups.
-SIMPLE_TEXT_FIELDS = ('description', 'history', 'twitter_handle')
+SIMPLE_TEXT_FIELDS = ('description', 'history')
 INT_FIELDS = ('start_year', 'end_year')
-URL_FK_FIELDS = ('system_url', 'docs_url', 'blog_url', 'sourcerepo_url', 'wikipedia_url')
+URL_FK_FIELDS = ('system_url', 'docs_url', 'blog_url', 'sourcerepo_url', 'wikipedia_url', 'twitter_url')
 M2M_ATTR_FIELDS = ('project_types', 'licenses', 'oses', 'written_in', 'tags')
 # Maps M2M field name → Attribute slug
 M2M_ATTR_SLUGS = {
@@ -86,15 +87,6 @@ def _get_missing_fields(version: SystemVersion, requested: list[str] | None) -> 
     all_fields = list(SIMPLE_TEXT_FIELDS) + list(INT_FIELDS) + list(URL_FK_FIELDS) + list(M2M_ATTR_FIELDS)
     return [f for f in all_fields if _is_field_empty(version, f)]
 
-
-def _extract_twitter_handle(val: str) -> str | None:
-    """Return '@handle' from a twitter.com/x.com URL or bare handle string."""
-    m = re.match(r'https?://(?:www\.)?(?:twitter|x)\.com/([A-Za-z0-9_]{1,50})', val)
-    if m:
-        return f'@{m.group(1)}'
-    if re.match(r'^@?[A-Za-z0-9_]{1,50}$', val.strip()):
-        return f'@{val.strip().lstrip("@")}'
-    return None
 
 
 def _crawl_existing_urls(
@@ -213,13 +205,21 @@ class Command(EnricherBaseCommand):
                 time.sleep(sleep_secs)
             did_work = False
             try:
+                system.refresh_from_db()
+                try:
+                    current = SystemVersion.objects.prefetch_related(
+                        'project_types', 'licenses', 'oses', 'written_in',
+                        'features', 'features__options',
+                    ).get(system=system, is_current=True)
+                except SystemVersion.DoesNotExist:
+                    raise CommandError(f"No current SystemVersion for '{system.slug}'")
                 if add_tag:
-                    did_work = self._add_tag_one(system, tag_option, options)
+                    did_work = self._add_tag_one(system, current, tag_option, options)
                 else:
                     if do_enrich:
-                        did_work |= self._enrich_one(system, options)
+                        did_work |= self._enrich_one(system, current, options)
                     if do_extract_urls:
-                        did_work |= self._extract_urls_one(system, options)
+                        did_work |= self._extract_urls_one(system, current, options)
                 processed += 1
             except Exception as e:
                 did_work = True  # work was started before the failure
@@ -228,14 +228,8 @@ class Command(EnricherBaseCommand):
                 self.stderr.write(self.style.ERROR(f"Error enriching '{system.slug}': {e}"))
             prev_did_work = did_work
 
-    def _add_tag_one(self, system: System, tag_option: AttributeOption, options: dict) -> bool:
-        system.refresh_from_db()
+    def _add_tag_one(self, system: System, current: SystemVersion, tag_option: AttributeOption, options: dict) -> bool:
         dry_run: bool = options['dry_run']
-
-        try:
-            current = SystemVersion.objects.get(system=system, is_current=True)
-        except SystemVersion.DoesNotExist:
-            raise CommandError(f"No current SystemVersion for '{system.slug}'")
 
         if current.tags.filter(pk=tag_option.pk).exists():
             self.stdout.write(f"  '{system.name}' already has tag '{tag_option.name}', skipping")
@@ -262,27 +256,21 @@ class Command(EnricherBaseCommand):
         ))
         return True
 
-    def _extract_urls_one(self, system: System, options: dict, *, enricher=None) -> bool:
-        system.refresh_from_db()
+    def _extract_urls_one(self, system: System, current: SystemVersion, options: dict, *, enricher=None) -> bool:
         dry_run: bool = options['dry_run']
-
-        try:
-            current = SystemVersion.objects.get(system=system, is_current=True)
-        except SystemVersion.DoesNotExist:
-            raise CommandError(f"No current SystemVersion for '{system.slug}'")
 
         if current.system_url_id is None:
             LOG.info("Skipping '%s': no system_url to crawl", system.slug)
             return False
 
         if current.system_url.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
-            LOG.info("Skipping '%s': system_url status is %s", system.slug, current.system_url.status.name)
+            LOG.info("Skipping '%s': system_url status is %s", system.slug, CitationUrl.Status(current.system_url.status).name)
             return False
 
         # Determine which URL fields are missing on the current version.
         # Also check the existing pending version so we don't overwrite fields
         # that were already filled by a prior _enrich_one() call.
-        url_fields = ['docs_url', 'blog_url', 'twitter_handle']
+        url_fields = ['docs_url', 'blog_url', 'twitter_url']
         missing = [f for f in url_fields if _is_field_empty(current, f)]
         pending = system.pending_version()
         if pending:
@@ -335,67 +323,46 @@ class Command(EnricherBaseCommand):
             if all(result.get(k) for k in expected_keys):
                 break
 
-        new_docs_url = None
-        new_blog_url = None
-        new_twitter_handle = None
-
-        if 'docs_url' in missing:
-            url_str = (result.get('docs_url') or '').strip()
-            if url_str:
-                try:
-                    norm = normalize_url(url_str)
-                    existing = CitationUrl.objects.filter(url=norm).first()
-                    if existing:
-                        new_docs_url = existing
+        # Resolve CitationUrl FK fields via a shared loop
+        url_fk_fields = [f for f in ('docs_url', 'blog_url', 'twitter_url') if f in missing]
+        new_urls: dict = {}
+        for field in url_fk_fields:
+            url_str = (result.get(field) or '').strip()
+            if not url_str:
+                continue
+            if not url_str.startswith(('http://', 'https://')):
+                url_str = urljoin(current.system_url.url, url_str)
+            try:
+                norm = normalize_url(url_str)
+                existing = CitationUrl.objects.filter(url=norm).first()
+                if existing:
+                    if existing.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
+                        LOG.warning("%s: %r has status %s, skipping", field, url_str, CitationUrl.Status(existing.status).name)
                     else:
-                        citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
-                        citation, info = process_citation_url(citation, system=system, skip_spamcheck=options['skip_spamcheck'])
-                        if info is None or info['status'] == CitationUrl.Status.VALID:
-                            if info is not None:
-                                citation.save()
-                            new_docs_url = citation
-                        else:
-                            LOG.warning("docs_url: %r is unreachable, skipping", url_str)
-                            citation.delete()
-                except Exception as e:
-                    LOG.warning("docs_url: could not validate %r: %s", url_str, e)
-
-        if 'blog_url' in missing:
-            url_str = (result.get('blog_url') or '').strip()
-            if url_str:
-                try:
-                    norm = normalize_url(url_str)
-                    existing = CitationUrl.objects.filter(url=norm).first()
-                    if existing:
-                        new_blog_url = existing
+                        new_urls[field] = existing
+                else:
+                    citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
+                    citation, info = process_citation_url(citation, system=system, skip_spamcheck=options['skip_spamcheck'])
+                    if info is None or info['status'] == CitationUrl.Status.VALID:
+                        if info is not None:
+                            citation.save()
+                        new_urls[field] = citation
                     else:
-                        citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
-                        citation, info = process_citation_url(citation, system=system, skip_spamcheck=options['skip_spamcheck'])
-                        if info is None or info['status'] == CitationUrl.Status.VALID:
-                            if info is not None:
-                                citation.save()
-                            new_blog_url = citation
-                        else:
-                            LOG.warning("blog_url: %r is unreachable, skipping", url_str)
-                            citation.delete()
-                except Exception as e:
-                    LOG.warning("blog_url: could not validate %r: %s", url_str, e)
-
-        if 'twitter_handle' in missing:
-            raw_twitter = (result.get('twitter_url') or '').strip()
-            if raw_twitter:
-                new_twitter_handle = _extract_twitter_handle(raw_twitter)
+                        LOG.warning("%s: %r is unreachable, skipping", field, url_str)
+                        citation.delete()
+            except Exception as e:
+                LOG.warning("%s: could not validate %r: %s", field, url_str, e)
 
         if dry_run:
-            self.stdout.write(
-                f"  [DRY RUN] docs_url={new_docs_url!r}, blog_url={new_blog_url!r}, "
-                f"twitter_handle={new_twitter_handle!r}"
-            )
+            url_parts = [f"{f}={new_urls.get(f)!r}" for f in ('docs_url', 'blog_url', 'twitter_url')]
+            self.stdout.write(f"  [DRY RUN] {', '.join(url_parts)}")
             return True
 
-        if new_docs_url is None and new_blog_url is None and new_twitter_handle is None:
+        if not new_urls:
             self.stdout.write(f"  '{system.name}': nothing extracted from homepage")
             return True
+
+        new_comment = f"URL extraction by enrich_system: {', '.join(new_urls.keys())}"
 
         bot_user = User.objects.get(username=settings.DBDB_BOT_ACCOUNT)
         with transaction.atomic():
@@ -403,30 +370,28 @@ class Command(EnricherBaseCommand):
             if pending:
                 new_sv = pending
                 self.stdout.write(f"  Reusing existing pending SystemVersion #{new_sv.ver}")
+                if new_sv.comment:
+                    new_sv.comment = f"{new_sv.comment}\n{new_comment}"
+                else:
+                    new_sv.comment = new_comment
             else:
                 new_sv = clone_system_version(
                     current,
                     approved=False,
                     creator=bot_user,
-                    comment='Auto URL extraction by enrich_system command',
+                    comment=new_comment,
                 )
-            if new_docs_url is not None:
-                new_sv.docs_url = new_docs_url
-            if new_blog_url is not None:
-                new_sv.blog_url = new_blog_url
-            if new_twitter_handle is not None:
-                new_sv.twitter_handle = new_twitter_handle
+            for field, citation in new_urls.items():
+                setattr(new_sv, field, citation)
             new_sv.save()
 
+        url_parts = [f"{f}={new_urls.get(f)}" for f in ('docs_url', 'blog_url', 'twitter_url')]
         self.stdout.write(self.style.SUCCESS(
-            f"  Extracted for '{system.name}': "
-            f"docs_url={new_docs_url}, blog_url={new_blog_url}, twitter_handle={new_twitter_handle}"
+            f"  Extracted for '{system.name}': {', '.join(url_parts)}"
         ))
         return True
 
-    def _enrich_one(self, system: System, options: dict) -> bool:
-        system.refresh_from_db()
-
+    def _enrich_one(self, system: System, current: SystemVersion, options: dict) -> bool:
         dry_run: bool = options['dry_run']
         model_override: str | None = options['model']
         per_feature: bool = options['per_feature']
@@ -434,15 +399,6 @@ class Command(EnricherBaseCommand):
             [f.strip() for f in options['fields'].split(',')]
             if options['fields'] else None
         )
-
-        # --- 1. Load current version ---
-        try:
-            current = SystemVersion.objects.prefetch_related(
-                'project_types', 'licenses', 'oses', 'written_in',
-                'features', 'features__options',
-            ).get(system=system, is_current=True)
-        except SystemVersion.DoesNotExist:
-            raise CommandError(f"No current SystemVersion for '{system.slug}'")
 
         self.stdout.write(f"System: {system.name} (current ver #{current.ver})")
         enricher = BaseEnricher.create(options['enricher'])
@@ -512,7 +468,8 @@ class Command(EnricherBaseCommand):
             LOG.debug(prompt)
             # sys.exit(1)
             try:
-                enrichment = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override, dry_run=dry_run)
+                tool = build_system_enrichment_tool(missing_fields, missing_features, attributes)
+                enrichment = enricher.call_llm(prompt, tool, model_override, dry_run=dry_run)
             except Exception as e:
                 raise CommandError(f"LLM call failed: {e}")
         else:
@@ -522,18 +479,21 @@ class Command(EnricherBaseCommand):
                 prompt = enricher.build_system_prompt(system=system, current_version=current, fields=missing_fields,
                                                       features=[], attributes=attributes, crawled_pages=crawled_pages)
                 try:
-                    enrichment = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override, dry_run=dry_run)
+                    tool = build_system_enrichment_tool(missing_fields, [], attributes)
+                    enrichment = enricher.call_llm(prompt, tool, model_override, dry_run=dry_run)
                 except Exception as e:
                     raise CommandError(f"LLM call failed: {e}")
 
-            enrichment.setdefault('features', {})
             enrichment.setdefault('citations', [])
             for feature in missing_features:
                 self.stdout.write(f"  Calling LLM for feature: {feature.label}")
                 prompt = enricher.build_feature_prompt(system, feature, crawled_pages)
                 try:
-                    result = enricher.call_llm(prompt, SYSTEM_ENRICHMENT_TOOL, model_override, dry_run=dry_run)
-                    enrichment['features'].update(result.get('features', {}))
+                    feature_tool = build_system_enrichment_tool([], [feature], [])
+                    result = enricher.call_llm(prompt, feature_tool, model_override, dry_run=dry_run)
+                    key = f"feature_{feature.get_sanitized_label()}"
+                    if key in result:
+                        enrichment[key] = result[key]
                     enrichment['citations'].extend(result.get('citations', []))
                 except Exception as e:
                     LOG.warning(f"LLM call failed for feature {feature.slug}: {e}")
@@ -565,30 +525,26 @@ class Command(EnricherBaseCommand):
 
         with transaction.atomic():
             last_model = enricher.get_last_model()
-            enrichment_comment = f"Auto-enriched by enrich_system command (model: {last_model})"
             existing_pending = system.pending_version()
             if existing_pending:
                 new_sv = existing_pending
-                new_sv.comment = enrichment_comment
                 self.stdout.write(f"Reusing existing pending SystemVersion #{new_sv.ver}")
             else:
                 new_sv = clone_system_version(
                     current,
                     approved=False,
                     creator=bot_user,
-                    comment=enrichment_comment,
+                    comment=f"Auto-enriched by enrich_system (model: {last_model})",
                 )
 
             # Apply simple text / int fields
-            dirty = False
+            changed_fields: list[str] = []
             for field in SIMPLE_TEXT_FIELDS:
                 if field in missing_fields:
                     val = enrichment.get(field, '')
                     if val:
-                        if field == 'twitter_handle' and field[0] != '@':
-                            val = f"@{val}"
                         setattr(new_sv, field, val)
-                        dirty = True
+                        changed_fields.append(field)
 
             for field in INT_FIELDS:
                 if field in missing_fields:
@@ -596,7 +552,7 @@ class Command(EnricherBaseCommand):
                     if val:
                         try:
                             setattr(new_sv, field, int(val))
-                            dirty = True
+                            changed_fields.append(field)
                         except (TypeError, ValueError):
                             LOG.warning(f"  {field}: LLM returned non-integer {val!r}, skipping")
 
@@ -611,8 +567,11 @@ class Command(EnricherBaseCommand):
                     norm = normalize_url(url_str)
                     existing = CitationUrl.objects.filter(url=norm).first()
                     if existing:
-                        setattr(new_sv, field, existing)
-                        dirty = True
+                        if existing.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
+                            LOG.warning(f"  {field}: existing citation {url_str!r} has status {CitationUrl.Status(existing.status).name}, skipping")
+                        else:
+                            setattr(new_sv, field, existing)
+                            changed_fields.append(field)
                         continue
                     # New URL: create, validate, keep only if reachable
                     citation = CitationUrl.objects.create(url=norm, status=CitationUrl.Status.UNKNOWN)
@@ -620,19 +579,16 @@ class Command(EnricherBaseCommand):
                     if info is None:
                         # Merged into an existing CitationUrl
                         setattr(new_sv, field, citation)
-                        dirty = True
+                        changed_fields.append(field)
                     elif info['status'] == CitationUrl.Status.VALID:
                         citation.save()
                         setattr(new_sv, field, citation)
-                        dirty = True
+                        changed_fields.append(field)
                     else:
                         LOG.warning(f"  {field}: {url_str!r} is unreachable (status={citation.get_status_display()}), skipping")
                         citation.delete()
                 except Exception as e:
                     LOG.warning(f"  {field}: could not validate {url_str!r}: {e}")
-
-            if dirty:
-                new_sv.save()
 
             # Apply M2M attribute fields
             for field, attr_slug in M2M_ATTR_SLUGS.items():
@@ -651,6 +607,7 @@ class Command(EnricherBaseCommand):
                 if opts:
                     getattr(new_sv, field).add(*opts)
                     self.stdout.write(f"  attr  {field}: {', '.join(o.name for o in opts)}")
+                    changed_fields.append(field)
                 else:
                     self.stdout.write(f"  attr  {field}: no matching options for slugs {slugs}")
 
@@ -663,25 +620,22 @@ class Command(EnricherBaseCommand):
                         self.stdout.write(f"  cite  {field}: {norm_url}")
 
             # Create SystemFeature rows for suggested features
-            feat_suggestions = enrichment.get('features', {})
-            if not isinstance(feat_suggestions, dict):
-                LOG.warning(f"LLM returned non-dict for 'features': {type(feat_suggestions).__name__} — skipping")
-                feat_suggestions = {}
-            features_by_slug = {f.slug: f for f in features}
-            for feat_slug, option_slugs in feat_suggestions.items():
-                feature = features_by_slug.get(feat_slug)
-                if feature is None:
-                    LOG.warning(f"Unknown feature keyword from LLM: {feat_slug}")
+            features_filled = []
+            for feature in missing_features:
+                key = f"feature_{feature.get_sanitized_label()}"
+                option_slugs = enrichment.get(key, [])
+                if isinstance(option_slugs, str):
+                    option_slugs = [option_slugs]
+                if not option_slugs:
                     continue
                 opts = list(
                     FeatureOption.objects.filter(
                         feature=feature,
-                        slug__in=option_slugs,
+                        slug__in=[s.lower() for s in option_slugs],
                     )
                 )
                 if not opts:
-                    self.stdout.write(f"  feat  {feat_slug}: no matching options for slugs {option_slugs}")
-                    LOG.warning(f"No matching options for feature {feat_slug}: {option_slugs}")
+                    LOG.warning(f"No matching options for feature {feature.slug}: {option_slugs}")
                     continue
                 sf, _ = SystemFeature.objects.get_or_create(
                     version=new_sv,
@@ -690,6 +644,18 @@ class Command(EnricherBaseCommand):
                 )
                 sf.options.set(opts)
                 self.stdout.write(f"  feat  {feature.label}: {', '.join(o.value for o in opts)}")
+                features_filled.append(feature.slug)
+
+            # Update comment with the list of changed fields, appending to any existing text
+            all_changed = changed_fields + [f"feature:{s}" for s in features_filled]
+            new_comment = f"Auto-enriched by enrich_system (model: {last_model})"
+            if all_changed:
+                new_comment += f": {', '.join(all_changed)}"
+            if existing_pending and new_sv.comment:
+                new_sv.comment = f"{new_sv.comment}\n{new_comment}"
+            else:
+                new_sv.comment = new_comment
+            new_sv.save()
 
         verb = "Updated" if existing_pending else "Created"
         self.stdout.write(self.style.SUCCESS(
@@ -701,8 +667,8 @@ class Command(EnricherBaseCommand):
         ]
         if fields_filled:
             self.stdout.write(f"Fields filled: {', '.join(fields_filled)}")
-        if feat_suggestions:
-            self.stdout.write(f"Features set: {', '.join(feat_suggestions.keys())}")
+        if features_filled:
+            self.stdout.write(f"Features set: {', '.join(features_filled)}")
         from django.contrib.sites.models import Site
         domain = Site.objects.get_current().domain
         self.stdout.write(f"Review and approve: http://{domain}{new_sv.get_diff_url()}")

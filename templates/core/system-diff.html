@@ -8,8 +8,6 @@
 {% load version_status %}
 {% load version_tags %}
 
-{% block title %}Diff: {{ system.name }} #{{ v1.ver }} → #{{ v2.ver }}{% endblock %}
-
 {% block content %}
 {% page_title %}
 {% ptitle_kicker %}<a href="{% url 'system' system.slug %}">Database Entry</a>{% endptitle_kicker %}

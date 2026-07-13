@@ -14,14 +14,13 @@ from django.test import TestCase, override_settings
 from dbdb.core.management.commands.enrich_system import (
     M2M_ATTR_SLUGS,
     Command as EnrichSystemCommand,
-    _extract_twitter_handle,
 )
 from dbdb.core.management.commands.enrich_organization import (
     Command as EnrichOrgCommand,
     _validate_crunchbase_url,
     _validate_linkedin_url,
 )
-from dbdb.core.models import Attribute, CitationUrl, CitationUrlContent, Organization, System, SystemVersion
+from dbdb.core.models import Attribute, AttributeOption, CitationUrl, CitationUrlContent, Organization, System, SystemVersion
 from dbdb.core.utils.enrichment.base import BaseEnricher
 from dbdb.core.utils.versions import clone_system_version
 
@@ -116,28 +115,40 @@ class EnrichSystemAttributeLoadingTestCase(TestCase):
 
 
 # ---------------------------------------------------------------------------
-# _extract_twitter_handle unit tests
+# SystemVersion.twitter_handle property tests
 # ---------------------------------------------------------------------------
 
-class ExtractTwitterHandleTestCase(TestCase):
+class TwitterHandlePropertyTestCase(TestCase):
 
-    def test_full_twitter_url(self):
-        self.assertEqual(_extract_twitter_handle('https://twitter.com/sqlite'), '@sqlite')
+    fixtures = _FIXTURES
 
-    def test_full_x_url(self):
-        self.assertEqual(_extract_twitter_handle('https://x.com/sqlite'), '@sqlite')
+    def _make_sv_with_url(self, url):
+        citation = CitationUrl.objects.create(url=url, status=CitationUrl.Status.UNKNOWN)
+        sv = SystemVersion.objects.filter(is_current=True).first()
+        sv.twitter_url = citation
+        return sv
 
-    def test_bare_handle_with_at(self):
-        self.assertEqual(_extract_twitter_handle('@sqlite'), '@sqlite')
+    def test_twitter_com_url(self):
+        sv = self._make_sv_with_url('https://twitter.com/sqlite')
+        self.assertEqual(sv.twitter_handle, '@sqlite')
 
-    def test_bare_handle_without_at(self):
-        self.assertEqual(_extract_twitter_handle('sqlite'), '@sqlite')
+    def test_x_com_url(self):
+        sv = self._make_sv_with_url('https://x.com/sqlite')
+        self.assertEqual(sv.twitter_handle, '@sqlite')
 
-    def test_invalid_returns_none(self):
-        self.assertIsNone(_extract_twitter_handle('https://example.com/nottwitter'))
+    def test_url_with_at_prefix(self):
+        sv = self._make_sv_with_url('https://twitter.com/@sqlite')
+        self.assertEqual(sv.twitter_handle, '@sqlite')
 
-    def test_empty_returns_none(self):
-        self.assertIsNone(_extract_twitter_handle(''))
+    def test_unrecognised_domain_returns_none(self):
+        sv = self._make_sv_with_url('https://example.com/nottwitter')
+        self.assertIsNone(sv.twitter_handle)
+
+    def test_no_twitter_url_returns_none(self):
+        sv = SystemVersion.objects.filter(is_current=True).first()
+        sv.twitter_url = None
+        sv.twitter_url_id = None
+        self.assertIsNone(sv.twitter_handle)
 
 
 # ---------------------------------------------------------------------------
@@ -233,7 +244,7 @@ class HomepageUrlSystemExtractionTestCase(TestCase):
     def _call(self, enricher, **opt_overrides):
         opts = _options(**opt_overrides)
         with _NO_OP_CRAWL:
-            self.cmd._extract_urls_one(self.system, opts, enricher=enricher)
+            self.cmd._extract_urls_one(self.system, self.current, opts, enricher=enricher)
 
     def test_extracts_docs_url_creates_pending_version(self):
         # Pre-create the docs CitationUrl so the code reuses it (bypasses HTTP)
@@ -249,6 +260,10 @@ class HomepageUrlSystemExtractionTestCase(TestCase):
         self.assertEqual(pending.docs_url_id, docs_citation.pk)
 
     def test_extracts_twitter_handle_from_url(self):
+        CitationUrl.objects.create(
+            url='https://twitter.com/sqlite',
+            status=CitationUrl.Status.VALID,
+        )
         enricher = MockEnricher({'twitter_url': 'https://twitter.com/sqlite'})
         self._call(enricher)
 
@@ -265,10 +280,14 @@ class HomepageUrlSystemExtractionTestCase(TestCase):
             url='https://sqlite.org/blog',
             status=CitationUrl.Status.VALID,
         )
+        twitter_citation = CitationUrl.objects.create(
+            url='https://twitter.com/sqlite',
+            status=CitationUrl.Status.VALID,
+        )
         self.current.docs_url = docs_citation
         self.current.blog_url = blog_citation
-        self.current.twitter_handle = '@sqlite'
-        self.current.save(update_fields=['docs_url', 'blog_url', 'twitter_handle'])
+        self.current.twitter_url = twitter_citation
+        self.current.save(update_fields=['docs_url', 'blog_url', 'twitter_url'])
 
         enricher = MockEnricher({'docs_url': 'https://sqlite.org/docs', 'twitter_url': 'https://twitter.com/sqlite'})
         self._call(enricher)
@@ -291,6 +310,10 @@ class HomepageUrlSystemExtractionTestCase(TestCase):
         self.assertIsNone(self.system.pending_version())
 
     def test_both_modes_share_single_pending_version(self):
+        CitationUrl.objects.create(
+            url='https://twitter.com/sqlite',
+            status=CitationUrl.Status.VALID,
+        )
         # Simulate what _enrich_one() would create: a pending SystemVersion
         pending = clone_system_version(
             self.current,
@@ -331,6 +354,38 @@ class HomepageUrlSystemExtractionTestCase(TestCase):
             self._call(enricher)
 
         self.assertIsNone(self.system.pending_version())
+
+    def test_dead_existing_docs_url_not_assigned(self):
+        CitationUrl.objects.create(
+            url='https://sqlite.org/docs',
+            status=CitationUrl.Status.DEAD,
+        )
+        enricher = MockEnricher({'docs_url': 'https://sqlite.org/docs'})
+        self._call(enricher)
+
+        self.assertIsNone(self.system.pending_version())
+
+    def test_dead_existing_blog_url_not_assigned(self):
+        CitationUrl.objects.create(
+            url='https://sqlite.org/blog',
+            status=CitationUrl.Status.DEAD,
+        )
+        enricher = MockEnricher({'blog_url': 'https://sqlite.org/blog'})
+        self._call(enricher)
+
+        self.assertIsNone(self.system.pending_version())
+
+    def test_relative_docs_url_resolved_against_homepage(self):
+        docs_citation = CitationUrl.objects.create(
+            url='https://sqlite.org/docs',
+            status=CitationUrl.Status.VALID,
+        )
+        enricher = MockEnricher({'docs_url': '/docs'})
+        self._call(enricher)
+
+        pending = self.system.pending_version()
+        self.assertIsNotNone(pending)
+        self.assertEqual(pending.docs_url_id, docs_citation.pk)
 
 
 # ---------------------------------------------------------------------------
@@ -458,3 +513,79 @@ class HomepageUrlOrgExtractionTestCase(TestCase):
 
         self.org.refresh_from_db()
         self.assertIsNone(self.org.linkedin_url_id)
+
+    def test_relative_url_rejected_by_validator(self):
+        # Relative paths can't resolve to a valid linkedin/crunchbase URL, so
+        # they are logged as invalid and the field is left unset.
+        enricher = MockEnricher({'linkedin_url': '/company/wu-tang-financial'})
+        self._call(enricher)
+
+        self.org.refresh_from_db()
+        self.assertIsNone(self.org.linkedin_url_id)
+
+
+# ---------------------------------------------------------------------------
+# clone_system_version M2M field copy
+# ---------------------------------------------------------------------------
+
+@override_settings(DBDB_BOT_ACCOUNT='admin')
+class CloneSystemVersionM2MTestCase(TestCase):
+    """
+    Regression: copy.copy() shares _prefetched_objects_cache with the source
+    object, so M2M fields that were prefetch_related before cloning end up
+    empty on the new SystemVersion (the stale cache makes Django believe the
+    through-table rows already exist).  tags is unaffected because
+    enrich_system.py does not prefetch it.
+    """
+
+    fixtures = _FIXTURES
+
+    def setUp(self):
+        self.system = System.objects.get(slug='sqlite')
+        self.version = SystemVersion.objects.get(system=self.system, is_current=True)
+        self.admin_user = User.objects.get(username='admin')
+
+        def _opt(attr_slug, slug, name):
+            attr = Attribute.objects.get(slug=attr_slug)
+            opt, _ = AttributeOption.objects.get_or_create(
+                attribute=attr, slug=slug, defaults={'name': name}
+            )
+            return opt
+
+        self.opt_project_type = _opt('project-type', 'commercial', 'Commercial')
+        self.opt_license      = _opt('license', 'apache-2', 'Apache 2')
+        self.opt_os           = _opt('os', 'linux', 'Linux')
+        self.opt_written_in   = _opt('programming-language', 'c', 'C')
+        self.opt_tag          = _opt('tag', 'relational', 'Relational')
+
+        self.version.project_types.add(self.opt_project_type)
+        self.version.licenses.add(self.opt_license)
+        self.version.oses.add(self.opt_os)
+        self.version.written_in.add(self.opt_written_in)
+        self.version.tags.add(self.opt_tag)
+
+    def _assert_m2m(self, clone):
+        """Assert that all options added in setUp are present on the clone."""
+        self.assertIn(self.opt_project_type, list(clone.project_types.all()))
+        self.assertIn(self.opt_license,      list(clone.licenses.all()))
+        self.assertIn(self.opt_os,           list(clone.oses.all()))
+        self.assertIn(self.opt_written_in,   list(clone.written_in.all()))
+        self.assertIn(self.opt_tag,          list(clone.tags.all()))
+
+    def test_m2m_fields_copied_when_source_is_prefetched(self):
+        """All M2M fields survive cloning even when the source was loaded with
+        prefetch_related, which is how enrich_system.py always loads versions."""
+        prefetched = SystemVersion.objects.prefetch_related(
+            'project_types', 'licenses', 'oses', 'written_in',
+            'features', 'features__options',
+        ).get(pk=self.version.pk)
+
+        clone = clone_system_version(prefetched, creator=self.admin_user, comment='test')
+
+        self._assert_m2m(clone)
+
+    def test_m2m_fields_copied_without_prefetch(self):
+        """Baseline: M2M fields are copied correctly when source is not prefetched."""
+        clone = clone_system_version(self.version, creator=self.admin_user, comment='test')
+
+        self._assert_m2m(clone)

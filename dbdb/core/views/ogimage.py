@@ -30,11 +30,11 @@ def _fa_icons():
     global _FA_ICONS_CACHE
     if _FA_ICONS_CACHE is None:
         try:
-            with open(settings.TWITTER_CARD_FA_ICONS_JSON) as f:
+            with open(settings.OG_CARD_FA_ICONS_JSON) as f:
                 _FA_ICONS_CACHE = json.load(f)
-            LOG.debug('FA icons loaded: %d icons from %s', len(_FA_ICONS_CACHE), settings.TWITTER_CARD_FA_ICONS_JSON)
+            LOG.debug('FA icons loaded: %d icons from %s', len(_FA_ICONS_CACHE), settings.OG_CARD_FA_ICONS_JSON)
         except Exception:
-            LOG.debug('FA icons failed to load from %s', settings.TWITTER_CARD_FA_ICONS_JSON, exc_info=True)
+            LOG.debug('FA icons failed to load from %s', settings.OG_CARD_FA_ICONS_JSON, exc_info=True)
             return {}
     return _FA_ICONS_CACHE
 
@@ -73,15 +73,15 @@ def _render_fa_icon(fa_class, size_px, color=_TEXT_COLOR[:3]):
 
 def _load_template_image():
     """Load the SVG card template and return an RGBA PIL Image."""
-    with open(settings.TWITTER_CARD_TEMPLATE, 'rb') as f:
+    with open(settings.OG_CARD_TEMPLATE, 'rb') as f:
         png_bytes = svg2png(bytestring=f.read())
     return Image.open(BytesIO(png_bytes)).convert('RGBA')
 
 
 def _panel_geometry(im):
     """Return (panel_w, panel_cx) for the right content panel."""
-    margin   = settings.TWITTER_CARD_MARGIN
-    offset_x = settings.TWITTER_CARD_BASE_OFFSET_X
+    margin   = settings.OG_CARD_MARGIN
+    offset_x = settings.OG_CARD_BASE_OFFSET_X
     panel_w  = im.width - offset_x - 2 * margin
     panel_cx = offset_x + (im.width - offset_x) // 2
     return panel_w, panel_cx
@@ -94,7 +94,7 @@ def _wrap_text(text, max_w, start_size, max_lines=3):
     """
     words = text.split()
     for font_size in range(start_size, 17, -4):
-        font = ImageFont.truetype(settings.TWITTER_CARD_FONT_PATH, font_size)
+        font = ImageFont.truetype(settings.OG_CARD_FONT_PATH, font_size)
         lines = []
         current = ''
         for word in words:
@@ -110,7 +110,7 @@ def _wrap_text(text, max_w, start_size, max_lines=3):
         if len(lines) <= max_lines:
             LOG.debug('wrap_text: %r -> %d lines at %dpx font', text, len(lines), font_size)
             return font, lines
-    font = ImageFont.truetype(settings.TWITTER_CARD_FONT_PATH, 18)
+    font = ImageFont.truetype(settings.OG_CARD_FONT_PATH, 18)
     LOG.debug('wrap_text: %r -> fallback 18px, 1 line', text)
     return font, [text]
 
@@ -168,7 +168,7 @@ class OGImageSearchView(View):
         count_font = None
         if count_text:
             count_font_size = max(24, int(font.size * _COUNT_FONT_RATIO))
-            count_font = ImageFont.truetype(settings.TWITTER_CARD_FONT_PATH, count_font_size)
+            count_font = ImageFont.truetype(settings.OG_CARD_FONT_PATH, count_font_size)
             c_w = count_font.getmask(count_text).getbbox()[2]
             c_h = count_font.getmask(count_text).getbbox()[3]
             LOG.debug('OGImageSearchView: count=%r font_size=%d', count_text, count_font_size)
@@ -224,7 +224,7 @@ class OGImageSavedSearchView(View):
         count_font = None
         if count_text:
             count_font_size = max(24, int(font.size * _COUNT_FONT_RATIO))
-            count_font = ImageFont.truetype(settings.TWITTER_CARD_FONT_PATH, count_font_size)
+            count_font = ImageFont.truetype(settings.OG_CARD_FONT_PATH, count_font_size)
             c_w = count_font.getmask(count_text).getbbox()[2]
             c_h = count_font.getmask(count_text).getbbox()[3]
             LOG.debug('OGImageSavedSearchView: count=%r font_size=%d', count_text, count_font_size)

@@ -395,6 +395,12 @@ def clone_system_version(
 
     new_version.save()
 
+    # Clear stale prefetch cache: copy.copy() shares it with the source, so
+    # after save() assigns a new pk the cached M2M querysets are bound to the
+    # wrong object and .set() silently inserts nothing.  Same fix is applied
+    # below for SystemFeature cloning.
+    new_version._prefetched_objects_cache = {}
+
     # Copy all M2M relationships from the previous version
     for field_name in _VERSION_M2M:
         getattr(new_version, field_name).set(
