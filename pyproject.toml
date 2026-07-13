@@ -77,7 +77,7 @@ dependencies = [
     "python-pptx==1.0.2",
     "pytz==2020.1",
     "reportlab==4.4.2",
-    "requests==2.32.5",
+    "requests==2.33.0",
     "requests-file==3.0.1",
     "scikit-learn==1.8.0",
     "scipy==1.17.1",

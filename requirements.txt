@@ -65,7 +65,7 @@ python-dateutil==2.9.0.post0
 python-pptx==1.0.2
 pytz==2020.1
 reportlab==4.4.2
-requests==2.32.5
+requests==2.33.0
 requests-file==3.0.1
 ruff==0.15.14
 scikit-learn==1.8.0
