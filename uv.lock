@@ -410,7 +410,7 @@ requires-dist = [
     { name = "djangorestframework", specifier = "==3.16.1" },
     { name = "docutils", specifier = "==0.16" },
     { name = "easy-thumbnails", specifier = "==2.10.1" },
-    { name = "filelock", specifier = "==3.8.0" },
+    { name = "filelock", specifier = "==3.20.3" },
     { name = "gitpython", specifier = ">=3.1.50" },
     { name = "gunicorn", specifier = "==22.0.0" },
     { name = "h11", specifier = "==0.16.0" },
@@ -667,11 +667,11 @@ wheels = [
 
 [[package]]
 name = "filelock"
-version = "3.8.0"
+version = "3.20.3"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/95/55/b897882bffb8213456363e646bf9e9fa704ffda5a7d140edf935a9e02c7b/filelock-3.8.0.tar.gz", hash = "sha256:55447caa666f2198c5b6b13a26d2084d26fa5b115c00d065664b2124680c4edc", size = 207618, upload-time = "2022-08-10T06:44:32.422Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1d/65/ce7f1b70157833bf3cb851b556a37d4547ceafc158aa9b34b36782f23696/filelock-3.20.3.tar.gz", hash = "sha256:18c57ee915c7ec61cff0ecf7f0f869936c7c30191bb0cf406f1341778d0834e1", size = 19485, upload-time = "2026-01-09T17:55:05.421Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/94/b3/ff2845971788613e646e667043fdb5f128e2e540aefa09a3c55be8290d6d/filelock-3.8.0-py3-none-any.whl", hash = "sha256:617eb4e5eedc82fc5f47b6d61e4d11cb837c56cb4544e39081099fa17ad109d4", size = 10057, upload-time = "2022-08-10T06:44:31.148Z" },
+    { url = "https://files.pythonhosted.org/packages/b5/36/7fb70f04bf00bc646cd5bb45aa9eddb15e19437a28b8fb2b4a5249fac770/filelock-3.20.3-py3-none-any.whl", hash = "sha256:4b0dda527ee31078689fc205ec4f1c1bf7d56cf88b6dc9426c4f230e46c2dce1", size = 16701, upload-time = "2026-01-09T17:55:04.334Z" },
 ]
 
 [[package]]
