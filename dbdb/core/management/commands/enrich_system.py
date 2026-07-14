@@ -15,7 +15,7 @@ import logging
 import re
 import sys
 import time
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 from argparse import ArgumentParser
 
 from datetime import timedelta
@@ -265,6 +265,11 @@ class Command(EnricherBaseCommand):
 
         if current.system_url.status in (CitationUrl.Status.DEAD, CitationUrl.Status.SPAM):
             LOG.info("Skipping '%s': system_url status is %s", system.slug, CitationUrl.Status(current.system_url.status).name)
+            return False
+
+        homepage_domain = urlparse(current.system_url.url).netloc.lower().removeprefix('www.')
+        if homepage_domain == 'github.com':
+            LOG.info("Skipping '%s': system_url is github.com (would extract GitHub's own blog/docs)", system.slug)
             return False
 
         # Determine which URL fields are missing on the current version.
