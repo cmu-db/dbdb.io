@@ -13,10 +13,10 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 
-    path('user/password-reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
-    path('user/password-reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
-    path('user/password-reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    path('user/password-reset/complete/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path('user/password-reset/', auth_views.PasswordResetView.as_view(template_name='registration/password-reset-form.html'), name='password_reset'),
+    path('user/password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='registration/password-reset-done.html'), name='password_reset_done'),
+    path('user/password-reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='registration/password-reset-confirm.html'), name='password_reset_confirm'),
+    path('user/password-reset/complete/', auth_views.PasswordResetCompleteView.as_view(template_name='registration/password-reset-complete.html'), name='password_reset_complete'),
 
     path('', include('dbdb.core.urls')),
 

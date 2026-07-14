@@ -3,7 +3,7 @@ from django import template
 register = template.Library()
 
 
-@register.inclusion_tag("components/system_logo.html")
+@register.inclusion_tag("components/system-logo.html")
 def system_logo(version, system):
     """
     Renders the factbox logo block for a SystemVersion.
@@ -33,7 +33,7 @@ def system_logo(version, system):
     }
 
 
-@register.inclusion_tag("components/mono_tile.html")
+@register.inclusion_tag("components/mono-tile.html")
 def mono_tile(logo, name:str, alias:str='thumb', extra_classes:str='', lazy:bool=True):
     """
     Renders a mono-tile box containing either a system logo image or the

@@ -7,14 +7,14 @@ from dbdb.core.models import AttributeOption, Organization, OrgType, System
 
 register = template.Library()
 
-@register.inclusion_tag("components/system_link.html")
+@register.inclusion_tag("components/system-link.html")
 def system_link(system: System):
     """
     Renders a link for a System
     """
     return {"s": system}
 
-@register.inclusion_tag("components/org_link.html")
+@register.inclusion_tag("components/org-link.html")
 def org_link(org):
     """
     Renders a link for an Organization (accepts model instance or dict from JSONBAgg).
@@ -28,7 +28,7 @@ def org_link(org):
         )
     return {"org": org}
 
-@register.inclusion_tag("components/browse_link.html")
+@register.inclusion_tag("components/browse-link.html")
 def browse_link(key: str, value: str, tooltip: str, label: str = '', icon: str = ''):
     """
     Renders a link for a searching something on browse
@@ -41,7 +41,7 @@ def browse_link(key: str, value: str, tooltip: str, label: str = '', icon: str =
         "icon": icon or "fa-solid fa-list",
     }
 
-@register.inclusion_tag("components/tag_link.html")
+@register.inclusion_tag("components/tag-link.html")
 def tag_link(tag: AttributeOption, extra_classes: str = ''):
     """
     Renders a link for a Tag
@@ -56,7 +56,7 @@ def urldecode(value):
     return unquote(value) if value else value
 
 
-@register.inclusion_tag("components/last_modified.html")
+@register.inclusion_tag("components/last-modified.html")
 def last_modified(timestamp, url=None, title=None, ver=None):
     return {
         'timestamp': timestamp,
