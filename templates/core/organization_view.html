@@ -1,4 +1,4 @@
-{% extends 'entry-base.html' %}
+{% extends 'entry_base.html' %}
 {% load static %}
 {% load logos %}
 {% load markdownify %}
@@ -178,7 +178,7 @@
 {% endif %}
 
 {% if citations %}
-    {% include 'components/citations-list.html' %}
+    {% include 'components/_citations_list.html' %}
 {% endif %}
 
 {% last_modified org.modified %}

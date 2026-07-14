@@ -58,7 +58,7 @@ from .api import CounterView
 @method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
 class SystemView(MetadataMixin, View):
 
-    template_name = 'core/system-view.html'
+    template_name = 'core/system_view.html'
 
     def get_meta_title(self, context=None):
         sv = getattr(self, '_system_version', None)
@@ -378,7 +378,7 @@ class SystemView(MetadataMixin, View):
 # ==============================================
 class SystemEditView(LoginRequiredMixin, View):
 
-    template_name = 'core/system-edit.html'
+    template_name = 'core/system_edit.html'
 
     def build_features(self, feature_form):
         features = Feature.objects.all()
@@ -1286,7 +1286,7 @@ def _compute_version_diff(v1, v2):
 # ==============================================
 class SystemLogosView(MetadataMixin, View):
 
-    template_name = 'core/system-logos.html'
+    template_name = 'core/system_logos.html'
 
     def get_meta_title(self, context=None):
         system = getattr(self, '_system', None)
@@ -1335,7 +1335,7 @@ class SystemLogosView(MetadataMixin, View):
 # ==============================================
 class SystemVersionDiffView(MetadataMixin, View):
 
-    template_name = 'core/system-diff.html'
+    template_name = 'core/system_diff.html'
 
     def get_meta_title(self, context=None):
         system = getattr(self, '_system', None)

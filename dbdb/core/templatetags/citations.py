@@ -6,14 +6,14 @@ from dbdb.core.models import CitationUrl
 
 register = template.Library()
 
-@register.inclusion_tag("components/citation-footnote.html")
+@register.inclusion_tag("components/_citation_footnote.html")
 def citation_footnote(number: int):
     """
     Renders a citation footnote <a> tag given a citation number
     """
     return {"number": number}
 
-@register.inclusion_tag("components/citation-link.html")
+@register.inclusion_tag("components/_citation_link.html")
 def citation_link(citation: CitationUrl):
     """
     Renders a citation link for a CitationUrl
@@ -31,7 +31,7 @@ def markdownify_with_cites(text: str, citations: list[int]) -> str:
     html = md_filter(text)
     if not citations:
         return html
-    links = ''.join(render_to_string("components/citation-footnote.html", {"number": n}) for n in citations)
+    links = ''.join(render_to_string("components/_citation_footnote.html", {"number": n}) for n in citations)
     cites_html = f'<span class="cites">{links}</span>'
     last_p = html.rfind('</p>')
     if last_p != -1:

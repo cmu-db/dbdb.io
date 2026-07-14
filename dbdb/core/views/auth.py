@@ -32,7 +32,7 @@ class CreateUserView(View):
 
     TOKEN_QUERY_NAME = 'token'
 
-    template_name = 'registration/create-user.html'
+    template_name = 'registration/create_user.html'
 
     def decode_token(self, request):
         token = request.GET.get(CreateUserView.TOKEN_QUERY_NAME)
@@ -134,7 +134,7 @@ class SetupUserView(UserPassesTestMixin, View):
 
     TOKEN_QUERY_NAME = 'token'
 
-    template_name = 'registration/setup-user.html'
+    template_name = 'registration/setup_user.html'
 
     def build_token(self, email, systems):
         payload = {
@@ -191,7 +191,7 @@ class _SignupEmailForm(django_forms.Form):
 
 class SignupRequestView(View):
 
-    template_name = 'registration/signup-request.html'
+    template_name = 'registration/signup_request.html'
 
     def _build_token(self, email, system_ids):
         payload = {
@@ -273,7 +273,7 @@ class SignupRequestView(View):
 # ==============================================
 class SignupPendingView(View):
 
-    template_name = 'registration/signup-pending.html'
+    template_name = 'registration/signup_pending.html'
 
     def get(self, request):
         return render(request, self.template_name, {})
