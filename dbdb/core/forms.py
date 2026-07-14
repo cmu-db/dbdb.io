@@ -344,7 +344,6 @@ class SystemVersionForm(forms.ModelForm):
             'supported_languages',
             'written_in',
             'comment',
-            'blog_url',
         ]
 
     pass

@@ -32,7 +32,8 @@
 {% alert type=message.tags %}{{ message }}{% endalert %}
 {% endfor %}
 
-<div class="feed-wrap">
+<div class="row justify-content-center">
+<div class="col-12 col-xl-9">
 
 {% if request.user.is_superuser %}
 <form method="get" class="d-flex align-items-center gap-2 mb-3">
@@ -47,7 +48,7 @@
 {% endif %}
 
 {% if not revision_list %}
-{% include "core/pagination.html" %}
+{% include "components/pagination.html" %}
 {% endif %}
 
 {% if revision_list %}
@@ -110,9 +111,10 @@
 </div>
 
 {% if not revision_list %}
-{% include "core/pagination.html" %}
+{% include "components/pagination.html" %}
 {% endif %}
 
+</div>
 </div>
 
 {% if revision_list %}

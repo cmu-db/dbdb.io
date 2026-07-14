@@ -49,7 +49,6 @@
     {% endpartialdef %}
 {% endif %}
 
-<div class="browse-wrap">
 <form id="mainsearch" class="main main-search mx-0 mx-md-3 mx-lg-5">
     <div class="bsearch">
         <span class="ic"><i class="fas fa-search"></i></span>
@@ -201,7 +200,7 @@
             </thead>
             <tbody id="table-body">
                 {% for result in results %}
-                {% include 'core/browse-row.html' %}
+                {% include 'components/browse-row.html' %}
                 {% endfor %}
             </tbody>
         </table>
@@ -218,7 +217,6 @@
     </div>
     {% endif %}
 </div>
-</div>{# /browse-wrap #}
 
 {% endblock %}
 
