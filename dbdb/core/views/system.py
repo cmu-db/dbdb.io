@@ -503,6 +503,7 @@ class SystemEditView(LoginRequiredMixin, View):
         version_initial = {
             'system_url':     version.system_url.url     if version.system_url     else '',
             'docs_url':       version.docs_url.url       if version.docs_url       else '',
+            'blog_url':       version.blog_url.url       if version.blog_url       else '',
             'sourcerepo_url': version.sourcerepo_url.url if version.sourcerepo_url else '',
             'wikipedia_url':  version.wikipedia_url.url  if version.wikipedia_url  else '',
             'twitter_url':    version.twitter_url.url    if version.twitter_url    else '',
@@ -668,7 +669,7 @@ class SystemEditView(LoginRequiredMixin, View):
             # URLField normalizes bare domains by adding a trailing slash (e.g.
             # "https://mongodb.com" → "https://mongodb.com/").  Try the exact
             # normalized form first, then the slash-stripped form, before creating.
-            for fk_field in ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url', 'twitter_url'):
+            for fk_field in ('system_url', 'docs_url', 'blog_url', 'sourcerepo_url', 'wikipedia_url', 'twitter_url'):
                 url_str = (system_version_form.cleaned_data.get(fk_field) or '').strip()
                 if url_str:
                     citation = CitationUrl.objects.filter(url=url_str).first()
