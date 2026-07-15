@@ -287,13 +287,16 @@ class SystemVersionForm(forms.ModelForm):
     # CitationUrl FK fields — rendered as URL inputs; view handles get_or_create.
     # Keep this tuple in sync with the field declarations below so the edit view
     # can pass the correct autocomplete selector to the template automatically.
-    CITATION_URL_FIELDS = ('system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url', 'twitter_url')
+    CITATION_URL_FIELDS = ('system_url', 'docs_url', 'blog_url', 'sourcerepo_url', 'wikipedia_url', 'twitter_url')
 
     system_url = forms.URLField(
         required=False, label='Website URL',
         widget=forms.URLInput(attrs={'class': 'form-control'}))
     docs_url = forms.URLField(
         required=False, label='Tech Docs URL',
+        widget=forms.URLInput(attrs={'class': 'form-control'}))
+    blog_url = forms.URLField(
+        required=False, label='Engineering Blog URL',
         widget=forms.URLInput(attrs={'class': 'form-control'}))
     sourcerepo_url = forms.URLField(
         required=False, label='Source Code URL',

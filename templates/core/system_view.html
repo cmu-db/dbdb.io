@@ -1,4 +1,4 @@
-{% extends 'entry-base.html' %}
+{% extends 'entry_base.html' %}
 {% load static %}
 {% load logos %}
 {% load markdownify %}
@@ -246,19 +246,19 @@
 
 {% partialdef related inline %}
     {% if compatible %}
-        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}</div>
+        <div class="side-card">{% include 'components/_system_sys_sidebar.html' with title='Compatible Systems' systems=compatible limit=3 field='compatible' slug=system.slug %}</div>
     {% endif %}
     {% if derived %}
-        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}</div>
+        <div class="side-card">{% include 'components/_system_sys_sidebar.html' with title='Derivative Systems' systems=derived limit=3 field='derived' slug=system.slug %}</div>
     {% endif %}
     {% if embeds %}
-        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}</div>
+        <div class="side-card">{% include 'components/_system_sys_sidebar.html' with title='Embeddings' systems=embeds limit=3 field='embeds' slug=system.slug %}</div>
     {% endif %}
     {% if hosted_by %}
-        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='Hosted By' systems=hosted_by limit=3 %}</div>
+        <div class="side-card">{% include 'components/_system_sys_sidebar.html' with title='Hosted By' systems=hosted_by limit=3 %}</div>
     {% endif %}
     {% if recommendations %}
-        <div class="side-card">{% include 'core/system-sys-sidebar.html' with title='People Also Viewed' systems=recommendations %}</div>
+        <div class="side-card">{% include 'components/_system_sys_sidebar.html' with title='People Also Viewed' systems=recommendations %}</div>
     {% endif %}
 {% endpartialdef %}
 {% endblock %}
@@ -318,7 +318,7 @@
 <div class="d-md-none mt-3">{% partial related %}</div>
 
 {% if citations %}
-    {% include 'core/citations-list.html' %}
+    {% include 'components/_citations_list.html' %}
 {% endif %}
 
 {% url 'system_revision' system.slug as revision_url %}

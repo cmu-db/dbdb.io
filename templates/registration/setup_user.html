@@ -1,45 +1,13 @@
 {% extends 'base.html' %}
 {% load django_bootstrap5 %}
 
-{% block title %}User Registration Setup{% endblock %}
+{% block title %}User Registration Setup{{ DBDB_TITLE_SEPARATOR }}{% endblock %}
 
-{% block css %}
-<style>
-form#setup { background-color:#fff; margin:0 auto; padding:40px 40px; max-width:500px; }
-form#setup h1 { font-size:2rem; margin-top:0; margin-bottom:1rem; text-align:center; }
-form#setup label { margin-bottom:0.2rem; }
-form#setup .form-group:last-child { margin-top:30px; margin-bottom:0px; }
-form#setup [for="captcha"] { display:none; }
-
-div.form-check-pane > div.pane {
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #ced4da;
-    border-top-left-radius: .25rem;
-    border-top-right-radius: .25rem;
-    height: 200px;
-    padding: .375rem .75rem;
-    overflow:auto;
-}
-div.form-check-pane > div.footer {
-    background-color: #ced4da;
-    background-clip: padding-box;
-    border: 1px solid #ced4da;
-    border-bottom-left-radius: .25rem;
-    border-bottom-right-radius: .25rem;
-    margin-bottom: 1rem;
-    padding: .25rem .75rem;
-}
-
-samp { background-color:#E9ECEF; display:block; border: 1px solid #ced4da;  border-radius: .25rem; margin-top: 2rem; overflow-x: scroll; padding: .375rem .75rem; }
-</style>
-{% endblock %}
 
 
 {% block content %}
-    <div class="jumbotron">
-        <div class="row justify-content-md-center">
-            <div class="col-md-6">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
                 <form method="POST" id="setup">
                     <h1>User Registration Setup</h1>
 
@@ -63,7 +31,7 @@ samp { background-color:#E9ECEF; display:block; border: 1px solid #ced4da;  bord
                         </div>
                         <div class="footer">
                             <span class="info">0 selected</span>
-                            <span style="float:right;">
+                            <span class="float-end">
                                 Select &nbsp;
                                 <a href="javascript:;" class="all">All</a>
                                 |
@@ -77,9 +45,8 @@ samp { background-color:#E9ECEF; display:block; border: 1px solid #ced4da;  bord
                         </button>
                     {% endbuttons %}
 
-                    <samp id="url" style="display:none;"></samp>
+                    <samp id="url" class="d-none"></samp>
                 </form>
-            </div>
         </div>
     </div>
 {% endblock %}

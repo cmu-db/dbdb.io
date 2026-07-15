@@ -58,7 +58,7 @@ from .api import CounterView
 @method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
 class SystemView(MetadataMixin, View):
 
-    template_name = 'core/system-view.html'
+    template_name = 'core/system_view.html'
 
     def get_meta_title(self, context=None):
         sv = getattr(self, '_system_version', None)
@@ -378,7 +378,7 @@ class SystemView(MetadataMixin, View):
 # ==============================================
 class SystemEditView(LoginRequiredMixin, View):
 
-    template_name = 'core/system-edit.html'
+    template_name = 'core/system_edit.html'
 
     def build_features(self, feature_form):
         features = Feature.objects.all()
@@ -1157,9 +1157,18 @@ def _compute_version_diff(v1, v2):
                   'changed': a != b or cite['changed'],
                   'citations': cite})
 
+    # --- twitter handle (clickable @handle link) ---
+    a_handle = v1.twitter_handle or ''
+    b_handle = v2.twitter_handle or ''
+    a_url = v1.twitter_url.url if v1.twitter_url else ''
+    b_url = v2.twitter_url.url if v2.twitter_url else ''
+    diffs.append({'field': 'twitter_url', 'label': 'Twitter URL', 'type': 'twitter',
+                  'v1_val': a_handle, 'v2_val': b_handle,
+                  'v1_url': a_url, 'v2_url': b_url,
+                  'changed': a_handle != b_handle})
+
     # --- remaining scalar fields ---
     for field, label in [
-        ('twitter_url_id',   'Twitter URL'),
         ('countries',        'Countries'),
     ]:
         a = _str(getattr(v1, field))
@@ -1277,7 +1286,7 @@ def _compute_version_diff(v1, v2):
 # ==============================================
 class SystemLogosView(MetadataMixin, View):
 
-    template_name = 'core/system-logos.html'
+    template_name = 'core/system_logos.html'
 
     def get_meta_title(self, context=None):
         system = getattr(self, '_system', None)
@@ -1326,7 +1335,7 @@ class SystemLogosView(MetadataMixin, View):
 # ==============================================
 class SystemVersionDiffView(MetadataMixin, View):
 
-    template_name = 'core/system-diff.html'
+    template_name = 'core/system_diff.html'
 
     def get_meta_title(self, context=None):
         system = getattr(self, '_system', None)

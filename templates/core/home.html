@@ -126,19 +126,19 @@
             <h3 class="col-title">Most Recent</h3>
             <div class="col-sub">Newly modified entries</div>
             <div class="col-rule"></div>
-            {% for item in most_recent %}{% include 'core/home-listitem.html' %}{% endfor %}
+            {% for item in most_recent %}{% include 'components/_home_listitem.html' %}{% endfor %}
         </div>
         <div class="col-md-4 list-col">
             <h3 class="col-title">Most Viewed</h3>
             <div class="col-sub">Last 30 days</div>
             <div class="col-rule"></div>
-            {% for item in most_visits %}{% include 'core/home-listitem.html' %}{% endfor %}
+            {% for item in most_visits %}{% include 'components/_home_listitem.html' %}{% endfor %}
         </div>
         <div class="col-md-4 list-col">
             <h3 class="col-title">Most Edited</h3>
             <div class="col-sub">Last 30 days</div>
             <div class="col-rule"></div>
-            {% for item in most_versions %}{% include 'core/home-listitem.html' %}{% endfor %}
+            {% for item in most_versions %}{% include 'components/_home_listitem.html' %}{% endfor %}
         </div>
     </div>
 </section>

@@ -4,19 +4,11 @@
 {% load alerts %}
 {% load page_title %}
 
-{% block title %}{% if system.slug %}Edit {{ system.name }}{% else %}Create Database{% endif %} — {% endblock %}
+{% block title %}{% if system.slug %}Edit {{ system.name }}{% else %}Create Database{% endif %}{{ DBDB_TITLE_SEPARATOR }}{% endblock %}
 
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'lib/css/tagsinput.css' %}">
-<style>
-.md-textarea textarea { height:8em; resize:vertical; }
-.multi-select select { font-size:0.85em; }
-.edit-savebox { position: static; width: 100%; margin-top: 2rem; }
-@media (min-width: 768px) {
-    .edit-savebox { position: fixed; top: 5.5rem; right: 2rem; width: 20rem; margin-top: 0; z-index: 99; }
-}
-</style>
 {% endblock %}
 
 
@@ -60,8 +52,9 @@
     <div class="row border-2 border-bottom pt-4">
         <div class="col-lg-6">
             {% bootstrap_field system_version_form.system_url %}
-            {% bootstrap_field system_version_form.sourcerepo_url %}
             {% bootstrap_field system_version_form.docs_url %}
+            {% bootstrap_field system_version_form.blog_url %}
+            {% bootstrap_field system_version_form.sourcerepo_url %}
             {% bootstrap_field system_version_form.wikipedia_url %}
             {% bootstrap_field system_version_form.twitter_url placeholder='https://twitter.com/account_name' %}
         </div>

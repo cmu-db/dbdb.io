@@ -35,7 +35,7 @@ _REVERSE_FK_FIELDS = frozenset({
 @method_decorator(cache_control(private=True), name='dispatch')
 class EmptyFieldsView(View):
 
-    template_name = 'core/empty-fields.html'
+    template_name = 'core/empty_fields.html'
 
     def build_search_fields(include_citations=False):
         import django.db.models.fields

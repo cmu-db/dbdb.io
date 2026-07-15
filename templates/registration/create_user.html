@@ -1,55 +1,72 @@
 {% extends 'base.html' %}
-
-{% load django_bootstrap5 %}
 {% load alerts %}
+{% load page_title %}
 
-{% block title %}User Registration{% endblock %}
-
-{% block css %}
-<style>
-form#registration { background-color:#fff; margin:0 auto; padding:40px 40px; max-width:500px; }
-form#registration h1 { font-size:2rem; margin-top:0; margin-bottom:1rem; text-align:center; }
-form#registration label { margin-bottom:0.2rem; }
-form#registration .form-group:last-child { margin-top:30px; margin-bottom:0px; }
-form#registration [for="captcha"] { display:none; }
-</style>
-
-<script src='https://www.google.com/recaptcha/api.js'></script>
-{% endblock %}
+{% block title %}User Registration{{ DBDB_TITLE_SEPARATOR }}{% endblock %}
 
 {% block content %}
-    <div class="jumbotron">
-        <div class="row justify-content-md-center">
-            <div class="col-md-6">
-                <form method="POST" id="registration">
-                    <h1>User Registration</h1>
+{% page_title %}
+{% ptitle_kicker %}Account{% endptitle_kicker %}
+{% ptitle_title %}Create Account{% endptitle_title %}
+{% endpage_title %}
 
-                    {% if expired_token %}
-                    {% alert type="error" title="The registration link provided to you has expired." extra_classes="mb-0" %}
-                    Please request a new one.
-                    {% endalert %}
-                    {% else %}
-                    {% csrf_token %}
-                    {% bootstrap_form form %}
-                    {% buttons %}
-                        <button type="submit" id="btn_submit"
-                            class="g-recaptcha btn btn-primary"
-                            data-sitekey="{{ recaptcha_key }}"
-                            data-callback="onCaptchaSubmit">
-                            Submit
-                        </button>
-                        <a href="/" class="btn btn-default float-right">
-                            Cancel
-                        </a>
-                    {% endbuttons %}
-                    {% endif %}
-                </form>
+<div class="row justify-content-center">
+<div class="col-12 col-lg-8 col-xl-7">
+
+{% if expired_token %}
+{% alert type="error" icon="fa-solid fa-circle-xmark" %}
+The registration link has expired. Please <a href="{% url 'signup_request' %}">request a new one</a>.
+{% endalert %}
+{% else %}
+
+<form method="POST" id="registration">
+    {% csrf_token %}
+
+    <div class="block">
+        <div class="block-h">Account Details</div>
+        <div class="block-body">
+            <div class="ed-field">
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+                {% if form.username.errors %}<div class="suggest-error">{{ form.username.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="ed-field mb-0">
+                <label for="{{ form.email.id_for_label }}">Email</label>
+                {{ form.email }}
+                {% if form.email.errors %}<div class="suggest-error">{{ form.email.errors.0 }}</div>{% endif %}
             </div>
         </div>
     </div>
+
+    <div class="block">
+        <div class="block-h">Password</div>
+        <div class="block-body">
+            <div class="ed-field">
+                <label for="{{ form.password.id_for_label }}">Password</label>
+                {{ form.password }}
+                {% if form.password.errors %}<div class="suggest-error">{{ form.password.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="ed-field mb-0">
+                <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}<div class="suggest-error">{{ form.password2.errors.0 }}</div>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    {{ form.captcha }}
+
+    <button type="submit" id="btn_submit" class="btn btn-solid">Create Account</button>
+
+</form>
+{% endif %}
+
+</div>
+</div>
 {% endblock %}
 
 {% block scripts %}
+<script src='https://www.google.com/recaptcha/api.js'></script>
 <script>
 function onCaptchaSubmit(){
     document.getElementById('registration').submit();

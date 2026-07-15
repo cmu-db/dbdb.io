@@ -92,7 +92,7 @@ class DocAttributeView(View):
 @method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
 class DocSysAttrsView(View):
 
-    template_name = 'core/docs/system-attributes.html'
+    template_name = 'core/docs/system_attributes.html'
 
     def get(self, request):
         page = (DocPage.objects

@@ -15,7 +15,7 @@ LOG = logging.getLogger(__name__)
 
 class SystemSuggestionView(MetadataMixin, View):
 
-    template_name = 'core/system-suggest.html'
+    template_name = 'core/system_suggest.html'
     title = f'Suggest a System{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
     description = f'Suggest a new database system to add to the {settings.DBDB_SITE_NAME} encyclopedia.'
     twitter_type = 'summary'
@@ -88,7 +88,7 @@ class SystemSuggestionView(MetadataMixin, View):
 
 class SystemSuggestionSuccessView(MetadataMixin, View):
 
-    template_name = 'core/system-suggest-success.html'
+    template_name = 'core/system_suggest_success.html'
     title = f'Suggestion Received{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
     description = f'Thank you for suggesting a database system to the {settings.DBDB_SITE_NAME} encyclopedia.'
     twitter_type = 'summary'
