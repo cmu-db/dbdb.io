@@ -219,8 +219,8 @@ class AdvancedSearchTestCase(TestCase):
     def test_inputs_quantity(self):
         feature_count = Feature.objects.count()
         attr_count = Attribute.objects.filter(sv_field__gt='').count()
-        # 8 hardcoded groups: country, compatible, embedded, derived, inspired, hosted, developer, acquired-by
-        hardcoded_count = 8
+        # 9 hardcoded groups: country, compatible, embedded, derived, inspired, hosted, developer, acquired-by, supported
+        hardcoded_count = 9
         expected = feature_count + attr_count + hardcoded_count
 
         response = self.client.get(reverse('browse'))
@@ -332,7 +332,149 @@ class AdvancedSearchTestCase(TestCase):
         })
         self.assertContains(response, 'SQLite')
 
+    def test_supported_filter_returns_results(self):
+        from dbdb.core.models import AttributeOption, SystemVersion
+        sv = SystemVersion.objects.get(system__name='SQLite', is_current=True)
+        c_opt = AttributeOption.objects.get(slug='c', attribute__slug='programming-language')
+        sv.supported_languages.add(c_opt)
+        response = self.client.get(reverse('browse'), data={'supported': 'c'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'SQLite')
+
+    def test_supported_filter_existence(self):
+        from dbdb.core.models import AttributeOption, SystemVersion
+        sv = SystemVersion.objects.get(system__name='SQLite', is_current=True)
+        c_opt = AttributeOption.objects.get(slug='c', attribute__slug='programming-language')
+        sv.supported_languages.add(c_opt)
+        response = self.client.get(reverse('browse'), data={'supported': '*'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'SQLite')
+
+    def test_supported_filter_no_match(self):
+        # SQLite has no supported_languages by default
+        response = self.client.get(reverse('browse'), data={'supported': '*'})
+        self.assertContains(response, 'No databases found')
+
     pass
+
+# ==============================================
+# BrowseColumnTestCase
+# ==============================================
+class BrowseColumnTestCase(TestCase):
+    """Verify that each column type is correctly populated in browse results."""
+
+    fixtures = [
+        'adminuser.json',
+        'testuser.json',
+        'core_features.json',
+        'core_attributes.json',
+        'core_system.json',
+    ]
+
+    def _sqlite(self, response):
+        return next(r for r in response.context['results'] if r['name'] == 'SQLite')
+
+    def _col_value(self, response, result, col_id):
+        idx = response.context['active_col_ids'].index(col_id)
+        return result['col_values'][idx]
+
+    # --- supported-languages column ---
+
+    def test_supported_languages_column_via_filter(self):
+        """?supported=python auto-shows the column and populates it with Python."""
+        from dbdb.core.models import AttributeOption, SystemVersion
+        sv = SystemVersion.objects.get(system__name='SQLite', is_current=True)
+        python = AttributeOption.objects.get(slug='python', attribute__slug='programming-language')
+        sv.supported_languages.add(python)
+
+        response = self.client.get(reverse('browse'), data={'supported': 'python'})
+        self.assertEqual(response.status_code, 200)
+        sqlite = self._sqlite(response)
+        self.assertIn('supported-languages', response.context['active_col_ids'])
+        cv = self._col_value(response, sqlite, 'supported-languages')
+        self.assertEqual(cv['type'], 'attr_opts')
+        names = [d['name'] for d in cv['data']]
+        self.assertIn('Python', names)
+
+    def test_supported_languages_column_via_cols_param(self):
+        """?cols=... with supported-languages shows all supported languages without a filter constraint."""
+        from dbdb.core.models import AttributeOption, SystemVersion
+        sv = SystemVersion.objects.get(system__name='SQLite', is_current=True)
+        python = AttributeOption.objects.get(slug='python', attribute__slug='programming-language')
+        java = AttributeOption.objects.get(slug='java', attribute__slug='programming-language')
+        sv.supported_languages.add(python, java)
+
+        response = self.client.get(reverse('browse'), data={'cols': 'data-model,start-year,supported-languages,tags'})
+        self.assertEqual(response.status_code, 200)
+        sqlite = self._sqlite(response)
+        cv = self._col_value(response, sqlite, 'supported-languages')
+        self.assertEqual(cv['type'], 'attr_opts')
+        names = [d['name'] for d in cv['data']]
+        self.assertIn('Python', names)
+        self.assertIn('Java', names)
+
+    def test_supported_languages_empty_shows_dash(self):
+        """When a system has no supported_languages, the column renders a dash."""
+        response = self.client.get(reverse('browse'), data={'cols': 'data-model,start-year,supported-languages,tags'})
+        self.assertEqual(response.status_code, 200)
+        sqlite = self._sqlite(response)
+        cv = self._col_value(response, sqlite, 'supported-languages')
+        self.assertEqual(cv['type'], 'attr_opts')
+        self.assertEqual(cv['data'], [])
+
+    # --- attribute column ---
+
+    def test_attribute_programming_language_column_populated(self):
+        """The programming-language attribute column shows the system's written_in language."""
+        response = self.client.get(reverse('browse'), data={'cols': 'data-model,start-year,programming-language,tags'})
+        self.assertEqual(response.status_code, 200)
+        sqlite = self._sqlite(response)
+        cv = self._col_value(response, sqlite, 'programming-language')
+        self.assertEqual(cv['type'], 'attr_opts')
+        names = [d['name'] for d in cv['data']]
+        self.assertIn('C', names)
+
+    def test_attribute_license_column_populated(self):
+        """The license attribute column shows the system's license."""
+        response = self.client.get(reverse('browse'), data={'cols': 'data-model,start-year,license,tags'})
+        self.assertEqual(response.status_code, 200)
+        sqlite = self._sqlite(response)
+        cv = self._col_value(response, sqlite, 'license')
+        self.assertEqual(cv['type'], 'attr_opts')
+        names = [d['name'] for d in cv['data']]
+        self.assertIn('Public Domain', names)
+
+    # --- feature column ---
+
+    def test_feature_storage_model_column_populated(self):
+        """The storage-model feature column shows the system's storage model."""
+        response = self.client.get(reverse('browse'), data={'cols': 'data-model,start-year,storage-model,tags'})
+        self.assertEqual(response.status_code, 200)
+        sqlite = self._sqlite(response)
+        cv = self._col_value(response, sqlite, 'storage-model')
+        self.assertEqual(cv['type'], 'feature_opts')
+        values = [d['value'] for d in cv['data']]
+        self.assertIn('N-ary Storage Model (Row/Record)', values)
+
+    # --- builtin columns ---
+
+    def test_start_year_column_populated(self):
+        """The start-year builtin column shows the system's start year."""
+        response = self.client.get(reverse('browse'))
+        self.assertEqual(response.status_code, 200)
+        sqlite = self._sqlite(response)
+        cv = self._col_value(response, sqlite, 'start-year')
+        self.assertEqual(cv['type'], 'year')
+        self.assertEqual(cv['data'], 2001)
+
+    def test_tags_column_empty_shows_no_dash(self):
+        """Tags column with no tags produces an empty data list (no crash)."""
+        response = self.client.get(reverse('browse'))
+        self.assertEqual(response.status_code, 200)
+        sqlite = self._sqlite(response)
+        cv = self._col_value(response, sqlite, 'tags')
+        self.assertEqual(cv['type'], 'tags')
+        self.assertIsInstance(cv['data'], list)
 
 # ==============================================
 # WildcardNameSearchTestCase

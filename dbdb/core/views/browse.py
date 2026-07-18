@@ -76,6 +76,8 @@ _RELATIONSHIP_COLUMNS = [
     ColumnDef('inspired-by',     'Inspired By',     'relationship'),
 ]
 
+_SUPPORTED_LANGUAGES_COLUMN = ColumnDef('supported-languages', 'Supported Languages', 'supported-lang')
+
 # Maps relationship col_id → (SystemVersion M2M field name, null-check field)
 _RELATIONSHIP_FIELD_MAP = {
     'compatible-with': 'compatible_with',
@@ -98,6 +100,7 @@ _SEARCH_PARAM_TO_COL = {
     'embeds':      'embedded',
     'hosted_by':   'hosted-services',
     'inspired':    'inspired-by',
+    'supported':   'supported-languages',
 }
 
 # Maps GET param → (verb_phrase, noun_label) for title generation.
@@ -112,6 +115,7 @@ _FIELD_NAME_MAP = {
     'developer':      ('Developed By',    'Developer Organization'),
     'acquired-by':    ('Acquired By',     'Acquisition'),
     'country':        ('from',            'Country'),
+    'supported':      (None, 'Supported Language'),
     'wikipedia_url':  (None, 'Wikipedia URL'),
     'system_url':     (None, 'Website URL'),
     'docs_url':       (None, 'Docs URL'),
@@ -129,13 +133,14 @@ _EXISTS_FILTER_MAP = {
     'sourcerepo_url': ('sourcerepo_url__isnull',   False),
     'description':    ('description__gt',          ''),
     'history':        ('history__gt',              ''),
-    'developer':      ('developer_orgs__isnull',   False),
-    'acquired-by':    ('acquisitions__isnull',      False),
-    'compatible':     ('compatible_with__isnull',   False),
-    'derived':        ('derived_from__isnull',      False),
-    'embeds':         ('embedded__isnull',          False),
-    'hosted_by':      ('hosted_services__isnull',   False),
-    'inspired':       ('inspired_by__isnull',       False),
+    'developer':      ('developer_orgs__isnull',       False),
+    'acquired-by':    ('acquisitions__isnull',          False),
+    'supported':      ('supported_languages__isnull',   False),
+    'compatible':     ('compatible_with__isnull',       False),
+    'derived':        ('derived_from__isnull',          False),
+    'embeds':         ('embedded__isnull',              False),
+    'hosted_by':      ('hosted_services__isnull',       False),
+    'inspired':       ('inspired_by__isnull',           False),
 }
 
 _DOI_RE = re.compile(
@@ -383,6 +388,15 @@ class BrowseView(MetadataMixin, View):
             for slug, name in acquiredby_orgs_map.items()
         ], key=lambda x: x.label)))
 
+        # Supported Languages — options share the programming-language attribute pool
+        pl_attr = Attribute.objects.filter(slug='programming-language').first()
+        if pl_attr:
+            other_filtersgroups.append(FilterGroup(
+                'supported',
+                'Supported Language',
+                [FilterChoice(opt.slug, opt.name) for opt in pl_attr.options.order_by('name')],
+            ))
+
         # Add one FilterGroup per Attribute that has a sv_field configured.
         # Adding a new Attribute in the admin automatically shows up here.
         for attr in Attribute.objects.filter(sv_field__gt='').prefetch_related('options').order_by('name'):
@@ -474,6 +488,7 @@ class BrowseView(MetadataMixin, View):
         search_country = list(map(str.upper, get_params.getlist('country')))
         search_derived = get_params.getlist('derived')
         search_developer = get_params.getlist('developer')
+        search_supported = get_params.getlist('supported')
         search_embeds = get_params.getlist('embeds')
         search_hosted_by = get_params.getlist('hosted_by')
         search_inspired = get_params.getlist('inspired')
@@ -517,6 +532,7 @@ class BrowseView(MetadataMixin, View):
             'embeds': search_embeds,
             'hosted_by': search_hosted_by,
             'inspired': search_inspired,
+            'supported': search_supported,
             'suffix': search_suffix,
             'name': search_name,
         }
@@ -712,6 +728,18 @@ class BrowseView(MetadataMixin, View):
                 search_parts.append(f' {_v} {joined}')
             pass
 
+        # search - supported languages (existence handled by _EXISTS_FILTER_MAP; skip '*' here)
+        value_supported = [v for v in search_supported if v != '*']
+        if value_supported:
+            sqs_filters.append(Q(supported_languages__slug__in=value_supported))
+            opts = AttributeOption.objects.filter(
+                attribute__slug='programming-language', slug__in=value_supported
+            ).only('name')
+            names = [o.name for o in opts]
+            joined = f' {op_str} '.join(names) if len(names) < 3 else f"{', '.join(names[:-1])}, {op_str} {names[-1]}"
+            if joined:
+                search_parts.append(f'Supporting {joined}')
+
         # search - attribute options (dynamic: one block per Attribute)
         for slug, (attr, param_slugs) in attr_searches.items():
             if search_op == and_ and len(param_slugs) > 1:
@@ -901,7 +929,7 @@ class BrowseView(MetadataMixin, View):
         return (sqs, search_mapping, title, None)
 
     def get_available_columns(self):
-        cols = list(_BUILTIN_COLUMNS) + list(_RELATIONSHIP_COLUMNS)
+        cols = list(_BUILTIN_COLUMNS) + list(_RELATIONSHIP_COLUMNS) + [_SUPPORTED_LANGUAGES_COLUMN]
         for feature in Feature.objects.all().order_by('label'):
             cols.append(ColumnDef(feature.slug, feature.label, 'feature'))
         for attr in Attribute.objects.filter(sv_field__gt='').exclude(slug='tag').order_by('name'):
@@ -1006,6 +1034,14 @@ class BrowseView(MetadataMixin, View):
                 distinct=True,
             ))
 
+        # Supported Languages column annotation (inline)
+        if 'supported-languages' in active_col_ids:
+            results = results.annotate(col_supported_languages=JSONBAgg(
+                JSONObject(name=F('supported_languages__name'), slug=F('supported_languages__slug'), icon=F('supported_languages__icon')),
+                filter=Q(supported_languages__isnull=False),
+                distinct=True,
+            ))
+
         # Relationship column annotations (derived_from, embedded, etc.)
         for col_id, sv_field in _RELATIONSHIP_FIELD_MAP.items():
             if col_id in active_col_ids:
@@ -1029,6 +1065,8 @@ class BrowseView(MetadataMixin, View):
             value_fields.append('col_developer_orgs')
         if 'acquired-by' in active_col_ids:
             value_fields.append('col_acquired_by')
+        if 'supported-languages' in active_col_ids:
+            value_fields.append('col_supported_languages')
         if 'country' in active_col_ids:
             value_fields.append('countries')
         for col_id in _RELATIONSHIP_FIELD_MAP:
@@ -1113,6 +1151,8 @@ class BrowseView(MetadataMixin, View):
                     col_values.append({'type': 'orgs', 'data': r.get('col_developer_orgs') or []})
                 elif col.col_id == 'acquired-by':
                     col_values.append({'type': 'orgs', 'data': r.get('col_acquired_by') or []})
+                elif col.col_id == 'supported-languages':
+                    col_values.append({'type': 'attr_opts', 'data': r.get('col_supported_languages') or []})
                 elif col.col_type == 'relationship':
                     key = 'col_' + col.col_id.replace('-', '_')
                     col_values.append({'type': 'systems', 'data': r.get(key) or []})
@@ -1196,7 +1236,7 @@ class BrowseView(MetadataMixin, View):
             'cols_are_custom': cols_are_custom,
             'available_builtin':    sorted((c for c in available_columns if c.col_type == 'builtin'), key=lambda c: c.label),
             'available_features':   [c for c in available_columns if c.col_type == 'feature'],
-            'available_attributes': sorted((c for c in available_columns if c.col_type in ('attribute', 'relationship')), key=lambda c: c.label),
+            'available_attributes': sorted((c for c in available_columns if c.col_type in ('attribute', 'relationship', 'supported-lang')), key=lambda c: c.label),
             'cols_param': ','.join(active_col_ids),
             'saved_search': saved_search,
             'dropdown_fields': dropdown_fields,
