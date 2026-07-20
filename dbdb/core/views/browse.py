@@ -455,10 +455,14 @@ class BrowseView(MetadataMixin, View):
         def _is_count_val(v):
             return v.startswith('+') and v[1:].isdigit()
 
-        # separate option-slug values from count (+N) values for feature params
+        def _is_negation_val(v):
+            return v.startswith('!')
+
+        # separate option-slug values from count (+N) / negation (!) values for feature params
         search_fg = {}
         feature_counts = {}
-        feature_exists = {}  # fid → slug, for existence queries (value == '*')
+        feature_exists = {}   # fid → slug, for existence queries (value == '*')
+        feature_negations = {}  # fid → set(slugs without leading '!')
         for k in get_params.keys():
             if k not in features_map:
                 continue
@@ -467,12 +471,15 @@ class BrowseView(MetadataMixin, View):
             if vals == ['*']:
                 feature_exists[fid] = k
                 continue
-            option_vals = [v for v in vals if not _is_count_val(v)]
-            count_vals  = [v for v in vals if _is_count_val(v)]
+            option_vals   = [v      for v in vals if not _is_count_val(v) and not _is_negation_val(v)]
+            negation_vals = [v[1:]  for v in vals if _is_negation_val(v)]
+            count_vals    = [v      for v in vals if _is_count_val(v)]
             if option_vals:
                 search_fg[fid] = set(option_vals)
             if count_vals:
                 feature_counts[fid] = max(int(v[1:]) for v in count_vals)
+            if negation_vals:
+                feature_negations[fid] = set(negation_vals)
 
         # define date filters
         search_start_year = get_params.get('start-year', '').strip()
@@ -498,7 +505,8 @@ class BrowseView(MetadataMixin, View):
         # collect attribute-based search params keyed by Attribute slug
         attr_searches = {}
         attr_count_searches = {}
-        attr_exists = {}  # attr.slug → attr, for existence queries (value == '*')
+        attr_exists = {}     # attr.slug → attr, for existence queries (value == '*')
+        attr_negations = {}  # attr.slug → (attr, [slugs without leading '!'])
         for attr in Attribute.objects.filter(sv_field__gt='').only('slug', 'name', 'sv_field', 'search_text'):
             vals = get_params.getlist(attr.slug)
             if not vals:
@@ -506,12 +514,15 @@ class BrowseView(MetadataMixin, View):
             if vals == ['*']:
                 attr_exists[attr.slug] = attr
                 continue
-            option_vals = [v for v in vals if not _is_count_val(v)]
-            count_vals  = [v for v in vals if _is_count_val(v)]
+            option_vals   = [v      for v in vals if not _is_count_val(v) and not _is_negation_val(v)]
+            negation_vals = [v[1:]  for v in vals if _is_negation_val(v)]
+            count_vals    = [v      for v in vals if _is_count_val(v)]
             if option_vals:
                 attr_searches[attr.slug] = (attr, option_vals)
             if count_vals:
                 attr_count_searches[attr.slug] = (attr, max(int(v[1:]) for v in count_vals))
+            if negation_vals:
+                attr_negations[attr.slug] = (attr, negation_vals)
 
         # collect filters
         search_mapping = {
@@ -550,6 +561,10 @@ class BrowseView(MetadataMixin, View):
             search_mapping[slug] = '*'
         for fid, slug in feature_exists.items():
             search_mapping[slug] = '*'
+        for fid, neg_slugs in feature_negations.items():
+            search_mapping[f'feature_{fid}__not'] = neg_slugs
+        for slug, (attr, neg_slugs) in attr_negations.items():
+            search_mapping[f'{slug}__not'] = neg_slugs
 
         if not any(search_mapping.values()) and not any(search_fg):
             return (sqs, { }, 'Browse', None)
@@ -803,6 +818,12 @@ class BrowseView(MetadataMixin, View):
                     feature_name = reverse_features_map.get(feature_id, str(feature_id))
                     return (sqs.none(), {}, 'Invalid Search',
                             f"Unknown value '{slug}' for feature '{feature_name}'.")
+        for feature_id, neg_slugs in feature_negations.items():
+            for slug in neg_slugs:
+                if (feature_id, slug) not in featuresoptions_map:
+                    feature_name = reverse_features_map.get(feature_id, str(feature_id))
+                    return (sqs.none(), {}, 'Invalid Search',
+                            f"Unknown value '!{slug}' for feature '{feature_name}'.")
 
         # convert feature option slugs to IDs to do search by filtering
         feature_option_ids = set()
@@ -890,6 +911,25 @@ class BrowseView(MetadataMixin, View):
                 .filter(**{f'{attr.sv_field}__isnull': False})
                 .values('id').distinct()
             )
+
+        # Negation filters — always AND'd, independent of search_op
+        for fid, neg_slugs in feature_negations.items():
+            neg_ids = [featuresoptions_map[(fid, s)] for s in neg_slugs]
+            excluded = (
+                SystemFeature.objects
+                .filter(feature_id=fid, options__id__in=neg_ids, version__is_current=True)
+                .values_list('version_id', flat=True).distinct()
+            )
+            sqs = sqs.exclude(id__in=excluded)
+
+        for slug, (attr, neg_slugs) in attr_negations.items():
+            excluded = (
+                SystemVersion.objects
+                .filter(is_current=True)
+                .filter(**{f'{attr.sv_field}__slug__in': neg_slugs})
+                .values_list('id', flat=True).distinct()
+            )
+            sqs = sqs.exclude(id__in=excluded)
 
         # Existence title parts
         for param, (lookup, val) in _EXISTS_FILTER_MAP.items():

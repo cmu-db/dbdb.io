@@ -358,6 +358,70 @@ class AdvancedSearchTestCase(TestCase):
     pass
 
 # ==============================================
+# NegationFilterTestCase
+# ==============================================
+class NegationFilterTestCase(TestCase):
+    """Tests for negation (!) filter prefix on FeatureOptions and AttributeOptions."""
+
+    fixtures = [
+        'adminuser.json',
+        'testuser.json',
+        'core_features.json',
+        'core_attributes.json',
+        'core_system.json',
+    ]
+
+    # --- Feature negation ---
+
+    def test_feature_negation_excludes_matching_system(self):
+        # Before fix: causes "Invalid Search" (! slug unknown). After fix: SQLite excluded.
+        data = {'storage-model': '!n-ary-storage-model-rowrecord'}
+        response = self.client.get(reverse('browse'), data=data)
+        self.assertNotContains(response, 'SQLite')
+
+    def test_feature_negation_does_not_exclude_non_matching(self):
+        # Before fix: causes "Invalid Search". After fix: SQLite present (not columnar).
+        data = {'storage-model': '!decomposition-storage-model-columnar'}
+        response = self.client.get(reverse('browse'), data=data)
+        self.assertContains(response, 'SQLite')
+
+    # --- Attribute negation ---
+
+    def test_attribute_negation_excludes_matching_system(self):
+        # SQLite has license=public-domain; negating it excludes SQLite.
+        # Before fix: Q(licenses__slug__in=['!public-domain']) matches nothing → no results (wrong).
+        # After fix: sqs.exclude(...) correctly removes SQLite → no results (correct).
+        data = {'license': '!public-domain'}
+        response = self.client.get(reverse('browse'), data=data)
+        self.assertNotContains(response, 'SQLite')
+
+    def test_attribute_negation_does_not_exclude_non_matching(self):
+        # SQLite has public-domain, not MIT. Negating MIT should keep SQLite.
+        # Before fix: Q(licenses__slug__in=['!mit']) matches nothing → "No databases found" (WRONG).
+        # After fix: exclude(licenses__slug__in=['mit']) leaves SQLite → SQLite shown.
+        data = {'license': '!mit'}
+        response = self.client.get(reverse('browse'), data=data)
+        self.assertContains(response, 'SQLite')
+
+    # --- Combined ---
+
+    def test_positive_and_negation_feature_coexist(self):
+        # Positive matches SQLite (row-store), negation doesn't affect it (not columnar).
+        data = {'storage-model': ['n-ary-storage-model-rowrecord',
+                                  '!decomposition-storage-model-columnar']}
+        response = self.client.get(reverse('browse'), data=data)
+        self.assertContains(response, 'SQLite')
+
+    def test_negation_overrides_positive_for_same_value(self):
+        # Positive would include SQLite, but negating the same value excludes it.
+        data = {'storage-model': ['n-ary-storage-model-rowrecord',
+                                  '!n-ary-storage-model-rowrecord']}
+        response = self.client.get(reverse('browse'), data=data)
+        self.assertNotContains(response, 'SQLite')
+
+    pass
+
+# ==============================================
 # BrowseColumnTestCase
 # ==============================================
 class BrowseColumnTestCase(TestCase):
