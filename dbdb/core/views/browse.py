@@ -38,27 +38,46 @@ from dbdb.core.models import (
 from dbdb.core.utils.filters import FilterChoice, FilterGroup
 
 
+# Descriptor for a single displayable column in the browse results table.
+# col_id: URL-safe identifier used in the ?cols= param and internal lookups.
+# col_type: controls how the column is annotated and rendered —
+#   'builtin'      → hardcoded field on SystemVersion (year, URL, tags, etc.)
+#   'relationship' → System-to-System M2M (derived_from, embedded, etc.)
+#   'supported-lang' → AttributeOption M2M with an icon field (supported_languages)
+#   'feature'      → FeatureOption value fetched via SystemFeature
+#   'attribute'    → AttributeOption M2M driven by Attribute.sv_field
 ColumnDef = collections.namedtuple('ColumnDef', ['col_id', 'label', 'col_type'])
 
+# Columns shown when the user hasn't customised the ?cols= param.
 DEFAULT_COLS = ['data-model', 'start-year', 'tags']
 
-_BUILTIN_COLUMNS = [
-    ColumnDef('tags',             'Tags',              'builtin'),
-    ColumnDef('start-year',       'Start Year',        'builtin'),
-    ColumnDef('end-year',         'End Year',          'builtin'),
-    ColumnDef('developer-orgs',   'Developer',         'builtin'),
-    ColumnDef('acquired-by',      'Acquired By',       'builtin'),
-    ColumnDef('country',          'Country of Origin', 'builtin'),
-    ColumnDef('system-url',       'Website URL',       'builtin'),
-    ColumnDef('docs-url',         'Documentation',     'builtin'),
-    ColumnDef('blog-url',         'Blog URL',          'builtin'),
-    ColumnDef('sourcerepo-url',   'Source Repo URL',   'builtin'),
-    ColumnDef('wikipedia-url',    'Wikipedia URL',     'builtin'),
-    ColumnDef('twitter-handle',   'Twitter',           'builtin'),
-    ColumnDef('former-names',     'Former Names',      'builtin'),
+# All columns that exist independent of the database contents (i.e. not driven
+# by Feature or Attribute records). Feature- and Attribute-based columns are
+# added dynamically in get_available_columns().
+_STATIC_COLUMNS = [
+    ColumnDef('tags',                'Tags',               'builtin'),
+    ColumnDef('start-year',          'Start Year',         'builtin'),
+    ColumnDef('end-year',            'End Year',           'builtin'),
+    ColumnDef('developer-orgs',      'Developer',          'builtin'),
+    ColumnDef('acquired-by',         'Acquired By',        'builtin'),
+    ColumnDef('country',             'Country of Origin',  'builtin'),
+    ColumnDef('system-url',          'Website URL',        'builtin'),
+    ColumnDef('docs-url',            'Documentation',      'builtin'),
+    ColumnDef('blog-url',            'Blog URL',           'builtin'),
+    ColumnDef('sourcerepo-url',      'Source Repo URL',    'builtin'),
+    ColumnDef('wikipedia-url',       'Wikipedia URL',      'builtin'),
+    ColumnDef('twitter-handle',      'Twitter',            'builtin'),
+    ColumnDef('former-names',        'Former Names',       'builtin'),
+    ColumnDef('compatible-with',     'Compatible With',    'relationship'),
+    ColumnDef('derived-from',        'Derived From',       'relationship'),
+    ColumnDef('embedded',            'Embeds / Uses',      'relationship'),
+    ColumnDef('hosted-services',     'Hosted Services',    'relationship'),
+    ColumnDef('inspired-by',         'Inspired By',        'relationship'),
+    # 'supported-lang' col_type keeps this out of the dynamic attr_cols annotation loop
+    ColumnDef('supported-languages', 'Supported Languages','supported-lang'),
 ]
 
-# Maps URL col_id → FK traversal path on SystemVersion
+# Maps URL-type col_id → dotted FK path used to annotate the queryset with the URL string.
 _URL_COL_FIELDS = {
     'system-url':     'system_url__url',
     'docs-url':       'docs_url__url',
@@ -68,17 +87,8 @@ _URL_COL_FIELDS = {
     'twitter-handle': 'twitter_url__url',
 }
 
-_RELATIONSHIP_COLUMNS = [
-    ColumnDef('compatible-with', 'Compatible With', 'relationship'),
-    ColumnDef('derived-from',    'Derived From',    'relationship'),
-    ColumnDef('embedded',        'Embeds / Uses',   'relationship'),
-    ColumnDef('hosted-services', 'Hosted Services', 'relationship'),
-    ColumnDef('inspired-by',     'Inspired By',     'relationship'),
-]
-
-_SUPPORTED_LANGUAGES_COLUMN = ColumnDef('supported-languages', 'Supported Languages', 'supported-lang')
-
-# Maps relationship col_id → (SystemVersion M2M field name, null-check field)
+# Maps relationship col_id → SystemVersion M2M field name, used to build the
+# JSONBAgg annotation for each relationship column at query time.
 _RELATIONSHIP_FIELD_MAP = {
     'compatible-with': 'compatible_with',
     'derived-from':    'derived_from',
@@ -87,7 +97,9 @@ _RELATIONSHIP_FIELD_MAP = {
     'inspired-by':     'inspired_by',
 }
 
+# Year columns are pinned to the left of the results table regardless of col order.
 _YEAR_IDS        = frozenset({'start-year', 'end-year'})
+# These columns are always placed at the far right of the results table.
 _FIXED_RIGHT_IDS = frozenset({'tags'})
 
 # Maps a search GET param to the column ID that should be auto-shown when that param is active.
@@ -143,12 +155,15 @@ _EXISTS_FILTER_MAP = {
     'inspired':       ('inspired_by__isnull',           False),
 }
 
+# Matches DOI strings in search queries so they can be sanitised before being
+# passed to PostgreSQL's tsquery (colons in DOIs are tsquery operators).
 _DOI_RE = re.compile(
     r'doi[:]?\d+\.\d+/\S+'  # DOI: or DOI prefix (with optional colon)
     r'|\b10\.\d{4,}/\S+',   # bare DOI number at a word boundary
     re.IGNORECASE
 )
 
+# Maximum length accepted for the ?name= wildcard param to prevent runaway regex generation.
 _NAME_WILDCARD_MAX_LEN = 200
 
 def _wildcard_to_iregex(pattern):
@@ -969,7 +984,7 @@ class BrowseView(MetadataMixin, View):
         return (sqs, search_mapping, title, None)
 
     def get_available_columns(self):
-        cols = list(_BUILTIN_COLUMNS) + list(_RELATIONSHIP_COLUMNS) + [_SUPPORTED_LANGUAGES_COLUMN]
+        cols = list(_STATIC_COLUMNS)  # copy — features/attributes are appended below
         for feature in Feature.objects.all().order_by('label'):
             cols.append(ColumnDef(feature.slug, feature.label, 'feature'))
         for attr in Attribute.objects.filter(sv_field__gt='').exclude(slug='tag').order_by('name'):
