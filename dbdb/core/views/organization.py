@@ -18,7 +18,7 @@ from dbdb.core.views.home import _attach_data_models
 @method_decorator(cache_control(public=True, max_age=3600), name='dispatch')
 class OrganizationListView(MetadataMixin, View):
 
-    template_name = 'core/organization-list.html'
+    template_name = 'core/organization_list.html'
     title = f'Organizations{settings.DBDB_TITLE_SEPARATOR}{settings.DBDB_SITE_NAME}'
     twitter_type = 'summary'
 
@@ -63,7 +63,7 @@ class OrganizationListView(MetadataMixin, View):
 @method_decorator(cache_control(public=True, max_age=14400), name='dispatch')
 class OrganizationView(MetadataMixin, View):
 
-    template_name = 'core/organization-view.html'
+    template_name = 'core/organization_view.html'
 
     twitter_type = 'summary_large_image'
 

@@ -1003,6 +1003,8 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .tag-cell { width: 1%; }
 /*.tag-stack { display: flex; flex-wrap: wrap; gap: .35rem; }*/
 .tag-stack .tag-badge { font-size: 0.5rem !important; }
+.tag-stack-col { flex-direction: column; }
+.tag-stack-col-start { flex-direction: column; align-items: flex-start; }
 
 /* tag badges */
 .tag-badge {
@@ -1301,8 +1303,6 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
   margin: .4rem 0 0; padding-left: .9rem; border-left: 2px solid var(--rule);
 }
 
-.feed-wrap { max-width: 860px; margin: 0 auto; }
-
 .compare-bar { display: flex; align-items: center; gap: 1rem; padding: .2rem 0 1.2rem; flex-wrap: wrap; }
 .compare-bar .hint {
   font-family: var(--mono); text-transform: uppercase; letter-spacing: .1em; font-size: .62rem; color: var(--muted);
@@ -1463,6 +1463,34 @@ ins.diff-ins { text-decoration: none; border-radius: 2px; padding: 0 2px; }
 .ed-field input:focus { border-color: var(--ink); }
 .ed-field .form-text { font-size: .75rem; color: var(--muted); margin-top: .3rem; }
 .suggest-error { font-size: .78rem; color: var(--accent); margin-top: .3rem; }
+
+/* system-edit form helpers */
+.md-textarea textarea { height: 8em; resize: vertical; }
+.multi-select select { font-size: 0.85em; }
+.edit-savebox { position: static; width: 100%; margin-top: 2rem; }
+@media (min-width: 768px) {
+  .edit-savebox { position: fixed; top: 5.5rem; right: 2rem; width: 20rem; margin-top: 0; z-index: 99; }
+}
+
+/* setup_user (staff URL generation tool) */
+form#setup { background: var(--surface); margin: 0 auto; padding: 2.5rem; max-width: 500px; }
+form#setup h1 { font-size: 2rem; margin-top: 0; margin-bottom: 1rem; text-align: center; }
+form#setup label { margin-bottom: 0.2rem; }
+form#setup .form-group:last-child { margin-top: 30px; margin-bottom: 0; }
+form#setup [for="captcha"] { display: none; }
+.form-check-pane > .pane {
+  background: var(--surface); border: 1px solid var(--rule);
+  border-radius: .25rem .25rem 0 0; height: 200px;
+  padding: .375rem .75rem; overflow: auto;
+}
+.form-check-pane > .footer {
+  background: var(--rule); border: 1px solid var(--rule);
+  border-radius: 0 0 .25rem .25rem; margin-bottom: 1rem; padding: .25rem .75rem;
+}
+samp {
+  background: var(--paper); display: block; border: 1px solid var(--rule);
+  border-radius: .25rem; margin-top: 2rem; overflow-x: scroll; padding: .375rem .75rem;
+}
 
 .btn-solid {
   letter-spacing: .12em; padding: .6rem 1.2rem;

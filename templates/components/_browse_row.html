@@ -11,7 +11,7 @@
     </td>
     <td data-sort-val="{{ result.name }}">
         <a href="{% url 'system' result.slug %}" class="r-name">{{ result.name }}</a>
-        <div class="tag-stack d-md-none" style="flex-direction:column;">
+        <div class="tag-stack tag-stack-col d-md-none">
         {% for tag in result.system_tags %}
             {% if tag.name %}
                 {% if not forloop.first %}
@@ -26,7 +26,7 @@
     {% for col_val in result.col_values %}
         {% if col_val.type == 'tags' %}
         <td class="tag-cell d-none d-md-table-cell" data-sort-val="{% for tag in col_val.data %}{% if tag.name %}{% if not forloop.first %} {% endif %}{{ tag.name }}{% endif %}{% endfor %}">
-            <div class="tag-stack" style="flex-direction:column;align-items:flex-start;">
+            <div class="tag-stack tag-stack-col-start">
             {% for tag in col_val.data %}
                 {% if tag.name %}{% tag_link tag %}{% endif %}
             {% endfor %}

@@ -3,7 +3,7 @@
 {% load page_title %}
 {% load version_tags %}
 
-{% block title %}Field Checker - {% endblock %}
+{% block title %}Field Checker{{ DBDB_TITLE_SEPARATOR }}{% endblock %}
 
 {% block content %}
 {% page_title %}
@@ -12,9 +12,8 @@
 {% ptitle_sub %}Find entries missing required fields{% endptitle_sub %}
 {% endpage_title %}
 
-    <div class="container">
-        <div class="row">
-            <div class="col">
+    <div class="row">
+        <div class="col">
                 Use this form to identify which entries are missing certain fields.
                 We use this because we want to make sure that each database has at least a logo, website, and country of origin.
                 The "Reverse" option allows you to find the entries that do have a field populated.
@@ -68,5 +67,4 @@
             </div>
         </div>
         {% endif %}
-    </div>
 {% endblock %}
