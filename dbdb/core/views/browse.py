@@ -38,27 +38,46 @@ from dbdb.core.models import (
 from dbdb.core.utils.filters import FilterChoice, FilterGroup
 
 
+# Descriptor for a single displayable column in the browse results table.
+# col_id: URL-safe identifier used in the ?cols= param and internal lookups.
+# col_type: controls how the column is annotated and rendered —
+#   'builtin'      → hardcoded field on SystemVersion (year, URL, tags, etc.)
+#   'relationship' → System-to-System M2M (derived_from, embedded, etc.)
+#   'supported-lang' → AttributeOption M2M with an icon field (supported_languages)
+#   'feature'      → FeatureOption value fetched via SystemFeature
+#   'attribute'    → AttributeOption M2M driven by Attribute.sv_field
 ColumnDef = collections.namedtuple('ColumnDef', ['col_id', 'label', 'col_type'])
 
+# Columns shown when the user hasn't customised the ?cols= param.
 DEFAULT_COLS = ['data-model', 'start-year', 'tags']
 
-_BUILTIN_COLUMNS = [
-    ColumnDef('tags',             'Tags',              'builtin'),
-    ColumnDef('start-year',       'Start Year',        'builtin'),
-    ColumnDef('end-year',         'End Year',          'builtin'),
-    ColumnDef('developer-orgs',   'Developer',         'builtin'),
-    ColumnDef('acquired-by',      'Acquired By',       'builtin'),
-    ColumnDef('country',          'Country of Origin', 'builtin'),
-    ColumnDef('system-url',       'Website URL',       'builtin'),
-    ColumnDef('docs-url',         'Documentation',     'builtin'),
-    ColumnDef('blog-url',         'Blog URL',          'builtin'),
-    ColumnDef('sourcerepo-url',   'Source Repo URL',   'builtin'),
-    ColumnDef('wikipedia-url',    'Wikipedia URL',     'builtin'),
-    ColumnDef('twitter-handle',   'Twitter',           'builtin'),
-    ColumnDef('former-names',     'Former Names',      'builtin'),
+# All columns that exist independent of the database contents (i.e. not driven
+# by Feature or Attribute records). Feature- and Attribute-based columns are
+# added dynamically in get_available_columns().
+_STATIC_COLUMNS = [
+    ColumnDef('tags',                'Tags',               'builtin'),
+    ColumnDef('start-year',          'Start Year',         'builtin'),
+    ColumnDef('end-year',            'End Year',           'builtin'),
+    ColumnDef('developer-orgs',      'Developer',          'builtin'),
+    ColumnDef('acquired-by',         'Acquired By',        'builtin'),
+    ColumnDef('country',             'Country of Origin',  'builtin'),
+    ColumnDef('system-url',          'Website URL',        'builtin'),
+    ColumnDef('docs-url',            'Documentation',      'builtin'),
+    ColumnDef('blog-url',            'Blog URL',           'builtin'),
+    ColumnDef('sourcerepo-url',      'Source Repo URL',    'builtin'),
+    ColumnDef('wikipedia-url',       'Wikipedia URL',      'builtin'),
+    ColumnDef('twitter-handle',      'Twitter',            'builtin'),
+    ColumnDef('former-names',        'Former Names',       'builtin'),
+    ColumnDef('compatible-with',     'Compatible With',    'relationship'),
+    ColumnDef('derived-from',        'Derived From',       'relationship'),
+    ColumnDef('embedded',            'Embeds / Uses',      'relationship'),
+    ColumnDef('hosted-services',     'Hosted Services',    'relationship'),
+    ColumnDef('inspired-by',         'Inspired By',        'relationship'),
+    # 'supported-lang' col_type keeps this out of the dynamic attr_cols annotation loop
+    ColumnDef('supported-languages', 'Supported Languages','supported-lang'),
 ]
 
-# Maps URL col_id → FK traversal path on SystemVersion
+# Maps URL-type col_id → dotted FK path used to annotate the queryset with the URL string.
 _URL_COL_FIELDS = {
     'system-url':     'system_url__url',
     'docs-url':       'docs_url__url',
@@ -68,15 +87,8 @@ _URL_COL_FIELDS = {
     'twitter-handle': 'twitter_url__url',
 }
 
-_RELATIONSHIP_COLUMNS = [
-    ColumnDef('compatible-with', 'Compatible With', 'relationship'),
-    ColumnDef('derived-from',    'Derived From',    'relationship'),
-    ColumnDef('embedded',        'Embeds / Uses',   'relationship'),
-    ColumnDef('hosted-services', 'Hosted Services', 'relationship'),
-    ColumnDef('inspired-by',     'Inspired By',     'relationship'),
-]
-
-# Maps relationship col_id → (SystemVersion M2M field name, null-check field)
+# Maps relationship col_id → SystemVersion M2M field name, used to build the
+# JSONBAgg annotation for each relationship column at query time.
 _RELATIONSHIP_FIELD_MAP = {
     'compatible-with': 'compatible_with',
     'derived-from':    'derived_from',
@@ -85,7 +97,9 @@ _RELATIONSHIP_FIELD_MAP = {
     'inspired-by':     'inspired_by',
 }
 
+# Year columns are pinned to the left of the results table regardless of col order.
 _YEAR_IDS        = frozenset({'start-year', 'end-year'})
+# These columns are always placed at the far right of the results table.
 _FIXED_RIGHT_IDS = frozenset({'tags'})
 
 # Maps a search GET param to the column ID that should be auto-shown when that param is active.
@@ -98,6 +112,7 @@ _SEARCH_PARAM_TO_COL = {
     'embeds':      'embedded',
     'hosted_by':   'hosted-services',
     'inspired':    'inspired-by',
+    'supported':   'supported-languages',
 }
 
 # Maps GET param → (verb_phrase, noun_label) for title generation.
@@ -112,6 +127,7 @@ _FIELD_NAME_MAP = {
     'developer':      ('Developed By',    'Developer Organization'),
     'acquired-by':    ('Acquired By',     'Acquisition'),
     'country':        ('from',            'Country'),
+    'supported':      (None, 'Supported Language'),
     'wikipedia_url':  (None, 'Wikipedia URL'),
     'system_url':     (None, 'Website URL'),
     'docs_url':       (None, 'Docs URL'),
@@ -129,21 +145,25 @@ _EXISTS_FILTER_MAP = {
     'sourcerepo_url': ('sourcerepo_url__isnull',   False),
     'description':    ('description__gt',          ''),
     'history':        ('history__gt',              ''),
-    'developer':      ('developer_orgs__isnull',   False),
-    'acquired-by':    ('acquisitions__isnull',      False),
-    'compatible':     ('compatible_with__isnull',   False),
-    'derived':        ('derived_from__isnull',      False),
-    'embeds':         ('embedded__isnull',          False),
-    'hosted_by':      ('hosted_services__isnull',   False),
-    'inspired':       ('inspired_by__isnull',       False),
+    'developer':      ('developer_orgs__isnull',       False),
+    'acquired-by':    ('acquisitions__isnull',          False),
+    'supported':      ('supported_languages__isnull',   False),
+    'compatible':     ('compatible_with__isnull',       False),
+    'derived':        ('derived_from__isnull',          False),
+    'embeds':         ('embedded__isnull',              False),
+    'hosted_by':      ('hosted_services__isnull',       False),
+    'inspired':       ('inspired_by__isnull',           False),
 }
 
+# Matches DOI strings in search queries so they can be sanitised before being
+# passed to PostgreSQL's tsquery (colons in DOIs are tsquery operators).
 _DOI_RE = re.compile(
     r'doi[:]?\d+\.\d+/\S+'  # DOI: or DOI prefix (with optional colon)
     r'|\b10\.\d{4,}/\S+',   # bare DOI number at a word boundary
     re.IGNORECASE
 )
 
+# Maximum length accepted for the ?name= wildcard param to prevent runaway regex generation.
 _NAME_WILDCARD_MAX_LEN = 200
 
 def _wildcard_to_iregex(pattern):
@@ -383,6 +403,15 @@ class BrowseView(MetadataMixin, View):
             for slug, name in acquiredby_orgs_map.items()
         ], key=lambda x: x.label)))
 
+        # Supported Languages — options share the programming-language attribute pool
+        pl_attr = Attribute.objects.filter(slug='programming-language').first()
+        if pl_attr:
+            other_filtersgroups.append(FilterGroup(
+                'supported',
+                'Supported Language',
+                [FilterChoice(opt.slug, opt.name) for opt in pl_attr.options.order_by('name')],
+            ))
+
         # Add one FilterGroup per Attribute that has a sv_field configured.
         # Adding a new Attribute in the admin automatically shows up here.
         for attr in Attribute.objects.filter(sv_field__gt='').prefetch_related('options').order_by('name'):
@@ -441,10 +470,14 @@ class BrowseView(MetadataMixin, View):
         def _is_count_val(v):
             return v.startswith('+') and v[1:].isdigit()
 
-        # separate option-slug values from count (+N) values for feature params
+        def _is_negation_val(v):
+            return v.startswith('!')
+
+        # separate option-slug values from count (+N) / negation (!) values for feature params
         search_fg = {}
         feature_counts = {}
-        feature_exists = {}  # fid → slug, for existence queries (value == '*')
+        feature_exists = {}   # fid → slug, for existence queries (value == '*')
+        feature_negations = {}  # fid → set(slugs without leading '!')
         for k in get_params.keys():
             if k not in features_map:
                 continue
@@ -453,12 +486,15 @@ class BrowseView(MetadataMixin, View):
             if vals == ['*']:
                 feature_exists[fid] = k
                 continue
-            option_vals = [v for v in vals if not _is_count_val(v)]
-            count_vals  = [v for v in vals if _is_count_val(v)]
+            option_vals   = [v      for v in vals if not _is_count_val(v) and not _is_negation_val(v)]
+            negation_vals = [v[1:]  for v in vals if _is_negation_val(v)]
+            count_vals    = [v      for v in vals if _is_count_val(v)]
             if option_vals:
                 search_fg[fid] = set(option_vals)
             if count_vals:
                 feature_counts[fid] = max(int(v[1:]) for v in count_vals)
+            if negation_vals:
+                feature_negations[fid] = set(negation_vals)
 
         # define date filters
         search_start_year = get_params.get('start-year', '').strip()
@@ -474,6 +510,7 @@ class BrowseView(MetadataMixin, View):
         search_country = list(map(str.upper, get_params.getlist('country')))
         search_derived = get_params.getlist('derived')
         search_developer = get_params.getlist('developer')
+        search_supported = get_params.getlist('supported')
         search_embeds = get_params.getlist('embeds')
         search_hosted_by = get_params.getlist('hosted_by')
         search_inspired = get_params.getlist('inspired')
@@ -483,7 +520,8 @@ class BrowseView(MetadataMixin, View):
         # collect attribute-based search params keyed by Attribute slug
         attr_searches = {}
         attr_count_searches = {}
-        attr_exists = {}  # attr.slug → attr, for existence queries (value == '*')
+        attr_exists = {}     # attr.slug → attr, for existence queries (value == '*')
+        attr_negations = {}  # attr.slug → (attr, [slugs without leading '!'])
         for attr in Attribute.objects.filter(sv_field__gt='').only('slug', 'name', 'sv_field', 'search_text'):
             vals = get_params.getlist(attr.slug)
             if not vals:
@@ -491,12 +529,15 @@ class BrowseView(MetadataMixin, View):
             if vals == ['*']:
                 attr_exists[attr.slug] = attr
                 continue
-            option_vals = [v for v in vals if not _is_count_val(v)]
-            count_vals  = [v for v in vals if _is_count_val(v)]
+            option_vals   = [v      for v in vals if not _is_count_val(v) and not _is_negation_val(v)]
+            negation_vals = [v[1:]  for v in vals if _is_negation_val(v)]
+            count_vals    = [v      for v in vals if _is_count_val(v)]
             if option_vals:
                 attr_searches[attr.slug] = (attr, option_vals)
             if count_vals:
                 attr_count_searches[attr.slug] = (attr, max(int(v[1:]) for v in count_vals))
+            if negation_vals:
+                attr_negations[attr.slug] = (attr, negation_vals)
 
         # collect filters
         search_mapping = {
@@ -517,6 +558,7 @@ class BrowseView(MetadataMixin, View):
             'embeds': search_embeds,
             'hosted_by': search_hosted_by,
             'inspired': search_inspired,
+            'supported': search_supported,
             'suffix': search_suffix,
             'name': search_name,
         }
@@ -534,6 +576,10 @@ class BrowseView(MetadataMixin, View):
             search_mapping[slug] = '*'
         for fid, slug in feature_exists.items():
             search_mapping[slug] = '*'
+        for fid, neg_slugs in feature_negations.items():
+            search_mapping[f'feature_{fid}__not'] = neg_slugs
+        for slug, (attr, neg_slugs) in attr_negations.items():
+            search_mapping[f'{slug}__not'] = neg_slugs
 
         if not any(search_mapping.values()) and not any(search_fg):
             return (sqs, { }, 'Browse', None)
@@ -712,6 +758,18 @@ class BrowseView(MetadataMixin, View):
                 search_parts.append(f' {_v} {joined}')
             pass
 
+        # search - supported languages (existence handled by _EXISTS_FILTER_MAP; skip '*' here)
+        value_supported = [v for v in search_supported if v != '*']
+        if value_supported:
+            sqs_filters.append(Q(supported_languages__slug__in=value_supported))
+            opts = AttributeOption.objects.filter(
+                attribute__slug='programming-language', slug__in=value_supported
+            ).only('name')
+            names = [o.name for o in opts]
+            joined = f' {op_str} '.join(names) if len(names) < 3 else f"{', '.join(names[:-1])}, {op_str} {names[-1]}"
+            if joined:
+                search_parts.append(f'Supporting {joined}')
+
         # search - attribute options (dynamic: one block per Attribute)
         for slug, (attr, param_slugs) in attr_searches.items():
             if search_op == and_ and len(param_slugs) > 1:
@@ -775,6 +833,12 @@ class BrowseView(MetadataMixin, View):
                     feature_name = reverse_features_map.get(feature_id, str(feature_id))
                     return (sqs.none(), {}, 'Invalid Search',
                             f"Unknown value '{slug}' for feature '{feature_name}'.")
+        for feature_id, neg_slugs in feature_negations.items():
+            for slug in neg_slugs:
+                if (feature_id, slug) not in featuresoptions_map:
+                    feature_name = reverse_features_map.get(feature_id, str(feature_id))
+                    return (sqs.none(), {}, 'Invalid Search',
+                            f"Unknown value '!{slug}' for feature '{feature_name}'.")
 
         # convert feature option slugs to IDs to do search by filtering
         feature_option_ids = set()
@@ -863,6 +927,25 @@ class BrowseView(MetadataMixin, View):
                 .values('id').distinct()
             )
 
+        # Negation filters — always AND'd, independent of search_op
+        for fid, neg_slugs in feature_negations.items():
+            neg_ids = [featuresoptions_map[(fid, s)] for s in neg_slugs]
+            excluded = (
+                SystemFeature.objects
+                .filter(feature_id=fid, options__id__in=neg_ids, version__is_current=True)
+                .values_list('version_id', flat=True).distinct()
+            )
+            sqs = sqs.exclude(id__in=excluded)
+
+        for slug, (attr, neg_slugs) in attr_negations.items():
+            excluded = (
+                SystemVersion.objects
+                .filter(is_current=True)
+                .filter(**{f'{attr.sv_field}__slug__in': neg_slugs})
+                .values_list('id', flat=True).distinct()
+            )
+            sqs = sqs.exclude(id__in=excluded)
+
         # Existence title parts
         for param, (lookup, val) in _EXISTS_FILTER_MAP.items():
             if get_params.get(param) == '*':
@@ -901,7 +984,7 @@ class BrowseView(MetadataMixin, View):
         return (sqs, search_mapping, title, None)
 
     def get_available_columns(self):
-        cols = list(_BUILTIN_COLUMNS) + list(_RELATIONSHIP_COLUMNS)
+        cols = list(_STATIC_COLUMNS)  # copy — features/attributes are appended below
         for feature in Feature.objects.all().order_by('label'):
             cols.append(ColumnDef(feature.slug, feature.label, 'feature'))
         for attr in Attribute.objects.filter(sv_field__gt='').exclude(slug='tag').order_by('name'):
@@ -1006,6 +1089,14 @@ class BrowseView(MetadataMixin, View):
                 distinct=True,
             ))
 
+        # Supported Languages column annotation (inline)
+        if 'supported-languages' in active_col_ids:
+            results = results.annotate(col_supported_languages=JSONBAgg(
+                JSONObject(name=F('supported_languages__name'), slug=F('supported_languages__slug'), icon=F('supported_languages__icon')),
+                filter=Q(supported_languages__isnull=False),
+                distinct=True,
+            ))
+
         # Relationship column annotations (derived_from, embedded, etc.)
         for col_id, sv_field in _RELATIONSHIP_FIELD_MAP.items():
             if col_id in active_col_ids:
@@ -1029,6 +1120,8 @@ class BrowseView(MetadataMixin, View):
             value_fields.append('col_developer_orgs')
         if 'acquired-by' in active_col_ids:
             value_fields.append('col_acquired_by')
+        if 'supported-languages' in active_col_ids:
+            value_fields.append('col_supported_languages')
         if 'country' in active_col_ids:
             value_fields.append('countries')
         for col_id in _RELATIONSHIP_FIELD_MAP:
@@ -1113,6 +1206,8 @@ class BrowseView(MetadataMixin, View):
                     col_values.append({'type': 'orgs', 'data': r.get('col_developer_orgs') or []})
                 elif col.col_id == 'acquired-by':
                     col_values.append({'type': 'orgs', 'data': r.get('col_acquired_by') or []})
+                elif col.col_id == 'supported-languages':
+                    col_values.append({'type': 'attr_opts', 'data': r.get('col_supported_languages') or []})
                 elif col.col_type == 'relationship':
                     key = 'col_' + col.col_id.replace('-', '_')
                     col_values.append({'type': 'systems', 'data': r.get(key) or []})
@@ -1196,7 +1291,7 @@ class BrowseView(MetadataMixin, View):
             'cols_are_custom': cols_are_custom,
             'available_builtin':    sorted((c for c in available_columns if c.col_type == 'builtin'), key=lambda c: c.label),
             'available_features':   [c for c in available_columns if c.col_type == 'feature'],
-            'available_attributes': sorted((c for c in available_columns if c.col_type in ('attribute', 'relationship')), key=lambda c: c.label),
+            'available_attributes': sorted((c for c in available_columns if c.col_type in ('attribute', 'relationship', 'supported-lang')), key=lambda c: c.label),
             'cols_param': ','.join(active_col_ids),
             'saved_search': saved_search,
             'dropdown_fields': dropdown_fields,
