@@ -4,7 +4,7 @@ import datetime
 import environ
 import jwt
 from django.conf import settings
-from django.contrib.auth import get_user
+from django.contrib.auth import get_user, get_user_model
 from django.test import Client, RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
@@ -1178,7 +1178,7 @@ class CreateUserViewTestCase(TestCase):
         self.assertFalse(response.context.get('expired_token', False))
         self.assertEqual(response.context['form'].initial.get('email'), 'ghostface@wutang.com')
 
-    def test_post_valid_data_creates_user(self):
+    def test_post_valid_data_creates_and_logs_in_user(self):
         # TURNSTILE_ENABLE=False in test_settings skips captcha validation
         response = self.client.post(self.url, {
             'username': 'raekwon',
@@ -1186,11 +1186,10 @@ class CreateUserViewTestCase(TestCase):
             'password': 'OnlyBuiltForCubanLinx!1',
             'password2': 'OnlyBuiltForCubanLinx!1',
         })
-        # Successful registration redirects to login page
-        self.assertEqual(response.status_code, 302)
-        from django.contrib.auth import get_user_model
+        self.assertRedirects(response, reverse('user_profile'))
         User = get_user_model()
         self.assertTrue(User.objects.filter(username='raekwon').exists())
+        self.assertEqual(get_user(self.client).username, 'raekwon')
 
     def test_post_mismatched_passwords_rerenders_form(self):
         response = self.client.post(self.url, {
