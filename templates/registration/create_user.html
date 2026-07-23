@@ -65,11 +65,3 @@ The registration link has expired. Please <a href="{% url 'signup_request' %}">r
 </div>
 {% endblock %}
 
-{% block scripts %}
-<script src='https://www.google.com/recaptcha/api.js'></script>
-<script>
-function onCaptchaSubmit(){
-    document.getElementById('registration').submit();
-}
-</script>
-{% endblock %}

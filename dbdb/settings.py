@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     'easy_thumbnails',
     'django_countries',
     'colorfield',
-    'captcha',
     'turnstile',
     'rest_framework', # djangorestframework
     'markdownify.apps.MarkdownifyConfig',
@@ -221,10 +220,6 @@ THUMBNAIL_PRESERVE_EXTENSIONS = ['png', 'svg']
 
 # Django Countries
 COUNTRIES_FIRST = ['US']
-
-# Django Invisible reCaptcha
-RECAPTCHA_PUBLIC_KEY = '' # env('RECAPTCHA_PUBLIC_KEY')
-RECAPTCHA_PRIVATE_KEY = '' # env('RECAPTCHA_PRIVATE_KEY')
 
 # Cloudflare Turnstile — set TURNSTILE_SITEKEY / TURNSTILE_SECRET in .env for production.
 # The defaults below are Cloudflare's always-pass test keys (safe for development).

@@ -1135,3 +1135,76 @@ class SetupUserViewTestCase(TestCase):
         data = response.json()
         self.assertIn('url', data)
         self.assertIn('/user/create', data['url'])
+
+
+# ==============================================
+# CreateUserViewTestCase
+# ==============================================
+class CreateUserViewTestCase(TestCase):
+    fixtures = ['adminuser.json', 'testuser.json', 'core_features.json',
+                'core_attributes.json', 'core_system.json']
+
+    def setUp(self):
+        self.url = reverse('create_user')
+
+    def _make_token(self, email=None, systems=None, expired=False):
+        payload = {'iat': datetime.datetime.now(tz=datetime.timezone.utc)}
+        if expired:
+            payload['exp'] = datetime.datetime.now(tz=datetime.timezone.utc) - datetime.timedelta(hours=1)
+        else:
+            payload['exp'] = datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(hours=24)
+        if email:
+            payload['sub'] = email
+        if systems:
+            payload['systems'] = systems
+        return jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+
+    def test_get_renders_form(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/create_user.html')
+        self.assertIn('form', response.context)
+
+    def test_get_with_expired_token_shows_expired_message(self):
+        token = self._make_token(email='rza@wutang.com', expired=True)
+        response = self.client.get(self.url, {'token': token})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['expired_token'])
+
+    def test_get_with_valid_token_prefills_email(self):
+        token = self._make_token(email='ghostface@wutang.com')
+        response = self.client.get(self.url, {'token': token})
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context.get('expired_token', False))
+        self.assertEqual(response.context['form'].initial.get('email'), 'ghostface@wutang.com')
+
+    def test_post_valid_data_creates_user(self):
+        # TURNSTILE_ENABLE=False in test_settings skips captcha validation
+        response = self.client.post(self.url, {
+            'username': 'raekwon',
+            'email': 'raekwon@wutang.com',
+            'password': 'OnlyBuiltForCubanLinx!1',
+            'password2': 'OnlyBuiltForCubanLinx!1',
+        })
+        # Successful registration redirects to login page
+        self.assertEqual(response.status_code, 302)
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        self.assertTrue(User.objects.filter(username='raekwon').exists())
+
+    def test_post_mismatched_passwords_rerenders_form(self):
+        response = self.client.post(self.url, {
+            'username': 'masta_killa',
+            'email': 'masta@wutang.com',
+            'password': 'password1',
+            'password2': 'password2',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response.context['form'], 'password2', 'The passwords do not match')
+
+    def test_form_uses_turnstile_not_recaptcha(self):
+        # Regression: button was previously bound to invisible reCAPTCHA which
+        # intercepted clicks but never completed with empty RECAPTCHA_PUBLIC_KEY.
+        response = self.client.get(self.url)
+        self.assertNotContains(response, 'google.com/recaptcha')
+        self.assertNotContains(response, 'onCaptchaSubmit')

@@ -72,7 +72,6 @@ class CreateUserView(View):
 
             'expired_token': expired_token,
             'form': form,
-            'recaptcha_key': settings.RECAPTCHA_PUBLIC_KEY,
         })
 
     def post(self, request, *args, **kwargs):
@@ -122,7 +121,6 @@ class CreateUserView(View):
 
         return render(request, self.template_name, {
             'form': form,
-            'recaptcha_key': settings.RECAPTCHA_PUBLIC_KEY,
         })
 
     pass

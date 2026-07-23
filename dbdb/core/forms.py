@@ -6,8 +6,6 @@ import json
 # from django.forms.fields import MultipleChoiceField
 # from django.forms.widgets import Textarea
 # third-party imports
-from captcha.fields import ReCaptchaField
-from captcha.widgets import ReCaptchaV2Invisible
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
 from turnstile.fields import TurnstileField
@@ -200,14 +198,7 @@ class CreateUserForm(forms.ModelForm):
     password = forms.CharField(max_length=128, label='Password', widget=widgets.PasswordInput)
     password2 = forms.CharField(max_length=128, label='Password Confirmation', widget=widgets.PasswordInput)
 
-    captcha = ReCaptchaField(
-        widget=ReCaptchaV2Invisible(
-            attrs={
-                'data-callback': 'onCaptchaSubmit',  # name of JavaScript callback function
-                'bind': 'btn_submit'  # submit button's ID in the form template
-            }
-        )
-    )
+    captcha = TurnstileField()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

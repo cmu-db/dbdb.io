@@ -26,3 +26,5 @@ class FreshTestRunner(DiscoverRunner):
 
 
 TEST_RUNNER = 'dbdb.test_settings.FreshTestRunner'
+
+TURNSTILE_ENABLE = False
