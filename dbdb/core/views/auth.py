@@ -8,7 +8,7 @@ import tldextract
 # django imports
 from django import forms as django_forms
 from django.conf import settings
-from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth import authenticate, get_user_model, login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.mail import send_mail
 from django.db import transaction
@@ -72,7 +72,6 @@ class CreateUserView(View):
 
             'expired_token': expired_token,
             'form': form,
-            'recaptcha_key': settings.RECAPTCHA_PUBLIC_KEY,
         })
 
     def post(self, request, *args, **kwargs):
@@ -117,12 +116,11 @@ class CreateUserView(View):
                     pass
                 pass
 
-            # end successfully with a redirect to login page
-            return redirect(settings.LOGIN_URL + '?status=success')
+            login(request, user)
+            return redirect(reverse('user_profile'))
 
         return render(request, self.template_name, {
             'form': form,
-            'recaptcha_key': settings.RECAPTCHA_PUBLIC_KEY,
         })
 
     pass

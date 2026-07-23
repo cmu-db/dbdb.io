@@ -4,7 +4,7 @@ import datetime
 import environ
 import jwt
 from django.conf import settings
-from django.contrib.auth import get_user
+from django.contrib.auth import get_user, get_user_model
 from django.test import Client, RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
@@ -1062,3 +1062,148 @@ class JwtAuthTestCase(TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(result['sub'], email)
         self.assertEqual(result['systems'], system_ids)
+
+
+# ==============================================
+# SetupUserViewTestCase
+# ==============================================
+class SetupUserViewTestCase(TestCase):
+
+    fixtures = [
+        'adminuser.json',
+        'testuser.json',
+        'core_features.json',
+        'core_attributes.json',
+        'core_system.json',
+    ]
+
+    def setUp(self):
+        self.url = reverse('setup_user')
+        self.client.login(username='admin', password='testpassword')
+        self.system = System.objects.first()
+
+    def test_superuser_can_access_page(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Generate URL')
+
+    def test_non_superuser_cannot_access(self):
+        self.client.logout()
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(self.url)
+        self.assertNotEqual(response.status_code, 200)
+
+    def test_form_uses_get_not_post(self):
+        # Before fix: form had method="POST" so clicking Generate URL would
+        # hit the view's missing post() handler and return 405.
+        response = self.client.get(self.url)
+        self.assertContains(response, 'method="GET" id="setup"',
+                            msg_prefix='Setup form must use GET so the button works without JS')
+
+    def test_generate_url_returns_json(self):
+        response = self.client.get(self.url, {
+            'action': 'url',
+            'email': 'inspectah@wutang.com',
+            'systems': [self.system.id],
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn('url', data)
+        self.assertNotIn('error', data)
+
+    def test_generate_url_existing_email_returns_error(self):
+        # admin@dbdb.io already exists in the adminuser fixture
+        response = self.client.get(self.url, {
+            'action': 'url',
+            'email': 'admin@dbdb.io',
+            'systems': [self.system.id],
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn('error', data)
+
+    def test_generate_url_response_is_json_not_html(self):
+        # Regression: if the AJAX endpoint returns HTML instead of JSON,
+        # the client-side success handler receives a string and response.url
+        # is undefined — the URL box never appears.
+        response = self.client.get(self.url, {
+            'action': 'url',
+            'email': 'gza@wutang.com',
+            'systems': [self.system.id],
+        })
+        self.assertEqual(response['Content-Type'], 'application/json')
+        data = response.json()
+        self.assertIn('url', data)
+        self.assertIn('/user/create', data['url'])
+
+
+# ==============================================
+# CreateUserViewTestCase
+# ==============================================
+class CreateUserViewTestCase(TestCase):
+    fixtures = ['adminuser.json', 'testuser.json', 'core_features.json',
+                'core_attributes.json', 'core_system.json']
+
+    def setUp(self):
+        self.url = reverse('create_user')
+
+    def _make_token(self, email=None, systems=None, expired=False):
+        payload = {'iat': datetime.datetime.now(tz=datetime.timezone.utc)}
+        if expired:
+            payload['exp'] = datetime.datetime.now(tz=datetime.timezone.utc) - datetime.timedelta(hours=1)
+        else:
+            payload['exp'] = datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(hours=24)
+        if email:
+            payload['sub'] = email
+        if systems:
+            payload['systems'] = systems
+        return jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+
+    def test_get_renders_form(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/create_user.html')
+        self.assertIn('form', response.context)
+
+    def test_get_with_expired_token_shows_expired_message(self):
+        token = self._make_token(email='rza@wutang.com', expired=True)
+        response = self.client.get(self.url, {'token': token})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['expired_token'])
+
+    def test_get_with_valid_token_prefills_email(self):
+        token = self._make_token(email='ghostface@wutang.com')
+        response = self.client.get(self.url, {'token': token})
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context.get('expired_token', False))
+        self.assertEqual(response.context['form'].initial.get('email'), 'ghostface@wutang.com')
+
+    def test_post_valid_data_creates_and_logs_in_user(self):
+        # TURNSTILE_ENABLE=False in test_settings skips captcha validation
+        response = self.client.post(self.url, {
+            'username': 'raekwon',
+            'email': 'raekwon@wutang.com',
+            'password': 'OnlyBuiltForCubanLinx!1',
+            'password2': 'OnlyBuiltForCubanLinx!1',
+        })
+        self.assertRedirects(response, reverse('user_profile'))
+        User = get_user_model()
+        self.assertTrue(User.objects.filter(username='raekwon').exists())
+        self.assertEqual(get_user(self.client).username, 'raekwon')
+
+    def test_post_mismatched_passwords_rerenders_form(self):
+        response = self.client.post(self.url, {
+            'username': 'masta_killa',
+            'email': 'masta@wutang.com',
+            'password': 'password1',
+            'password2': 'password2',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response.context['form'], 'password2', 'The passwords do not match')
+
+    def test_form_uses_turnstile_not_recaptcha(self):
+        # Regression: button was previously bound to invisible reCAPTCHA which
+        # intercepted clicks but never completed with empty RECAPTCHA_PUBLIC_KEY.
+        response = self.client.get(self.url)
+        self.assertNotContains(response, 'google.com/recaptcha')
+        self.assertNotContains(response, 'onCaptchaSubmit')

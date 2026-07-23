@@ -44,4 +44,4 @@ jobs:
         run: uv run python manage.py collectstatic --settings=dbdb.test_settings --no-input
 
       - name: Run tests
-        run: timeout 60 uv run python manage.py test dbdb.core --settings=dbdb.test_settings --verbosity=2
+        run: timeout 180 uv run python manage.py test dbdb.core --settings=dbdb.test_settings --verbosity=2
