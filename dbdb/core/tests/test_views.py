@@ -1121,3 +1121,17 @@ class SetupUserViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertIn('error', data)
+
+    def test_generate_url_response_is_json_not_html(self):
+        # Regression: if the AJAX endpoint returns HTML instead of JSON,
+        # the client-side success handler receives a string and response.url
+        # is undefined — the URL box never appears.
+        response = self.client.get(self.url, {
+            'action': 'url',
+            'email': 'gza@wutang.com',
+            'systems': [self.system.id],
+        })
+        self.assertEqual(response['Content-Type'], 'application/json')
+        data = response.json()
+        self.assertIn('url', data)
+        self.assertIn('/user/create', data['url'])

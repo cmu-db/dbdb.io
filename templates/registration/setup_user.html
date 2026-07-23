@@ -54,8 +54,15 @@
 
 $(function(){
 
+    // Bootstrap's d-none uses display:none !important which the CSS cascade ranks above
+    // jQuery's non-!important inline styles, so fadeIn/fadeOut cannot override it.
+    // Use class toggling instead so Bootstrap controls visibility as intended.
+    function showUrl()  { $('#url').removeClass('d-none'); }
+    function hideUrl()  { $('#url').addClass('d-none');    }
+    function urlShown() { return !$('#url').hasClass('d-none'); }
+
     $('#email').change(function(){
-        if ( $('#url').is(':visible') ) $('#url').fadeOut('fast');
+        if ( urlShown() ) hideUrl();
     });
 
     $('div.form-check-pane').each(function(){
@@ -69,7 +76,7 @@ $(function(){
             var count = $pane.find('[type="checkbox"]').filter(':checked').length.toLocaleString();
             $info.text( count + ' selected' );
 
-            if ( $('#url').is(':visible') ) $('#url').fadeOut('fast');
+            if ( urlShown() ) hideUrl();
         }
 
         $pane.find('[type="checkbox"]').change(update_count);
@@ -99,16 +106,11 @@ $(function(){
             cache: false,
             data: { action:'url' , email:email, systems:systems },
             traditional: true,
+            dataType: 'json',
 
             success: function(response) {
-                if (response.error) {
-                    $('#url').text(response.error);
-                }
-                else {
-                    $('#url').text(response.url);
-                }
-
-                $('#url').fadeIn('fast');
+                $('#url').text(response.error || response.url);
+                showUrl();
             }
         })
 
