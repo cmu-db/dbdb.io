@@ -8,10 +8,8 @@
 {% block content %}
     <div class="row justify-content-center">
         <div class="col-md-6">
-                <form method="POST" id="setup">
+                <form method="GET" id="setup">
                     <h1>User Registration Setup</h1>
-
-                    {% csrf_token %}
 
                     <div class="form-group">
                         <label for="email">Email</label><input type="email" name="email" placeholder="Email" id="email" maxlength="254" class="form-control" required title="" />

@@ -1062,3 +1062,62 @@ class JwtAuthTestCase(TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(result['sub'], email)
         self.assertEqual(result['systems'], system_ids)
+
+
+# ==============================================
+# SetupUserViewTestCase
+# ==============================================
+class SetupUserViewTestCase(TestCase):
+
+    fixtures = [
+        'adminuser.json',
+        'testuser.json',
+        'core_features.json',
+        'core_attributes.json',
+        'core_system.json',
+    ]
+
+    def setUp(self):
+        self.url = reverse('setup_user')
+        self.client.login(username='admin', password='testpassword')
+        self.system = System.objects.first()
+
+    def test_superuser_can_access_page(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Generate URL')
+
+    def test_non_superuser_cannot_access(self):
+        self.client.logout()
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(self.url)
+        self.assertNotEqual(response.status_code, 200)
+
+    def test_form_uses_get_not_post(self):
+        # Before fix: form had method="POST" so clicking Generate URL would
+        # hit the view's missing post() handler and return 405.
+        response = self.client.get(self.url)
+        self.assertContains(response, 'method="GET" id="setup"',
+                            msg_prefix='Setup form must use GET so the button works without JS')
+
+    def test_generate_url_returns_json(self):
+        response = self.client.get(self.url, {
+            'action': 'url',
+            'email': 'inspectah@wutang.com',
+            'systems': [self.system.id],
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn('url', data)
+        self.assertNotIn('error', data)
+
+    def test_generate_url_existing_email_returns_error(self):
+        # admin@dbdb.io already exists in the adminuser fixture
+        response = self.client.get(self.url, {
+            'action': 'url',
+            'email': 'admin@dbdb.io',
+            'systems': [self.system.id],
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn('error', data)
