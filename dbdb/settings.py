@@ -268,7 +268,7 @@ DBDB_SOURCEREPO_DIRECTORY = env('DBDB_SOURCEREPO_DIRECTORY', default='/tmp/dbdb/
 GITHUB_API_TOKEN   = env('GITHUB_API_TOKEN',   default='')
 GITLAB_API_TOKEN   = env('GITLAB_API_TOKEN',   default='')
 CODEBERG_API_TOKEN = env('CODEBERG_API_TOKEN', default='')
-REPOSITORY_INACTIVITY_DAYS = 730 # two years
+REPOSITORY_INACTIVITY_DAYS = 365 # 1 year seems to be enough
 
 CRAWLER_USER_AGENT = env('CRAWLER_USER_AGENT', default='dbdb.io/1.0')
 
