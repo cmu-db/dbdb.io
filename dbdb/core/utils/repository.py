@@ -213,6 +213,114 @@ def check_abandoned(system:System, *, inactivity_days: int = 1095) -> bool:
     return True
 
 
+def check_resurrection(system: System) -> bool:
+    """
+    Check whether a system tagged 'Abandoned' has shown signs of recent activity.
+
+    Fetches a fresh snapshot regardless of RepositoryInfo.enabled. If any activity
+    (new commit, closed PR, or closed issue) is detected after the abandonment date,
+    creates a pending SystemVersion for admin review that removes the Abandoned tag
+    and clears end_year. If a pending version already exists it is modified in place.
+
+    Returns True if a resurrection was flagged, False otherwise.
+
+    Raises:
+        ValueError: The system has no sourcerepo_url.
+    """
+    from dbdb.core.models import AttributeOption, RepositoryInfo, RepositorySnapshot
+
+    current = SystemVersion.objects.get(system=system, is_current=True)
+
+    if not current.sourcerepo_url_id:
+        raise ValueError(f"System '{system.slug}' has no sourcerepo_url")
+
+    citation = current.sourcerepo_url
+
+    # Do NOT gate on enabled — abandoned repos have enabled=False by design
+    repo_info, _ = RepositoryInfo.objects.get_or_create(sourcerepo_url=citation)
+
+    abandoned_tag = AttributeOption.objects.get(attribute__slug='tag', slug='abandoned')
+    if not current.tags.filter(pk=abandoned_tag.pk).exists():
+        return False
+
+    snap = fetch_snapshot_data(citation)
+
+    if snap.errors and not snap.has_data:
+        computed_status = RepositorySnapshot.Status.FAILED
+    elif snap.errors:
+        computed_status = RepositorySnapshot.Status.ERROR
+    else:
+        computed_status = RepositorySnapshot.Status.VALID
+
+    snapshot = RepositorySnapshot.objects.create(
+        repo=repo_info,
+        status=computed_status,
+        **snap.to_model_kwargs(),
+    )
+    repo_info.current = snapshot
+    repo_info.last_snapshot = timezone.now()
+    repo_info.save(update_fields=['current', 'last_snapshot', 'modified'])
+
+    abandoned_since = current.created
+
+    def _after(ts):
+        return ts is not None and ts > abandoned_since
+
+    if not (_after(snapshot.last_commit_timestamp) or
+            _after(snapshot.last_pr_closed_at) or
+            _after(snapshot.last_issue_closed_at)):
+        return False
+
+    bot_user = get_user_model().objects.get(username=settings.DBDB_BOT_ACCOUNT)
+    pending = system.pending_version()
+    _mark_resurrected(current, snapshot, abandoned_since, creator=bot_user, pending=pending)
+    return True
+
+
+def _mark_resurrected(
+    current_version: SystemVersion,
+    snapshot: RepositorySnapshot,
+    abandoned_since,
+    creator,
+    pending=None,
+):
+    """Apply resurrection changes to an existing pending version or create a new one."""
+    from dbdb.core.models import AttributeOption
+
+    abandoned_tag = AttributeOption.objects.get(attribute__slug='tag', slug='abandoned')
+
+    now = timezone.now()
+    dormant_months = (now.year - abandoned_since.year) * 12 + (now.month - abandoned_since.month)
+
+    history_note = (
+        f"This project was dormant for approximately {dormant_months} months but has "
+        f"shown signs of activity as of {now.strftime('%B %Y')}."
+    )
+    comment = (
+        f"Automatically flagged for resurrection: repository activity detected after "
+        f"{dormant_months} months of inactivity."
+    )
+
+    if pending is None:
+        new_version = clone_system_version(
+            current_version,
+            creator=creator,
+            comment=comment,
+            approved=False,
+            end_year=None,
+        )
+        new_version.tags.remove(abandoned_tag)
+        new_version.history = (current_version.history + "\n\n" + history_note).strip()
+        new_version.save(update_fields=['history'])
+        finalize_new_version(new_version, old_logo=current_version.logo)
+    else:
+        pending.end_year = None
+        pending.comment = comment
+        pending.tags.remove(abandoned_tag)
+        pending.history = (pending.history + "\n\n" + history_note).strip()
+        pending.save(update_fields=['end_year', 'comment', 'history'])
+
+
 def _mark_abandoned(current_version:SystemVersion, repo_info:RepositoryInfo, snapshot:RepositorySnapshot):
     """Clone current_version, apply the abandoned tag, and disable scanning."""
     from dbdb.core.models import AttributeOption

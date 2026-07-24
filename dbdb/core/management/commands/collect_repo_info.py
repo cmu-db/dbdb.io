@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 
 from dbdb.core.models import AttributeOption, RepositoryInfo, RepositorySnapshot, SystemVersion, SystemVersionCodingAgent
-from dbdb.core.utils.repository import check_abandoned, fetch_snapshot_data, scan_coding_agents
+from dbdb.core.utils.repository import check_abandoned, check_resurrection, fetch_snapshot_data, scan_coding_agents
 from dbdb.core.utils.versions import clone_system_version, finalize_new_version
 
 _FAILED_DISABLE_THRESHOLD = 3
@@ -50,6 +50,10 @@ class Command(DbdbBaseCommand):
         parser.add_argument(
             '--no-agents', action='store_true',
             help='Skip coding-agent co-authorship scan after each snapshot.')
+        parser.add_argument(
+            '--check-resurrection', action='store_true',
+            help='Scan systems tagged "Abandoned" for signs of recent activity and '
+                 'create a pending SystemVersion for admin review if any is found.')
         return
 
     def handle(self, *args, **options):
@@ -271,3 +275,34 @@ class Command(DbdbBaseCommand):
         self.stdout.write(
             self.style.SUCCESS(f"\nDone: {ok} updated, {skipped} skipped, {err} errors")
         )
+
+        if options['check_resurrection']:
+            abandoned_versions = (
+                SystemVersion.objects
+                .filter(is_current=True, sourcerepo_url__isnull=False, tags__slug='abandoned')
+                .select_related('sourcerepo_url', 'system')
+                .order_by('system__name')
+            )
+            res_ok = res_skipped = res_err = 0
+            for ver in abandoned_versions:
+                self.stdout.write(f"{ver.system.name}  {ver.sourcerepo_url.url}")
+                try:
+                    was_resurrected = check_resurrection(ver.system)
+                    if was_resurrected:
+                        self.stdout.write("  Flagged for resurrection — pending version created")
+                        res_ok += 1
+                    else:
+                        self.stdout.write("  No recent activity detected")
+                        res_skipped += 1
+                except ValueError as exc:
+                    LOG.debug("check_resurrection skipped for %s: %s", ver.system.slug, exc)
+                    res_skipped += 1
+                except Exception as exc:
+                    self.stderr.write(f"  ERROR — {exc}")
+                    LOG.exception("check_resurrection failed for %s", ver.system.slug)
+                    res_err += 1
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Resurrection check: {res_ok} flagged, {res_skipped} skipped, {res_err} errors"
+                )
+            )
