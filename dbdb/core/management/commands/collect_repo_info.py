@@ -101,13 +101,18 @@ class Command(DbdbBaseCommand):
         sleep_secs = options['sleep']
         limit = options['limit']
         do_check_abandoned = options['check_abandoned']
+        do_resurrection = options['check_resurrection']
         no_collect = options['no_collect']
         no_agents = options['no_agents']
         inactivity_days = settings.REPOSITORY_INACTIVITY_DAYS
 
+        # When --check-resurrection is the only active flag, skip snapshot
+        # collection for enabled repos and focus solely on abandoned ones.
+        resurrection_only = do_resurrection and not do_check_abandoned
+
         ai_assisted_tag = None
         bot_user = None
-        if not no_agents:
+        if not no_agents and not resurrection_only:
             try:
                 ai_assisted_tag = AttributeOption.objects.get(
                     attribute__slug='tag', slug='ai-assisted'
@@ -121,10 +126,11 @@ class Command(DbdbBaseCommand):
 
         seen_citation_ids: set[int] = set()
         ok = err = skipped = 0
+        res_ok = res_err = res_skipped = 0
         first = True
 
-        if versions.count() == 0:
-            LOG.warning(f"No systems found!")
+        if not resurrection_only and versions.count() == 0:
+            LOG.warning("No systems found!")
 
         for ver in versions.order_by("system__name"):
             citation = ver.sourcerepo_url
@@ -134,9 +140,31 @@ class Command(DbdbBaseCommand):
             seen_citation_ids.add(citation.id)
 
             repo_info, _ = RepositoryInfo.objects.get_or_create(sourcerepo_url=citation)
+
             if not repo_info.enabled:
-                LOG.debug("Skipping disabled repo: %s", citation.url)
-                skipped += 1
+                if do_resurrection:
+                    self.stdout.write(f"{ver.system.name}  {citation.url}")
+                    try:
+                        was_resurrected = check_resurrection(ver.system)
+                        if was_resurrected:
+                            self.stdout.write("  Flagged for resurrection — pending version created")
+                            res_ok += 1
+                        else:
+                            self.stdout.write("  No recent activity detected")
+                            res_skipped += 1
+                    except ValueError as exc:
+                        LOG.debug("check_resurrection skipped for %s: %s", ver.system.slug, exc)
+                        res_skipped += 1
+                    except Exception as exc:
+                        self.stderr.write(f"  ERROR — {exc}")
+                        LOG.exception("check_resurrection failed for %s", ver.system.slug)
+                        res_err += 1
+                else:
+                    LOG.debug("Skipping disabled repo: %s", citation.url)
+                    skipped += 1
+                continue
+
+            if resurrection_only:
                 continue
 
             if ignore_days is not None and repo_info.last_snapshot is not None:
@@ -272,35 +300,11 @@ class Command(DbdbBaseCommand):
                 self.stdout.write(f"Limit of {limit} reached, stopping.")
                 break
 
-        self.stdout.write(
-            self.style.SUCCESS(f"\nDone: {ok} updated, {skipped} skipped, {err} errors")
-        )
-
-        if options['check_resurrection']:
-            abandoned_versions = (
-                SystemVersion.objects
-                .filter(is_current=True, sourcerepo_url__isnull=False, tags__slug='abandoned')
-                .select_related('sourcerepo_url', 'system')
-                .order_by('system__name')
+        if not resurrection_only:
+            self.stdout.write(
+                self.style.SUCCESS(f"\nDone: {ok} updated, {skipped} skipped, {err} errors")
             )
-            res_ok = res_skipped = res_err = 0
-            for ver in abandoned_versions:
-                self.stdout.write(f"{ver.system.name}  {ver.sourcerepo_url.url}")
-                try:
-                    was_resurrected = check_resurrection(ver.system)
-                    if was_resurrected:
-                        self.stdout.write("  Flagged for resurrection — pending version created")
-                        res_ok += 1
-                    else:
-                        self.stdout.write("  No recent activity detected")
-                        res_skipped += 1
-                except ValueError as exc:
-                    LOG.debug("check_resurrection skipped for %s: %s", ver.system.slug, exc)
-                    res_skipped += 1
-                except Exception as exc:
-                    self.stderr.write(f"  ERROR — {exc}")
-                    LOG.exception("check_resurrection failed for %s", ver.system.slug)
-                    res_err += 1
+        if do_resurrection:
             self.stdout.write(
                 self.style.SUCCESS(
                     f"Resurrection check: {res_ok} flagged, {res_skipped} skipped, {res_err} errors"
