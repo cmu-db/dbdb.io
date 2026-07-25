@@ -28,7 +28,7 @@ from django.utils.text import slugify
 from django_countries.fields import CountryField
 
 from dbdb.core.management.base import EnricherBaseCommand
-from dbdb.core.models import CitationUrl, Organization, OrgType, StockExchange, SystemVersion
+from dbdb.core.models import AttributeOption, CitationUrl, Organization, OrgType, SystemVersion
 from dbdb.core.utils.citations import crawl_citation_url, normalize_url, process_citation_url
 from dbdb.core.utils.enrichment import BaseEnricher, build_org_enrichment_tool, build_url_extraction_tool
 
@@ -44,8 +44,7 @@ ORG_ALL_FIELDS = (
 
 # Maps display label → integer value for IntegerChoices fields.
 _ORG_CHOICE_MAPS = {
-    'org_type':      {label: value for value, label in OrgType.choices},
-    'stock_exchange': {label: value for value, label in StockExchange.choices},
+    'org_type': {label: value for value, label in OrgType.choices},
 }
 
 
@@ -53,6 +52,9 @@ def _org_field_type(field_name: str) -> str:
     """Return the storage category of an Organization field via reflection."""
     field = Organization._meta.get_field(field_name)
     if isinstance(field, models.ForeignKey):
+        lc = field.remote_field.limit_choices_to or {}
+        if isinstance(lc, dict) and 'attribute__slug' in lc:
+            return 'attr_option'
         return 'url'
     if isinstance(field, models.IntegerField) and field.choices:
         return 'choice'
@@ -63,7 +65,7 @@ def _org_field_type(field_name: str) -> str:
 
 def _is_org_field_empty(org: Organization, field: str) -> bool:
     ft = _org_field_type(field)
-    if ft == 'url':
+    if ft in ('url', 'attr_option'):
         return getattr(org, f'{field}_id') is None
     if ft == 'choice':
         return getattr(org, field) is None
@@ -74,7 +76,7 @@ def _query_orgs_missing_field(field: str):
     """Return a queryset of Organizations that have *field* empty/null."""
     from django.db.models import Q
     ft = _org_field_type(field)
-    if ft == 'url':
+    if ft in ('url', 'attr_option'):
         return Organization.objects.filter(**{f'{field}_id__isnull': True})
     if ft == 'choice':
         return Organization.objects.filter(**{f'{field}__isnull': True})
@@ -339,6 +341,18 @@ class Command(EnricherBaseCommand):
                     dirty = True
                 elif label:
                     LOG.warning(f"  {field}: unrecognised value {label!r}, skipping")
+
+            elif ft == 'attr_option':
+                label = (val or '').strip()
+                if label:
+                    field_obj = Organization._meta.get_field(field)
+                    attr_slug = field_obj.remote_field.limit_choices_to.get('attribute__slug')
+                    opt = AttributeOption.objects.filter(attribute__slug=attr_slug, name=label).first()
+                    if opt is not None:
+                        setattr(org, field, opt)
+                        dirty = True
+                    else:
+                        LOG.warning(f"  {field}: unrecognised value {label!r}, skipping")
 
             elif ft == 'array':
                 if isinstance(val, list) and val:
