@@ -24,6 +24,10 @@ CSV format:
     Organization field (name or slug; looked up case-insensitively or created):
       developer_orgs
 
+    Organization URL field (applied to the Organization when exactly one developer_org
+    is present and the org has no value for that field yet):
+      linkedin_url
+
   Unknown header names are skipped with a warning.
 
 Additional behaviour:
@@ -73,8 +77,12 @@ _ATTR_OPTION_FIELDS: dict[str, str] = {
 _SYSTEM_M2M_FIELDS  = frozenset({'derived_from', 'embedded', 'inspired_by', 'compatible_with', 'hosted_services'})
 _ARRAY_FIELDS       = frozenset({'former_names'})
 _ORG_FIELDS         = frozenset({'developer_orgs'})
+# URL fields applied to the matched/created Organization (not to SystemVersion).
+# Ignored when more than one developer_org is present in the row.
+_ORG_URL_FIELDS     = frozenset({'linkedin_url'})
 _KNOWN_FIELDS       = (_URL_FIELDS | _COUNTRY_FIELDS | _TEXT_FIELDS | _INT_FIELDS
-                       | _ARRAY_FIELDS | _ORG_FIELDS | frozenset(_ATTR_OPTION_FIELDS) | _SYSTEM_M2M_FIELDS)
+                       | _ARRAY_FIELDS | _ORG_FIELDS | _ORG_URL_FIELDS
+                       | frozenset(_ATTR_OPTION_FIELDS) | _SYSTEM_M2M_FIELDS)
 _OPEN_SOURCE_SLUG  = 'open-source'
 _PROJECT_TYPE_SLUG = 'project-type'
 _URL_TRUNC         = 45
@@ -406,6 +414,21 @@ class Command(DbdbBaseCommand):
         if 'developer_orgs' in field_values:
             dev_org = _get_or_create_org(field_values['developer_orgs'], dry_run=dry_run)
 
+        # Resolve org-level URL fields (e.g. linkedin_url).
+        # Only applied when there is exactly one developer_org and the org does
+        # not already have that URL set.
+        org_count = len([t for t in field_values.get('developer_orgs', '').split(',') if t.strip()])
+        org_url_cites: dict[str, CitationUrl] = {}
+        if org_count == 1 and dev_org is not None:
+            for field in _ORG_URL_FIELDS:
+                if field not in field_values:
+                    continue
+                if getattr(dev_org, f'{field}_id', None) is not None:
+                    continue  # org already has this URL
+                cite = _cite(field_values[field])
+                if cite:
+                    org_url_cites[field] = cite
+
         # Build the result record.
         result: dict = {'name': name, 'slug': slug,
                         'logo': os.path.basename(logo_path) if logo_path else '',
@@ -416,6 +439,8 @@ class Command(DbdbBaseCommand):
         for f in _COUNTRY_FIELDS | _TEXT_FIELDS | _INT_FIELDS:
             result[f] = field_values.get(f, '')
         result['developer_orgs'] = dev_org.name if dev_org else field_values.get('developer_orgs', '')
+        for field, cite in org_url_cites.items():
+            result[field] = _trunc(cite.url)
         for field, opts in attr_opts.items():
             result[field] = ', '.join(o.name for o in opts)
         for field, systems in system_m2m.items():
@@ -474,6 +499,15 @@ class Command(DbdbBaseCommand):
             # developer_orgs.
             if dev_org:
                 sv.developer_orgs.set([dev_org])
+
+            # Apply org-level URL fields (linkedin_url, etc.) to the Organization.
+            if org_url_cites and dev_org and dev_org.pk:
+                update_fields = []
+                for field, cite in org_url_cites.items():
+                    setattr(dev_org, field, cite)
+                    update_fields.append(field)
+                update_fields.append('modified')
+                dev_org.save(update_fields=update_fields)
 
             # Always add "Open Source" if a source repo is present.
             if sv.sourcerepo_url and open_source_opt:
