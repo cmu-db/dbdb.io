@@ -10,7 +10,7 @@ CSV format:
   - All other columns are matched by header name to SystemVersion fields:
 
     URL fields (creates/reuses a CitationUrl):
-      system_url, docs_url, sourcerepo_url, wikipedia_url
+      system_url, docs_url, sourcerepo_url, wikipedia_url, twitter_url
 
     Country field (2-char ISO code):
       countries
@@ -21,7 +21,7 @@ CSV format:
     Integer fields:
       start_year, end_year
 
-    Organization field (name; looked up or created):
+    Organization field (name or slug; looked up case-insensitively or created):
       developer_orgs
 
   Unknown header names are skipped with a warning.
@@ -55,7 +55,7 @@ LOG = logging.getLogger(__name__)
 User = get_user_model()
 
 _LOGO_EXTENSIONS   = ('svg', 'png', 'jpg', 'jpeg')
-_URL_FIELDS        = frozenset({'system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url'})
+_URL_FIELDS        = frozenset({'system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url', 'twitter_url'})
 _COUNTRY_FIELDS    = frozenset({'countries'})
 _TEXT_FIELDS       = frozenset({'description', 'history', 'twitter_handle'})
 _INT_FIELDS        = frozenset({'start_year', 'end_year'})
@@ -122,8 +122,11 @@ def _resolve_systems(raw: str) -> list:
 
 
 def _get_or_create_org(name: str, *, dry_run: bool) -> 'Organization | None':
-    """Look up an Organization by name (case-insensitive); create one if not found."""
-    org = Organization.objects.filter(name__iexact=name).first()
+    """Look up an Organization by name or slug (case-insensitive); create one if not found.
+
+    In dry-run mode the new Organization is returned unsaved — nothing is written.
+    """
+    org = Organization.objects.filter(Q(name__iexact=name) | Q(slug__iexact=name)).first()
     if org:
         return org
     slug = slugify(name)
