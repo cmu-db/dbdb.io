@@ -84,10 +84,10 @@
             <dd class="font-monospace">
                 {% if org.stock_delisted %}<s>{% endif %}
                 {% if org.stock_exchange %}
-                    {% if org.stock_exchange_obj.url and not org.stock_delisted %}
-                        <a href="{{ org.stock_exchange_obj.url }}{{ org.stock_symbol }}" target="_blank" title="View {{ org.name }} on {{ org.get_stock_exchange_display }}">{{ org.get_stock_exchange_display }}:{{ org.stock_symbol }}</a>
+                    {% if org.stock_exchange.url and not org.stock_delisted %}
+                        <a href="{{ org.stock_exchange.url }}{{ org.stock_symbol }}" target="_blank" title="View {{ org.name }} on {{ org.stock_exchange.name }}">{{ org.stock_exchange.name }}:{{ org.stock_symbol }}</a>
                     {% else %}
-                        {{ org.get_stock_exchange_display }}:{{ org.stock_symbol }}
+                        {{ org.stock_exchange.name }}:{{ org.stock_symbol }}
                     {% endif %}
                 {% else %}
                     {{ org.stock_symbol }}

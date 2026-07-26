@@ -239,11 +239,11 @@ _ORG_CITATIONS_SCHEMA = {
 
 def build_org_enrichment_tool(missing_fields: list[str]) -> dict:
     """Return a save_org_enrichment tool schema limited to *missing_fields*."""
-    from dbdb.core.models import OrgType, StockExchange
+    from dbdb.core.models import AttributeOption, OrgType
 
     _enums = {
-        "org_type":      [label for _, label in OrgType.choices],
-        "stock_exchange": [label for _, label in StockExchange.choices],
+        "org_type":       [label for _, label in OrgType.choices],
+        "stock_exchange": list(AttributeOption.objects.filter(attribute__slug='stock-exchange').values_list('name', flat=True)),
     }
 
     properties = {}
