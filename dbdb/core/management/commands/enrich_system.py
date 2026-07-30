@@ -110,7 +110,12 @@ def _crawl_existing_urls(
 
 
 def _query_systems_missing_field(field: str):
-    """Return a queryset of Systems whose current version has *field* empty/null."""
+    """Return a queryset of Systems whose current version has *field* empty/null.
+
+    *field* may be a regular SystemVersion field name or a Feature slug, in
+    which case systems whose current version has no selected FeatureOption for
+    that Feature are returned.
+    """
     from django.db.models import Q
     sv_qs = SystemVersion.objects.filter(is_current=True)
     if field in URL_FK_FIELDS:
@@ -119,8 +124,17 @@ def _query_systems_missing_field(field: str):
         sv_qs = sv_qs.filter(**{f'{field}__isnull': True})
     elif field in SIMPLE_TEXT_FIELDS:
         sv_qs = sv_qs.filter(Q(**{f'{field}__isnull': True}) | Q(**{field: ''}))
-    else:  # INT_FIELDS
+    elif field in INT_FIELDS:
         sv_qs = sv_qs.filter(**{f'{field}__isnull': True})
+    else:
+        # Feature slug — exclude versions that already have options set for it
+        sv_with_feature = (
+            SystemFeature.objects
+            .filter(feature__slug=field)
+            .exclude(options=None)
+            .values_list('version_id', flat=True)
+        )
+        sv_qs = sv_qs.exclude(id__in=sv_with_feature)
     return System.objects.filter(versions__in=sv_qs).order_by('name')
 
 
@@ -143,11 +157,10 @@ class Command(EnricherBaseCommand):
         parser.add_argument('--per-feature', action='store_true',
                             help='One LLM call per missing Feature (slower, more targeted)')
         all_fields = list(SIMPLE_TEXT_FIELDS) + list(INT_FIELDS) + list(URL_FK_FIELDS) + list(M2M_ATTR_FIELDS)
-        parser.add_argument('--missing', metavar='FIELD', default=None,
-                            choices=all_fields,
-                            help=f'Process every system whose current version is missing FIELD '
-                                 f'(instead of providing KEYWORDs). '
-                                 f'Valid fields: {", ".join(all_fields)}')
+        parser.add_argument('--missing', metavar='FIELD_OR_FEATURE', default=None,
+                            help=f'Process every system whose current version is missing FIELD_OR_FEATURE. '
+                                 f'Pass a regular field name ({", ".join(all_fields)}) or a Feature slug '
+                                 f'(e.g. data-model) to target systems missing that feature.')
         parser.add_argument('--add-tag', metavar='TAG', default=None,
                             help='Create a new approved SystemVersion adding TAG to the target '
                                  'systems (matched by name or slug). Skips LLM enrichment.')
@@ -171,6 +184,13 @@ class Command(EnricherBaseCommand):
             self.stdout.write(f"Tag: {tag_option.name} (slug={tag_option.slug})")
 
         if missing_field:
+            all_fields = list(SIMPLE_TEXT_FIELDS) + list(INT_FIELDS) + list(URL_FK_FIELDS) + list(M2M_ATTR_FIELDS)
+            if missing_field not in all_fields:
+                if not Feature.objects.filter(slug=missing_field).exists():
+                    raise CommandError(
+                        f"'{missing_field}' is not a recognised field or Feature slug. "
+                        f"Valid fields: {', '.join(all_fields)}"
+                    )
             for system in _query_systems_missing_field(missing_field):
                 seen[system.pk] = system
         else:

@@ -306,30 +306,6 @@ class OrgType(models.IntegerChoices):
         }.get(self.value, '')
 
 
-class StockExchange(models.IntegerChoices):
-    NYSE     = 1, 'NYSE'
-    NASDAQ   = 2, 'NASDAQ'
-    LSE      = 3, 'LSE'
-    TSE      = 4, 'TSE'
-    HKEX     = 5, 'HKEX'
-    ASX      = 6, 'ASX'
-    TSX      = 7, 'TSX'
-    EURONEXT = 8, 'Euronext'
-    OTHER    = 9, 'Other'
-
-    @property
-    def url(self):
-        """URLs to go directly to the stock symbol on the exchange"""
-        return {
-            1: 'https://www.nyse.com/quote/XNYS:',
-            2: 'https://www.nasdaq.com/market-activity/stocks/',
-            3: 'https://www.londonstockexchange.com',
-            4: 'https://www.jpx.co.jp/english/',
-            5: 'https://www.hkex.com.hk',
-            6: 'https://www.asx.com.au',
-            7: 'https://www.tsx.com',
-            8: 'https://www.euronext.com',
-        }.get(self.value, '')
 
 
 class Organization(LogoMixin, models.Model):
@@ -362,8 +338,11 @@ class Organization(LogoMixin, models.Model):
         choices=OrgType.choices, null=True, blank=True,
         verbose_name='Organization Type')
 
-    stock_exchange = models.IntegerField(
-        choices=StockExchange.choices, null=True, blank=True,
+    stock_exchange = models.ForeignKey(
+        'AttributeOption', models.SET_NULL,
+        null=True, blank=True,
+        limit_choices_to={'attribute__slug': 'stock-exchange'},
+        related_name='org_stock_exchanges',
         verbose_name='Stock Exchange')
 
     stock_symbol = models.CharField(
@@ -399,10 +378,6 @@ class Organization(LogoMixin, models.Model):
     @property
     def org_type_obj(self):
         return OrgType(self.org_type) if self.org_type is not None else None
-
-    @property
-    def stock_exchange_obj(self):
-        return StockExchange(self.stock_exchange) if self.stock_exchange is not None else None
 
     @property
     def linkedin_handle(self):

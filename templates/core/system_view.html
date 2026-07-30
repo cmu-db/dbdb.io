@@ -140,7 +140,7 @@
         {% endif %}
 
         {% if version.supported_languages.all %}
-        <div class="fact"><dt>Supported Languages</dt><dd>{% for attropt in version.supported_languages.all %}{% if not forloop.first %}, {% endif %}{% browse_link "programming-language" attropt.slug "Supporting "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
+        <div class="fact"><dt>Supported Languages</dt><dd>{% for attropt in version.supported_languages.all %}{% if not forloop.first %}, {% endif %}{% browse_link "supported" attropt.slug "Supporting "|add:attropt.name attropt.name %}{% endfor %}</dd></div>
         {% endif %}
 
         {% if version.derived_from.exists %}

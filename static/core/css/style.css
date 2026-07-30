@@ -150,6 +150,9 @@ tr.browse-row:hover { background-color: var(--browse-hover-color); }
 .choices__list--dropdown { z-index: 1001 !important; }
 .noUi-target             { z-index: 999 !important; }
 
+/* Negation filter items (value starts with !) get accent background */
+.choices__item[data-value^="!"] { background-color: var(--accent) !important; }
+
 /* Badges */
 .badge:hover { text-decoration: none; }
 
