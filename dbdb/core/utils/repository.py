@@ -141,6 +141,24 @@ def scan_coding_agents(
     return result
 
 
+def scan_first_coding_agent(
+    citation_url: CitationUrl,
+    since: datetime | None = None,
+) -> datetime | None:
+    """Return the timestamp of the earliest agent commit in the repo, or None.
+
+    Clones (or reuses an existing clone of) citation_url and calls
+    get_first_coding_agent_commit(). Falls back to GenericGitCollector for
+    unrecognised hosts.
+
+    Args:
+        since: If given, commits older than this date are not traversed.
+    """
+    collector = get_collector(citation_url)
+    collector.clone_url(citation_url.url, all_branches=True)
+    return collector.get_first_coding_agent_commit(since=since)
+
+
 def check_abandoned(system:System, *, inactivity_days: int = 1095) -> bool:
     """
     Determine whether a system's source repository appears abandoned and, if

@@ -494,6 +494,56 @@ class RepoCollector(ABC):
         )
         return result
 
+    def get_first_coding_agent_commit(
+        self, since: datetime | None = None
+    ) -> datetime | None:
+        """Return the timestamp of the earliest commit that contains any agent trailer.
+
+        Scans all refs. Returns None if no agent commits are found.
+
+        Args:
+            since: If given, commits older than this date are not traversed.
+        """
+        from dbdb.core.models import AttributeOption
+
+        agents = list(
+            AttributeOption.objects
+            .filter(attribute__slug='agent')
+            .select_related('attribute')
+        )
+        if not agents:
+            return None
+
+        agent_patterns = {
+            agent: re.compile(re.escape(agent.slug), re.IGNORECASE)
+            for agent in agents
+        }
+
+        iter_kwargs: dict = {}
+        if since is not None:
+            iter_kwargs['since'] = since.strftime('%Y-%m-%d')
+
+        refs = list(self._repo.references)
+        earliest: int | None = None
+        seen: set[str] = set()
+
+        for ref in refs:
+            for commit in self._repo.iter_commits(ref, **iter_kwargs):
+                if commit.hexsha in seen:
+                    continue
+                seen.add(commit.hexsha)
+                trailer_values = _AGENT_TRAILER_RE.findall(commit.message)
+                candidate = commit.author.name + '\n' + '\n'.join(trailer_values)
+                for pattern in agent_patterns.values():
+                    if pattern.search(candidate):
+                        if earliest is None or commit.committed_date < earliest:
+                            earliest = commit.committed_date
+                        break
+
+        if earliest is None:
+            return None
+        return datetime.fromtimestamp(earliest, tz=UTC)
+
     # ── shared request helper ─────────────────────────────────────────────
 
     def _get(self, url: str, **params) -> requests.Response:
