@@ -144,10 +144,10 @@ def scan_coding_agents(
 def scan_first_coding_agent(
     citation_url: CitationUrl,
     since: datetime | None = None,
-) -> datetime | None:
-    """Return the timestamp of the earliest agent commit in the repo, or None.
+) -> 'tuple[datetime, str, str] | None':
+    """Return (timestamp, agent_name, hexsha) for the earliest agent commit, or None.
 
-    Clones (or reuses an existing clone of) citation_url and calls
+    Clones (or reuses an existing clone of) citation_url and delegates to
     get_first_coding_agent_commit(). Falls back to GenericGitCollector for
     unrecognised hosts.
 

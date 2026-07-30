@@ -335,7 +335,7 @@ class Command(DbdbBaseCommand):
         from dbdb.core.utils.repository import scan_first_coding_agent
 
         seen_citation_ids: set[int] = set()
-        agent_results: list[tuple[str, str]] = []
+        agent_results: list[tuple[str, str, str, str]] = []
 
         for ver in versions.order_by('system__name'):
             citation = ver.sourcerepo_url
@@ -344,13 +344,14 @@ class Command(DbdbBaseCommand):
             seen_citation_ids.add(citation.id)
             LOG.debug("find-first-agent: scanning %s (%s)", ver.system.name, citation.url)
             try:
-                first_dt = scan_first_coding_agent(citation, since=since)
+                result = scan_first_coding_agent(citation, since=since)
             except Exception as exc:
                 LOG.warning("find-first-agent: scan failed for %s: %s", citation.url, exc)
                 continue
-            if first_dt is not None:
-                agent_results.append((ver.system.name, first_dt.date().isoformat()))
+            if result is not None:
+                first_dt, agent_name, commit_id = result
+                agent_results.append((ver.system.name, first_dt.date().isoformat(), commit_id, agent_name))
 
         writer = csv.writer(self.stdout)
-        writer.writerow(['system_name', 'first_agent_commit_date'])
+        writer.writerow(['system_name', 'first_agent_commit_date', 'commit_id', 'agent_name'])
         writer.writerows(agent_results)

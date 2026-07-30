@@ -19,14 +19,16 @@ from django.conf import settings
 # can search only those values rather than free-form message prose.
 # Covers patterns used by: Claude Code, GitHub Copilot, Cursor, Aider,
 # Devin, Windsurf/Codeium, and generic AI tooling.
+# NOTE: Signed-off-by is intentionally excluded — it is used by thousands of
+# human contributors as a DCO sign-off and produces too many false positives.
+# Modern Aider uses Co-authored-by instead.
 _AGENT_TRAILER_RE = re.compile(
     r'^(?:'
-    r'co-authored?-by'      # Co-authored-by / Co-author-by  (Claude Code, Copilot, Cursor …)
-    r'|made-with'           # Made-with  (Cursor, generic)
-    r'|generated-(?:by|with)'  # Generated-by / Generated-with
-    r'|powered-by'          # Powered-by  (some tools)
-    r'|ai-author'           # AI-Author
-    r'|signed-off-by'       # Signed-off-by  (Aider uses this)
+    r'co-authored?-by'           # Co-authored-by / Co-author-by  (Claude Code, Copilot, Cursor …)
+    r'|made-with'                # Made-with  (Cursor, generic)
+    r'|generated-(?:by|with)'   # Generated-by / Generated-with
+    r'|powered-by'               # Powered-by  (some tools)
+    r'|ai-author'                # AI-Author
     r')\s*:(.+)$',
     re.IGNORECASE | re.MULTILINE,
 )
@@ -418,14 +420,11 @@ class RepoCollector(ABC):
         """Scan commits for AI coding-agent co-authorship and return latest hits.
 
         Checks two things per commit:
-          1. The commit author name (for repos where the agent is the literal author).
-          2. Values of recognised agent-attribution trailers in the commit message:
-               Co-authored-by, Co-author, Made-with, Generated-by, Generated-with,
-               Powered-by, Ai-author, Signed-off-by.
-
-        The search is *not* a free-text scan of the whole message; only the trailer
-        values are matched.  This avoids false positives from commit messages that
-        happen to mention an agent name (e.g. "add cursor-based pagination").
+          1. Trailer values (Co-authored-by, Made-with, Generated-by/with, Powered-by,
+             AI-Author) — matched with word-boundary patterns against the slug.
+          2. The commit author name — checked against an exact set of known agent
+             identities (slug, display name, and [bot] variants) to avoid false
+             positives from human first names that happen to share a name with an agent.
 
         Args:
             branch: If given, only commits reachable from that branch are
@@ -446,8 +445,22 @@ class RepoCollector(ABC):
         if not agents:
             return {}
 
+        # Word-boundary patterns for trailer matching — prevents "openGemini"
+        # or "GruffGemini" from matching the "gemini" slug.
         agent_patterns: dict = {
-            agent: re.compile(re.escape(agent.slug), re.IGNORECASE)
+            agent: re.compile(r'\b' + re.escape(agent.slug) + r'\b', re.IGNORECASE)
+            for agent in agents
+        }
+
+        # Exact identity sets for author-name matching — prevents human names
+        # like "Claude Warren" from matching the "claude" slug.
+        agent_ids: dict = {
+            agent: {
+                agent.slug.lower(),
+                agent.name.lower(),
+                agent.slug.lower() + '[bot]',
+                agent.slug.lower() + ' [bot]',
+            }
             for agent in agents
         }
 
@@ -473,14 +486,11 @@ class RepoCollector(ABC):
                     continue
                 seen.add(commit.hexsha)
 
-                # Build candidate text from author name and recognised trailer values only.
-                # _AGENT_TRAILER_RE extracts the value portion (after the colon) of each
-                # matching trailer line so we never match free-form message prose.
-                trailer_values = _AGENT_TRAILER_RE.findall(commit.message)
-                candidate = commit.author.name + '\n' + '\n'.join(trailer_values)
+                trailer_text = '\n'.join(_AGENT_TRAILER_RE.findall(commit.message))
+                author_lower = commit.author.name.strip().lower()
 
                 for agent, pattern in agent_patterns.items():
-                    if not pattern.search(candidate):
+                    if not pattern.search(trailer_text) and author_lower not in agent_ids[agent]:
                         continue
                     date = commit.committed_date
                     if agent not in best or date > best[agent][0]:
@@ -496,13 +506,18 @@ class RepoCollector(ABC):
 
     def get_first_coding_agent_commit(
         self, since: datetime | None = None
-    ) -> datetime | None:
-        """Return the timestamp of the earliest commit that contains any agent trailer.
+    ) -> 'tuple[datetime, str, str] | None':
+        """Return the earliest agent commit across all refs as (datetime, agent_name, hexsha).
 
-        Scans all refs. Returns None if no agent commits are found.
+        Uses the same two-path matching as get_coding_agent_commits(): word-boundary
+        trailer matching and exact author-name identity checking.
 
         Args:
             since: If given, commits older than this date are not traversed.
+
+        Returns:
+            (timestamp, agent_name, commit_hexsha) for the earliest matching commit,
+            or None if no agent commits are found.
         """
         from dbdb.core.models import AttributeOption
 
@@ -515,7 +530,16 @@ class RepoCollector(ABC):
             return None
 
         agent_patterns = {
-            agent: re.compile(re.escape(agent.slug), re.IGNORECASE)
+            agent: re.compile(r'\b' + re.escape(agent.slug) + r'\b', re.IGNORECASE)
+            for agent in agents
+        }
+        agent_ids: dict = {
+            agent: {
+                agent.slug.lower(),
+                agent.name.lower(),
+                agent.slug.lower() + '[bot]',
+                agent.slug.lower() + ' [bot]',
+            }
             for agent in agents
         }
 
@@ -524,7 +548,8 @@ class RepoCollector(ABC):
             iter_kwargs['since'] = since.strftime('%Y-%m-%d')
 
         refs = list(self._repo.references)
-        earliest: int | None = None
+        # (committed_date, agent.name, hexsha) for the earliest match found
+        earliest: tuple[int, str, str] | None = None
         seen: set[str] = set()
 
         for ref in refs:
@@ -532,17 +557,17 @@ class RepoCollector(ABC):
                 if commit.hexsha in seen:
                     continue
                 seen.add(commit.hexsha)
-                trailer_values = _AGENT_TRAILER_RE.findall(commit.message)
-                candidate = commit.author.name + '\n' + '\n'.join(trailer_values)
-                for pattern in agent_patterns.values():
-                    if pattern.search(candidate):
-                        if earliest is None or commit.committed_date < earliest:
-                            earliest = commit.committed_date
+                trailer_text = '\n'.join(_AGENT_TRAILER_RE.findall(commit.message))
+                author_lower = commit.author.name.strip().lower()
+                for agent, pattern in agent_patterns.items():
+                    if pattern.search(trailer_text) or author_lower in agent_ids[agent]:
+                        if earliest is None or commit.committed_date < earliest[0]:
+                            earliest = (commit.committed_date, agent.name, commit.hexsha)
                         break
 
         if earliest is None:
             return None
-        return datetime.fromtimestamp(earliest, tz=UTC)
+        return (datetime.fromtimestamp(earliest[0], tz=UTC), earliest[1], earliest[2])
 
     # ── shared request helper ─────────────────────────────────────────────
 
