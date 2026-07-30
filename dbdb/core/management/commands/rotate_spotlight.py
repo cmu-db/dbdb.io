@@ -9,18 +9,22 @@ times in the same week. The chosen system is never the same as the current one
 Usage:
     python manage.py rotate_spotlight [--dry-run] [--force]
 """
+import logging
 from datetime import date
 
-from django.core.management.base import BaseCommand
 from django.db import transaction
 
+from dbdb.core.management.base import DbdbBaseCommand
 from dbdb.core.models import System
 
+LOG = logging.getLogger(__name__)
 
-class Command(BaseCommand):
+
+class Command(DbdbBaseCommand):
     help = 'Rotate the homepage spotlight to the next eligible system'
 
     def add_arguments(self, parser):
+        super().add_arguments(parser)
         parser.add_argument(
             '--dry-run', action='store_true',
             help='Show what would change without modifying the database',
@@ -39,7 +43,7 @@ class Command(BaseCommand):
         count    = len(eligible)
 
         if count == 0:
-            self.stdout.write(self.style.WARNING('No spotlight-eligible systems found. Nothing to do.'))
+            LOG.info('No spotlight-eligible systems found. Nothing to do.')
             return
 
         year, week, _ = date.today().isocalendar()
@@ -49,28 +53,28 @@ class Command(BaseCommand):
         current = System.objects.filter(spotlight_enabled=True).first()
         chosen = eligible[idx]
 
-        self.stdout.write(f'Eligible pool : {count} system{"s" if count != 1 else ""}')
-        self.stdout.write(f'Current       : {current.name if current else "(none)"}')
+        LOG.info('Eligible pool : %d system%s', count, 's' if count != 1 else '')
+        LOG.info('Current       : %s', current.name if current else '(none)')
 
         # Idempotency guard: this week's algorithm would pick the current system —
         # nothing to do unless the caller wants to force a rotation.
         if current is not None and chosen.pk == current.pk:
             if not force:
-                self.stdout.write(self.style.SUCCESS('Already showing the correct system for this week. Use --force to rotate anyway.'))
+                LOG.info('Already showing the correct system for this week. Use --force to rotate anyway.')
                 return
             # --force: advance past current so we actually rotate to a different system
             if count > 1:
                 idx = (idx + 1) % count
                 chosen = eligible[idx]
 
-        self.stdout.write(f'Selected      : {chosen.name}')
+        LOG.info('Selected      : %s', chosen.name)
 
         if dry_run:
-            self.stdout.write(f'{prefix}Would set spotlight_enabled=True for: {chosen.name}')
+            LOG.info('%sWould set spotlight_enabled=True for: %s', prefix, chosen.name)
             return
 
         with transaction.atomic():
             System.objects.update(spotlight_enabled=False)
             System.objects.filter(pk=chosen.pk).update(spotlight_enabled=True)
 
-        self.stdout.write(self.style.SUCCESS('Spotlight updated.'))
+        LOG.info('Spotlight updated.')
