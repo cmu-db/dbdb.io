@@ -162,8 +162,8 @@ def scan_first_coding_agent(
 def scan_coding_agent_stats(
     citation_url: CitationUrl,
     since: datetime | None = None,
-) -> dict:
-    """Return per-agent stats {agent: (count, first_dt, hexsha)} for citation_url.
+) -> 'tuple[int, dict]':
+    """Return (commits_examined, {agent: (count, first_dt, hexsha)}) for citation_url.
 
     Falls back to GenericGitCollector for unrecognised hosts.
     """

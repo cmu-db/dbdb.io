@@ -571,12 +571,12 @@ class RepoCollector(ABC):
 
     def get_coding_agent_stats(
         self, since: datetime | None = None
-    ) -> 'dict[AttributeOption, tuple[int, datetime, str]]':
-        """Return per-agent stats as {agent: (total_commits, first_commit_dt, first_hexsha)}.
+    ) -> 'tuple[int, dict[AttributeOption, tuple[int, datetime, str]]]':
+        """Return (commits_examined, per-agent stats).
 
-        Walks all refs in a single pass (with optional --since cutoff). Each unique
-        commit is counted once per matching agent. first_commit_dt is the earliest
-        matching commit for that agent across all refs.
+        commits_examined is the total number of unique commits walked. The stats
+        dict maps each matched agent to (total_commits, first_commit_dt, first_hexsha).
+        Walks all refs in a single pass (with optional --since cutoff).
 
         Args:
             since: If given, commits older than this date are not traversed.
@@ -589,7 +589,7 @@ class RepoCollector(ABC):
             .select_related('attribute')
         )
         if not agents:
-            return {}
+            return 0, {}
 
         agent_patterns = {
             agent: re.compile(r'\b' + re.escape(agent.slug) + r'\b', re.IGNORECASE)
@@ -613,12 +613,14 @@ class RepoCollector(ABC):
         seen: set[str] = set()
         # per agent: [count, earliest_committed_date_int, earliest_hexsha]
         stats: dict = {}
+        examined = 0
 
         for ref in refs:
             for commit in self._repo.iter_commits(ref, **iter_kwargs):
                 if commit.hexsha in seen:
                     continue
                 seen.add(commit.hexsha)
+                examined += 1
                 trailer_text = '\n'.join(_AGENT_TRAILER_RE.findall(commit.message))
                 author_lower = commit.author.name.strip().lower()
                 for agent, pattern in agent_patterns.items():
@@ -632,7 +634,7 @@ class RepoCollector(ABC):
                             stats[agent][1] = commit.committed_date
                             stats[agent][2] = commit.hexsha
 
-        return {
+        return examined, {
             agent: (vals[0], datetime.fromtimestamp(vals[1], tz=UTC), vals[2])
             for agent, vals in stats.items()
         }

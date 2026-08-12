@@ -338,35 +338,47 @@ class Command(DbdbBaseCommand):
         agent_results: list[tuple] = []
         scanned = 0
 
-        for ver in versions.order_by('system__name'):
-            citation = ver.sourcerepo_url
-            if citation.id in seen_citation_ids:
-                continue
-            seen_citation_ids.add(citation.id)
-            LOG.debug("find-first-agent: scanning %s (%s)", ver.system.name, citation.url)
-            try:
-                stats = scan_coding_agent_stats(citation, since=since)
-            except Exception as exc:
-                LOG.warning("find-first-agent: scan failed for %s: %s", citation.url, exc)
-                continue
-            scanned += 1
-            if not stats:
-                LOG.debug("find-first-agent: %s — no agent commits found", ver.system.name)
-            for agent, (count, first_dt, first_hexsha) in stats.items():
-                LOG.debug(
-                    "find-first-agent: %s | %s | commits=%d | first=%s | sha=%s",
-                    ver.system.name, agent.name, count, first_dt.date().isoformat(), first_hexsha,
-                )
-                agent_results.append((
-                    ver.system.name,
-                    agent.name,
-                    count,
-                    first_dt.date().isoformat(),
-                    first_hexsha,
-                ))
-            if limit is not None and scanned >= limit:
-                break
+        def _write_csv():
+            writer = csv.writer(self.stdout)
+            writer.writerow([
+                'system_name', 'agent_name', 'total_commits',
+                'first_commit_date', 'first_commit_id', 'commits_examined',
+            ])
+            writer.writerows(agent_results)
 
-        writer = csv.writer(self.stdout)
-        writer.writerow(['system_name', 'agent_name', 'total_commits', 'first_commit_date', 'first_commit_id'])
-        writer.writerows(agent_results)
+        try:
+            for ver in versions.order_by('system__name'):
+                citation = ver.sourcerepo_url
+                if citation.id in seen_citation_ids:
+                    continue
+                seen_citation_ids.add(citation.id)
+                LOG.debug("find-first-agent: scanning %s (%s)", ver.system.name, citation.url)
+                try:
+                    examined, stats = scan_coding_agent_stats(citation, since=since)
+                except Exception as exc:
+                    LOG.warning("find-first-agent: scan failed for %s: %s", citation.url, exc)
+                    continue
+                scanned += 1
+                if not stats:
+                    LOG.debug("find-first-agent: %s — no agent commits found", ver.system.name)
+                for agent, (count, first_dt, first_hexsha) in stats.items():
+                    LOG.debug(
+                        "find-first-agent: %s | %s | commits=%d | first=%s | sha=%s | examined=%d",
+                        ver.system.name, agent.name, count, first_dt.date().isoformat(),
+                        first_hexsha, examined,
+                    )
+                    agent_results.append((
+                        ver.system.name,
+                        agent.name,
+                        count,
+                        first_dt.date().isoformat(),
+                        first_hexsha,
+                        examined,
+                    ))
+                if limit is not None and scanned >= limit:
+                    break
+        except KeyboardInterrupt:
+            _write_csv()
+            raise
+
+        _write_csv()
