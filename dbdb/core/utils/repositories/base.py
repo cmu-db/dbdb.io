@@ -34,6 +34,34 @@ _AGENT_TRAILER_RE = re.compile(
 )
 
 
+_EMAIL_RE = re.compile(r'<[^@]+@([^>]+)>')
+
+
+def _agent_matches_trailers(trailer_values: list[str], pattern: re.Pattern, ids: set[str]) -> bool:
+    """Return True if any trailer value matches the agent.
+
+    For 'Name <email>' values:
+      - The name portion (before '<') is checked against the agent's exact identity
+        set to avoid matching human names like 'Claude Devarenne'.
+      - The email domain (after '@') is also checked with the word-boundary pattern
+        so that addresses like noreply@claude.ai or bot@anthropic.com still match
+        when the name alone is not in the identity set.
+    Bare values (no angle-bracket email) use the word-boundary pattern directly.
+    """
+    for val in trailer_values:
+        val = val.strip()
+        if '<' in val:
+            name = val[:val.index('<')].strip().lower()
+            if name in ids:
+                return True
+            m = _EMAIL_RE.search(val)
+            if m and pattern.search(m.group(1)):
+                return True
+        elif pattern.search(val):
+            return True
+    return False
+
+
 @dataclass
 class SnapshotData:
     """
@@ -486,11 +514,12 @@ class RepoCollector(ABC):
                     continue
                 seen.add(commit.hexsha)
 
-                trailer_text = '\n'.join(_AGENT_TRAILER_RE.findall(commit.message))
+                trailer_values = _AGENT_TRAILER_RE.findall(commit.message)
                 author_lower = commit.author.name.strip().lower()
 
                 for agent, pattern in agent_patterns.items():
-                    if not pattern.search(trailer_text) and author_lower not in agent_ids[agent]:
+                    ids = agent_ids[agent]
+                    if author_lower not in ids and not _agent_matches_trailers(trailer_values, pattern, ids):
                         continue
                     date = commit.committed_date
                     if agent not in best or date > best[agent][0]:
@@ -557,10 +586,11 @@ class RepoCollector(ABC):
                 if commit.hexsha in seen:
                     continue
                 seen.add(commit.hexsha)
-                trailer_text = '\n'.join(_AGENT_TRAILER_RE.findall(commit.message))
+                trailer_values = _AGENT_TRAILER_RE.findall(commit.message)
                 author_lower = commit.author.name.strip().lower()
                 for agent, pattern in agent_patterns.items():
-                    if pattern.search(trailer_text) or author_lower in agent_ids[agent]:
+                    ids = agent_ids[agent]
+                    if author_lower in ids or _agent_matches_trailers(trailer_values, pattern, ids):
                         if earliest is None or commit.committed_date < earliest[0]:
                             earliest = (commit.committed_date, agent.name, commit.hexsha)
                         break
@@ -621,10 +651,11 @@ class RepoCollector(ABC):
                     continue
                 seen.add(commit.hexsha)
                 examined += 1
-                trailer_text = '\n'.join(_AGENT_TRAILER_RE.findall(commit.message))
+                trailer_values = _AGENT_TRAILER_RE.findall(commit.message)
                 author_lower = commit.author.name.strip().lower()
                 for agent, pattern in agent_patterns.items():
-                    if not (pattern.search(trailer_text) or author_lower in agent_ids[agent]):
+                    ids = agent_ids[agent]
+                    if author_lower not in ids and not _agent_matches_trailers(trailer_values, pattern, ids):
                         continue
                     if agent not in stats:
                         stats[agent] = [1, commit.committed_date, commit.hexsha]
