@@ -569,6 +569,74 @@ class RepoCollector(ABC):
             return None
         return (datetime.fromtimestamp(earliest[0], tz=UTC), earliest[1], earliest[2])
 
+    def get_coding_agent_stats(
+        self, since: datetime | None = None
+    ) -> 'dict[AttributeOption, tuple[int, datetime, str]]':
+        """Return per-agent stats as {agent: (total_commits, first_commit_dt, first_hexsha)}.
+
+        Walks all refs in a single pass (with optional --since cutoff). Each unique
+        commit is counted once per matching agent. first_commit_dt is the earliest
+        matching commit for that agent across all refs.
+
+        Args:
+            since: If given, commits older than this date are not traversed.
+        """
+        from dbdb.core.models import AttributeOption
+
+        agents = list(
+            AttributeOption.objects
+            .filter(attribute__slug='agent')
+            .select_related('attribute')
+        )
+        if not agents:
+            return {}
+
+        agent_patterns = {
+            agent: re.compile(r'\b' + re.escape(agent.slug) + r'\b', re.IGNORECASE)
+            for agent in agents
+        }
+        agent_ids: dict = {
+            agent: {
+                agent.slug.lower(),
+                agent.name.lower(),
+                agent.slug.lower() + '[bot]',
+                agent.slug.lower() + ' [bot]',
+            }
+            for agent in agents
+        }
+
+        iter_kwargs: dict = {}
+        if since is not None:
+            iter_kwargs['since'] = since.strftime('%Y-%m-%d')
+
+        refs = list(self._repo.references)
+        seen: set[str] = set()
+        # per agent: [count, earliest_committed_date_int, earliest_hexsha]
+        stats: dict = {}
+
+        for ref in refs:
+            for commit in self._repo.iter_commits(ref, **iter_kwargs):
+                if commit.hexsha in seen:
+                    continue
+                seen.add(commit.hexsha)
+                trailer_text = '\n'.join(_AGENT_TRAILER_RE.findall(commit.message))
+                author_lower = commit.author.name.strip().lower()
+                for agent, pattern in agent_patterns.items():
+                    if not (pattern.search(trailer_text) or author_lower in agent_ids[agent]):
+                        continue
+                    if agent not in stats:
+                        stats[agent] = [1, commit.committed_date, commit.hexsha]
+                    else:
+                        stats[agent][0] += 1
+                        if commit.committed_date < stats[agent][1]:
+                            stats[agent][1] = commit.committed_date
+                            stats[agent][2] = commit.hexsha
+
+        return {
+            agent: (vals[0], datetime.fromtimestamp(vals[1], tz=UTC), vals[2])
+            for agent, vals in stats.items()
+        }
+
     # ── shared request helper ─────────────────────────────────────────────
 
     def _get(self, url: str, **params) -> requests.Response:

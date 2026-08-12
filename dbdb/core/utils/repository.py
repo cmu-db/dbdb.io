@@ -159,6 +159,19 @@ def scan_first_coding_agent(
     return collector.get_first_coding_agent_commit(since=since)
 
 
+def scan_coding_agent_stats(
+    citation_url: CitationUrl,
+    since: datetime | None = None,
+) -> dict:
+    """Return per-agent stats {agent: (count, first_dt, hexsha)} for citation_url.
+
+    Falls back to GenericGitCollector for unrecognised hosts.
+    """
+    collector = get_collector(citation_url)
+    collector.clone_url(citation_url.url, all_branches=True)
+    return collector.get_coding_agent_stats(since=since)
+
+
 def check_abandoned(system:System, *, inactivity_days: int = 1095) -> bool:
     """
     Determine whether a system's source repository appears abandoned and, if

@@ -93,7 +93,7 @@ class Command(DbdbBaseCommand):
                 except ValueError:
                     self.stderr.write(f"Invalid --since date: {options['since']!r} (expected YYYY-MM-DD)")
                     return
-            self._run_find_first_agent(versions, since=since)
+            self._run_find_first_agent(versions, since=since, limit=options['limit'])
             return
 
         check_older_days = options['check_last_commit_older']
@@ -331,11 +331,12 @@ class Command(DbdbBaseCommand):
                 )
             )
 
-    def _run_find_first_agent(self, versions, since=None):
-        from dbdb.core.utils.repository import scan_first_coding_agent
+    def _run_find_first_agent(self, versions, since=None, limit=None):
+        from dbdb.core.utils.repository import scan_coding_agent_stats
 
         seen_citation_ids: set[int] = set()
-        agent_results: list[tuple[str, str, str, str]] = []
+        agent_results: list[tuple] = []
+        scanned = 0
 
         for ver in versions.order_by('system__name'):
             citation = ver.sourcerepo_url
@@ -344,14 +345,28 @@ class Command(DbdbBaseCommand):
             seen_citation_ids.add(citation.id)
             LOG.debug("find-first-agent: scanning %s (%s)", ver.system.name, citation.url)
             try:
-                result = scan_first_coding_agent(citation, since=since)
+                stats = scan_coding_agent_stats(citation, since=since)
             except Exception as exc:
                 LOG.warning("find-first-agent: scan failed for %s: %s", citation.url, exc)
                 continue
-            if result is not None:
-                first_dt, agent_name, commit_id = result
-                agent_results.append((ver.system.name, first_dt.date().isoformat(), commit_id, agent_name))
+            scanned += 1
+            if not stats:
+                LOG.debug("find-first-agent: %s — no agent commits found", ver.system.name)
+            for agent, (count, first_dt, first_hexsha) in stats.items():
+                LOG.debug(
+                    "find-first-agent: %s | %s | commits=%d | first=%s | sha=%s",
+                    ver.system.name, agent.name, count, first_dt.date().isoformat(), first_hexsha,
+                )
+                agent_results.append((
+                    ver.system.name,
+                    agent.name,
+                    count,
+                    first_dt.date().isoformat(),
+                    first_hexsha,
+                ))
+            if limit is not None and scanned >= limit:
+                break
 
         writer = csv.writer(self.stdout)
-        writer.writerow(['system_name', 'first_agent_commit_date', 'commit_id', 'agent_name'])
+        writer.writerow(['system_name', 'agent_name', 'total_commits', 'first_commit_date', 'first_commit_id'])
         writer.writerows(agent_results)
