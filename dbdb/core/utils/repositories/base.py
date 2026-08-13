@@ -35,17 +35,21 @@ _AGENT_TRAILER_RE = re.compile(
 
 
 _EMAIL_RE = re.compile(r'<[^@]+@([^>]+)>')
+_BOT_EMAIL_RE = re.compile(r'noreply|no-reply|\[bot\]', re.IGNORECASE)
 
 
 def _agent_matches_trailers(trailer_values: list[str], pattern: re.Pattern, ids: set[str]) -> bool:
     """Return True if any trailer value matches the agent.
 
-    For 'Name <email>' values:
-      - The name portion (before '<') is checked against the agent's exact identity
-        set to avoid matching human names like 'Claude Devarenne'.
-      - The email domain (after '@') is also checked with the word-boundary pattern
-        so that addresses like noreply@claude.ai or bot@anthropic.com still match
-        when the name alone is not in the identity set.
+    For 'Name <email>' values three checks are tried in order:
+      1. Name (before '<') is in the agent's exact identity set — rejects human
+         names like 'Claude Devarenne <claude.devarenne@gmail.com>'.
+      2. Email domain (after '@') matches the word-boundary pattern — catches
+         addresses like noreply@claude.ai.
+      3. Email is bot-style (noreply / no-reply / [bot]) AND the word-boundary
+         pattern matches the name — handles versioned model names like
+         'Claude Opus 4.8 <noreply@anthropic.com>' while still rejecting
+         'Claude Devarenne <claude.devarenne@gmail.com>' (non-bot email).
     Bare values (no angle-bracket email) use the word-boundary pattern directly.
     """
     for val in trailer_values:
@@ -55,8 +59,11 @@ def _agent_matches_trailers(trailer_values: list[str], pattern: re.Pattern, ids:
             if name in ids:
                 return True
             m = _EMAIL_RE.search(val)
-            if m and pattern.search(m.group(1)):
-                return True
+            if m:
+                if pattern.search(m.group(1)):
+                    return True
+                if _BOT_EMAIL_RE.search(m.group(0)) and pattern.search(name):
+                    return True
         elif pattern.search(val):
             return True
     return False
@@ -495,35 +502,29 @@ class RepoCollector(ABC):
         if branch:
             ref = self._resolve_branch_ref(branch)
             if ref is not None:
-                refs = [ref]
+                rev = ref
                 self.log.debug("get_coding_agent_commits: scanning branch %r", branch)
             else:
-                refs = list(self._repo.references)
-                self.log.debug("get_coding_agent_commits: branch %r not found, scanning %d refs", branch, len(refs))
+                rev = '--all'
+                self.log.debug("get_coding_agent_commits: branch %r not found, scanning --all", branch)
         else:
-            refs = list(self._repo.references)
-            self.log.debug("get_coding_agent_commits: scanning %d refs", len(refs))
+            rev = '--all'
+            self.log.debug("get_coding_agent_commits: scanning --all")
 
         # agent -> (committed_date, hexsha) for the best (latest) match found
         best: dict = {}
-        seen: set[str] = set()
 
-        for ref in refs:
-            for commit in self._repo.iter_commits(ref):
-                if commit.hexsha in seen:
+        for commit in self._repo.iter_commits(rev):
+            trailer_values = _AGENT_TRAILER_RE.findall(commit.message)
+            author_lower = commit.author.name.strip().lower()
+
+            for agent, pattern in agent_patterns.items():
+                ids = agent_ids[agent]
+                if author_lower not in ids and not _agent_matches_trailers(trailer_values, pattern, ids):
                     continue
-                seen.add(commit.hexsha)
-
-                trailer_values = _AGENT_TRAILER_RE.findall(commit.message)
-                author_lower = commit.author.name.strip().lower()
-
-                for agent, pattern in agent_patterns.items():
-                    ids = agent_ids[agent]
-                    if author_lower not in ids and not _agent_matches_trailers(trailer_values, pattern, ids):
-                        continue
-                    date = commit.committed_date
-                    if agent not in best or date > best[agent][0]:
-                        best[agent] = (date, commit.hexsha)
+                date = commit.committed_date
+                if agent not in best or date > best[agent][0]:
+                    best[agent] = (date, commit.hexsha)
 
         result = {agent: hexsha for agent, (_, hexsha) in best.items()}
         self.log.debug(
@@ -576,24 +577,18 @@ class RepoCollector(ABC):
         if since is not None:
             iter_kwargs['since'] = since.strftime('%Y-%m-%d')
 
-        refs = list(self._repo.references)
         # (committed_date, agent.name, hexsha) for the earliest match found
         earliest: tuple[int, str, str] | None = None
-        seen: set[str] = set()
 
-        for ref in refs:
-            for commit in self._repo.iter_commits(ref, **iter_kwargs):
-                if commit.hexsha in seen:
-                    continue
-                seen.add(commit.hexsha)
-                trailer_values = _AGENT_TRAILER_RE.findall(commit.message)
-                author_lower = commit.author.name.strip().lower()
-                for agent, pattern in agent_patterns.items():
-                    ids = agent_ids[agent]
-                    if author_lower in ids or _agent_matches_trailers(trailer_values, pattern, ids):
-                        if earliest is None or commit.committed_date < earliest[0]:
-                            earliest = (commit.committed_date, agent.name, commit.hexsha)
-                        break
+        for commit in self._repo.iter_commits('--all', **iter_kwargs):
+            trailer_values = _AGENT_TRAILER_RE.findall(commit.message)
+            author_lower = commit.author.name.strip().lower()
+            for agent, pattern in agent_patterns.items():
+                ids = agent_ids[agent]
+                if author_lower in ids or _agent_matches_trailers(trailer_values, pattern, ids):
+                    if earliest is None or commit.committed_date < earliest[0]:
+                        earliest = (commit.committed_date, agent.name, commit.hexsha)
+                    break
 
         if earliest is None:
             return None
@@ -639,31 +634,25 @@ class RepoCollector(ABC):
         if since is not None:
             iter_kwargs['since'] = since.strftime('%Y-%m-%d')
 
-        refs = list(self._repo.references)
-        seen: set[str] = set()
         # per agent: [count, earliest_committed_date_int, earliest_hexsha]
         stats: dict = {}
         examined = 0
 
-        for ref in refs:
-            for commit in self._repo.iter_commits(ref, **iter_kwargs):
-                if commit.hexsha in seen:
+        for commit in self._repo.iter_commits('--all', **iter_kwargs):
+            examined += 1
+            trailer_values = _AGENT_TRAILER_RE.findall(commit.message)
+            author_lower = commit.author.name.strip().lower()
+            for agent, pattern in agent_patterns.items():
+                ids = agent_ids[agent]
+                if author_lower not in ids and not _agent_matches_trailers(trailer_values, pattern, ids):
                     continue
-                seen.add(commit.hexsha)
-                examined += 1
-                trailer_values = _AGENT_TRAILER_RE.findall(commit.message)
-                author_lower = commit.author.name.strip().lower()
-                for agent, pattern in agent_patterns.items():
-                    ids = agent_ids[agent]
-                    if author_lower not in ids and not _agent_matches_trailers(trailer_values, pattern, ids):
-                        continue
-                    if agent not in stats:
-                        stats[agent] = [1, commit.committed_date, commit.hexsha]
-                    else:
-                        stats[agent][0] += 1
-                        if commit.committed_date < stats[agent][1]:
-                            stats[agent][1] = commit.committed_date
-                            stats[agent][2] = commit.hexsha
+                if agent not in stats:
+                    stats[agent] = [1, commit.committed_date, commit.hexsha]
+                else:
+                    stats[agent][0] += 1
+                    if commit.committed_date < stats[agent][1]:
+                        stats[agent][1] = commit.committed_date
+                        stats[agent][2] = commit.hexsha
 
         return examined, {
             agent: (vals[0], datetime.fromtimestamp(vals[1], tz=UTC), vals[2])
