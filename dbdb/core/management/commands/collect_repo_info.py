@@ -1,3 +1,4 @@
+import csv
 import datetime
 import logging
 import time
@@ -54,6 +55,14 @@ class Command(DbdbBaseCommand):
             '--check-resurrection', action='store_true',
             help='Scan systems tagged "Abandoned" for signs of recent activity and '
                  'create a pending SystemVersion for admin review if any is found.')
+        parser.add_argument(
+            '--find-first-agent', action='store_true',
+            help='Scan repos for the earliest commit that uses a coding agent and '
+                 'print the results as CSV. Processes all repos (enabled and disabled). '
+                 'Does not write to the database.')
+        parser.add_argument(
+            '--since', type=str, default=None, metavar='YYYY-MM-DD',
+            help='Used with --find-first-agent: do not traverse commits older than this date.')
         return
 
     def handle(self, *args, **options):
@@ -75,6 +84,17 @@ class Command(DbdbBaseCommand):
                     Q(system__name__icontains=keyword) |
                     Q(sourcerepo_url__url__icontains=keyword)
                 )
+
+        if options['find_first_agent']:
+            since = None
+            if options['since']:
+                try:
+                    since = datetime.datetime.strptime(options['since'], '%Y-%m-%d').replace(tzinfo=datetime.timezone.utc)
+                except ValueError:
+                    self.stderr.write(f"Invalid --since date: {options['since']!r} (expected YYYY-MM-DD)")
+                    return
+            self._run_find_first_agent(versions, since=since, limit=options['limit'])
+            return
 
         check_older_days = options['check_last_commit_older']
         if check_older_days is not None:
@@ -310,3 +330,55 @@ class Command(DbdbBaseCommand):
                     f"Resurrection check: {res_ok} flagged, {res_skipped} skipped, {res_err} errors"
                 )
             )
+
+    def _run_find_first_agent(self, versions, since=None, limit=None):
+        from dbdb.core.utils.repository import scan_coding_agent_stats
+
+        seen_citation_ids: set[int] = set()
+        agent_results: list[tuple] = []
+        scanned = 0
+
+        def _write_csv():
+            writer = csv.writer(self.stdout)
+            writer.writerow([
+                'system_name', 'agent_name', 'total_commits',
+                'first_commit_date', 'first_commit_id', 'commits_examined',
+            ])
+            writer.writerows(agent_results)
+
+        try:
+            for ver in versions.order_by('system__name'):
+                citation = ver.sourcerepo_url
+                if citation.id in seen_citation_ids:
+                    continue
+                seen_citation_ids.add(citation.id)
+                LOG.debug("find-first-agent: scanning %s (%s)", ver.system.name, citation.url)
+                try:
+                    examined, stats = scan_coding_agent_stats(citation, since=since)
+                except Exception as exc:
+                    LOG.warning("find-first-agent: scan failed for %s: %s", citation.url, exc)
+                    continue
+                scanned += 1
+                if not stats:
+                    LOG.debug("find-first-agent: %s — no agent commits found", ver.system.name)
+                for agent, (count, first_dt, first_hexsha) in stats.items():
+                    LOG.debug(
+                        "find-first-agent: %s | %s | commits=%d | first=%s | sha=%s | examined=%d",
+                        ver.system.name, agent.name, count, first_dt.date().isoformat(),
+                        first_hexsha, examined,
+                    )
+                    agent_results.append((
+                        ver.system.name,
+                        agent.name,
+                        count,
+                        first_dt.date().isoformat(),
+                        first_hexsha,
+                        examined,
+                    ))
+                if limit is not None and scanned >= limit:
+                    break
+        except KeyboardInterrupt:
+            _write_csv()
+            raise
+
+        _write_csv()
