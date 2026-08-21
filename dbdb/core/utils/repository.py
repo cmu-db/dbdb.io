@@ -141,6 +141,37 @@ def scan_coding_agents(
     return result
 
 
+def scan_first_coding_agent(
+    citation_url: CitationUrl,
+    since: datetime | None = None,
+) -> 'tuple[datetime, str, str] | None':
+    """Return (timestamp, agent_name, hexsha) for the earliest agent commit, or None.
+
+    Clones (or reuses an existing clone of) citation_url and delegates to
+    get_first_coding_agent_commit(). Falls back to GenericGitCollector for
+    unrecognised hosts.
+
+    Args:
+        since: If given, commits older than this date are not traversed.
+    """
+    collector = get_collector(citation_url)
+    collector.clone_url(citation_url.url)
+    return collector.get_first_coding_agent_commit(since=since)
+
+
+def scan_coding_agent_stats(
+    citation_url: CitationUrl,
+    since: datetime | None = None,
+) -> 'tuple[int, dict]':
+    """Return (commits_examined, {agent: (count, first_dt, hexsha)}) for citation_url.
+
+    Falls back to GenericGitCollector for unrecognised hosts.
+    """
+    collector = get_collector(citation_url)
+    collector.clone_url(citation_url.url)
+    return collector.get_coding_agent_stats(since=since)
+
+
 def check_abandoned(system:System, *, inactivity_days: int = 1095) -> bool:
     """
     Determine whether a system's source repository appears abandoned and, if
