@@ -155,7 +155,7 @@ def scan_first_coding_agent(
         since: If given, commits older than this date are not traversed.
     """
     collector = get_collector(citation_url)
-    collector.clone_url(citation_url.url, all_branches=True)
+    collector.clone_url(citation_url.url)
     return collector.get_first_coding_agent_commit(since=since)
 
 
@@ -168,7 +168,7 @@ def scan_coding_agent_stats(
     Falls back to GenericGitCollector for unrecognised hosts.
     """
     collector = get_collector(citation_url)
-    collector.clone_url(citation_url.url, all_branches=True)
+    collector.clone_url(citation_url.url)
     return collector.get_coding_agent_stats(since=since)
 
 

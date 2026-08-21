@@ -580,7 +580,7 @@ class RepoCollector(ABC):
         # (committed_date, agent.name, hexsha) for the earliest match found
         earliest: tuple[int, str, str] | None = None
 
-        for commit in self._repo.iter_commits('--all', **iter_kwargs):
+        for commit in self._repo.iter_commits('HEAD', **iter_kwargs):
             trailer_values = _AGENT_TRAILER_RE.findall(commit.message)
             author_lower = commit.author.name.strip().lower()
             for agent, pattern in agent_patterns.items():
@@ -638,7 +638,7 @@ class RepoCollector(ABC):
         stats: dict = {}
         examined = 0
 
-        for commit in self._repo.iter_commits('--all', **iter_kwargs):
+        for commit in self._repo.iter_commits('HEAD', **iter_kwargs):
             examined += 1
             trailer_values = _AGENT_TRAILER_RE.findall(commit.message)
             author_lower = commit.author.name.strip().lower()
