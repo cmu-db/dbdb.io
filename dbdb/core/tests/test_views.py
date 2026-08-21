@@ -4,7 +4,7 @@ import datetime
 import environ
 import jwt
 from django.conf import settings
-from django.contrib.auth import get_user
+from django.contrib.auth import get_user, get_user_model
 from django.test import Client, RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
@@ -219,8 +219,8 @@ class AdvancedSearchTestCase(TestCase):
     def test_inputs_quantity(self):
         feature_count = Feature.objects.count()
         attr_count = Attribute.objects.filter(sv_field__gt='').count()
-        # 8 hardcoded groups: country, compatible, embedded, derived, inspired, hosted, developer, acquired-by
-        hardcoded_count = 8
+        # 9 hardcoded groups: country, compatible, embedded, derived, inspired, hosted, developer, acquired-by, supported
+        hardcoded_count = 9
         expected = feature_count + attr_count + hardcoded_count
 
         response = self.client.get(reverse('browse'))
@@ -332,7 +332,213 @@ class AdvancedSearchTestCase(TestCase):
         })
         self.assertContains(response, 'SQLite')
 
+    def test_supported_filter_returns_results(self):
+        from dbdb.core.models import AttributeOption, SystemVersion
+        sv = SystemVersion.objects.get(system__name='SQLite', is_current=True)
+        c_opt = AttributeOption.objects.get(slug='c', attribute__slug='programming-language')
+        sv.supported_languages.add(c_opt)
+        response = self.client.get(reverse('browse'), data={'supported': 'c'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'SQLite')
+
+    def test_supported_filter_existence(self):
+        from dbdb.core.models import AttributeOption, SystemVersion
+        sv = SystemVersion.objects.get(system__name='SQLite', is_current=True)
+        c_opt = AttributeOption.objects.get(slug='c', attribute__slug='programming-language')
+        sv.supported_languages.add(c_opt)
+        response = self.client.get(reverse('browse'), data={'supported': '*'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'SQLite')
+
+    def test_supported_filter_no_match(self):
+        # SQLite has no supported_languages by default
+        response = self.client.get(reverse('browse'), data={'supported': '*'})
+        self.assertContains(response, 'No databases found')
+
     pass
+
+# ==============================================
+# NegationFilterTestCase
+# ==============================================
+class NegationFilterTestCase(TestCase):
+    """Tests for negation (!) filter prefix on FeatureOptions and AttributeOptions."""
+
+    fixtures = [
+        'adminuser.json',
+        'testuser.json',
+        'core_features.json',
+        'core_attributes.json',
+        'core_system.json',
+    ]
+
+    # --- Feature negation ---
+
+    def test_feature_negation_excludes_matching_system(self):
+        # Before fix: causes "Invalid Search" (! slug unknown). After fix: SQLite excluded.
+        data = {'storage-model': '!n-ary-storage-model-rowrecord'}
+        response = self.client.get(reverse('browse'), data=data)
+        self.assertNotContains(response, 'SQLite')
+
+    def test_feature_negation_does_not_exclude_non_matching(self):
+        # Before fix: causes "Invalid Search". After fix: SQLite present (not columnar).
+        data = {'storage-model': '!decomposition-storage-model-columnar'}
+        response = self.client.get(reverse('browse'), data=data)
+        self.assertContains(response, 'SQLite')
+
+    # --- Attribute negation ---
+
+    def test_attribute_negation_excludes_matching_system(self):
+        # SQLite has license=public-domain; negating it excludes SQLite.
+        # Before fix: Q(licenses__slug__in=['!public-domain']) matches nothing → no results (wrong).
+        # After fix: sqs.exclude(...) correctly removes SQLite → no results (correct).
+        data = {'license': '!public-domain'}
+        response = self.client.get(reverse('browse'), data=data)
+        self.assertNotContains(response, 'SQLite')
+
+    def test_attribute_negation_does_not_exclude_non_matching(self):
+        # SQLite has public-domain, not MIT. Negating MIT should keep SQLite.
+        # Before fix: Q(licenses__slug__in=['!mit']) matches nothing → "No databases found" (WRONG).
+        # After fix: exclude(licenses__slug__in=['mit']) leaves SQLite → SQLite shown.
+        data = {'license': '!mit'}
+        response = self.client.get(reverse('browse'), data=data)
+        self.assertContains(response, 'SQLite')
+
+    # --- Combined ---
+
+    def test_positive_and_negation_feature_coexist(self):
+        # Positive matches SQLite (row-store), negation doesn't affect it (not columnar).
+        data = {'storage-model': ['n-ary-storage-model-rowrecord',
+                                  '!decomposition-storage-model-columnar']}
+        response = self.client.get(reverse('browse'), data=data)
+        self.assertContains(response, 'SQLite')
+
+    def test_negation_overrides_positive_for_same_value(self):
+        # Positive would include SQLite, but negating the same value excludes it.
+        data = {'storage-model': ['n-ary-storage-model-rowrecord',
+                                  '!n-ary-storage-model-rowrecord']}
+        response = self.client.get(reverse('browse'), data=data)
+        self.assertNotContains(response, 'SQLite')
+
+    pass
+
+# ==============================================
+# BrowseColumnTestCase
+# ==============================================
+class BrowseColumnTestCase(TestCase):
+    """Verify that each column type is correctly populated in browse results."""
+
+    fixtures = [
+        'adminuser.json',
+        'testuser.json',
+        'core_features.json',
+        'core_attributes.json',
+        'core_system.json',
+    ]
+
+    def _sqlite(self, response):
+        return next(r for r in response.context['results'] if r['name'] == 'SQLite')
+
+    def _col_value(self, response, result, col_id):
+        idx = response.context['active_col_ids'].index(col_id)
+        return result['col_values'][idx]
+
+    # --- supported-languages column ---
+
+    def test_supported_languages_column_via_filter(self):
+        """?supported=python auto-shows the column and populates it with Python."""
+        from dbdb.core.models import AttributeOption, SystemVersion
+        sv = SystemVersion.objects.get(system__name='SQLite', is_current=True)
+        python = AttributeOption.objects.get(slug='python', attribute__slug='programming-language')
+        sv.supported_languages.add(python)
+
+        response = self.client.get(reverse('browse'), data={'supported': 'python'})
+        self.assertEqual(response.status_code, 200)
+        sqlite = self._sqlite(response)
+        self.assertIn('supported-languages', response.context['active_col_ids'])
+        cv = self._col_value(response, sqlite, 'supported-languages')
+        self.assertEqual(cv['type'], 'attr_opts')
+        names = [d['name'] for d in cv['data']]
+        self.assertIn('Python', names)
+
+    def test_supported_languages_column_via_cols_param(self):
+        """?cols=... with supported-languages shows all supported languages without a filter constraint."""
+        from dbdb.core.models import AttributeOption, SystemVersion
+        sv = SystemVersion.objects.get(system__name='SQLite', is_current=True)
+        python = AttributeOption.objects.get(slug='python', attribute__slug='programming-language')
+        java = AttributeOption.objects.get(slug='java', attribute__slug='programming-language')
+        sv.supported_languages.add(python, java)
+
+        response = self.client.get(reverse('browse'), data={'cols': 'data-model,start-year,supported-languages,tags'})
+        self.assertEqual(response.status_code, 200)
+        sqlite = self._sqlite(response)
+        cv = self._col_value(response, sqlite, 'supported-languages')
+        self.assertEqual(cv['type'], 'attr_opts')
+        names = [d['name'] for d in cv['data']]
+        self.assertIn('Python', names)
+        self.assertIn('Java', names)
+
+    def test_supported_languages_empty_shows_dash(self):
+        """When a system has no supported_languages, the column renders a dash."""
+        response = self.client.get(reverse('browse'), data={'cols': 'data-model,start-year,supported-languages,tags'})
+        self.assertEqual(response.status_code, 200)
+        sqlite = self._sqlite(response)
+        cv = self._col_value(response, sqlite, 'supported-languages')
+        self.assertEqual(cv['type'], 'attr_opts')
+        self.assertEqual(cv['data'], [])
+
+    # --- attribute column ---
+
+    def test_attribute_programming_language_column_populated(self):
+        """The programming-language attribute column shows the system's written_in language."""
+        response = self.client.get(reverse('browse'), data={'cols': 'data-model,start-year,programming-language,tags'})
+        self.assertEqual(response.status_code, 200)
+        sqlite = self._sqlite(response)
+        cv = self._col_value(response, sqlite, 'programming-language')
+        self.assertEqual(cv['type'], 'attr_opts')
+        names = [d['name'] for d in cv['data']]
+        self.assertIn('C', names)
+
+    def test_attribute_license_column_populated(self):
+        """The license attribute column shows the system's license."""
+        response = self.client.get(reverse('browse'), data={'cols': 'data-model,start-year,license,tags'})
+        self.assertEqual(response.status_code, 200)
+        sqlite = self._sqlite(response)
+        cv = self._col_value(response, sqlite, 'license')
+        self.assertEqual(cv['type'], 'attr_opts')
+        names = [d['name'] for d in cv['data']]
+        self.assertIn('Public Domain', names)
+
+    # --- feature column ---
+
+    def test_feature_storage_model_column_populated(self):
+        """The storage-model feature column shows the system's storage model."""
+        response = self.client.get(reverse('browse'), data={'cols': 'data-model,start-year,storage-model,tags'})
+        self.assertEqual(response.status_code, 200)
+        sqlite = self._sqlite(response)
+        cv = self._col_value(response, sqlite, 'storage-model')
+        self.assertEqual(cv['type'], 'feature_opts')
+        values = [d['value'] for d in cv['data']]
+        self.assertIn('N-ary Storage Model (Row/Record)', values)
+
+    # --- builtin columns ---
+
+    def test_start_year_column_populated(self):
+        """The start-year builtin column shows the system's start year."""
+        response = self.client.get(reverse('browse'))
+        self.assertEqual(response.status_code, 200)
+        sqlite = self._sqlite(response)
+        cv = self._col_value(response, sqlite, 'start-year')
+        self.assertEqual(cv['type'], 'year')
+        self.assertEqual(cv['data'], 2001)
+
+    def test_tags_column_empty_shows_no_dash(self):
+        """Tags column with no tags produces an empty data list (no crash)."""
+        response = self.client.get(reverse('browse'))
+        self.assertEqual(response.status_code, 200)
+        sqlite = self._sqlite(response)
+        cv = self._col_value(response, sqlite, 'tags')
+        self.assertEqual(cv['type'], 'tags')
+        self.assertIsInstance(cv['data'], list)
 
 # ==============================================
 # WildcardNameSearchTestCase
@@ -856,3 +1062,148 @@ class JwtAuthTestCase(TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(result['sub'], email)
         self.assertEqual(result['systems'], system_ids)
+
+
+# ==============================================
+# SetupUserViewTestCase
+# ==============================================
+class SetupUserViewTestCase(TestCase):
+
+    fixtures = [
+        'adminuser.json',
+        'testuser.json',
+        'core_features.json',
+        'core_attributes.json',
+        'core_system.json',
+    ]
+
+    def setUp(self):
+        self.url = reverse('setup_user')
+        self.client.login(username='admin', password='testpassword')
+        self.system = System.objects.first()
+
+    def test_superuser_can_access_page(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Generate URL')
+
+    def test_non_superuser_cannot_access(self):
+        self.client.logout()
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(self.url)
+        self.assertNotEqual(response.status_code, 200)
+
+    def test_form_uses_get_not_post(self):
+        # Before fix: form had method="POST" so clicking Generate URL would
+        # hit the view's missing post() handler and return 405.
+        response = self.client.get(self.url)
+        self.assertContains(response, 'method="GET" id="setup"',
+                            msg_prefix='Setup form must use GET so the button works without JS')
+
+    def test_generate_url_returns_json(self):
+        response = self.client.get(self.url, {
+            'action': 'url',
+            'email': 'inspectah@wutang.com',
+            'systems': [self.system.id],
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn('url', data)
+        self.assertNotIn('error', data)
+
+    def test_generate_url_existing_email_returns_error(self):
+        # admin@dbdb.io already exists in the adminuser fixture
+        response = self.client.get(self.url, {
+            'action': 'url',
+            'email': 'admin@dbdb.io',
+            'systems': [self.system.id],
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn('error', data)
+
+    def test_generate_url_response_is_json_not_html(self):
+        # Regression: if the AJAX endpoint returns HTML instead of JSON,
+        # the client-side success handler receives a string and response.url
+        # is undefined — the URL box never appears.
+        response = self.client.get(self.url, {
+            'action': 'url',
+            'email': 'gza@wutang.com',
+            'systems': [self.system.id],
+        })
+        self.assertEqual(response['Content-Type'], 'application/json')
+        data = response.json()
+        self.assertIn('url', data)
+        self.assertIn('/user/create', data['url'])
+
+
+# ==============================================
+# CreateUserViewTestCase
+# ==============================================
+class CreateUserViewTestCase(TestCase):
+    fixtures = ['adminuser.json', 'testuser.json', 'core_features.json',
+                'core_attributes.json', 'core_system.json']
+
+    def setUp(self):
+        self.url = reverse('create_user')
+
+    def _make_token(self, email=None, systems=None, expired=False):
+        payload = {'iat': datetime.datetime.now(tz=datetime.timezone.utc)}
+        if expired:
+            payload['exp'] = datetime.datetime.now(tz=datetime.timezone.utc) - datetime.timedelta(hours=1)
+        else:
+            payload['exp'] = datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(hours=24)
+        if email:
+            payload['sub'] = email
+        if systems:
+            payload['systems'] = systems
+        return jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+
+    def test_get_renders_form(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/create_user.html')
+        self.assertIn('form', response.context)
+
+    def test_get_with_expired_token_shows_expired_message(self):
+        token = self._make_token(email='rza@wutang.com', expired=True)
+        response = self.client.get(self.url, {'token': token})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['expired_token'])
+
+    def test_get_with_valid_token_prefills_email(self):
+        token = self._make_token(email='ghostface@wutang.com')
+        response = self.client.get(self.url, {'token': token})
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context.get('expired_token', False))
+        self.assertEqual(response.context['form'].initial.get('email'), 'ghostface@wutang.com')
+
+    def test_post_valid_data_creates_and_logs_in_user(self):
+        # TURNSTILE_ENABLE=False in test_settings skips captcha validation
+        response = self.client.post(self.url, {
+            'username': 'raekwon',
+            'email': 'raekwon@wutang.com',
+            'password': 'OnlyBuiltForCubanLinx!1',
+            'password2': 'OnlyBuiltForCubanLinx!1',
+        })
+        self.assertRedirects(response, reverse('user_profile'))
+        User = get_user_model()
+        self.assertTrue(User.objects.filter(username='raekwon').exists())
+        self.assertEqual(get_user(self.client).username, 'raekwon')
+
+    def test_post_mismatched_passwords_rerenders_form(self):
+        response = self.client.post(self.url, {
+            'username': 'masta_killa',
+            'email': 'masta@wutang.com',
+            'password': 'password1',
+            'password2': 'password2',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response.context['form'], 'password2', 'The passwords do not match')
+
+    def test_form_uses_turnstile_not_recaptcha(self):
+        # Regression: button was previously bound to invisible reCAPTCHA which
+        # intercepted clicks but never completed with empty RECAPTCHA_PUBLIC_KEY.
+        response = self.client.get(self.url)
+        self.assertNotContains(response, 'google.com/recaptcha')
+        self.assertNotContains(response, 'onCaptchaSubmit')

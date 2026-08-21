@@ -412,7 +412,7 @@ requires-dist = [
     { name = "cssselect", specifier = "==1.1.0" },
     { name = "cssselect2", specifier = "==0.8.0" },
     { name = "defusedxml", specifier = "==0.7.1" },
-    { name = "django", specifier = "==6.0.6" },
+    { name = "django", specifier = "==6.0.7" },
     { name = "django-autoslug", specifier = "==1.9.9" },
     { name = "django-bootstrap5", specifier = "==25.3" },
     { name = "django-colorfield", specifier = "==0.14.0" },
@@ -509,7 +509,7 @@ name = "deprecated"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "wrapt", marker = "platform_python_implementation != 'PyPy'" },
+    { name = "wrapt" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/49/85/12f0a49a7c4ffb70572b6c2ef13c90c88fd190debda93b23f026b25f9634/deprecated-1.3.1.tar.gz", hash = "sha256:b1b50e0ff0c1fddaa5708a2c6b0a6588bb09b892825ab2b214ac9ea9d92a5223", size = 2932523, upload-time = "2025-10-30T08:19:02.757Z" }
 wheels = [
@@ -527,16 +527,16 @@ wheels = [
 
 [[package]]
 name = "django"
-version = "6.0.6"
+version = "6.0.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "asgiref" },
     { name = "sqlparse" },
     { name = "tzdata", marker = "sys_platform == 'win32'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/78/29/ac41e16097af67066d97a7d5775c5d8e7efc5d0284f6b0a159e07b9adb92/django-6.0.6.tar.gz", hash = "sha256:ad03916ba59523d781ae5c3f631960c23d69a9d9c43cecda52fc23b47e953713", size = 10905525, upload-time = "2026-06-03T13:02:46.503Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/89/55/664f24ff81c9ea19cb7dfc851afeae1f3c2390c7aee01d4ded68b5c1580d/django-6.0.7.tar.gz", hash = "sha256:2998503fc083124fb58037084bfa00de323c7c743f05f1b4284e77bff0ab8890", size = 10921299, upload-time = "2026-07-07T13:51:26.485Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/eb/50/23f9dc45483419a3cc2085b498b25adfbf10642b2941c73e6d2dfaffc9ab/django-6.0.6-py3-none-any.whl", hash = "sha256:25148b1194c47c2e685e5f5e9c5d59c78b075dfd282cb9618861ba6c1708f4d2", size = 8373354, upload-time = "2026-06-03T13:02:41.72Z" },
+    { url = "https://files.pythonhosted.org/packages/ba/ec/1ce5334b6a2c52ce619c23a0be8d366a57a0e080ebb2d88266e5c849157c/django-6.0.7-py3-none-any.whl", hash = "sha256:a037427c2288443a8c02a1b02295a31c239663aa682bc50b1976afb7cf6a769e", size = 8373344, upload-time = "2026-07-07T13:51:20.007Z" },
 ]
 
 [[package]]
@@ -1332,11 +1332,11 @@ resolution-markers = [
     "python_full_version < '3.14' and platform_python_implementation != 'PyPy'",
 ]
 dependencies = [
-    { name = "deprecated", marker = "platform_python_implementation != 'PyPy'" },
-    { name = "pyjwt", marker = "platform_python_implementation != 'PyPy'" },
-    { name = "pynacl", version = "1.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' and platform_python_implementation != 'PyPy'" },
-    { name = "pynacl", version = "1.6.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14' and platform_python_implementation != 'PyPy'" },
-    { name = "requests", marker = "platform_python_implementation != 'PyPy'" },
+    { name = "deprecated" },
+    { name = "pyjwt" },
+    { name = "pynacl", version = "1.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14'" },
+    { name = "pynacl", version = "1.6.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14'" },
+    { name = "requests" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/75/4d/ef9f51658d28339a59391ec6790aba0e70aef0f235538be75ee9d075bb7d/PyGithub-1.58.0.tar.gz", hash = "sha256:e325f5ca2c111d19dea2796c8f1e7ae11da77287007736582196341390d31d35", size = 167348, upload-time = "2023-02-19T10:14:16.401Z" }
 wheels = [
@@ -1351,11 +1351,11 @@ resolution-markers = [
     "platform_python_implementation == 'PyPy'",
 ]
 dependencies = [
-    { name = "pyjwt", extra = ["crypto"], marker = "platform_python_implementation == 'PyPy'" },
-    { name = "pynacl", version = "1.6.0", source = { registry = "https://pypi.org/simple" }, marker = "platform_python_implementation == 'PyPy'" },
-    { name = "requests", marker = "platform_python_implementation == 'PyPy'" },
-    { name = "typing-extensions", marker = "platform_python_implementation == 'PyPy'" },
-    { name = "urllib3", marker = "platform_python_implementation == 'PyPy'" },
+    { name = "pyjwt", extra = ["crypto"] },
+    { name = "pynacl", version = "1.6.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "requests" },
+    { name = "typing-extensions" },
+    { name = "urllib3" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ab/c3/8465a311197e16cf5ab68789fe689535e90f6b61ab524cc32a39e67237ae/pygithub-2.9.1.tar.gz", hash = "sha256:59771d7ff63d54d427be2e7d0dad2208dfffc2b0a045fec959263787739b611c", size = 2594989, upload-time = "2026-04-14T07:26:13.622Z" }
 wheels = [
@@ -1382,7 +1382,7 @@ wheels = [
 
 [package.optional-dependencies]
 crypto = [
-    { name = "cryptography", marker = "platform_python_implementation == 'PyPy'" },
+    { name = "cryptography" },
 ]
 
 [[package]]
@@ -1393,7 +1393,7 @@ resolution-markers = [
     "python_full_version >= '3.14' and platform_python_implementation != 'PyPy'",
 ]
 dependencies = [
-    { name = "cffi", marker = "python_full_version >= '3.14' and platform_python_implementation != 'PyPy'" },
+    { name = "cffi" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a7/22/27582568be639dfe22ddb3902225f91f2f17ceff88ce80e4db396c8986da/PyNaCl-1.5.0.tar.gz", hash = "sha256:8ac7448f09ab85811607bdd21ec2464495ac8b7c66d146bf545b0f08fb9220ba", size = 3392854, upload-time = "2022-01-07T22:05:41.134Z" }
 wheels = [
@@ -1417,7 +1417,7 @@ resolution-markers = [
     "platform_python_implementation == 'PyPy'",
 ]
 dependencies = [
-    { name = "cffi", marker = "python_full_version < '3.14' and platform_python_implementation != 'PyPy'" },
+    { name = "cffi", marker = "platform_python_implementation != 'PyPy'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/06/c6/a3124dee667a423f2c637cfd262a54d67d8ccf3e160f3c50f622a85b7723/pynacl-1.6.0.tar.gz", hash = "sha256:cb36deafe6e2bce3b286e5d1f3e1c246e0ccdb8808ddb4550bb2792f2df298f2", size = 3505641, upload-time = "2025-09-10T23:39:22.308Z" }
 wheels = [

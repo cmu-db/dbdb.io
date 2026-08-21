@@ -1,3 +1,4 @@
+import csv
 import datetime
 import logging
 import time
@@ -10,7 +11,7 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 
 from dbdb.core.models import AttributeOption, RepositoryInfo, RepositorySnapshot, SystemVersion, SystemVersionCodingAgent
-from dbdb.core.utils.repository import check_abandoned, fetch_snapshot_data, scan_coding_agents
+from dbdb.core.utils.repository import check_abandoned, check_resurrection, fetch_snapshot_data, scan_coding_agents
 from dbdb.core.utils.versions import clone_system_version, finalize_new_version
 
 _FAILED_DISABLE_THRESHOLD = 3
@@ -50,6 +51,18 @@ class Command(DbdbBaseCommand):
         parser.add_argument(
             '--no-agents', action='store_true',
             help='Skip coding-agent co-authorship scan after each snapshot.')
+        parser.add_argument(
+            '--check-resurrection', action='store_true',
+            help='Scan systems tagged "Abandoned" for signs of recent activity and '
+                 'create a pending SystemVersion for admin review if any is found.')
+        parser.add_argument(
+            '--find-first-agent', action='store_true',
+            help='Scan repos for the earliest commit that uses a coding agent and '
+                 'print the results as CSV. Processes all repos (enabled and disabled). '
+                 'Does not write to the database.')
+        parser.add_argument(
+            '--since', type=str, default=None, metavar='YYYY-MM-DD',
+            help='Used with --find-first-agent: do not traverse commits older than this date.')
         return
 
     def handle(self, *args, **options):
@@ -71,6 +84,17 @@ class Command(DbdbBaseCommand):
                     Q(system__name__icontains=keyword) |
                     Q(sourcerepo_url__url__icontains=keyword)
                 )
+
+        if options['find_first_agent']:
+            since = None
+            if options['since']:
+                try:
+                    since = datetime.datetime.strptime(options['since'], '%Y-%m-%d').replace(tzinfo=datetime.timezone.utc)
+                except ValueError:
+                    self.stderr.write(f"Invalid --since date: {options['since']!r} (expected YYYY-MM-DD)")
+                    return
+            self._run_find_first_agent(versions, since=since, limit=options['limit'])
+            return
 
         check_older_days = options['check_last_commit_older']
         if check_older_days is not None:
@@ -97,13 +121,18 @@ class Command(DbdbBaseCommand):
         sleep_secs = options['sleep']
         limit = options['limit']
         do_check_abandoned = options['check_abandoned']
+        do_resurrection = options['check_resurrection']
         no_collect = options['no_collect']
         no_agents = options['no_agents']
         inactivity_days = settings.REPOSITORY_INACTIVITY_DAYS
 
+        # When --check-resurrection is the only active flag, skip snapshot
+        # collection for enabled repos and focus solely on abandoned ones.
+        resurrection_only = do_resurrection and not do_check_abandoned
+
         ai_assisted_tag = None
         bot_user = None
-        if not no_agents:
+        if not no_agents and not resurrection_only:
             try:
                 ai_assisted_tag = AttributeOption.objects.get(
                     attribute__slug='tag', slug='ai-assisted'
@@ -117,10 +146,11 @@ class Command(DbdbBaseCommand):
 
         seen_citation_ids: set[int] = set()
         ok = err = skipped = 0
+        res_ok = res_err = res_skipped = 0
         first = True
 
-        if versions.count() == 0:
-            LOG.warning(f"No systems found!")
+        if not resurrection_only and versions.count() == 0:
+            LOG.warning("No systems found!")
 
         for ver in versions.order_by("system__name"):
             citation = ver.sourcerepo_url
@@ -130,9 +160,31 @@ class Command(DbdbBaseCommand):
             seen_citation_ids.add(citation.id)
 
             repo_info, _ = RepositoryInfo.objects.get_or_create(sourcerepo_url=citation)
+
             if not repo_info.enabled:
-                LOG.debug("Skipping disabled repo: %s", citation.url)
-                skipped += 1
+                if do_resurrection:
+                    self.stdout.write(f"{ver.system.name}  {citation.url}")
+                    try:
+                        was_resurrected = check_resurrection(ver.system)
+                        if was_resurrected:
+                            self.stdout.write("  Flagged for resurrection — pending version created")
+                            res_ok += 1
+                        else:
+                            self.stdout.write("  No recent activity detected")
+                            res_skipped += 1
+                    except ValueError as exc:
+                        LOG.debug("check_resurrection skipped for %s: %s", ver.system.slug, exc)
+                        res_skipped += 1
+                    except Exception as exc:
+                        self.stderr.write(f"  ERROR — {exc}")
+                        LOG.exception("check_resurrection failed for %s", ver.system.slug)
+                        res_err += 1
+                else:
+                    LOG.debug("Skipping disabled repo: %s", citation.url)
+                    skipped += 1
+                continue
+
+            if resurrection_only:
                 continue
 
             if ignore_days is not None and repo_info.last_snapshot is not None:
@@ -268,6 +320,65 @@ class Command(DbdbBaseCommand):
                 self.stdout.write(f"Limit of {limit} reached, stopping.")
                 break
 
-        self.stdout.write(
-            self.style.SUCCESS(f"\nDone: {ok} updated, {skipped} skipped, {err} errors")
-        )
+        if not resurrection_only:
+            self.stdout.write(
+                self.style.SUCCESS(f"\nDone: {ok} updated, {skipped} skipped, {err} errors")
+            )
+        if do_resurrection:
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Resurrection check: {res_ok} flagged, {res_skipped} skipped, {res_err} errors"
+                )
+            )
+
+    def _run_find_first_agent(self, versions, since=None, limit=None):
+        from dbdb.core.utils.repository import scan_coding_agent_stats
+
+        seen_citation_ids: set[int] = set()
+        agent_results: list[tuple] = []
+        scanned = 0
+
+        def _write_csv():
+            writer = csv.writer(self.stdout)
+            writer.writerow([
+                'system_name', 'agent_name', 'total_commits',
+                'first_commit_date', 'first_commit_id', 'commits_examined',
+            ])
+            writer.writerows(agent_results)
+
+        try:
+            for ver in versions.order_by('system__name'):
+                citation = ver.sourcerepo_url
+                if citation.id in seen_citation_ids:
+                    continue
+                seen_citation_ids.add(citation.id)
+                LOG.debug("find-first-agent: scanning %s (%s)", ver.system.name, citation.url)
+                try:
+                    examined, stats = scan_coding_agent_stats(citation, since=since)
+                except Exception as exc:
+                    LOG.warning("find-first-agent: scan failed for %s: %s", citation.url, exc)
+                    continue
+                scanned += 1
+                if not stats:
+                    LOG.debug("find-first-agent: %s — no agent commits found", ver.system.name)
+                for agent, (count, first_dt, first_hexsha) in stats.items():
+                    LOG.debug(
+                        "find-first-agent: %s | %s | commits=%d | first=%s | sha=%s | examined=%d",
+                        ver.system.name, agent.name, count, first_dt.date().isoformat(),
+                        first_hexsha, examined,
+                    )
+                    agent_results.append((
+                        ver.system.name,
+                        agent.name,
+                        count,
+                        first_dt.date().isoformat(),
+                        first_hexsha,
+                        examined,
+                    ))
+                if limit is not None and scanned >= limit:
+                    break
+        except KeyboardInterrupt:
+            _write_csv()
+            raise
+
+        _write_csv()
