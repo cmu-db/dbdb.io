@@ -43,7 +43,7 @@ class Command(DbdbBaseCommand):
         count    = len(eligible)
 
         if count == 0:
-            LOG.info('No spotlight-eligible systems found. Nothing to do.')
+            self.stdout.write('No spotlight-eligible systems found. Nothing to do.')
             return
 
         year, week, _ = date.today().isocalendar()
@@ -70,7 +70,7 @@ class Command(DbdbBaseCommand):
         LOG.info('Selected      : %s', chosen.name)
 
         if dry_run:
-            LOG.info('%sWould set spotlight_enabled=True for: %s', prefix, chosen.name)
+            self.stdout.write(f'{prefix}Would set spotlight_enabled=True for: {chosen.name}')
             return
 
         with transaction.atomic():
