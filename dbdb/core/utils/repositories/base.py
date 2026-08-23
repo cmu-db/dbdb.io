@@ -211,10 +211,19 @@ class RepoCollector(ABC):
 
     # ── git clone / local repo helpers ───────────────────────────────────
 
-    def fetch_latest(self) -> None:
-        """Fetch the latest commits from all remotes in the locally cloned repository."""
-        self.log.debug("fetch_latest: fetching all remotes in %s", self._repo_dir)
-        self._repo.git.fetch('--all')
+    def fetch_latest(self, all_branches: bool = True) -> None:
+        """Fetch the latest commits from the origin remote.
+
+        When all_branches is True (default), fetches all remotes and all refs.
+        When False, fetches only the configured refspecs for origin (typically
+        just the default branch), which is faster for large repositories.
+        """
+        if all_branches:
+            self.log.debug("fetch_latest: fetching all remotes in %s", self._repo_dir)
+            self._repo.git.fetch('--all')
+        else:
+            self.log.debug("fetch_latest: fetching origin (default branch) in %s", self._repo_dir)
+            self._repo.git.fetch('origin')
         self.log.debug("fetch_latest: fetch complete")
 
     def clone_url(
@@ -262,7 +271,7 @@ class RepoCollector(ABC):
                 self._repo = gitpkg.Repo(repo_dir)
                 if pull:
                     self.log.debug("clone_url: pulling latest commit into %s", repo_dir)
-                    self.fetch_latest()
+                    self.fetch_latest(all_branches=all_branches)
                 return
             except gitpkg.InvalidGitRepositoryError:
                 import shutil
