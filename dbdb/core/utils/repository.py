@@ -110,6 +110,7 @@ def scan_coding_agents(
     citation_url: CitationUrl,
     branch: str | None = None,
     since_hash: str | None = None,
+    all_branches: bool = False,
 ) -> dict:
     """Scan a repository for AI coding-agent co-authorship.
 
@@ -125,8 +126,8 @@ def scan_coding_agents(
         return {}
 
     collector = get_collector(citation_url)
-    collector.clone_url(citation_url.url, all_branches=(branch is None))
-    agent_commits = collector.get_coding_agent_commits(branch, since_hash=since_hash)
+    collector.clone_url(citation_url.url, all_branches=all_branches)
+    agent_commits = collector.get_coding_agent_commits(branch, since_hash=since_hash, all_branches=all_branches)
 
     result = {}
     for agent, hexsha in agent_commits.items():

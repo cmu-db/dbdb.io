@@ -55,6 +55,9 @@ class Command(DbdbBaseCommand):
             '--full-scan', action='store_true',
             help='Force a full commit history scan for coding agents, ignoring the last snapshot commit hash.')
         parser.add_argument(
+            '--all-branches', action='store_true',
+            help='Scan all branches instead of only the default branch.')
+        parser.add_argument(
             '--check-resurrection', action='store_true',
             help='Scan systems tagged "Abandoned" for signs of recent activity and '
                  'create a pending SystemVersion for admin review if any is found.')
@@ -128,6 +131,7 @@ class Command(DbdbBaseCommand):
         no_collect = options['no_collect']
         no_agents = options['no_agents']
         full_scan = options['full_scan']
+        all_branches = options['all_branches']
         inactivity_days = settings.REPOSITORY_INACTIVITY_DAYS
 
         # When --check-resurrection is the only active flag, skip snapshot
@@ -309,7 +313,7 @@ class Command(DbdbBaseCommand):
             if not no_agents:
                 try:
                     branch = snapshot.branch_default_name or None
-                    agents_found = scan_coding_agents(citation, branch, since_hash=prev_commit_hash)
+                    agents_found = scan_coding_agents(citation, branch, since_hash=prev_commit_hash, all_branches=all_branches)
                     if agents_found and ai_assisted_tag is not None and bot_user is not None:
                         if not ver.tags.filter(pk=ai_assisted_tag.pk).exists():
                             new_ver = clone_system_version(
