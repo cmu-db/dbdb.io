@@ -92,7 +92,7 @@ def get_collector(citation_url: CitationUrl) -> RepoCollector:
     return cls(token=token)
 
 
-def fetch_snapshot_data(citation_url: CitationUrl) -> SnapshotData:
+def fetch_snapshot_data(citation_url: CitationUrl, all_branches: bool = False) -> SnapshotData:
     """
     Given a CitationUrl instance, fetch repository statistics and return
     a SnapshotData whose fields map directly onto RepositorySnapshot fields.
@@ -103,7 +103,7 @@ def fetch_snapshot_data(citation_url: CitationUrl) -> SnapshotData:
     host = detect_host(citation_url.url)
     if host is None:
         raise ValueError(f"Unsupported repository host: {citation_url.url}")
-    return get_collector(citation_url).get_metadata(citation_url.url)
+    return get_collector(citation_url).get_metadata(citation_url.url, all_branches=all_branches)
 
 
 def scan_coding_agents(

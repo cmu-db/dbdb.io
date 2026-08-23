@@ -226,7 +226,7 @@ class Command(DbdbBaseCommand):
                 prev_snapshot = repo_info.current if repo_info.current_id else None
 
                 try:
-                    snap = fetch_snapshot_data(citation)
+                    snap = fetch_snapshot_data(citation, all_branches=all_branches)
                 except ValueError as exc:
                     self.stderr.write(f"  Skipped — {exc}")
                     skipped += 1
