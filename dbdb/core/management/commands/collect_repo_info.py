@@ -52,6 +52,9 @@ class Command(DbdbBaseCommand):
             '--no-agents', action='store_true',
             help='Skip coding-agent co-authorship scan after each snapshot.')
         parser.add_argument(
+            '--full-scan', action='store_true',
+            help='Force a full commit history scan for coding agents, ignoring the last snapshot commit hash.')
+        parser.add_argument(
             '--check-resurrection', action='store_true',
             help='Scan systems tagged "Abandoned" for signs of recent activity and '
                  'create a pending SystemVersion for admin review if any is found.')
@@ -124,6 +127,7 @@ class Command(DbdbBaseCommand):
         do_resurrection = options['check_resurrection']
         no_collect = options['no_collect']
         no_agents = options['no_agents']
+        full_scan = options['full_scan']
         inactivity_days = settings.REPOSITORY_INACTIVITY_DAYS
 
         # When --check-resurrection is the only active flag, skip snapshot
@@ -210,8 +214,11 @@ class Command(DbdbBaseCommand):
                     skipped += 1
                     continue
                 self.stdout.write(f"  (reusing snapshot #{snapshot.id} from {snapshot.created})")
+                prev_commit_hash = (snapshot.last_commit_hash or None) if not full_scan else None
                 ok += 1
             else:
+                prev_snapshot = repo_info.current if repo_info.current_id else None
+
                 try:
                     snap = fetch_snapshot_data(citation)
                 except ValueError as exc:
@@ -223,6 +230,14 @@ class Command(DbdbBaseCommand):
                     LOG.exception("Failed to fetch repo data for %s", citation.url)
                     err += 1
                     continue
+
+                if prev_snapshot:
+                    def _union(new_list, old_list):
+                        seen = set(new_list)
+                        return new_list + [a for a in old_list if a not in seen]
+                    snap.commit_authors = _union(snap.commit_authors, prev_snapshot.commit_authors)
+                    snap.pr_authors     = _union(snap.pr_authors,     prev_snapshot.pr_authors)
+                    snap.issue_authors  = _union(snap.issue_authors,  prev_snapshot.issue_authors)
 
                 fetch_errors = snap.errors
                 for exc in fetch_errors:
@@ -246,6 +261,11 @@ class Command(DbdbBaseCommand):
                 repo_info.current = snapshot
                 repo_info.last_snapshot = timezone.now()
                 repo_info.save(update_fields=['current', 'last_snapshot', 'modified'])
+                prev_commit_hash = (
+                    (prev_snapshot.last_commit_hash or None)
+                    if (prev_snapshot and not full_scan)
+                    else None
+                )
                 ok += 1
             self.stdout.write(
                 f"  commits={snapshot.commit_count}  "
@@ -289,7 +309,7 @@ class Command(DbdbBaseCommand):
             if not no_agents:
                 try:
                     branch = snapshot.branch_default_name or None
-                    agents_found = scan_coding_agents(citation, branch)
+                    agents_found = scan_coding_agents(citation, branch, since_hash=prev_commit_hash)
                     if agents_found and ai_assisted_tag is not None and bot_user is not None:
                         if not ver.tags.filter(pk=ai_assisted_tag.pk).exists():
                             new_ver = clone_system_version(

@@ -109,6 +109,7 @@ def fetch_snapshot_data(citation_url: CitationUrl) -> SnapshotData:
 def scan_coding_agents(
     citation_url: CitationUrl,
     branch: str | None = None,
+    since_hash: str | None = None,
 ) -> dict:
     """Scan a repository for AI coding-agent co-authorship.
 
@@ -125,7 +126,7 @@ def scan_coding_agents(
 
     collector = get_collector(citation_url)
     collector.clone_url(citation_url.url, all_branches=(branch is None))
-    agent_commits = collector.get_coding_agent_commits(branch)
+    agent_commits = collector.get_coding_agent_commits(branch, since_hash=since_hash)
 
     result = {}
     for agent, hexsha in agent_commits.items():

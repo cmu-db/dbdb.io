@@ -450,7 +450,7 @@ class RepoCollector(ABC):
         return url.rstrip('/')
 
     def get_coding_agent_commits(
-        self, branch: str | None = None
+        self, branch: str | None = None, since_hash: str | None = None
     ) -> 'dict[AttributeOption, str]':
         """Scan commits for AI coding-agent co-authorship and return latest hits.
 
@@ -502,14 +502,25 @@ class RepoCollector(ABC):
         if branch:
             ref = self._resolve_branch_ref(branch)
             if ref is not None:
-                rev = ref
+                base_rev = ref
                 self.log.debug("get_coding_agent_commits: scanning branch %r", branch)
             else:
-                rev = '--all'
+                base_rev = '--all'
                 self.log.debug("get_coding_agent_commits: branch %r not found, scanning --all", branch)
         else:
-            rev = '--all'
+            base_rev = '--all'
             self.log.debug("get_coding_agent_commits: scanning --all")
+
+        if since_hash and base_rev != '--all':
+            try:
+                self._repo.commit(since_hash)
+                rev = f'{since_hash}..{base_rev}'
+                self.log.debug("get_coding_agent_commits: incremental scan from %s", since_hash[:12])
+            except Exception:
+                rev = base_rev
+                self.log.debug("get_coding_agent_commits: %s not found in repo, falling back to full scan", since_hash[:12])
+        else:
+            rev = base_rev
 
         # agent -> (committed_date, hexsha) for the best (latest) match found
         best: dict = {}
