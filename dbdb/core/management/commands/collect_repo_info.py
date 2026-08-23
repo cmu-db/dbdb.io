@@ -124,6 +124,18 @@ class Command(DbdbBaseCommand):
             )
 
         ignore_days = options['ignore_last_checked']
+        if ignore_days is not None:
+            cutoff = timezone.now() - datetime.timedelta(days=ignore_days)
+            recently_checked_ids = (
+                RepositoryInfo.objects
+                .filter(last_snapshot__gte=cutoff)
+                .values_list('sourcerepo_url_id', flat=True)
+            )
+            versions = versions.exclude(sourcerepo_url_id__in=recently_checked_ids)
+            LOG.debug(
+                "--ignore-last-checked=%d: excluding repos scanned since %s",
+                ignore_days, cutoff.date(),
+            )
         sleep_secs = options['sleep']
         limit = options['limit']
         do_check_abandoned = options['check_abandoned']
@@ -194,16 +206,6 @@ class Command(DbdbBaseCommand):
 
             if resurrection_only:
                 continue
-
-            if ignore_days is not None and repo_info.last_snapshot is not None:
-                age = timezone.now() - repo_info.last_snapshot
-                if age.days < ignore_days:
-                    LOG.debug(
-                        "Skipping recently checked repo (%d days ago): %s",
-                        age.days, citation.url,
-                    )
-                    skipped += 1
-                    continue
 
             if sleep_secs > 0 and not first:
                 LOG.debug("Sleeping %d seconds before next repo...", sleep_secs)
