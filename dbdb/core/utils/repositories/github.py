@@ -68,11 +68,15 @@ class GitHubCollector(RepoCollector):
             d = r.json()
             snap.star_count          = d.get('stargazers_count', 0)
             snap.fork_count          = d.get('forks_count', 0)
-            snap.branch_default_name = d.get('default_branch', '')
+            snap.branch_default_name = d.get('default_branch') or ''
             if d.get('archived'):
                 snap.archival_timestamp = self._get_archived_at(owner, repo_name)
         except Exception as exc:
             snap.errors.append(exc)
+            body = getattr(getattr(exc, 'response', None), 'text', None)
+            self.log.warning("Failed to fetch repo info for %s/%s: %s%s",
+                             owner, repo_name, exc,
+                             f" — {body}" if body else "")
 
         # ── commits (count + last hash/timestamp) ─────────────────────────
         try:
@@ -178,6 +182,13 @@ class GitHubCollector(RepoCollector):
         # ── commit authors via local git clone ────────────────────────────
         try:
             self.clone_url(repo_url, all_branches=all_branches)
+            if not snap.branch_default_name:
+                try:
+                    ref = self._repo.git.symbolic_ref('refs/remotes/origin/HEAD')
+                    snap.branch_default_name = ref.split('/')[-1]
+                    self.log.debug("Derived default branch from git: %r", snap.branch_default_name)
+                except Exception:
+                    pass
             snap.commit_authors = self.get_author_emails(snap.branch_default_name or None)
         except Exception as exc:
             snap.errors.append(exc)
