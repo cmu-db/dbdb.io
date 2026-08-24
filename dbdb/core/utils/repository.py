@@ -92,7 +92,7 @@ def get_collector(citation_url: CitationUrl) -> RepoCollector:
     return cls(token=token)
 
 
-def fetch_snapshot_data(citation_url: CitationUrl) -> SnapshotData:
+def fetch_snapshot_data(citation_url: CitationUrl, all_branches: bool = False) -> SnapshotData:
     """
     Given a CitationUrl instance, fetch repository statistics and return
     a SnapshotData whose fields map directly onto RepositorySnapshot fields.
@@ -103,12 +103,14 @@ def fetch_snapshot_data(citation_url: CitationUrl) -> SnapshotData:
     host = detect_host(citation_url.url)
     if host is None:
         raise ValueError(f"Unsupported repository host: {citation_url.url}")
-    return get_collector(citation_url).get_metadata(citation_url.url)
+    return get_collector(citation_url).get_metadata(citation_url.url, all_branches=all_branches)
 
 
 def scan_coding_agents(
     citation_url: CitationUrl,
     branch: str | None = None,
+    since_hash: str | None = None,
+    all_branches: bool = False,
 ) -> dict:
     """Scan a repository for AI coding-agent co-authorship.
 
@@ -124,8 +126,8 @@ def scan_coding_agents(
         return {}
 
     collector = get_collector(citation_url)
-    collector.clone_url(citation_url.url, all_branches=(branch is None))
-    agent_commits = collector.get_coding_agent_commits(branch)
+    collector.clone_url(citation_url.url, all_branches=all_branches)
+    agent_commits = collector.get_coding_agent_commits(branch, since_hash=since_hash, all_branches=all_branches)
 
     result = {}
     for agent, hexsha in agent_commits.items():

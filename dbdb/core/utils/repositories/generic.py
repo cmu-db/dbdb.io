@@ -15,7 +15,7 @@ class GenericGitCollector(RepoCollector):
     def _make_session(self, token: str | None) -> requests.Session:
         return requests.Session()
 
-    def get_metadata(self, repo_url: str) -> SnapshotData:
+    def get_metadata(self, repo_url: str, all_branches: bool = False) -> SnapshotData:
         return SnapshotData()
 
     def get_commit_url(self, branch: str, commit: str) -> str:

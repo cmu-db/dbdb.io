@@ -52,6 +52,12 @@ class Command(DbdbBaseCommand):
             '--no-agents', action='store_true',
             help='Skip coding-agent co-authorship scan after each snapshot.')
         parser.add_argument(
+            '--full-scan', action='store_true',
+            help='Force a full commit history scan for coding agents, ignoring the last snapshot commit hash.')
+        parser.add_argument(
+            '--all-branches', action='store_true',
+            help='Scan all branches instead of only the default branch.')
+        parser.add_argument(
             '--check-resurrection', action='store_true',
             help='Scan systems tagged "Abandoned" for signs of recent activity and '
                  'create a pending SystemVersion for admin review if any is found.')
@@ -118,12 +124,26 @@ class Command(DbdbBaseCommand):
             )
 
         ignore_days = options['ignore_last_checked']
+        if ignore_days is not None:
+            cutoff = timezone.now() - datetime.timedelta(days=ignore_days)
+            recently_checked_ids = (
+                RepositoryInfo.objects
+                .filter(last_snapshot__gte=cutoff)
+                .values_list('sourcerepo_url_id', flat=True)
+            )
+            versions = versions.exclude(sourcerepo_url_id__in=recently_checked_ids)
+            LOG.debug(
+                "--ignore-last-checked=%d: excluding repos scanned since %s",
+                ignore_days, cutoff.date(),
+            )
         sleep_secs = options['sleep']
         limit = options['limit']
         do_check_abandoned = options['check_abandoned']
         do_resurrection = options['check_resurrection']
         no_collect = options['no_collect']
         no_agents = options['no_agents']
+        full_scan = options['full_scan']
+        all_branches = options['all_branches']
         inactivity_days = settings.REPOSITORY_INACTIVITY_DAYS
 
         # When --check-resurrection is the only active flag, skip snapshot
@@ -187,16 +207,6 @@ class Command(DbdbBaseCommand):
             if resurrection_only:
                 continue
 
-            if ignore_days is not None and repo_info.last_snapshot is not None:
-                age = timezone.now() - repo_info.last_snapshot
-                if age.days < ignore_days:
-                    LOG.debug(
-                        "Skipping recently checked repo (%d days ago): %s",
-                        age.days, citation.url,
-                    )
-                    skipped += 1
-                    continue
-
             if sleep_secs > 0 and not first:
                 LOG.debug("Sleeping %d seconds before next repo...", sleep_secs)
                 time.sleep(sleep_secs)
@@ -210,10 +220,13 @@ class Command(DbdbBaseCommand):
                     skipped += 1
                     continue
                 self.stdout.write(f"  (reusing snapshot #{snapshot.id} from {snapshot.created})")
+                prev_commit_hash = (snapshot.last_commit_hash or None) if not full_scan else None
                 ok += 1
             else:
+                prev_snapshot = repo_info.current if repo_info.current_id else None
+
                 try:
-                    snap = fetch_snapshot_data(citation)
+                    snap = fetch_snapshot_data(citation, all_branches=all_branches)
                 except ValueError as exc:
                     self.stderr.write(f"  Skipped — {exc}")
                     skipped += 1
@@ -223,6 +236,14 @@ class Command(DbdbBaseCommand):
                     LOG.exception("Failed to fetch repo data for %s", citation.url)
                     err += 1
                     continue
+
+                if prev_snapshot:
+                    def _union(new_list, old_list):
+                        seen = set(new_list)
+                        return new_list + [a for a in old_list if a not in seen]
+                    snap.commit_authors = _union(snap.commit_authors, prev_snapshot.commit_authors)
+                    snap.pr_authors     = _union(snap.pr_authors,     prev_snapshot.pr_authors)
+                    snap.issue_authors  = _union(snap.issue_authors,  prev_snapshot.issue_authors)
 
                 fetch_errors = snap.errors
                 for exc in fetch_errors:
@@ -246,6 +267,11 @@ class Command(DbdbBaseCommand):
                 repo_info.current = snapshot
                 repo_info.last_snapshot = timezone.now()
                 repo_info.save(update_fields=['current', 'last_snapshot', 'modified'])
+                prev_commit_hash = (
+                    (prev_snapshot.last_commit_hash or None)
+                    if (prev_snapshot and not full_scan)
+                    else None
+                )
                 ok += 1
             self.stdout.write(
                 f"  commits={snapshot.commit_count}  "
@@ -289,7 +315,7 @@ class Command(DbdbBaseCommand):
             if not no_agents:
                 try:
                     branch = snapshot.branch_default_name or None
-                    agents_found = scan_coding_agents(citation, branch)
+                    agents_found = scan_coding_agents(citation, branch, since_hash=prev_commit_hash, all_branches=all_branches)
                     if agents_found and ai_assisted_tag is not None and bot_user is not None:
                         if not ver.tags.filter(pk=ai_assisted_tag.pk).exists():
                             new_ver = clone_system_version(
