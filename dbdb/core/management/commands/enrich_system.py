@@ -80,12 +80,18 @@ def _is_field_empty(version: SystemVersion, field: str) -> bool:
     return str(val).strip() == ''
 
 
-def _get_missing_fields(version: SystemVersion, requested: list[str] | None) -> list[str]:
-    """Return the subset of requested fields (or all) that are empty."""
+def _get_missing_fields(version: SystemVersion, requested: list[str] | None,
+                        force: set[str] | None = None) -> list[str]:
+    """Return the subset of requested fields (or all) that are empty, plus any forced fields."""
     if requested:
-        return list(requested)
-    all_fields = list(SIMPLE_TEXT_FIELDS) + list(INT_FIELDS) + list(URL_FK_FIELDS) + list(M2M_ATTR_FIELDS)
-    return [f for f in all_fields if _is_field_empty(version, f)]
+        fields = list(requested)
+    else:
+        all_fields = list(SIMPLE_TEXT_FIELDS) + list(INT_FIELDS) + list(URL_FK_FIELDS) + list(M2M_ATTR_FIELDS)
+        fields = [f for f in all_fields if _is_field_empty(version, f)]
+    for f in (force or ()):
+        if f not in fields:
+            fields.append(f)
+    return fields
 
 
 
@@ -430,7 +436,11 @@ class Command(EnricherBaseCommand):
 
         # --- 2. Identify missing fields ---
         skip_fields = set(options['skip_field'])
-        missing_fields = [f for f in _get_missing_fields(current, requested_fields) if f not in skip_fields]
+        force_fields = set(options.get('force_field') or [])
+        missing_fields = [
+            f for f in _get_missing_fields(current, requested_fields, force=force_fields)
+            if f not in skip_fields
+        ]
         missing_features = [f for f in _get_missing_features(current) if f.slug not in skip_fields]
 
         if not missing_fields and not missing_features:
