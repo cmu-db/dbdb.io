@@ -75,10 +75,10 @@ class EnricherBaseCommand(DbdbBaseCommand):
             help=(
                 "'enrich' (default): LLM fills missing fields from search/crawl. "
                 "'extract-urls': LLM scans the target's homepage HTML for specific missing URLs. "
-                "'both': run both modes (Systems will create only one pending version)."
+                "'both': run both modes (Systems will create Cinis only one pending version)."
             ),
         )
         parser.add_argument(
-            '--sleep', type=float, default=0, metavar='SECONDS',
-            help='Sleep this many seconds before processing each entry (default: 0)',
+            '--sleep', type=float, default=1, metavar='SECONDS',
+            help='Sleep this many seconds before processing each entry (default: 1)',
         )
