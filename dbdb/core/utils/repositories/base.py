@@ -193,7 +193,7 @@ class RepoCollector(ABC):
     def _make_session(self, token: str | None) -> requests.Session: ...
 
     @abstractmethod
-    def get_metadata(self, repo_url: str) -> SnapshotData: ...
+    def get_metadata(self, repo_url: str, all_branches: bool = False) -> SnapshotData: ...
 
     @abstractmethod
     def get_commit_url(self, branch: str, commit: str) -> str:
@@ -211,10 +211,19 @@ class RepoCollector(ABC):
 
     # ── git clone / local repo helpers ───────────────────────────────────
 
-    def fetch_latest(self) -> None:
-        """Fetch the latest commits from all remotes in the locally cloned repository."""
-        self.log.debug("fetch_latest: fetching all remotes in %s", self._repo_dir)
-        self._repo.git.fetch('--all')
+    def fetch_latest(self, all_branches: bool = True) -> None:
+        """Fetch the latest commits from the origin remote.
+
+        When all_branches is True (default), fetches all remotes and all refs.
+        When False, fetches only the configured refspecs for origin (typically
+        just the default branch), which is faster for large repositories.
+        """
+        if all_branches:
+            self.log.debug("fetch_latest: fetching all remotes in %s", self._repo_dir)
+            self._repo.git.fetch('--all')
+        else:
+            self.log.debug("fetch_latest: fetching origin (default branch) in %s", self._repo_dir)
+            self._repo.git.fetch('origin')
         self.log.debug("fetch_latest: fetch complete")
 
     def clone_url(
@@ -262,7 +271,7 @@ class RepoCollector(ABC):
                 self._repo = gitpkg.Repo(repo_dir)
                 if pull:
                     self.log.debug("clone_url: pulling latest commit into %s", repo_dir)
-                    self.fetch_latest()
+                    self.fetch_latest(all_branches=all_branches)
                 return
             except gitpkg.InvalidGitRepositoryError:
                 import shutil
@@ -450,7 +459,10 @@ class RepoCollector(ABC):
         return url.rstrip('/')
 
     def get_coding_agent_commits(
-        self, branch: str | None = None
+        self,
+        branch: str | None = None,
+        since_hash: str | None = None,
+        all_branches: bool = False,
     ) -> 'dict[AttributeOption, str]':
         """Scan commits for AI coding-agent co-authorship and return latest hits.
 
@@ -462,8 +474,11 @@ class RepoCollector(ABC):
              positives from human first names that happen to share a name with an agent.
 
         Args:
-            branch: If given, only commits reachable from that branch are
-                    scanned.  If None, all refs are walked.
+            branch: If given, commits reachable from that branch are scanned.
+                    If None and all_branches is False, HEAD is used.
+            since_hash: If given, only commits newer than this hash are examined.
+            all_branches: If True, walk all refs (--all) when branch is None or
+                          not found. If False (default), fall back to HEAD.
 
         Returns:
             A dict mapping AttributeOption → hexsha of the latest commit where
@@ -499,17 +514,29 @@ class RepoCollector(ABC):
             for agent in agents
         }
 
+        fallback = '--all' if all_branches else 'HEAD'
         if branch:
             ref = self._resolve_branch_ref(branch)
             if ref is not None:
-                rev = ref
+                base_rev = ref
                 self.log.debug("get_coding_agent_commits: scanning branch %r", branch)
             else:
-                rev = '--all'
-                self.log.debug("get_coding_agent_commits: branch %r not found, scanning --all", branch)
+                base_rev = fallback
+                self.log.debug("get_coding_agent_commits: branch %r not found, scanning %s", branch, fallback)
         else:
-            rev = '--all'
-            self.log.debug("get_coding_agent_commits: scanning --all")
+            base_rev = fallback
+            self.log.debug("get_coding_agent_commits: scanning %s", fallback)
+
+        if since_hash and base_rev != '--all':
+            try:
+                self._repo.commit(since_hash)
+                rev = f'{since_hash}..{base_rev}'
+                self.log.debug("get_coding_agent_commits: incremental scan from %s", since_hash[:12])
+            except Exception:
+                rev = base_rev
+                self.log.debug("get_coding_agent_commits: %s not found in repo, falling back to full scan", since_hash[:12])
+        else:
+            rev = base_rev
 
         # agent -> (committed_date, hexsha) for the best (latest) match found
         best: dict = {}

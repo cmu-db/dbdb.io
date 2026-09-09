@@ -86,10 +86,13 @@ def _query_orgs_missing_field(field: str):
     return Organization.objects.filter(Q(**{f'{field}__isnull': True}) | Q(**{field: ''}))
 
 
-def _get_missing_org_fields(org: Organization, requested: list[str] | None) -> list[str]:
-    if requested:
-        return list(requested)
-    return [f for f in ORG_ALL_FIELDS if _is_org_field_empty(org, f)]
+def _get_missing_org_fields(org: Organization, requested: list[str] | None,
+                            force: set[str] | None = None) -> list[str]:
+    fields = list(requested) if requested else [f for f in ORG_ALL_FIELDS if _is_org_field_empty(org, f)]
+    for f in (force or ()):
+        if f not in fields:
+            fields.append(f)
+    return fields
 
 
 def _generate_unique_org_slug(name: str, exclude_pk: int | None = None) -> str:
@@ -287,8 +290,9 @@ class Command(EnricherBaseCommand):
 
         # --- 2. Identify missing fields ---
         skip_fields = set(options['skip_field'])
+        force_fields = set(options.get('force_field') or [])
         missing_fields = [
-            f for f in _get_missing_org_fields(org, requested_fields)
+            f for f in _get_missing_org_fields(org, requested_fields, force=force_fields)
             if f not in skip_fields
         ]
         if not missing_fields:

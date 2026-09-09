@@ -59,7 +59,7 @@ class BitbucketCollector(RepoCollector):
         owner, repo_name = match.groups()
         return f'https://bitbucket.org/{owner}/{repo_name}/commits/{commit}'
 
-    def get_metadata(self, repo_url: str) -> SnapshotData:
+    def get_metadata(self, repo_url: str, all_branches: bool = False) -> SnapshotData:
         match = self.URL_PATTERN.search(repo_url)
         if not match:
             raise ValueError(f"Invalid Bitbucket URL: {repo_url}")
@@ -206,9 +206,9 @@ class BitbucketCollector(RepoCollector):
         except Exception as exc:
             snap.errors.append(exc)
 
-        # ── commit authors via local git clone (all branches) ────────────
+        # ── commit authors via local git clone ────────────────────────────
         try:
-            self.clone_url(repo_url, all_branches=True)
+            self.clone_url(repo_url, all_branches=all_branches)
             snap.commit_authors = self.get_author_emails(snap.branch_default_name or None)
         except Exception as exc:
             snap.errors.append(exc)

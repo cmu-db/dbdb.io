@@ -43,7 +43,7 @@ class SourceForgeCollector(RepoCollector):
         shortname = match.group(1)
         return f'https://sourceforge.net/p/{shortname}/code/ci/{commit}/tree/'
 
-    def get_metadata(self, repo_url: str) -> SnapshotData:
+    def get_metadata(self, repo_url: str, all_branches: bool = False) -> SnapshotData:
         match = self.URL_PATTERN.search(repo_url)
         if not match:
             raise ValueError(f"Invalid SourceForge URL: {repo_url}")
@@ -65,9 +65,9 @@ class SourceForgeCollector(RepoCollector):
         except Exception as exc:
             snap.errors.append(exc)
 
-        # ── commit authors via local git clone (all branches) ────────────
+        # ── commit authors via local git clone ────────────────────────────
         try:
-            self.clone_url(repo_url, all_branches=True)
+            self.clone_url(repo_url, all_branches=all_branches)
             snap.commit_authors = self.get_author_emails()
         except Exception as exc:
             snap.errors.append(exc)

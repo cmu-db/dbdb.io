@@ -1,6 +1,7 @@
 """ChatGPTEnricher — OpenAI function-calling backend."""
 import json
 import logging
+import re
 
 from django.conf import settings
 
@@ -8,6 +9,12 @@ from .base import BaseEnricher
 from .schema import get_system_prompt
 
 LOG = logging.getLogger(__name__)
+
+
+def _is_reasoning_model(model: str) -> bool:
+    """OpenAI reasoning-family models (gpt-5.x, o-series) reject function
+    tools combined with a non-'none' reasoning_effort on /v1/chat/completions."""
+    return bool(re.match(r'^(o\d|gpt-5)', model))
 
 
 class ChatGPTEnricher(BaseEnricher):
@@ -32,7 +39,7 @@ class ChatGPTEnricher(BaseEnricher):
             print(f"[USER]\n{user_prompt}")
             return {}
         client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
-        response = client.chat.completions.create(
+        kwargs = dict(
             model=model,
             messages=[
                 {"role": "system", "content": get_system_prompt(fn_name, name=self._name, organization=self._organization)},
@@ -48,6 +55,9 @@ class ChatGPTEnricher(BaseEnricher):
             }],
             tool_choice={"type": "function", "function": {"name": fn_name}},
         )
+        if _is_reasoning_model(model):
+            kwargs["reasoning_effort"] = "none"
+        response = client.chat.completions.create(**kwargs)
         for choice in response.choices:
             for tc in (choice.message.tool_calls or []):
                 if tc.function.name == fn_name:
