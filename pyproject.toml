@@ -9,7 +9,7 @@ dependencies = [
     "annotated-types==0.7.0",
     "anthropic>=0.107.0",
     "anyascii==0.3.2",
-    "anyio==4.12.0",
+    "anyio==4.14.2",
     "asgiref==3.11.0",
     "attrs==25.4.0",
     "babel==2.9.1",
