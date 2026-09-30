@@ -582,6 +582,11 @@ def fetch_url_metadata(
             except Exception:
                 pass
 
+    # Postgres text fields cannot store NUL (0x00) characters (common in PDF text)
+    if title: title = title.replace("\x00", "")
+    if raw_content: raw_content = raw_content.replace("\x00", "")
+    if clean_text: clean_text = clean_text.replace("\x00", "")
+
     # Minor cleaning...
     if title is not None and title:
         title = title.replace("\n", " ")
