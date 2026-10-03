@@ -96,3 +96,14 @@ class CitationPdfNulTestCase(TestCase):
         content = CitationUrlContent.objects.get(citation=citation)
         self.assertIn("Resilient Distributed Datasets", content.text)
         self.assertNotIn("\x00", content.raw)
+
+    def test_process_dry_run_writes_nothing(self, mock_get):
+        citation = CitationUrl.objects.create(url=NSDI_URL)
+        citation, info = process_citation_url(citation, skip_spamcheck=True, dry_run=True)
+
+        self.assertEqual(citation.status, CitationUrl.Status.VALID)
+        self.assertIn("Resilient Distributed Datasets", info["text"])
+        citation.refresh_from_db()
+        self.assertEqual(citation.status, CitationUrl.Status.UNKNOWN)
+        self.assertIsNone(citation.last_checked)
+        self.assertFalse(CitationUrlContent.objects.filter(citation=citation).exists())

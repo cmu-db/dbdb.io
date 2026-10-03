@@ -800,6 +800,7 @@ def process_citation_url(
         request_timeout: int | None = None,
         allow_redirects: bool = False,
         normalize: bool = False,
+        dry_run: bool = False,
 ) -> tuple[CitationUrl, dict[str, Any] | None]:
     """
     Clean, fetch, and update one CitationUrl in-place.
@@ -810,8 +811,12 @@ def process_citation_url(
         (citation_url, info) — normal path; metadata fields updated (not saved);
                                CitationUrlContent saved if content was fetched;
                                caller should apply info["title"] and then save.
+
+    With dry_run=True, nothing is written to the database: merges and content
+    are only logged, and the in-memory citation_url is updated but not saved.
     """
     info = None
+    merged = False
 
     # URL cleanup — fix common malformed URL patterns
     if not citation_url.url.lower().startswith("http"):
@@ -831,7 +836,10 @@ def process_citation_url(
     # Pre-fetch duplicate check
     other = _check_if_exists(citation_url, citation_url.url)
     if other is not None:
-        merge_citations(other, [citation_url])
+        if dry_run:
+            LOG.info(f"[dry-run] Would merge #{citation_url.id} into #{other.id}")
+        else:
+            merge_citations(other, [citation_url])
         return other, info
 
     try:
@@ -848,7 +856,11 @@ def process_citation_url(
             new_url = info["url"]
             other = _check_if_exists(citation_url, new_url)
             if other is not None:
-                merge_citations(other, [citation_url])
+                if dry_run:
+                    LOG.info(f"[dry-run] Would merge #{citation_url.id} into #{other.id}")
+                else:
+                    merge_citations(other, [citation_url])
+                merged = True
                 return other, info
             citation_url.url = new_url
 
@@ -864,7 +876,9 @@ def process_citation_url(
         # Save content if fetched
         raw_content = info.get("raw") or ''
         clean_text = info.get("text") or ''
-        if raw_content or clean_text:
+        if dry_run and (raw_content or clean_text):
+            LOG.info(f"[dry-run] Would save content: raw={len(raw_content):,} chars, text={len(clean_text):,} chars")
+        elif raw_content or clean_text:
             CitationUrlContent.objects.update_or_create(
                 citation=citation_url,
                 defaults={'raw': raw_content, 'text': clean_text},
@@ -892,10 +906,13 @@ def process_citation_url(
         raise
 
     finally:
-        if info is not None:
-            citation_url.status = info["status"]
-        citation_url.last_checked = timezone.now()
-        citation_url.save()
+        # A merged citation_url has been deleted, so saving it would re-insert it
+        if not merged:
+            if info is not None:
+                citation_url.status = info["status"]
+            citation_url.last_checked = timezone.now()
+            if not dry_run:
+                citation_url.save()
 
     return citation_url, info
 
