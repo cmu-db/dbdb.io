@@ -216,6 +216,15 @@ class CitationUrlHasContentFilter(admin.SimpleListFilter):
             return queryset.filter(content__isnull=True)
 
 
+def _make_set_citation_status_action(member: CitationUrl.Status):
+    def _action(modeladmin, request, queryset):
+        updated = queryset.update(status=member)
+        modeladmin.message_user(request, f"Set status '{member.label}' on {updated} citation URL(s).")
+    _action.__name__ = f'set_status_{member.name.lower()}'
+    _action.short_description = f'Set status → {member.label}'
+    return _action
+
+
 @admin.register(CitationUrl)
 class CitationUrlAdmin(admin.ModelAdmin):
     empty_value_display = 'unknown'
@@ -241,7 +250,12 @@ class CitationUrlAdmin(admin.ModelAdmin):
         updated = queryset.update(last_title=None)
         self.message_user(request, f"Cleared title on {updated} citation URL(s).")
 
-    actions = ['clear_title']
+    actions = ['clear_title'] + [f'set_status_{m.name.lower()}' for m in CitationUrl.Status]
+
+
+for _m in CitationUrl.Status:
+    setattr(CitationUrlAdmin, f'set_status_{_m.name.lower()}', _make_set_citation_status_action(_m))
+
 
 class OrgDevelopedSystemsFilter(admin.SimpleListFilter):
     title = 'developed systems'

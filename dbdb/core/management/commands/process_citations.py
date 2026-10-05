@@ -7,7 +7,7 @@ from pprint import pformat
 from django.core.management import CommandError
 from django.utils.dateparse import parse_datetime
 
-from dbdb.core.models import CitationUrl, CitationUrlContent
+from dbdb.core.models import CitationUrl, CitationUrlContent, SystemVersion
 from dbdb.core.utils.citations import _check_if_exists
 from dbdb.core.utils.citations import *
 from dbdb.core.management.base import DbdbBaseCommand
@@ -19,6 +19,10 @@ class Command(DbdbBaseCommand):
     def add_arguments(self, parser: ArgumentParser):
         super().add_arguments(parser)
         status_choices = [s.name.lower() for s in CitationUrl.Status]
+        only_choices = sorted(
+            f.name for f in SystemVersion._meta.get_fields()
+            if not f.auto_created and (f.many_to_one or f.many_to_many) and f.related_model is CitationUrl
+        )
 
         parser.add_argument('citation', metavar='C', type=str, nargs='*',
                     help='One or more citation IDs or URL keywords to process')
@@ -38,6 +42,11 @@ class Command(DbdbBaseCommand):
                     help="Only process citations with HTTP last_statuscode=N (e.g. 404)")
         parser.add_argument('--ignore', metavar='KEYWORD', action='append', default=[],
                     help="Skip any URL containing this keyword (repeatable: --ignore foo --ignore bar)")
+        parser.add_argument('--only', metavar='FIELD', action='append', default=[],
+                    choices=only_choices,
+                    help="Only process URLs referenced by this SystemVersion field on current versions "
+                         "(repeatable: --only system_url --only docs_url). "
+                         f"Choices: {', '.join(only_choices)}")
         parser.add_argument('--skip-spamcheck', action='store_true',
                     help="Skip spam checks")
         parser.add_argument('--dry-run', action='store_true',
@@ -83,6 +92,13 @@ class Command(DbdbBaseCommand):
         for keyword in options['ignore']:
             LOG.info(f"Ignoring URLs containing: {keyword!r}")
             citations = citations.exclude(url__icontains=keyword)
+        if options['only']:
+            current = SystemVersion.objects.filter(is_current=True)
+            only_ids = set()
+            for field in options['only']:
+                only_ids.update(current.exclude(**{field: None}).values_list(field, flat=True))
+            LOG.info(f"Processing {len(only_ids)} unique URL(s) from SystemVersion fields: {', '.join(options['only'])}")
+            citations = citations.filter(id__in=only_ids)
 
         set_status = options['set_status']
         set_title = options['set_title']
@@ -139,9 +155,9 @@ class Command(DbdbBaseCommand):
 
         citation_ctr = 0
         for c in citations.order_by("id"):
-            citation_ctr += 1
             if 'limit' in options and options['limit']:
                 if citation_ctr >= options['limit']: break
+            citation_ctr += 1
 
             prefix = "[dry-run] " if dry_run else ""
             LOG.debug(f"{prefix}#{c.id}  {c.url}")
@@ -170,6 +186,7 @@ class Command(DbdbBaseCommand):
                     skip_spamcheck=options["skip_spamcheck"],
                     normalize=options["normalize"],
                     allow_redirects=False,
+                    dry_run=dry_run,
                 )
                 if info is None:  # was merged and deleted
                     merged = True
@@ -188,11 +205,15 @@ class Command(DbdbBaseCommand):
                         LOG.info(f"[dry-run] Would save: status={c.get_status_display()} title={c.last_title!r}")
                     else:
                         c.save()
-                    try:
-                        raw_bytes = len(c.content.raw.encode('utf-8'))
-                        content_info = f"content={raw_bytes:,}b"
-                    except CitationUrlContent.DoesNotExist:
-                        content_info = "no content"
+                    if dry_run:
+                        raw_bytes = len(((info or {}).get('raw') or '').encode('utf-8'))
+                        content_info = f"content={raw_bytes:,}b" if raw_bytes else "no content"
+                    else:
+                        try:
+                            raw_bytes = len(c.content.raw.encode('utf-8'))
+                            content_info = f"content={raw_bytes:,}b"
+                        except CitationUrlContent.DoesNotExist:
+                            content_info = "no content"
                     LOG.info(f"Result: status={c.get_status_display()} {content_info}")
                     if info: LOG.debug(pformat(info))
     pass
