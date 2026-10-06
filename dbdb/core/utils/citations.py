@@ -908,6 +908,13 @@ def process_citation_url(
         citation_url.last_modified = info["last-modified"]
         citation_url.status = info["status"]
 
+        # Response headers can be longer than their columns (e.g., Shopify ETags)
+        for field in ('last_contenttype', 'last_etag'):
+            value = getattr(citation_url, field)
+            max_length = CitationUrl._meta.get_field(field).max_length
+            if value and len(value) > max_length:
+                setattr(citation_url, field, value[:max_length])
+
         # Save content if fetched
         raw_content = info.get("raw") or ''
         clean_text = info.get("text") or ''

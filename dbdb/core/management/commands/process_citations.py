@@ -183,6 +183,7 @@ class Command(DbdbBaseCommand):
 
             info = None
             merged = False
+            failed = False
             try:
                 # Just grab the first system to use as a hint
                 c, info = process_citation_url(
@@ -202,11 +203,14 @@ class Command(DbdbBaseCommand):
                 sys.exit(0)
 
             except Exception:
+                # process_citation_url() already tried to save, so saving again would just
+                # raise the same error from the finally block and bypass --skip-errors
+                failed = True
                 LOG.error(f"Failed: {c}", exc_info=True)
                 if not options['skip_errors']:
                     raise
             finally:
-                if not merged:
+                if not merged and not failed:
                     if dry_run:
                         LOG.info(f"[dry-run] Would save: status={c.get_status_display()} title={c.last_title!r}")
                     else:
