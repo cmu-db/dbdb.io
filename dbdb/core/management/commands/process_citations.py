@@ -49,6 +49,11 @@ class Command(DbdbBaseCommand):
                          f"Choices: {', '.join(only_choices)}")
         parser.add_argument('--skip-spamcheck', action='store_true',
                     help="Skip spam checks")
+        parser.add_argument('--skip-redirects', action='store_true',
+                    help="Follow redirects to check the URL, but never rewrite the CitationUrl "
+                         "to the redirect target or merge it into an existing one. "
+                         "Use this for URLs like SystemVersion.system_url that must keep "
+                         "their value when a site is down and redirects elsewhere")
         parser.add_argument('--dry-run', action='store_true',
                     help="Print what would be changed without writing to the database")
         parser.add_argument('--skip-errors', action='store_true',
@@ -187,6 +192,7 @@ class Command(DbdbBaseCommand):
                     normalize=options["normalize"],
                     allow_redirects=False,
                     dry_run=dry_run,
+                    skip_redirects=options['skip_redirects'],
                 )
                 if info is None:  # was merged and deleted
                     merged = True

@@ -286,3 +286,81 @@ class ProcessCitationsRealFetchTestCase(TestCase):
         self.assertFalse(CitationUrl.objects.filter(id=old.id).exists())
         sv.refresh_from_db()
         self.assertEqual(sv.system_url_id, self.paper.id)
+
+    def _redirecting_get(self, from_url, to_url):
+        def fake_get(url, *args, **kwargs):
+            if url == from_url:
+                return _redirect_response(to_url)
+            return _pdf_response()
+        return fake_get
+
+    def test_redirect_rewrites_url_by_default(self):
+        old = CitationUrl.objects.create(url='https://method.example.com/old/paper.pdf')
+        new_url = 'https://method.example.com/new/paper.pdf'
+        with patch(_REQUESTS_GET, side_effect=self._redirecting_get(old.url, new_url)):
+            call_command('process_citations', '--sleep', '0', '--skip-spamcheck', str(old.id))
+        old.refresh_from_db()
+        self.assertEqual(old.url, new_url)
+
+    def test_skip_redirect_keeps_url(self):
+        old = CitationUrl.objects.create(url='https://method.example.com/old/paper.pdf')
+        new_url = 'https://method.example.com/new/paper.pdf'
+        with patch(_REQUESTS_GET, side_effect=self._redirecting_get(old.url, new_url)):
+            call_command('process_citations', '--sleep', '0', '--skip-spamcheck', '--skip-redirect', str(old.id))
+        old.refresh_from_db()
+        self.assertEqual(old.url, 'https://method.example.com/old/paper.pdf')
+        self.assertEqual(old.status, CitationUrl.Status.VALID)
+        self.assertIsNotNone(old.last_checked)
+        self.assertTrue(CitationUrlContent.objects.filter(citation=old).exists())
+
+    def test_skip_redirect_does_not_merge_into_existing(self):
+        old = CitationUrl.objects.create(url='https://method.example.com/old/paper.pdf')
+        sv = SystemVersion.objects.get(system__slug='sqlite', is_current=True)
+        sv.system_url = old
+        sv.save()
+        with patch(_REQUESTS_GET, side_effect=self._redirecting_get(old.url, self.paper.url)):
+            call_command('process_citations', '--sleep', '0', '--skip-spamcheck',
+                         '--only', 'system_url', '--skip-redirect')
+        old.refresh_from_db()
+        self.assertEqual(old.url, 'https://method.example.com/old/paper.pdf')
+        sv.refresh_from_db()
+        self.assertEqual(sv.system_url_id, old.id)
+
+    def _redirecting_get(self, from_url, to_url):
+        def fake_get(url, *args, **kwargs):
+            if url == from_url:
+                return _redirect_response(to_url)
+            return _pdf_response()
+        return fake_get
+
+    def test_redirect_rewrites_url_by_default(self):
+        old = CitationUrl.objects.create(url='https://method.example.com/old/paper.pdf')
+        new_url = 'https://method.example.com/new/paper.pdf'
+        with patch(_REQUESTS_GET, side_effect=self._redirecting_get(old.url, new_url)):
+            call_command('process_citations', '--sleep', '0', '--skip-spamcheck', str(old.id))
+        old.refresh_from_db()
+        self.assertEqual(old.url, new_url)
+
+    def test_skip_redirects_keeps_url(self):
+        old = CitationUrl.objects.create(url='https://method.example.com/old/paper.pdf')
+        new_url = 'https://method.example.com/new/paper.pdf'
+        with patch(_REQUESTS_GET, side_effect=self._redirecting_get(old.url, new_url)):
+            call_command('process_citations', '--sleep', '0', '--skip-spamcheck', '--skip-redirects', str(old.id))
+        old.refresh_from_db()
+        self.assertEqual(old.url, 'https://method.example.com/old/paper.pdf')
+        self.assertEqual(old.status, CitationUrl.Status.VALID)
+        self.assertIsNotNone(old.last_checked)
+        self.assertTrue(CitationUrlContent.objects.filter(citation=old).exists())
+
+    def test_skip_redirects_does_not_merge_into_existing(self):
+        old = CitationUrl.objects.create(url='https://method.example.com/old/paper.pdf')
+        sv = SystemVersion.objects.get(system__slug='sqlite', is_current=True)
+        sv.system_url = old
+        sv.save()
+        with patch(_REQUESTS_GET, side_effect=self._redirecting_get(old.url, self.paper.url)):
+            call_command('process_citations', '--sleep', '0', '--skip-spamcheck',
+                         '--only', 'system_url', '--skip-redirects')
+        old.refresh_from_db()
+        self.assertEqual(old.url, 'https://method.example.com/old/paper.pdf')
+        sv.refresh_from_db()
+        self.assertEqual(sv.system_url_id, old.id)

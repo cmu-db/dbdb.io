@@ -336,6 +336,15 @@ def fetch_url_metadata(
     allow_redirects: bool = False,
     redirect_ctr: int = 0,
 ) -> dict[str, Any]:
+    """
+    Fetch *url* and return its metadata, raw content, and cleaned text.
+
+    With allow_redirects=False (the default), 3xx responses are followed by
+    calling this function recursively, and the returned "url" is the redirect
+    target. With allow_redirects=True, requests follows redirects internally
+    and the returned "url" is always *url*. See process_citation_url() for how
+    each mode affects the stored CitationUrl.
+    """
 
     headers = {"User-Agent": settings.CRAWLER_USER_AGENT}
     if if_none_match:
@@ -801,6 +810,7 @@ def process_citation_url(
         allow_redirects: bool = False,
         normalize: bool = False,
         dry_run: bool = False,
+        skip_redirects: bool = False,
 ) -> tuple[CitationUrl, dict[str, Any] | None]:
     """
     Clean, fetch, and update one CitationUrl in-place.
@@ -814,6 +824,29 @@ def process_citation_url(
 
     With dry_run=True, nothing is written to the database: merges and content
     are only logged, and the in-memory citation_url is updated but not saved.
+
+    Redirect handling (allow_redirects vs. skip_redirects):
+
+        allow_redirects=False (default)
+            fetch_url_metadata() follows 3xx responses itself so it can apply
+            its own rules: a redirect that drops the URL's path is marked DEAD,
+            and a SPAM target keeps the original URL. info["url"] holds the
+            redirect target, and citation_url.url is rewritten to it, or merged
+            into an existing CitationUrl that already has that URL.
+
+        allow_redirects=True
+            requests follows redirects internally, so fetch_url_metadata() only
+            sees the final response. None of the rules above apply (a dead page
+            that redirects to a homepage is VALID), and info["url"] stays the
+            original URL, so citation_url.url is never rewritten or merged.
+
+        skip_redirects=True
+            Redirects are handled exactly as with allow_redirects=False, so the
+            DEAD/SPAM rules still apply and the status, title, and content come
+            from the redirect target. But citation_url.url is never rewritten
+            or merged into the target. Use this for URLs that must keep their
+            value even when the site is down and redirects elsewhere, such as
+            SystemVersion.system_url.
     """
     info = None
     merged = False
@@ -852,7 +885,9 @@ def process_citation_url(
         )
 
         # Post-redirect duplicate check
-        if "url" in info and citation_url.url != info["url"]:
+        if skip_redirects and "url" in info and citation_url.url != info["url"]:
+            LOG.info(f"[skip-redirects] Keeping {citation_url.url} (redirected to {info['url']})")
+        elif "url" in info and citation_url.url != info["url"]:
             new_url = info["url"]
             other = _check_if_exists(citation_url, new_url)
             if other is not None:
