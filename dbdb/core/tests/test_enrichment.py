@@ -44,6 +44,7 @@ def _options(**overrides):
         'enricher': 'mock',
         'model': None,
         'skip_field': [],
+        'force_field': [],
         'fields': None,
         'per_feature': False,
         'include_urls': False,

@@ -59,6 +59,9 @@ class EnricherBaseCommand(DbdbBaseCommand):
                             help='Re-fetch a URL only if cached content is older than N days (default: 7)')
         parser.add_argument('--skip-field', action='append', default=[], metavar='FIELD',
                             help='Exclude a field from enrichment (may be repeated)')
+        parser.add_argument('--force-field', action='append', default=[], metavar='FIELD',
+                            help='Include FIELD in the enrichment request even if already '
+                                 'populated, to try to get a better value (may be repeated)')
         parser.add_argument('--skip-spamcheck', action='store_true',
                             help='Disable spam checking when retrieving URLs')
         parser.add_argument('--skip-errors', action='store_true',
