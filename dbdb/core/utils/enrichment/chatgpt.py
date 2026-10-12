@@ -1,7 +1,6 @@
-"""ChatGPTEnricher — OpenAI function-calling backend."""
+"""ChatGPTEnricher — OpenAI function-calling backend (Responses API)."""
 import json
 import logging
-import re
 
 from django.conf import settings
 
@@ -9,15 +8,6 @@ from .base import BaseEnricher
 from .schema import get_system_prompt
 
 LOG = logging.getLogger(__name__)
-
-
-def _is_reasoning_model(model: str) -> bool:
-    """OpenAI reasoning-family models (gpt-5 and later, o-series) reject function
-    tools combined with a non-'none' reasoning_effort on /v1/chat/completions."""
-    if re.match(r'^o\d', model):
-        return True
-    m = re.match(r'^gpt-(\d+)', model)
-    return bool(m) and int(m.group(1)) >= 5
 
 
 class ChatGPTEnricher(BaseEnricher):
@@ -42,29 +32,26 @@ class ChatGPTEnricher(BaseEnricher):
             print(f"[USER]\n{user_prompt}")
             return {}
         client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
-        kwargs = dict(
+        # Use the Responses API: reasoning models (gpt-5+, o-series) do not allow
+        # function tools on /v1/chat/completions unless reasoning_effort is 'none',
+        # and some newer models do not support 'none' at all.
+        response = client.responses.create(
             model=model,
-            messages=[
-                {"role": "system", "content": get_system_prompt(fn_name, name=self._name, organization=self._organization)},
-                {"role": "user", "content": user_prompt},
-            ],
+            instructions=get_system_prompt(fn_name, name=self._name, organization=self._organization),
+            input=user_prompt,
             tools=[{
                 "type": "function",
-                "function": {
-                    "name": fn_name,
-                    "description": tool_schema["description"],
-                    "parameters": tool_schema["input_schema"],
-                },
+                "name": fn_name,
+                "description": tool_schema["description"],
+                "parameters": tool_schema["input_schema"],
+                # Strict mode is the default here; our schemas have optional fields
+                "strict": False,
             }],
-            tool_choice={"type": "function", "function": {"name": fn_name}},
+            tool_choice={"type": "function", "name": fn_name},
         )
-        if _is_reasoning_model(model):
-            kwargs["reasoning_effort"] = "none"
-        response = client.chat.completions.create(**kwargs)
-        for choice in response.choices:
-            for tc in (choice.message.tool_calls or []):
-                if tc.function.name == fn_name:
-                    result = json.loads(tc.function.arguments)
-                    LOG.debug("Response:\n%s", result)
-                    return result
+        for item in response.output:
+            if item.type == "function_call" and item.name == fn_name:
+                result = json.loads(item.arguments)
+                LOG.debug("Response:\n%s", result)
+                return result
         raise RuntimeError(f"ChatGPT response contained no {fn_name} tool call")
