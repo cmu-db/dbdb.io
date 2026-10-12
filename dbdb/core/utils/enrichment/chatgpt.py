@@ -12,9 +12,12 @@ LOG = logging.getLogger(__name__)
 
 
 def _is_reasoning_model(model: str) -> bool:
-    """OpenAI reasoning-family models (gpt-5.x, o-series) reject function
+    """OpenAI reasoning-family models (gpt-5 and later, o-series) reject function
     tools combined with a non-'none' reasoning_effort on /v1/chat/completions."""
-    return bool(re.match(r'^(o\d|gpt-5)', model))
+    if re.match(r'^o\d', model):
+        return True
+    m = re.match(r'^gpt-(\d+)', model)
+    return bool(m) and int(m.group(1)) >= 5
 
 
 class ChatGPTEnricher(BaseEnricher):
