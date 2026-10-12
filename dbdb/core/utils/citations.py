@@ -69,7 +69,8 @@ SPAM_IGNORE_DOMAINS = {
     "//news.ycombinator.com/",
     "//books.google.com/",
     "//github.com/"
-    "//www.businesswire.com/"
+    "//www.businesswire.com/",
+    "nytimes.com"
 }
 
 IGNORE_TITLES = map(str.lower, [

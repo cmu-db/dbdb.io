@@ -7,4 +7,4 @@ LOCKFILE="/run/lock/rotate_spotlight.lock"
 exec 9>"$LOCKFILE"
 flock --nonblock 9 || { echo "rotate_spotlight.sh: already running, exiting." >&2; exit 1; }
 
-uv run ./manage.py rotate_spotlight
+uv run ./manage.py rotate_spotlight --force
