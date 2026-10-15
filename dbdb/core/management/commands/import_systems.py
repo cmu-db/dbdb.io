@@ -9,8 +9,8 @@ CSV format:
   - Column 1 (the first column) is always System.name, regardless of its header label.
   - All other columns are matched by header name to SystemVersion fields:
 
-    URL fields (creates/reuses a CitationUrl):
-      system_url, docs_url, sourcerepo_url, wikipedia_url, twitter_url
+    URL fields (creates/reuses a CitationUrl; any SystemVersion FK to CitationUrl):
+      system_url, docs_url, blog_url, sourcerepo_url, wikipedia_url, twitter_url
 
     Country field (2-char ISO code):
       countries
@@ -28,10 +28,18 @@ CSV format:
     is present and the org has no value for that field yet):
       linkedin_url
 
+    Feature fields (header matches Feature.slug, e.g. "query-interface"):
+      Comma-separated FeatureOption values or slugs (case-insensitive), e.g.
+      "SQL, GraphQL". Creates a SystemFeature for the new SystemVersion. For a
+      Feature that is not multivalued, only the first matching option is used.
+
   Unknown header names are skipped with a warning.
 
 Additional behaviour:
   - Logo files are matched by slug in --logos-dir ({slug}.svg/.png/.jpg/.jpeg).
+  - With --dry-run --collect-logos [DIR], the logos of all rows that would be
+    imported are copied into DIR (default: a new temporary directory). Copy that
+    directory and the CSV to another machine and pass it as --logos-dir there.
   - If system_url contains "github.com" and no sourcerepo_url column is present,
     system_url is also used as sourcerepo_url.
   - If sourcerepo_url is set, the "Open Source" project type is added.
@@ -39,6 +47,8 @@ Additional behaviour:
 import csv
 import logging
 import os
+import shutil
+import tempfile
 from argparse import ArgumentParser
 
 from django.conf import settings
@@ -51,7 +61,10 @@ from django.utils.text import slugify
 from django.db.models import Q
 
 from dbdb.core.management.base import DbdbBaseCommand
-from dbdb.core.models import AttributeOption, CitationUrl, Organization, System, SystemVersion
+from dbdb.core.models import (
+    AttributeOption, CitationUrl, Feature, FeatureOption, Organization, System,
+    SystemFeature, SystemVersion,
+)
 from dbdb.core.utils.citations import normalize_url, process_citation_url
 from dbdb.core.utils.repositories import GitHubCollector
 
@@ -59,7 +72,11 @@ LOG = logging.getLogger(__name__)
 User = get_user_model()
 
 _LOGO_EXTENSIONS   = ('svg', 'png', 'jpg', 'jpeg')
-_URL_FIELDS        = frozenset({'system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url', 'twitter_url'})
+# Every SystemVersion FK to CitationUrl (system_url, docs_url, blog_url, ...).
+_URL_FIELDS        = frozenset(
+    f.name for f in SystemVersion._meta.get_fields()
+    if f.many_to_one and f.related_model is CitationUrl
+)
 _COUNTRY_FIELDS    = frozenset({'countries'})
 _TEXT_FIELDS       = frozenset({'description', 'history', 'twitter_handle'})
 _INT_FIELDS        = frozenset({'start_year', 'end_year'})
@@ -112,6 +129,24 @@ def _resolve_attr_options(attr_slug: str, raw: str) -> tuple[list, list[str]]:
         ).filter(Q(name__iexact=token) | Q(slug__iexact=token)).first()
         if opt:
             opts.append(opt)
+        else:
+            unmatched.append(token)
+    return opts, unmatched
+
+
+def _resolve_feature_options(feature: Feature, raw: str) -> tuple[list, list[str]]:
+    """Split *raw* by comma and match each token to a FeatureOption of *feature* by value or slug.
+
+    Returns (matched_options, unmatched_tokens).
+    """
+    opts, unmatched = [], []
+    for token in (t.strip() for t in raw.split(',') if t.strip()):
+        opt = FeatureOption.objects.filter(
+            feature=feature,
+        ).filter(Q(value__iexact=token) | Q(slug__iexact=token)).first()
+        if opt:
+            if opt not in opts:
+                opts.append(opt)
         else:
             unmatched.append(token)
     return opts, unmatched
@@ -200,10 +235,9 @@ def _get_or_create_citation(
 
 
 def _print_results_table(write, results: list[dict], sv_fields: list[str]):
-    fixed_left  = [('name', 'Name'), ('slug', 'Slug')]
+    fixed_left  = [('status', 'Status'), ('name', 'Name'), ('logo', 'Logo'), ('slug', 'Slug')]
     dynamic     = [(f, f) for f in sv_fields]
-    fixed_right = [('logo', 'Logo'), ('status', 'Status')]
-    columns = fixed_left + dynamic + fixed_right  # [(key, header), ...]
+    columns = fixed_left + dynamic  # [(key, header), ...]
 
     keys    = [k for k, _ in columns]
     headers = [h for _, h in columns]
@@ -240,6 +274,10 @@ class Command(DbdbBaseCommand):
                             help='Directory to search for logo files named {slug}.{svg,png,jpg,jpeg}')
         parser.add_argument('--dry-run', action='store_true',
                             help='Print what would be created without writing to the database')
+        parser.add_argument('--collect-logos', nargs='?', const='', default=None, metavar='DIR',
+                            help='With --dry-run: copy the logos of all rows that would be imported '
+                                 'into DIR (default: a new temporary directory), to use as '
+                                 '--logos-dir on another machine')
         parser.add_argument('--pending', action='store_true',
                             help='Create SystemVersions as unapproved/pending (default: approved, immediately live)')
         parser.add_argument('--skip-errors', action='store_true',
@@ -279,8 +317,19 @@ class Command(DbdbBaseCommand):
             LOG.warning("AttributeOption '%s' not found — project_type will not be set", _OPEN_SOURCE_SLUG)
 
         dry_run = options['dry_run']
+        collect_logos = options['collect_logos']
+        if collect_logos is not None:
+            if not dry_run:
+                raise CommandError("--collect-logos requires --dry-run")
+            if not logos_dir:
+                raise CommandError("--collect-logos requires --logos-dir")
+            if collect_logos and os.path.exists(collect_logos) and os.listdir(collect_logos):
+                raise CommandError(f"--collect-logos directory is not empty: {collect_logos}")
+
         if dry_run:
             self.stdout.write(self.style.WARNING("Dry run — no changes will be saved.\n"))
+
+        features = {f.slug: f for f in Feature.objects.all()}
 
         results: list[dict] = []
         sv_fields: list[str] = []  # ordered list of SV field names from CSV headers (columns 1+)
@@ -296,10 +345,11 @@ class Command(DbdbBaseCommand):
             # Column 0 is always System.name; columns 1+ map by header name to SV fields.
             raw_headers = [h.strip().lower() for h in header_row]
             sv_fields = raw_headers[1:]
+            known_fields = _KNOWN_FIELDS | frozenset(features)
 
             warned_unknown: set[str] = set()
             for fn in sv_fields:
-                if fn and fn not in _KNOWN_FIELDS and fn not in warned_unknown:
+                if fn and fn not in known_fields and fn not in warned_unknown:
                     self.stderr.write(self.style.WARNING(f"Unknown header field '{fn}' — column will be ignored"))
                     warned_unknown.add(fn)
 
@@ -312,7 +362,7 @@ class Command(DbdbBaseCommand):
                 # Build field_values: only known, non-empty fields.
                 field_values: dict[str, str] = {}
                 for i, field_name in enumerate(sv_fields):
-                    if not field_name or field_name not in _KNOWN_FIELDS:
+                    if not field_name or field_name not in known_fields:
                         continue
                     val = row[i + 1].strip() if (i + 1) < len(row) else ''
                     if val:
@@ -326,6 +376,7 @@ class Command(DbdbBaseCommand):
                     result = self._import_one(
                         name=name,
                         field_values=field_values,
+                        features=features,
                         creator=creator,
                         logos_dir=logos_dir,
                         open_source_opt=open_source_opt,
@@ -342,7 +393,7 @@ class Command(DbdbBaseCommand):
         skipped  = len(results) - imported
 
         # Only show SV fields that are known (unknown were warned about, not stored).
-        display_fields = [f for f in sv_fields if f in _KNOWN_FIELDS]
+        display_fields = [f for f in sv_fields if f in known_fields]
 
         self.stdout.write('')
         sorted_results = sorted(results, key=lambda r: (r.get('logo', '') == '', r.get('logo', '')))
@@ -351,7 +402,28 @@ class Command(DbdbBaseCommand):
             f"\nDone: {imported} imported, {skipped} skipped, {len(results)} total rows"
         ))
 
-    def _import_one(self, *, name, field_values: dict[str, str],
+        if collect_logos is not None:
+            self._collect_logos(results, collect_logos or None, csv_path)
+
+    def _collect_logos(self, results: list[dict], dest_dir: str | None, csv_path: str):
+        """Copy the logos of rows that would be imported into *dest_dir* (or a new temp dir)."""
+        if dest_dir:
+            os.makedirs(dest_dir, exist_ok=True)
+        else:
+            dest_dir = tempfile.mkdtemp(prefix='dbdb-logos-')
+        copied = 0
+        for row in results:
+            logo_path = row.get('logo_path')
+            if row['status'] == 'dry-run' and logo_path:
+                shutil.copy2(logo_path, os.path.join(dest_dir, os.path.basename(logo_path)))
+                copied += 1
+        self.stdout.write(self.style.SUCCESS(f"Copied {copied} logo(s) to {dest_dir}"))
+        self.stdout.write(
+            f"On the target machine, run:\n"
+            f"  python manage.py import_systems {os.path.basename(csv_path)} --logos-dir <copy of {dest_dir}>"
+        )
+
+    def _import_one(self, *, name, field_values: dict[str, str], features: dict[str, Feature],
                     creator, logos_dir, open_source_opt, options) -> dict:
         dry_run: bool        = options['dry_run']
         approved: bool       = not options['pending']
@@ -403,6 +475,23 @@ class Command(DbdbBaseCommand):
                     ))
                 attr_opts[field] = opts
 
+        # Resolve Feature columns (header = Feature.slug) to FeatureOptions.
+        feature_opts: dict[str, tuple[Feature, list]] = {}
+        for feature_slug, feature in features.items():
+            if feature_slug not in field_values:
+                continue
+            opts, unmatched = _resolve_feature_options(feature, field_values[feature_slug])
+            for token in unmatched:
+                self.stderr.write(self.style.ERROR(
+                    f"[{name}] '{feature_slug}': no FeatureOption match for {token!r}"
+                ))
+            if len(opts) > 1 and not feature.multivalued:
+                self.stderr.write(self.style.WARNING(
+                    f"[{name}] '{feature_slug}' is not multivalued; using only {opts[0].value!r}"
+                ))
+                opts = opts[:1]
+            feature_opts[feature_slug] = (feature, opts)
+
         # Resolve System M2M fields.
         system_m2m: dict[str, list] = {}
         for field in _SYSTEM_M2M_FIELDS:
@@ -432,6 +521,7 @@ class Command(DbdbBaseCommand):
         # Build the result record.
         result: dict = {'name': name, 'slug': slug,
                         'logo': os.path.basename(logo_path) if logo_path else '',
+                        'logo_path': logo_path or '',
                         'status': 'dry-run' if dry_run else 'imported'}
         for f in _URL_FIELDS:
             cite = cite_map.get(f)
@@ -445,6 +535,8 @@ class Command(DbdbBaseCommand):
             result[field] = ', '.join(o.name for o in opts)
         for field, systems in system_m2m.items():
             result[field] = ', '.join(s.name for s in systems)
+        for field, (_, opts) in feature_opts.items():
+            result[field] = ', '.join(o.value for o in opts)
 
         if dry_run:
             return result
@@ -495,6 +587,12 @@ class Command(DbdbBaseCommand):
             for field, systems in system_m2m.items():
                 if systems:
                     getattr(sv, field).set(systems)
+
+            # Feature columns.
+            for feature, opts in feature_opts.values():
+                if opts:
+                    sf = SystemFeature.objects.create(version=sv, feature=feature)
+                    sf.options.set(opts)
 
             # developer_orgs.
             if dev_org:

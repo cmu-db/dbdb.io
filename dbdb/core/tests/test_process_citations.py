@@ -2,6 +2,7 @@ from datetime import datetime, timezone as dt_timezone
 from unittest.mock import MagicMock, patch
 
 from django.core.management import CommandError, call_command
+from django.db import transaction
 from django.test import TestCase
 
 from dbdb.core.models import CitationUrl, CitationUrlContent, SystemVersion
@@ -20,11 +21,11 @@ _REQUESTS_GET = 'dbdb.core.utils.citations.requests.get'
 _CHECKED = datetime(2025, 6, 1, tzinfo=dt_timezone.utc)
 
 
-def _pdf_response():
+def _pdf_response(**headers):
     resp = MagicMock()
     resp.status_code = 200
     resp.encoding = None
-    resp.headers = {'Content-Type': 'application/pdf', 'Content-Length': str(len(NSDI_PDF))}
+    resp.headers = {'Content-Type': 'application/pdf', 'Content-Length': str(len(NSDI_PDF)), **headers}
     resp.iter_content.return_value = [NSDI_PDF]
     resp.__enter__.return_value = resp
     return resp
@@ -118,6 +119,21 @@ class ProcessCitationsLoopTestCase(ProcessCitationsTestBase):
         with self.assertRaises(RuntimeError):
             self._run()
         self.assertEqual(self.processed, [self.rza.url])
+
+    def test_skip_errors_continues_when_citation_cannot_be_saved(self):
+        # The citation is left with a value too long for its column, so any save of it fails
+        def fake(c, **kwargs):
+            if c.id == self.gza.id:
+                c.last_etag = 'x' * 150
+                # Savepoint so the failed UPDATE doesn't break the test transaction,
+                # matching autocommit in production
+                with transaction.atomic():
+                    c.save()
+            return c, {}
+        self.fake = fake
+        self.assertEqual(self._run('--skip-errors'), [self.rza.url, self.gza.url, self.odb.url, self.rae.url])
+        self.gza.refresh_from_db()
+        self.assertIsNone(self.gza.last_etag)
 
     def test_skip_errors_continues(self):
         def fake(c, **kwargs):
@@ -286,3 +302,90 @@ class ProcessCitationsRealFetchTestCase(TestCase):
         self.assertFalse(CitationUrl.objects.filter(id=old.id).exists())
         sv.refresh_from_db()
         self.assertEqual(sv.system_url_id, self.paper.id)
+
+    def _redirecting_get(self, from_url, to_url):
+        def fake_get(url, *args, **kwargs):
+            if url == from_url:
+                return _redirect_response(to_url)
+            return _pdf_response()
+        return fake_get
+
+    def test_redirect_rewrites_url_by_default(self):
+        old = CitationUrl.objects.create(url='https://method.example.com/old/paper.pdf')
+        new_url = 'https://method.example.com/new/paper.pdf'
+        with patch(_REQUESTS_GET, side_effect=self._redirecting_get(old.url, new_url)):
+            call_command('process_citations', '--sleep', '0', '--skip-spamcheck', str(old.id))
+        old.refresh_from_db()
+        self.assertEqual(old.url, new_url)
+
+    def test_skip_redirect_keeps_url(self):
+        old = CitationUrl.objects.create(url='https://method.example.com/old/paper.pdf')
+        new_url = 'https://method.example.com/new/paper.pdf'
+        with patch(_REQUESTS_GET, side_effect=self._redirecting_get(old.url, new_url)):
+            call_command('process_citations', '--sleep', '0', '--skip-spamcheck', '--skip-redirect', str(old.id))
+        old.refresh_from_db()
+        self.assertEqual(old.url, 'https://method.example.com/old/paper.pdf')
+        self.assertEqual(old.status, CitationUrl.Status.VALID)
+        self.assertIsNotNone(old.last_checked)
+        self.assertTrue(CitationUrlContent.objects.filter(citation=old).exists())
+
+    def test_skip_redirect_does_not_merge_into_existing(self):
+        old = CitationUrl.objects.create(url='https://method.example.com/old/paper.pdf')
+        sv = SystemVersion.objects.get(system__slug='sqlite', is_current=True)
+        sv.system_url = old
+        sv.save()
+        with patch(_REQUESTS_GET, side_effect=self._redirecting_get(old.url, self.paper.url)):
+            call_command('process_citations', '--sleep', '0', '--skip-spamcheck',
+                         '--only', 'system_url', '--skip-redirect')
+        old.refresh_from_db()
+        self.assertEqual(old.url, 'https://method.example.com/old/paper.pdf')
+        sv.refresh_from_db()
+        self.assertEqual(sv.system_url_id, old.id)
+
+    def _redirecting_get(self, from_url, to_url):
+        def fake_get(url, *args, **kwargs):
+            if url == from_url:
+                return _redirect_response(to_url)
+            return _pdf_response()
+        return fake_get
+
+    def test_redirect_rewrites_url_by_default(self):
+        old = CitationUrl.objects.create(url='https://method.example.com/old/paper.pdf')
+        new_url = 'https://method.example.com/new/paper.pdf'
+        with patch(_REQUESTS_GET, side_effect=self._redirecting_get(old.url, new_url)):
+            call_command('process_citations', '--sleep', '0', '--skip-spamcheck', str(old.id))
+        old.refresh_from_db()
+        self.assertEqual(old.url, new_url)
+
+    def test_skip_redirects_keeps_url(self):
+        old = CitationUrl.objects.create(url='https://method.example.com/old/paper.pdf')
+        new_url = 'https://method.example.com/new/paper.pdf'
+        with patch(_REQUESTS_GET, side_effect=self._redirecting_get(old.url, new_url)):
+            call_command('process_citations', '--sleep', '0', '--skip-spamcheck', '--skip-redirects', str(old.id))
+        old.refresh_from_db()
+        self.assertEqual(old.url, 'https://method.example.com/old/paper.pdf')
+        self.assertEqual(old.status, CitationUrl.Status.VALID)
+        self.assertIsNotNone(old.last_checked)
+        self.assertTrue(CitationUrlContent.objects.filter(citation=old).exists())
+
+    def test_skip_redirects_does_not_merge_into_existing(self):
+        old = CitationUrl.objects.create(url='https://method.example.com/old/paper.pdf')
+        sv = SystemVersion.objects.get(system__slug='sqlite', is_current=True)
+        sv.system_url = old
+        sv.save()
+        with patch(_REQUESTS_GET, side_effect=self._redirecting_get(old.url, self.paper.url)):
+            call_command('process_citations', '--sleep', '0', '--skip-spamcheck',
+                         '--only', 'system_url', '--skip-redirects')
+        old.refresh_from_db()
+        self.assertEqual(old.url, 'https://method.example.com/old/paper.pdf')
+        sv.refresh_from_db()
+        self.assertEqual(sv.system_url_id, old.id)
+
+    def test_long_etag_is_truncated(self):
+        # Shopify sends ETags longer than the 100-character last_etag column
+        etag = 'W/"page_cache:8868750:ProductDetailsController:' + 'a' * 64 + '"'
+        with patch(_REQUESTS_GET, side_effect=lambda *a, **kw: _pdf_response(ETag=etag)):
+            call_command('process_citations', '--sleep', '0', '--skip-spamcheck', str(self.paper.id))
+        self.paper.refresh_from_db()
+        self.assertEqual(self.paper.status, CitationUrl.Status.VALID)
+        self.assertEqual(self.paper.last_etag, etag[:100])
