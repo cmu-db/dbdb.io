@@ -28,6 +28,11 @@ CSV format:
     is present and the org has no value for that field yet):
       linkedin_url
 
+    Feature fields (header matches Feature.slug, e.g. "query-interface"):
+      Comma-separated FeatureOption values or slugs (case-insensitive), e.g.
+      "SQL, GraphQL". Creates a SystemFeature for the new SystemVersion. For a
+      Feature that is not multivalued, only the first matching option is used.
+
   Unknown header names are skipped with a warning.
 
 Additional behaviour:
@@ -51,7 +56,10 @@ from django.utils.text import slugify
 from django.db.models import Q
 
 from dbdb.core.management.base import DbdbBaseCommand
-from dbdb.core.models import AttributeOption, CitationUrl, Organization, System, SystemVersion
+from dbdb.core.models import (
+    AttributeOption, CitationUrl, Feature, FeatureOption, Organization, System,
+    SystemFeature, SystemVersion,
+)
 from dbdb.core.utils.citations import normalize_url, process_citation_url
 from dbdb.core.utils.repositories import GitHubCollector
 
@@ -112,6 +120,24 @@ def _resolve_attr_options(attr_slug: str, raw: str) -> tuple[list, list[str]]:
         ).filter(Q(name__iexact=token) | Q(slug__iexact=token)).first()
         if opt:
             opts.append(opt)
+        else:
+            unmatched.append(token)
+    return opts, unmatched
+
+
+def _resolve_feature_options(feature: Feature, raw: str) -> tuple[list, list[str]]:
+    """Split *raw* by comma and match each token to a FeatureOption of *feature* by value or slug.
+
+    Returns (matched_options, unmatched_tokens).
+    """
+    opts, unmatched = [], []
+    for token in (t.strip() for t in raw.split(',') if t.strip()):
+        opt = FeatureOption.objects.filter(
+            feature=feature,
+        ).filter(Q(value__iexact=token) | Q(slug__iexact=token)).first()
+        if opt:
+            if opt not in opts:
+                opts.append(opt)
         else:
             unmatched.append(token)
     return opts, unmatched
@@ -200,10 +226,9 @@ def _get_or_create_citation(
 
 
 def _print_results_table(write, results: list[dict], sv_fields: list[str]):
-    fixed_left  = [('name', 'Name'), ('slug', 'Slug')]
+    fixed_left  = [('status', 'Status'), ('name', 'Name'), ('logo', 'Logo'), ('slug', 'Slug')]
     dynamic     = [(f, f) for f in sv_fields]
-    fixed_right = [('logo', 'Logo'), ('status', 'Status')]
-    columns = fixed_left + dynamic + fixed_right  # [(key, header), ...]
+    columns = fixed_left + dynamic  # [(key, header), ...]
 
     keys    = [k for k, _ in columns]
     headers = [h for _, h in columns]
@@ -282,6 +307,8 @@ class Command(DbdbBaseCommand):
         if dry_run:
             self.stdout.write(self.style.WARNING("Dry run — no changes will be saved.\n"))
 
+        features = {f.slug: f for f in Feature.objects.all()}
+
         results: list[dict] = []
         sv_fields: list[str] = []  # ordered list of SV field names from CSV headers (columns 1+)
 
@@ -296,10 +323,11 @@ class Command(DbdbBaseCommand):
             # Column 0 is always System.name; columns 1+ map by header name to SV fields.
             raw_headers = [h.strip().lower() for h in header_row]
             sv_fields = raw_headers[1:]
+            known_fields = _KNOWN_FIELDS | frozenset(features)
 
             warned_unknown: set[str] = set()
             for fn in sv_fields:
-                if fn and fn not in _KNOWN_FIELDS and fn not in warned_unknown:
+                if fn and fn not in known_fields and fn not in warned_unknown:
                     self.stderr.write(self.style.WARNING(f"Unknown header field '{fn}' — column will be ignored"))
                     warned_unknown.add(fn)
 
@@ -312,7 +340,7 @@ class Command(DbdbBaseCommand):
                 # Build field_values: only known, non-empty fields.
                 field_values: dict[str, str] = {}
                 for i, field_name in enumerate(sv_fields):
-                    if not field_name or field_name not in _KNOWN_FIELDS:
+                    if not field_name or field_name not in known_fields:
                         continue
                     val = row[i + 1].strip() if (i + 1) < len(row) else ''
                     if val:
@@ -326,6 +354,7 @@ class Command(DbdbBaseCommand):
                     result = self._import_one(
                         name=name,
                         field_values=field_values,
+                        features=features,
                         creator=creator,
                         logos_dir=logos_dir,
                         open_source_opt=open_source_opt,
@@ -342,7 +371,7 @@ class Command(DbdbBaseCommand):
         skipped  = len(results) - imported
 
         # Only show SV fields that are known (unknown were warned about, not stored).
-        display_fields = [f for f in sv_fields if f in _KNOWN_FIELDS]
+        display_fields = [f for f in sv_fields if f in known_fields]
 
         self.stdout.write('')
         sorted_results = sorted(results, key=lambda r: (r.get('logo', '') == '', r.get('logo', '')))
@@ -351,7 +380,7 @@ class Command(DbdbBaseCommand):
             f"\nDone: {imported} imported, {skipped} skipped, {len(results)} total rows"
         ))
 
-    def _import_one(self, *, name, field_values: dict[str, str],
+    def _import_one(self, *, name, field_values: dict[str, str], features: dict[str, Feature],
                     creator, logos_dir, open_source_opt, options) -> dict:
         dry_run: bool        = options['dry_run']
         approved: bool       = not options['pending']
@@ -403,6 +432,23 @@ class Command(DbdbBaseCommand):
                     ))
                 attr_opts[field] = opts
 
+        # Resolve Feature columns (header = Feature.slug) to FeatureOptions.
+        feature_opts: dict[str, tuple[Feature, list]] = {}
+        for feature_slug, feature in features.items():
+            if feature_slug not in field_values:
+                continue
+            opts, unmatched = _resolve_feature_options(feature, field_values[feature_slug])
+            for token in unmatched:
+                self.stderr.write(self.style.ERROR(
+                    f"[{name}] '{feature_slug}': no FeatureOption match for {token!r}"
+                ))
+            if len(opts) > 1 and not feature.multivalued:
+                self.stderr.write(self.style.WARNING(
+                    f"[{name}] '{feature_slug}' is not multivalued; using only {opts[0].value!r}"
+                ))
+                opts = opts[:1]
+            feature_opts[feature_slug] = (feature, opts)
+
         # Resolve System M2M fields.
         system_m2m: dict[str, list] = {}
         for field in _SYSTEM_M2M_FIELDS:
@@ -445,6 +491,8 @@ class Command(DbdbBaseCommand):
             result[field] = ', '.join(o.name for o in opts)
         for field, systems in system_m2m.items():
             result[field] = ', '.join(s.name for s in systems)
+        for field, (_, opts) in feature_opts.items():
+            result[field] = ', '.join(o.value for o in opts)
 
         if dry_run:
             return result
@@ -495,6 +543,12 @@ class Command(DbdbBaseCommand):
             for field, systems in system_m2m.items():
                 if systems:
                     getattr(sv, field).set(systems)
+
+            # Feature columns.
+            for feature, opts in feature_opts.values():
+                if opts:
+                    sf = SystemFeature.objects.create(version=sv, feature=feature)
+                    sf.options.set(opts)
 
             # developer_orgs.
             if dev_org:
