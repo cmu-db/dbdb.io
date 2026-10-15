@@ -37,6 +37,9 @@ CSV format:
 
 Additional behaviour:
   - Logo files are matched by slug in --logos-dir ({slug}.svg/.png/.jpg/.jpeg).
+  - With --dry-run --collect-logos [DIR], the logos of all rows that would be
+    imported are copied into DIR (default: a new temporary directory). Copy that
+    directory and the CSV to another machine and pass it as --logos-dir there.
   - If system_url contains "github.com" and no sourcerepo_url column is present,
     system_url is also used as sourcerepo_url.
   - If sourcerepo_url is set, the "Open Source" project type is added.
@@ -44,6 +47,8 @@ Additional behaviour:
 import csv
 import logging
 import os
+import shutil
+import tempfile
 from argparse import ArgumentParser
 
 from django.conf import settings
@@ -265,6 +270,10 @@ class Command(DbdbBaseCommand):
                             help='Directory to search for logo files named {slug}.{svg,png,jpg,jpeg}')
         parser.add_argument('--dry-run', action='store_true',
                             help='Print what would be created without writing to the database')
+        parser.add_argument('--collect-logos', nargs='?', const='', default=None, metavar='DIR',
+                            help='With --dry-run: copy the logos of all rows that would be imported '
+                                 'into DIR (default: a new temporary directory), to use as '
+                                 '--logos-dir on another machine')
         parser.add_argument('--pending', action='store_true',
                             help='Create SystemVersions as unapproved/pending (default: approved, immediately live)')
         parser.add_argument('--skip-errors', action='store_true',
@@ -304,6 +313,15 @@ class Command(DbdbBaseCommand):
             LOG.warning("AttributeOption '%s' not found — project_type will not be set", _OPEN_SOURCE_SLUG)
 
         dry_run = options['dry_run']
+        collect_logos = options['collect_logos']
+        if collect_logos is not None:
+            if not dry_run:
+                raise CommandError("--collect-logos requires --dry-run")
+            if not logos_dir:
+                raise CommandError("--collect-logos requires --logos-dir")
+            if collect_logos and os.path.exists(collect_logos) and os.listdir(collect_logos):
+                raise CommandError(f"--collect-logos directory is not empty: {collect_logos}")
+
         if dry_run:
             self.stdout.write(self.style.WARNING("Dry run — no changes will be saved.\n"))
 
@@ -379,6 +397,27 @@ class Command(DbdbBaseCommand):
         self.stdout.write(self.style.SUCCESS(
             f"\nDone: {imported} imported, {skipped} skipped, {len(results)} total rows"
         ))
+
+        if collect_logos is not None:
+            self._collect_logos(results, collect_logos or None, csv_path)
+
+    def _collect_logos(self, results: list[dict], dest_dir: str | None, csv_path: str):
+        """Copy the logos of rows that would be imported into *dest_dir* (or a new temp dir)."""
+        if dest_dir:
+            os.makedirs(dest_dir, exist_ok=True)
+        else:
+            dest_dir = tempfile.mkdtemp(prefix='dbdb-logos-')
+        copied = 0
+        for row in results:
+            logo_path = row.get('logo_path')
+            if row['status'] == 'dry-run' and logo_path:
+                shutil.copy2(logo_path, os.path.join(dest_dir, os.path.basename(logo_path)))
+                copied += 1
+        self.stdout.write(self.style.SUCCESS(f"Copied {copied} logo(s) to {dest_dir}"))
+        self.stdout.write(
+            f"On the target machine, run:\n"
+            f"  python manage.py import_systems {os.path.basename(csv_path)} --logos-dir <copy of {dest_dir}>"
+        )
 
     def _import_one(self, *, name, field_values: dict[str, str], features: dict[str, Feature],
                     creator, logos_dir, open_source_opt, options) -> dict:
@@ -478,6 +517,7 @@ class Command(DbdbBaseCommand):
         # Build the result record.
         result: dict = {'name': name, 'slug': slug,
                         'logo': os.path.basename(logo_path) if logo_path else '',
+                        'logo_path': logo_path or '',
                         'status': 'dry-run' if dry_run else 'imported'}
         for f in _URL_FIELDS:
             cite = cite_map.get(f)
