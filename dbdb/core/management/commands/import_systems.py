@@ -9,8 +9,8 @@ CSV format:
   - Column 1 (the first column) is always System.name, regardless of its header label.
   - All other columns are matched by header name to SystemVersion fields:
 
-    URL fields (creates/reuses a CitationUrl):
-      system_url, docs_url, sourcerepo_url, wikipedia_url, twitter_url
+    URL fields (creates/reuses a CitationUrl; any SystemVersion FK to CitationUrl):
+      system_url, docs_url, blog_url, sourcerepo_url, wikipedia_url, twitter_url
 
     Country field (2-char ISO code):
       countries
@@ -72,7 +72,11 @@ LOG = logging.getLogger(__name__)
 User = get_user_model()
 
 _LOGO_EXTENSIONS   = ('svg', 'png', 'jpg', 'jpeg')
-_URL_FIELDS        = frozenset({'system_url', 'docs_url', 'sourcerepo_url', 'wikipedia_url', 'twitter_url'})
+# Every SystemVersion FK to CitationUrl (system_url, docs_url, blog_url, ...).
+_URL_FIELDS        = frozenset(
+    f.name for f in SystemVersion._meta.get_fields()
+    if f.many_to_one and f.related_model is CitationUrl
+)
 _COUNTRY_FIELDS    = frozenset({'countries'})
 _TEXT_FIELDS       = frozenset({'description', 'history', 'twitter_handle'})
 _INT_FIELDS        = frozenset({'start_year', 'end_year'})

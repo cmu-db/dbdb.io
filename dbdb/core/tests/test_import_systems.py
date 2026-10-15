@@ -81,6 +81,17 @@ class ImportSystemsTestCase(TestCase):
         self.assertNotIn("'query-interface'", err)
         self.assertIn("Unknown header field 'bogus-column'", err)
 
+    def test_url_columns(self):
+        _, err = self._run([
+            ['name', 'system_url', 'blog_url', 'docs_url'],
+            ['WuTangDB', 'https://wutang.example.com', 'https://wutang.example.com/blog', 'https://docs.wutang.example.com'],
+        ])
+        self.assertNotIn('Unknown header field', err)
+        sv = SystemVersion.objects.get(system__slug='wutangdb', is_current=True)
+        self.assertEqual(sv.system_url.url, 'https://wutang.example.com')
+        self.assertEqual(sv.blog_url.url, 'https://wutang.example.com/blog')
+        self.assertEqual(sv.docs_url.url, 'https://docs.wutang.example.com')
+
     def test_dry_run_creates_nothing(self):
         out, _ = self._run([
             ['name', 'query-interface'],
