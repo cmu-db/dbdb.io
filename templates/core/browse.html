@@ -179,10 +179,11 @@
                     <th {% if col.col_id == 'tags' %}class="d-none d-md-table-cell"{% endif %}>
                         <button type="button" class="sort-btn"
                                 data-sort-col="{{ forloop.counter0|add:2 }}"
-                                data-sort-type="{% if col.col_id == 'start-year' or col.col_id == 'end-year' %}numeric{% else %}text{% endif %}"
+                                data-sort-type="{% if col.col_id == 'start-year' or col.col_id == 'end-year' or col.col_id == 'acquired-year' %}numeric{% else %}text{% endif %}"
+                                {% if col.col_id == 'acquired-year' %}data-sort-default="desc"{% endif %}
                                 data-col-id="{{ col.col_id }}">
                             {# Start / End Year #}
-                            {% if col.label|slice:"-4:" == 'Year' %}
+                            {% if col.col_id == 'start-year' or col.col_id == 'end-year' %}
                                 <span class="d-none d-md-inline">{{ col.label }}</span>
                                 {% if col.label == 'End Year' %}
                                 <span class="d-inline d-md-none">{{ col.label|slice:":3" }}</span>
@@ -223,7 +224,7 @@
 {% block scripts %}
 <script type="text/javascript" src="{% static 'lib/js/nouislider.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-<script type="text/javascript" src="{% static 'core/js/browse.js' %}?v=3"></script>
+<script type="text/javascript" src="{% static 'core/js/browse.js' %}?v=4"></script>
 {% if saved_search %}
 <script type="text/javascript">
 (function () {

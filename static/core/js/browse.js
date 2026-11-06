@@ -329,9 +329,17 @@ function sortTableBy(btn, order) {
     const colIndex = parseInt(btn.dataset.sortCol);
     const sortType = btn.dataset.sortType || 'text';
 
+    // A cell may provide a separate ascending sort key (e.g. Acquired Year uses the
+    // oldest year for ASC and the newest for DESC)
+    const sortKey = cell => {
+        if (!cell) return '';
+        if (order === 'asc' && cell.dataset.sortValAsc !== undefined) return cell.dataset.sortValAsc;
+        return cell.dataset.sortVal || '';
+    };
+
     rows.sort((a, b) => {
-        const aRaw = a.cells[colIndex] ? (a.cells[colIndex].dataset.sortVal || '') : '';
-        const bRaw = b.cells[colIndex] ? (b.cells[colIndex].dataset.sortVal || '') : '';
+        const aRaw = sortKey(a.cells[colIndex]);
+        const bRaw = sortKey(b.cells[colIndex]);
         if (sortType === 'numeric') {
             const aVal = aRaw !== '' ? parseInt(aRaw) : null;
             const bVal = bRaw !== '' ? parseInt(bRaw) : null;
@@ -344,10 +352,34 @@ function sortTableBy(btn, order) {
     });
 
     rows.forEach(row => tbody.appendChild(row));
+
+    // Keep the years inside each acquisition cell in the same direction as the
+    // Acquired Year sort; any other sort restores the default (newest first)
+    orderAcquisitionLists(btn.dataset.colId === 'acquired-year' ? order : 'desc');
+}
+
+// Reorder .acq-item children by data-year; items without a year always go last
+function orderAcquisitionLists(order) {
+    document.querySelectorAll('#table-body .acq-list').forEach(list => {
+        const items = Array.from(list.querySelectorAll(':scope > .acq-item'));
+        if (items.length < 2) return;
+        items.sort((a, b) => {
+            const aYear = a.dataset.year ? parseInt(a.dataset.year) : null;
+            const bYear = b.dataset.year ? parseInt(b.dataset.year) : null;
+            if (aYear === null && bYear === null) return 0;
+            if (aYear === null) return 1;
+            if (bYear === null) return -1;
+            return order === 'asc' ? aYear - bYear : bYear - aYear;
+        });
+        items.forEach(item => list.appendChild(item));
+    });
 }
 
 function handleSortClick(btn) {
-    const newOrder = (sortState.btn === btn && sortState.order === 'asc') ? 'desc' : 'asc';
+    // The first click uses the column's default order (data-sort-default), then toggles
+    const firstOrder = btn.dataset.sortDefault || 'asc';
+    const otherOrder = firstOrder === 'asc' ? 'desc' : 'asc';
+    const newOrder = (sortState.btn === btn && sortState.order === firstOrder) ? otherOrder : firstOrder;
     sortState.btn = btn;
     sortState.order = newOrder;
     updateSortArrows(btn, newOrder);

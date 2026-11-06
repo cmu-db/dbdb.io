@@ -60,6 +60,7 @@ _STATIC_COLUMNS = [
     ColumnDef('end-year',            'End Year',           'builtin'),
     ColumnDef('developer-orgs',      'Developer',          'builtin'),
     ColumnDef('acquired-by',         'Acquired By',        'builtin'),
+    ColumnDef('acquired-year',       'Acquired Year',      'builtin'),
     ColumnDef('country',             'Country of Origin',  'builtin'),
     ColumnDef('system-url',          'Website URL',        'builtin'),
     ColumnDef('docs-url',            'Documentation',      'builtin'),
@@ -1082,10 +1083,18 @@ class BrowseView(MetadataMixin, View):
                 distinct=True,
             ))
 
-        # Acquired-by column annotation (inline)
-        if 'acquired-by' in active_col_ids:
-            results = results.annotate(col_acquired_by=JSONBAgg(
-                JSONObject(name=F('acquisitions__organization__name'), slug=F('acquisitions__organization__slug'), org_type=F('acquisitions__organization__org_type')),
+        # Acquisitions annotation shared by the acquired-by and acquired-year columns.
+        # No SQL ordering: DISTINCT (needed because of the other M2M joins) only allows
+        # ORDER BY on the aggregated expression, so rows are sorted by year in Python below.
+        has_acquisition_cols = 'acquired-by' in active_col_ids or 'acquired-year' in active_col_ids
+        if has_acquisition_cols:
+            results = results.annotate(col_acquisitions=JSONBAgg(
+                JSONObject(
+                    name=F('acquisitions__organization__name'),
+                    slug=F('acquisitions__organization__slug'),
+                    org_type=F('acquisitions__organization__org_type'),
+                    year=F('acquisitions__year'),
+                ),
                 filter=Q(acquisitions__isnull=False),
                 distinct=True,
             ))
@@ -1119,8 +1128,8 @@ class BrowseView(MetadataMixin, View):
             value_fields.append('col_' + col.col_id.replace('-', '_'))
         if 'developer-orgs' in active_col_ids:
             value_fields.append('col_developer_orgs')
-        if 'acquired-by' in active_col_ids:
-            value_fields.append('col_acquired_by')
+        if has_acquisition_cols:
+            value_fields.append('col_acquisitions')
         if 'supported-languages' in active_col_ids:
             value_fields.append('col_supported_languages')
         if 'country' in active_col_ids:
@@ -1205,8 +1214,16 @@ class BrowseView(MetadataMixin, View):
                     col_values.append({'type': 'attr_opts', 'data': r.get(key) or []})
                 elif col.col_id == 'developer-orgs':
                     col_values.append({'type': 'orgs', 'data': r.get('col_developer_orgs') or []})
-                elif col.col_id == 'acquired-by':
-                    col_values.append({'type': 'orgs', 'data': r.get('col_acquired_by') or []})
+                elif col.col_id in ('acquired-by', 'acquired-year'):
+                    # Most recent first (unknown years last) so both columns list acquisitions in
+                    # the same order. browse.js flips the in-cell order when sorting ascending.
+                    acqs = sorted(r.get('col_acquisitions') or [],
+                                  key=lambda a: (a['year'] is None, -(a['year'] or 0), a['name']))
+                    if col.col_id == 'acquired-by':
+                        col_values.append({'type': 'acquisitions', 'data': acqs})
+                    else:
+                        years = list(dict.fromkeys(a['year'] for a in acqs if a['year']))
+                        col_values.append({'type': 'acquired-years', 'data': years})
                 elif col.col_id == 'supported-languages':
                     col_values.append({'type': 'attr_opts', 'data': r.get('col_supported_languages') or []})
                 elif col.col_type == 'relationship':
