@@ -2,7 +2,11 @@
 enrich_system — fill missing SystemVersion fields using an LLM.
 
 Usage:
-    python manage.py enrich_system <slug> [options]
+    python manage.py enrich_system <keyword> [<keyword> ...] [options]
+
+A keyword made of digits only matches System.id exactly (``enrich_system 123``
+selects the system with id=123, not slugs containing "123"). Any other keyword
+matches every system whose slug contains it (case-insensitive).
 
 For each empty field on the current SystemVersion, the command:
   1. Crawls the system's known URLs (system_url, docs_url, sourcerepo_url, wikipedia_url)
@@ -157,6 +161,8 @@ def _get_missing_features(version: SystemVersion) -> list[Feature]:
 
 class Command(EnricherBaseCommand):
     help = 'Fill missing SystemVersion fields using an LLM and save a pending version'
+    keywords_help = ('One or more systems to match: a numeric keyword matches System.id exactly, '
+                     'anything else matches slugs containing it')
 
     def add_arguments(self, parser: ArgumentParser):
         super().add_arguments(parser)

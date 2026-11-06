@@ -216,6 +216,16 @@ class AdvancedSearchTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         return
 
+    def test_browse_with_invalid_country_code(self):
+        # 'UK' is not an ISO 3166-1 code (it is 'GB'), but such values exist in the data
+        SystemVersion.objects.filter(system__slug='sqlite', is_current=True).update(countries='UK,US')
+        response = self.client.get(reverse('browse'))
+        self.assertEqual(response.status_code, 200)
+        fg_country = next(fg for fg in response.context['filtergroups'] if fg.id == 'country')
+        labels = {c.id: c.label for c in fg_country.choices}
+        self.assertEqual(labels['UK'], 'UK')
+        self.assertEqual(labels['US'], 'United States of America')
+
     def test_inputs_quantity(self):
         feature_count = Feature.objects.count()
         attr_count = Attribute.objects.filter(sv_field__gt='').count()

@@ -314,7 +314,8 @@ class BrowseView(MetadataMixin, View):
         fg_country = FilterGroup('country', 'Country', sorted([
             FilterChoice(
                code,
-               countries_map[code], # name
+               # Fall back to the raw code for invalid values (e.g. 'UK')
+               countries_map.get(code, code), # name
             #    False
             )
             for code in map(str.upper, system_countries.keys())

@@ -92,6 +92,22 @@ class ImportSystemsTestCase(TestCase):
         self.assertEqual(sv.blog_url.url, 'https://wutang.example.com/blog')
         self.assertEqual(sv.docs_url.url, 'https://docs.wutang.example.com')
 
+    def test_country_column(self):
+        _, err = self._run([
+            ['name', 'countries'],
+            ['WuTangDB', 'gb'],
+            ['ShaolinDB', 'Germany'],
+            ['MethodDB', 'fra'],
+            ['RaekwonDB', 'Staten Island'],
+            ['GhostfaceDB', 'UK'],
+        ])
+        self.assertIn("[RaekwonDB] 'countries': unknown country 'Staten Island'", err)
+        # 'UK' is not an ISO 3166-1 code
+        self.assertIn("[GhostfaceDB] 'countries': unknown country 'UK'", err)
+        codes = {sv.system.slug: [c.code for c in sv.countries]
+                 for sv in SystemVersion.objects.filter(is_current=True)}
+        self.assertEqual(codes, {'wutangdb': ['GB'], 'shaolindb': ['DE'], 'methoddb': ['FR'], 'raekwondb': [], 'ghostfacedb': []})
+
     def test_dry_run_creates_nothing(self):
         out, _ = self._run([
             ['name', 'query-interface'],

@@ -38,12 +38,16 @@ class EnricherBaseCommand(DbdbBaseCommand):
     declare their entity-specific positional arguments.
     """
 
+    # Help text for the positional KEYWORD arguments; subclasses override it
+    # to describe how they match keywords
+    keywords_help = 'One or more slugs or name keywords to match'
+
     def add_arguments(self, parser):
         super().add_arguments(parser)
         from dbdb.core.utils.enrichment import BaseEnricher
         enricher_choices = sorted(BaseEnricher._get_registry())
         parser.add_argument('keywords', nargs='*', metavar='KEYWORD',
-                            help='One or more slugs or name keywords to match')
+                            help=self.keywords_help)
         parser.add_argument('--dry-run', action='store_true',
                             help='Show what would be filled without saving')
         parser.add_argument('--fields', default=None,
