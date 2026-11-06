@@ -9,7 +9,9 @@ from django.test import Client, RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
 # local imports
-from dbdb.core.models import Attribute, Feature, System, SystemSearchText, SystemVersion, SystemVisit
+from dbdb.core.models import (
+    Acquisition, Attribute, Feature, Organization, System, SystemSearchText, SystemVersion, SystemVisit,
+)
 from dbdb.core.utils.searchtext import generate_searchtext
 from dbdb.core.views import CounterView
 from dbdb.core.views.auth import CreateUserView, SetupUserView, SignupRequestView
@@ -215,6 +217,38 @@ class AdvancedSearchTestCase(TestCase):
         response = self.client.get(reverse('browse'))
         self.assertEqual(response.status_code, 200)
         return
+
+    def test_browse_with_invalid_country_code(self):
+        # 'UK' is not an ISO 3166-1 code (it is 'GB'), but such values exist in the data
+        SystemVersion.objects.filter(system__slug='sqlite', is_current=True).update(countries='UK,US')
+        response = self.client.get(reverse('browse'))
+        self.assertEqual(response.status_code, 200)
+        fg_country = next(fg for fg in response.context['filtergroups'] if fg.id == 'country')
+        labels = {c.id: c.label for c in fg_country.choices}
+        self.assertEqual(labels['UK'], 'UK')
+        self.assertEqual(labels['US'], 'United States of America')
+
+    def test_browse_acquired_year_column(self):
+        sv = SystemVersion.objects.get(system__slug='sqlite', is_current=True)
+        shaolin = Organization.objects.create(name='Shaolin Holdings', slug='shaolin-holdings')
+        wutang = Organization.objects.create(name='Wu-Tang Financial', slug='wu-tang-financial')
+        killa = Organization.objects.create(name='Killa Bees Capital', slug='killa-bees-capital')
+        Acquisition.objects.create(version=sv, organization=shaolin, year=2015)
+        Acquisition.objects.create(version=sv, organization=wutang, year=2010)
+        Acquisition.objects.create(version=sv, organization=killa, year=None)
+
+        response = self.client.get(reverse('browse') + '?cols=acquired-by,acquired-year')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'value="acquired-year"')
+
+        row = next(r for r in response.context['results'] if r['slug'] == 'sqlite')
+        acquired_by, acquired_year = row['col_values']
+        # Both columns are ordered newest first; acquisitions without a year come last
+        self.assertEqual([o['name'] for o in acquired_by['data']],
+                         ['Shaolin Holdings', 'Wu-Tang Financial', 'Killa Bees Capital'])
+        self.assertEqual(acquired_year['data'], [2015, 2010])
+        # Sort keys: newest year by default (DESC), oldest year for ASC
+        self.assertContains(response, 'data-sort-val="2015" data-sort-val-asc="2010"')
 
     def test_inputs_quantity(self):
         feature_count = Feature.objects.count()

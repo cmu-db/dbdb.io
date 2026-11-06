@@ -1003,6 +1003,8 @@ table.rtable tbody tr:hover .r-name { color: var(--accent); }
 .r-country { font-family: var(--mono); font-size: .74rem; color: var(--ink-soft); white-space: nowrap; }
 .r-model, .r-query { font-family: var(--sans); font-size: .86rem; color: var(--ink-soft); }
 .r-dash { color: var(--muted); }
+/* Comma-separate acquisition items; browse.js reorders them, so the separator can't be literal text */
+.acq-item + .acq-item::before { content: ", "; }
 .tag-cell { width: 1%; }
 /*.tag-stack { display: flex; flex-wrap: wrap; gap: .35rem; }*/
 .tag-stack .tag-badge { font-size: 0.5rem !important; }

@@ -6,9 +6,11 @@ NOT the Attribute slug (e.g. 'license').  The query in enrich_system.handle()
 must filter by sv_field__in=<sv-field-names> — the keys of M2M_ATTR_SLUGS —
 not by the dict values, which are Attribute slugs used later for option lookups.
 """
+from io import StringIO
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
+from django.core.management import CommandError, call_command
 from django.test import TestCase, override_settings
 
 from dbdb.core.management.commands.enrich_system import (
@@ -590,3 +592,39 @@ class CloneSystemVersionM2MTestCase(TestCase):
         clone = clone_system_version(self.version, creator=self.admin_user, comment='test')
 
         self._assert_m2m(clone)
+
+
+class EnrichSystemKeywordLookupTestCase(TestCase):
+    """A numeric KEYWORD selects System.id; anything else matches slugs."""
+
+    fixtures = _FIXTURES
+
+    def setUp(self):
+        # Its slug contains "1", so an id lookup for 1 must not pick it up
+        self.ghostface = System.objects.create(name='Ghostface 1', slug='ghostface-1')
+        SystemVersion.objects.create(system=self.ghostface, is_current=True, approved=True,
+                                     creator=User.objects.get(username='admin'))
+
+    def _selected(self, *keywords) -> list[str]:
+        selected = []
+
+        def record(cmd, system, current, options):
+            selected.append(system.slug)
+            return False
+
+        with patch.object(EnrichSystemCommand, '_enrich_one', record):
+            call_command('enrich_system', *keywords, stdout=StringIO(), stderr=StringIO())
+        return selected
+
+    def test_numeric_keyword_matches_id(self):
+        self.assertEqual(self._selected('1'), ['sqlite'])
+
+    def test_numeric_keyword_matches_new_system_id(self):
+        self.assertEqual(self._selected(str(self.ghostface.id)), ['ghostface-1'])
+
+    def test_text_keyword_matches_slug(self):
+        self.assertEqual(self._selected('ghostface'), ['ghostface-1'])
+
+    def test_unknown_id_raises(self):
+        with self.assertRaisesMessage(CommandError, "No system found with keyword '999999'"):
+            self._selected('999999')

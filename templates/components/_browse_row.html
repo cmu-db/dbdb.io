@@ -48,6 +48,16 @@
         <td class="r-model" data-sort-val="{% for org in col_val.data %}{% if not forloop.first %} {% endif %}{{ org.name }}{% endfor %}">
             {% for org in col_val.data %}{% if not forloop.first %}, {% endif %}{% org_link org %}{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}
         </td>
+        {% elif col_val.type == 'acquisitions' %}
+        {# Items carry their year so browse.js can reorder them to match the Acquired Year sort #}
+        <td class="r-model" data-sort-val="{% for org in col_val.data %}{% if not forloop.first %} {% endif %}{{ org.name }}{% endfor %}">
+            <span class="acq-list">{% for org in col_val.data %}<span class="acq-item" data-year="{{ org.year|default_if_none:'' }}">{% org_link org %}</span>{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}</span>
+        </td>
+        {% elif col_val.type == 'acquired-years' %}
+        {# Years are rendered newest first: sort key is the newest year (DESC) or the oldest (ASC) #}
+        <td class="r-year" data-sort-val="{{ col_val.data|first|default_if_none:'' }}" data-sort-val-asc="{{ col_val.data|last|default_if_none:'' }}">
+            <span class="acq-list">{% for year in col_val.data %}<span class="acq-item" data-year="{{ year }}">{{ year }}</span>{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}</span>
+        </td>
         {% elif col_val.type == 'systems' %}
         <td class="r-model" data-sort-val="{% for sys in col_val.data %}{% if not forloop.first %} {% endif %}{{ sys.name }}{% endfor %}">
             {% for sys in col_val.data %}{% if not forloop.first %}, {% endif %}<a href="{% url 'system' sys.slug %}">{{ sys.name }}</a>{% empty %}<span class="r-dash">&mdash;</span>{% endfor %}

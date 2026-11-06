@@ -12,7 +12,8 @@ CSV format:
     URL fields (creates/reuses a CitationUrl; any SystemVersion FK to CitationUrl):
       system_url, docs_url, blog_url, sourcerepo_url, wikipedia_url, twitter_url
 
-    Country field (2-char ISO code):
+    Country field (one ISO 3166-1 code or English name, e.g. "DE", "DEU",
+    "Germany"). Unknown values are reported and left unset:
       countries
 
     Text fields:
@@ -57,6 +58,7 @@ from django.core.files import File
 from django.core.management.base import CommandError
 from django.db import transaction
 from django.utils.text import slugify
+from django_countries import countries
 
 from django.db.models import Q
 
@@ -132,6 +134,18 @@ def _resolve_attr_options(attr_slug: str, raw: str) -> tuple[list, list[str]]:
         else:
             unmatched.append(token)
     return opts, unmatched
+
+
+def _resolve_country(raw: str) -> str:
+    """Return the ISO 3166-1 alpha-2 code for *raw*, or '' if it is not a country.
+
+    Accepts alpha-2, alpha-3 and numeric codes and English country names
+    (case-insensitive).
+    """
+    value = raw.strip()
+    if not value:
+        return ''
+    return countries.alpha2(value) or countries.by_name(value) or ''
 
 
 def _resolve_feature_options(feature: Feature, raw: str) -> tuple[list, list[str]]:
@@ -475,6 +489,16 @@ class Command(DbdbBaseCommand):
                     ))
                 attr_opts[field] = opts
 
+        # Resolve the country to a valid ISO 3166-1 alpha-2 code.
+        if field_values.get('countries', '').strip():
+            raw_country = field_values['countries']
+            country_code = _resolve_country(raw_country)
+            if not country_code:
+                self.stderr.write(self.style.ERROR(
+                    f"[{name}] 'countries': unknown country {raw_country.strip()!r}"
+                ))
+            field_values = {**field_values, 'countries': country_code}
+
         # Resolve Feature columns (header = Feature.slug) to FeatureOptions.
         feature_opts: dict[str, tuple[Feature, list]] = {}
         for feature_slug, feature in features.items():
@@ -552,8 +576,8 @@ class Command(DbdbBaseCommand):
                 **{f: cite_map[f] for f in _URL_FIELDS if f in cite_map},
             )
 
-            # countries: accept a single 2-char code.
-            country_code = field_values.get('countries', '').strip().upper()
+            # countries: already resolved to a valid code (or '') above.
+            country_code = field_values.get('countries', '')
             if country_code:
                 sv.countries = [country_code]
 
